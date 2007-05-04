@@ -1,13 +1,9 @@
-#summary Example files created to demonstrate the features of away3d
+#summary A list of current examples showcasing the features of away3d
 #labels Featured
-
-A list of current examples showcasing the features of away3d
-
 
 = Engine Test =
 
 [http://away3d.googlecode.com/svn/trunk/examples/EngineTest/ svn download]
-
 
 
 
