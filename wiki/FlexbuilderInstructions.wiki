@@ -2,7 +2,7 @@
 
 Plese read SubclipseInstructions if you haven't installed the subclipse plugin in Flexbuilder 
 
-# Open the svn repository explorer by selecting the menu Window > Open Perspective > 
+  # Open the svn repository explorer by selecting the menu Window > Open Perspective > 
 Other ... and clicking on *SVN Repository Exploring*
-# Right-click anywhere in the *SVN Repository* window on the left, and from the menu select New > Repository Location...
-# Enter the url given in the svn link of hte example yopu wish to download. For the EngineTest example, this is http://away3d.googlecode.com/svn/trunk/examples/EngineTest/. Click on finish. IF the url is correct, the new repository location should appear in your *SVN Repository* window
+  # Right-click anywhere in the *SVN Repository* window on the left, and from the menu select New > Repository Location...
+  # Enter the url given in the svn link of hte example yopu wish to download. For the EngineTest example, this is http://away3d.googlecode.com/svn/trunk/examples/EngineTest/. Click on finish. IF the url is correct, the new repository location should appear in your *SVN Repository* window
