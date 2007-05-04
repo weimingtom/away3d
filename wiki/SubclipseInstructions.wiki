@@ -9,7 +9,6 @@
 
   * In the prompt window, enter subclipse in the _Name_ field and http://subclipse.tigris.org/update_1.2.x/ in the _URL_ field. Click on ok.
 
-  * The new remote site should now appear in the _Sites to include int eh search_ list. Ensure it is selected, and click on the Finish button.
+  * The new remote site should now appear in the _Sites to include in the search_ list. Ensure it is selected, and click on the Finish button.
 
   * Accept any terms & conditions popups that appear, and once the install is done Flexbuilder will prompt you to restart itself. Do this and you're done!
-
