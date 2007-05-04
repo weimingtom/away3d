@@ -6,12 +6,13 @@ package away3d.core.proto
     
     import flash.display.Sprite;
     import flash.utils.Dictionary;
+    import flash.events.EventDispatcher;
     
     // The DisplayObject class represents instances of 3D objects that are contained in the scene.
     // That includes all objects in the scene, not only those that can be rendered, but also the camera and its target.
     // The Object3D class supports basic functionality like the x, y and z position of an object, as well as rotationX, rotationY, rotationZ, scaleX, scaleY and scaleZ and visible. It also supports more advanced properties of the object such as its transform Matrix3D.
     // Object3D is not an abstract base class; therefore, you can call Object3D directly. Invoking new DisplayObject() creates a new empty object in 3D space, like when you used createEmptyMovieClip().
-    public class Object3D
+    public class Object3D extends EventDispatcher
     {
         // An Number that sets the X coordinate of a object relative to the scene coordinate system.
         public function get x():Number
@@ -104,9 +105,7 @@ package away3d.core.proto
     
         public function set scale(scale:Number):void
         {
-            _scaleX = scale;
-            _scaleY = scale;
-            _scaleZ = scale;
+            _scaleX = _scaleY = _scaleZ = scale;
     
             _transformDirty = true;
         }
@@ -216,9 +215,9 @@ package away3d.core.proto
     
         public function distanceTo(obj:Object3D):Number
         {
-            var x:Number = this.x - obj.x;
-            var y:Number = this.y - obj.y;
-            var z:Number = this.z - obj.z;
+            var x:Number = x - obj.x;
+            var y:Number = y - obj.y;
+            var z:Number = z - obj.z;
     
             return Math.sqrt(x*x + y*y + z*z);
         }
@@ -282,9 +281,9 @@ package away3d.core.proto
         {
             var vector:Number3D = axis.rotate(transform);
     
-            this.x += distance * vector.x;
-            this.y += distance * vector.y;
-            this.z += distance * vector.z;
+            x += distance * vector.x;
+            y += distance * vector.y;
+            z += distance * vector.z;
         }
     
         // Rotate the display object around its lateral or transverse axis - an axis running from the pilot's left to right in piloted aircraft, and parallel to the wings of a winged aircraft; thus the nose pitches up and the tail down, or vice-versa.
@@ -326,9 +325,9 @@ package away3d.core.proto
         // Make the object look at a specific position.
         // @param targetObject Object to look at.
         // @param upAxis The vertical axis of the universe. Normally the positive Y axis.
-        public function lookAt(targetObject:Object3D, upAxis:Number3D = null):void
+        public function lookAt(targetObject:*, upAxis:Number3D = null):void
         {
-            var position:Number3D = new Number3D(this.x, this.y, this.z);
+            var position:Number3D = new Number3D(x, y, z);
             var target:Number3D = new Number3D(targetObject.x, targetObject.y, targetObject.z);
     
             var zAxis:Number3D = Number3D.sub(target, position);
@@ -356,8 +355,8 @@ package away3d.core.proto
                 look.n23 = zAxis.y;
                 look.n33 = zAxis.z;
     
-                this._transformDirty = false;
-                this._rotationDirty = true;
+                _transformDirty = false;
+                _rotationDirty = true;
                 // TODO: Implement scale
             }
             else
@@ -384,7 +383,7 @@ package away3d.core.proto
             _transformDirty = false;
         }
     
-        public function toString():String
+        public override function toString():String
         {
             return this.name + ': x:' + Math.round(this.x) + ' y:' + Math.round(this.y) + ' z:' + Math.round(this.z);
         }
