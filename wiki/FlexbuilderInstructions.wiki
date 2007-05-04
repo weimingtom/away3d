@@ -1,13 +1,8 @@
 #summary How to download and run the example files from Flexbuilder.
 
-= Flexbuilder Instructions =
-
 Plese read SubclipseInstructions if you haven't installed the subclipse plugin in Flexbuilder 
 
-
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-
+# Open the svn repository explorer by selecting the menu Window > Open Perspective > 
+Other ... and clicking on *SVN Repository Exploring*
+# Right-click anywhere in the *SVN Repository* window on the left, and from the menu select New > Repository Location...
+# Enter the url given in the svn link of hte example yopu wish to download. For the EngineTest example, this is http://away3d.googlecode.com/svn/trunk/examples/EngineTest/. Click on finish. IF the url is correct, the new repository location should appear in your *SVN Repository* window
