@@ -1,0 +1,13 @@
+#summary How to download and run the example files from Flexbuilder.
+
+= Flexbuilder Instructions =
+
+Plese read SubclipseInstructions if you haven't installed the subclipse plugin in Flexbuilder 
+
+
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
+
