@@ -32,7 +32,9 @@ package away3d.core.render
             var priarray:PrimitiveArray = new PrimitiveArray(clip);
             var lightarray:LightArray = new LightArray();
             var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(priarray, lightarray, camera);
-
+				
+				
+			//////////  main traverse for transforms ////////////
             scene.traverse(pritraverser);
 
             info += (getTimer() - start) + "ms ";
@@ -48,6 +50,9 @@ package away3d.core.render
             info += (getTimer() - start) + "ms ";
             start = getTimer();
 
+            
+
+			//////// render graphics to the scene //////////
             for each (var primitive:DrawPrimitive in primitives)
                 primitive.render(graphics, clip, lightarray);
 
