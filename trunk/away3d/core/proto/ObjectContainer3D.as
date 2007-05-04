@@ -15,13 +15,14 @@ package away3d.core.proto
                 addChild(child);
         }
 
-        public function addChild(child:Object3D, name:String = null):void
+        public function addChild(child:Object3D, name:String = null):Object3D
         {
             if (child == null)
                 throw new Error("ObjectContainer3D.addChild(null)");
             if (name != null)
                 child.name = name;
             children.push(child);
+            return child;
         }
 
         public function removeChild(child:Object3D):void
