@@ -30,4 +30,4 @@ Plese read SubclipseInstructions if you haven't installed the subclipse plugin i
 
   * Right click on the file and select _Run As > Flex Application_ from the menu.
 
-  * The project should compile and Flexbuilder will automatically open a browser window to display the example. You may get a prompt if you haven't go the flash 9 debug player installed on the default browser, but this is not required to view the compiled example.
+  * The project should compile and Flexbuilder will automatically open a browser window to display the example. You may get a prompt if you haven't got the flash 9 debug player installed on the default browser, but this is not required to view the compiled example.
