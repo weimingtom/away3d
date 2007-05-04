@@ -111,10 +111,10 @@ package away3d.core.math
             var m124:Number = m1.n24; var m224:Number = m2.n24;
             var m134:Number = m1.n34; var m234:Number = m2.n34;
         
-            result.n11 = m111 * m211 + m112 * m2.n21 + m113 * m231;
-            result.n12 = m111 * m212 + m112 * m2.n22 + m113 * m232;
-            result.n13 = m111 * m213 + m112 * m2.n23 + m113 * m233;
-            result.n14 = m111 * m214 + m112 * m2.n24 + m113 * m234 + m114;
+            result.n11 = m111 * m211 + m112 * m221 + m113 * m231;
+            result.n12 = m111 * m212 + m112 * m222 + m113 * m232;
+            result.n13 = m111 * m213 + m112 * m223 + m113 * m233;
+            result.n14 = m111 * m214 + m112 * m224 + m113 * m234 + m114;
         
             result.n21 = m121 * m211 + m122 * m221 + m123 * m231;
             result.n22 = m121 * m212 + m122 * m222 + m123 * m232;
@@ -131,15 +131,15 @@ package away3d.core.math
     
         public function scale(x:Number, y:Number, z:Number):void
         {
-            this.n11 *= x;
-            this.n21 *= x;
-            this.n31 *= x;
-            this.n12 *= y;
-            this.n22 *= y;
-            this.n32 *= y;
-            this.n13 *= z;
-            this.n23 *= z;
-            this.n33 *= z;
+            n11 *= x;
+            n21 *= x;
+            n31 *= x;
+            n12 *= y;
+            n22 *= y;
+            n32 *= y;
+            n13 *= z;
+            n23 *= z;
+            n33 *= z;
         }
 
         /*
@@ -162,9 +162,9 @@ package away3d.core.math
 
         public function copy3x3(m:Matrix3D):Matrix3D
         {
-            this.n11 = m.n11;   this.n12 = m.n12;   this.n13 = m.n13;
-            this.n21 = m.n21;   this.n22 = m.n22;   this.n23 = m.n23;
-            this.n31 = m.n31;   this.n32 = m.n32;   this.n33 = m.n33;
+            n11 = m.n11;   n12 = m.n12;   n13 = m.n13;
+            n21 = m.n21;   n22 = m.n22;   n23 = m.n23;
+            n31 = m.n31;   n32 = m.n32;   n33 = m.n33;
     
             return this;
         }
@@ -271,8 +271,8 @@ package away3d.core.math
     
         public function get det():Number
         {
-            return  (this.n11 * this.n22 - this.n21 * this.n12) * this.n33 - (this.n11 * this.n32 - this.n31 * this.n12) * this.n23 +
-                    (this.n21 * this.n32 - this.n31 * this.n22) * this.n13; // + (this.n31 * this.n42) * (this.n13 * this.n24 - this.n23 * this.n14);
+            return  (n11 * n22 - n21 * n12) * n33 - (n11 * n32 - n31 * n12) * n23 +
+                    (n21 * n32 - n31 * n22) * n13; // + (n31 * n42) * (n13 * n24 - n23 * n14);
         }
 
         public static function inverse(m:Matrix3D):Matrix3D
