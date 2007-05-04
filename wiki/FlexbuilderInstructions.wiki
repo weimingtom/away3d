@@ -16,4 +16,4 @@ Plese read SubclipseInstructions if you haven't installed the subclipse plugin i
   # Once the folder has completed checking out, you can browse to it by locating the project directory in the *Navigator* window.
   # locate the main project class by browsing inside the src folder of the project. It should be named the same as the example name, so for the !EngineTest example, look for for the !EngineTest.as file.
   # Right click on the file and select _Run As > Flex Application_ from the menu
-  # The project should compile and Flexbuilder will automatically open a browser window to display the example. You may get a propmt if you haven't go the flash 9 debug player installed on the default browser, but this is not required to view the compiled example.
+  # The project should compile and Flexbuilder will automatically open a browser window to display the example. You may get a prompt if you haven't go the flash 9 debug player installed on the default browser, but this is not required to view the compiled example.
