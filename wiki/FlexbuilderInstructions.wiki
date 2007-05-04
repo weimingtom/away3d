@@ -3,7 +3,6 @@
 Plese read SubclipseInstructions if you haven't installed the subclipse plugin in Flexbuilder 
 
   # Open the svn repository explorer by selecting _Window > Open Perspective > Other..._ and from the file menu and clicking on *SVN Repository Exploring*.
-
   # Right-click anywhere in the *SVN Repository* window on the left, and select _New > Repository Location..._ from the menu.
 
   # Enter the url given in the svn link of the example you wish to download. In the case of the !EngineTest example, this is http://away3d.googlecode.com/svn/trunk/examples/EngineTest/. Click on finish. If the url is correct, the new repository location should appear in your *SVN Repository* window.
