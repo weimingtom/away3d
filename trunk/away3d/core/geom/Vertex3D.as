@@ -3,6 +3,7 @@ package away3d.core.geom
     import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
+    import away3d.core.math.*;
 
     public class Vertex3D
     {
@@ -19,22 +20,19 @@ package away3d.core.geom
         public function project(projection:Projection):Vertex2D
         {
             if (this.projection == projection)
-                return this.projected;
+                return projected;
 
             this.projection = projection;
 
-            var projected:Vertex2D = this.projected;
-            if (projected == null) 
-            {           
-                this.projected = new Vertex2D();
-                projected = this.projected;
-            }
+            if (projected == null)
+            	projected = new Vertex2D();
 
-            var vx:Number = this.x;
-            var vy:Number = this.y;
-            var vz:Number = this.z;
+			var view:Matrix3D = projection.view;
+            var vx:Number = x;
+            var vy:Number = y;
+            var vz:Number = z;
     
-            var sz:Number = vx * projection.n31 + vy * projection.n32 + vz * projection.n33 + projection.n34;
+            var sz:Number = vx * view.n31 + vy * view.n32 + vz * view.n33 + view.n34;
     
             if (sz*2 <= -projection.focus)
             {
@@ -44,14 +42,9 @@ package away3d.core.geom
             else
                 projected.visible = true;
 
-            var sx:Number = vx * projection.n11 + vy * projection.n12 + vz * projection.n13 + projection.n14;
-            var sy:Number = vx * projection.n21 + vy * projection.n22 + vz * projection.n23 + projection.n24;
-
-            var persp:Number = projection.focus / (projection.focus + sz) * projection.zoom;
-
-            projected.x = sx * persp;
-            projected.y = sy * persp;
-            projected.z = sz;
+            var persp:Number = 1 / (1 + (projected.z = sz)/projection.focus) * projection.zoom;
+            projected.x = (vx * view.n11 + vy * view.n12 + vz * view.n13 + view.n14) * persp;
+            projected.y = (vx * view.n21 + vy * view.n22 + vz * view.n23 + view.n24) * persp;
 
             return projected;
         }
