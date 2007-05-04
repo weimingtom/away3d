@@ -361,7 +361,7 @@ package away3d.core.proto
             }
             else
             {
-                throw new Error("lookAt Error");
+                //throw new Error("lookAt Error");
             }
         }
 
