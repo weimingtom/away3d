@@ -1,11 +1,10 @@
 #summary A list of current examples showcasing the features of away3d
 #labels Featured
 
-FlexbuilderInstructions
+FlexbuilderInstructions - Read this for instruction on how to download and run these examples in Flexbuilder
 
 = Engine Test =
 
 [http://away3d.googlecode.com/svn/trunk/examples/EngineTest/ svn download]
-
 
 
