@@ -20,7 +20,7 @@ package away3d.core.geom
         public function Mesh3D(material:IMaterial, name:String = null, init:Object = null)
         {
             super(name, init);
-    
+    		bothsides = init? init.bothsides || false : false;
             this.material = material || new WireColorMaterial();
         }
     
@@ -84,12 +84,10 @@ package away3d.core.geom
 
                 if (!tri.v2.visible)
                     continue;
-
                 tri.calc();
 
                 if (tri.maxZ < 0)
                     continue;
-
                 tri.material = face.material || trimat;
 
                 if (tri.material == null)
@@ -152,7 +150,6 @@ package away3d.core.geom
                 consumer.primitive(seg);
                 seg = null;
             }
-
         }
     }
 }
