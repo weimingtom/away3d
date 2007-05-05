@@ -9,7 +9,7 @@ package away3d.objects
     {
         public function Cube(material:IMaterial = null, width:Number = 50, height:Number = 50, depth:Number = 50, init:Object = null)
         {
-            super(material, null, init);
+            super(material, init);
 
             var v000:Vertex3D = new Vertex3D(-width/2, -height/2, -depth/2); 
             var v001:Vertex3D = new Vertex3D(-width/2, -height/2, +depth/2); 

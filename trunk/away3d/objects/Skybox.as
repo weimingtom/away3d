@@ -9,7 +9,7 @@ package away3d.objects
     {
         public function Skybox(front:ITriangleMaterial, left:ITriangleMaterial, back:ITriangleMaterial, right:ITriangleMaterial, up:ITriangleMaterial, down:ITriangleMaterial)
         {
-            super(null, null, null);
+            super(null, null);
 
             var width:Number = 800000;
             var height:Number = 800000;

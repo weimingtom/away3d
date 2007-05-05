@@ -15,7 +15,7 @@ package away3d.objects
 
         public function Sphere(material:IMaterial = null, radius:Number = 100, segmentsW:int = 8, segmentsH:int = 6, init:Object = null)
         {
-            super(material, null, init);
+            super(material, init);
     
             this.segmentsW = Math.max(3, segmentsW); 
             this.segmentsH = Math.max(2, segmentsH); 

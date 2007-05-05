@@ -28,7 +28,7 @@ package away3d.core.proto
         // sort: A Boolean value that determines whether the 3D objects are z-depth sorted between themselves when rendering. The default value is true.
         public function Camera3D(zoom:Number = 3, focus:Number = 500, init:Object = null)
         {
-            super(null, init);
+            super(init);
     
             if (init == null)
             {

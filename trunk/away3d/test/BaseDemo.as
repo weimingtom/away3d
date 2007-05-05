@@ -25,7 +25,7 @@ package away3d.test
 
         private var titlegroup:Sprite;
         private var statsgroup:Sprite;
-        private var infogroup:Sprite;
+        protected var infogroup:Sprite;
         private var lefttopgroup:Sprite;
 
         private var copylabel:TextField;
@@ -160,6 +160,7 @@ package away3d.test
             camera.targetpanangle = 230;
 
             camera.mintiltangle = -10;
+    
             stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
             stage.addEventListener(Event.RESIZE, onResize);
             stage.addEventListener(Event.ACTIVATE, onActivate);
@@ -168,7 +169,6 @@ package away3d.test
             stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
             prevbutton.addEventListener(MouseEvent.CLICK, onPrev);
             nextbutton.addEventListener(MouseEvent.CLICK, onNext);
-        	Debug.trace("started");
 
             this.onResize(null);
 
@@ -177,12 +177,15 @@ package away3d.test
 
         protected function addSlide(title:String, text:String, scene:Scene3D, renderer:IRenderer):void
         {
-            scene.container = demoroot;
+            demoroot.addChild(scene.container);
             slides.push(new Slide(title, text, scene, renderer));
         }
 
-        private function changeCallback():void
+        private function changeSlide():void
         {
+            if (slide != null)
+                slide.scene.clear();
+
             slide = slides[slideindex];
             dirty = true;
             messagelabel.htmlText = "<font size='16' face='arial'>"
@@ -196,20 +199,19 @@ package away3d.test
         private function onNext(event:MouseEvent):void
         {
             slideindex = Math.min(slides.length-1, slideindex+1);
-            changeCallback();
+            changeSlide();
         }
 
         private function onPrev(event:MouseEvent):void
         {
             slideindex = Math.max(0, slideindex-1);
-            changeCallback();
+            changeSlide();
         }
 
         private function onEnterFrame(event:Event):void
         {
-        	
             if (slide == null)
-                changeCallback();
+                changeSlide();
 
             if (!active)
                 return;
@@ -304,6 +306,12 @@ package away3d.test
                     break;
                 case Keyboard.CONTROL:
                     lefttopgroup.visible = !lefttopgroup.visible;
+                    break;
+                case "F".charCodeAt():
+                    if (stage.displayState == StageDisplayState.FULL_SCREEN)
+                        stage.displayState = StageDisplayState.NORMAL;
+                    else
+                        stage.displayState = StageDisplayState.FULL_SCREEN;
                     break;
                 case "X".charCodeAt():
                     Debug.active = !Debug.active;

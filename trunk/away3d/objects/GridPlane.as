@@ -14,7 +14,7 @@ package away3d.objects
     
         public function GridPlane(material:IMaterial = null, width:Number = 0, height:Number = 0, segmentsW:Number = 0, segmentsH:Number = 0, init:Object = null)
         {
-            super(material, null, init);
+            super(material, init);
     
             this.segmentsW = segmentsW || 1;
             this.segmentsH = segmentsH || this.segmentsW;
