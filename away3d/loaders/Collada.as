@@ -52,9 +52,9 @@ package away3d.loaders
             var newnode:Object3D;
     
             if (String(node.instance_geometry) == "")
-                newnode = new ObjectContainer3D(node.@name);
-            else
-                newnode = new Mesh3D(null, node.@name);
+                newnode = new ObjectContainer3D();
+            else                                                
+                newnode = new Mesh3D(null);
 
             newnode.name = node.@name;
             parent.addChild(newnode);

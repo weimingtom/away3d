@@ -7,9 +7,16 @@ package away3d.core.proto
     {
         public var children:Array = new Array();
         
-        public function ObjectContainer3D(name:String = null, ...childarray)
-        {                                       
-            super(name);
+        public function ObjectContainer3D(init:Object = null, ...childarray)
+        {
+            if (init != null)
+                if (init is Object3D)                          
+                {
+                    addChild(init as Object3D);
+                    init = null;
+                }
+
+            super(init);
 
             for each (var child:Object3D in childarray)
                 addChild(child);

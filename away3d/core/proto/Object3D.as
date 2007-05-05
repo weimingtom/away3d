@@ -226,12 +226,14 @@ package away3d.core.proto
         // A Boolean value that indicates whether the object is projected, transformed and rendered. A value of false will effectively ignore the object. The default value is true.
         // extra: An object that contains user defined properties.
         // All properties of the extra field are copied into the new instance. The properties specified with extra are publicly available.
-        public function Object3D(name:String = null, init:Object = null):void
+        public function Object3D(init:Object = null):void
         {
             this.name = name;
     
             if (init != null)
             {
+                name = init.name || null;
+
                 x = init.x || 0;
                 y = init.y || 0;
                 z = init.z || 0;

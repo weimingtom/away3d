@@ -20,7 +20,7 @@ package away3d.objects
 
         public function Segment(material:IMaterial = null, edge:Number = 0, init:Object = null)
         {
-            super(material, null, init);
+            super(material, init);
     
             var a:Vertex3D = new Vertex3D(0, 0, 0); 
             var b:Vertex3D = new Vertex3D(1, 0, 0);

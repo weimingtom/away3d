@@ -27,9 +27,9 @@ package away3d.core.geom
             return maxradius;
         }
 
-        public function Vertices3D(name:String = null, init:Object = null)
+        public function Vertices3D(init:Object = null)
         {
-            super(name, init);
+            super(init);
         }
     }
 }

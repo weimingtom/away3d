@@ -27,7 +27,7 @@ package away3d.objects
 
         public function Triangle(material:IMaterial = null, bordermaterial:ISegmentMaterial = null, edge:Number = 0, init:Object = null)
         {
-            super(material, null, init);
+            super(material, init);
     
             if (edge == 0)
                 edge = 170;

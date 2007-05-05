@@ -17,9 +17,9 @@ package away3d.core.geom
 
         public var bothsides:Boolean = false;
     
-        public function Mesh3D(material:IMaterial, name:String = null, init:Object = null)
+        public function Mesh3D(material:IMaterial, init:Object = null)
         {
-            super(name, init);
+            super(init);
     
             if (init)
             {
