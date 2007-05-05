@@ -12,7 +12,7 @@ package away3d.objects
     {
         public var segmentsW:int;
         public var segmentsH:int;
-    
+
         public function Sphere(material:IMaterial = null, radius:Number = 100, segmentsW:int = 8, segmentsH:int = 6, init:Object = null)
         {
             super(material, null, init);

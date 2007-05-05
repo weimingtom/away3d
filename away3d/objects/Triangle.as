@@ -4,6 +4,7 @@ package away3d.objects
     import away3d.core.math.*;
     import away3d.core.proto.*;
     import away3d.core.geom.*;
+    import away3d.core.material.*;
     
     import flash.display.BitmapData;
     
@@ -24,7 +25,7 @@ package away3d.objects
             return vertices[2];
         }
 
-        public function Triangle(material:IMaterial = null, bordermaterial:IMaterial = null, edge:Number = 0, init:Object = null)
+        public function Triangle(material:IMaterial = null, bordermaterial:ISegmentMaterial = null, edge:Number = 0, init:Object = null)
         {
             super(material, null, init);
     

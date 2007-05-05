@@ -24,13 +24,14 @@ package away3d.core.geom
 
             this.projection = projection;
 
-            if (projected == null)
-            	projected = new Vertex2D();
+            if (projected == null) 
+                projected = new Vertex2D();
 
-			var view:Matrix3D = projection.view;
-            var vx:Number = x;
-            var vy:Number = y;
-            var vz:Number = z;
+            var vx:Number = this.x;
+            var vy:Number = this.y;
+            var vz:Number = this.z;
+
+            var view:Matrix3D = projection.view;
     
             var sz:Number = vx * view.n31 + vy * view.n32 + vz * view.n33 + view.n34;
     
@@ -42,7 +43,9 @@ package away3d.core.geom
             else
                 projected.visible = true;
 
-            var persp:Number = 1 / (1 + (projected.z = sz)/projection.focus) * projection.zoom;
+            var persp:Number = projection.zoom / (1 + sz / projection.focus);
+
+            projected.z = sz;
             projected.x = (vx * view.n11 + vy * view.n12 + vz * view.n13 + view.n14) * persp;
             projected.y = (vx * view.n21 + vy * view.n22 + vz * view.n23 + view.n24) * persp;
 

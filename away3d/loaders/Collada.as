@@ -56,7 +56,8 @@ package away3d.loaders
             else
                 newnode = new Mesh3D(null, node.@name);
 
-            parent.addChild(newnode, node.@name);
+            newnode.name = node.@name;
+            parent.addChild(newnode);
     
             var children:XMLList = node.children();
             var totalChildren:int = children.length();

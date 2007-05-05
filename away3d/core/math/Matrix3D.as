@@ -271,8 +271,9 @@ package away3d.core.math
     
         public function get det():Number
         {
-            return  (n11 * n22 - n21 * n12) * n33 - (n11 * n32 - n31 * n12) * n23 +
-                    (n21 * n32 - n31 * n22) * n13; // + (n31 * n42) * (n13 * n24 - n23 * n14);
+            return  (n11 * n22 - n21 * n12) * n33 
+                  - (n11 * n32 - n31 * n12) * n23 
+                  + (n21 * n32 - n31 * n22) * n13;
         }
 
         public static function inverse(m:Matrix3D):Matrix3D

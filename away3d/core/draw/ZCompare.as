@@ -36,7 +36,7 @@ package away3d.core.draw
             return true;
         }
 
-        public static function zconflict(q:DrawPrimitive, w:DrawPrimitive, focus:Number):int
+        public static function zconflict(q:DrawPrimitive, w:DrawPrimitive):int
         {
             /***
             if (q.screenZ > w.screenZ)
@@ -55,20 +55,20 @@ package away3d.core.draw
             if (q is DrawTriangle)
             { 
                 if (w is DrawTriangle)
-                    return zconflictTT(q as DrawTriangle, w as DrawTriangle, focus);
+                    return zconflictTT(q as DrawTriangle, w as DrawTriangle);
                 if (w is DrawSegment)
-                    return zconflictTS(q as DrawTriangle, w as DrawSegment, focus);
+                    return zconflictTS(q as DrawTriangle, w as DrawSegment);
             }
             else
             if (q is DrawSegment)
             {
                 if (w is DrawTriangle)
-                    return -zconflictTS(w as DrawTriangle, q as DrawSegment, focus);
+                    return -zconflictTS(w as DrawTriangle, q as DrawSegment);
             }
             return ZOrderIrrelevant;
         }
         
-        private static function zconflictTS(q:DrawTriangle, r:DrawSegment, focus:Number):int
+        private static function zconflictTS(q:DrawTriangle, r:DrawSegment):int
         {
             var q0x:Number = q.v0.x;
             var q0y:Number = q.v0.y;
@@ -126,7 +126,7 @@ package away3d.core.draw
             if (((ql01r0 > -0.0001) && (ql12r0 > -0.0001) && (ql20r0 > -0.0001))
              && ((ql01r1 > -0.0001) && (ql12r1 > -0.0001) && (ql20r1 > -0.0001)))
             {
-                return zcompare(q, r, (r0x+r1x)/2, (r0y+r1y)/2, focus);
+                return zcompare(q, r, (r0x+r1x)/2, (r0y+r1y)/2);
             }
         
             var q01r:Boolean = ((rlq0*rlq1 < 0.0001) && (ql01r0*ql01r1 < 0.0001));
@@ -196,10 +196,10 @@ package away3d.core.draw
                 }
             }
         
-            return zcompare(q, r, cx / count, cy / count, focus);
+            return zcompare(q, r, cx / count, cy / count);
         }
         
-        private static function zconflictTT(q:DrawTriangle, w:DrawTriangle, focus:Number):int
+        private static function zconflictTT(q:DrawTriangle, w:DrawTriangle):int
         {
             //Debug.trace("zconflictTT");
             //Debug.trace(q);
@@ -322,7 +322,7 @@ package away3d.core.draw
              && ((wl01q2 >= 0) && (wl12q2 >= 0) && (wl20q2 >= 0)))
             {
                 //Debug.trace("777");
-                return zcompare(q, w, (q0x+q1x+q2x)/3, (q0y+q1y+q2y)/3, focus);
+                return zcompare(q, w, (q0x+q1x+q2x)/3, (q0y+q1y+q2y)/3);
             }
             
             if (ql01w0*ql01w0 < 1)
@@ -349,7 +349,7 @@ package away3d.core.draw
              && ((ql01w2 >= 0) && (ql12w2 >= 0) && (ql20w2 >= 0)))
             {
                 //Debug.trace("888");
-                return zcompare(q, w, (w0x+w1x+w2x)/3, (w0y+w1y+w2y)/3, focus);
+                return zcompare(q, w, (w0x+w1x+w2x)/3, (w0y+w1y+w2y)/3);
             }
         
             var q01w01:Boolean = ((wl01q0*wl01q1 < 0) && (ql01w0*ql01w1 < 0));
@@ -573,13 +573,13 @@ package away3d.core.draw
                 //Debug.trace("W-OUT");
             }
                 
-            return zcompare(q, w, cx / count, cy / count, focus);
+            return zcompare(q, w, cx / count, cy / count);
         }
         
-        public static function zcompare(a:DrawPrimitive, b:DrawPrimitive, x:Number, y:Number, focus:Number):int
+        public static function zcompare(a:DrawPrimitive, b:DrawPrimitive, x:Number, y:Number):int
         {
-            var az:Number = a.getZ(x, y, focus);
-            var bz:Number = b.getZ(x, y, focus);
+            var az:Number = a.getZ(x, y);
+            var bz:Number = b.getZ(x, y);
         
             //Debug.trace("az: "+az);
             //Debug.trace("bz: "+bz);
