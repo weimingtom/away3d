@@ -47,7 +47,7 @@ package away3d.core.render
                         if (rival == pri)
                             continue;
     
-                        switch (zconflict(pri, rival, camera.focus))
+                        switch (zconflict(pri, rival))
                         {
                             case ZOrderIrrelevant:
                                 break;
@@ -101,26 +101,31 @@ package away3d.core.render
         private static var ZOrderHigher:int = -1;
         private static var ZOrderSame:int = 0;
     
-        public static function zconflict(q:DrawPrimitive, w:DrawPrimitive, focus:Number):int
+        public static function zconflict(q:DrawPrimitive, w:DrawPrimitive):int
         {
             if (q is DrawTriangle)
             { 
                 if (w is DrawTriangle)
-                    return zconflictTT(q as DrawTriangle, w as DrawTriangle, focus);
+                    return zconflictTT(q as DrawTriangle, w as DrawTriangle);
                 if (w is DrawSegment)
-                    return zconflictTS(q as DrawTriangle, w as DrawSegment, focus);
+                    return zconflictTS(q as DrawTriangle, w as DrawSegment);
             }
             else
             if (q is DrawSegment)
             {
                 if (w is DrawTriangle)
-                    return -zconflictTS(w as DrawTriangle, q as DrawSegment, focus);
+                    return -zconflictTS(w as DrawTriangle, q as DrawSegment);
             }
             return ZOrderIrrelevant;
         }
     
-        private static function zconflictTS(q:DrawTriangle, r:DrawSegment, focus:Number):int
+        private static function zconflictTS(q:DrawTriangle, r:DrawSegment):int
         {
+            if (q == null)
+                return ZOrderIrrelevant;
+            if (r == null)
+                return ZOrderIrrelevant;
+
             var q0x:Number = q.v0.x;
             var q0y:Number = q.v0.y;
             var q1x:Number = q.v1.x;
@@ -177,7 +182,7 @@ package away3d.core.render
             if (((ql01r0 > -0.0001) && (ql12r0 > -0.0001) && (ql20r0 > -0.0001))
              && ((ql01r1 > -0.0001) && (ql12r1 > -0.0001) && (ql20r1 > -0.0001)))
             {
-                return zcompare(q, r, (r0x+r1x)/2, (r0y+r1y)/2, focus);
+                return zcompare(q, r, (r0x+r1x)/2, (r0y+r1y)/2);
             }
     
             var q01r:Boolean = ((rlq0*rlq1 < 0.0001) && (ql01r0*ql01r1 < 0.0001));
@@ -247,10 +252,10 @@ package away3d.core.render
                 }
             }
     
-            return zcompare(q, r, cx / count, cy / count, focus);
+            return zcompare(q, r, cx / count, cy / count);
         }
     
-        private static function zconflictTT(q:DrawTriangle, w:DrawTriangle, focus:Number):int
+        private static function zconflictTT(q:DrawTriangle, w:DrawTriangle):int
         {
             var q0x:Number = q.v0.x;
             var q0y:Number = q.v0.y;
@@ -349,7 +354,7 @@ package away3d.core.render
                  && ((wl01q1*wl01q1 <= 0.0001) || (wl12q1*wl12q1 <= 0.0001) || (wl20q1*wl20q1 <= 0.0001))
                  && ((wl01q2*wl01q2 <= 0.0001) || (wl12q2*wl12q2 <= 0.0001) || (wl20q2*wl20q2 <= 0.0001)))
                 {
-                    return zcompare(q, w, (q0x+q1x+q2x)/3, (q0y+q1y+q2y)/3, focus);
+                    return zcompare(q, w, (q0x+q1x+q2x)/3, (q0y+q1y+q2y)/3);
                 }
             
             //if (ql01n && ql12n && ql20n)
@@ -357,7 +362,7 @@ package away3d.core.render
                  && ((ql01w1*ql01w1 <= 0.0001) || (ql12w1*ql12w1 <= 0.0001) || (ql20w1*ql20w1 <= 0.0001))
                  && ((ql01w2*ql01w2 <= 0.0001) || (ql12w2*ql12w2 <= 0.0001) || (ql20w2*ql20w2 <= 0.0001)))
                 {
-                    return zcompare(q, w, (w0x+w1x+w2x)/3, (w0y+w1y+w2y)/3, focus);
+                    return zcompare(q, w, (w0x+w1x+w2x)/3, (w0y+w1y+w2y)/3);
                 }
     
             var q01w01:Boolean = ((wl01q0*wl01q1 < 0.0001) && (ql01w0*ql01w1 < 0.0001));
@@ -551,13 +556,13 @@ package away3d.core.render
                 }
             }
     
-            return zcompare(q, w, cx / count, cy / count, focus);
+            return zcompare(q, w, cx / count, cy / count);
         }
     
-        private static function zcompare(a:DrawPrimitive, b:DrawPrimitive, x:Number, y:Number, focus:Number):int
+        private static function zcompare(a:DrawPrimitive, b:DrawPrimitive, x:Number, y:Number):int
         {
-            var az:Number = a.getZ(x, y, focus);
-            var bz:Number = b.getZ(x, y, focus);
+            var az:Number = a.getZ(x, y);
+            var bz:Number = b.getZ(x, y);
     
             if (az > bz)
                 return ZOrderDeeper;

@@ -6,13 +6,12 @@ package away3d.core.proto
     
     import flash.display.Sprite;
     import flash.utils.Dictionary;
-    import flash.events.EventDispatcher;
     
     // The DisplayObject class represents instances of 3D objects that are contained in the scene.
     // That includes all objects in the scene, not only those that can be rendered, but also the camera and its target.
     // The Object3D class supports basic functionality like the x, y and z position of an object, as well as rotationX, rotationY, rotationZ, scaleX, scaleY and scaleZ and visible. It also supports more advanced properties of the object such as its transform Matrix3D.
     // Object3D is not an abstract base class; therefore, you can call Object3D directly. Invoking new DisplayObject() creates a new empty object in 3D space, like when you used createEmptyMovieClip().
-    public class Object3D extends EventDispatcher
+    public class Object3D
     {
         // An Number that sets the X coordinate of a object relative to the scene coordinate system.
         public function get x():Number
@@ -105,7 +104,9 @@ package away3d.core.proto
     
         public function set scale(scale:Number):void
         {
-            _scaleX = _scaleY = _scaleZ = scale;
+            _scaleX = scale;
+            _scaleY = scale;
+            _scaleZ = scale;
     
             _transformDirty = true;
         }
@@ -145,6 +146,40 @@ package away3d.core.proto
         // An object that contains user defined properties.
         public var extra:Object;
     
+        internal var _parent:ObjectContainer3D = null;
+    
+        public function get parent():ObjectContainer3D
+        {
+            return _parent;
+        }
+
+        public function set parent(p:ObjectContainer3D):void
+        {
+            if (p == _parent)
+                return;
+
+            if (_parent != null)
+                _parent.removeChild(this);
+
+            if (p != null)
+                p.addChild(this);
+        }
+
+        private var _events:Object3DEvents;
+
+        public function get events():Object3DEvents
+        {
+            if (_events == null)
+                _events = new Object3DEvents();
+
+            return _events;
+        }
+
+        public function get hasEvents():Boolean
+        {
+            return _events != null;
+        }
+
         // A Matrix3D object containing values that affect the scaling, rotation, and translation of the display object.
         private var _transform:Matrix3D = new Matrix3D();
 
@@ -157,10 +192,10 @@ package away3d.core.proto
 
         public function set transform(value:Matrix3D):void
         {
-            this._transform = value.clone();
+            _transform = value.clone();
 
-            this._transformDirty = false;
-            this._rotationDirty = true;
+            _transformDirty = false;
+            _rotationDirty = true;
         }
 
         private var _transformDirty:Boolean = false;
@@ -210,16 +245,18 @@ package away3d.core.proto
                 scaleZ = init.scaleZ || 1;
             
                 extra = init.extra || null;
+
+                parent = init.parent || null;
             }
         }
     
         public function distanceTo(obj:Object3D):Number
         {
-            var x:Number = x - obj.x;
-            var y:Number = y - obj.y;
-            var z:Number = z - obj.z;
+            var dx:Number = x - obj.x;
+            var dy:Number = y - obj.y;
+            var dz:Number = z - obj.z;
     
-            return Math.sqrt(x*x + y*y + z*z);
+            return Math.sqrt(dx*dx + dy*dy + dz*dz);
         }
     
         public function traverse(traverser:Traverser):void
@@ -325,7 +362,7 @@ package away3d.core.proto
         // Make the object look at a specific position.
         // @param targetObject Object to look at.
         // @param upAxis The vertical axis of the universe. Normally the positive Y axis.
-        public function lookAt(targetObject:*, upAxis:Number3D = null):void
+        public function lookAt(targetObject:Object3D, upAxis:Number3D = null):void
         {
             var position:Number3D = new Number3D(x, y, z);
             var target:Number3D = new Number3D(targetObject.x, targetObject.y, targetObject.z);
@@ -361,7 +398,7 @@ package away3d.core.proto
             }
             else
             {
-                //throw new Error("lookAt Error");
+                throw new Error("lookAt Error");
             }
         }
 
@@ -383,9 +420,9 @@ package away3d.core.proto
             _transformDirty = false;
         }
     
-        public override function toString():String
+        public function toString():String
         {
-            return this.name + ': x:' + Math.round(this.x) + ' y:' + Math.round(this.y) + ' z:' + Math.round(this.z);
+            return name + ': x:' + Math.round(x) + ' y:' + Math.round(y) + ' z:' + Math.round(z);
         }
     
         private static var toDEGREES:Number = 180 / Math.PI;

@@ -43,7 +43,7 @@ package away3d.core.draw
             return null;
         }
 
-        public function getZ(x:Number, y:Number, focus:Number):Number
+        public function getZ(x:Number, y:Number):Number
         {
             return screenZ;
         }

@@ -123,8 +123,10 @@ package away3d.core.draw
             return [create(source, material, v0, v01), create(source, material, v01, v1)];
         }
 
-        public override function getZ(x:Number, y:Number, focus:Number):Number
-        {                       
+        public override function getZ(x:Number, y:Number):Number
+        {
+            var focus:Number = projection.focus;
+              
             var ax:Number = v0.x;
             var ay:Number = v0.y;
             var az:Number = v0.z;
@@ -207,6 +209,7 @@ package away3d.core.draw
 
         public static function test():void
         {
+        /*
             var s1:DrawSegment = DrawSegment.create(null, null,
                 new Vertex2D(100,  100, 300),
                 new Vertex2D(-100, -100, 200));
@@ -222,6 +225,7 @@ package away3d.core.draw
             assert(s1.getZ( 0, 20, 250) == 250);
             assert(s1.getZ(10,  0, 750) == 250);
             assert(s1.getZ( 0, 10, 750) == 250);
+        */
         }
     }
 }

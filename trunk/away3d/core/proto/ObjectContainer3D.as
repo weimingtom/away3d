@@ -15,22 +15,26 @@ package away3d.core.proto
                 addChild(child);
         }
 
-        public function addChild(child:Object3D, name:String = null):Object3D
+        public function addChild(child:Object3D):Object3D
         {
             if (child == null)
                 throw new Error("ObjectContainer3D.addChild(null)");
-            if (name != null)
-                child.name = name;
+            if (child._parent == this)
+                return child;
             children.push(child);
-            return child;
+            child._parent = this;
+            return child; // I think we don't need it - AZ
         }
 
         public function removeChild(child:Object3D):void
         {
+            if (child._parent != this)
+                throw new Error("Child doesn't belong to container");
             var index:int = children.indexOf(child);
             if (index == -1)
-                return;
+                throw new Error("Child not found in children list");
             children.splice(index, 1);
+            child._parent = null;
         }
 
         public function getChildByName(name:String):Object3D

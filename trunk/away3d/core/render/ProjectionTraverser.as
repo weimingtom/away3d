@@ -11,13 +11,12 @@ package away3d.core.render
     {
         protected var camera:Camera3D;
         protected var view:Matrix3D;
-        protected var views:Array;
+        protected var views:Array = [];
 
         public function ProjectionTraverser(camera:Camera3D)
         {
             this.camera = camera;
             this.view = camera.getView();
-            this.views = [];
         }
 
         public override function match(node:Object3D):Boolean

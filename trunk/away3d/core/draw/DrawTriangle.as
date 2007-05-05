@@ -265,8 +265,9 @@ package away3d.core.draw
             return null;    
         }
 
-        public override function getZ(x:Number, y:Number, focus:Number):Number
+        public override function getZ(x:Number, y:Number):Number
         {
+            var focus:Number = projection.focus;
             // v1v:Vector = v1 - v0
             // v2v:Vector = v2 - v0
 
@@ -348,6 +349,67 @@ package away3d.core.draw
             var dc:Number = axf*(byf - yfocus) + bxf*(yfocus - ayf) + xfocus*(ayf - byf);
 
             return (da*az + db*bz + dc*cz) / det;
+        }
+
+        public function getUV(x:Number, y:Number):NumberUV
+        {
+            if (uv0 == null)
+                return null;
+
+            if (uv1 == null)
+                return null;
+
+            if (uv2 == null)
+                return null;
+
+            var au:Number = uv0.u;
+            var av:Number = uv0.v;
+            var bu:Number = uv1.u;
+            var bv:Number = uv1.v;
+            var cu:Number = uv2.u;
+            var cv:Number = uv2.v;
+
+            var focus:Number = projection.focus;
+
+            var ax:Number = v0.x;
+            var ay:Number = v0.y;
+            var az:Number = v0.z;
+            var bx:Number = v1.x;
+            var by:Number = v1.y;
+            var bz:Number = v1.z;
+            var cx:Number = v2.x;
+            var cy:Number = v2.y;
+            var cz:Number = v2.z;
+
+            if ((ax == x) && (ay == y))
+                return uv0;
+
+            if ((bx == x) && (by == y))
+                return uv1;
+
+            if ((cx == x) && (cy == y))
+                return uv2;
+
+            var faz:Number = focus + az;
+            var fbz:Number = focus + bz;
+            var fcz:Number = focus + cz;
+
+            var xfocus:Number = x * focus;
+            var yfocus:Number = y * focus;
+
+            var axf:Number = ax*faz - x*az;
+            var bxf:Number = bx*fbz - x*bz;
+            var cxf:Number = cx*fcz - x*cz;
+            var ayf:Number = ay*faz - y*az;
+            var byf:Number = by*fbz - y*bz;
+            var cyf:Number = cy*fcz - y*cz;
+
+            var det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf);
+            var da:Number = xfocus*(byf - cyf) + bxf*(cyf - yfocus) + cxf*(yfocus - byf);
+            var db:Number = axf*(yfocus - cyf) + xfocus*(cyf - ayf) + cxf*(ayf - yfocus);
+            var dc:Number = axf*(byf - yfocus) + bxf*(yfocus - ayf) + xfocus*(ayf - byf);
+
+            return new NumberUV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
 
         public static function fivepointcut(source:Object3D, material:ITriangleMaterial, projection:Projection, v0:Vertex2D, v01:Vertex2D, v1:Vertex2D, v12:Vertex2D, v2:Vertex2D, uv0:NumberUV, uv01:NumberUV, uv1:NumberUV, uv12:NumberUV, uv2:NumberUV):Array
@@ -618,6 +680,7 @@ package away3d.core.draw
 
         public static function test():void
         {
+        /*
             var t1:DrawTriangle = DrawTriangle.create(null, null, null,
                 new Vertex2D(100,  100, 100),
                 new Vertex2D(100, -100, 100),
@@ -630,6 +693,7 @@ package away3d.core.draw
             assert(t1.getZ(0, 0, 100) == 100);
             assert(t1.getZ(0, 0, 200) == 100);
             assert(t1.getZ(1000, -1000, 200) == 100);
+        */
         }
 
     }
