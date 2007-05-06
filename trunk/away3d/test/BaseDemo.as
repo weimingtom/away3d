@@ -308,6 +308,7 @@ package away3d.test
                     lefttopgroup.visible = !lefttopgroup.visible;
                     break;
                 case "F".charCodeAt():
+                    break;
                     if (stage.displayState == StageDisplayState.FULL_SCREEN)
                         stage.displayState = StageDisplayState.NORMAL;
                     else
