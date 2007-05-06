@@ -47,9 +47,6 @@ package away3d.objects
             faces.push(new Face3D(v000, v100, v001, down, uva, uvb, uvd));
             faces.push(new Face3D(v001, v100, v101, down, uvd, uvb, uvc));
                                                    
-//            faces.push(new Face3D(v010, v011, v110,  up, uvd, uvc, uva));
-//            faces.push(new Face3D(v011, v111, v110,  up, uvc, uvb, uva));
-
             faces.push(new Face3D(v010, v011, v110,  up, uvd, uva, uvc));
             faces.push(new Face3D(v011, v111, v110,  up, uva, uvb, uvc));
 
