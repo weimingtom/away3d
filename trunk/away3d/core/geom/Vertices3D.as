@@ -10,7 +10,7 @@ package away3d.core.geom
         public var vertices:Array = [];
         public var maxradius:Number = -1;
         public var minradius:Number = 0;
-
+/*
         public function get radius():Number
         {
             if (maxradius < 0)
@@ -26,7 +26,7 @@ package away3d.core.geom
             }
             return maxradius;
         }
-
+*/
         public function Vertices3D(init:Object = null)
         {
             super(init);
