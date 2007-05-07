@@ -64,7 +64,7 @@ public class Ase extends Mesh3D
 	*/
 	public function Ase( material:IMaterial, filename:String, scale:Number=1, initObject:Object=null )
 	{
-		super( material, null, initObject );
+		super( material, initObject );
 
 		this._scaleAse = scale;
 		this._filename = filename;
