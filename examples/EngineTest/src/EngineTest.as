@@ -307,8 +307,8 @@ class Meshes extends ObjectContainer3D
                        
     public function Meshes()
     {
-        var bodyTexture:IMaterial = PreciseBitmapMaterial.fromAsset(new bodyImage, 2);
-        var wheelTexture:IMaterial = PreciseBitmapMaterial.fromAsset(new wheelImage, 2);
+        var bodyTexture:IMaterial = PreciseBitmapMaterial.fromAsset(new bodyImage, {precision:2});
+        var wheelTexture:IMaterial = PreciseBitmapMaterial.fromAsset(new wheelImage, {precision:2});
         var focus:ObjectContainer3D = new Collada(new XML(new FocusModel), new MaterialLibrary({materialBody:bodyTexture, materialWheel:wheelTexture}));
         focus.y = -40;
 
@@ -365,9 +365,9 @@ class Texturing extends ObjectContainer3D
                        
     public function Texturing()
     {
-        plane = new Plane(new PreciseBitmapMaterial(Asset.yellow, 1.5), 1000, 1000, 1, 1, {y:-20});
-        sphere = new Sphere(new PreciseBitmapMaterial(Asset.red, 1.5), 150, 12, 9, {x:300, y:160, z:300});
-        cube = new Cube(new PreciseBitmapMaterial(Asset.blue, 1.5), 200, 200, 200, {x:300, y:160, z:-80});
+        plane = new Plane(new PreciseBitmapMaterial(Asset.yellow, {precision:1.5}), 1000, 1000, 1, 1, {y:-20});
+        sphere = new Sphere(new PreciseBitmapMaterial(Asset.red, {precision:1.5}), 150, 12, 9, {x:300, y:160, z:300});
+        cube = new Cube(new PreciseBitmapMaterial(Asset.blue, {precision:1.5}), 200, 200, 200, {x:300, y:160, z:-80});
 
         super(null, sphere, plane, cube);
     }
@@ -382,9 +382,9 @@ class SmoothTexturing extends ObjectContainer3D
                        
     public function SmoothTexturing()
     {
-        plane = new Plane(new PreciseBitmapMaterial(Asset.yellow, 1.2, true), 1000, 1000, 1, 1, {y:-20});
-        sphere = new Sphere(new PreciseBitmapMaterial(Asset.red, 1.2, true), 150, 12, 9, {x:300, y:160, z:300});
-        cube = new Cube(new PreciseBitmapMaterial(Asset.blue, 1.2, true), 200, 200, 200, {x:300, y:160, z:-80});
+        plane = new Plane(new PreciseBitmapMaterial(Asset.yellow, {precision:1.2, smooth:true}), 1000, 1000, 1, 1, {y:-20});
+        sphere = new Sphere(new PreciseBitmapMaterial(Asset.red, {precision:1.2, smooth:true}), 150, 12, 9, {x:300, y:160, z:300});
+        cube = new Cube(new PreciseBitmapMaterial(Asset.blue, {precision:1.2, smooth:true}), 200, 200, 200, {x:300, y:160, z:-80});
 
         super(null, sphere, plane, cube);
     }
@@ -416,7 +416,7 @@ class PerspectiveTexturing extends ObjectContainer3D
                        
     public function PerspectiveTexturing()
     {
-        cube = new Cube(new PreciseBitmapMaterial(Asset.httt, 2.5), 800, 800, 800);
+        cube = new Cube(new PreciseBitmapMaterial(Asset.httt, {precision:2.5}), 800, 800, 800);
         
         super(null, cube);
     }
@@ -449,12 +449,12 @@ class SmoothSkybox extends ObjectContainer3D
                        
     public function SmoothSkybox()
     {
-        skybox = new Skybox(new PreciseBitmapMaterial(Asset.morningFront, 5, true), 
-                            new PreciseBitmapMaterial(Asset.morningLeft, 5, true), 
-                            new PreciseBitmapMaterial(Asset.morningBack, 5, true), 
-                            new PreciseBitmapMaterial(Asset.morningRight, 5, true), 
-                            new PreciseBitmapMaterial(Asset.morningUp, 5, true), 
-                            new PreciseBitmapMaterial(Asset.morningDown, 5, true));
+        skybox = new Skybox(new PreciseBitmapMaterial(Asset.morningFront, {precision:5, smooth:true}), 
+                            new PreciseBitmapMaterial(Asset.morningLeft, {precision:5, smooth:true}), 
+                            new PreciseBitmapMaterial(Asset.morningBack, {precision:5, smooth:true}), 
+                            new PreciseBitmapMaterial(Asset.morningRight, {precision:5, smooth:true}), 
+                            new PreciseBitmapMaterial(Asset.morningUp, {precision:5, smooth:true}), 
+                            new PreciseBitmapMaterial(Asset.morningDown, {precision:5, smooth:true}));
 
         super(null, skybox);
     }
@@ -512,9 +512,9 @@ class IntersectingObjects extends ObjectContainer3D
                        
     public function IntersectingObjects()
     {
-        cubeA = new Cube(new PreciseBitmapMaterial(Asset.red, 2), 40, 120, 400);
-        cubeB = new Cube(new PreciseBitmapMaterial(Asset.yellow, 2), 400, 40, 120);
-        cubeC = new Cube(new PreciseBitmapMaterial(Asset.blue, 2), 120, 400, 40);
+        cubeA = new Cube(new PreciseBitmapMaterial(Asset.red, {precision:2}), 40, 120, 400);
+        cubeB = new Cube(new PreciseBitmapMaterial(Asset.yellow, {precision:2}), 400, 40, 120);
+        cubeC = new Cube(new PreciseBitmapMaterial(Asset.blue, {precision:2}), 120, 400, 40);
 
         super(null, cubeA, cubeB, cubeC);
 
@@ -553,7 +553,7 @@ class ColorLighting extends ObjectContainer3D
 
     public function ColorLighting()
     {
-        texture = new ColorShadingBitmapMaterial(0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 20);
+        texture = new ColorShadingBitmapMaterial(0xFFFFFF, 0xFFFFFF, 0xFFFFFF, {alpha:20});
         plane = new Plane(texture, 1000, 1000, 16, 16, {y:-100});
         sphere = new Sphere(texture, 200, 12, 9, {y:800});
         light1 = new Light3D(0xFF0000, 0.5, 0.5, 1);
@@ -598,7 +598,7 @@ class WhiteLighting extends ObjectContainer3D
 
     public function WhiteLighting()
     {
-        texture = new WhiteShadingBitmapMaterial(Asset.mandelbrot, 10);
+        texture = new WhiteShadingBitmapMaterial(Asset.mandelbrot, {alpha:10});
         texture.smooth = true;
 
         sphere = new Sphere(texture, 200,  4*8, 3*8);
