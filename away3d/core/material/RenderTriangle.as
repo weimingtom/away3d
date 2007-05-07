@@ -16,7 +16,7 @@ package away3d.core.material
     public class RenderTriangle
     {
         public static function renderBitmap(graphics:Graphics, bitmap:BitmapData, a:Number, b:Number, c:Number, d:Number, tx:Number, ty:Number, 
-            v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, smooth:Boolean):void
+            v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, smooth:Boolean, repeat:Boolean):void
         {
             var a2:Number = v1x - v0x;
             var b2:Number = v1y - v0y;
@@ -31,7 +31,7 @@ package away3d.core.material
                                            tx*b2 + ty*d2 + v0y);
 
             graphics.lineStyle();
-            graphics.beginBitmapFill(bitmap, matrix, false, smooth && (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y) > 400));
+            graphics.beginBitmapFill(bitmap, matrix, repeat, smooth && (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y) > 400));
             graphics.moveTo(v0x, v0y);
             graphics.lineTo(v1x, v1y);
             graphics.lineTo(v2x, v2y);

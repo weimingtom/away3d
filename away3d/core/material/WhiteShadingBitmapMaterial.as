@@ -38,13 +38,16 @@ package away3d.core.material
             return _height;
         }
 
-        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, alpha:Number = 20, smooth:Boolean = false)
+        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init)
         {
-            super(alpha);
+            super(init);
             this.diffuse = diffuse;
-            this.smooth = smooth;
             _width = diffuse.width;
             _height = diffuse.height;
+            if (init != null)
+            {
+            	smooth = init.smooth || 20;
+            }
         }
 
         private var cache:Dictionary = new Dictionary();
@@ -67,13 +70,13 @@ package away3d.core.material
             //blackrender = false;
             if ((br < 1) && (blackrender || step < 16))
             {
-                RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth);
+                RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
                 RenderTriangle.renderColor(graphics, 0x000000, 1 - br, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
             }
             else
             if ((br > 1) && (whiterender))
             {
-                RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth);
+                RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
                 RenderTriangle.renderColor(graphics, 0xFFFFFF, (br - 1)*whitek, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
             }
             else
@@ -86,7 +89,7 @@ package away3d.core.material
                     bitmap.colorTransform(bitmap.rect, new ColorTransform(brightness, brightness, brightness));
                     cache[brightness] = bitmap;
                 }
-                RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth);
+                RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
             }
         }
 

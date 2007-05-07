@@ -32,12 +32,15 @@ package away3d.core.material
         public var draw_reflect:Boolean = false;
         public var draw_reflect_k:Number = 1;
 
-        public function ColorShadingBitmapMaterial(ambient:int, diffuse:int, specular:int, alpha:Number)
+        public function ColorShadingBitmapMaterial(ambient:int, diffuse:int, specular:int, init:Object = null)
         {
             this.ambient = ambient;
             this.diffuse = diffuse;
             this.specular = specular;
-            this.alpha = alpha;
+            if (init != null)
+            {
+        		alpha = init.alpha || 20;
+            }
         }
 
         public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void

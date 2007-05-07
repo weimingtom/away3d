@@ -16,17 +16,21 @@ package away3d.core.material
 
     public class PreciseBitmapMaterial extends BitmapMaterial
     {
-        public var precision:Number;
+        public var precision:Number = 1;
 
-        public function PreciseBitmapMaterial(bitmap:BitmapData, precision:Number = 1, smooth:Boolean = false, debug:Boolean = false)
+        public function PreciseBitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
-            super(bitmap, smooth, debug);
-            this.precision = precision * precision * 1.4;
+            super(bitmap, init);
+            if (init != null)
+            {
+            	precision = init.precision || 1;
+            }
+            precision = precision * precision * 1.4;
         }
 
-        public static function fromAsset(asset:BitmapAsset, precision:Number = 1, smooth:Boolean = false, debug:Boolean = false):PreciseBitmapMaterial
+        public static function fromAsset(asset:BitmapAsset, init:Object = null):PreciseBitmapMaterial
         {
-            return new PreciseBitmapMaterial(asset.bitmapData, precision, smooth, debug);
+            return new PreciseBitmapMaterial(asset.bitmapData, init);
         }
 
         public override function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
@@ -61,7 +65,7 @@ package away3d.core.material
 
             if ((Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
-                RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth);
+                RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
                 if (debug)
                 {
                     graphics.lineStyle(1, 0x00FF00);
@@ -102,7 +106,7 @@ package away3d.core.material
 
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
-                RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth);
+                RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
                 if (debug)
                 {
                     graphics.lineStyle(1, 0x0000FF);

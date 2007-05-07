@@ -21,11 +21,14 @@ package away3d.core.material
         public var diffuse_brightness:Number = 1;
         public var specular_brightness:Number = 1;
 
-        public var alpha:Number;
+        public var alpha:Number = 20;
 
-        public function CornerLightingMaterial(alpha:Number)
+        public function CornerLightingMaterial(init:Object = null)
         {
-            this.alpha = alpha;
+        	if (init != null)
+            {
+        		alpha = init.alpha || 20;
+            }
         }
 
         public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void

@@ -19,17 +19,20 @@ package away3d.core.material
         public var ambient_brightness:Number = 1;
         public var diffuse_brightness:Number = 1;
         public var specular_brightness:Number = 1;
-
-        public var alpha:Number;
+        public var alpha:Number = 20;
+        
         public var draw_normal:Boolean = false;
         public var draw_fall:Boolean = false;
         public var draw_fall_k:Number = 1;
         public var draw_reflect:Boolean = false;
         public var draw_reflect_k:Number = 1;
 
-        public function CenterLightingMaterial(alpha:Number = 20)
+        public function CenterLightingMaterial(init:Object = null)
         {
-            this.alpha = alpha;
+        	if (init != null)
+            {
+        		alpha = init.alpha || 20;
+            }
         }
 
         public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void

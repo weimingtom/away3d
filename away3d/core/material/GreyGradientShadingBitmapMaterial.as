@@ -68,7 +68,7 @@ package away3d.core.material
             var br0:Number = (k0ar + k0ag + k0ab + k0dr + k0dg + k0db + k0sr + k0sg + k0sb) / 3;
             var br1:Number = (k1ar + k1ag + k1ab + k1dr + k1dg + k1db + k1sr + k1sg + k1sb) / 3;
             var br2:Number = (k2ar + k2ag + k2ab + k2dr + k2dg + k2db + k2sr + k2sg + k2sb) / 3;
-            RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, s0.x, s0.y, s1.x, s1.y, s2.x, s2.y, smooth);
+            RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, s0.x, s0.y, s1.x, s1.y, s2.x, s2.y, smooth, repeat);
 
             /*
             var s0:Vertex2D = tri.v0;
@@ -140,7 +140,7 @@ package away3d.core.material
 
                     var m:Matrix = new Matrix(a, b, c, d, x, y);
                     m.scale(10/16384, 10/16384);
-                    RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, s0.x, s0.y, s1.x, s1.y, s2.x, s2.y, smooth);
+                    RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, s0.x, s0.y, s1.x, s1.y, s2.x, s2.y, smooth, repeat);
                     graphics.beginGradientFill(GradientType.LINEAR, blackblack, [1, 0], zero255, m);
                     graphics.moveTo(s0.x, s0.y);
                     graphics.lineTo(s1.x, s1.y);
