@@ -16,8 +16,9 @@ package away3d.core.material
     public class BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var bitmap:BitmapData;
-        public var smooth:Boolean;
-        public var debug:Boolean;
+        public var smooth:Boolean = false;
+        public var debug:Boolean = false;
+        public var repeat:Boolean = false;
 
         public function get width():Number
         {
@@ -29,16 +30,20 @@ package away3d.core.material
             return bitmap.height;
         }
 
-        public function BitmapMaterial(bitmap:BitmapData, smooth:Boolean = false, debug:Boolean = false)
+        public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
             this.bitmap = bitmap;
-            this.smooth = smooth;
-            this.debug = debug;
+            if (init != null)
+            {
+            	smooth = init.smooth || false;
+            	debug = init.debug || false;
+            	repeat = init.repeat || false;
+            }
         }
 
-        public static function fromAsset(asset:BitmapAsset, smooth:Boolean = false, debug:Boolean = false):BitmapMaterial
+        public static function fromAsset(asset:BitmapAsset, init:Object = null):BitmapMaterial
         {
-            return new BitmapMaterial(asset.bitmapData, smooth, debug);
+            return new BitmapMaterial(asset.bitmapData, init);
         }
 
         public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
@@ -48,7 +53,7 @@ package away3d.core.material
             var v1:Vertex2D = tri.v1;
             var v2:Vertex2D = tri.v2;
 
-            RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth);
+            RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 
             if (debug)
             {

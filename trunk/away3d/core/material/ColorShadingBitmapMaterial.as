@@ -20,9 +20,9 @@ package away3d.core.material
         public var diffuse:int;
         public var specular:int;
 
-        public function ColorShadingBitmapMaterial(ambient:int, diffuse:int, specular:int, alpha:Number = 20)
+        public function ColorShadingBitmapMaterial(ambient:int, diffuse:int, specular:int, init:Object = null)
         {
-            super(alpha);
+            super(init);
 
             this.ambient = ambient;
             this.diffuse = diffuse;

@@ -19,7 +19,8 @@ package away3d.core.material
         public var ambient:BitmapData;
         public var diffuse:BitmapData;
         public var specular:BitmapData;
-        public var smooth:Boolean;
+        public var smooth:Boolean = false;
+        public var repeat:Bolean = false;
 
         protected var _width:int;
         protected var _height:int;
@@ -55,13 +56,17 @@ package away3d.core.material
             return _height;
         }
 
-        public function ShadingBitmapMaterial(ambient:BitmapData, diffuse:BitmapData, specular:BitmapData, alpha:Number = 20, smooth:Boolean = false)
+        public function ShadingBitmapMaterial(ambient:BitmapData, diffuse:BitmapData, specular:BitmapData, init:Object = null)
         {
-            super(alpha);
+            super(init);
             this.ambient = ambient || diffuse;
             this.diffuse = diffuse || ambient;
             this.specular = specular || diffuse;
-            this.smooth = smooth;
+            if (init != null)
+            {
+            	smooth = init.smooth || false;
+            	repeat = init.repeat || false;
+            }
 
             calc();
         }
@@ -153,7 +158,7 @@ package away3d.core.material
             var v2:Vertex2D = tri.v2;
             var bitmap:BitmapData = getBitmap(kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
 
-            RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth);
+            RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
         }
 
         public function getBitmap(ar:Number, ag:Number, ab:Number, dr:Number, dg:Number, db:Number, sr:Number, sg:Number, sb:Number):BitmapData
