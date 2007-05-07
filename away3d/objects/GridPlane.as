@@ -9,15 +9,22 @@ package away3d.objects
     
     public class GridPlane extends Mesh3D
     {
-        public var segmentsW:Number;
-        public var segmentsH:Number;
+    	public var width:Number = 50;
+    	public var height:Number = 50;
+        public var segmentsW:int = 1;
+        public var segmentsH:int = 1;
     
-        public function GridPlane(material:IMaterial = null, width:Number = 0, height:Number = 0, segmentsW:Number = 0, segmentsH:Number = 0, init:Object = null)
+        public function GridPlane(material:IMaterial, init:Object = null)
         {
             super(material, init);
-    
-            this.segmentsW = segmentsW || 1;
-            this.segmentsH = segmentsH || this.segmentsW;
+            
+    		if (init != null)
+            {
+            	width = init.width || 50;
+            	height = init.height || 50;
+            	segmentsW = init.segmentsW || segmentsW;
+            	segmentsH = init.segmentsH || segmentsW;
+            }
     
             var scale:Number = 1;
     
@@ -40,9 +47,9 @@ package away3d.objects
                 var a:Vertex3D = new Vertex3D((ix / segmentsW - 0.5) * width, 0,  - 0.5 * height);
                 var b:Vertex3D = new Vertex3D((ix / segmentsW - 0.5) * width, 0,    0.5 * height);
 
-                this.vertices.push(a);
-                this.vertices.push(b);
-                this.segments.push(new Segment3D(a, b));
+                vertices.push(a);
+                vertices.push(b);
+                segments.push(new Segment3D(a, b));
             }
 
             for (var iy:int = 0; iy <= segmentsH; iy++)
@@ -50,9 +57,9 @@ package away3d.objects
                 var c:Vertex3D = new Vertex3D( -0.5 * width, 0, (iy / segmentsH - 0.5) * height);
                 var d:Vertex3D = new Vertex3D(  0.5 * width, 0, (iy / segmentsH - 0.5) * height);
 
-                this.vertices.push(c);
-                this.vertices.push(d);
-                this.segments.push(new Segment3D(c, d));
+                vertices.push(c);
+                vertices.push(d);
+                segments.push(new Segment3D(c, d));
             }
         }
     }

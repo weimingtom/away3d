@@ -7,10 +7,20 @@ package away3d.objects
 
     public class Cube extends Mesh3D
     {
-        public function Cube(material:IMaterial = null, width:Number = 50, height:Number = 50, depth:Number = 50, init:Object = null)
+    	public var width:Number = 50;
+    	public var height:Number = 50;
+    	public var depth:Number = 50;
+    	
+        public function Cube(material:IMaterial, init:Object = null)
         {
             super(material, init);
-
+            
+			if (init != null)
+            {
+            	width = init.width || width;
+            	height = init.height || height;
+            	depth = init.depth || depth;
+            }
             var v000:Vertex3D = new Vertex3D(-width/2, -height/2, -depth/2); 
             var v001:Vertex3D = new Vertex3D(-width/2, -height/2, +depth/2); 
             var v010:Vertex3D = new Vertex3D(-width/2, +height/2, -depth/2); 

@@ -9,15 +9,22 @@ package away3d.objects
     
     public class WirePlane extends Mesh3D
     {
-        public var segmentsW:Number;
-        public var segmentsH:Number;
+        public var width:Number = 50;
+    	public var height:Number = 50;
+        public var segmentsW:int = 1;
+        public var segmentsH:int = 1;
     
-        public function WirePlane(material:IMaterial = null, width:Number = 0, height:Number = 0, segmentsW:Number = 0, segmentsH:Number = 0, init:Object = null)
+        public function WirePlane(material:IMaterial, init:Object = null)
         {
             super(material, init);
-    
-            this.segmentsW = segmentsW || 1;
-            this.segmentsH = segmentsH || this.segmentsW;
+            
+		    if (init != null)
+            {
+            	width = init.width || width;
+            	height = init.height || height;
+            	segmentsW = init.segmentsW || segmentsW;
+            	segmentsH = init.segmentsH || segmentsW;
+            }
     
             var scale:Number = 1;
     
