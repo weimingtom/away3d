@@ -14,8 +14,16 @@ package away3d.core.proto
         public var diffuse:Number;
         public var specular:Number;
 
-        public function Light3D(color:int, ambient:Number, diffuse:Number, specular:Number, distance:Number = 30)
+        public function Light3D(color:int, ambient:Number, diffuse:Number, specular:Number, init:Object = null)
         {
+            super(init);
+
+            var distance:Number = 30;
+            if (init)
+            {
+                distance = init.distance || 30;
+            }
+
             this.color = color;
             this.ambient = ambient * distance * distance;
             this.diffuse = diffuse * distance * distance;

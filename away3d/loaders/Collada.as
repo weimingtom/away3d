@@ -104,9 +104,7 @@ package away3d.loaders
                 }
             }
     
-            newnode.transform = matrix.clone();
-  //          newnode.updateTransform();
-            //throw new Error(matrix);
+            newnode.transform = matrix;
         }
     
         private function parseGeometry(geometry:XML, instance:Mesh3D):void
@@ -132,8 +130,6 @@ package away3d.loaders
                 var data     :Array  = triangles.p.split(' ');
                 var len      :Number = triangles.@count;
                 var material :String = triangles.@material;
-    
-                //addMaterial(instance, material);
     
                 for (var j:Number = 0; j < len; j++)
                 {
