@@ -19,8 +19,9 @@ package away3d.core.material
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
         public var diffuse:BitmapData;
-        public var smooth:Boolean;
-
+        public var smooth:Boolean = false;
+		public var repeat:Boolean = false;
+		
         protected var _width:int;
         protected var _height:int;
 
@@ -46,7 +47,8 @@ package away3d.core.material
             _height = diffuse.height;
             if (init != null)
             {
-            	smooth = init.smooth || 20;
+            	smooth = init.smooth || false;
+            	repeat = init.repeat || false;
             }
         }
 
