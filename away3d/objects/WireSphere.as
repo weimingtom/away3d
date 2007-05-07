@@ -14,7 +14,7 @@ package away3d.objects
         public var segmentsW:int = 8;
         public var segmentsH:int = 6;
     
-        public function WireSphere(material:IMaterial = null, radius:Number = 100, segmentsW:int = 8, segmentsH:int = 6, init:Object = null)
+        public function WireSphere(material:IMaterial = null, init:Object = null)
         {
             super(material, init);
     
