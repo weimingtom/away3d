@@ -23,10 +23,10 @@ package away3d.test
         private var slides:Array = new Array();
         private var slideindex:Number = 0;
 
-        private var titlegroup:Sprite;
-        private var statsgroup:Sprite;
+        protected var titlegroup:Sprite;
+        protected var statsgroup:Sprite;
         protected var infogroup:Sprite;
-        private var lefttopgroup:Sprite;
+        protected var lefttopgroup:Sprite;
 
         private var copylabel:TextField;
         private var fpslabel:TextField;

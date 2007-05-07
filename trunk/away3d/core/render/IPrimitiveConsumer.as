@@ -5,6 +5,6 @@ package away3d.core.render
 
     public interface IPrimitiveConsumer
     {
-        function primitive(tri:DrawPrimitive):void;
+        function primitive(pri:DrawPrimitive):void;
     }
 }
