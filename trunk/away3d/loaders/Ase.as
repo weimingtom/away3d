@@ -237,7 +237,7 @@ public class Ase extends Mesh3D
 
 		// dispatch event
 		var fileEvent:FileLoadEvent = new FileLoadEvent( FileLoadEvent.LOAD_COMPLETE, _filename );
-		dispatchEvent( fileEvent );
+		//dispatchEvent( fileEvent );
 
 		this.loaded = true;
 
@@ -249,7 +249,7 @@ public class Ase extends Mesh3D
 	private function ioErrorHandler(event:IOErrorEvent):void
 	{
 		var fileEvent:FileLoadEvent = new FileLoadEvent( FileLoadEvent.LOAD_ERROR, _filename );
-		dispatchEvent( fileEvent );
+		//Object3DEvents.dispatchEvent( fileEvent );
 		throw new Error("Ase: ioErrorHandler Error.");
 	}
 
