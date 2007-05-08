@@ -24,7 +24,8 @@ package away3d.core.material
         
         protected var _width:int;
         protected var _height:int;
-
+		protected var _scale:Number2D = new Number2D(0,0);
+		protected var _normal:Number3D = new Number3D(0,0,0);
         public var blackrender:Boolean;
         public var whiterender:Boolean;
         public var whitek:Number = 0.2;
@@ -38,7 +39,16 @@ package away3d.core.material
         {
             return _height;
         }
-
+        
+        public function get scale():Number2D
+        {
+            return _scale;
+        }
+        
+		public function get normal():Number3D
+        {
+            return _normal;
+        }
         public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object)
         {
             super(init);
@@ -51,6 +61,8 @@ package away3d.core.material
             {
                 smooth = init.smooth || false;
                 repeat = init.repeat || false;
+                _scale = init.scale || _scale;
+                _normal = init.normal || _normal;
             }
         }
 

@@ -19,7 +19,10 @@ package away3d.core.material
         public var smooth:Boolean = false;
         public var debug:Boolean = false;
         public var repeat:Boolean = false;
-
+        
+		protected var _scale:Number2D = new Number2D(0,0);
+        protected var _normal:Number3D = new Number3D(0,0,0);
+		
         public function get width():Number
         {
             return bitmap.width;
@@ -29,7 +32,17 @@ package away3d.core.material
         {
             return bitmap.height;
         }
-
+        
+		public function get scale():Number2D
+        {
+            return _scale;
+        }
+        
+        public function get normal():Number3D
+        {
+            return _normal;
+        }
+        
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
             this.bitmap = bitmap;
@@ -38,6 +51,8 @@ package away3d.core.material
             	smooth = init.smooth || false;
             	debug = init.debug || false;
             	repeat = init.repeat || false;
+            	_normal = init.normal || _normal;
+            	_scale = init.scale || _scale;
             }
         }
 
