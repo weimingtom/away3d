@@ -11,5 +11,7 @@ package away3d.core.material
     {
         function get width():Number;
         function get height():Number;
+        function get scale():Number2D;
+        function get normal():Number3D;
     }
 }
