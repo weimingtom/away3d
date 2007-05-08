@@ -20,8 +20,8 @@ package away3d.core.material
     {
         public var diffuse:BitmapData;
         public var smooth:Boolean = false;
-		public var repeat:Boolean = false;
-		
+        public var repeat:Boolean = false;
+        
         protected var _width:int;
         protected var _height:int;
 
@@ -39,16 +39,18 @@ package away3d.core.material
             return _height;
         }
 
-        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init)
+        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object)
         {
             super(init);
+
             this.diffuse = diffuse;
             _width = diffuse.width;
             _height = diffuse.height;
+
             if (init != null)
             {
-            	smooth = init.smooth || false;
-            	repeat = init.repeat || false;
+                smooth = init.smooth || false;
+                repeat = init.repeat || false;
             }
         }
 
