@@ -29,6 +29,16 @@ package away3d.core.math
             return Math.sqrt(x*x + y*y + z*z);
         }
     
+    	public static function scale( v:Number3D, s:Number ):Number3D
+		{
+			return new Number3D
+			(
+				v.x * s,
+				v.y * s,
+				v.z * s
+			);
+		}  
+		
         public static function add(v:Number3D, w:Number3D):Number3D
         {
             return new Number3D
