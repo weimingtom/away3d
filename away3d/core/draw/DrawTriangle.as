@@ -267,6 +267,9 @@ package away3d.core.draw
 
         public override function getZ(x:Number, y:Number):Number
         {
+            if (projection == null)
+                return screenZ;
+
             var focus:Number = projection.focus;
             // v1v:Vector = v1 - v0
             // v2v:Vector = v2 - v0
