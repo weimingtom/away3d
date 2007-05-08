@@ -228,8 +228,6 @@ package away3d.core.proto
         // All properties of the extra field are copied into the new instance. The properties specified with extra are publicly available.
         public function Object3D(init:Object = null):void
         {
-            this.name = name;
-    
             if (init != null)
             {
                 name = init.name || null;
@@ -364,7 +362,7 @@ package away3d.core.proto
         // Make the object look at a specific position.
         // @param targetObject Object to look at.
         // @param upAxis The vertical axis of the universe. Normally the positive Y axis.
-        public function lookAt(targetObject:Object3D, upAxis:Number3D = null):void
+        public function lookAt(targetObject:*, upAxis:Number3D = null):void
         {
             var position:Number3D = new Number3D(x, y, z);
             var target:Number3D = new Number3D(targetObject.x, targetObject.y, targetObject.z);
@@ -400,7 +398,7 @@ package away3d.core.proto
             }
             else
             {
-                throw new Error("lookAt Error");
+                //throw new Error("lookAt Error");
             }
         }
 
