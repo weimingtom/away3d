@@ -14,6 +14,7 @@ package away3d.shapes
     	public var height:Number;
     	public var radius:Number = 100;
         public var sides:Number = 3;
+        public var length:Number;
 		
         public function RegularShape(init:Object = null)
         {
@@ -41,9 +42,12 @@ package away3d.shapes
     		var yMin:Number = 1000000;
     		var yMax:Number = -1000000;
     		var i:int, j:String, vx:Number, vy:Number, fRad2:Number, v:Vertex3D;
+    		
+    		length = 0;
 			for (i=0;i<sides;i++) {
 				fRad2 = fRad*i - fRad/2;
 				vertices.push(new Vertex3D(vx = w*Math.sin(fRad2),vy = h*Math.cos(fRad2),0));
+				if (i) length += Math.sqrt(Math.pow(vx - vertices[i-1].x,2) + Math.pow(vy - vertices[i-1].y,2));
     			if (xMin > vx)
     				xMin = vx;
     			if (xMax < vx)
@@ -53,6 +57,7 @@ package away3d.shapes
     			if (yMax < vy)
     				yMax = vy;
 			}
+			if (sides > 2) length += Math.sqrt(Math.pow(vx - vertices[0].x,2) + Math.pow(vy - vertices[0].y,2));
 			var xScale:Number = (isNaN(width) || Math.abs(xMax - xMin) < 0.1)? 1 : width/(xMax - xMin);
 			var yScale:Number = (isNaN(height) || Math.abs(yMax - yMin) < 0.1)? 1 : height/(yMax - yMin);
 
