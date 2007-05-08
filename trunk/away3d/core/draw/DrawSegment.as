@@ -120,12 +120,15 @@ package away3d.core.draw
 
             var v01:Vertex2D = new Vertex2D(tv01x, tv01y, tv01z);
 
-            return [create(source, material, v0, v01), create(source, material, v01, v1)];
+            return [create(source, material, projection, v0, v01), create(source, material, projection, v01, v1)];
         }
 
         public override function getZ(x:Number, y:Number):Number
         {
-            var focus:Number = projection ? projection.focus : 0;
+            if (projection == null)
+                return screenZ;
+
+            var focus:Number = projection.focus;
               
             var ax:Number = v0.x;
             var ay:Number = v0.y;
@@ -168,7 +171,7 @@ package away3d.core.draw
 
             var v01:Vertex2D = Vertex2D.median(v0, v1, focus);
 
-            return [create(source, material, v0, v01), create(source, material, v01, v1)];
+            return [create(source, material, projection, v0, v01), create(source, material, projection, v01, v1)];
         }
 
         public function distanceToCenter(x:Number, y:Number):Number
@@ -179,11 +182,12 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(source:Object3D, material:ISegmentMaterial, v0:Vertex2D, v1:Vertex2D):DrawSegment
+        public static function create(source:Object3D, material:ISegmentMaterial, projection:Projection, v0:Vertex2D, v1:Vertex2D):DrawSegment
         {
             var tri:DrawSegment = new DrawSegment();
             tri.source = source;
             tri.material = material;
+            tri.projection = projection;
             tri.v0 = v0;
             tri.v1 = v1;
             tri.calc();
