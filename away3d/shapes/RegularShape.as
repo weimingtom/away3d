@@ -1,6 +1,6 @@
 package away3d.shapes
 {
-    import org.papervision3d.core.*;
+    import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.proto.*;
     import away3d.core.geom.*;

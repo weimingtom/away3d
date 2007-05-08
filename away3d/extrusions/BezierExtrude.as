@@ -3,7 +3,7 @@ package away3d.extrusions
 {
 	import away3d.objects.*;
 	import away3d.shapes.*;
-	import org.papervision3d.core.*;
+	import away3d.core.*;
 	import away3d.core.draw.*;
 	import away3d.core.geom.*;
 	import away3d.core.material.*;
