@@ -13,6 +13,7 @@ package away3d.core.proto
         public var ambient:Number;
         public var diffuse:Number;
         public var specular:Number;
+        public var showsource:Boolean = true;
 
         public function Light3D(color:int, ambient:Number, diffuse:Number, specular:Number, init:Object = null)
         {
@@ -37,6 +38,9 @@ package away3d.core.proto
 
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
+            if (!showsource)
+                return;
+
             var v:Vertex3D = new Vertex3D(0, 0, 0);
             var vp:Vertex2D = v.project(projection);
             if (!vp.visible)
