@@ -11,14 +11,10 @@ package away3d.objects
 
     public class IrregularPlane extends Mesh3D
     {
-    	private var xMin:Number = 1000000;
-    	private var xMax:Number = -1000000;
-    	private var yMin:Number = 1000000;
-    	private var yMax:Number = -1000000;
     	
     	public var width:Number;
     	public var height:Number;
-       	public var sides:Number = 3;
+       	public var sides:Number;
                 
         public function IrregularPlane(material:IMaterial, vertices:Array, init:Object = null)
         {
@@ -26,30 +22,17 @@ package away3d.objects
     		
     		this.vertices = vertices;
     		
-    		sides = vertices.length;
-    		var i:String, vx:Number, vy:Number, v:Vertex3D;
-    		for (i in vertices) {
-    			v = vertices[i];
-    			vx = v.x;
-    			vy = v.y;
-    			if (xMin > vx)
-    				xMin = vx;
-    			if (xMax < vx)
-    				xMax = vx;
-    			if (yMin > vy)
-    				yMin = vy;
-    			if (yMax < vy)
-    				yMax = vy;
-    		}
-    		width = xMax - xMin;
-    		height = yMax - yMin;
-            buildPlane(width, height);
+            buildPlane();
         }
     
-        private function buildPlane(width:Number, height:Number):void
+        private function buildPlane():void
         {
+    		var shape:IrregularShape = new IrregularShape(vertices, init);
+    		sides = shape.sides;
+    		width = shape.width;
+    		height = shape.height;
+    		
         	var i:Number;
-			
 			var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
 			var aP1:Vertex3D, aP2:Vertex3D, aP3:Vertex3D, aP4:Vertex3D;
 			
