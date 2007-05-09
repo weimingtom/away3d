@@ -14,23 +14,26 @@ package away3d.extrusions
 	
 	public class BezierExtrude extends Mesh3D
 	{
+		public var shape:Vertices3D;
+		
 		public var segmentsH:int = 20;
-		
-		public var length:Number;
 		public var axisVertices:Array = [];
+		public var axisMaterials:Array = [];
 		
-		
-		function BezierExtrude(material:IMaterial, shape:RegularShape, vertices:Array, init:Object = null)
+		function BezierExtrude(material:IMaterial, shape:Vertices3D, vertices:Array, init:Object = null)
 		{
 			super(material, init);
 			if (init != null)
             {
             	segmentsH = Math.max(2, init.segmentsH) || segmentsH;
+            	axisMaterials = init.axisMaterials || [];
             }
-			buildExtrusion(shape, vertices);
+            this.shape = shape;
+            this.vertices = vertices;
+			buildExtrusion();
 		}
 		
-		private function buildExtrusion(shape:RegularShape, vertices:Array):void
+		private function buildExtrusion():void
 		{
 			var i:Number, j:Number, k:Number;
 			var iPoints:Number = vertices.length - 1;
@@ -55,7 +58,7 @@ package away3d.extrusions
 				
 				var jStart:Number = k? 1 : 0;
 				for (j=jStart;j<=segmentsH;j++) { // vertical
-					if (j) oldPos = fPos;
+					oldPos = fPos;
 					var aRow:Array = new Array();
 					a1 = j/segmentsH;
 					a2 = Math.pow(j/segmentsH, 2);
@@ -90,49 +93,64 @@ package away3d.extrusions
 			var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
 			var aP1:Vertex3D, aP2:Vertex3D, aP3:Vertex3D, aP4:Vertex3D;
 			var fJ0:Number, fJ1:Number, fI0:Number, fI1:Number;
-			var xScale:Number, yScale:Number;
-			if (material is IUVMaterial) {
-				var mat:IUVMaterial = (material as IUVMaterial);
-				if (mat.normal.modulo > 0) {
-					xScale = mat.scale.x? 1/(mat.width*mat.scale.x) : 1/mat.width;
-					yScale = mat.scale.y? 1/(mat.height*mat.scale.y) : 1/mat.height;									
-				} else {
-					xScale = mat.scale.x? shape.length/(mat.width*mat.scale.x) : 1;
-					yScale = mat.scale.y? length/(mat.height*mat.scale.y) : 1;				
-				}
-			} else {
-				xScale = yScale = 1;
-			}
+			var lengthH:Number, oldLengthH:Number;
+			var mScale:Number2D = getMaterialScale(material);
+			var mat:IUVMaterial = material as IUVMaterial;
 			for (j=1;j<iVerNum;j++) {
-				var iHorNum:int = aVtc[j].length;
-				var iStart:Number = (iHorNum > 2)? 0 : 1;
-				for (i=iStart;i<iHorNum;i++) {
+				var len:int = aVtc[j].length;
+				var iHorNum:int = len;
+				if (shape.wrap) iHorNum++;
+				lengthH = oldLengthH = 0;
+				for (i=1;i<iHorNum;i++) {
 					// select vertices
-					var iWrapped:Number = i==0?iHorNum:i;
-					aP1 = aVtc[j][i];
-					aP2 = aVtc[j][iWrapped-1];
-					aP3 = aVtc[j-1][iWrapped-1];
-					aP4 = aVtc[j-1][i];
+					var iWrapped:Number = i==len?0:i;
+					aP1 = aVtc[j][iWrapped];
+					aP2 = aVtc[j][i-1];
+					aP3 = aVtc[j-1][i-1];
+					aP4 = aVtc[j-1][iWrapped];
 					// uv
+					if (axisMaterials[i]) {
+						mat = axisMaterials[i] as IUVMaterial;
+						mScale = getMaterialScale(mat);
+					} else if (mat != material) {
+						mat = material as IUVMaterial;
+						mScale = getMaterialScale(material);
+					}
 					if (mat.normal.modulo > 0) {
-						aP4uv = new NumberUV(aP4.x*xScale,aP4.z*yScale);
-						aP1uv = new NumberUV(aP1.x*xScale,aP1.z*yScale);
-						aP2uv = new NumberUV(aP2.x*xScale,aP2.z*yScale);
-						aP3uv = new NumberUV(aP3.x*xScale,aP3.z*yScale);
+						aP1uv = new NumberUV(aP1.x*mScale.x,aP1.z*mScale.y);
+						aP2uv = new NumberUV(aP2.x*mScale.x,aP2.z*mScale.y);
+						aP3uv = new NumberUV(aP3.x*mScale.x,aP3.z*mScale.y);
+						aP4uv = new NumberUV(aP4.x*mScale.x,aP4.z*mScale.y);
 					} else {
-						fJ0 = (yScale*j/(iVerNum - 1)) % 1;
-						fJ1 = fJ0 - yScale/(iVerNum - 1);
-						fI0 = (xScale*iWrapped/(iHorNum - iStart)) % 1;
-						fI1 = fI0 - xScale/(iHorNum - iStart);
-						aP4uv = new NumberUV(fI0,fJ1);
+						oldLengthH = lengthH;
+						lengthH += Math.sqrt(Math.pow(aP1.x - aP2.x, 2) + Math.pow(aP1.y - aP2.y, 2) + Math.pow(aP1.z - aP2.z, 2)); 
+						fJ0 = (mScale.y*j/(iVerNum - 1)) % 1;
+						fJ1 = fJ0 - mScale.y/(iVerNum - 1);
+						fI0 = (mScale.x*lengthH/shape.length) % 1;
+						fI1 = fI0 - mScale.x*(lengthH - oldLengthH)/shape.length;
 						aP1uv = new NumberUV(fI0,fJ0);
 						aP2uv = new NumberUV(fI1,fJ0);
-						aP3uv = new NumberUV(fI1,fJ1);						
+						aP3uv = new NumberUV(fI1,fJ1);
+						aP4uv = new NumberUV(fI0,fJ1);
 					}
 					// 2 faces
-					faces.push( new Face3D(aP1,aP2,aP3, null, aP1uv,aP2uv,aP3uv) );
-					faces.push( new Face3D(aP1,aP3,aP4, null, aP1uv,aP3uv,aP4uv) );
+					faces.push( new Face3D(aP1,aP2,aP3, mat as ITriangleMaterial, aP1uv,aP2uv,aP3uv) );
+					faces.push( new Face3D(aP1,aP3,aP4, mat as ITriangleMaterial, aP1uv,aP3uv,aP4uv) );
 				}
+			}
+		}
+		
+		private function getMaterialScale(m:IMaterial):Number2D
+		{
+			if (m is IUVMaterial) {
+				var mat:IUVMaterial = (m as IUVMaterial);
+				if (mat.normal.modulo > 0) {
+					return new Number2D(mat.scale.x? 1/(mat.width*mat.scale.x) : 1/mat.width, mat.scale.y? 1/(mat.height*mat.scale.y) : 1/mat.height);									
+				} else {
+					return new Number2D(mat.scale.x? shape.length/(mat.width*mat.scale.x) : 1, mat.scale.y? length/(mat.height*mat.scale.y) : 1);				
+				}
+			} else {
+				return new Number2D(1, 1);
 			}
 		}
 	}
