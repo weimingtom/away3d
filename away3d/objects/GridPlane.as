@@ -9,8 +9,6 @@ package away3d.objects
     
     public class GridPlane extends Mesh3D
     {
-    	public var width:Number = 50;
-    	public var height:Number = 50;
         public var segmentsW:int = 1;
         public var segmentsH:int = 1;
     

@@ -7,9 +7,6 @@ package away3d.objects
 
     public class Cube extends Mesh3D
     {
-    	public var width:Number = 50;
-    	public var height:Number = 50;
-    	public var depth:Number = 50;
     	
         public function Cube(material:IMaterial, init:Object = null)
         {
