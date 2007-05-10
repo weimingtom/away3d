@@ -75,6 +75,9 @@ package away3d.core.geom
             var trimat:ITriangleMaterial = (material is ITriangleMaterial) ? (material as ITriangleMaterial) : null;
             for each (var face:Face3D in faces)
             {
+                if (!face.visible)
+                    continue;
+
                 tri = tri || new DrawTriangle();
 
                 tri.v0 = face.v0.project(projection);
@@ -105,7 +108,7 @@ package away3d.core.geom
 
                 if ((!bothsides) && (tri.area <= 0))
                     continue;
-
+                
                 tri.uv0 = face.uv0;
                 tri.uv1 = face.uv1;
                 tri.uv2 = face.uv2;
@@ -118,7 +121,21 @@ package away3d.core.geom
                     tri.texturemapping = face.texturemapping;
                 }
 
+                if (tri.area <= 0)
+                {
+                    // Make cleaner
+                    tri.texturemapping = null;
+                    var vt:Vertex2D = tri.v1;
+                    tri.v1 = tri.v2;
+                    tri.v2 = vt;
+
+                    var uvt:NumberUV = tri.uv1;
+                    tri.uv1 = face.uv2;
+                    tri.uv2 = uvt;
+                }
+
                 tri.source = this;
+                tri.face = face;
                 tri.projection = projection;
                 consumer.primitive(tri);
                 tri = null;

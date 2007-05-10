@@ -21,6 +21,8 @@ package away3d.core.draw
         public var uv2:NumberUV;
         public var area:Number;
 
+        public var face:Face3D;
+
         public var material:ITriangleMaterial;
 
         public var texturemapping:Matrix;

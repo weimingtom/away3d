@@ -20,7 +20,9 @@ package away3d.core.geom
     
         public var material:ITriangleMaterial;
 
-        public var facelight:Array;
+        public var extra:Object;
+
+        public var visible:Boolean = true;
 
         public function Face3D(v0:Vertex3D, v1:Vertex3D, v2:Vertex3D, material:ITriangleMaterial = null, uv0:NumberUV = null, uv1:NumberUV = null, uv2:NumberUV = null)
         {
