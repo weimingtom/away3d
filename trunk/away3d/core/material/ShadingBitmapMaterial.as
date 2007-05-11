@@ -64,8 +64,8 @@ package away3d.core.material
             this.specular = specular || diffuse;
             if (init != null)
             {
-            	smooth = init.smooth || false;
-            	repeat = init.repeat || false;
+                smooth = init.smooth || false;
+                repeat = init.repeat || false;
             }
 
             calc();
@@ -150,7 +150,7 @@ package away3d.core.material
                 }
         }
 
-        public override function renderTri(tri:DrawTriangle, graphics:Graphics, clip:Clipping, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
             var v0:Vertex2D = tri.v0;

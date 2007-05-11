@@ -23,17 +23,19 @@ package away3d.core.material
             super(bitmap, init);
             if (init != null)
             {
-            	precision = init.precision || 1;
+                precision = init.precision || 1;
             }
             precision = precision * precision * 1.4;
         }
 
+        /*
         public static function fromAsset(asset:BitmapAsset, init:Object = null):PreciseBitmapMaterial
         {
             return new PreciseBitmapMaterial(asset.bitmapData, init);
         }
+        */
 
-        public override function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public override function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
 
@@ -41,10 +43,11 @@ package away3d.core.material
             var v1:Vertex2D = tri.v1;
             var v2:Vertex2D = tri.v2;
 
-            renderRec(graphics, clip, tri.projection, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+            renderRec(session, tri.projection, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 
             if (debug)
             {
+                var graphics:Graphics = session.graphics;
                 graphics.lineStyle(2, 0xFFFFFF);
                 graphics.moveTo(tri.v0.x, tri.v0.y);
                 graphics.lineTo(tri.v1.x, tri.v1.y);
@@ -53,16 +56,17 @@ package away3d.core.material
             }
         }
 
-        protected function renderRec(graphics:Graphics, clip:Clipping, projection:Projection,
+        protected function renderRec(session:RenderSession, projection:Projection,
             ta:Number, tb:Number, tc:Number, td:Number, tx:Number, ty:Number, 
             ax:Number, ay:Number, az:Number, bx:Number, by:Number, bz:Number, cx:Number, cy:Number, cz:Number):void
         {
-            if (!clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!session.clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
             if ((az <= 0) && (bz <= 0) && (cz <= 0))
                 return;
 
+            var graphics:Graphics = session.graphics;
             if ((Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
                 RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
@@ -122,16 +126,16 @@ package away3d.core.material
 
             if ((dsab > precision) && (dsca > precision) && (dsbc > precision))
             {
-                renderRec(graphics, clip, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2,
+                renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2,
                     ax, ay, az, mabx/2, maby/2, (az+bz)/2, mcax/2, mcay/2, (cz+az)/2);
 
-                renderRec(graphics, clip, projection, ta*2, tb*2, tc*2, td*2, tx*2-1, ty*2,
+                renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2-1, ty*2,
                     mabx/2, maby/2, (az+bz)/2, bx, by, bz, mbcx/2, mbcy/2, (bz+cz)/2);
 
-                renderRec(graphics, clip, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2-1,
+                renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2-1,
                     mcax/2, mcay/2, (cz+az)/2, mbcx/2, mbcy/2, (bz+cz)/2, cx, cy, cz);
 
-                renderRec(graphics, clip, projection, -ta*2, -tb*2, -tc*2, -td*2, -tx*2+1, -ty*2+1,
+                renderRec(session, projection, -ta*2, -tb*2, -tc*2, -td*2, -tx*2+1, -ty*2+1,
                     mbcx/2, mbcy/2, (bz+cz)/2, mcax/2, mcay/2, (cz+az)/2, mabx/2, maby/2, (az+bz)/2);
 
                 return;
@@ -140,10 +144,10 @@ package away3d.core.material
             var dmax:Number = Math.max(dsab, Math.max(dsca, dsbc));
             if (dsab == dmax)
             {
-                renderRec(graphics, clip, projection, ta*2, tb*1, tc*2, td*1, tx*2, ty*1,
+                renderRec(session, projection, ta*2, tb*1, tc*2, td*1, tx*2, ty*1,
                     ax, ay, az, mabx/2, maby/2, (az+bz)/2, cx, cy, cz);
 
-                renderRec(graphics, clip, projection, ta*2+tb, tb*1, 2*tc+td, td*1, tx*2+ty-1, ty*1,
+                renderRec(session, projection, ta*2+tb, tb*1, 2*tc+td, td*1, tx*2+ty-1, ty*1,
                     mabx/2, maby/2, (az+bz)/2, bx, by, bz, cx, cy, cz);
             
                 return;
@@ -151,20 +155,20 @@ package away3d.core.material
 
             if (dsca == dmax)
             {
-                renderRec(graphics, clip, projection, ta*1, tb*2, tc*1, td*2, tx*1, ty*2,
+                renderRec(session, projection, ta*1, tb*2, tc*1, td*2, tx*1, ty*2,
                     ax, ay, az, bx, by, bz, mcax/2, mcay/2, (cz+az)/2);
 
-                renderRec(graphics, clip, projection, ta*1, tb*2 + ta, tc*1, td*2 + tc, tx, ty*2+tx-1,
+                renderRec(session, projection, ta*1, tb*2 + ta, tc*1, td*2 + tc, tx, ty*2+tx-1,
                     mcax/2, mcay/2, (cz+az)/2, bx, by, bz, cx, cy, cz);
             
                 return;
             }
 
 
-            renderRec(graphics, clip, projection, ta-tb, tb*2, tc-td, td*2, tx-ty, ty*2,
+            renderRec(session, projection, ta-tb, tb*2, tc-td, td*2, tx-ty, ty*2,
                 ax, ay, az, bx, by, bz, mbcx/2, mbcy/2, (bz+cz)/2);
 
-            renderRec(graphics, clip, projection, 2*ta, tb-ta, tc*2, td-tc, 2*tx, ty-tx,
+            renderRec(session, projection, 2*ta, tb-ta, tc*2, td-tc, 2*tx, ty-tx,
                 ax, ay, az, mbcx/2, mbcy/2, (bz+cz)/2, cx, cy, cz);
         }
 

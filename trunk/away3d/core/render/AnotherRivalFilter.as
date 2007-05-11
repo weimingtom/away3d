@@ -109,6 +109,8 @@ package away3d.core.render
                     return zconflictTT(q as DrawTriangle, w as DrawTriangle);
                 if (w is DrawSegment)
                     return zconflictTS(q as DrawTriangle, w as DrawSegment);
+                if (q is DrawScaledBitmap)
+                    return zconflictTB(q as DrawTriangle, w as DrawScaledBitmap);
             }
             else
             if (q is DrawSegment)
@@ -116,16 +118,55 @@ package away3d.core.render
                 if (w is DrawTriangle)
                     return -zconflictTS(w as DrawTriangle, q as DrawSegment);
             }
+            else
+            if (q is DrawScaledBitmap)
+            {
+                if (w is DrawTriangle)
+                    return -zconflictTB(w as DrawTriangle, q as DrawScaledBitmap);
+                if (w is DrawScaledBitmap)
+                    return zconflictBB(q as DrawScaledBitmap, w as DrawScaledBitmap);
+            }
             return ZOrderIrrelevant;
         }
     
+        private static function zconflictBB(q:DrawScaledBitmap, r:DrawScaledBitmap):int
+        {
+            if (q.screenZ > r.screenZ)
+                return ZOrderDeeper;
+            if (q.screenZ < r.screenZ)
+                return ZOrderHigher;
+    
+            return ZOrderSame;
+        }
+
+        private static function zconflictTB(q:DrawTriangle, r:DrawScaledBitmap):int
+        {
+            if (q.contains(r.v.x, r.v.y))
+                return zcompare(q, r, r.v.x, r.v.y);
+            else
+            if (q.contains(r.minX, r.minY))
+                return zcompare(q, r, r.minX, r.minY);
+            else
+            if (q.contains(r.minX, r.maxY))
+                return zcompare(q, r, r.minX, r.maxY);
+            else
+            if (q.contains(r.maxX, r.minY))
+                return zcompare(q, r, r.maxX, r.minY);
+            else
+            if (q.contains(r.maxX, r.maxY))
+                return zcompare(q, r, r.maxX, r.maxY);
+            else
+                return ZOrderIrrelevant;
+        }
+
         private static function zconflictTS(q:DrawTriangle, r:DrawSegment):int
         {
+        /*
             if (q == null)
                 return ZOrderIrrelevant;
             if (r == null)
                 return ZOrderIrrelevant;
-
+        */
             var q0x:Number = q.v0.x;
             var q0y:Number = q.v0.y;
             var q1x:Number = q.v1.x;

@@ -29,10 +29,11 @@ package away3d.core.material
             lineWidth = wirewidth;
         }
 
-        public function renderSegment(seg:DrawSegment, graphics:Graphics, clip:Clipping):void
+        public function renderSegment(seg:DrawSegment, session:RenderSession):void
         {
             if (lineAlpha > 0)
             {
+                var graphics:Graphics = session.graphics;
                 graphics.lineStyle(lineWidth, lineColor, lineAlpha);
                 graphics.moveTo(seg.v0.x, seg.v0.y);
                 graphics.lineTo(seg.v1.x, seg.v1.y);
@@ -40,8 +41,10 @@ package away3d.core.material
             }
         }
 
-        public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
+            var graphics:Graphics = session.graphics;
+
             if (lineAlpha > 0)
                 graphics.lineStyle(lineWidth, lineColor, lineAlpha);
             else

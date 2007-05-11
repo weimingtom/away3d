@@ -25,13 +25,13 @@ package away3d.core.material
 
         public function CornerLightingMaterial(init:Object = null)
         {
-        	if (init != null)
+            if (init != null)
             {
-        		alpha = init.alpha || 20;
+                alpha = init.alpha || 20;
             }
         }
 
-        public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var s0:Vertex2D = tri.v0;
             var s1:Vertex2D = tri.v1;

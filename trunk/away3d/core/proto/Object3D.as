@@ -223,9 +223,7 @@ package away3d.core.proto
         // scaleY: Sets the scale along the local Y axis as applied from the registration point of the object.
         // scaleZ: Sets the scale along the local Z axis as applied from the registration point of the object.
         // visible: Whether or not the display object is visible.
-        // A Boolean value that indicates whether the object is projected, transformed and rendered. A value of false will effectively ignore the object. The default value is true.
         // extra: An object that contains user defined properties.
-        // All properties of the extra field are copied into the new instance. The properties specified with extra are publicly available.
         public function Object3D(init:Object = null):void
         {
             if (init != null)

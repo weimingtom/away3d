@@ -15,6 +15,7 @@ package away3d.core.proto
     public class Scene3D extends ObjectContainer3D
     {
         public var container:Sprite;
+        public var canvas:Sprite;
         private var camera:Camera3D;
     
         public function Scene3D(...objects)
@@ -50,24 +51,13 @@ package away3d.core.proto
                 target = target.parent;
             }
         }
-/*
-        public function onMouseUp(e:MouseEvent):void
-        {
-            var findhit:FindHitTraverser = new FindHitTraverser(camera, e.localX, e.localY);
-            traverse(findhit);
 
-            if (findhit.object != null)
-            {
-                if (findhit.object is Mesh3D)
-                {
-                    (findhit.object as Mesh3D).material = new WireColorMaterial(0xFFFFFF, 0);
-                }
-            }
-        }
-*/
         public function clear():void
         {
-            container.graphics.clear();
+            if (canvas != null)
+                container.removeChild(canvas);
+            canvas = null;
+            //container.graphics.clear();
         }
 
 /*
@@ -100,13 +90,17 @@ package away3d.core.proto
             */
             this.camera = camera;
 
-            container.graphics.clear();
-
             if (renderers.length == 0)
                 renderers.push(new BasicRenderer());
 
+            if (canvas != null)
+                container.removeChild(canvas);
+
+            canvas = new Sprite();
+            container.addChild(canvas);
+
             for each (var renderer:IRenderer in renderers)
-                renderer.render(this, camera, container, clip || Clipping.screen(container));
+                renderer.render(this, camera, canvas, clip || Clipping.screen(container));
         
             var e:MouseEvent = new MouseEvent(MouseEvent.MOUSE_MOVE);
             e.localX = container.mouseX;

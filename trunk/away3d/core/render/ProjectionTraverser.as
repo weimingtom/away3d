@@ -21,7 +21,11 @@ package away3d.core.render
 
         public override function match(node:Object3D):Boolean
         {
-            return node.visible;
+            if (!node.visible)
+                return false;
+            if (node is ILODObject)
+                return (node as ILODObject).matchLOD(camera, view);
+            return true;
         }
 
         public override function enter(node:Object3D):void

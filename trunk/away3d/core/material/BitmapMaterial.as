@@ -20,9 +20,9 @@ package away3d.core.material
         public var debug:Boolean = false;
         public var repeat:Boolean = false;
         
-		protected var _scale:Number2D = new Number2D(0,0);
+        protected var _scale:Number2D = new Number2D(0,0);
         protected var _normal:Number3D = new Number3D(0,0,0);
-		
+        
         public function get width():Number
         {
             return bitmap.width;
@@ -33,7 +33,7 @@ package away3d.core.material
             return bitmap.height;
         }
         
-		public function get scale():Number2D
+        public function get scale():Number2D
         {
             return _scale;
         }
@@ -48,30 +48,32 @@ package away3d.core.material
             this.bitmap = bitmap;
             if (init != null)
             {
-            	smooth = init.smooth || false;
-            	debug = init.debug || false;
-            	repeat = init.repeat || false;
-            	_normal = init.normal || _normal;
-            	_scale = init.scale || _scale;
+                smooth = init.smooth || false;
+                debug = init.debug || false;
+                repeat = init.repeat || false;
+                _normal = init.normal || _normal;
+                _scale = init.scale || _scale;
             }
         }
-
+        /*
         public static function fromAsset(asset:BitmapAsset, init:Object = null):BitmapMaterial
         {
             return new BitmapMaterial(asset.bitmapData, init);
         }
-
-        public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        */
+        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
             var v0:Vertex2D = tri.v0;
             var v1:Vertex2D = tri.v1;
             var v2:Vertex2D = tri.v2;
-
+            var graphics:Graphics = session.graphics;
+            
             RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 
             if (debug)
             {
+                
                 graphics.lineStyle(2, 0x0000FF);
                 graphics.moveTo(tri.v0.x, tri.v0.y);
                 graphics.lineTo(tri.v1.x, tri.v1.y);

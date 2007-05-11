@@ -29,13 +29,13 @@ package away3d.core.material
 
         public function CenterLightingMaterial(init:Object = null)
         {
-        	if (init != null)
+            if (init != null)
             {
-        		alpha = init.alpha || 20;
+                alpha = init.alpha || 20;
             }
         }
 
-        public function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var v0:Vertex2D = tri.v0;
             var v1:Vertex2D = tri.v1;
@@ -89,7 +89,7 @@ package away3d.core.material
             var ksg:Number = 0;
             var ksb:Number = 0;
 
-            for each (var source:PointLightSource in lightarray.points)
+            for each (var source:PointLightSource in session.lightarray.points)
             {
                 var red:Number = source.red;
                 var green:Number = source.green;
@@ -134,10 +134,11 @@ package away3d.core.material
                 ksb += blue * specular;
             }
 
-            renderTri(tri, graphics, clip, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
+            renderTri(tri, session, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
 
             if (draw_fall || draw_reflect || draw_normal)
             {
+                var graphics:Graphics = session.graphics;
                 var cz:Number = c0z;
                 var cx:Number = c0x * zoom * focus / (focus + cz);
                 var cy:Number = c0y * zoom * focus / (focus + cz);
@@ -156,7 +157,7 @@ package away3d.core.material
                 }
 
                 if (draw_fall || draw_reflect)
-                    for each (source in lightarray.points)
+                    for each (source in session.lightarray.points)
                     {
                         red = source.red;
                         green = source.green;
@@ -213,7 +214,7 @@ package away3d.core.material
             }
         }
 
-        public function renderTri(tri:DrawTriangle, graphics:Graphics, clip:Clipping, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        public function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             throw new Error("Not implemented");
         }
