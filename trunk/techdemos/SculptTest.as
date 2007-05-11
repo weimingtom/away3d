@@ -220,26 +220,6 @@ class Sculpt extends ObjectContainer3D
             }
         }
 
-        /*
-        var meshes:Array = new Array();
-        for (i = 0; i < n; i++)
-        {
-            meshes[i] = new Array();
-            for (j = 0; j < n; j++)
-            {
-                meshes[i][j] = new Array();
-                for (h = 0; h < n; h++)
-                {
-                    meshes[i][j][h] = new Array();
-                    //meshes[i][j][h]["i+"] = new Pyramid(white, centers[i][j][h], vertices[i+1][j][h], vertices[i+1][j+1][h], vertices[i+1][j+1][h+1], vertices[i+1][j][h+1], {parent:this});
-                    //meshes[i][j][h]["i-"] = new Pyramid(white, centers[i][j][h], vertices[i][j][h], vertices[i][j][h+1], vertices[i][j+1][h+1], vertices[i][j+1][h], {parent:this});
-                    //meshes[i][j][h]["j+"] = new Pyramid(white, centers[i][j][h], vertices[i][j+1][h], vertices[i][j+1][h+1], vertices[i+1][j+1][h+1], vertices[i+1][j+1][h], {parent:this});
-                    //meshes[i][j][h]["j-"] = new Pyramid(white, centers[i][j][h], vertices[i][j][h], vertices[i+1][j][h], vertices[i+1][j][h+1], vertices[i][j][h+1], {parent:this});
-                    meshes[i][j][h]["h+"] = new Pyramid(white, centers[i][j][h+1], vertices[i][j][h+1], vertices[i+1][j][h+1], vertices[i+1][j][h+1], vertices[i][j][h+1], {parent:this});
-                }
-            }
-        }
-        */
         var face:Face3D;
         var mesh:Mesh3D = new Mesh3D(white, {parent:this, bothsides:true});
         mesh.vertices = vertices.concat(centers);

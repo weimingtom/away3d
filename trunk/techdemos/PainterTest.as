@@ -23,7 +23,7 @@ package
     {
         public function PainterTest()
         {
-            super("Away3d painter test");
+            super("Painter demo");
             infogroup.visible = false;
 
             addSlide("Drawing", 

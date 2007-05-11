@@ -23,7 +23,7 @@ package
     {
         public function EngineTest()
         {
-            super("Away3d engine test");
+            super("Away3D engine test", 85);
 
             DrawTriangle.test();
             DrawSegment.test();
@@ -53,6 +53,11 @@ package
             new Scene3D(new WirePrimitives), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
+            addSlide("Bezier Extrusion", 
+"", 
+            new Scene3D(new BezierCurve), 
+            new BasicRenderer());
+            
             addSlide("Mouse Events", 
 "", 
             new Scene3D(new MouseEvents), 
@@ -69,6 +74,16 @@ package
             new Scene3D(new Meshes), 
             new QuadrantRenderer(new AnotherRivalFilter));
 */
+
+            addSlide("Sprites", 
+"", 
+            new Scene3D(new Sprites), 
+            new QuadrantRenderer(new AnotherRivalFilter));
+
+            addSlide("Level of details", 
+"", 
+            new Scene3D(new LODs), 
+            new BasicRenderer());
 
             addSlide("Perspective texturing", 
 "",
@@ -130,6 +145,9 @@ package
     import away3d.core.proto.*;
     import away3d.core.geom.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
+    import away3d.shapes.*
+    import away3d.extrusions.*
     import away3d.core.material.*;
 
 class Asset
@@ -148,6 +166,41 @@ class Asset
     public static function get grad():BitmapData
     {
         return (new GradImage as BitmapAsset).bitmapData;
+    }
+
+    [Embed(source="images/ls_front.png")]
+    public static var LostSoulFrontImage:Class;
+    [Embed(source="images/ls_leftfront.png")]
+    public static var LostSoulLeftFrontImage:Class;
+    [Embed(source="images/ls_left.png")]
+    public static var LostSoulLeftImage:Class;
+    [Embed(source="images/ls_leftback.png")]
+    public static var LostSoulLeftBackImage:Class;
+    [Embed(source="images/ls_back.png")]
+    public static var LostSoulBackImage:Class;
+
+    public static function getLostSoul(dir:String):BitmapData
+    {
+        var asset:BitmapAsset;
+        switch (dir)
+        {
+            case "front":      asset = new LostSoulFrontImage; break;
+            case "leftfront":  asset = new LostSoulLeftFrontImage; break;
+            case "left":       asset = new LostSoulLeftImage; break;
+            case "leftback":   asset = new LostSoulLeftBackImage; break;
+            case "back":       asset = new LostSoulBackImage; break;
+            default: throw new Error("Unknown direction");
+        }
+        return asset.bitmapData;
+    }
+
+    public static function flipX(source:BitmapData):BitmapData
+    {
+        var bitmap:BitmapData = new BitmapData(source.width, source.height);
+        for (var i:int = 0; i < bitmap.width; i++)
+            for (var j:int = 0; j < bitmap.height; j++)
+                bitmap.setPixel32(i, j, source.getPixel32(source.width-i-1, j));
+        return bitmap;
     }
 
     [Embed(source="images/foil-dots.png")]
@@ -281,6 +334,22 @@ class Asset
     [Embed(source="images/temple.dae",mimeType="application/octet-stream")]
     public static var TempleModel:Class;
 
+    [Embed(source="images/sand.jpg")]
+    public static var SandImage:Class;
+
+    public static function get sand():BitmapData
+    {
+        return (new SandImage as BitmapAsset).bitmapData;
+    }
+    
+    [Embed(source="images/trackedge.jpg")]
+    public static var TrackedgeImage:Class;
+
+    public static function get trackedge():BitmapData
+    {
+        return (new TrackedgeImage as BitmapAsset).bitmapData;
+    }
+        
     public static function get black1x1():BitmapData
     {
         return fill(0x000000, 1, 1);
@@ -301,14 +370,7 @@ class Asset
         var b:BitmapData = new BitmapData(width, height, false);
         for (var i:int = 0; i < width; i++)
             for (var j:int = 0; j < height; j++)
-            {
-                //b.setPixel(i, j, int(Math.max(i-j/2, 0))*0x10000 + int(i/2)*0x100 + int(Math.max(j-i/2, 0)));
                 b.setPixel(i, j, color);
-                //if (i % 20 == 1)
-                //    b.setPixel(i, j, 0);
-                //if (j % 20 == 1)
-                //    b.setPixel(i, j, 0xEE7700);
-            }
         return b;
     }
 
@@ -334,6 +396,131 @@ class Meshes extends ObjectContainer3D
         super(temple);
     }
     
+}
+
+class LostSoul extends Sprite2DDir
+{
+    public var role:String;
+    public var nextthink:int;
+    public var lastmove:int;
+
+    public function LostSoul(init:Object = null)
+    {
+        super(2, init);
+
+        add( 0  , 0,-1  , Asset.getLostSoul("front"));
+        add(-0.7, 0,-0.7, Asset.getLostSoul("leftfront"));
+        add(-1  , 0, 0  , Asset.getLostSoul("left"));
+        add(-0.7, 0, 0.7, Asset.getLostSoul("leftback"));
+        add( 0  , 0, 1  , Asset.getLostSoul("back"));
+        add( 0.7, 0, 0.7, Asset.flipX(Asset.getLostSoul("leftback")));
+        add( 1  , 0, 0  , Asset.flipX(Asset.getLostSoul("left")));
+        add( 0.7, 0,-0.7, Asset.flipX(Asset.getLostSoul("leftfront")));
+    }       
+            
+    public override function tick(time:int):void
+    {
+        if ((role == null) || (nextthink < time))
+        {
+            role = (["stop", "right", "left", "forward"])[int(Math.random()*4)];
+            if ((Math.abs(x) > 300) || (Math.abs(z) > 300))
+                role = "right";
+                //role = (["right", "left"])[int(Math.random()*2)];
+            nextthink = time + Math.random()*3000;
+        }
+
+        var delta:Number = (lastmove - time)/1000;
+        switch (role)
+        {
+            case "stop":    rotationY += delta*(Math.random()*20-10); break;
+            case "right":   rotationY += delta*Math.random()*10; moveForward(delta*20); break;
+            case "left":    rotationY -= delta*Math.random()*10; moveForward(delta*20); break;
+            case "forward": moveForward(delta*60) break;
+        }
+        lastmove = time;
+
+        if (x > 500)
+            x = 500;
+        if (x < -500)
+            x = -500;
+        if (z > 500)
+            z = 500;
+        if (z < -500)
+            z = -500;
+    }
+}
+
+class Sprites extends ObjectContainer3D
+{
+    private var plane:Plane;
+
+    public function Sprites()
+    {
+        plane = new Plane(new PreciseBitmapMaterial(Asset.yellow, {precision:1.5}), {y:-100 , width:1000, height:1000});
+
+        super(plane);
+
+        addChild(new LostSoul({x:-300, z:-300, rotationY:240}));
+        addChild(new LostSoul({x:   0, z:-300, rotationY:120}));
+        addChild(new LostSoul({x: 300, z:-300, rotationY:0}));
+        addChild(new LostSoul({x:-300, z:   0, rotationY:280}));
+        addChild(new LostSoul({x:   0, z:   0, rotationY:80}));
+        addChild(new LostSoul({x: 300, z:   0, rotationY:200}));
+        addChild(new LostSoul({x:-300, z: 300, rotationY:320}));
+        addChild(new LostSoul({x:   0, z: 300, rotationY:160}));
+        addChild(new LostSoul({x: 300, z: 300, rotationY:40}));
+    }
+}
+
+class AutoLODSphere extends ObjectContainer3D
+{
+    public function AutoLODSphere(color:int, init:Object = null)
+    {
+        var sphere0:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW: 4, segmentsH:3 });
+        var sphere1:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW: 6, segmentsH:4 });
+        var sphere2:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW: 8, segmentsH:6 });
+        var sphere3:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:10, segmentsH:8 });
+        var sphere4:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:12, segmentsH:9 });
+        var sphere5:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:14, segmentsH:10});
+        var sphere6:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:16, segmentsH:12});
+                                                                                   
+        super(init,                                                                
+            new LODObject(0, 0.1, sphere0), 
+            new LODObject(0.1, 0.3, sphere1), 
+            new LODObject(0.3, 0.5, sphere2), 
+            new LODObject(0.5, 1, sphere3), 
+            new LODObject(1, 2, sphere4), 
+            new LODObject(2, 3, sphere5), 
+            new LODObject(3, 10, sphere6));
+    }
+}
+
+class LODs extends ObjectContainer3D
+{
+    private var plane:Plane;
+    private var sphere0:Sphere;
+    private var sphere1:Sphere;
+    private var sphere2:Sphere;
+    private var sphere3:Sphere;
+    private var sphere4:Sphere;
+    private var sphere5:Sphere;
+
+    public function LODs()
+    {
+        plane = new Plane(new PreciseBitmapMaterial(Asset.green, {precision:1.5}), {y:-200 , width:1000, height:1000});
+        sphere0 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW: 8, segmentsH:6});
+        sphere1 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:10, segmentsH:8});
+        sphere2 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:12, segmentsH:9});
+        sphere3 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:14, segmentsH:10});
+        sphere4 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:16, segmentsH:12});
+        sphere5 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:20, segmentsH:15});
+
+        super(plane, 
+            new AutoLODSphere(0xFF0000, {x: 300, y:160, z: 300}), 
+            new AutoLODSphere(0xFFFF00, {x: 300, y:160, z:-300}), 
+            new AutoLODSphere(0x00FF00, {x:-300, y:160, z:-300}), 
+            new AutoLODSphere(0x0000FF, {x:-300, y:160, z: 300}));
+    }
 }
 
 class Primitives extends ObjectContainer3D
@@ -427,6 +614,27 @@ class WirePrimitives extends ObjectContainer3D
         super(sphere, plane, cube, gridplane);
     }
     
+}
+
+class BezierCurve extends ObjectContainer3D
+{
+
+    public function BezierCurve()
+    {
+        var texture:IMaterial = new PreciseBitmapMaterial(Asset.grad, {smooth:false, repeat:true, precision:3, debug:false, scale:new Number2D(0.5, 0.5), normal:new Number3D(1,1,1)});
+        var texture1:IMaterial = new PreciseBitmapMaterial(Asset.sand, {smooth:false, repeat:true, precision:3, debug:false, scale:new Number2D(0.5, 0.5), normal:new Number3D(1,1,1)});
+        var texture2:IMaterial = new PreciseBitmapMaterial(Asset.trackedge, {smooth:false, repeat:true, precision:3, debug:false, scale:new Number2D(0, 0.5)});
+        //var plane:LinearExtrude = new LinearExtrude(texture, new RegularShape({width:300, height:300, sides:2}), new Number3D(0,0,500), {bothsides:true});
+        var vertices:Array = new Array();
+
+        for(var i:int=-1000; i < 1000; i += 500) {
+            vertices.push(new Number3D(0,i+0,0), new Number3D(250,i+50,0), new Number3D(500,i+100,500), new Number3D(500,i+150,750), new Number3D(0,i+200,1000), new Number3D(-250,i+250,1000), new Number3D(-500,i+300,500), new Number3D(-500,i+350,250));
+        }
+        //var plane:RegularPlane = new RegularPlane(texture, {width:800, height:800, bothsides:false, sides:8});
+        //var plane:BezierExtrude = new BezierExtrude(texture, new RegularShape({width:400,sides:2, wrap:false}), vertices, {segmentsH:10});
+        var plane:BezierExtrude = new BezierExtrude(texture, new IrregularShape([new Vertex3D(-130,0,0), new Vertex3D(-100,0,0), new Vertex3D(100,0,0), new Vertex3D(130,0,0)], {wrap:false}), vertices, {bothsides:true, segmentsH:10, axisMaterials:[texture1, texture2, texture1, texture2]});
+        addChild(plane);
+    }
 }
 
 class MouseEvents extends ObjectContainer3D
