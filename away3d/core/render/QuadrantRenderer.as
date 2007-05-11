@@ -16,9 +16,7 @@ package away3d.core.render
             qdrntfilters = [];
 
             for each (var filter:IPrimitiveQuadrantFilter in params)
-             	qdrntfilters.push(filter);
-
-            //this.filters.push(new ZSortFilter());
+                qdrntfilters.push(filter);
         }
 
         public function render(scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping):void
@@ -31,19 +29,12 @@ package away3d.core.render
 
             scene.traverse(pritraverser);
 
+            var session:RenderSession = new RenderSession(scene, camera, container, clip, lightarray);
+
             for each (var qdrntfilter:IPrimitiveQuadrantFilter in qdrntfilters)
                 qdrntfilter.filter(pritree, scene, camera, container, clip);
 
-            pritree.render(graphics, clip, lightarray);
-            /*
-            var primitives:Array = pritree.list();
-
-            for each (var filter:IPrimitiveFilter in filters)
-                primitives = filter.filter(primitives, scene, camera, container, clip);
-
-            for each (var primitive:DrawPrimitive in primitives)
-                primitive.render(graphics, clip, lightarray);
-            */
+            pritree.render(session);
         }
 
         public function desc():String

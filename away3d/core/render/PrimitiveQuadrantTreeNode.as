@@ -178,8 +178,8 @@ package away3d.core.render
         private function getList(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D, result:Array):void
         {
             if (onlysource != null)
-				if (except == onlysource)
-        	    	return;
+                if (except == onlysource)
+                    return;
 
             var child:DrawPrimitive;
             if (center != null)
@@ -257,75 +257,75 @@ package away3d.core.render
 
         //private static var dummyprimitive:DrawPrimitive = new DrawDummy();
 
-        public function render(graphics:Graphics, clip:Clipping, lightarray:LightArray, limit:Number):void
+        public function render(session:RenderSession, limit:Number):void
         {
-        	if (render_center_length == -1)
-        	{
-        		if (center != null)
-        		{
-	        		render_center_length = center.length;
-	        		if (render_center_length > 1)
-			            center.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
-	        	}
-	        	else
-	        		render_center_length = 0;
-        		render_center_index = 0;
+            if (render_center_length == -1)
+            {
+                if (center != null)
+                {
+                    render_center_length = center.length;
+                    if (render_center_length > 1)
+                        center.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
+                }
+                else
+                    render_center_length = 0;
+                render_center_index = 0;
 
-        		if (children != null)
-        		{
-	        		render_children_length = children.length;
-	        		if (render_children_length > 1)
-			            children.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
-		        }
-	        	else
-	        		render_children_length = 0;
-        		render_children_index = 0;
-        	}
+                if (children != null)
+                {
+                    render_children_length = children.length;
+                    if (render_children_length > 1)
+                        children.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
+                }
+                else
+                    render_children_length = 0;
+                render_children_index = 0;
+            }
 
-        	while (render_center_index < render_center_length)
-        	{
-	        	var pri:DrawPrimitive = center[render_center_index];
+            while (render_center_index < render_center_length)
+            {
+                var pri:DrawPrimitive = center[render_center_index];
 
-	        	if (pri.screenZ < limit)
-	        		break;
+                if (pri.screenZ < limit)
+                    break;
 
-        		render_other(graphics, clip, lightarray, pri.screenZ);
+                render_other(session, pri.screenZ);
 
-        		pri.render(graphics, clip, lightarray);
+                pri.render(session);
 
-        		render_center_index++;
-        	}
+                render_center_index++;
+            }
 
-			render_other(graphics, clip, lightarray, limit);
+            render_other(session, limit);
         }
 
-        private function render_other(graphics:Graphics, clip:Clipping, lightarray:LightArray, limit:Number):void
+        private function render_other(session:RenderSession, limit:Number):void
         {
-        	if (render_children_length > 0)
-        	{
-        		while (render_children_index < render_children_length)
-        		{
-	        		var pri:DrawPrimitive = children[render_children_index];
+            if (render_children_length > 0)
+            {
+                while (render_children_index < render_children_length)
+                {
+                    var pri:DrawPrimitive = children[render_children_index];
 
-	        		if (pri.screenZ < limit)
-	        			return;
+                    if (pri.screenZ < limit)
+                        return;
 
-        			pri.render(graphics, clip, lightarray);
+                    pri.render(session);
 
-        			render_children_index++;
-        		}
-        	}
-        	else
-        	{
+                    render_children_index++;
+                }
+            }
+            else
+            {
                 if (lefttop != null)
-                    lefttop.render(graphics, clip, lightarray, limit);
+                    lefttop.render(session, limit);
                 if (leftbottom != null)
-                    leftbottom.render(graphics, clip, lightarray, limit);
+                    leftbottom.render(session, limit);
                 if (righttop != null)
-                    righttop.render(graphics, clip, lightarray, limit);
+                    righttop.render(session, limit);
                 if (rightbottom != null)
-                    rightbottom.render(graphics, clip, lightarray, limit);
-        	}
+                    rightbottom.render(session, limit);
+            }
         }
     }
 }

@@ -55,9 +55,9 @@ package away3d.core.render
             return root.get(minX, minY, maxX, maxY, except);
         }
 
-        public function render(graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public function render(session:RenderSession):void
         {
-        	root.render(graphics, clip, lightarray, -Infinity);
+            root.render(session, -Infinity);
         }
 
     }

@@ -23,9 +23,9 @@ package away3d.core.draw
             v1 = null;
         }
 
-        public override function render(graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public override function render(session:RenderSession):void
         {
-            material.renderSegment(this, graphics, clip);
+            material.renderSegment(this, session);
         }
 
         public override function contains(x:Number, y:Number):Boolean

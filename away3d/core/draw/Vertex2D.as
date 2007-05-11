@@ -12,7 +12,7 @@ package away3d.core.draw
         // An object that contains user defined properties.
         public var extra:Object;
     
-        // [internal-use] A Boolean value that indicates whether the vertex is visible after projection.
+        // A Boolean value that indicates whether the vertex is visible after projection.
         // If false, it indicates that the vertex is behind the camera plane.
         public var visible:Boolean;
     

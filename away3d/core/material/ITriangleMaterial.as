@@ -10,6 +10,6 @@ package away3d.core.material
 
     public interface ITriangleMaterial extends IMaterial
     {
-        function renderTriangle(tri:DrawTriangle, graphics:Graphics, clip:Clipping, lightarray:LightArray):void;
+        function renderTriangle(tri:DrawTriangle, session:RenderSession):void;
     }
 }

@@ -13,15 +13,11 @@ package away3d.core.render
         public var screenX:Number;
         public var screenY:Number;
 
-//        public var curpath:Array = [];
-
         public var screenZ:Number = Infinity;
         public var element:Object;
         public var drawpri:DrawPrimitive;
         public var object:Object3D;
         public var uv:NumberUV;
-
-//        public var path:Array;
 
         public function FindHitTraverser(camera:Camera3D, x:Number, y:Number)
         {
@@ -29,19 +25,7 @@ package away3d.core.render
             screenX = x;
             screenY = y;
         }
-/*
-        public override function enter(node:Object3D):void
-        {
-            super.enter(node);
-            curpath.push(node);
-        }
 
-        public override function leave():void
-        {
-            curpath.pop();
-            super.leave();
-        }
-*/
         public override function apply(object:Object3D):void
         {
             if (object is IPrimitiveProvider)

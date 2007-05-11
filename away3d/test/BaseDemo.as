@@ -54,7 +54,7 @@ package away3d.test
 
         protected var demoroot:Sprite;
 
-        public function BaseDemo(title:String)
+        public function BaseDemo(title:String, infogroupheight:Number = 410)
         {
             stage.align = StageAlign.TOP_LEFT;
             stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -107,7 +107,7 @@ package away3d.test
             lefttopgroup.addChild(infogroup);
             infogroup.y = statsgroup.height + 4;
 
-            infogroup.addChild(new Panel(5, 5, 250, 410, 0.8));
+            infogroup.addChild(new Panel(5, 5, 250, infogroupheight, 0.8));
 
             messagelabel = new TextField();
             messagelabel.autoSize = TextFieldAutoSize.LEFT;
@@ -135,7 +135,7 @@ package away3d.test
             copylabel.x = 124;
             copylabel.y = infogroup.height - 30;
             copylabel.defaultTextFormat = new TextFormat("Arial", 10, 0x000000, true);
-            copylabel.htmlText = "<p align='center'>Alexander Zadorozhny (c) 2007<br>\n<a href='http://away.kiev.ua/flash'>http://away.kiev.ua/flash</a></p>";
+            copylabel.htmlText = "<p align='center'>Alexander Zadorozhny (c) 2007<br>\n<a href='http://away.kiev.ua/'>http://away.kiev.ua/</a></p>";
             infogroup.addChild(copylabel);
 
             titlegroup = new Sprite();

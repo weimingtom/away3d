@@ -81,19 +81,7 @@ package away3d.core.math
         
             return dest;
         }
-/*        
-        public static function rotateAxis(m:Matrix3D, v:Number3D):void
-        {
-            var vx:Number = v.x;
-            var vy:Number = v.y;
-            var vz:Number = v.z;
-            v.x = vx * m.n11 + vy * m.n12 + vz * m.n13;
-            v.y = vx * m.n21 + vy * m.n22 + vz * m.n23;
-            v.z = vx * m.n31 + vy * m.n32 + vz * m.n33;
-        
-            v.normalize();
-        }
-*/        
+
         public static function multiply(m1:Matrix3D, m2:Matrix3D):Matrix3D
         {
             var result:Matrix3D = new Matrix3D();
@@ -141,24 +129,6 @@ package away3d.core.math
             n23 *= z;
             n33 *= z;
         }
-
-        /*
-        public static function add(m1:Matrix3D, m2:Matrix3D):Matrix3D
-        {
-            var dest:Matrix3D = new Matrix3D();
-    
-            dest.n11 = m1.n11 + m2.n11; dest.n12 = m1.n12 + m2.n12;
-            dest.n13 = m1.n13 + m2.n13; dest.n14 = m1.n14 + m2.n14;
-    
-            dest.n21 = m1.n21 + m2.n21; dest.n22 = m1.n22 + m2.n22;
-            dest.n23 = m1.n23 + m2.n23; dest.n24 = m1.n24 + m2.n24;
-    
-            dest.n31 = m1.n31 + m2.n31; dest.n32 = m1.n32 + m2.n32;
-            dest.n33 = m1.n33 + m2.n33; dest.n34 = m1.n34 + m2.n34;
-    
-            return dest;
-        }
-        */
 
         public function copy3x3(m:Matrix3D):Matrix3D
         {

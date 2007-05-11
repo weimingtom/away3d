@@ -17,6 +17,15 @@ package away3d.core.draw
         public var x:Number;
         public var y:Number;
 
+        public function DrawBitmap(bitmap:BitmapData, x:Number, y:Number, z:Number)
+        {
+            this.bitmap = bitmap;
+            this.x = x;
+            this.y = y;
+            this.screenZ = z;
+            calc();
+        }
+        /*
         public static function create(bitmap:BitmapData, x:Number, y:Number, z:Number):DrawBitmap
         {
             var db:DrawBitmap = new DrawBitmap();
@@ -27,7 +36,7 @@ package away3d.core.draw
             db.calc();
             return db;
         }
-
+        */
         public function calc():void
         {
             minZ = screenZ;
@@ -43,8 +52,9 @@ package away3d.core.draw
             bitmap = null;
         }
 
-        public override function render(graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public override function render(session:RenderSession):void
         {
+            var graphics:Graphics = session.graphics;
             graphics.lineStyle();
             graphics.beginBitmapFill(bitmap, new Matrix(1, 0, 0, 1, x-bitmap.width/2, y-bitmap.height/2));
             graphics.drawRect(x-bitmap.width/2, y-bitmap.height/2, bitmap.width, bitmap.height);

@@ -38,9 +38,9 @@ package away3d.core.draw
             texturemapping = null;
         }
 
-        public override function render(graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public override function render(session:RenderSession):void
         {
-            material.renderTriangle(this, graphics, clip, lightarray);
+            material.renderTriangle(this, session);
         }
 
         public function maxEdgeSqr():Number

@@ -24,8 +24,8 @@ package away3d.core.material
         
         protected var _width:int;
         protected var _height:int;
-		protected var _scale:Number2D = new Number2D(0,0);
-		protected var _normal:Number3D = new Number3D(0,0,0);
+        protected var _scale:Number2D = new Number2D(0,0);
+        protected var _normal:Number3D = new Number3D(0,0,0);
         public var blackrender:Boolean;
         public var whiterender:Boolean;
         public var whitek:Number = 0.2;
@@ -45,7 +45,7 @@ package away3d.core.material
             return _scale;
         }
         
-		public function get normal():Number3D
+        public function get normal():Number3D
         {
             return _normal;
         }
@@ -76,14 +76,14 @@ package away3d.core.material
                 step *= 2;
         }
 
-        public override function renderTri(tri:DrawTriangle, graphics:Graphics, clip:Clipping, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
             var v0:Vertex2D = tri.v0;
             var v1:Vertex2D = tri.v1;
             var v2:Vertex2D = tri.v2;
+            var graphics:Graphics = session.graphics;
             var br:Number = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
-            //blackrender = false;
             if ((br < 1) && (blackrender || step < 16))
             {
                 RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);

@@ -51,10 +51,11 @@ package away3d.core.render
             start = getTimer();
 
             
+            var session:RenderSession = new RenderSession(scene, camera, container, clip, lightarray);
 
             //////// render graphics to the scene //////////
             for each (var primitive:DrawPrimitive in primitives)
-                primitive.render(graphics, clip, lightarray);
+                primitive.render(session);
 
             info += (getTimer() - start) + "ms ";
             start = getTimer();

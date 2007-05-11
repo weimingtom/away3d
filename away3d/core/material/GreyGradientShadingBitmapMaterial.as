@@ -47,7 +47,7 @@ package away3d.core.material
             _height = diffuse.height;
         }
 
-        public override function renderTri(tri:DrawTriangle, graphics:Graphics, clip:Clipping, 
+        public override function renderTri(tri:DrawTriangle, session:RenderSession,
             kcar:Number, kcag:Number, kcab:Number, kcdr:Number, kcdg:Number, kcdb:Number, kcsr:Number, kcsg:Number, kcsb:Number,
             k0ar:Number, k0ag:Number, k0ab:Number, k0dr:Number, k0dg:Number, k0db:Number, k0sr:Number, k0sg:Number, k0sb:Number,
             k1ar:Number, k1ag:Number, k1ab:Number, k1dr:Number, k1dg:Number, k1db:Number, k1sr:Number, k1sg:Number, k1sb:Number,

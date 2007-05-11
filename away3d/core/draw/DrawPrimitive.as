@@ -24,7 +24,7 @@ package away3d.core.draw
 
         //public var flag:int;
 
-        public function render(graphics:Graphics, clip:Clipping, lightarray:LightArray):void
+        public function render(session:RenderSession):void
         {
         }
 

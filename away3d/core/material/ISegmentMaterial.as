@@ -10,6 +10,6 @@ package away3d.core.material
 
     public interface ISegmentMaterial extends IMaterial
     {
-        function renderSegment(seg:DrawSegment, graphics:Graphics, clip:Clipping):void;
+        function renderSegment(seg:DrawSegment, session:RenderSession):void;
     }
 }

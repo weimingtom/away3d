@@ -29,7 +29,7 @@ package away3d.core.material
             this.specular = specular;
         }
 
-        public override function renderTri(tri:DrawTriangle, graphics:Graphics, clip:Clipping, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             var v0:Vertex2D = tri.v0;
             var v1:Vertex2D = tri.v1;
@@ -48,7 +48,7 @@ package away3d.core.material
 
             var color:int = int(fr*0x10000) + int(fg*0x100) + fb;
 
-            RenderTriangle.renderColor(graphics, color, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+            RenderTriangle.renderColor(session.graphics, color, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         }
 
         public override function get visible():Boolean
