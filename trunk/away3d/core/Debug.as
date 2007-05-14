@@ -3,10 +3,7 @@ package away3d.core
     public class Debug
     {
         public static var active:Boolean = false;
-
-        public static function trace(arg0:* = undefined, arg1:* = null, arg2:int = -1):void
-        {
-        }
+        public static var warningsAsErrors:Boolean = false;
 
         public static function clear():void
         {
@@ -16,25 +13,31 @@ package away3d.core
         {
         }
         
-        public static function splitData(_sp:Boolean):void
+        public static function trace(message:Object):void
         {
+            dotrace(message);
         }
         
-        public static function pause():void
+        public static function warning(message:Object):void
         {
+            if (warningsAsErrors)
+            {
+                error(message);
+                return;
+            }
+            trace("WARNING: "+message);
         }
         
-        public static function setFilterLevel(_fl:int = 0):void
+        public static function error(message:Object):void
         {
-        }
-        
-        public static function getFilterLevel():int
-        {
-            return 5;
-        }
-        
-        public static function setRecursionDepth(_rec:int):void
-        {
+            trace("ERROR: "+message);
+            throw new Error(message);
         }
     }
 }
+
+function dotrace(message:Object):void
+{
+    trace(message);
+}
+

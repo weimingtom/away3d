@@ -19,11 +19,9 @@ package away3d.core.proto
         {
             super(init);
 
-            var distance:Number = 30;
-            if (init)
-            {
-                distance = init.distance || 30;
-            }
+            init = Init.parse(init);
+
+            var distance:Number = init.getNumber("distance", 30);
 
             this.color = color;
             this.ambient = ambient * distance * distance;

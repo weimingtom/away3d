@@ -46,21 +46,16 @@ package away3d.core.material
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
             this.bitmap = bitmap;
-            if (init != null)
-            {
-                smooth = init.smooth || false;
-                debug = init.debug || false;
-                repeat = init.repeat || false;
-                _normal = init.normal || _normal;
-                _scale = init.scale || _scale;
-            }
+
+            init = Init.parse(init);
+
+            smooth = init.getBoolean("smooth", false);
+            debug = init.getBoolean("debug", false);
+            repeat = init.getBoolean("repeat", false);
+            _normal = init.getNumber3D("normal");
+            _scale = init.getNumber2D("scale");
         }
-        /*
-        public static function fromAsset(asset:BitmapAsset, init:Object = null):BitmapMaterial
-        {
-            return new BitmapMaterial(asset.bitmapData, init);
-        }
-        */
+
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);

@@ -14,17 +14,16 @@ package away3d.objects
         public var segmentsW:int = 8;
         public var segmentsH:int = 6;
     
-        public function WireSphere(material:IMaterial = null, init:Object = null)
+        public function WireSphere(material:ISegmentMaterial = null, init:Object = null)
         {
             super(material, init);
     
-            if (init != null)
-            {
-            	radius = init.radius || radius;
-            	segmentsW = Math.max(3, init.segmentsW) || segmentsW;
-            	segmentsH = Math.max(2, init.segmentsH) || segmentsH;
-            }
-    
+            init = Init.parse(init);
+
+            radius = init.getNumber("radius", 100, {min:0});
+            segmentsW = init.getInt("segmentsW", 1, {min:3});
+            segmentsH = init.getInt("segmentsH", 1, {min:2})
+
             buildSphere(radius);
         }
     

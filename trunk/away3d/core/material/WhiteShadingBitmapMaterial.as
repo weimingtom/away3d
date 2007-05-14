@@ -57,13 +57,12 @@ package away3d.core.material
             _width = diffuse.width;
             _height = diffuse.height;
 
-            if (init != null)
-            {
-                smooth = init.smooth || false;
-                repeat = init.repeat || false;
-                _scale = init.scale || _scale;
-                _normal = init.normal || _normal;
-            }
+            init = Init.parse(init);
+
+            smooth = init.getBoolean("smooth", false);
+            repeat = init.getBoolean("repeat", false);
+            _normal = init.getNumber3D("normal");
+            _scale = init.getNumber2D("scale");
         }
 
         private var cache:Dictionary = new Dictionary();

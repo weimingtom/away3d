@@ -10,49 +10,39 @@ package away3d.objects
     
     public class Plane extends Mesh3D
     {
-        public var segmentsW:int = 1;
-        public var segmentsH:int = 1;
+        public var segmentsW:int;
+        public var segmentsH:int;
     
         public function Plane(material:IMaterial, init:Object = null)
         {
             super(material, init);
-            
-		    if (init != null)
-            {
-            	width = init.width || width;
-            	height = init.height || height;
-            	segmentsW = init.segmentsW || segmentsW;
-            	segmentsH = init.segmentsH || segmentsW;
-            }
     
-            var scale:Number = 1;
-    
-            if (!height)
-            {
-                if (width)
-                    scale = width;
-    
+            init = Init.parse(init);
+
+            width = init.getNumber("width", 100, {min:0});
+            height = init.getNumber("height", 100, {min:0});
+            var segments:int = init.getInt("segments", 1, {min:1});
+            segmentsW = init.getInt("segmentsW", segments, {min:1});
+            segmentsH = init.getInt("segmentsH", segments, {min:1});
+
+            if (width*height == 0)
                 if (material is IUVMaterial)
                 {
                     var uvm:IUVMaterial = material as IUVMaterial;
-                    width  = uvm.width * scale;
-                    height = uvm.height * scale;
+                    if (width == 0)
+                        width = uvm.width;
+                    if (height == 0)
+                        height = uvm.height;
                 }
-                else
-                {
-                    width  = 500 * scale;
-                    height = 500 * scale;
-                }
-            }
-    
-            buildPlane(width, height);
+
+            buildPlane();
         }
     
-        private function buildPlane(width:Number, height:Number):void
+        private function buildPlane():void
         {
             for (var ix:int = 0; ix < segmentsW + 1; ix++)
                 for (var iy:int = 0; iy < segmentsH + 1; iy++)
-                    this.vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
+                    vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
 
             for (ix = 0; ix < segmentsW; ix++)
                 for (iy = 0; iy < segmentsH; iy++)
@@ -67,8 +57,8 @@ package away3d.objects
                     var uvc:NumberUV = new NumberUV(ix     / segmentsW, (iy+1) / segmentsH);
                     var uvd:NumberUV = new NumberUV((ix+1) / segmentsW, (iy+1) / segmentsH);
 
-                    this.faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
-                    this.faces.push(new Face3D(d, c, b, null, uvd, uvc, uvb));
+                    faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
+                    faces.push(new Face3D(d, c, b, null, uvd, uvc, uvb));
                 }
         }
 

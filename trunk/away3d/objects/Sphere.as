@@ -10,7 +10,7 @@ package away3d.objects
 
     public class Sphere extends Mesh3D
     {
-    	public var radius:Number = 100;
+        public var radius:Number = 100;
         public var segmentsW:int = 8;
         public var segmentsH:int = 6;
 
@@ -18,17 +18,16 @@ package away3d.objects
         {
             super(material, init);
             
-    		if (init != null)
-            {
-            	radius = init.radius || radius;
-            	segmentsW = Math.max(3, init.segmentsW) || segmentsW;
-            	segmentsH = Math.max(2, init.segmentsH) || segmentsH;
-            }
-    
-            buildSphere(radius);
+            init = Init.parse(init);
+
+            radius = init.getNumber("radius", 100, {min:0});
+            segmentsW = init.getInt("segmentsW", 1, {min:3});
+            segmentsH = init.getInt("segmentsH", 1, {min:2})
+
+            buildSphere();
         }
     
-        private function buildSphere(radius:Number):void
+        private function buildSphere():void
         {
             var i:int;
             var j:int;

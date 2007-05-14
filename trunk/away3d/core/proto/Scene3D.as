@@ -16,6 +16,9 @@ package away3d.core.proto
     {
         public var container:Sprite;
         public var canvas:Sprite;
+
+        public var fireMouseMove:Boolean = true;
+
         private var camera:Camera3D;
     
         public function Scene3D(...objects)
@@ -101,7 +104,13 @@ package away3d.core.proto
 
             for each (var renderer:IRenderer in renderers)
                 renderer.render(this, camera, canvas, clip || Clipping.screen(container));
-        
+
+            if (fireMouseMove)
+                fireMouseMoveEvent();
+        }
+
+        public function fireMouseMoveEvent():void
+        {
             var e:MouseEvent = new MouseEvent(MouseEvent.MOUSE_MOVE);
             e.localX = container.mouseX;
             e.localY = container.mouseY;

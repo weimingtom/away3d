@@ -21,19 +21,13 @@ package away3d.core.material
         public function PreciseBitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
             super(bitmap, init);
-            if (init != null)
-            {
-                precision = init.precision || 1;
-            }
+
+            init = Init.parse(init);
+
+            precision = init.getNumber("precision", 1);
+
             precision = precision * precision * 1.4;
         }
-
-        /*
-        public static function fromAsset(asset:BitmapAsset, init:Object = null):PreciseBitmapMaterial
-        {
-            return new PreciseBitmapMaterial(asset.bitmapData, init);
-        }
-        */
 
         public override function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {

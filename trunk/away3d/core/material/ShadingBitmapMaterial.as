@@ -62,11 +62,11 @@ package away3d.core.material
             this.ambient = ambient || diffuse;
             this.diffuse = diffuse || ambient;
             this.specular = specular || diffuse;
-            if (init != null)
-            {
-                smooth = init.smooth || false;
-                repeat = init.repeat || false;
-            }
+
+            init = Init.parse(init);
+
+            smooth = init.getBoolean("smooth", false);
+            repeat = init.getBoolean("repeat", false);
 
             calc();
         }
