@@ -23,7 +23,7 @@ package
     {
         public function SkyboxTest()
         {
-            super("Skybox test");
+            super("Skybox test", 160);
 
             camera.mintiltangle = -70;
 
@@ -32,8 +32,6 @@ package
 
             addSlide("Skybox #1", 
 "Skybox from Half-Life\n"+
-"<b>[CTRL]</b> - hide ui\n"+
-"<b>[F]</b> - fullscreen mode",
             new Scene3D(new SimpleSkybox(0)), 
             new BasicRenderer());
 
