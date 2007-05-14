@@ -7,17 +7,16 @@ package away3d.objects
 
     public class WireCube extends Mesh3D
     {
-    	
-        public function WireCube(material:IMaterial, init:Object = null)
+        public function WireCube(material:ISegmentMaterial, init:Object = null)
         {
             super(material, init);
             
-			if (init != null)
-            {
-            	width = init.width || width;
-            	height = init.height || height;
-            	depth = init.depth || depth;
-            }
+            init = Init.parse(init);
+
+            width  = init.getNumber("width", 100, {min:0});
+            height = init.getNumber("height", 100, {min:0});
+            depth  = init.getNumber("depth", 100, {min:0});
+
             var v000:Vertex3D = new Vertex3D(-width/2, -height/2, -depth/2); 
             var v001:Vertex3D = new Vertex3D(-width/2, -height/2, +depth/2); 
             var v010:Vertex3D = new Vertex3D(-width/2, +height/2, -depth/2); 

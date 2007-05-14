@@ -19,14 +19,13 @@ package away3d.core.geom
     
         public function Mesh3D(material:IMaterial, init:Object = null)
         {
-            super(init);
-    
-            if (init)
-            {
-                bothsides = init.bothsides || false;
-            }
+            init = Init.parse(init);
+
+            bothsides = init.getBoolean("bothsides", false);
 
             this.material = material || new WireColorMaterial();
+
+            super(init);
         }
     
         public function inverseFaces():void

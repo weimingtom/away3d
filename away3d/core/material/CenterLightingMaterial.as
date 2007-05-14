@@ -29,10 +29,9 @@ package away3d.core.material
 
         public function CenterLightingMaterial(init:Object = null)
         {
-            if (init != null)
-            {
-                alpha = init.alpha || 20;
-            }
+            init = Init.parse(init);
+
+            alpha = init.getNumber("alpha", 20);
         }
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void

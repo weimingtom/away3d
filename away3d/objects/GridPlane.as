@@ -12,33 +12,22 @@ package away3d.objects
         public var segmentsW:int = 1;
         public var segmentsH:int = 1;
     
-        public function GridPlane(material:IMaterial, init:Object = null)
+        public function GridPlane(material:ISegmentMaterial, init:Object = null)
         {
             super(material, init);
             
-    		if (init != null)
-            {
-            	width = init.width || 50;
-            	height = init.height || 50;
-            	segmentsW = init.segmentsW || segmentsW;
-            	segmentsH = init.segmentsH || segmentsW;
-            }
+            init = Init.parse(init);
+
+            width = init.getNumber("width", 100, {min:0});
+            height = init.getNumber("height", 100, {min:0});
+            var segments:int = init.getInt("segments", 1, {min:1});
+            segmentsW = init.getInt("segmentsW", segments, {min:1});
+            segmentsH = init.getInt("segmentsH", segments, {min:1});
     
-            var scale:Number = 1;
-    
-            if (!height)
-            {
-                if (width)
-                    scale = width;
-    
-                width  = 500 * scale;
-                height = 500 * scale;
-            }
-    
-            buildPlane(width, height);
+            buildPlane();
         }
     
-        private function buildPlane(width:Number, height:Number):void
+        private function buildPlane():void
         {
             for (var ix:int = 0; ix <= segmentsW; ix++)
             {

@@ -23,6 +23,9 @@ package away3d.test
         private var slides:Array = new Array();
         private var slideindex:Number = 0;
 
+        protected var centergroup:Sprite;
+        protected var startlabel:TextField;
+
         protected var titlegroup:Sprite;
         protected var statsgroup:Sprite;
         protected var infogroup:Sprite;
@@ -152,6 +155,21 @@ package away3d.test
             titlelabel.htmlText = title;
             titlegroup.addChild(titlelabel);
 
+            centergroup = new Sprite();
+            addChild(centergroup);
+            centergroup.x = stage.stageWidth / 2;
+            centergroup.y = stage.stageHeight / 2;
+
+            centergroup.addChild(new Panel(-80, -20, 160, 40, 0.8));
+
+            startlabel = new TextField();
+            startlabel.autoSize = TextFieldAutoSize.CENTER;
+            startlabel.x = 0;
+            startlabel.y = -18;
+            startlabel.defaultTextFormat = new TextFormat("Arial", 24, 0x000000, true);
+            startlabel.htmlText = "Start demo";
+            centergroup.addChild(startlabel);
+
             camera = new HoverCamera3D(null, 3, 200, 800);
             camera.tiltangle = 10;
             camera.targettiltangle = 40;
@@ -210,6 +228,8 @@ package away3d.test
 
         private function onEnterFrame(event:Event):void
         {
+            Init.checkUnusedArguments();
+
             if (slide == null)
                 changeSlide();
 
@@ -285,6 +305,7 @@ package away3d.test
         {
             onResize(null);
             active = true;
+            centergroup.visible = false;
         }
 
         private function onDeactivate(event:Event):void 

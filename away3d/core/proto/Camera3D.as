@@ -27,13 +27,8 @@ package away3d.core.proto
         public function Camera3D(zoom:Number = 3, focus:Number = 500, init:Object = null)
         {
             super(init);
-    
-            if (init == null)
-            {
-                x = 1000;
-                y = 1000;
-                z = 1000;
-            }
+
+            init = Init.parse(init);
 
             this.zoom  = zoom;
             this.focus = focus;

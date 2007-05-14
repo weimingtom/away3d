@@ -12,30 +12,19 @@ package away3d.objects
         public var segmentsW:int = 1;
         public var segmentsH:int = 1;
     
-        public function WirePlane(material:IMaterial, init:Object = null)
+        public function WirePlane(material:ISegmentMaterial, init:Object = null)
         {
             super(material, init);
             
-		    if (init != null)
-            {
-            	width = init.width || width;
-            	height = init.height || height;
-            	segmentsW = init.segmentsW || segmentsW;
-            	segmentsH = init.segmentsH || segmentsW;
-            }
+            init = Init.parse(init);
+
+            width = init.getNumber("width", 100, {min:0});
+            height = init.getNumber("height", 100, {min:0});
+            var segments:int = init.getInt("segments", 1, {min:1});
+            segmentsW = init.getInt("segmentsW", segments, {min:1});
+            segmentsH = init.getInt("segmentsH", segments, {min:1});
     
-            var scale:Number = 1;
-    
-            if (!height)
-            {
-                if (width)
-                    scale = width;
-    
-                width  = 500 * scale;
-                height = 500 * scale;
-            }
-    
-            buildPlane(width, height);
+            buildPlane();
         }
 
         public function vertice(ix:int, iy:int):Vertex3D
@@ -43,11 +32,11 @@ package away3d.objects
             return vertices[ix * (segmentsH + 1) + iy];
         }
 
-        private function buildPlane(width:Number, height:Number):void
+        private function buildPlane():void
         {
             for (var ix:int = 0; ix < segmentsW + 1; ix++)
                 for (var iy:int = 0; iy < segmentsH + 1; iy++)
-                    this.vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
+                    vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
 
             for (ix = 0; ix < segmentsW; ix++)
                 for (iy = 0; iy < segmentsH + 1; iy++)
@@ -55,7 +44,7 @@ package away3d.objects
                     var a:Vertex3D = vertices[ix     * (segmentsH + 1) + iy    ]; 
                     var b:Vertex3D = vertices[(ix+1) * (segmentsH + 1) + iy    ];
 
-                    this.segments.push(new Segment3D(a, b));
+                    segments.push(new Segment3D(a, b));
                 }
 
             for (ix = 0; ix < segmentsW + 1; ix++)
@@ -64,7 +53,7 @@ package away3d.objects
                     var c:Vertex3D = vertices[ix * (segmentsH + 1) + iy    ]; 
                     var d:Vertex3D = vertices[ix * (segmentsH + 1) + (iy+1)];
 
-                    this.segments.push(new Segment3D(c, d));
+                    segments.push(new Segment3D(c, d));
                 }
         }
     }

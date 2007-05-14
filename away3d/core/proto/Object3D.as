@@ -226,26 +226,25 @@ package away3d.core.proto
         // extra: An object that contains user defined properties.
         public function Object3D(init:Object = null):void
         {
-            if (init != null)
-            {
-                name = init.name || null;
+            init = Init.parse(init);
 
-                x = init.x || 0;
-                y = init.y || 0;
-                z = init.z || 0;
-            
-                rotationX = init.rotationX || 0;
-                rotationY = init.rotationY || 0;
-                rotationZ = init.rotationZ || 0;
-            
-                scaleX = init.scaleX || 1;
-                scaleY = init.scaleY || 1;
-                scaleZ = init.scaleZ || 1;
-            
-                extra = init.extra || null;
+            name = init.getString("name", null);
 
-                parent = init.parent || null;
-            }
+            x = init.getNumber("x", 0);
+            y = init.getNumber("y", 0);
+            z = init.getNumber("z", 0);
+            
+            rotationX = init.getNumber("rotationX", 0);
+            rotationY = init.getNumber("rotationY", 0);
+            rotationZ = init.getNumber("rotationZ", 0);
+            
+            scaleX = init.getNumber("scaleX", 1);
+            scaleY = init.getNumber("scaleY", 1);
+            scaleZ = init.getNumber("scaleZ", 1);
+            
+            extra = init.getObject("extra");
+
+            parent = init.getObject("parent") as ObjectContainer3D;
         }
     
         public function distanceTo(obj:Object3D):Number
