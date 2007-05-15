@@ -5,11 +5,8 @@ package away3d.core.geom
     import away3d.core.render.*;
     import away3d.core.math.*;
 
-    public class Vertex3D
+    public class Vertex3D extends Number3D
     {
-        public var x:Number;
-        public var y:Number;
-        public var z:Number;
 
         // An object that contains user defined properties.
         public var extra:Object;
@@ -86,7 +83,7 @@ package away3d.core.geom
             return new Vertex3D(a.x*ak+b.x*bk, a.y*ak + b.y*bk, a.z*ak + b.z*bk);
         }
 
-        public function toString(): String
+        public override function toString(): String
         {
             return "new Vertex3D("+x+', '+y+', '+z+")";
         }
