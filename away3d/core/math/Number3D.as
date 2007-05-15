@@ -76,13 +76,13 @@ package away3d.core.math
     
         public function normalize():void
         {
-            var mod:Number = this.modulo;
+            var mod:Number = modulo;
     
             if (mod != 0 && mod != 1)
             {
-                this.x /= mod;
-                this.y /= mod;
-                this.z /= mod;
+                x /= mod;
+                y /= mod;
+                z /= mod;
             }
         }
     
