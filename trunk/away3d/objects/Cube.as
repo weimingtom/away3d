@@ -18,7 +18,7 @@ package away3d.objects
             width  = init.getNumber("width", 100, {min:0});
             height = init.getNumber("height", 100, {min:0});
             depth  = init.getNumber("depth", 100, {min:0});
-			faceMaterials = init.faceMaterials || faceMaterials;
+            faceMaterials  = init.getArray("faceMaterials");
 
             var v000:Vertex3D = new Vertex3D(-width/2, -height/2, -depth/2); 
             var v001:Vertex3D = new Vertex3D(-width/2, -height/2, +depth/2); 

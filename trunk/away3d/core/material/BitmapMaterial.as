@@ -66,11 +66,18 @@ package away3d.core.material
 
             smooth = init.getBoolean("smooth", false);
             debug = init.getBoolean("debug", false);
-            _transform = init.getBoolean("transform", false);
+            _transform = init.getObject("transform", new Matrix());
             _normal = init.getNumber3D("normal");
 			_repeat = init.getBoolean("repeat", false);
-            _scalex = init.getNumber2D("scalex");
-			_scaley = init.getNumber2D("scaley");
+            _scalex = init.getBoolean("scalex", false);
+			_scaley = init.getBoolean("scaley", false);
+			
+			//var b:BitmapData = bitmap;
+            //if (!_repeat) {
+            //	b = new BitmapData(bitmap.width+2, bitmap.height+2, true, 0x000000);
+            //	b.copyPixels(bitmap, new Rectangle(0,0,bitmap.width, bitmap.height), new Point(1,1));
+            //}
+            //this.bitmap = b;
         }
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
@@ -80,7 +87,7 @@ package away3d.core.material
             var v1:Vertex2D = tri.v1;
             var v2:Vertex2D = tri.v2;
             var graphics:Graphics = session.graphics;
-            
+
             RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 
             if (debug)
