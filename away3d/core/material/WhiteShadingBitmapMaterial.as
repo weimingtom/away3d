@@ -20,12 +20,15 @@ package away3d.core.material
     {
         public var diffuse:BitmapData;
         public var smooth:Boolean = false;
-        public var repeat:Boolean = false;
         
         protected var _width:int;
         protected var _height:int;
-        protected var _scale:Number2D = new Number2D(0,0);
+        protected var _transform:Matrix = new Matrix();
         protected var _normal:Number3D = new Number3D(0,0,0);
+        protected var _repeat:Boolean = false;
+        protected var _scalex:Boolean = false;
+        protected var _scaley:Boolean = false;
+        
         public var blackrender:Boolean;
         public var whiterender:Boolean;
         public var whitek:Number = 0.2;
@@ -40,15 +43,31 @@ package away3d.core.material
             return _height;
         }
         
-        public function get scale():Number2D
+        public function get transform():Matrix
         {
-            return _scale;
+            return _transform;
         }
         
         public function get normal():Number3D
         {
             return _normal;
         }
+                
+        public function get repeat():Boolean
+        {
+            return _repeat;
+        }
+        
+        public function get scalex():Boolean
+        {
+            return _scalex;
+        }
+        
+        public function get scaley():Boolean
+        {
+            return _scaley;
+        }
+        
         public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object)
         {
             super(init);
@@ -60,9 +79,11 @@ package away3d.core.material
             init = Init.parse(init);
 
             smooth = init.getBoolean("smooth", false);
-            repeat = init.getBoolean("repeat", false);
+            _transform = init.getBoolean("transform", false);
             _normal = init.getNumber3D("normal");
-            _scale = init.getNumber2D("scale");
+			_repeat = init.getBoolean("repeat", false);
+            _scalex = init.getNumber2D("scalex");
+			_scaley = init.getNumber2D("scaley");
         }
 
         private var cache:Dictionary = new Dictionary();

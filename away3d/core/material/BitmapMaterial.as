@@ -6,10 +6,8 @@ package away3d.core.material
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.display.Graphics;
-    import flash.display.BitmapData;
-    import flash.geom.Matrix;
-    import flash.geom.Point;
+    import flash.display.*;
+    import flash.geom.*;
 
     import mx.core.BitmapAsset;
 
@@ -18,10 +16,12 @@ package away3d.core.material
         public var bitmap:BitmapData;
         public var smooth:Boolean = false;
         public var debug:Boolean = false;
-        public var repeat:Boolean = false;
         
-        protected var _scale:Number2D = new Number2D(0,0);
+        protected var _transform:Matrix = new Matrix();
         protected var _normal:Number3D = new Number3D(0,0,0);
+        protected var _repeat:Boolean = false;
+        protected var _scalex:Boolean = false;
+        protected var _scaley:Boolean = false;
         
         public function get width():Number
         {
@@ -33,9 +33,9 @@ package away3d.core.material
             return bitmap.height;
         }
         
-        public function get scale():Number2D
+        public function get transform():Matrix
         {
-            return _scale;
+            return _transform;
         }
         
         public function get normal():Number3D
@@ -43,17 +43,34 @@ package away3d.core.material
             return _normal;
         }
         
+        public function get repeat():Boolean
+        {
+            return _repeat;
+        }
+        
+        public function get scalex():Boolean
+        {
+            return _scalex;
+        }
+        
+        public function get scaley():Boolean
+        {
+            return _scaley;
+        }
+        
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
             this.bitmap = bitmap;
-
+			
             init = Init.parse(init);
 
             smooth = init.getBoolean("smooth", false);
             debug = init.getBoolean("debug", false);
-            repeat = init.getBoolean("repeat", false);
+            _transform = init.getBoolean("transform", false);
             _normal = init.getNumber3D("normal");
-            _scale = init.getNumber2D("scale");
+			_repeat = init.getBoolean("repeat", false);
+            _scalex = init.getNumber2D("scalex");
+			_scaley = init.getNumber2D("scaley");
         }
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
