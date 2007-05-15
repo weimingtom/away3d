@@ -79,11 +79,11 @@ package away3d.core.material
             init = Init.parse(init);
 
             smooth = init.getBoolean("smooth", false);
-            _transform = init.getBoolean("transform", false);
+            _transform = init.getObject("transform", new Matrix());
             _normal = init.getNumber3D("normal");
 			_repeat = init.getBoolean("repeat", false);
-            _scalex = init.getNumber2D("scalex");
-			_scaley = init.getNumber2D("scaley");
+            _scalex = init.getBoolean("scalex", false);
+			_scaley = init.getBoolean("scaley", false);
         }
 
         private var cache:Dictionary = new Dictionary();
