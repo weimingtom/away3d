@@ -50,6 +50,11 @@ package
             new Scene3D(new SmoothTexturing), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
+            addSlide("Movie texturing", 
+"", 
+            new Scene3D(new MovieTexturing), 
+            new QuadrantRenderer(new AnotherRivalFilter));
+                    
             addSlide("Wire primitives", 
 "", 
             new Scene3D(new WirePrimitives), 
@@ -576,6 +581,27 @@ class SmoothTexturing extends Primitives
         sphere.material = new PreciseBitmapMaterial(Asset.red, {precision:1.5, smooth:true});
         cube.material = new PreciseBitmapMaterial(Asset.blue, {precision:1.5, smooth:true});
         torus.material = new PreciseBitmapMaterial(Asset.green, {precision:1.5, smooth:true});
+    }
+}
+
+class MovieTexturing extends Primitives
+{
+    public var movie:MovieClip;
+    public function MovieTexturing()
+    {
+        movie = new MovieClip();
+        var graphics:Graphics = movie.graphics;
+        graphics.beginFill(0xFFCC00);
+        graphics.drawCircle(40, 40, 40);
+
+        cube.material = new MovieMaterial(movie, {transparent:true});
+    }
+    
+    public override function tick(time:int):void
+    {
+        var graphics:Graphics = movie.graphics;
+        graphics.beginFill(0xFFFFFF*Math.random());
+        graphics.drawCircle(20+40*Math.random(), 20+40*Math.random(), 20);
     }
 }
 
