@@ -633,8 +633,8 @@ class BezierCurve extends ObjectContainer3D
 {
     public function BezierCurve()
     {
-        var texture1:IMaterial = new PreciseBitmapMaterial(Asset.sand, {smooth:false, repeat:true, precision:3, debug:false, scale:new Number2D(0.5, 0.5), normal:new Number3D(1,1,1)});
-        var texture2:IMaterial = new PreciseBitmapMaterial(Asset.trackedge, {smooth:false, repeat:true, precision:3, debug:false, scale:new Number2D(0, 0.5)});
+        var texture1:IMaterial = new TransformBitmapMaterial(Asset.sand, {smooth:false, repeat:true, /*precision:3,*/ debug:false, scalex:0.5, scaley:0.5, normal:new Number3D(1,1,1)});
+        var texture2:IMaterial = new TransformBitmapMaterial(Asset.trackedge, {smooth:false, repeat:true, /*precision:3,*/ debug:false, scalex:0, scaley:0.5});
         var vertices:Array = new Array();
 
         for(var i:int = -1000; i < 1000; i += 500) 
