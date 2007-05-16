@@ -91,9 +91,8 @@ package away3d.extrusions
             }
             var iVerNum:int = aVtc.length;
     
-            var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
             var aP1:Vertex3D, aP2:Vertex3D, aP3:Vertex3D, aP4:Vertex3D;
-            var p:Point;
+            var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
             var t1:Point = new Point();
             var t2:Point = new Point();
             var t3:Point = new Point();
@@ -105,7 +104,7 @@ package away3d.extrusions
             var fJ0:Number, fJ1:Number, fI0:Number, fI1:Number;
             var lengthH:Number, oldLengthH:Number, lengthV:Number, oldLengthV:Number, tDiffx:Number, tDiffy:Number;
             var mat:TransformBitmapMaterial = material as TransformBitmapMaterial;
-            var trans:Matrix = mat ? mat.getMaterialTransform(shape.length, length) : new Matrix();
+            var trans:Matrix = mat ? mat.getTransform(shape.length, length) : new Matrix();
             lengthV = oldLengthV = 0;
             for (j=1;j<iVerNum;j++) {
                 var len:int = aVtc[j].length;
@@ -124,26 +123,16 @@ package away3d.extrusions
                     // uv
                     if (axisMaterials[i]) {
                         mat = axisMaterials[i] as TransformBitmapMaterial;
-                        trans = mat.getMaterialTransform(shape.length, length);
+                        trans = mat.getTransform(shape.length, length);
                     } else if (mat != material) {
                         mat = material as TransformBitmapMaterial;
-                        trans = mat.getMaterialTransform(shape.length, length);
+                        trans = mat.getTransform(shape.length, length);
                     }
-                    if (mat.normal.modulo > 0) {
-                        var u:Number3D = Number3D.cross(mat.normal as Number3D, new Number3D(0,1,0));
-                        if (u.modulo) u.normalize();
-                        else u = new Number3D(1,0,0);
-                        var v:Number3D = Number3D.cross(mat.normal as Number3D, new Number3D(1,0,0));
-                        if (v.modulo) v.normalize();
-                        else v = new Number3D(0,1,0);
-                        t1.x = Number3D.dot(aP1, u);
-                        t1.y = Number3D.dot(aP1, v);
-                        t2.x = Number3D.dot(aP2, u);
-                        t2.y = Number3D.dot(aP2, v);
-                        t3.x = Number3D.dot(aP3, u);
-                        t3.y = Number3D.dot(aP3, v);
-                        t4.x = Number3D.dot(aP4, u);
-                        t4.y = Number3D.dot(aP4, v);
+                    if (mat.isNormalized) {
+                        mat.setUVPoint(t1, aP1);
+                        mat.setUVPoint(t2, aP2);
+                        mat.setUVPoint(t3, aP3);
+                        mat.setUVPoint(t4, aP4);
                     } else {
                         oldLengthH = lengthH;
                         lengthH += Number3D.sub(aP1, aP2).modulo;
@@ -169,15 +158,13 @@ package away3d.extrusions
                         t3.x -= tDiffx;
                         t3.y -= tDiffy;
                         t4.x -= tDiffx;
-                        t4.y -= tDiffy;                     
+                        t4.y -= tDiffy;
                     }
                     aP1uv = new NumberUV(t1.x,t1.y);
                     aP2uv = new NumberUV(t2.x,t2.y);
                     aP3uv = new NumberUV(t3.x,t3.y);
                     aP4uv = new NumberUV(t4.x,t4.y);
-                    var tArray:Array = [t1,t2,t3,t4];
-                    var testArray:Array = [test1,test2,test3,test4];
-                    if (mat.repeat || insideShape(testArray, tArray)) {
+                    if (mat.repeat || insideShape([test1,test2,test3,test4], [t1,t2,t3,t4])) {
                         // 2 faces
                         faces.push( new Face3D(aP1,aP2,aP3, mat as ITriangleMaterial, aP1uv,aP2uv,aP3uv) );
                         faces.push( new Face3D(aP1,aP3,aP4, mat as ITriangleMaterial, aP1uv,aP3uv,aP4uv) );
