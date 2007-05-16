@@ -14,6 +14,7 @@ package away3d.core.render
         public var container:Sprite;
         public var clip:Clipping;
         public var lightarray:LightArray;
+        public var time:int;
 
         private var _graphics:Graphics;
 
@@ -41,6 +42,7 @@ package away3d.core.render
             this.container = container;
             this.clip = clip;
             this.lightarray = lightarray;
+            this.time = getTimer();
         }
     }
 }

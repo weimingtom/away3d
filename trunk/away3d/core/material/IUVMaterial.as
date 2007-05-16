@@ -11,10 +11,10 @@ package away3d.core.material
     {
         function get width():Number;
         function get height():Number;
-        function get transform():Matrix;
-        function get normal():Number3D;
-        function get repeat():Boolean;
-        function get scalex():Boolean;
-        function get scaley():Boolean;
+        //function get transform():Matrix;
+        //function get normal():Number3D;
+        //function get repeat():Boolean;
+        //function get scalex():Boolean;
+        //function get scaley():Boolean;
     }
 }
