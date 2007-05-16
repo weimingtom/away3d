@@ -7,9 +7,9 @@ package away3d.core.geom
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-	
-	import flash.geom.*;
-	
+    
+    import flash.geom.*;
+    
     public class Mesh3D extends Vertices3D implements IPrimitiveProvider
     {
         public var faces:Array = [];
@@ -176,23 +176,5 @@ package away3d.core.geom
                 seg = null;
             }
         }
-        
-        		
-		public function getMaterialTransform(m:IMaterial, w:Number, h:Number):Matrix
-		{
-			if (m is IUVMaterial) {
-				var mat:IUVMaterial = (m as IUVMaterial);
-				var t:Matrix = mat.transform.clone();
-				t.invert();
-				if (mat.normal.modulo > 0) {
-					t.scale(1/mat.width, 1/mat.height);
-				} else {
-					t.scale(mat.scalex? 1/mat.width :  1/w, mat.scaley? 1/mat.height : 1/h);
-				}
-				return t;
-			} else {
-				return new Matrix();
-			}
-		}
     }
 }
