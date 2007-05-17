@@ -104,7 +104,9 @@ package away3d.extrusions
             var fJ0:Number, fJ1:Number, fI0:Number, fI1:Number;
             var lengthH:Number, oldLengthH:Number, lengthV:Number, oldLengthV:Number, tDiffx:Number, tDiffy:Number;
             var mat:TransformBitmapMaterial = material as TransformBitmapMaterial;
-            var trans:Matrix = mat ? mat.getTransform(shape.length, length) : new Matrix();
+            var isTransform:Boolean = material is TransformBitmapMaterial;
+            var trans:Matrix = (isTransform)? mat.getTransform(shape.length, length) : new Matrix();
+            var isNormalized:Boolean = (isTransform)? mat.isNormalized : false;
             lengthV = oldLengthV = 0;
             for (j=1;j<iVerNum;j++) {
                 var len:int = aVtc[j].length;
@@ -122,18 +124,30 @@ package away3d.extrusions
                     aP4 = aVtc[j-1][iWrapped];
                     // uv
                     if (axisMaterials[i]) {
+                    	isTransform = axisMaterials[i] is TransformBitmapMaterial;
                         mat = axisMaterials[i] as TransformBitmapMaterial;
-                        trans = mat.getTransform(shape.length, length);
-                    } else if (mat != material) {
-                        mat = material as TransformBitmapMaterial;
-                        trans = mat.getTransform(shape.length, length);
-                    }
+                        if (isTransform) {
+			                trans = mat.getTransform(width, height);
+			                isNormalized = mat.isNormalized;
+		                } else {
+		                	isNormalized = false;
+		                }
+		            } else if (mat != material) {
+		            	isTransform = material is TransformBitmapMaterial;
+		                mat = material as TransformBitmapMaterial;
+		                if (isTransform) {
+		                	trans = mat.getTransform(width, height);
+		                	isNormalized = mat.isNormalized;
+		                } else {
+		                	isNormalized = false;
+		                } 
+		            }
                     if (mat.isNormalized) {
                         mat.setUVPoint(t1, aP1);
                         mat.setUVPoint(t2, aP2);
                         mat.setUVPoint(t3, aP3);
                         mat.setUVPoint(t4, aP4);
-                    } else {
+                    } else if (isTransform) {
                         oldLengthH = lengthH;
                         lengthH += Number3D.sub(aP1, aP2).modulo;
                         t1.x = lengthH;
@@ -144,22 +158,32 @@ package away3d.extrusions
                         t3.y = oldLengthV;
                         t4.x = lengthH;
                         t4.y = oldLengthV;
-                        //t2 = t1.add(t2);
-                    }
-                    t1 = trans.transformPoint(t1);
-                    t2 = trans.transformPoint(t2);
-                    t3 = trans.transformPoint(t3);
-                    t4 = trans.transformPoint(t4);
-                    if (mat.repeat) {
-                        tDiffx = t1.x - (t1.x %= 1);
-                        tDiffy = t1.y - (t1.y %= 1);
-                        t2.x -= tDiffx;
-                        t2.y -= tDiffy;
-                        t3.x -= tDiffx;
-                        t3.y -= tDiffy;
-                        t4.x -= tDiffx;
-                        t4.y -= tDiffy;
-                    }
+                    } else {
+		                t1.x = 1;
+		                t1.y = 1;
+		                t2.x = 0;
+		                t2.y = 1;
+		                t3.x = 0;
+		                t3.y = 0;
+		                t4.x = 1;
+		                t4.y = 0;
+		            }
+                    if (isTransform) {
+			            t1 = trans.transformPoint(t1);
+			            t2 = trans.transformPoint(t2);
+			            t3 = trans.transformPoint(t3);
+			            t4 = trans.transformPoint(t4);	            	
+			            if (mat.repeat) {
+			                tDiffx = t1.x - (t1.x %= 1);
+			                tDiffy = t1.y - (t1.y %= 1);
+			                t2.x -= tDiffx;
+			                t2.y -= tDiffy;
+			                t3.x -= tDiffx;
+			                t3.y -= tDiffy;
+			                t4.x -= tDiffx;
+			                t4.y -= tDiffy;
+			            }
+		            }
                     aP1uv = new NumberUV(t1.x,t1.y);
                     aP2uv = new NumberUV(t2.x,t2.y);
                     aP3uv = new NumberUV(t3.x,t3.y);
@@ -171,33 +195,6 @@ package away3d.extrusions
                     }
                 }
             }
-        }
-        
-        private function insideShape(shape1:Array, shape2:Array):Boolean
-        {
-            var flag:Boolean;
-            var p:Point, p1:Number, p2:Number, s1:Point, s2:Point;
-            for each (p in shape1) {
-                flag = true;
-                for (p2=0;p2<shape2.length;p2++) {
-                    p1 = (p2 == 0)? shape2.length - 1 : p2 - 1;
-                    s1 = shape2[p1];
-                    s2 = shape2[p2];
-                    if ((s1.x*s2.y - s1.y*s2.x - p.x*s2.y + p.y*s2.x + p.x*s1.y - p.y*s1.x) < 0) flag = false;
-                }
-                if (flag) return true;
-            }
-            for each (p in shape2) {
-                flag = true;
-                for (p2=0;p2<shape1.length;p2++) {
-                    p1 = (p2 == 0)? shape1.length - 1 : p2 - 1;
-                    s1 = shape1[p1];
-                    s2 = shape1[p2];
-                    if ((s1.x*s2.y - s1.y*s2.x - p.x*s2.y + p.y*s2.x + p.x*s1.y - p.y*s1.x) < 0) flag = false;
-                }
-                if (flag) return true;
-            }
-            return flag;
         }
     }
         
