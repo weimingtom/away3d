@@ -176,5 +176,32 @@ package away3d.core.geom
                 seg = null;
             }
         }
+                
+        public function insideShape(shape1:Array, shape2:Array):Boolean
+        {
+            var flag:Boolean;
+            var p:Point, p1:Number, p2:Number, s1:Point, s2:Point;
+            for each (p in shape1) {
+                flag = true;
+                for (p2=0;p2<shape2.length;p2++) {
+                    p1 = (p2 == 0)? shape2.length - 1 : p2 - 1;
+                    s1 = shape2[p1];
+                    s2 = shape2[p2];
+                    if ((s1.x*s2.y - s1.y*s2.x - p.x*s2.y + p.y*s2.x + p.x*s1.y - p.y*s1.x) < -0.5) flag = false;
+                }
+                if (flag) return true;
+            }
+            for each (p in shape2) {
+                flag = true;
+                for (p2=0;p2<shape1.length;p2++) {
+                    p1 = (p2 == 0)? shape1.length - 1 : p2 - 1;
+                    s1 = shape1[p1];
+                    s2 = shape1[p2];
+                    if ((s1.x*s2.y - s1.y*s2.x - p.x*s2.y + p.y*s2.x + p.x*s1.y - p.y*s1.x) < -0.5) flag = false;
+                }
+                if (flag) return true;
+            }
+            return flag;
+        }
     }
 }

@@ -9,7 +9,7 @@ package away3d.core.material
     import flash.display.*;
     import flash.geom.*;
 
-    public class TransformBitmapMaterial extends BitmapMaterial
+    public class TransformBitmapMaterial extends PreciseBitmapMaterial
     {
     	private var u:Number3D;
     	private var v:Number3D;
@@ -58,14 +58,25 @@ package away3d.core.material
             
             _isNormalized = _normal.modulo > 0;
             
+            //correct texture error for normals aligned to axis
+            if (_normal.x < 0.001) _normal.x = 0.001;
+            if (_normal.y < 0.001) _normal.y = 0.001;
+            if (_normal.z < 0.001) _normal.z = 0.001;
+            _normal.normalize();
+            Debug.trace("_normal");
+            Debug.trace(_normal);
             u = Number3D.cross(_normal, new Number3D(0,1,0));
-            if (u.modulo) u.normalize();
-            else u = new Number3D(1,0,0);
-            
-            v = Number3D.cross(_normal as Number3D, new Number3D(1,0,0));
-            if (v.modulo) v.normalize();
-            else v = new Number3D(0,1,0);
-            
+            if (!u.modulo) u = new Number3D(1,0,0);
+        	v = Number3D.cross(u, _normal);
+        	u = Number3D.cross(v, _normal);
+        	u.normalize();
+        	v.normalize();
+        	
+            //Debug.trace(u);
+            //v = Number3D.cross(_normal as Number3D, new Number3D(1,0,0));
+            //if (v.modulo) v.normalize();
+            //else v = new Number3D(0,1,0);
+            Debug.trace(v);
             //var b:BitmapData = bitmap;
             //if (!_repeat) {
             //  b = new BitmapData(bitmap.width+2, bitmap.height+2, true, 0x000000);
@@ -78,18 +89,17 @@ package away3d.core.material
         {
             var t:Matrix = _transform.clone();
             t.invert();
-            if (_normal.modulo > 0) {
-                t.scale(1 / width, 1 / height);
-            } else {
-                t.scale(_scalex ? 1 / width : 1 / w, _scaley ? 1 / height : 1 / h);
-            }
+            t.scale(_scalex ? 1 / width : 1 / w, _scaley ? 1 / height : 1 / h);
+            //t.b = 0.5
+            //t.c = 0.5;
             return t;
         }
         
-        public function setUVPoint(uv:Point, n:Number3D):void
+        public function setUVPoint(uv:Point, p:Number3D):void
         {
-        	uv.x = Number3D.dot(n, u);
-            uv.y = Number3D.dot(n, v);
+        	uv.x = Number3D.dot(p, u);
+            uv.y = Number3D.dot(p, v);
+            
         }
     }
 }
