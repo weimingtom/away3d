@@ -525,22 +525,10 @@ class AutoLODSphere extends ObjectContainer3D
 class LODs extends ObjectContainer3D
 {
     private var plane:Plane;
-    private var sphere0:Sphere;
-    private var sphere1:Sphere;
-    private var sphere2:Sphere;
-    private var sphere3:Sphere;
-    private var sphere4:Sphere;
-    private var sphere5:Sphere;
 
     public function LODs()
     {
         plane = new Plane(new PreciseBitmapMaterial(Asset.green, {precision:1.5}), {y:-200 , width:1000, height:1000});
-        sphere0 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW: 8, segmentsH:6});
-        sphere1 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:10, segmentsH:8});
-        sphere2 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:12, segmentsH:9});
-        sphere3 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:14, segmentsH:10});
-        sphere4 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:16, segmentsH:12});
-        sphere5 = new Sphere(new WireColorMaterial(0xFF0000), {radius:150, segmentsW:20, segmentsH:15});
 
         super(plane, 
             new AutoLODSphere(0xFF0000, {x: 350, y:160, z: 350}), 
@@ -576,6 +564,9 @@ class Transforms extends Primitives
         cube.scaleX = 1 + 0.5 * Math.sin(time / 200);
         cube.scaleY = 1 - 0.5 * Math.sin(time / 200);
         sphere.rotationY = Math.tan(time / 3000)*90;
+        torus.rotationX = time / 20;
+        torus.rotationY = time / 30;
+        torus.rotationZ = time / 40;
     }
 }
 
