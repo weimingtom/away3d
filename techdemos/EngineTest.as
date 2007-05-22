@@ -25,53 +25,58 @@ package
         {
             Debug.warningsAsErrors = true;
 
-            super("Away3D engine test", 85);
+            super("Away3D engine test", 85+40);
 
             DrawTriangle.test();
             DrawSegment.test();
 
             addSlide("Primitives", 
-"", 
+"Basic primitives to start playing with", 
             new Scene3D(new Primitives), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Transforms", 
-"", 
+"Affine transforms for object and groups",
             new Scene3D(new Transforms), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Texturing", 
-"", 
+"Bitmap texturing", 
             new Scene3D(new Texturing), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Smooth texturing", 
-"", 
+"Smooth bitmap texturing", 
             new Scene3D(new SmoothTexturing), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Movie texturing", 
-"", 
+"Any Sprite or MovieClip can be used as a material", 
             new Scene3D(new MovieTexturing), 
             new QuadrantRenderer(new AnotherRivalFilter));
                     
+            addSlide("Occlusion culling", 
+"Unnecessary triangles elimination",
+            new Scene3D(new Blockers), 
+            new BasicRenderer());
+
             addSlide("Wire primitives", 
-"", 
+"First class support for segments", 
             new Scene3D(new WirePrimitives), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Bezier extrusion", 
-"", 
+"Bezier extrusion of a plane", 
             new Scene3D(new BezierCurve), 
             new BasicRenderer());
             
             addSlide("Mouse events", 
-"", 
+"Click on the objects to change their color", 
             new Scene3D(new MouseEvents), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Drawing", 
-"", 
+"Click on the plane to start drawing", 
             new Scene3D(new Drawing), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
@@ -83,17 +88,17 @@ package
 */
 
             addSlide("Sprites", 
-"", 
+"Directional sprites support", 
             new Scene3D(new Sprites), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Level of details", 
-"", 
+"Reducing triangle count for distant objects", 
             new Scene3D(new LODs), 
             new BasicRenderer());
 
             addSlide("Perspective texturing", 
-"",
+"Correct perspective transform for textures",
             new Scene3D(new PerspectiveTexturing), 
             new BasicRenderer());
 /*
@@ -103,34 +108,39 @@ package
             new BasicRenderer());
 */
             addSlide("Skybox",
-"",
+"Multiple panorama options",
             new Scene3D(new SmoothSkybox), 
             new BasicRenderer());
 
             addSlide("Z ordering", 
-"",
+"Correct z-ordering for triangles",
             new Scene3D(new ZOrdering), 
             new QuadrantRenderer(new AnotherRivalFilter));
 
             addSlide("Intersecting objects", 
-"",
+"Ability to render intersecting objects",
             new Scene3D(new IntersectingObjects, new IntersectingObjects2), 
             new QuadrantRenderer(new QuadrantRiddleFilter, new AnotherRivalFilter));
 
             addSlide("Color lighting", 
-"",
+"Phong model color lighting",
             new Scene3D(new ColorLighting), 
             new BasicRenderer());
 
             addSlide("White lighting", 
-"",
+"White lighting for bitmap textures",
             new Scene3D(new WhiteLighting), 
             new BasicRenderer());
 
             addSlide("Mesh morphing", 
-"",
+"Linear mesh morphing",
             new Scene3D(new Morphing), 
             new BasicRenderer());
+
+            addSlide("Texture projection", 
+"Projecting textures on objects", 
+            new Scene3D(new FunnyCube), 
+            new QuadrantRenderer(new AnotherRivalFilter));
 
         }
     }
@@ -250,6 +260,14 @@ class Asset
         return (new HttTImage as BitmapAsset).bitmapData;
     }
 
+    [Embed(source="images/target.png")]
+    public static var targetImage:Class;
+
+    public static function get target():BitmapData
+    {
+        return (new targetImage as BitmapAsset).bitmapData;
+    }
+    
     [Embed(source="images/blue.jpg")]
     public static var BlueImage:Class;
 
@@ -544,7 +562,7 @@ class Primitives extends ObjectContainer3D
         plane = new Plane(new WireColorMaterial(0xFFFF00),   {y:-20, width:1000, height:1000});
         sphere = new Sphere(new WireColorMaterial(0xFF0000), {x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
         cube = new Cube(new WireColorMaterial(0x0000FF),     {x: 300, y:160, z: -80, width:200, height:200, depth:200});
-        torus = new Torus(new WireColorMaterial(0x00FF00),   {x:-250, y:160, z:-250, segmentsR:8, segmentsT:6});
+        torus = new Torus(new WireColorMaterial(0x00FF00),   {x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
 
         super(sphere, plane, cube, torus);
     }
@@ -615,16 +633,41 @@ class WirePrimitives extends ObjectContainer3D
                        
     public function WirePrimitives()
     {
-        plane = new WirePlane(new WireframeMaterial(0xFFFF00), {y:-70, width:1000, height:1000, segments:10});
+        plane = new WirePlane(new WireframeMaterial(0xFFFF00, 1, 0), {y:-70, width:1000, height:1000, segments:10});
         sphere = new WireSphere(new WireframeMaterial(0xFF0000, 1, 2), {x:300, y:160, z:300, radius:150, segmentsW:12, segmentsH:9});
         cube = new WireCube(new WireframeMaterial(0x0000FF, 1, 2), {x:300, y:160, z:-80, width:200, height:200, depth:200});
-        gridplane = new GridPlane(new WireframeMaterial(0xFFFFFF), {y:-70, width:1000, height:1000, segmentsW:10});
-        torus = new WireTorus(new WireframeMaterial(0x00FF00), {x:-250, y:160, z:-250, segmentsR:8, segmentsT:6});
+        gridplane = new GridPlane(new WireframeMaterial(0xFFFFFF), {y:-170, width:1000, height:1000, segmentsW:10});
+        torus = new WireTorus(new WireframeMaterial(0x00FF00), {x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
 
         for each (var v:Vertex3D in plane.vertices)
             v.y += Math.random() * 50;
 
         super(sphere, plane, cube, gridplane, torus);
+    }
+    
+}
+
+class Blockers extends ObjectContainer3D
+{
+    protected var sphere:Sphere;
+    protected var plane:Plane;
+    protected var cube:Cube;
+    protected var torus:Torus;
+                       
+    protected var sphereblock:ConvexBlock;
+    protected var planeblock:ConvexBlock;
+
+    public function Blockers()
+    {
+        plane = new Plane(new WireColorMaterial(0xFFFF00),   {y:-20, width:1000, height:1000, pushback:true});
+        cube = new Cube(new WireColorMaterial(0x0000FF),     {x: 300, y:160, z: -80, width:200, height:200, depth:200});
+        torus = new Torus(new WireColorMaterial(0x00FF00),   {x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
+        sphere = new Sphere(new WireColorMaterial(0xFF0000), {x:300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
+
+        sphereblock = new ConvexBlock(new Sphere(null, {radius:150, segmentsW:8, segmentsH:6}).vertices, {x:-300, y:160, z: 300, debug:true});
+        planeblock = new ConvexBlock(new Plane(null, {width:400, height:1000}).vertices, {x:650, y:200, z:0, rotationZ:90, debug:true});
+
+        super(sphere, plane, cube, torus, sphereblock, planeblock);
     }
     
 }
@@ -745,6 +788,27 @@ class PerspectiveTexturing extends ObjectContainer3D
         cube = new Cube(new PreciseBitmapMaterial(Asset.httt, {precision:2.5}), {width:800, height:800, depth:800});
         
         super(cube);
+    }
+    
+}
+
+class FunnyCube extends ObjectContainer3D
+{
+    public var cube:Cube;
+    public var material:TransformBitmapMaterial;
+                       
+    public override function tick(time:int):void
+    {
+        if (cube != null)
+            removeChild(cube);
+
+        var m:Matrix = new Matrix();
+        m.translate(-250,-250);
+        m.scale(2*(Math.abs(Math.sin(time/2000))+0.2), 2*(Math.abs(Math.cos(time/2000))+0.2));
+        material = new TransformBitmapMaterial(Asset.target, {precision:2.5, transform:m, repeat:false, normal:new Number3D(1, 1, 1)});
+        cube = new Cube(material, {width:500, height:500, depth:500, bothsides:true});
+
+        addChild(cube);
     }
     
 }
@@ -937,13 +1001,13 @@ class WhiteLighting extends ObjectContainer3D
         }
 
         light1 = new Light3D(0x555555, 1, 1, 1);
-        light1.x = 3500;
-        light1.y = 3500;
-        light1.z = 3500;
+        light1.x = 3500/2;
+        light1.y = 3500/2;
+        light1.z = 3500/2;
         light2 = new Light3D(0xAAAAAA, 1, 1, 1);
-        light2.x = -3000;
-        light2.y = 3000;
-        light2.z = 3000;
+        light2.x = -3000/2;
+        light2.y = 3000/2;
+        light2.z = 3000/2;
         light1c = new ObjectContainer3D(null, light1);
         light2c = new ObjectContainer3D(null, light1);
 
