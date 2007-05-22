@@ -55,14 +55,12 @@ package away3d.core.render
                     screenZ = z;
                     drawpri = pri;
                     object = pri.source;
-//                    path = curpath.concat([]); // test it
                     element = null; // TODO face or segment
                     uv = null;
                     if (pri is DrawTriangle)
                     {
                         var tri:DrawTriangle = pri as DrawTriangle;
                         uv = tri.getUV(screenX, screenY);
-                        // TODO UV coordinates
                     }
                 }
             }

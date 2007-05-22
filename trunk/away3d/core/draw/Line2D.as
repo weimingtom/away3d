@@ -19,7 +19,6 @@ package away3d.core.draw
 
         public static function from2points(v0:Vertex2D, v1:Vertex2D):Line2D
         {
-
             var a:Number = v1.y - v0.y;
             var b:Number = v0.x - v1.x;
             var c:Number = -(b*v0.y + a*v0.x);
@@ -36,14 +35,19 @@ package away3d.core.draw
             return new Vertex2D(xd / det, yd / det, 0);
         }
 
-        public function side(v:Vertex2D):Number
+        public function sideV(v:Vertex2D):Number
         {
             return a*v.x + b*v.y + c;
         }
 
+        public function side(x:Number, y:Number):Number
+        {
+            return a*x + b*y + c;
+        }
+
         public function distance(v:Vertex2D):Number
         {
-            return side(v) / Math.sqrt(a*a + b*b);
+            return sideV(v) / Math.sqrt(a*a + b*b);
         }
 
         public function toString():String
