@@ -17,17 +17,19 @@ package away3d.core.geom
 
         public var material:IMaterial;
 
-        public var bothsides:Boolean = false;
+        public var bothsides:Boolean;
+        public var pushback:Boolean;
     
         public function Mesh3D(material:IMaterial, init:Object = null)
         {
+            super(init);
+
             init = Init.parse(init);
 
             bothsides = init.getBoolean("bothsides", false);
+            pushback = init.getBoolean("pushback", false);
 
             this.material = material || new WireColorMaterial();
-
-            super(init);
         }
     
         public function inverseFaces():void
@@ -110,6 +112,11 @@ package away3d.core.geom
                 if ((!bothsides) && (tri.area <= 0))
                     continue;
                 
+                if (pushback)
+                {
+                    tri.screenZ = tri.maxZ;
+                }
+
                 tri.uv0 = face.uv0;
                 tri.uv1 = face.uv1;
                 tri.uv2 = face.uv2;

@@ -9,7 +9,6 @@ package away3d.core.render
 
     public class PrimitiveTraverser extends ProjectionTraverser
     {
-        private var triangles:Array;
         private var consumer:IPrimitiveConsumer;
         private var lights:ILightConsumer;
 

@@ -81,9 +81,9 @@ package away3d.core.material
             smooth = init.getBoolean("smooth", false);
             _transform = init.getObject("transform", new Matrix());
             _normal = init.getNumber3D("normal");
-			_repeat = init.getBoolean("repeat", false);
+            _repeat = init.getBoolean("repeat", false);
             _scalex = init.getBoolean("scalex", false);
-			_scaley = init.getBoolean("scaley", false);
+            _scaley = init.getBoolean("scaley", false);
         }
 
         private var cache:Dictionary = new Dictionary();
@@ -136,8 +136,10 @@ package away3d.core.material
  
         protected function ladder(v:Number):Number
         {
-            if (v < 1/0xFFFFFF)
+            if (v < 1/0xFF)
                 return 0;
+            if (v > 0xFF)
+                v = 0xFF;
             return Math.exp(Math.round(Math.log(v)*step)/step);
         }
     }

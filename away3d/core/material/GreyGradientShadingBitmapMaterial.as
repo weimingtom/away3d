@@ -153,12 +153,12 @@ package away3d.core.material
 //                if (((br0 >= br1) && (br1 >= br2)) || ((br0 <= br1) && (br1 <= br2)))
                 if (e20 == maxe)
                 {
-                    m = new Matrix((s2x-s0.x)*10/16384, 
-                                   (s2y-s0.y)*10/16384, 
-                                  -(s2y-s0.y)*10/16384, 
-                                   (s2x-s0.x)*10/16384, 
-                                   (s2x+s0.x)/2, 
-                                   (s2y+s0.y)/2);
+                    m = new Matrix((s2x-s0x)*10/16384, 
+                                   (s2y-s0y)*10/16384, 
+                                  -(s2y-s0y)*10/16384, 
+                                   (s2x-s0x)*10/16384, 
+                                   (s2x+s0x)/2, 
+                                   (s2y+s0y)/2);
                     graphics.beginGradientFill(GradientType.LINEAR, blackblack, [1-br0, 1-br2], zero255, m);
                     graphics.moveTo(s0.x, s0.y);
                     graphics.lineTo(s1.x, s1.y);
@@ -169,32 +169,32 @@ package away3d.core.material
 //                if (((br0 >= br2) && (br2 >= br1)) || ((br0 <= br2) && (br2 <= br1)))
                 if (e01 == maxe)
                 {
-                    m = new Matrix((s1x-s0.x)*10/16384, 
-                                   (s1y-s0.y)*10/16384, 
-                                  -(s1y-s0.y)*10/16384, 
-                                   (s1x-s0.x)*10/16384, 
-                                   (s1x+s0.x)/2, 
-                                   (s1y+s0.y)/2);
+                    m = new Matrix((s1x-s0x)*10/16384, 
+                                   (s1y-s0y)*10/16384, 
+                                  -(s1y-s0y)*10/16384, 
+                                   (s1x-s0x)*10/16384, 
+                                   (s1x+s0x)/2, 
+                                   (s1y+s0y)/2);
                     graphics.beginGradientFill(GradientType.LINEAR, blackblack, [1-br0, 1-br1], zero255, m);
-                    graphics.moveTo(s0.x, s0.y);
-                    graphics.lineTo(s1.x, s1.y);
-                    graphics.lineTo(s2.x, s2.y);
+                    graphics.moveTo(s0x, s0y);
+                    graphics.lineTo(s1x, s1y);
+                    graphics.lineTo(s2x, s2y);
                     graphics.endFill();
                     return;
                 }
 //                if (((br1 >= br0) && (br0 >= br2)) || ((br1 <= br0) && (br0 <= br2)))
                 if (e12 == maxe)
                 {
-                    m = new Matrix((s2x-s1.x)*10/16384, 
-                                   (s2y-s1.y)*10/16384, 
-                                  -(s2y-s1.y)*10/16384, 
-                                   (s2x-s1.x)*10/16384, 
-                                   (s2x+s1.x)/2, 
-                                   (s2y+s1.y)/2);
+                    m = new Matrix((s2x-s1x)*10/16384, 
+                                   (s2y-s1y)*10/16384, 
+                                  -(s2y-s1y)*10/16384, 
+                                   (s2x-s1x)*10/16384, 
+                                   (s2x+s1x)/2, 
+                                   (s2y+s1y)/2);
                     graphics.beginGradientFill(GradientType.LINEAR, blackblack, [1-br1, 1-br2], zero255, m);
-                    graphics.moveTo(s0.x, s0.y);
-                    graphics.lineTo(s1.x, s1.y);
-                    graphics.lineTo(s2.x, s2.y);
+                    graphics.moveTo(s0x, s0y);
+                    graphics.lineTo(s1x, s1y);
+                    graphics.lineTo(s2x, s2y);
                     graphics.endFill();
                     return;
                 }

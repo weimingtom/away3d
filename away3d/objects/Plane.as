@@ -19,13 +19,14 @@ package away3d.objects
     
             init = Init.parse(init);
 
-            width = init.getNumber("width", 100, {min:0});
-            height = init.getNumber("height", 100, {min:0});
+            width = init.getNumber("width", 0, {min:0});
+            height = init.getNumber("height", 0, {min:0});
             var segments:int = init.getInt("segments", 1, {min:1});
             segmentsW = init.getInt("segmentsW", segments, {min:1});
             segmentsH = init.getInt("segmentsH", segments, {min:1});
 
             if (width*height == 0)
+            {
                 if (material is IUVMaterial)
                 {
                     var uvm:IUVMaterial = material as IUVMaterial;
@@ -34,7 +35,12 @@ package away3d.objects
                     if (height == 0)
                         height = uvm.height;
                 }
-
+                else
+                {
+                    width = 100;
+                    height = 100;
+                }
+            }
             buildPlane();
         }
     
