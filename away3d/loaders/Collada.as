@@ -15,11 +15,11 @@ package away3d.loaders
     
         public function Collada(xml:XML, materials:MaterialLibrary = null, scale:Number = 1)
         {
-            this.collada = xml;
+            collada = xml;
 
-            this.library = materials;
+            library = materials;
     
-            this.scaling = scale * 100;
+            scaling = scale * 100;
     
             buildCollada();
         }
@@ -29,7 +29,7 @@ package away3d.loaders
             default xml namespace = collada.namespace();
     
             // Get up axis
-            this.yUp = (collada.asset.up_axis == "Y_UP");
+            yUp = (collada.asset.up_axis == "Y_UP");
     
             // Parse first scene
             var sceneId:String = getId(collada.scene.instance_visual_scene.@url);
