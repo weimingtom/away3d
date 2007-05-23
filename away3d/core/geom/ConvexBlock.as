@@ -33,7 +33,8 @@ package away3d.core.geom
 
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
-            consumer.primitive(blocker(projection));
+            if (debug)
+                consumer.primitive(blocker(projection));
         }
 
         public function blocker(projection:Projection):Blocker

@@ -19,6 +19,7 @@ package away3d.core.geom
 
         public var bothsides:Boolean;
         public var pushback:Boolean;
+        public var pushfront:Boolean;
     
         public function Mesh3D(material:IMaterial, init:Object = null)
         {
@@ -28,6 +29,7 @@ package away3d.core.geom
 
             bothsides = init.getBoolean("bothsides", false);
             pushback = init.getBoolean("pushback", false);
+            pushfront = init.getBoolean("pushfront", false);
 
             this.material = material || new WireColorMaterial();
         }
@@ -113,9 +115,10 @@ package away3d.core.geom
                     continue;
                 
                 if (pushback)
-                {
                     tri.screenZ = tri.maxZ;
-                }
+
+                if (pushfront)
+                    tri.screenZ = tri.minZ;
 
                 tri.uv0 = face.uv0;
                 tri.uv1 = face.uv1;
