@@ -55,7 +55,7 @@ package away3d.test
         private var scroll:Boolean = true;
         private var time:int;
 
-        protected var demoroot:Sprite;
+        protected var demoroot:View3D;
 
         public function BaseDemo(title:String, infogroupheight:Number = 410)
         {
@@ -64,7 +64,7 @@ package away3d.test
             stage.showDefaultContextMenu = false;
             stage.stageFocusRect = false;
 
-            demoroot = new Sprite();
+            demoroot = new View3D(null, null, null);
             addChild(demoroot);
             
             lefttopgroup = new Sprite();
@@ -178,6 +178,8 @@ package away3d.test
             camera.targetpanangle = 230;
 
             camera.mintiltangle = -10;
+
+            demoroot.camera = camera;
     
             stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
             stage.addEventListener(Event.RESIZE, onResize);
@@ -212,6 +214,10 @@ package away3d.test
                             +"</font>";
             nextbutton.visible = slideindex < slides.length-1;
             prevbutton.visible = slideindex > 0;
+
+            demoroot.clear();
+            demoroot.scene = slide.scene;
+            demoroot.renderer = slide.renderer;
         }
 
         private function onNext(event:MouseEvent):void
@@ -267,7 +273,8 @@ package away3d.test
                 time = getTimer();
 
             slide.scene.updateTime(time);
-            slide.scene.render(camera, slide.renderer/*, new ClipRectRenderer()*/);
+            //slide.scene.render(camera, slide.renderer/*, new ClipRectRenderer()*/);
+            demoroot.render();
             
             var now:int = getTimer();
             var performance:int = now - lastrender;
