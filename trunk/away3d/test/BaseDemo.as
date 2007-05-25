@@ -197,14 +197,14 @@ package away3d.test
 
         protected function addSlide(title:String, text:String, scene:Scene3D, renderer:IRenderer):void
         {
-            demoroot.addChild(scene.container);
+            //demoroot.addChild(scene.container);
             slides.push(new Slide(title, text, scene, renderer));
         }
 
         private function changeSlide():void
         {
-            if (slide != null)
-                slide.scene.clear();
+            //if (slide != null)
+            //    slide.scene.clear();
 
             slide = slides[slideindex];
             dirty = true;
