@@ -111,7 +111,7 @@ package away3d.core.draw
             var k1:Number = -sv0 / d;
 
             var tv01z:Number = (tv0z*k0 + tv1z*k1);
-            var tv01p:Number = focus / (focus + tv01z);
+            var tv01p:Number = 1 / (1 + tv01z /  focus);
             var tv01x:Number = (tv0x*k0 + tv1x*k1) * tv01p;
             var tv01y:Number = (tv0y*k0 + tv1y*k1) * tv01p;
 
@@ -146,20 +146,23 @@ package away3d.core.draw
             var dx:Number = bx - ax;
             var dy:Number = by - ay;
 
-            var faz:Number = focus + az;
-            var fbz:Number = focus + bz;
+            var azf:Number = az / focus;
+            var bzf:Number = bz / focus;
 
-            var xfocus:Number = x * focus;
-            var yfocus:Number = y * focus;
+            var faz:Number = 1 + azf;
+            var fbz:Number = 1 + bzf;
 
-            var axf:Number = ax*faz - x*az;
-            var bxf:Number = bx*fbz - x*bz;
-            var ayf:Number = ay*faz - y*az;
-            var byf:Number = by*fbz - y*bz;
+            var xfocus:Number = x;
+            var yfocus:Number = y;
+
+            var axf:Number = ax*faz - x*azf;
+            var bxf:Number = bx*fbz - x*bzf;
+            var ayf:Number = ay*faz - y*azf;
+            var byf:Number = by*fbz - y*bzf;
 
             var det:Number = dx*(axf - bxf) + dy*(ayf - byf);
-            var db:Number = dx*(axf - xfocus) + dy*(ayf - yfocus);
-            var da:Number = dx*(xfocus - bxf) + dy*(yfocus - byf);
+            var db:Number = dx*(axf - x) + dy*(ayf - y);
+            var da:Number = dx*(x - bxf) + dy*(y - byf);
 
             return (da*az + db*bz) / det;
         }

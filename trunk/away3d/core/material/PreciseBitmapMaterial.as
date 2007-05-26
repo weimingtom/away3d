@@ -60,8 +60,9 @@ package away3d.core.material
             if ((az <= 0) && (bz <= 0) && (cz <= 0))
                 return;
 
+            var focus:Number = projection.focus;
             var graphics:Graphics = session.graphics;
-            if ((Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
+            if ((focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
                 RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
                 if (debug)
@@ -75,7 +76,6 @@ package away3d.core.material
                 return;
             }
 
-            var focus:Number = projection.focus;
             var faz:Number = focus + az;
             var fbz:Number = focus + bz;
             var fcz:Number = focus + cz;

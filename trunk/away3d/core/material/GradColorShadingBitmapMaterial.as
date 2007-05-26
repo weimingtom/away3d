@@ -88,20 +88,20 @@ package away3d.core.material
             var vcz:Number = (v0z + v1z + v2z) / 3;
 
             var scz:Number = vcz;
-            var scx:Number = vcx * zoom * focus / (focus + vcz);
-            var scy:Number = vcy * zoom * focus / (focus + vcz);
+            var scx:Number = vcx * zoom / (1 + vcz / focus);
+            var scy:Number = vcy * zoom / (1 + vcz / focus);
 
             var s01z:Number = (v0z + v1z) / 2;
-            var s01x:Number = (v0x + v1x) * zoom * focus / (focus + s01z) / 2;
-            var s01y:Number = (v0y + v1y) * zoom * focus / (focus + s01z) / 2;
-                                                                             
-            var s12z:Number = (v1z + v2z) / 2;                                
-            var s12x:Number = (v1x + v2x) * zoom * focus / (focus + s12z) / 2;
-            var s12y:Number = (v1y + v2y) * zoom * focus / (focus + s12z) / 2;
-                                                                             
+            var s01x:Number = (v0x + v1x) * zoom / (1 + s01z / focus) / 2;
+            var s01y:Number = (v0y + v1y) * zoom / (1 + s01z / focus) / 2;
+                                                                
+            var s12z:Number = (v1z + v2z) / 2;                   
+            var s12x:Number = (v1x + v2x) * zoom / (1 + s12z / focus) / 2;
+            var s12y:Number = (v1y + v2y) * zoom / (1 + s12z / focus) / 2;
+                                                                
             var s20z:Number = (v2z + v0z) / 2;
-            var s20x:Number = (v2x + v0x) * zoom * focus / (focus + s20z) / 2;
-            var s20y:Number = (v2y + v0y) * zoom * focus / (focus + s20z) / 2;
+            var s20x:Number = (v2x + v0x) * zoom / (1 + s20z / focus) / 2;
+            var s20y:Number = (v2y + v0y) * zoom / (1 + s20z / focus) / 2;
 
             var kcar:Number = 0;
             var kcag:Number = 0;

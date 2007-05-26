@@ -51,7 +51,7 @@ package away3d.core.geom
         
         public function perspective(focus:Number):Vertex2D
         {
-            var persp:Number = focus / (focus + z);
+            var persp:Number = 1 / (1 + z / focus);
 
             return new Vertex2D(x * persp, y * persp, z);
         }                     

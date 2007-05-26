@@ -76,23 +76,24 @@ package away3d.core.draw
             var d:Number = aw + bw;
             var ak:Number = aw / d;
             var bk:Number = bw / d;
+
             var x:Number = a.x*ak + b.x*bk;
             var y:Number = a.y*ak + b.y*bk;
 
-            var faz:Number = focus + a.z;
-            var fbz:Number = focus + b.z;
+            var azf:Number = a.z / focus;
+            var bzf:Number = b.z / focus;
 
-            var xfocus:Number = x * focus;
-            var yfocus:Number = y * focus;
+            var faz:Number = 1 + azf;
+            var fbz:Number = 1 + bzf;
 
-            var axf:Number = a.x*faz - x*a.z;
-            var bxf:Number = b.x*fbz - x*b.z;
-            var ayf:Number = a.y*faz - y*a.z;
-            var byf:Number = b.y*fbz - y*b.z;
+            var axf:Number = a.x*faz - x*azf;
+            var bxf:Number = b.x*fbz - x*bzf;
+            var ayf:Number = a.y*faz - y*azf;
+            var byf:Number = b.y*fbz - y*bzf;
 
             var det:Number = axf*byf - bxf*ayf;
-            var da:Number = xfocus*byf - bxf*yfocus;
-            var db:Number = axf*yfocus - xfocus*ayf;
+            var da:Number = x*byf - bxf*y;
+            var db:Number = axf*y - x*ayf;
 
             return new Vertex2D(x, y, (da*a.z + db*b.z) / det);
         }
