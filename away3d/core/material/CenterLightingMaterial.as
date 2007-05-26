@@ -139,9 +139,9 @@ package away3d.core.material
             {
                 var graphics:Graphics = session.graphics;
                 var cz:Number = c0z;
-                var cx:Number = c0x * zoom * focus / (focus + cz);
-                var cy:Number = c0y * zoom * focus / (focus + cz);
-
+                var cx:Number = c0x * zoom / (1 + cz / focus);
+                var cy:Number = c0y * zoom / (1 + cz / focus);
+                
                 if (draw_normal)
                 {
                     var ncz:Number = (c0z + 30*pc);

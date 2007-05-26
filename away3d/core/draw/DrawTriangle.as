@@ -334,24 +334,25 @@ package away3d.core.draw
             if ((cx == x) && (cy == y))
                 return cz;
 
-            var faz:Number = focus + az;
-            var fbz:Number = focus + bz;
-            var fcz:Number = focus + cz;
+            var azf:Number = az / focus;
+            var bzf:Number = bz / focus;
+            var czf:Number = cz / focus;
 
-            var xfocus:Number = x * focus;
-            var yfocus:Number = y * focus;
+            var faz:Number = 1 + azf;
+            var fbz:Number = 1 + bzf;
+            var fcz:Number = 1 + czf;
 
-            var axf:Number = ax*faz - x*az;
-            var bxf:Number = bx*fbz - x*bz;
-            var cxf:Number = cx*fcz - x*cz;
-            var ayf:Number = ay*faz - y*az;
-            var byf:Number = by*fbz - y*bz;
-            var cyf:Number = cy*fcz - y*cz;
+            var axf:Number = ax*faz - x*azf;
+            var bxf:Number = bx*fbz - x*bzf;
+            var cxf:Number = cx*fcz - x*czf;
+            var ayf:Number = ay*faz - y*azf;
+            var byf:Number = by*fbz - y*bzf;
+            var cyf:Number = cy*fcz - y*czf;
 
             var det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf);
-            var da:Number = xfocus*(byf - cyf) + bxf*(cyf - yfocus) + cxf*(yfocus - byf);
-            var db:Number = axf*(yfocus - cyf) + xfocus*(cyf - ayf) + cxf*(ayf - yfocus);
-            var dc:Number = axf*(byf - yfocus) + bxf*(yfocus - ayf) + xfocus*(ayf - byf);
+            var da:Number = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y - byf);
+            var db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y);
+            var dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
 
             return (da*az + db*bz + dc*cz) / det;
         }
@@ -395,24 +396,25 @@ package away3d.core.draw
             if ((cx == x) && (cy == y))
                 return uv2;
 
-            var faz:Number = focus + az;
-            var fbz:Number = focus + bz;
-            var fcz:Number = focus + cz;
+            var azf:Number = az / focus;
+            var bzf:Number = bz / focus;
+            var czf:Number = cz / focus;
 
-            var xfocus:Number = x * focus;
-            var yfocus:Number = y * focus;
-
-            var axf:Number = ax*faz - x*az;
-            var bxf:Number = bx*fbz - x*bz;
-            var cxf:Number = cx*fcz - x*cz;
-            var ayf:Number = ay*faz - y*az;
-            var byf:Number = by*fbz - y*bz;
-            var cyf:Number = cy*fcz - y*cz;
+            var faz:Number = 1 + azf;
+            var fbz:Number = 1 + bzf;
+            var fcz:Number = 1 + czf;
+                                    
+            var axf:Number = ax*faz - x*azf;
+            var bxf:Number = bx*fbz - x*bzf;
+            var cxf:Number = cx*fcz - x*czf;
+            var ayf:Number = ay*faz - y*azf;
+            var byf:Number = by*fbz - y*bzf;
+            var cyf:Number = cy*fcz - y*czf;
 
             var det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf);
-            var da:Number = xfocus*(byf - cyf) + bxf*(cyf - yfocus) + cxf*(yfocus - byf);
-            var db:Number = axf*(yfocus - cyf) + xfocus*(cyf - ayf) + cxf*(ayf - yfocus);
-            var dc:Number = axf*(byf - yfocus) + bxf*(yfocus - ayf) + xfocus*(ayf - byf);
+            var da:Number = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y- byf);
+            var db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y);
+            var dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
 
             return new NumberUV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
