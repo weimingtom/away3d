@@ -12,10 +12,10 @@ package away3d.core.render
     {
         private var consumer:IBlockerConsumer;
 
-        public function BlockerTraverser(consumer:IBlockerConsumer, camera:Camera3D)
+        public function BlockerTraverser(consumer:IBlockerConsumer, view:View3D)
         {
             this.consumer = consumer;
-            super(camera);
+            super(view);
         }
 
         public override function apply(object:Object3D):void
@@ -23,7 +23,7 @@ package away3d.core.render
             if (object is IBlockerProvider)
             {
                 var provider:IBlockerProvider = (object as IBlockerProvider);
-                var projection:Projection = new Projection(view, camera.focus, camera.zoom);
+                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
                 provider.blockers(projection, consumer);
             }
         }

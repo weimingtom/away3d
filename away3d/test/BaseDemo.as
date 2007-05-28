@@ -170,7 +170,7 @@ package away3d.test
             startlabel.htmlText = "Start demo";
             centergroup.addChild(startlabel);
 
-            camera = new HoverCamera3D(null, 3, 200, 800);
+            camera = new HoverCamera3D(null, {zoom:3, focus:200, distance:800});
             camera.tiltangle = 10;
             camera.targettiltangle = 40;
 

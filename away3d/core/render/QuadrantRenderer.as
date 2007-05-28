@@ -19,13 +19,18 @@ package away3d.core.render
                 qdrntfilters.push(filter);
         }
 
-        public function render(scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping):void
+        public function render(view:View3D/*scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping*/):void
         {
+            var scene:Scene3D = view.scene;
+            var camera:Camera3D = view.camera;
+            var container:Sprite = view.canvas;
+            var clip:Clipping = view.clip;
+            
             var graphics:Graphics = container.graphics;
             
             var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree(clip);
             var lightarray:LightArray = new LightArray();
-            var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(pritree, lightarray, camera);
+            var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(pritree, lightarray, view);
 
             scene.traverse(pritraverser);
 

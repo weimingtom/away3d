@@ -18,12 +18,15 @@ package away3d.cameras
         public var maxtiltangle:Number = 90;
         public var steps:Number = 8;
 
-        public function HoverCamera3D(target:Object3D = null, zoom:Number = 2, focus:Number = 100, distance:Number = 800, init:Object = null)
+        public function HoverCamera3D(target:Object3D = null, /*zoom:Number = 2, focus:Number = 100, distance:Number = 800,*/ init:Object = null)
         {
-            super(zoom, focus, init);
+            super(init);
     
             this.target = target || new Object3D();
-            this.distance = distance;
+
+            init = Init.parse(init);
+
+            distance = init.getNumber("distance", 800);
 
             update();
         }

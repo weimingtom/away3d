@@ -28,5 +28,16 @@ package away3d.core.render
                 graphics.drawRect(cliprect.minX+(cliprect.maxX - cliprect.minX)*0.1, cliprect.minY+(cliprect.maxY - cliprect.minY)*0.1, (cliprect.maxX - cliprect.minX)*0.8, (cliprect.maxY - cliprect.minY)*0.8);
             }
         }
+
+        public function desc():String
+        {
+            return "ClipRect";
+        }
+
+        public function stats():String
+        {
+            return "";
+        }
+
     }
 }

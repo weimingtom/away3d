@@ -20,11 +20,11 @@ package away3d.core.proto
                 addChild(child);
         }
 
-        public function matchLOD(camera:Camera3D, view:Matrix3D):Boolean
+        public function matchLOD(view:View3D, transform:Matrix3D):Boolean
         {
-            var proj:Matrix3D = project(view);
+            var proj:Matrix3D = project(transform);
             var z:Number = proj.n34;
-            var persp:Number = camera.zoom / (1 + z / camera.focus);
+            var persp:Number = view.camera.zoom / (1 + z / view.camera.focus);
 
             if (persp < minp)
                 return false;

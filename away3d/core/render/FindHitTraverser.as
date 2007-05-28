@@ -19,9 +19,9 @@ package away3d.core.render
         public var object:Object3D;
         public var uv:NumberUV;
 
-        public function FindHitTraverser(camera:Camera3D, x:Number, y:Number)
+        public function FindHitTraverser(view:View3D, x:Number, y:Number)
         {
-            super(camera);
+            super(view);
             screenX = x;
             screenY = y;
         }
@@ -31,7 +31,7 @@ package away3d.core.render
             if (object is IPrimitiveProvider)
             {
                 var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
-                var projection:Projection = new Projection(view, camera.focus, camera.zoom);
+                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
                 provider.primitives(projection, this);
             }
         }
@@ -68,13 +68,14 @@ package away3d.core.render
 
         public function getMouseEvent(type:String):MouseEvent3D
         {
-            if (screenZ == Infinity)
-                return null;
+            //if (screenZ == Infinity)
+            //    return null;
 
             var event:MouseEvent3D = new MouseEvent3D(type);
             event.screenX = screenX;
             event.screenY = screenY;
             event.screenZ = screenZ;
+            event.view = view;
             event.drawpri = drawpri;
             event.element = element;
             event.object = object;

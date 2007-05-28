@@ -21,8 +21,8 @@ package away3d.objects
             init = Init.parse(init);
 
             radius = init.getNumber("radius", 100, {min:0});
-            segmentsW = init.getInt("segmentsW", 1, {min:3});
-            segmentsH = init.getInt("segmentsH", 1, {min:2})
+            segmentsW = init.getInt("segmentsW", 3, {min:3});
+            segmentsH = init.getInt("segmentsH", 2, {min:2})
 
             buildSphere();
         }
