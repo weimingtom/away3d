@@ -12,11 +12,11 @@ package away3d.core.render
         private var consumer:IPrimitiveConsumer;
         private var lights:ILightConsumer;
 
-        public function PrimitiveTraverser(consumer:IPrimitiveConsumer, lights:ILightConsumer, camera:Camera3D)
+        public function PrimitiveTraverser(consumer:IPrimitiveConsumer, lights:ILightConsumer, view:View3D)
         {
             this.consumer = consumer;
             this.lights = lights;
-            super(camera);
+            super(view);
         }
 
         public override function apply(object:Object3D):void
@@ -24,14 +24,14 @@ package away3d.core.render
             if (object is IPrimitiveProvider)
             {
                 var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
-                var projection:Projection = new Projection(view, camera.focus, camera.zoom);
+                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
                 provider.primitives(projection, consumer);
             }
 
             if (object is ILightProvider)
             {
                 var lightsource:ILightProvider = (object as ILightProvider);
-                lightsource.light(view, lights);
+                lightsource.light(transform, lights);
             }
         }
 

@@ -23,8 +23,13 @@ package away3d.core.render
         private var sumtriarea:int;
         private var info:String;
 
-        public function render(scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping):void
+        public function render(view:View3D/*scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping*/):void
         {
+            var scene:Scene3D = view.scene;
+            var camera:Camera3D = view.camera;
+            var container:Sprite = view.canvas;
+            var clip:Clipping = view.clip;
+            
             var start:int = getTimer();
             info = "";
 
@@ -32,14 +37,14 @@ package away3d.core.render
 
             // get blockers for occlution culling
             var blockerarray:BlockerArray = new BlockerArray(clip);
-            var blocktraverser:BlockerTraverser = new BlockerTraverser(blockerarray, camera);
+            var blocktraverser:BlockerTraverser = new BlockerTraverser(blockerarray, view);
             scene.traverse(blocktraverser);
             var blockers:Array = blockerarray.list();
 
             // get lights and drawing primitives
             var priarray:PrimitiveArray = new PrimitiveArray(clip, blockers);
             var lightarray:LightArray = new LightArray();
-            var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(priarray, lightarray, camera);
+            var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(priarray, lightarray, view);
             scene.traverse(pritraverser);
             var primitives:Array = priarray.list();
 

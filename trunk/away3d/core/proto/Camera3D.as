@@ -24,14 +24,14 @@ package away3d.core.proto
         // @param init An optional object that contains user defined properties with which to populate the newly created Object3D.
         // It includes x, y, z, rotationX, rotationY, rotationZ, scaleX, scaleY scaleZ and a user defined extra object.
         // If extra is not an object, it is ignored. All properties of the extra field are copied into the new instance. The properties specified with extra are publicly available.
-        public function Camera3D(zoom:Number = 3, focus:Number = 500, init:Object = null)
+        public function Camera3D(/*zoom:Number = 3, focus:Number = 500,*/ init:Object = null)
         {
             super(init);
 
             init = Init.parse(init);
 
-            this.zoom  = zoom;
-            this.focus = focus;
+            zoom = init.getNumber("zoom", 3);
+            focus = init.getNumber("focus", 500);
         }
     
         public function getView():Matrix3D

@@ -185,7 +185,8 @@ package away3d.core.proto
 
         public function get transform():Matrix3D
         {
-            updateTransform();
+            if (_transformDirty) 
+                updateTransform();
 
             return _transform;
         }
@@ -196,6 +197,20 @@ package away3d.core.proto
 
             _transformDirty = false;
             _rotationDirty = true;
+        }
+
+        public function relative(rel:Object3D = null):Matrix3D
+        {
+            var result:Matrix3D = new Matrix3D();
+            var object:Object3D = this;
+
+            while (object != rel)
+            {
+                result = Matrix3D.multiply(object.transform, result);
+                object = object.parent;
+            }
+
+            return result;
         }
 
         private var _transformDirty:Boolean = false;

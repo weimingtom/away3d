@@ -7,7 +7,7 @@ package away3d.core.render
 
     public interface IRenderer
     {
-        function render(scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping):void;
+        function render(view:View3D/*scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping*/):void;
         function desc():String;
         function stats():String;
     }

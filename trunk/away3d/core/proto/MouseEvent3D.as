@@ -18,6 +18,7 @@ package away3d.core.proto
         public var screenY:Number;
         public var screenZ:Number;
 
+        public var view:View3D;
         public var object:Object3D;
         public var element:Object;
         public var drawpri:DrawPrimitive;

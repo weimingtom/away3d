@@ -6,6 +6,6 @@ package away3d.core.proto
 
     public interface ILODObject
     {
-        function matchLOD(camera:Camera3D, view:Matrix3D):Boolean;
+        function matchLOD(view:View3D, transform:Matrix3D):Boolean;
     }
 }
