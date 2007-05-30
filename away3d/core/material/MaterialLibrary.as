@@ -8,11 +8,13 @@ package away3d.core.material
     {
         private var materials:Dictionary = new Dictionary();
     
-        public function MaterialLibrary(init:Object = null):void
+        public function MaterialLibrary(/*init:Object = null*/):void
         {
+        /*
             if (init != null)
                 for (var name:String in init)
                     add(init[name], name);
+        */
         }
     
         public function add(material:IMaterial, name:String):IMaterial

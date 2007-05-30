@@ -6,22 +6,33 @@ package away3d.loaders
     import away3d.core.geom.*;
     import away3d.core.material.*;
 
-    public class Collada extends ObjectContainer3D
+    public class Collada
     {
+        private var container:ObjectContainer3D;
         private var collada:XML;
         private var library:MaterialLibrary;
         private var scaling:Number;
         private var yUp:Boolean;
     
-        public function Collada(xml:XML, materials:MaterialLibrary = null, scale:Number = 1)
+        public function Collada(xml:XML, materials:MaterialLibrary = null, init:Object = null)
         {
             collada = xml;
 
             library = materials;
     
-            scaling = scale * 100;
+            init = Init.parse(init);
+
+            scaling = init.getNumber("scaling", 1) * 100;
     
+            container = new ObjectContainer3D(init);
+
             buildCollada();
+        }
+
+        public static function parse(data:*, materials:* = null, init:Object = null):ObjectContainer3D
+        {
+            var collada:Collada = new Collada(Cast.xml(data), Cast.library(materials), init);
+            return collada.container;
         }
 
         protected function buildCollada():void
@@ -42,7 +53,7 @@ package away3d.loaders
         private function parseScene(scene:XML):void
         {
             for each (var node:XML in scene.node)
-                parseNode(node, this);
+                parseNode(node, container);
         }
     
         private function parseNode(node:XML, parent:ObjectContainer3D):void
