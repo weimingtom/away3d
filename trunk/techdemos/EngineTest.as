@@ -25,82 +25,77 @@ package
         {
             Debug.warningsAsErrors = true;
 
-            super("Away3D engine test", 85+40);
-
-            DrawTriangle.test();
-            DrawSegment.test();
+            super("Away3D engine test", 5*5*5);
 
             addSlide("Primitives", 
 "Basic primitives to start playing with", 
             new Scene3D(new Primitives), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Transforms", 
 "Affine transforms for object and groups",
             new Scene3D(new Transforms), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Texturing", 
 "Bitmap texturing", 
             new Scene3D(new Texturing), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Smooth texturing", 
 "Smooth bitmap texturing", 
             new Scene3D(new SmoothTexturing), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Movie texturing", 
 "Any Sprite or MovieClip can be used as a material", 
             new Scene3D(new MovieTexturing), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
                     
             addSlide("Occlusion culling", 
 "Unnecessary triangles elimination",
             new Scene3D(new Blockers), 
-            new BasicRenderer());
+            Renderer.BASIC);
 
             addSlide("Wire primitives", 
 "First class support for segments", 
             new Scene3D(new WirePrimitives), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Bezier extrusion", 
 "Bezier extrusion of a plane", 
             new Scene3D(new BezierCurve), 
-            new BasicRenderer());
+            Renderer.BASIC);
             
             addSlide("Mouse events", 
 "Click on the objects to change their color", 
             new Scene3D(new MouseEvents), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Drawing", 
 "Click on the plane to start drawing", 
             new Scene3D(new Drawing), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
-/*
             addSlide("Meshes", 
 "", 
-            new Scene3D(new Meshes), 
-            new QuadrantRenderer(new AnotherRivalFilter));
-*/
+            new Scene3D(new AseMesh), 
+            Renderer.BASIC);
 
             addSlide("Sprites", 
 "Directional sprites support", 
             new Scene3D(new Sprites), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Level of details", 
 "Reducing triangle count for distant objects", 
             new Scene3D(new LODs), 
-            new BasicRenderer());
+            Renderer.BASIC);
 
             addSlide("Perspective texturing", 
 "Correct perspective transform for textures",
             new Scene3D(new PerspectiveTexturing), 
-            new BasicRenderer());
+            Renderer.BASIC);
 /*
             addSlide("Skybox", 
 "",
@@ -110,37 +105,37 @@ package
             addSlide("Skybox",
 "Multiple panorama options",
             new Scene3D(new SmoothSkybox), 
-            new BasicRenderer());
+            Renderer.BASIC);
 
             addSlide("Z ordering", 
 "Correct z-ordering for triangles",
             new Scene3D(new ZOrdering), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
             addSlide("Intersecting objects", 
 "Ability to render intersecting objects",
             new Scene3D(new IntersectingObjects, new IntersectingObjects2), 
-            new QuadrantRenderer(new QuadrantRiddleFilter, new AnotherRivalFilter));
+            Renderer.INTERSECTING_OBJECTS);
 
             addSlide("Color lighting", 
 "Phong model color lighting",
             new Scene3D(new ColorLighting), 
-            new BasicRenderer());
+            Renderer.BASIC);
 
             addSlide("White lighting", 
 "White lighting for bitmap textures",
             new Scene3D(new WhiteLighting), 
-            new BasicRenderer());
+            Renderer.BASIC);
 
             addSlide("Mesh morphing", 
 "Linear mesh morphing",
             new Scene3D(new Morphing), 
-            new BasicRenderer());
+            Renderer.BASIC);
 
             addSlide("Texture projection", 
 "Projecting textures on objects", 
             new Scene3D(new FunnyCube), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER);
 
         }
     }
@@ -169,12 +164,30 @@ package
 
 class Asset
 {
+    [Embed(source="images/circle.dae",mimeType="application/octet-stream")]
+    public static var CircleModel:Class;
+
+    [Embed(source="images/tri.dae",mimeType="application/octet-stream")]
+    public static var TriModel:Class;
+
+    [Embed(source="images/square.dae",mimeType="application/octet-stream")]
+    public static var SquareModel:Class;
+
+    //[Embed(source="images/temple.dae",mimeType="application/octet-stream")]
+    public static var TempleModel:Class;
+    
+    [Embed(source="images/seaturtle.ase",mimeType="application/octet-stream")]
+    public static var SeaTurtleModel:Class;
+
+    [Embed(source="images/seaturtle.jpg")]
+    public static var SeaTurtleImage:Class;
+
     [Embed(source="images/mandelbrot.jpg")]
     public static var ManderlbrotImage:Class;
 
     public static function get mandelbrot():BitmapData
     {
-        return (new ManderlbrotImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(ManderlbrotImage);
     }
 
     [Embed(source="images/grad.jpg")]
@@ -182,7 +195,7 @@ class Asset
 
     public static function get grad():BitmapData
     {
-        return (new GradImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(GradImage);
     }
 
     [Embed(source="images/ls_front.png")]
@@ -225,7 +238,7 @@ class Asset
 
     public static function get foilDots():BitmapData
     {
-        return (new FoilDotsImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(FoilDotsImage);
     }
 
     [Embed(source="images/foil-white.png")]
@@ -233,7 +246,7 @@ class Asset
 
     public static function get foilWhite():BitmapData
     {
-        return (new FoilWhiteImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(FoilWhiteImage);
     }
 
     [Embed(source="images/foil-color.png")]
@@ -241,7 +254,7 @@ class Asset
 
     public static function get foilColor():BitmapData
     {
-        return (new FoilColorImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(FoilColorImage);
     }
 
     //[Embed(source="images/marble.jpg")]
@@ -249,23 +262,21 @@ class Asset
 
     public static function get marble():BitmapData
     {
-        return (new MarbleImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MarbleImage);
     }
 
     [Embed(source="images/httt.jpg")]
     public static var HttTImage:Class;
-
     public static function get httt():BitmapData
     {
-        return (new HttTImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(HttTImage);
     }
 
     [Embed(source="images/target.png")]
-    public static var targetImage:Class;
-
+    public static var TargetImage:Class;
     public static function get target():BitmapData
     {
-        return (new targetImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(TargetImage);
     }
     
     [Embed(source="images/blue.jpg")]
@@ -273,7 +284,7 @@ class Asset
 
     public static function get blue():BitmapData
     {
-        return (new BlueImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(BlueImage);
     }
 
     [Embed(source="images/green.jpg")]
@@ -281,7 +292,7 @@ class Asset
 
     public static function get green():BitmapData
     {
-        return (new GreenImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(GreenImage);
     }
 
     [Embed(source="images/red.jpg")]
@@ -289,7 +300,7 @@ class Asset
 
     public static function get red():BitmapData
     {
-        return (new RedImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(RedImage);
     }
 
     [Embed(source="images/yellow.jpg")]
@@ -297,7 +308,7 @@ class Asset
 
     public static function get yellow():BitmapData
     {
-        return (new YellowImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(YellowImage);
     }
 
     //[Embed(source="images/morning-back.jpg")]
@@ -305,7 +316,7 @@ class Asset
 
     public static function get morningBack():BitmapData
     {
-        return (new MorningBackImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MorningBackImage);
     }
 
     //[Embed(source="images/morning-down.jpg")]
@@ -313,7 +324,7 @@ class Asset
 
     public static function get morningDown():BitmapData
     {
-        return (new MorningDownImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MorningDownImage);
     }
 
     //[Embed(source="images/morning-front.jpg")]
@@ -321,7 +332,7 @@ class Asset
 
     public static function get morningFront():BitmapData
     {
-        return (new MorningFrontImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MorningFrontImage);
     }
 
     //[Embed(source="images/morning-left.jpg")]
@@ -329,7 +340,7 @@ class Asset
 
     public static function get morningLeft():BitmapData
     {
-        return (new MorningLeftImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MorningLeftImage);
     }
 
     //[Embed(source="images/morning-right.jpg")]
@@ -337,7 +348,7 @@ class Asset
 
     public static function get morningRight():BitmapData
     {
-        return (new MorningRightImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MorningRightImage);
     }
 
     //[Embed(source="images/morning-up.jpg")]
@@ -345,7 +356,7 @@ class Asset
 
     public static function get morningUp():BitmapData
     {
-        return (new MorningUpImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(MorningUpImage);
     }
 
     [Embed(source="images/peterskybox2.jpg")]
@@ -353,18 +364,15 @@ class Asset
 
     public static function get darkSky():BitmapData
     {
-        return (new DarkSkyImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(DarkSkyImage);
     }
-
-    //[Embed(source="images/temple.dae",mimeType="application/octet-stream")]
-    public static var TempleModel:Class;
 
     [Embed(source="images/sand.jpg")]
     public static var SandImage:Class;
 
     public static function get sand():BitmapData
     {
-        return (new SandImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(SandImage);
     }
     
     [Embed(source="images/trackedge.jpg")]
@@ -372,7 +380,7 @@ class Asset
 
     public static function get trackedge():BitmapData
     {
-        return (new TrackedgeImage as BitmapAsset).bitmapData;
+        return Cast.bitmap(TrackedgeImage);
     }
         
     public static function get black1x1():BitmapData
@@ -410,20 +418,17 @@ class Asset
     }
 }
 
-/*
-class Meshes extends ObjectContainer3D
+class AseMesh extends ObjectContainer3D
 {
-    public function Meshes()
+    public function AseMesh()
     {
-        var templetex:IMaterial = new PreciseBitmapMaterial(Asset.httt, {precision:2});
-        var temple:ObjectContainer3D = new Collada(new XML(new Asset.TempleModel), new MaterialLibrary({templeShader:templetex}));
-        temple.y = -40;
+        var turtle:Mesh3D = Ase.parse(Asset.SeaTurtleModel, Asset.SeaTurtleImage);
+        //turtle.y = -40;
 
-        super(temple);
+        super(turtle);
     }
     
 }
-*/
 
 class LostSoul extends Sprite2DDir
 {
@@ -1030,15 +1035,6 @@ class WhiteLighting extends ObjectContainer3D
 
 class Morphing extends ObjectContainer3D
 {
-    [Embed(source="images/circle.dae",mimeType="application/octet-stream")]
-    public static var CircleModel:Class;
-
-    [Embed(source="images/tri.dae",mimeType="application/octet-stream")]
-    public static var TriModel:Class;
-
-    [Embed(source="images/square.dae",mimeType="application/octet-stream")]
-    public static var SquareModel:Class;
-
     private var circle:Mesh3D;
     private var tri:Mesh3D;
     private var square:Mesh3D;
@@ -1049,10 +1045,10 @@ class Morphing extends ObjectContainer3D
     public function Morphing()
     {
         texture = new WireColorMaterial();
-        circle = new Collada(new XML(new CircleModel), new MaterialLibrary({face:texture})).children[0];
-        tri    = new Collada(new XML(new TriModel), new MaterialLibrary({face:texture})).children[0];
-        square = new Collada(new XML(new SquareModel), new MaterialLibrary({face:texture})).children[0];
-        morph  = new Collada(new XML(new CircleModel), new MaterialLibrary({face:texture})).children[0];
+        circle = Collada.parse(Asset.CircleModel, {face:texture}).children[0];
+        tri    = Collada.parse(Asset.TriModel, {face:texture}).children[0];
+        square = Collada.parse(Asset.SquareModel, {face:texture}).children[0];
+        morph  = Collada.parse(Asset.CircleModel, {face:texture}).children[0];
         morpher = new Morpher(morph);
 
         super(morph);
