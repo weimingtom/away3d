@@ -25,7 +25,7 @@ package away3d.core.render
 
         public function pointLight(source:Matrix3D, color:int, ambient:Number, diffuse:Number, specular:Number):void
         {
-            Debug.trace("MM "+source.n14+" "+source.n24+" "+source.n34);
+            //Debug.trace("MM "+source.n14+" "+source.n24+" "+source.n34);
             var point:PointLightSource = new PointLightSource();
             point.x = source.n14;
             point.y = source.n24;
