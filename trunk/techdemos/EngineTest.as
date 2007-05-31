@@ -790,7 +790,7 @@ class PerspectiveTexturing extends ObjectContainer3D
 
 class FunnyCube extends ObjectContainer3D
 {
-    public var cube:Cube;
+    public var cube:RobCube;
     public var material:TransformBitmapMaterial;
                        
     public override function tick(time:int):void
@@ -802,7 +802,7 @@ class FunnyCube extends ObjectContainer3D
         m.translate(-250,-250);
         m.scale(2*(Math.abs(Math.sin(time/2000))+0.2), 2*(Math.abs(Math.cos(time/2000))+0.2));
         material = new TransformBitmapMaterial(Asset.target, {precision:2.5, transform:m, repeat:false, normal:new Number3D(1, 1, 1)});
-        cube = new Cube(material, {width:500, height:500, depth:500, bothsides:true});
+        cube = new RobCube(material, {width:500, height:500, depth:500, bothsides:true});
 
         addChild(cube);
     }
@@ -926,7 +926,7 @@ class ColorLighting extends ObjectContainer3D
 {
     private var plane:Plane;
     private var sphere:Sphere;
-    private var texture:ColorShadingBitmapMaterial;
+    private var texture:ShadingColorMaterial;
     private var light1:Light3D;
     private var light2:Light3D;
     private var light3:Light3D;
@@ -934,7 +934,7 @@ class ColorLighting extends ObjectContainer3D
 
     public function ColorLighting()
     {
-        texture = new ColorShadingBitmapMaterial(0xFFFFFF, 0xFFFFFF, 0xFFFFFF, {alpha:20});
+        texture = new ShadingColorMaterial(0xFFFFFF, 0xFFFFFF, 0xFFFFFF, {alpha:20});
         plane = new Plane(texture, {y:-100, width:1000, height:1000, segments:16});
         sphere = new Sphere(texture, {y:800, radius:200, segmentsW:12, segmentsH:9});
         light1 = new Light3D(0xFF0000, 0.5, 0.5, 1);
