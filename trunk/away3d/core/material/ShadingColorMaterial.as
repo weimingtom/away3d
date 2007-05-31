@@ -14,13 +14,13 @@ package away3d.core.material
 
     import mx.core.BitmapAsset;
 
-    public class ColorShadingBitmapMaterial extends CenterLightingMaterial
+    public class ShadingColorMaterial extends CenterLightingMaterial
     {
         public var ambient:int;
         public var diffuse:int;
         public var specular:int;
 
-        public function ColorShadingBitmapMaterial(ambient:int, diffuse:int, specular:int, init:Object = null)
+        public function ShadingColorMaterial(ambient:int, diffuse:int, specular:int, init:Object = null)
         {
             super(init);
 
