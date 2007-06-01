@@ -1,5 +1,6 @@
 package away3d.core.proto
 {
+    import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.core.proto.*;
     import away3d.core.geom.*;
@@ -11,7 +12,10 @@ package away3d.core.proto
     import flash.utils.Dictionary;
     import flash.events.MouseEvent;
     import flash.events.Event;
-    
+
+    /**
+     * Repesent the drawing surface for the scene, that can be used as flash DisplayObject.
+     */ 
     public class View3D extends Sprite
     {
         public var background:Sprite;
@@ -25,10 +29,10 @@ package away3d.core.proto
 
         public var events:Object3DEvents;
 
-        public function View3D(scene:Scene3D, camera:Camera3D, renderer:IRenderer = null)
+        public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
         {
-            this.scene = scene;
-            this.camera = camera;
+            this.scene = scene || new Scene3D();
+            this.camera = camera || new Camera3D({x:1000, y:1000, z:1000, lookat:new Object3D()});
             this.renderer = renderer || new BasicRenderer();
             
             events = new Object3DEvents();
@@ -57,9 +61,10 @@ package away3d.core.proto
 
         public function render():void
         {
+            Init.checkUnusedArguments();
+
             clear();
 
-            //renderer.render(scene, camera, canvas, clip || Clipping.screen(this));
             var oldclip:Clipping = clip;
 
             clip = clip || Clipping.screen(this);

@@ -11,8 +11,6 @@ package away3d.core.material
     import flash.geom.Matrix;
     import flash.geom.Point;
 
-    import mx.core.BitmapAsset;
-
     public class RenderTriangle
     {
         public static function renderBitmap(graphics:Graphics, bitmap:BitmapData, a:Number, b:Number, c:Number, d:Number, tx:Number, ty:Number, 

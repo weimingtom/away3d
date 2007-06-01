@@ -12,8 +12,6 @@ package away3d.core.material
     import flash.geom.Matrix;
     import flash.geom.Point;
 
-    import mx.core.BitmapAsset;
-
     public class ShadingColorMaterial extends CenterLightingMaterial
     {
         public var ambient:int;

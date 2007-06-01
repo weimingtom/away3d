@@ -1,6 +1,6 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
+    import away3d.core.geom.*;
 
     public class Plane3D
     {

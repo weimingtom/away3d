@@ -14,8 +14,6 @@ package away3d.core.material
     import flash.geom.ColorTransform;
     import flash.utils.*;
 
-    import mx.core.BitmapAsset;
-
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
         public var diffuse:BitmapData;

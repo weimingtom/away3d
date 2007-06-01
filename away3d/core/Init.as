@@ -1,6 +1,7 @@
 package away3d.core
 {
     import away3d.core.math.*
+    import away3d.core.proto.*
 
     public class Init
     {
@@ -123,6 +124,21 @@ package away3d.core
                 return def;
         
             var result:Object = init[name];
+
+            delete init[name];
+        
+            return result;
+        }
+
+        public function getObject3D(name:String):Object3D
+        {
+            if (init == null)
+                return null;
+        
+            if (!init.hasOwnProperty(name))
+                return null;
+        
+            var result:Object3D = init[name];
 
             delete init[name];
         

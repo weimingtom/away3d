@@ -259,7 +259,7 @@ package away3d.core.proto
             
             extra = init.getObject("extra");
 
-            parent = init.getObject("parent") as ObjectContainer3D;
+            parent = init.getObject3D("parent") as ObjectContainer3D;
         }
     
         public function distanceTo(obj:Object3D):Number

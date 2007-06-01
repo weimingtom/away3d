@@ -4,7 +4,6 @@ package away3d.loaders
     import away3d.core.proto.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
-    import away3d.events.FileLoadEvent;
 
     import flash.display.BitmapData;
     import mx.core.BitmapAsset;
