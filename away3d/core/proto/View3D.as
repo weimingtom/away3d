@@ -13,22 +13,29 @@ package away3d.core.proto
     import flash.events.MouseEvent;
     import flash.events.Event;
 
-    /**
-     * Repesent the drawing surface for the scene, that can be used as flash DisplayObject.
-     */ 
+    /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */ 
     public class View3D extends Sprite
     {
+        /** Background under the rendered scene */
         public var background:Sprite;
+        /** Sprite that contains last rendered frame */
         public var canvas:Sprite;
+        /** Head up display over the scene */
         public var hud:Sprite;
 
+        /** Scene to be rendered */
         public var scene:Scene3D;
+        /** Camera to render from */
         public var camera:Camera3D;
+        /** Clipping area for the view */
         public var clip:Clipping;
+        /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
         public var renderer:IRenderer;
 
+        /** Object for subscribing to events */
         public var events:Object3DEvents;
 
+        /** Create new View3D */
         public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
         {
             this.scene = scene || new Scene3D();
@@ -50,6 +57,7 @@ package away3d.core.proto
             mouseChildren = false;
         }
 
+        /** Clear rendering area */
         public function clear():void
         {
             if (canvas != null)
@@ -59,6 +67,7 @@ package away3d.core.proto
             addChildAt(canvas, 1);
         }
 
+        /** Render frame */
         public function render():void
         {
             Init.checkUnusedArguments();
@@ -78,39 +87,39 @@ package away3d.core.proto
 
         private var mousedown:Boolean;
 
-        public function onMouseDown(e:MouseEvent):void
+        private function onMouseDown(e:MouseEvent):void
         {
             mousedown = true;
-            onMouseEvent(MouseEvent.MOUSE_DOWN, e.localX, e.localY);
+            fireMouseEvent(MouseEvent.MOUSE_DOWN, e.localX, e.localY);
         }
 
-        public function onMouseUp(e:MouseEvent):void
+        private function onMouseUp(e:MouseEvent):void
         {
             mousedown = false;
-            onMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY);
+            fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY);
         }
 
-        public function onMouseOut(e:MouseEvent):void
+        private function onMouseOut(e:MouseEvent):void
         {
             if (mousedown)
             {
                 mousedown = false;
-                onMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY);
+                fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY);
             }
         }
 
+        /** Manually fire mouse move event */
         public function fireMouseMoveEvent():void
         {
-            onMouseEvent(MouseEvent.MOUSE_MOVE, mouseX, mouseY);
+            fireMouseEvent(MouseEvent.MOUSE_MOVE, mouseX, mouseY);
         }
 
-        public function onMouseEvent(type:String, x:Number, y:Number):void
+        /** Manually fire custom mouse event */
+        public function fireMouseEvent(type:String, x:Number, y:Number):void
         {
             var findhit:FindHitTraverser = new FindHitTraverser(this, x, y);
             scene.traverse(findhit);
             var event:MouseEvent3D = findhit.getMouseEvent(type);
-            //if (event == null)
-            //    return;
 
             events.dispatchEvent(event);
 
@@ -122,7 +131,6 @@ package away3d.core.proto
                 target = target.parent;
             }
         }
-
 
         /*
         public function findHit(x:Number, y:Number):Object3D

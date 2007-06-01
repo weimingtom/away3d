@@ -36,6 +36,9 @@ package away3d.core
     }
 }
 
+/**
+ * @private
+ */
 function dotrace(message:Object):void
 {
     trace(message);
