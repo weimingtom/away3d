@@ -32,6 +32,10 @@ package away3d.core.proto
 
             zoom = init.getNumber("zoom", 3);
             focus = init.getNumber("focus", 500);
+            var lookat:Object3D = init.getObject3D("lookat");
+
+            if (lookat != null)
+                lookAt(lookat);
         }
     
         public function getView():Matrix3D

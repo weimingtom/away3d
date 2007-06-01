@@ -7,8 +7,6 @@ package away3d.test
     import flash.ui.Keyboard;
     import flash.geom.*;
 
-    import mx.core.BitmapAsset;
-    
     import away3d.cameras.*;
     import away3d.objects.*;
     import away3d.core.*;

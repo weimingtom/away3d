@@ -10,8 +10,6 @@ package away3d.core.material
     import flash.display.BitmapData;
     import flash.geom.Matrix;
 
-    import mx.core.BitmapAsset;
-
     import flash.utils.*;
 
     public class PreciseBitmapMaterial extends BitmapMaterial

@@ -3,8 +3,7 @@ package away3d.objects
     import away3d.core.*;
     import away3d.core.proto.*;
     import away3d.core.geom.*;
-    
-    import flash.display.BitmapData;
+    import away3d.core.material.*;
     
     public class Segment extends Mesh3D
     {
