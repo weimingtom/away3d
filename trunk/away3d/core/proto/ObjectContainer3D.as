@@ -18,6 +18,11 @@ package away3d.core.proto
 
             super(init);
 
+            addChildren(childarray);
+        }
+
+        public function addChildren(...childarray):void
+        {
             for each (var child:Object3D in childarray)
                 addChild(child);
         }
