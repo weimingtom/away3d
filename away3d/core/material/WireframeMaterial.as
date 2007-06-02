@@ -7,6 +7,7 @@ package away3d.core.material
 
     import flash.display.Graphics;
 
+    /** Material for drawing wireframe models */
     public class WireframeMaterial extends WireColorMaterial
     {
         public function WireframeMaterial(wirecolor:int = -1, wirealpha:Number = 1.0, wirewidth:Number = 1)

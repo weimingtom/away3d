@@ -11,6 +11,7 @@ package away3d.core.draw
     import flash.display.BitmapData;
     import flash.geom.Matrix;
 
+    /** Triangle drawing primitive */
     public class DrawTriangle extends DrawPrimitive
     {
         public var v0:Vertex2D;

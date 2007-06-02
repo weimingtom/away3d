@@ -9,6 +9,7 @@ package away3d.core.draw
     import flash.display.BitmapData;
     import flash.geom.Matrix;
 
+    /** Static class for functions comparing mutual ordering of drawing primitives */
     public class ZCompare
     {
         public static var ZOrderDeeper:int = 1;

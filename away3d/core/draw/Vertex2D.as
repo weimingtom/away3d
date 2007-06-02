@@ -2,19 +2,18 @@ package away3d.core.draw
 {
     import away3d.core.geom.*;
 
-    // Vertices in screen space
+    /** Vertex in the screen space */
     public class Vertex2D
     {
         public var x:Number;
         public var y:Number;
         public var z:Number;
     
-        // An object that contains user defined properties.
+        /** An object that contains user defined properties. */
         public var extra:Object;
         public var num:Number;
     
-        // A Boolean value that indicates whether the vertex is visible after projection.
-        // If false, it indicates that the vertex is behind the camera plane.
+        /** Indicates whether the vertex is visible after projection. */
         public var visible:Boolean;
     
         public function Vertex2D(x:Number = 0, y:Number = 0, z:Number = 0)

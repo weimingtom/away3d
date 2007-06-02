@@ -7,6 +7,7 @@ package away3d.core.proto
     import flash.geom.*;
     import flash.display.*;
 
+    /** Interface for objects that provide lighting to the scene */
     public interface ILightProvider
     {
         function light(transform:Matrix3D, consumer:ILightConsumer):void;

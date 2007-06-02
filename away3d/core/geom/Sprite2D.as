@@ -10,6 +10,7 @@ package away3d.core.geom
 
     import flash.display.BitmapData;
 
+    /** Simple billboard sprite */
     public class Sprite2D extends Object3D implements IPrimitiveProvider
     {
         private var center:Vertex3D = new Vertex3D();

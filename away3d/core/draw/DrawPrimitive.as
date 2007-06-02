@@ -8,6 +8,7 @@ package away3d.core.draw
 
     import flash.display.Graphics;
 
+    /** Abstract class for all drawing primitives */
     public class DrawPrimitive
     {
         public var projection:Projection;

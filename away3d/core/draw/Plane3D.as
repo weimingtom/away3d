@@ -2,6 +2,7 @@ package away3d.core.draw
 {
     import away3d.core.geom.*;
 
+    /** Plane in 3D space */
     public class Plane3D
     {
         public var a:Number;

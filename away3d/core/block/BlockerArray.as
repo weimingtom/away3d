@@ -7,6 +7,7 @@ package away3d.core.block
 
     import flash.geom.*;
 
+    /** Array for storing blockers */
     public class BlockerArray implements IBlockerConsumer
     {
         private var blockers:Array;

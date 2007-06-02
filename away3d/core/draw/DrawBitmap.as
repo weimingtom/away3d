@@ -10,6 +10,7 @@ package away3d.core.draw
     import flash.display.BitmapData;
     import flash.geom.Matrix;
 
+    /** Unscaled bitmap drawing primitive */
     public class DrawBitmap extends DrawPrimitive
     {
         public var bitmap:BitmapData;

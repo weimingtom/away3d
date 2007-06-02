@@ -11,6 +11,7 @@ package away3d.core.geom
     import flash.display.BitmapData;
     import flash.utils.Dictionary;
 
+    /** Billboard sprite with different image for each direction */
     public class Sprite2DDir extends Object3D implements IPrimitiveProvider
     {
         private var center:Vertex3D = new Vertex3D();

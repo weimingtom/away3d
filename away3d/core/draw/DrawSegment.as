@@ -8,6 +8,7 @@ package away3d.core.draw
 
     import flash.display.Graphics;
 
+    /** Line segment drawing primitive */
     public class DrawSegment extends DrawPrimitive
     {
         public var v0:Vertex2D;

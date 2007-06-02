@@ -1,5 +1,6 @@
 package away3d.core.math
 {
+    /** Quaternion. */
     public class Quaternion
     {
         public var x:Number;

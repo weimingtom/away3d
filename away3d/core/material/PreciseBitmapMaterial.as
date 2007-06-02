@@ -12,6 +12,7 @@ package away3d.core.material
 
     import flash.utils.*;
 
+    /** Bitmap material that renders bitmap texture taking into account perspective distortion */
     public class PreciseBitmapMaterial extends BitmapMaterial
     {
         public var precision:Number = 1;

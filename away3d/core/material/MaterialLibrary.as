@@ -4,6 +4,7 @@ package away3d.core.material
     
     import flash.utils.Dictionary;
     
+    /** Set of named materials */
     public class MaterialLibrary
     {
         private var materials:Dictionary = new Dictionary();

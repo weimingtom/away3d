@@ -7,6 +7,7 @@ package away3d.core.proto
     import flash.geom.*;
     import flash.display.*;
 
+    /** Interface for containers capable of storing lighting info */
     public interface ILightConsumer
     {
         function ambientLight(color:int, ambient:Number):void;

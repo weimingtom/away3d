@@ -1,6 +1,6 @@
 package away3d.core.math
 {
-    // The Matrix3D class lets you create and manipulate 4x3 3D transformation matrices.
+    /** 3D transformation 4x3 matrix */
     public class Matrix3D
     {
         public var n11:Number;     public var n12:Number;     public var n13:Number;     public var n14:Number;

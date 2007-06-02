@@ -4,7 +4,7 @@ package away3d.core.geom
     import away3d.core.geom.*;
     import away3d.core.proto.*;
     
-    // The Vertices3D class lets you create and manipulate groups of vertices.
+    /** Abstract class for objects based on the set of vertices */
     public class Vertices3D extends Object3D
     {
         public var vertices:Array = [];

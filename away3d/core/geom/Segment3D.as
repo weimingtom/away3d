@@ -4,6 +4,7 @@ package away3d.core.geom
     import away3d.core.material.*;
     import away3d.core.proto.*;
 
+    /** Mesh's line segment */
     public class Segment3D
     {
         public var v0:Vertex3D;
