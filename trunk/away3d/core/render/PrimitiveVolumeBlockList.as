@@ -7,6 +7,7 @@ package away3d.core.render
 
     import flash.utils.Dictionary;
 
+    /** List of volume blocks for storing drawing primitives */
     public class PrimitiveVolumeBlockList implements IPrimitiveConsumer
     {
         private var blocksdict:Dictionary;

@@ -8,6 +8,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
+    /** Basic renderer implementation */
     public class BasicRenderer implements IRenderer
     {
         private var filters:Array;

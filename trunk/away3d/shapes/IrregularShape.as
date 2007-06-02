@@ -6,8 +6,7 @@ package away3d.shapes
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
-    import flash.display.BitmapData;
-    
+    /** Irregular shape */
     public class IrregularShape extends Vertices3D
     {
         public var sides:Number;

@@ -10,6 +10,7 @@ package away3d.test
     import away3d.core.proto.*;
     import away3d.core.render.*;
     
+    /** Slide of the demo */ 
     public class Slide
     {
         public var scene:Scene3D;

@@ -6,6 +6,7 @@ package away3d.loaders
     import away3d.core.geom.*;
     import away3d.core.material.*;
 
+    /** Collada scene loader */
     public class Collada
     {
         private var container:ObjectContainer3D;

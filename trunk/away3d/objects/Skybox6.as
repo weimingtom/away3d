@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
 
+    /** Skybox that is initialized with one solid image */ 
     public class Skybox6 extends Mesh3D
     {
         public function Skybox6(petermaterial:ITriangleMaterial)

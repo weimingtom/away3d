@@ -1,12 +1,12 @@
 package away3d.core.math
 {
-    //The Number3D class represents a value in a three-dimensional coordinate system.
+    /** A point in 2D space. */
     public class Number2D
     {
-        //The horizontal coordinate value.
+        /** Horizontal coordinate. */ 
         public var x:Number;
     
-        //The vertical coordinate value.
+        /** Vertical coordinate. */
         public var y:Number;
     
         public function Number2D(x:Number = 0, y:Number = 0)

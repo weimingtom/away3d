@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
 
+    /** Wire cube */ 
     public class WireCube extends Mesh3D
     {
         public function WireCube(material:ISegmentMaterial, init:Object = null)

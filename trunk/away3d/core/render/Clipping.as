@@ -4,6 +4,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
+    /** Rendering clipping, base class for no clipping */
     public class Clipping
     {
         public function Clipping()

@@ -4,6 +4,7 @@ package away3d.core.proto
     import away3d.core.proto.*;
     import away3d.core.geom.*;
 
+    /** Base abstract class for all actions on the whole scene */
     public class Traverser
     {
         public function match(node:Object3D):Boolean

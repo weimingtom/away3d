@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
 
+    /** Skybox that is initialized with six images */ 
     public class Skybox extends Mesh3D
     {
         public function Skybox(front:ITriangleMaterial, left:ITriangleMaterial, back:ITriangleMaterial, right:ITriangleMaterial, up:ITriangleMaterial, down:ITriangleMaterial)

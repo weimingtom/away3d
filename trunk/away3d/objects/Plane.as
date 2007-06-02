@@ -6,8 +6,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
-    import flash.display.BitmapData;
-    
+    /** Plane */ 
     public class Plane extends Mesh3D
     {
         public var segmentsW:int;

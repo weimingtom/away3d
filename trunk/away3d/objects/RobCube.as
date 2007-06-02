@@ -7,7 +7,8 @@ package away3d.objects
     import away3d.core.material.*;
     
     import flash.geom.*;
-    
+
+    /** Cube that utilities TransformBitmapMaterial */
     public class RobCube extends Mesh3D
     {
         public var faceMaterials:Array = [];

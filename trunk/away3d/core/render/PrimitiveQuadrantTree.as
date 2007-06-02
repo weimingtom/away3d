@@ -8,6 +8,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
+    /** Quadrant tree for storing drawing primitives */
     public class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
         private var root:PrimitiveQuadrantTreeNode;

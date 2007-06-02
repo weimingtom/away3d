@@ -9,11 +9,12 @@ package away3d.core.material
     import flash.display.*;
     import flash.geom.*;
 
+    /** Transform bitmap material */
     public class TransformBitmapMaterial extends PreciseBitmapMaterial
     {
-    	private var u:Number3D;
-    	private var v:Number3D;
-    	
+        private var u:Number3D;
+        private var v:Number3D;
+        
         protected var _transform:Matrix;
         protected var _normal:Number3D;
         protected var _scalex:Boolean;
@@ -67,11 +68,11 @@ package away3d.core.material
             Debug.trace(_normal);
             u = Number3D.cross(_normal, new Number3D(0,1,0));
             if (!u.modulo) u = new Number3D(1,0,0);
-        	v = Number3D.cross(u, _normal);
-        	u = Number3D.cross(v, _normal);
-        	u.normalize();
-        	v.normalize();
-        	
+            v = Number3D.cross(u, _normal);
+            u = Number3D.cross(v, _normal);
+            u.normalize();
+            v.normalize();
+            
             //Debug.trace(u);
             //v = Number3D.cross(_normal as Number3D, new Number3D(1,0,0));
             //if (v.modulo) v.normalize();
@@ -97,7 +98,7 @@ package away3d.core.material
         
         public function setUVPoint(uv:Point, p:Number3D):void
         {
-        	uv.x = Number3D.dot(p, u);
+            uv.x = Number3D.dot(p, u);
             uv.y = Number3D.dot(p, v);
             
         }

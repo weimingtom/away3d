@@ -11,7 +11,8 @@ package away3d.extrusions
     import away3d.core.render.*;
     
     import flash.geom.*;
-    
+
+    /** Bezier extrude */ 
     public class BezierExtrude extends Mesh3D
     {
         public var shape:Vertices3D;
@@ -124,24 +125,24 @@ package away3d.extrusions
                     aP4 = aVtc[j-1][iWrapped];
                     // uv
                     if (axisMaterials[i]) {
-                    	isTransform = axisMaterials[i] is TransformBitmapMaterial;
+                        isTransform = axisMaterials[i] is TransformBitmapMaterial;
                         mat = axisMaterials[i] as TransformBitmapMaterial;
                         if (isTransform) {
-			                trans = mat.getTransform(width, height);
-			                isNormalized = mat.isNormalized;
-		                } else {
-		                	isNormalized = false;
-		                }
-		            } else if (mat != material) {
-		            	isTransform = material is TransformBitmapMaterial;
-		                mat = material as TransformBitmapMaterial;
-		                if (isTransform) {
-		                	trans = mat.getTransform(width, height);
-		                	isNormalized = mat.isNormalized;
-		                } else {
-		                	isNormalized = false;
-		                } 
-		            }
+                            trans = mat.getTransform(width, height);
+                            isNormalized = mat.isNormalized;
+                        } else {
+                            isNormalized = false;
+                        }
+                    } else if (mat != material) {
+                        isTransform = material is TransformBitmapMaterial;
+                        mat = material as TransformBitmapMaterial;
+                        if (isTransform) {
+                            trans = mat.getTransform(width, height);
+                            isNormalized = mat.isNormalized;
+                        } else {
+                            isNormalized = false;
+                        } 
+                    }
                     if (mat.isNormalized) {
                         mat.setUVPoint(t1, aP1);
                         mat.setUVPoint(t2, aP2);
@@ -159,31 +160,31 @@ package away3d.extrusions
                         t4.x = lengthH;
                         t4.y = oldLengthV;
                     } else {
-		                t1.x = 1;
-		                t1.y = 1;
-		                t2.x = 0;
-		                t2.y = 1;
-		                t3.x = 0;
-		                t3.y = 0;
-		                t4.x = 1;
-		                t4.y = 0;
-		            }
+                        t1.x = 1;
+                        t1.y = 1;
+                        t2.x = 0;
+                        t2.y = 1;
+                        t3.x = 0;
+                        t3.y = 0;
+                        t4.x = 1;
+                        t4.y = 0;
+                    }
                     if (isTransform) {
-			            t1 = trans.transformPoint(t1);
-			            t2 = trans.transformPoint(t2);
-			            t3 = trans.transformPoint(t3);
-			            t4 = trans.transformPoint(t4);	            	
-			            if (mat.repeat) {
-			                tDiffx = t1.x - (t1.x %= 1);
-			                tDiffy = t1.y - (t1.y %= 1);
-			                t2.x -= tDiffx;
-			                t2.y -= tDiffy;
-			                t3.x -= tDiffx;
-			                t3.y -= tDiffy;
-			                t4.x -= tDiffx;
-			                t4.y -= tDiffy;
-			            }
-		            }
+                        t1 = trans.transformPoint(t1);
+                        t2 = trans.transformPoint(t2);
+                        t3 = trans.transformPoint(t3);
+                        t4 = trans.transformPoint(t4);                  
+                        if (mat.repeat) {
+                            tDiffx = t1.x - (t1.x %= 1);
+                            tDiffy = t1.y - (t1.y %= 1);
+                            t2.x -= tDiffx;
+                            t2.y -= tDiffy;
+                            t3.x -= tDiffx;
+                            t3.y -= tDiffy;
+                            t4.x -= tDiffx;
+                            t4.y -= tDiffy;
+                        }
+                    }
                     aP1uv = new NumberUV(t1.x,t1.y);
                     aP2uv = new NumberUV(t2.x,t2.y);
                     aP3uv = new NumberUV(t3.x,t3.y);

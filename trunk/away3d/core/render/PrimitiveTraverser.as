@@ -5,8 +5,7 @@ package away3d.core.render
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.geom.*;
-
+    /** Traverser that gathers drawing primitives to render the scene */
     public class PrimitiveTraverser extends ProjectionTraverser
     {
         private var consumer:IPrimitiveConsumer;

@@ -3,6 +3,7 @@ package away3d.core.proto
     import away3d.core.proto.*;
     import away3d.core.*;
 
+    /** Container node for other objects of the scene */
     public class ObjectContainer3D extends Object3D
     {
         public var children:Array = new Array();
@@ -18,7 +19,8 @@ package away3d.core.proto
 
             super(init);
 
-            addChildren(childarray);
+            for each (var child:Object3D in childarray)
+                addChild(child);
         }
 
         public function addChildren(...childarray):void

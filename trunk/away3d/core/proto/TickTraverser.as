@@ -6,6 +6,7 @@ package away3d.core.proto
 
     import flash.geom.*;
 
+    /** Traverser that updates time for all objects on scene */
     public class TickTraverser extends Traverser
     {
         protected var now:int;
