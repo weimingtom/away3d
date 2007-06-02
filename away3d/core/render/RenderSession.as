@@ -7,6 +7,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
+    /** Object holding information for one rendering frame */
     public class RenderSession
     {
         public var scene:Scene3D;

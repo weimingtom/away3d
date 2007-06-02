@@ -10,6 +10,7 @@ package away3d.core.proto
     
     import flash.geom.*;
     
+    /** Node that gets rendered only in one view */
     public class OneViewObject extends ObjectContainer3D implements ILODObject
     {
         public var view:View3D;

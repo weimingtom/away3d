@@ -6,8 +6,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
-    import flash.display.BitmapData;
-    
+    /** Wire torus */ 
     public class WireTorus extends Mesh3D
     {
         public var segmentsR:int;

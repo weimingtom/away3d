@@ -7,6 +7,7 @@ package away3d.core.render
 
     import flash.geom.*;
 
+    /** Constant size array for storing drawing primitives */
     public class PrimitiveConstArray implements IPrimitiveConsumer
     {
         private var triangle_count:int = 0;

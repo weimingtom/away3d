@@ -7,6 +7,7 @@ package away3d.core.render
 
     import flash.geom.*;
 
+    /** Volume block containing drawing primitives */
     public class PrimitiveVolumeBlock
     {
         public var source:Object3D;

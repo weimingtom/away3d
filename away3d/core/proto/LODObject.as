@@ -4,6 +4,7 @@ package away3d.core.proto
     import away3d.core.proto.*;
     import away3d.core.math.*;
 
+    /** Container that is drawn only if its scaling to to perspective fall within given range */ 
     public class LODObject extends ObjectContainer3D implements ILODObject
     {
         public var maxp:Number;

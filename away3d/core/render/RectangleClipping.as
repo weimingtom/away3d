@@ -2,8 +2,7 @@ package away3d.core.render
 {
     import away3d.core.draw.*;
 
-    import flash.geom.*;
-
+    /** Rectangle clipping */
     public class RectangleClipping extends Clipping
     {
         public var minX:Number;

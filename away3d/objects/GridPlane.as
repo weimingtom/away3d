@@ -5,8 +5,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
-    import flash.display.BitmapData;
-    
+    /** Grid plane */ 
     public class GridPlane extends Mesh3D
     {
         public var segmentsW:int = 1;

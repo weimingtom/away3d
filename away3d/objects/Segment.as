@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
+    /** Segment */ 
     public class Segment extends Mesh3D
     {
         public function get v0():Vertex3D

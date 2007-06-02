@@ -6,8 +6,7 @@ package away3d.core.render
     import away3d.core.render.*;
     import away3d.core.geom.*;
 
-    import flash.geom.*;
-
+    /** Traverser that finds object that is rendered on certain screen coordinates. Used for mouse click event. */
     public class FindHitTraverser extends ProjectionTraverser implements IPrimitiveConsumer
     {
         public var screenX:Number;

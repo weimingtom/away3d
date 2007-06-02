@@ -7,6 +7,7 @@ package away3d.loaders
 
     import flash.display.BitmapData;
 
+    /** Ase file format loader */
     public class Ase
     {
         private var mesh:Mesh3D;

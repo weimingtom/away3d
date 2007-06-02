@@ -12,6 +12,7 @@ package away3d.core.proto
     import flash.events.MouseEvent;
     import flash.events.Event;
     
+    /** Scene that gets rendered */
     public class Scene3D extends ObjectContainer3D
     {
         public function Scene3D(...objects)

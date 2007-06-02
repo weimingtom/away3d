@@ -10,6 +10,7 @@ package away3d.core.render
     import away3d.core.proto.*;
     import away3d.core.render.*;
 
+    /** Filter for correct triangle z-sorting */
     public class AnotherRivalFilter implements IPrimitiveQuadrantFilter
     {
         public var maxdelay:int;

@@ -5,8 +5,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
-    import flash.display.BitmapData;
-    
+    /** Wire plane */ 
     public class WirePlane extends Mesh3D
     {
         public var segmentsW:int = 1;

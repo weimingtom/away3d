@@ -7,6 +7,7 @@ package away3d.core.render
     import away3d.core.render.*;
     import flash.geom.*;
 
+    /** Point light source */
     public class PointLightSource
     {
         public var x:Number;

@@ -8,6 +8,7 @@ package away3d.core.render
 
     import flash.geom.*;
 
+    /** Traverser that gathers blocker for occlution culling */
     public class BlockerTraverser extends ProjectionTraverser
     {
         private var consumer:IBlockerConsumer;

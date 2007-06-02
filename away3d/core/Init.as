@@ -3,6 +3,7 @@ package away3d.core
     import away3d.core.math.*
     import away3d.core.proto.*
 
+    /** Convinient object initialization support */
     public class Init
     {
         private var init:Object;

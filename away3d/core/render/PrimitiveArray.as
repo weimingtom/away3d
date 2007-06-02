@@ -6,8 +6,7 @@ package away3d.core.render
     import away3d.core.render.*;
     import away3d.core.block.*;
 
-    import flash.geom.*;
-
+    /** Array for storing drawing primitives */
     public class PrimitiveArray implements IPrimitiveConsumer
     {
         private var triangles:Array = [];

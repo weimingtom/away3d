@@ -6,8 +6,9 @@ package away3d.loaders
     import away3d.core.material.*;
 
     import flash.display.BitmapData;
-    import mx.core.BitmapAsset;
+    //import mx.core.BitmapAsset;
 
+    /** Helper class for casting assets to usable objects */
     public class Cast
     {
         public static function string(data:*):String
@@ -40,7 +41,8 @@ package away3d.loaders
             if (data is BitmapData)
                 return data;
 
-            if (data is BitmapAsset)
+            // if (data is BitmapAsset)
+            if (data.bitmapData) 
                 return data.bitmapData;
 
             return null;
@@ -57,7 +59,8 @@ package away3d.loaders
             if (data is BitmapData)
                 return new BitmapMaterial(data, {smooth:true});
 
-            if (data is BitmapAsset)
+            // if (data is BitmapAsset)
+            if (data.bitmapData) 
                 return new BitmapMaterial(data.bitmapData, {smooth:true});
 
             return null;

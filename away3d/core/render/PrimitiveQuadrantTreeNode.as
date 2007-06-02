@@ -8,6 +8,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
+    /** Quadrant tree node */
     public class PrimitiveQuadrantTreeNode
     {
         private var children:Array;

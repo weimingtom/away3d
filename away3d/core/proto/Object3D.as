@@ -11,6 +11,7 @@ package away3d.core.proto
     // That includes all objects in the scene, not only those that can be rendered, but also the camera and its target.
     // The Object3D class supports basic functionality like the x, y and z position of an object, as well as rotationX, rotationY, rotationZ, scaleX, scaleY and scaleZ and visible. It also supports more advanced properties of the object such as its transform Matrix3D.
     // Object3D is not an abstract base class; therefore, you can call Object3D directly. Invoking new DisplayObject() creates a new empty object in 3D space, like when you used createEmptyMovieClip().
+    /** Root class for all objects and nodes in the scene */
     public class Object3D
     {
         // An Number that sets the X coordinate of a object relative to the scene coordinate system.

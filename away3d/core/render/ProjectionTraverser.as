@@ -5,11 +5,9 @@ package away3d.core.render
     import away3d.core.proto.*;
     import away3d.core.draw.*;
 
-    import flash.geom.*;
-
+    /** Base traverser for all traversers that rely on camera transform. */
     public class ProjectionTraverser extends Traverser
     {
-        //protected var camera:Camera3D;
         protected var view:View3D;
         protected var transform:Matrix3D;
         protected var transforms:Array = [];

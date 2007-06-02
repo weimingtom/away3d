@@ -12,7 +12,8 @@ package away3d.test
     import away3d.core.*;
     import away3d.core.proto.*;
     import away3d.core.render.*;
-    
+
+    /** Base class for Away3D demos */ 
     public class BaseDemo extends Sprite
     {
         protected var camera:HoverCamera3D;
@@ -53,7 +54,7 @@ package away3d.test
         private var scroll:Boolean = true;
         private var time:int;
 
-        protected var demoroot:View3D;
+        protected var view:View3D;
 
         public function BaseDemo(title:String, infogroupheight:Number = 410)
         {
@@ -62,8 +63,8 @@ package away3d.test
             stage.showDefaultContextMenu = false;
             stage.stageFocusRect = false;
 
-            demoroot = new View3D(null, null, null);
-            addChild(demoroot);
+            view = new View3D(null, null, null);
+            addChild(view);
             
             lefttopgroup = new Sprite();
             addChild(lefttopgroup);
@@ -177,7 +178,7 @@ package away3d.test
 
             camera.mintiltangle = -10;
 
-            demoroot.camera = camera;
+            view.camera = camera;
     
             stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
             stage.addEventListener(Event.RESIZE, onResize);
@@ -195,7 +196,7 @@ package away3d.test
 
         protected function addSlide(title:String, text:String, scene:Scene3D, renderer:IRenderer):void
         {
-            //demoroot.addChild(scene.container);
+            //view.addChild(scene.container);
             slides.push(new Slide(title, text, scene, renderer));
         }
 
@@ -213,9 +214,9 @@ package away3d.test
             nextbutton.visible = slideindex < slides.length-1;
             prevbutton.visible = slideindex > 0;
 
-            demoroot.clear();
-            demoroot.scene = slide.scene;
-            demoroot.renderer = slide.renderer;
+            view.clear();
+            view.scene = slide.scene;
+            view.renderer = slide.renderer;
         }
 
         private function onNext(event:MouseEvent):void
@@ -244,14 +245,14 @@ package away3d.test
 
             if (scroll)
             {
-                if (demoroot.mouseX > stage.stageWidth*0.40)
+                if (view.mouseX > stage.stageWidth*0.40)
                     camera.targetpanangle -= 3;
-                if (demoroot.mouseX < -stage.stageWidth*0.40)
+                if (view.mouseX < -stage.stageWidth*0.40)
                     camera.targetpanangle += 3;
 
-                if (demoroot.mouseY > stage.stageHeight*0.40)
+                if (view.mouseY > stage.stageHeight*0.40)
                     camera.targettiltangle -= 2;
-                if (demoroot.mouseY < -stage.stageHeight*0.40)
+                if (view.mouseY < -stage.stageHeight*0.40)
                     camera.targettiltangle += 2;
             }
 
@@ -272,7 +273,7 @@ package away3d.test
 
             slide.scene.updateTime(time);
             //slide.scene.render(camera, slide.renderer/*, new ClipRectRenderer()*/);
-            demoroot.render();
+            view.render();
             
             var now:int = getTimer();
             var performance:int = now - lastrender;
@@ -297,8 +298,8 @@ package away3d.test
 
         private function onResize(event:Event):void 
         {
-            demoroot.x = stage.stageWidth / 2;
-            demoroot.y = stage.stageHeight / 2;
+            view.x = stage.stageWidth / 2;
+            view.y = stage.stageHeight / 2;
 
             stageWidth = stage.stageWidth;
             stageHeight = stage.stageHeight;

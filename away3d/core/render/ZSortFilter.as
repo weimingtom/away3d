@@ -6,6 +6,7 @@ package away3d.core.render
 
     import flash.display.*;
 
+    /** Filter that sorts drawing primitives by z coordinate */
     public class ZSortFilter implements IPrimitiveFilter
     {
         public function filter(primitives:Array, scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping):Array

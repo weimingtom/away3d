@@ -6,8 +6,7 @@ package away3d.objects
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
-    import flash.display.BitmapData;
-    
+    /** Triangle */ 
     public class Triangle extends Mesh3D
     {
         public function get v0():Vertex3D

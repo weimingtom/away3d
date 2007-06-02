@@ -12,6 +12,7 @@ package away3d.core.proto
     import flash.events.MouseEvent;
     import flash.events.Event;
     
+    /** Event that gets dispatched in case of mouse click or mouse move */ 
     public class MouseEvent3D extends Event
     {
         public var screenX:Number;

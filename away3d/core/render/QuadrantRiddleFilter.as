@@ -7,8 +7,9 @@ package away3d.core.render
     import flash.display.*;
     import flash.utils.*;
 
-	public class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter
-	{   	
+    /** Filter that splits all intersecting triangles and line segments. */
+    public class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter
+    {       
         public var maxdelay:int;
     
         public function QuadrantRiddleFilter(maxdelay:int = 60000)
@@ -28,7 +29,7 @@ package away3d.core.render
                 var leftover:Array = new Array();
                 for each (var tri:DrawPrimitive in triangles)
                 {
-                	/*
+                    /*
                     check++;
                     if (check == 10)
                         if (getTimer() - start > maxdelay)
@@ -80,6 +81,6 @@ package away3d.core.render
         {
             return "QuadrantRiddleFilter" + ((maxdelay == 60000) ? "" : "("+maxdelay+"ms)");
         }
-	}
+    }
 
 }

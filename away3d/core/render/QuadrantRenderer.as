@@ -7,6 +7,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
+    /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
     public class QuadrantRenderer implements IRenderer
     {
         private var qdrntfilters:Array;

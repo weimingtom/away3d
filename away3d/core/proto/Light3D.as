@@ -6,7 +6,8 @@ package away3d.core.proto
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.material.*;
-    
+
+    /** Light source */ 
     public class Light3D extends Object3D implements ILightProvider, IPrimitiveProvider
     {
         public var color:int;

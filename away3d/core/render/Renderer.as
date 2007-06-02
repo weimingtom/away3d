@@ -5,7 +5,7 @@ package away3d.core.render
     import flash.geom.*;
     import flash.display.*;
 
-    /** A static class for easy access to the most useful renderers */
+    /** A static class for an easy access to the most useful renderers */
     public class Renderer
     {
         /** Fastest and simplest renderer, useful for many applications <br> @see away3d.core.render.BasicRenderer */
