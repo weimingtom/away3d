@@ -8,6 +8,7 @@ package away3d.core.geom
     
     import flash.geom.Matrix;
 
+    /** Mesh's triangle face */
     public class Face3D
     {
         public var v0:Vertex3D;

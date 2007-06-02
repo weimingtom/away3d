@@ -12,6 +12,7 @@ package away3d.core.material
     import flash.geom.Matrix;
     import flash.geom.Point;
 
+    /** Abstract class for materials that calculate lighting for the face's center */
     public class CenterLightingMaterial implements ITriangleMaterial
     {
         public var ambient_brightness:Number = 1;

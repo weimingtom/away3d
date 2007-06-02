@@ -11,6 +11,7 @@ package away3d.core.geom
     
     import flash.geom.*;
     
+    /** Convex object blocking all drawing primitives under it */
     public class ConvexBlock extends Vertices3D implements IBlockerProvider, IPrimitiveProvider
     {
         public var debug:Boolean;

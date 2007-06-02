@@ -12,6 +12,7 @@ package away3d.core.material
     import flash.geom.Matrix;
     import flash.geom.Point;
 
+    /** Solid color material that takes lighting into considiration */
     public class ShadingColorMaterial extends CenterLightingMaterial
     {
         public var ambient:int;

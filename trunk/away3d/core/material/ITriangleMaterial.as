@@ -8,6 +8,7 @@ package away3d.core.material
 
     import flash.display.Graphics;
 
+    /** Interface for all material that are capable of triangle faces */
     public interface ITriangleMaterial extends IMaterial
     {
         function renderTriangle(tri:DrawTriangle, session:RenderSession):void;

@@ -1,15 +1,15 @@
 package away3d.core.math
 {
-    //The Number3D class represents a value in a three-dimensional coordinate system.
+    /** A point in 3D space. */
     public class Number3D
     {
-        //The horizontal coordinate value.
+        /** Horizontal coordinate. */ 
         public var x:Number;
     
-        //The vertical coordinate value.
+        /** Vertical coordinate. */
         public var y:Number;
     
-        //The depth coordinate value.
+        /** Depth coordinate */
         public var z:Number;
     
         public function Number3D(x:Number = 0, y:Number = 0, z:Number = 0)
@@ -29,16 +29,16 @@ package away3d.core.math
             return Math.sqrt(x*x + y*y + z*z);
         }
     
-    	public static function scale( v:Number3D, s:Number ):Number3D
-		{
-			return new Number3D
-			(
-				v.x * s,
-				v.y * s,
-				v.z * s
-			);
-		}  
-		
+        public static function scale( v:Number3D, s:Number ):Number3D
+        {
+            return new Number3D
+            (
+                v.x * s,
+                v.y * s,
+                v.z * s
+            );
+        }  
+        
         public static function add(v:Number3D, w:Number3D):Number3D
         {
             return new Number3D

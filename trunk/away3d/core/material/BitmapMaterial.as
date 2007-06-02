@@ -9,6 +9,7 @@ package away3d.core.material
     import flash.display.*;
     import flash.geom.*;
 
+    /** Basic bitmap texture material */
     public class BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var bitmap:BitmapData;

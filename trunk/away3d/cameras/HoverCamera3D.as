@@ -4,11 +4,15 @@ package away3d.cameras
     import away3d.core.math.*;
     import away3d.core.proto.*;
 
+    /** Camera that hovers around an object */
     public class HoverCamera3D extends Camera3D
     {
+        /** Object the camera hovers around */
         public var target:Object3D;
 
         public var yfactor:Number = 2;
+
+        /** Distance the camera keeps to the target */
         public var distance:Number = 400;
         public var panangle:Number = 0;
         public var tiltangle:Number = 90;
@@ -18,6 +22,7 @@ package away3d.cameras
         public var maxtiltangle:Number = 90;
         public var steps:Number = 8;
 
+        /** Distance the camera keeps to the target */
         public function HoverCamera3D(target:Object3D = null, /*zoom:Number = 2, focus:Number = 100, distance:Number = 800,*/ init:Object = null)
         {
             super(init);
@@ -38,6 +43,7 @@ package away3d.cameras
             return super.getView();
         }
 
+        /** Hover camera around the object @return <code>true</code> if camera changed position */
         public function hover():Boolean
         {
             if ((targettiltangle == tiltangle) && (targetpanangle == panangle))
@@ -56,6 +62,7 @@ package away3d.cameras
             return update();
         }
 
+        /** Update camera position @return <code>true</code> if camera changed position */
         public function update():Boolean
         {
             var gx:Number = distance * Math.sin(panangle * toRADIANS) * Math.cos(tiltangle * toRADIANS);

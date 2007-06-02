@@ -9,6 +9,7 @@ package away3d.core.block
 
     import flash.display.Graphics;
 
+    /** Abstract primitive that can block other primitives from drawing */
     public class Blocker extends DrawPrimitive
     {
         /*

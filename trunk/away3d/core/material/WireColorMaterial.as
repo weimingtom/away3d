@@ -8,6 +8,7 @@ package away3d.core.material
 
     import flash.display.Graphics;
 
+    /** Material for solid color drawing with face's border outlining */
     public class WireColorMaterial implements ITriangleMaterial, ISegmentMaterial
     {
         public var lineWidth:Number;

@@ -4,6 +4,7 @@ package away3d.core.geom
     import away3d.core.geom.*;
     import away3d.core.proto.*;
     
+    /** Keyframe animation morpher */
     public class Morpher extends Object3D
     {
         public var weight:Number;

@@ -5,15 +5,17 @@ package away3d.core.geom
     import away3d.core.render.*;
     import away3d.core.math.*;
 
+    /** A vertex in 3D space */
     public class Vertex3D extends Number3D
     {
 
-        // An object that contains user defined properties.
+        /** An object that contains user defined properties. @default null */
         public var extra:Object;
 
         private var projected:Vertex2D;
         private var projection:Projection;
 
+        /** Project a point to the screen space */
         public function project(projection:Projection):Vertex2D
         {
             if (this.projection == projection)
@@ -49,6 +51,7 @@ package away3d.core.geom
             return projected;
         }
         
+        /** Apply perspective distortion */
         public function perspective(focus:Number):Vertex2D
         {
             var persp:Number = 1 / (1 + z / focus);
@@ -56,6 +59,7 @@ package away3d.core.geom
             return new Vertex2D(x * persp, y * persp, z);
         }                     
 
+        /**  */
         public function Vertex3D(x:Number = 0, y:Number = 0, z:Number = 0)
         {
             this.x = x;
@@ -63,6 +67,7 @@ package away3d.core.geom
             this.z = z;
         }
 
+        /** Set vertex coordinates */
         public function set(x:Number, y:Number, z:Number):void
         {
             this.x = x;
@@ -70,11 +75,13 @@ package away3d.core.geom
             this.z = z;
         }
 
+        /** Get the middle-point of two vertices */
         public static function median(a:Vertex3D, b:Vertex3D):Vertex3D
         {
             return new Vertex3D((a.x + b.x)/2, (a.y + b.y)/2, (a.z + b.z)/2);
         }
 
+        /** Get the weighted average of two vertices */
         public static function weighted(a:Vertex3D, b:Vertex3D, aw:Number, bw:Number):Vertex3D
         {                
             var d:Number = aw + bw;
@@ -83,6 +90,7 @@ package away3d.core.geom
             return new Vertex3D(a.x*ak+b.x*bk, a.y*ak + b.y*bk, a.z*ak + b.z*bk);
         }
 
+        /**  */
         public override function toString(): String
         {
             return "new Vertex3D("+x+', '+y+', '+z+")";

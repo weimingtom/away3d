@@ -10,6 +10,7 @@ package away3d.core.geom
     
     import flash.geom.*;
     
+    /** Mesh constisting of faces and segments */
     public class Mesh3D extends Vertices3D implements IPrimitiveProvider
     {
         public var faces:Array = [];

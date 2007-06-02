@@ -10,6 +10,7 @@ package away3d.core.block
     import flash.display.Graphics;
     import flash.utils.*;
 
+    /** Convex hull that blocks all them primitives containing completely inside */
     public class ConvexBlocker extends Blocker
     {
         public var boundlines:Array = [];

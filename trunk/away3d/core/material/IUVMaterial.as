@@ -7,6 +7,7 @@ package away3d.core.material
 
     import flash.geom.*;
 
+    /** Interface for all materials that take in account texture coordinates */
     public interface IUVMaterial extends IMaterial
     {
         function get width():Number;

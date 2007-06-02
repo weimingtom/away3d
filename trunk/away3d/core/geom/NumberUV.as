@@ -1,13 +1,12 @@
 package away3d.core.geom
 {
-    //The NumberUV class represents a value in a texture UV coordinate system.
-    //Properties u and v represent the horizontal and vertical texture axes respectively.
+    /** Texture coordinates value. <br/> Properties u and v represent the horizontal and vertical texture axes. */
     public class NumberUV
     {
-        //The horizontal coordinate value.
+        /** Horizontal coordinate */
         public var u:Number;
     
-        //The vertical coordinate value.
+        /** Vertical coordinate */
         public var v:Number;
     
         //@param u The horizontal coordinate value.

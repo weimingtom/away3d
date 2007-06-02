@@ -8,6 +8,7 @@ package away3d.core.material
 
     import flash.display.Graphics;
 
+    /** Interface for all material that are capable of drawing line segments */
     public interface ISegmentMaterial extends IMaterial
     {
         function renderSegment(seg:DrawSegment, session:RenderSession):void;

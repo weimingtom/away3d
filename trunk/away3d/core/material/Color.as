@@ -7,6 +7,7 @@ package away3d.core.material
 
     import flash.display.Graphics;
 
+    /** Static helper class for color manipulations */
     public class Color 
     {
         public static const white:int = 0xFFFFFF;

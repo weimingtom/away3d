@@ -14,6 +14,7 @@ package away3d.core.material
     import flash.geom.ColorTransform;
     import flash.utils.*;
 
+    /** Bitmap material that takes average of color lightings as a white lighting */
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
         public var diffuse:BitmapData;

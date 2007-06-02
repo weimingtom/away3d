@@ -7,6 +7,7 @@ package away3d.core.material
 
     import flash.display.Graphics;
 
+    /** Solid color material */
     public class ColorMaterial extends WireColorMaterial
     {
         public function ColorMaterial(color:int = -1, alpha:Number = 1.0)

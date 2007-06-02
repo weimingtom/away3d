@@ -7,6 +7,7 @@ package away3d.core.proto
     // The Camera3D class is the base class for all the cameras that can be placed in a scene.
     // A camera defines the view from which a scene will be rendered. Different camera settings would present a scene from different points of view.
     // 3D cameras simulate still-image, motion picture, or video cameras of the real world. When rendering, the scene is drawn as if you were looking through the camera lens.
+    /** Camera in 3D-space */
     public class Camera3D extends Object3D
     {
         // This value specifies the scale at which the 3D objects are rendered. Higher values magnify the scene, compressing distance. Use it in conjunction with focus.
@@ -45,17 +46,21 @@ package away3d.core.proto
     
         static private var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);
     
-        // Rotate the camera in its vertical plane.
-        // Tilting the camera results in a motion similar to someone nodding their head "yes".
-        // @param    angle   Angle to tilt the camera.
+       /**
+        * Rotate the camera in its vertical plane.
+        * Tilting the camera results in a motion similar to someone nodding their head "yes".
+        * @param angle Angle to tilt the camera.
+        */
         public function tilt(angle:Number):void
         {
             super.pitch(angle);
         }
     
-        // Rotate the camera in its horizontal plane.
-        // Panning the camera results in a motion similar to someone shaking their head "no".
-        // @param    angle   Angle to pan the camera.
+       /**
+        * Rotate the camera in its horizontal plane.
+        * Panning the camera results in a motion similar to someone shaking their head "no".
+        * @param angle Angle to pan the camera.
+        */
         public function pan(angle:Number):void
         {
             super.yaw(angle);

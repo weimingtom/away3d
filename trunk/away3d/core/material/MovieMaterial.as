@@ -13,6 +13,7 @@ package away3d.core.material
     import flash.geom.Matrix;
     import flash.geom.Point;
 
+    /** Material that can render a MovieClip on object */
     public class MovieMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var movie:MovieClip;
