@@ -7,6 +7,7 @@ package away3d.core.material
     import away3d.core.render.*;
 
     import flash.display.Graphics;
+    import flash.display.*;
 
     /** Material for solid color drawing with face's border outlining */
     public class WireColorMaterial implements ITriangleMaterial, ISegmentMaterial
@@ -33,9 +34,9 @@ package away3d.core.material
         public function renderSegment(seg:DrawSegment, session:RenderSession):void
         {
             if (lineAlpha > 0)
-            {
+            {                                                  
                 var graphics:Graphics = session.graphics;
-                graphics.lineStyle(lineWidth, lineColor, lineAlpha);
+                graphics.lineStyle(lineWidth, lineColor, lineAlpha/*, false, LineScaleMode.NORMAL, CapsStyle.SQUARE*/);
                 graphics.moveTo(seg.v0.x, seg.v0.y);
                 graphics.lineTo(seg.v1.x, seg.v1.y);
                 graphics.moveTo(seg.v0.x, seg.v0.y); // ????? bug?

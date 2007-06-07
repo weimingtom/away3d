@@ -246,6 +246,8 @@ package away3d.core.proto
 
             name = init.getString("name", null);
 
+            visible = init.getBoolean("visible", true);
+
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
             z = init.getNumber("z", 0);
@@ -254,9 +256,11 @@ package away3d.core.proto
             rotationY = init.getNumber("rotationY", 0);
             rotationZ = init.getNumber("rotationZ", 0);
             
-            scaleX = init.getNumber("scaleX", 1);
-            scaleY = init.getNumber("scaleY", 1);
-            scaleZ = init.getNumber("scaleZ", 1);
+            var scaling:Number = init.getNumber("scale", 1);
+
+            scaleX = init.getNumber("scaleX", 1) * scaling;
+            scaleY = init.getNumber("scaleY", 1) * scaling;
+            scaleZ = init.getNumber("scaleZ", 1) * scaling;
             
             extra = init.getObject("extra");
 

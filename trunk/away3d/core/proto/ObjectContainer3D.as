@@ -35,6 +35,7 @@ package away3d.core.proto
                 throw new Error("ObjectContainer3D.addChild(null)");
             if (child._parent == this)
                 return child;
+            child.parent = null;
             children.push(child);
             child._parent = this;
             return child; // I think we don't need it - AZ
