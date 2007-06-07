@@ -67,9 +67,6 @@ package away3d.core.render
 
         public function getMouseEvent(type:String):MouseEvent3D
         {
-            //if (screenZ == Infinity)
-            //    return null;
-
             var event:MouseEvent3D = new MouseEvent3D(type);
             event.screenX = screenX;
             event.screenY = screenY;

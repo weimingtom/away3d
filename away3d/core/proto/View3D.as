@@ -85,18 +85,18 @@ package away3d.core.proto
             fireMouseMoveEvent();
         }
 
-        private var mousedown:Boolean;
+        protected var mousedown:Boolean;
 
-        private function onMouseDown(e:MouseEvent):void
+        protected function onMouseDown(e:MouseEvent):void
         {
             mousedown = true;
-            fireMouseEvent(MouseEvent.MOUSE_DOWN, e.localX, e.localY);
+            fireMouseEvent(MouseEvent.MOUSE_DOWN, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
         private function onMouseUp(e:MouseEvent):void
         {
             mousedown = false;
-            fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY);
+            fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
         private function onMouseOut(e:MouseEvent):void
@@ -104,7 +104,7 @@ package away3d.core.proto
             if (mousedown)
             {
                 mousedown = false;
-                fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY);
+                fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY, e.ctrlKey, e.shiftKey);
             }
         }
 
@@ -115,11 +115,13 @@ package away3d.core.proto
         }
 
         /** Manually fire custom mouse event */
-        public function fireMouseEvent(type:String, x:Number, y:Number):void
+        public function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
             var findhit:FindHitTraverser = new FindHitTraverser(this, x, y);
             scene.traverse(findhit);
             var event:MouseEvent3D = findhit.getMouseEvent(type);
+            event.ctrlKey = ctrlKey;
+            event.shiftKey = shiftKey;
 
             events.dispatchEvent(event);
 

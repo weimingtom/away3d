@@ -25,9 +25,32 @@ package away3d.core.proto
         public var drawpri:DrawPrimitive;
         public var uv:NumberUV;
 
+        public var ctrlKey:Boolean;
+        public var shiftKey:Boolean;
+
         public function MouseEvent3D(type:String)
         {
             super(type);
+        }
+
+        public override function clone():Event
+        {
+            var result:MouseEvent3D = new MouseEvent3D(type);
+
+            result.screenX = screenX;
+            result.screenY = screenY;
+            result.screenZ = screenZ;
+                                     
+            result.view = view;
+            result.object = object;
+            result.element = element;
+            result.drawpri = drawpri;
+            result.uv = uv;
+                                     
+            result.ctrlKey = ctrlKey;
+            result.shiftKey = shiftKey;
+
+            return result;
         }
     }
 }
