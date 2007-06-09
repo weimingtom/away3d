@@ -1,6 +1,6 @@
-package away3d.core.material
+package away3d.loaders
 {
-    import away3d.core.proto.*;
+    import away3d.core.material.*;
     
     import flash.utils.Dictionary;
     
@@ -17,7 +17,7 @@ package away3d.core.material
     
         public function add(material:IMaterial, name:String):void
         {
-            if (name == "default")
+            if (name == "def")
                 def = material;
             else
                 materials[name] = material;
