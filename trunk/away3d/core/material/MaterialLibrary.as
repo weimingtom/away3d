@@ -4,37 +4,34 @@ package away3d.core.material
     
     import flash.utils.Dictionary;
     
-    /** Set of named materials */
+    /** Set of the named materials */
     public class MaterialLibrary
     {
+        private var def:IMaterial;
         private var materials:Dictionary = new Dictionary();
     
-        public function MaterialLibrary(/*init:Object = null*/):void
+        public function MaterialLibrary(def:IMaterial = null):void
         {
-        /*
-            if (init != null)
-                for (var name:String in init)
-                    add(init[name], name);
-        */
+            this.def = def;
         }
     
-        public function add(material:IMaterial, name:String):IMaterial
+        public function add(material:IMaterial, name:String):void
         {
-            this.materials[name] = material;
-
-            return material;
+            if (name == "default")
+                def = material;
+            else
+                materials[name] = material;
         }
     
         public function getMaterialByName(name:String):IMaterial
         {
-            return this.materials[name];
+            return (materials[name] || def);
         }
     
         public function getTriangleMaterial(name:String):ITriangleMaterial
         {
-            return this.materials[name] as ITriangleMaterial;
+            return (materials[name] || def) as ITriangleMaterial;
         }
-    
     
     }
 }
