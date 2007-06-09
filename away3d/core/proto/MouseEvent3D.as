@@ -19,6 +19,10 @@ package away3d.core.proto
         public var screenY:Number;
         public var screenZ:Number;
 
+        public var worldX:Number;
+        public var worldY:Number;
+        public var worldZ:Number;
+
         public var view:View3D;
         public var object:Object3D;
         public var element:Object;
@@ -40,6 +44,10 @@ package away3d.core.proto
             result.screenX = screenX;
             result.screenY = screenY;
             result.screenZ = screenZ;
+                                     
+            result.worldX = worldX;
+            result.worldY = worldY;
+            result.worldZ = worldZ;
                                      
             result.view = view;
             result.object = object;

@@ -88,9 +88,6 @@ package away3d.core.math
     
         public function rotate(m:Matrix3D):Number3D
         {
-            var x:Number = this.x;
-            var y:Number = this.y;
-            var z:Number = this.z;
             var v:Number3D = new Number3D(
                     x * m.n11 + y * m.n12 + z * m.n13,
                     x * m.n21 + y * m.n22 + z * m.n23,

@@ -77,6 +77,16 @@ package away3d.loaders
             if (data is MaterialLibrary)
                 return data;
 
+            if (data is IMaterial)
+                return new MaterialLibrary(data);
+
+            if (data is BitmapData)
+                return new MaterialLibrary(new BitmapMaterial(data, {smooth:true}));
+
+            // if (data is BitmapAsset)
+            if (data.bitmapData) 
+                return new MaterialLibrary(new BitmapMaterial(data.bitmapData, {smooth:true}));
+
             var result:MaterialLibrary = new MaterialLibrary();
             for (var name:String in data)
                 result.add(Cast.material(data[name]), name);
