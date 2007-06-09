@@ -1045,9 +1045,9 @@ class Morphing extends ObjectContainer3D
     public function Morphing()
     {
         texture = new WireColorMaterial();
-        circle = Collada.parse(Asset.CircleModel, {face:texture}).children[0];
-        tri    = Collada.parse(Asset.TriModel, {face:texture}).children[0];
-        square = Collada.parse(Asset.SquareModel, {face:texture}).children[0];
+        circle = Collada.parse(Asset.CircleModel, null).children[0];
+        tri    = Collada.parse(Asset.TriModel, {def:texture}).children[0];
+        square = Collada.parse(Asset.SquareModel, texture).children[0];
         morph  = Collada.parse(Asset.CircleModel, {face:texture}).children[0];
         morpher = new Morpher(morph);
 
