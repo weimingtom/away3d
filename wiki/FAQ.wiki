@@ -1,4 +1,5 @@
 #summary Frequently Asked Questions
+#labels Featured
 
 = Frequently Asked Questions =
 
@@ -14,6 +15,5 @@ var group:ObjectContainer3D = new ObjectContainer3D(sphere, cube, mesh);
 var group:ObjectContainer3D = new ObjectContainer3D(sphere, cube, mesh);
 group.removeChild(cube);
 }}}
-
 
 
