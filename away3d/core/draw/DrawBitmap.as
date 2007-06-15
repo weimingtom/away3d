@@ -18,26 +18,16 @@ package away3d.core.draw
         public var x:Number;
         public var y:Number;
 
-        public function DrawBitmap(bitmap:BitmapData, x:Number, y:Number, z:Number)
+        public function DrawBitmap(source:Object3D, bitmap:BitmapData, x:Number, y:Number, z:Number)
         {
+            this.source = source;
             this.bitmap = bitmap;
             this.x = x;
             this.y = y;
             this.screenZ = z;
             calc();
         }
-        /*
-        public static function create(bitmap:BitmapData, x:Number, y:Number, z:Number):DrawBitmap
-        {
-            var db:DrawBitmap = new DrawBitmap();
-            db.bitmap = bitmap;
-            db.x = x;
-            db.y = y;
-            db.screenZ = z;
-            db.calc();
-            return db;
-        }
-        */
+
         public function calc():void
         {
             minZ = screenZ;

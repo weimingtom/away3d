@@ -25,8 +25,9 @@ package away3d.core.draw
         public var width:Number;
         public var height:Number;
 
-        public function DrawScaledBitmap(bitmap:BitmapData, v:Vertex2D, scale:Number)
+        public function DrawScaledBitmap(source:Object3D, bitmap:BitmapData, v:Vertex2D, scale:Number)
         {
+            this.source = source;
             this.bitmap = bitmap;
             this.v = v;
             this.scale = scale;
