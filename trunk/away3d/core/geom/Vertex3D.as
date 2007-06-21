@@ -15,10 +15,43 @@ package away3d.core.geom
         private var projected:Vertex2D;
         private var projection:Projection;
         
-        public var x:Number;
-        public var y:Number;
-        public var z:Number;
+        protected var _x:Number;
+        protected var _y:Number;
+        protected var _z:Number;
 		
+		// An Number that sets the X coordinate of a vertex relative to the scene coordinate system.
+        public function get x():Number
+        {
+            return _x;
+        }
+    
+        public function set x(value:Number):void
+        {
+            _x = oldPosition.x = value;
+        }
+    
+        // An Number that sets the Y coordinate of a vertex relative to the scene coordinates.
+        public function get y():Number
+        {
+            return _y;
+        }
+    
+        public function set y(value:Number):void
+        {
+            _y = oldPosition.y = value;
+        }
+    
+        // An Number that sets the Z coordinate of a vertex relative to the scene coordinates.
+        public function get z():Number
+        {
+            return _z;
+        }
+    
+        public function set z(value:Number):void
+        {
+            _z = oldPosition.z = value;
+        }
+        
 		/** Project a point to the screen space */
         public function project(projection:Projection):Vertex2D
         {
@@ -62,9 +95,9 @@ package away3d.core.geom
         public function Vertex3D(x:Number = 0, y:Number = 0, z:Number = 0)
         {
         	super();
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            _x = x;
+            _y = y;
+            _z = z;
             oldPosition = position;
         }
         
