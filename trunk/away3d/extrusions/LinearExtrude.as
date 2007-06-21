@@ -38,7 +38,7 @@ package away3d.extrusions
                 var oVertices:Array = shape.vertices;
                 for (i=0;i<iHor;i++) { // horizontal
                     oVtx = new Vertex3D(oVertices[i].x + fXAdd, oVertices[i].y + fYAdd, oVertices[i].z + fZAdd);
-                    vertices.push(oVtx);
+                    addVertex3D(oVtx);
                     //}
                     aRow.push(oVtx);
                 }
@@ -69,8 +69,8 @@ package away3d.extrusions
                     aP2uv = new NumberUV(fI1,fJ0);
                     aP3uv = new NumberUV(fI1,fJ1);
                     // 2 faces
-                    faces.push( new Face3D(aP1,aP2,aP3, null, aP1uv,aP2uv,aP3uv) );
-                    faces.push( new Face3D(aP1,aP3,aP4, null, aP1uv,aP3uv,aP4uv) );
+                    addFace3D( new Face3D(aP1,aP2,aP3, null, aP1uv,aP2uv,aP3uv) );
+                    addFace3D( new Face3D(aP1,aP3,aP4, null, aP1uv,aP3uv,aP4uv) );
                 }
             }
         }

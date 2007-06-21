@@ -19,12 +19,12 @@ package away3d.core.render
             super(view);
         }
 
-        public override function apply(object:Object3D):void
+        public override function apply(node:Object3D):void
         {
-            if (object is IBlockerProvider)
+            if (node is IBlockerProvider)
             {
-                var provider:IBlockerProvider = (object as IBlockerProvider);
-                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
+                var provider:IBlockerProvider = (node as IBlockerProvider);
+                var projection:Projection = new Projection(view, node.sceneTransform);
                 provider.blockers(projection, consumer);
             }
         }

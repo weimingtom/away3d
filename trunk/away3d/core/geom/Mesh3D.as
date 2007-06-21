@@ -14,6 +14,8 @@ package away3d.core.geom
     public class Mesh3D extends Vertices3D implements IPrimitiveProvider
     {
         public var faces:Array = [];
+        public var surface:Face3D;
+       	public var surfaces:Array = [];
         public var segments:Array = [];
 
         public var material:IMaterial;
@@ -33,6 +35,9 @@ package away3d.core.geom
             pushfront = init.getBoolean("pushfront", false);
 
             this.material = material || new WireColorMaterial();
+            //bounce = this.material.bounce;
+			//friction = this.material.friction;
+			//traction = this.material.traction;
         }
     
         public function inverseFaces():void
@@ -68,10 +73,10 @@ package away3d.core.geom
                 var uv12:NumberUV = NumberUV.median(uv1, uv2);
                 var uv20:NumberUV = NumberUV.median(uv2, uv0);
                 var material:ITriangleMaterial = face.material;
-                faces.push(new Face3D(v0, v01, v20, material, uv0, uv01, uv20));
-                faces.push(new Face3D(v01, v1, v12, material, uv01, uv1, uv12));
-                faces.push(new Face3D(v20, v12, v2, material, uv20, uv12, uv2));
-                faces.push(new Face3D(v12, v20, v01, material, uv12, uv20, uv01));
+                addFace3D(new Face3D(v0, v01, v20, material, uv0, uv01, uv20));
+                addFace3D(new Face3D(v01, v1, v12, material, uv01, uv1, uv12));
+                addFace3D(new Face3D(v20, v12, v2, material, uv20, uv12, uv2));
+                addFace3D(new Face3D(v12, v20, v01, material, uv12, uv20, uv01));
             }    
         }
 
@@ -214,5 +219,57 @@ package away3d.core.geom
             }
             return flag;
         }
+        
+        
+		public override function updateBoundingBox():void
+		{
+			super.updateBoundingBox();
+			for each (surface in surfaces) {
+				if (minX > surface.minX)
+					minX = surface.minX;
+				
+				if (minY > surface.minY)
+					minY = surface.minY;
+				
+				if (minZ > surface.minZ)
+					minZ = surface.minZ;
+				
+				if (maxX < surface.maxX)
+					maxX = surface.maxX;
+				
+				if (maxY < surface.maxY)
+					maxY = surface.maxY;
+				
+				if (maxZ < surface.maxZ)
+					maxZ = surface.maxZ;
+			}
+		}
+		
+		public function addFace3D(face:Face3D):Face3D
+		{
+            if (face == null)
+                throw new Error("Vertices3D.addFace3D(null)");
+            if (face.parent == this)
+                return face;
+            face.parent = null;
+            faces.push(face);
+            face._parent = this;
+            face.scenePosition = sceneTransform.transformPoint(face.position);
+            
+            //special case for immovable
+			if (_immovable)
+				face.immovable = true;
+				
+			if (inheritAttributes){
+				face.detectionMode = detectionMode;
+				face.reactionMode = reactionMode;
+				face.magnetic = magnetic;
+				face.friction = friction;
+				face.bounce = bounce;
+				face.traction = traction;
+				face.drag = drag;
+			}
+            return face;	
+		}
     }
 }

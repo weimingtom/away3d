@@ -16,7 +16,7 @@ package away3d.core.proto
         {
         }
 
-        public function leave():void
+        public function leave(node:Object3D):void
         {
         }
 

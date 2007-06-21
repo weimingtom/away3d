@@ -33,14 +33,14 @@ package away3d.objects
             var v110:Vertex3D = new Vertex3D(+width/2, +height/2, -depth/2); 
             var v111:Vertex3D = new Vertex3D(+width/2, +height/2, +depth/2); 
 
-            vertices.push(v000);
-            vertices.push(v001);
-            vertices.push(v010);
-            vertices.push(v011);
-            vertices.push(v100);
-            vertices.push(v101);
-            vertices.push(v110);
-            vertices.push(v111);
+            addVertex3D(v000);
+            addVertex3D(v001);
+            addVertex3D(v010);
+            addVertex3D(v011);
+            addVertex3D(v100);
+            addVertex3D(v101);
+            addVertex3D(v110);
+            addVertex3D(v111);
             
             var aP1:Vertex3D, aP2:Vertex3D, aP3:Vertex3D, aP4:Vertex3D;
             var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
@@ -137,31 +137,31 @@ package away3d.objects
                 aP3uv = new NumberUV(t3.x,t3.y);
                 aP4uv = new NumberUV(t4.x,t4.y);
                 if ((isTransform && mat.repeat) || insideShape([test1,test2,test3,test4], [t1,t2,t4])) {
-                    faces.push(new Face3D(aP1, aP2, aP4, mat as ITriangleMaterial, aP1uv, aP2uv, aP4uv));
+                    addFace3D(new Face3D(aP1, aP2, aP4, mat as ITriangleMaterial, aP1uv, aP2uv, aP4uv));
                 }
                 if ((isTransform && mat.repeat) || insideShape([test1,test2,test3,test4], [t3,t4,t2])) {
-                    faces.push(new Face3D(aP3, aP4, aP2, mat as ITriangleMaterial, aP3uv, aP4uv, aP2uv));
+                    addFace3D(new Face3D(aP3, aP4, aP2, mat as ITriangleMaterial, aP3uv, aP4uv, aP2uv));
                 }
             }
             /*
             //left face
-            faces.push(new Face3D(v011, v001, v010, faceMaterials[0], t1, t2, t4));
-            faces.push(new Face3D(v000, v010, v001, faceMaterials[0], t3, t4, t2));
+            addFace3D(new Face3D(v011, v001, v010, faceMaterials[0], t1, t2, t4));
+            addFace3D(new Face3D(v000, v010, v001, faceMaterials[0], t3, t4, t2));
             //right face
-            faces.push(new Face3D(v100, v101, v110, faceMaterials[1], t1, t2, t4));
-            faces.push(new Face3D(v111, v110, v101, faceMaterials[1], t3, t4, t2));
+            addFace3D(new Face3D(v100, v101, v110, faceMaterials[1], t1, t2, t4));
+            addFace3D(new Face3D(v111, v110, v101, faceMaterials[1], t3, t4, t2));
             //bottom face
-            faces.push(new Face3D(v101, v100, v001, faceMaterials[2], t1, t2, t4));
-            faces.push(new Face3D(v000, v001, v100, faceMaterials[2], t3, t4, t2));
+            addFace3D(new Face3D(v101, v100, v001, faceMaterials[2], t1, t2, t4));
+            addFace3D(new Face3D(v000, v001, v100, faceMaterials[2], t3, t4, t2));
             //top face
-            faces.push(new Face3D(v010, v110, v011, faceMaterials[3], t1, t2, t4));
-            faces.push(new Face3D(v111, v011, v110, faceMaterials[3], t3, t4, t2));
+            addFace3D(new Face3D(v010, v110, v011, faceMaterials[3], t1, t2, t4));
+            addFace3D(new Face3D(v111, v011, v110, faceMaterials[3], t3, t4, t2));
             //front face
-            faces.push(new Face3D(v110, v010, v100, faceMaterials[4], t1, t2, t4));
-            faces.push(new Face3D(v000, v100, v010, faceMaterials[4], t3, t4, t2));
+            addFace3D(new Face3D(v110, v010, v100, faceMaterials[4], t1, t2, t4));
+            addFace3D(new Face3D(v000, v100, v010, faceMaterials[4], t3, t4, t2));
             //back face
-            faces.push(new Face3D(v001, v011, v101, faceMaterials[5], t1, t2, t4));
-            faces.push(new Face3D(v111, v101, v011, faceMaterials[5], t3, t4, t2));
+            addFace3D(new Face3D(v001, v011, v101, faceMaterials[5], t1, t2, t4));
+            addFace3D(new Face3D(v111, v101, v011, faceMaterials[5], t3, t4, t2));
             */
         }
     }

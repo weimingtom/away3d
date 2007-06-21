@@ -38,7 +38,7 @@ package away3d.shapes
             {
                 fRad2 = fRad*i - fRad/2;
                 oldV = v;
-                vertices.push(v = new Vertex3D(vx = w*Math.sin(fRad2),vy = h*Math.cos(fRad2),0));
+                addVertex3D(v = new Vertex3D(vx = w*Math.sin(fRad2),vy = h*Math.cos(fRad2),0));
                 if (i) length += Math.sqrt(Math.pow(vx - oldV.x,2) + Math.pow(vy - oldV.y,2));
                 if (xMin > vx)
                     xMin = vx;

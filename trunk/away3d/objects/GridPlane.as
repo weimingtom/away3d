@@ -33,8 +33,8 @@ package away3d.objects
                 var a:Vertex3D = new Vertex3D((ix / segmentsW - 0.5) * width, 0,  - 0.5 * height);
                 var b:Vertex3D = new Vertex3D((ix / segmentsW - 0.5) * width, 0,    0.5 * height);
 
-                vertices.push(a);
-                vertices.push(b);
+                addVertex3D(a);
+                addVertex3D(b);
                 segments.push(new Segment3D(a, b));
             }
 
@@ -43,8 +43,8 @@ package away3d.objects
                 var c:Vertex3D = new Vertex3D( -0.5 * width, 0, (iy / segmentsH - 0.5) * height);
                 var d:Vertex3D = new Vertex3D(  0.5 * width, 0, (iy / segmentsH - 0.5) * height);
 
-                vertices.push(c);
-                vertices.push(d);
+                addVertex3D(c);
+                addVertex3D(d);
                 segments.push(new Segment3D(c, d));
             }
         }

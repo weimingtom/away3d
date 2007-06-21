@@ -3,9 +3,7 @@ package away3d.core.math
     /** 3D transformation 4x3 matrix */
     public class Matrix3D
     {
-        public var n11:Number;     public var n12:Number;     public var n13:Number;     public var n14:Number;
-        public var n21:Number;     public var n22:Number;     public var n23:Number;     public var n24:Number;
-        public var n31:Number;     public var n32:Number;     public var n33:Number;     public var n34:Number;
+        public var n11:Number, n12:Number, n13:Number, n14:Number, n21:Number, n22:Number, n23:Number, n24:Number, n31:Number, n32:Number, n33:Number, n34:Number;
 
         public function Matrix3D()
         {
@@ -81,7 +79,7 @@ package away3d.core.math
         
             return dest;
         }
-
+        
         public static function multiply(m1:Matrix3D, m2:Matrix3D):Matrix3D
         {
             var result:Matrix3D = new Matrix3D();
@@ -115,6 +113,14 @@ package away3d.core.math
             result.n34 = m131 * m214 + m132 * m224 + m133 * m234 + m134;
         
             return result;
+        }
+        
+		public function transformPoint(val:Number3D):Number3D
+        {
+        	var x:Number = val.x;
+        	var y:Number = val.y;
+        	var z:Number = val.z;
+        	return new Number3D(n11*x + n12*y + n13*z + n14, n21*x + n22*y + n23*z + n24, n31*x + n32*y + n33*z + n34);
         }
     
         public function scale(x:Number, y:Number, z:Number):void

@@ -176,7 +176,7 @@ package away3d.test
             camera.panangle = 0;
             camera.targetpanangle = 230;
 
-            camera.mintiltangle = -10;
+            camera.mintiltangle = -90;
 
             view.camera = camera;
     
@@ -272,6 +272,7 @@ package away3d.test
                 time = getTimer();
 
             slide.scene.updateTime(time);
+            slide.scene.updatePhysics(1/stage.frameRate);
             //slide.scene.render(camera, slide.renderer/*, new ClipRectRenderer()*/);
             view.render();
             

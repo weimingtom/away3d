@@ -31,12 +31,12 @@ package away3d.core.render
             screenY = y;
         }
 
-        public override function apply(object:Object3D):void
+        public override function apply(node:Object3D):void
         {
-            if (object is IPrimitiveProvider)
+            if (node is IPrimitiveProvider)
             {
-                var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
-                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
+                var provider:IPrimitiveProvider = (node as IPrimitiveProvider);
+                var projection:Projection = new Projection(view, node.sceneTransform);
                 provider.primitives(projection, this);
             }
         }

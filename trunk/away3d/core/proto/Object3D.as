@@ -3,17 +3,26 @@ package away3d.core.proto
     import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.proto.*;
+    import away3d.core.physics.*;
     
     import flash.display.Sprite;
     import flash.utils.Dictionary;
+    import flash.geom.Matrix;
     
     // The DisplayObject class represents instances of 3D objects that are contained in the scene.
     // That includes all objects in the scene, not only those that can be rendered, but also the camera and its target.
     // The Object3D class supports basic functionality like the x, y and z position of an object, as well as rotationX, rotationY, rotationZ, scaleX, scaleY and scaleZ and visible. It also supports more advanced properties of the object such as its transform Matrix3D.
     // Object3D is not an abstract base class; therefore, you can call Object3D directly. Invoking new DisplayObject() creates a new empty object in 3D space, like when you used createEmptyMovieClip().
-    /** Root class for all objects and nodes in the scene */
-    public class Object3D
+	/** Root class for all objects and nodes in the scene */
+    public class Object3D extends CollisionObject3D
     {
+    	//physical properties
+		public var innerCollisions:Boolean = false;
+		
+		//array holders
+		public var constraints:Array = new Array();
+		public var accelerations:Array = new Array();
+		
         // An Number that sets the X coordinate of a object relative to the scene coordinate system.
         public function get x():Number
         {
@@ -23,6 +32,8 @@ package away3d.core.proto
         public function set x(value:Number):void
         {
             _transform.n14 = value;
+            transformUpdate = true;
+            
         }
     
         // An Number that sets the Y coordinate of a object relative to the scene coordinates.
@@ -34,6 +45,7 @@ package away3d.core.proto
         public function set y(value:Number):void
         {
             _transform.n24 = value;
+            transformUpdate = true;
         }
     
         // An Number that sets the Z coordinate of a object relative to the scene coordinates.
@@ -45,6 +57,7 @@ package away3d.core.proto
         public function set z(value:Number):void
         {
             _transform.n34 = value;
+            transformUpdate = true;
         }
     
         // Specifies the rotation around the X axis from its original orientation.
@@ -59,7 +72,7 @@ package away3d.core.proto
         public function set rotationX(rot:Number):void
         {
             _rotationX = -rot * toRADIANS;
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
         // Specifies the rotation around the Y axis from its original orientation.
@@ -74,7 +87,7 @@ package away3d.core.proto
         public function set rotationY(rot:Number):void
         {
             _rotationY = -rot * toRADIANS;
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
         // Specifies the rotation around the Z axis from its original orientation.
@@ -89,7 +102,7 @@ package away3d.core.proto
         public function set rotationZ(rot:Number):void
         {
             _rotationZ = -rot * toRADIANS;
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
         // Update rotation values
@@ -109,35 +122,43 @@ package away3d.core.proto
             _scaleY = scale;
             _scaleZ = scale;
     
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
         public function set scaleX(scale:Number):void
         {
             _scaleX = scale;
     
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
         public function set scaleY(scale:Number):void
         {
             _scaleY = scale;
     
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
         public function set scaleZ(scale:Number):void
         {
             _scaleZ = scale;
     
-            _transformDirty = true;
+            transformUpdate = _transformDirty = true;
         }
     
-        public function get position():Number3D
+        public override function get position():Number3D
         {
             return new Number3D(x, y, z);
         }
-
+    
+        public override function set position(val:Number3D):void
+        {
+            _transform.n14 = val.x;
+            _transform.n24 = val.y;
+            _transform.n34 = val.z;
+            transformUpdate = true;
+        }
+		
         // Whether or not the display object is visible.
         public var visible:Boolean = true;
     
@@ -146,24 +167,17 @@ package away3d.core.proto
     
         // An object that contains user defined properties.
         public var extra:Object;
-    
-        internal var _parent:ObjectContainer3D = null;
-    
-        public function get parent():ObjectContainer3D
-        {
-            return _parent;
-        }
 
-        public function set parent(p:ObjectContainer3D):void
+        public override function set parent(p:Object3D):void
         {
             if (p == _parent)
                 return;
-
+			
             if (_parent != null)
-                _parent.removeChild(this);
-
+                (_parent as ObjectContainer3D).removeChild(this);
+			
             if (p != null)
-                p.addChild(this);
+                (p as ObjectContainer3D).addChild(this);
         }
 
         private var _events:Object3DEvents;
@@ -197,9 +211,12 @@ package away3d.core.proto
             _transform = value.clone();
 
             _transformDirty = false;
-            _rotationDirty = true;
+            transformUpdate = _rotationDirty = true;
         }
-
+        
+        public var transformUpdate:Boolean = false;
+		public var sceneTransform:Matrix3D;
+        
         public function relative(rel:Object3D = null):Matrix3D
         {
             var result:Matrix3D = new Matrix3D();
@@ -213,7 +230,7 @@ package away3d.core.proto
 
             return result;
         }
-
+		
         private var _transformDirty:Boolean = false;
         private var _rotationDirty:Boolean = false;
     
@@ -242,10 +259,10 @@ package away3d.core.proto
         // extra: An object that contains user defined properties.
         public function Object3D(init:Object = null):void
         {
+        	super(init);
             init = Init.parse(init);
 
             name = init.getString("name", null);
-
             visible = init.getBoolean("visible", true);
 
             x = init.getNumber("x", 0);
@@ -257,14 +274,19 @@ package away3d.core.proto
             rotationZ = init.getNumber("rotationZ", 0);
             
             var scaling:Number = init.getNumber("scale", 1);
-
+			
             scaleX = init.getNumber("scaleX", 1) * scaling;
             scaleY = init.getNumber("scaleY", 1) * scaling;
             scaleZ = init.getNumber("scaleZ", 1) * scaling;
             
             extra = init.getObject("extra");
-
-            parent = init.getObject3D("parent") as ObjectContainer3D;
+            
+            innerCollisions = init.getBoolean("innerCollisions", innerCollisions);
+            accelerations = init.getArray("accelerations");
+            
+           	oldPosition = position;
+           	sceneTransform = transform;
+            scenePosition = position;
         }
     
         public function distanceTo(obj:Object3D):Number
@@ -281,9 +303,10 @@ package away3d.core.proto
             traverser.apply(this);
         }
 
-        public function project(parentview:Matrix3D):Matrix3D
-        {
-            return Matrix3D.multiply(parentview, transform);
+        public function project():void
+        {       	
+            if (transformUpdate = (_parent.transformUpdate || transformUpdate))
+            	sceneTransform = Matrix3D.multiply(_parent.sceneTransform, transform);
         }       
     
         // Translate the display object in the direction it is facing, i.e. it's positive Z axis.
@@ -339,7 +362,7 @@ package away3d.core.proto
             y += distance * vector.y;
             z += distance * vector.z;
         }
-    
+        
         // Rotate the display object around its lateral or transverse axis - an axis running from the pilot's left to right in piloted aircraft, and parallel to the wings of a winged aircraft; thus the nose pitches up and the tail down, or vice-versa.
         public function pitch(angle:Number):void
         {
@@ -349,7 +372,7 @@ package away3d.core.proto
     
             _transform.copy3x3(Matrix3D.multiply3x3(m, transform));
     
-            _rotationDirty = true;
+            transformUpdate = _rotationDirty = true;
         }
 
         // Rotate the display object around about the vertical axis - an axis drawn from top to bottom.
@@ -361,7 +384,7 @@ package away3d.core.proto
     
             _transform.copy3x3(Matrix3D.multiply3x3(m, transform));
     
-            _rotationDirty = true;
+            transformUpdate = _rotationDirty = true;
         }
     
         // Rotate the display object around the longitudinal axis - an axis drawn through the body of the vehicle from tail to nose in the normal direction of flight, or the direction the object is facing.
@@ -373,7 +396,7 @@ package away3d.core.proto
     
             _transform.copy3x3(Matrix3D.multiply3x3(m, transform));
     
-            _rotationDirty = true;
+            transformUpdate = _rotationDirty = true;
         }
     
         // Make the object look at a specific position.
@@ -410,7 +433,7 @@ package away3d.core.proto
                 look.n33 = zAxis.z;
     
                 _transformDirty = false;
-                _rotationDirty = true;
+                transformUpdate = _rotationDirty = true;
                 // TODO: Implement scale
             }
             else
@@ -448,5 +471,13 @@ package away3d.core.proto
         public function tick(time:int):void
         {
         }
+		
+		public override function thrust(val:Number3D):void
+		{
+			super.thrust(val);
+			project();
+			traverse(new ReactionTraverser());
+        	transformUpdate = false;
+		}
     }
 }
