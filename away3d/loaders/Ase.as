@@ -91,7 +91,7 @@ package away3d.loaders
                             con = drc[4];
                             var c:Vertex3D = mesh.vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
     
-                            mesh.faces.push(new Face3D(a, b, c));
+                            mesh.addFace3D(new Face3D(a, b, c));
                         }
                         break;
     

@@ -18,19 +18,19 @@ package away3d.core.render
             super(view);
         }
 
-        public override function apply(object:Object3D):void
+        public override function apply(node:Object3D):void
         {
-            if (object is IPrimitiveProvider)
+            var projection:Projection = new Projection(view, node.sceneTransform);
+            if (node is IPrimitiveProvider)
             {
-                var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
-                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
+                var provider:IPrimitiveProvider = (node as IPrimitiveProvider);
                 provider.primitives(projection, consumer);
             }
 
-            if (object is ILightProvider)
+            if (node is ILightProvider)
             {
-                var lightsource:ILightProvider = (object as ILightProvider);
-                lightsource.light(transform, lights);
+                var lightsource:ILightProvider = (node as ILightProvider);
+                lightsource.light(projection, lights);
             }
         }
 

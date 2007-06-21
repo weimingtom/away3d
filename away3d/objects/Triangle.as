@@ -43,12 +43,12 @@ package away3d.objects
             var uvb:NumberUV = new NumberUV(1, 0);
             var uvc:NumberUV = new NumberUV(0, 1);
 
-            vertices.push(a);
-            vertices.push(b);
-            vertices.push(c);
+            addVertex3D(a);
+            addVertex3D(b);
+            addVertex3D(c);
 
-            faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
-            faces.push(new Face3D(a, c, b, null, uva, uvc, uvb));
+            addFace3D(new Face3D(a, b, c, null, uva, uvb, uvc));
+            addFace3D(new Face3D(a, c, b, null, uva, uvc, uvb));
 
             if (bordermaterial == null)
                 bordermaterial = new WireframeMaterial(0x000000);

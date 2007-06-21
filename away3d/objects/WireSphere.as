@@ -9,9 +9,9 @@ package away3d.objects
     /** Wire sphere */ 
     public class WireSphere extends Mesh3D
     {
-        public var radius:Number = 100;
-        public var segmentsW:int = 8;
-        public var segmentsH:int = 6;
+    	public var radius:Number = 100;
+        public var segmentsW:int = 1;
+        public var segmentsH:int = 1;
     
         public function WireSphere(material:ISegmentMaterial = null, init:Object = null)
         {
@@ -49,7 +49,7 @@ package away3d.objects
                     if (((0 < j) && (j < segmentsH)) || (i == 0)) 
                     { 
                         vertex = new Vertex3D(y,z,x);
-                        vertices.push(vertex);
+                        addVertex3D(vertex);
                     }
                     row.push(vertex);
                 }
@@ -71,9 +71,9 @@ package away3d.objects
                         segments.push(new Segment3D(a, b));
                     /*
                     if (j < segmentsH)  
-                        faces.push(new Face3D(a,b,c, null, uva,uvb,uvc));
+                        addFace3D(new Face3D(a,b,c, null, uva,uvb,uvc));
                     if (j > 1)                
-                        faces.push(new Face3D(a,c,d, null, uva,uvc,uvd));
+                        addFace3D(new Face3D(a,c,d, null, uva,uvc,uvd));
                     */
                 }
             }

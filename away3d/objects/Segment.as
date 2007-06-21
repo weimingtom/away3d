@@ -25,8 +25,8 @@ package away3d.objects
             var a:Vertex3D = new Vertex3D(0, 0, 0); 
             var b:Vertex3D = new Vertex3D(1, 0, 0);
 
-            vertices.push(a);
-            vertices.push(b);
+            addVertex3D(a);
+            addVertex3D(b);
 
             segments.push(new Segment3D(a, b));
         }

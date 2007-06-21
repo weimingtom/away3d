@@ -70,35 +70,35 @@ package away3d.objects
             var uvc:NumberUV = new NumberUV(1, 1);
             var uvd:NumberUV = new NumberUV(0, 1);
 
-            vertices.push(v000);
-            vertices.push(v001);
-            vertices.push(v010);
-            vertices.push(v011);
-            vertices.push(v100);
-            vertices.push(v101);
-            vertices.push(v110);
-            vertices.push(v111);
+            addVertex3D(v000);
+            addVertex3D(v001);
+            addVertex3D(v010);
+            addVertex3D(v011);
+            addVertex3D(v100);
+            addVertex3D(v101);
+            addVertex3D(v110);
+            addVertex3D(v111);
 
-            faces.push(new Face3D(v011, v001, v101, null, uvrightd, uvrighta, uvrightb));
-            faces.push(new Face3D(v011, v101, v111, null, uvrightd, uvrightb, uvrightc));
+            addFace3D(new Face3D(v011, v001, v101, null, uvrightd, uvrighta, uvrightb));
+            addFace3D(new Face3D(v011, v101, v111, null, uvrightd, uvrightb, uvrightc));
 
-            faces.push(new Face3D(v100, v110, v101, null, uvfrontb, uvfrontc, uvfronta));
-            faces.push(new Face3D(v110, v111, v101, null, uvfrontc, uvfrontd, uvfronta));
+            addFace3D(new Face3D(v100, v110, v101, null, uvfrontb, uvfrontc, uvfronta));
+            addFace3D(new Face3D(v110, v111, v101, null, uvfrontc, uvfrontd, uvfronta));
 
-            faces.push(new Face3D(v000, v010, v100, null, uvleftb, uvleftc, uvlefta));
-            faces.push(new Face3D(v100, v010, v110, null, uvlefta, uvleftc, uvleftd));
+            addFace3D(new Face3D(v000, v010, v100, null, uvleftb, uvleftc, uvlefta));
+            addFace3D(new Face3D(v100, v010, v110, null, uvlefta, uvleftc, uvleftd));
 
-            faces.push(new Face3D(v000, v001, v010, null, uvbacka, uvbackb, uvbackd));
-            faces.push(new Face3D(v010, v001, v011, null, uvbackd, uvbackb, uvbackc));
+            addFace3D(new Face3D(v000, v001, v010, null, uvbacka, uvbackb, uvbackd));
+            addFace3D(new Face3D(v010, v001, v011, null, uvbackd, uvbackb, uvbackc));
 
-            faces.push(new Face3D(v010, v011, v110, null, uvupb, uvupc, uvupa));
-            faces.push(new Face3D(v011, v111, v110, null, uvupc, uvupd, uvupa));
+            addFace3D(new Face3D(v010, v011, v110, null, uvupb, uvupc, uvupa));
+            addFace3D(new Face3D(v011, v111, v110, null, uvupc, uvupd, uvupa));
 
-//            faces.push(new Face3D(v000, v100, v001, null, uvdownc, uvdownd, uvdownb));
-//            faces.push(new Face3D(v001, v100, v101, null, uvdownb, uvdownd, uvdowna));
+//            addFace3D(new Face3D(v000, v100, v001, null, uvdownc, uvdownd, uvdownb));
+//            addFace3D(new Face3D(v001, v100, v101, null, uvdownb, uvdownd, uvdowna));
 
-            faces.push(new Face3D(v000, v100, v001, null, uvdowna, uvdownb, uvdownd));
-            faces.push(new Face3D(v001, v100, v101, null, uvdownd, uvdownb, uvdownc));
+            addFace3D(new Face3D(v000, v100, v001, null, uvdowna, uvdownb, uvdownd));
+            addFace3D(new Face3D(v001, v100, v101, null, uvdownd, uvdownb, uvdownc));
 
             quarterFaces();
             quarterFaces();

@@ -47,7 +47,7 @@ package away3d.objects
         {
             for (var ix:int = 0; ix < segmentsW + 1; ix++)
                 for (var iy:int = 0; iy < segmentsH + 1; iy++)
-                    vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
+                    addVertex3D(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
 
             for (ix = 0; ix < segmentsW; ix++)
                 for (iy = 0; iy < segmentsH; iy++)
@@ -62,9 +62,13 @@ package away3d.objects
                     var uvc:NumberUV = new NumberUV(ix     / segmentsW, (iy+1) / segmentsH);
                     var uvd:NumberUV = new NumberUV((ix+1) / segmentsW, (iy+1) / segmentsH);
 
-                    faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
-                    faces.push(new Face3D(d, c, b, null, uvd, uvc, uvb));
+                    var face1:Face3D = addFace3D(new Face3D(a, b, c, null, uva, uvb, uvc));
+                    var face2:Face3D = addFace3D(new Face3D(d, c, b, null, uvd, uvc, uvb));
+                    face1.fixed = true;
+                    face2.fixed = true;
                 }
+            
+            surfaces = faces;
         }
 
         public function vertice(ix:int, iy:int):Vertex3D

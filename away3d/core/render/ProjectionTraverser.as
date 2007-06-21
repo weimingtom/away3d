@@ -9,13 +9,10 @@ package away3d.core.render
     public class ProjectionTraverser extends Traverser
     {
         protected var view:View3D;
-        protected var transform:Matrix3D;
-        protected var transforms:Array = [];
 
         public function ProjectionTraverser(view:View3D)
         {
             this.view = view;
-            this.transform = view.camera.getView();
         }
 
         public override function match(node:Object3D):Boolean
@@ -23,19 +20,18 @@ package away3d.core.render
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(view, transform);
+                return (node as ILODObject).matchLOD(view);
             return true;
         }
 
         public override function enter(node:Object3D):void
         {
-            transforms.push(transform);
-            transform = node.project(transform);
+            node.project();
         }
 
-        public override function leave():void
+        public override function leave(node:Object3D):void
         {
-            transform = transforms.pop();
+        	node.transformUpdate = false;
         }
 
     }

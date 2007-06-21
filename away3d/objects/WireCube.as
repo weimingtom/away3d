@@ -27,14 +27,14 @@ package away3d.objects
             var v110:Vertex3D = new Vertex3D(+width/2, +height/2, -depth/2); 
             var v111:Vertex3D = new Vertex3D(+width/2, +height/2, +depth/2); 
 
-            vertices.push(v000);
-            vertices.push(v001);
-            vertices.push(v010);
-            vertices.push(v011);
-            vertices.push(v100);
-            vertices.push(v101);
-            vertices.push(v110);
-            vertices.push(v111);
+            addVertex3D(v000);
+            addVertex3D(v001);
+            addVertex3D(v010);
+            addVertex3D(v011);
+            addVertex3D(v100);
+            addVertex3D(v101);
+            addVertex3D(v110);
+            addVertex3D(v111);
             
             segments.push(new Segment3D(v000, v001));
             segments.push(new Segment3D(v011, v001));
