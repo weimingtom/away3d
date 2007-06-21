@@ -31,7 +31,7 @@ package away3d.core.proto
     
         public function set x(value:Number):void
         {
-            _transform.n14 = value;
+            _transform.n14 = oldPosition.x = value;
             transformUpdate = true;
             
         }
@@ -44,7 +44,7 @@ package away3d.core.proto
     
         public function set y(value:Number):void
         {
-            _transform.n24 = value;
+            _transform.n24 = oldPosition.y = value;
             transformUpdate = true;
         }
     
@@ -56,7 +56,7 @@ package away3d.core.proto
     
         public function set z(value:Number):void
         {
-            _transform.n34 = value;
+            _transform.n34 = oldPosition.z = value;
             transformUpdate = true;
         }
     
@@ -265,9 +265,9 @@ package away3d.core.proto
             name = init.getString("name", null);
             visible = init.getBoolean("visible", true);
 
-            x = init.getNumber("x", 0);
-            y = init.getNumber("y", 0);
-            z = init.getNumber("z", 0);
+            _transform.n14 = init.getNumber("x", 0);
+            _transform.n24 = init.getNumber("y", 0);
+            _transform.n34 = init.getNumber("z", 0);
             
             rotationX = init.getNumber("rotationX", 0);
             rotationY = init.getNumber("rotationY", 0);
