@@ -67,6 +67,12 @@ package away3d.core.material
                 return;
             }
 
+            if (_alpha == 0)
+            {
+                _current = null;
+                return;
+            }
+
             _current = _cache[_alpha];
             if (_current == null)
             {
@@ -78,12 +84,12 @@ package away3d.core.material
 
         public function get width():Number
         {
-            return bitmap.width;
+            return _bitmap.width;
         }
 
         public function get height():Number
         {
-            return bitmap.height;
+            return _bitmap.height;
         }
         
         public function AlphaBitmapMaterial(bitmap:BitmapData, init:Object = null)
@@ -129,7 +135,7 @@ package away3d.core.material
 
         public function get visible():Boolean
         {
-            return true;
+            return _alpha > 0;
         }
  
     }
