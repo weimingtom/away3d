@@ -103,7 +103,7 @@ package away3d.core.material
             var v2:Vertex2D = tri.v2;
             var graphics:Graphics = session.graphics;
             var br:Number = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
-            if ((br < 1) && (blackrender || ((step < 16) && (!bitmap.transparent))))
+            if ((br < 1) && (blackrender || ((step < 16) && (!diffuse.transparent))))
             {
                 RenderTriangle.renderBitmap(graphics, diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
                 RenderTriangle.renderColor(graphics, 0x000000, 1 - br, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
