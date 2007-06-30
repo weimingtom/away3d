@@ -32,7 +32,7 @@ package away3d.core.render
 
         public function addDisplayObject(child:DisplayObject):void
         {
-            _graphics == null;
+            _graphics = null;
             container.addChild(child);
         }
 
