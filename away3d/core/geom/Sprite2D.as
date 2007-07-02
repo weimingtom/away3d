@@ -31,7 +31,7 @@ package away3d.core.geom
             var sc:Vertex2D = center.project(projection);
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
 
-            consumer.primitive(new DrawScaledBitmap(bitmap, sc, persp*scaling));
+            consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling));
         }
     }
 }
