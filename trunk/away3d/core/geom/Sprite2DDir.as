@@ -38,26 +38,24 @@ package away3d.core.geom
         {
             var minz:Number = Infinity;
             var bitmap:BitmapData = null;
-            var visibleFlag:Boolean = true;
             
             for each (var v:Vertex3D in vertices)
             {
                 var z:Number = v.project(projection).z;
                 if (z < minz)
                 {
-                	visibleFlag = v.visible;
                     minz = z;
                     bitmap = bitmaps[v];
                 }
             }
-			
-			if (!visibleFlag)
-				return;
-			
+
             if (bitmap == null)
                 throw new Error("AAAAAA");
 
             var sc:Vertex2D = center.project(projection);
+            if (!sc.visible)
+            	return;
+            	
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
 
             consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling));
