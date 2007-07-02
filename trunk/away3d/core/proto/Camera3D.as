@@ -3,6 +3,9 @@ package away3d.core.proto
     import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.proto.*;
+    import away3d.core.draw.*;
+    import away3d.core.geom.*;
+    import away3d.core.render.*;
     
     // The Camera3D class is the base class for all the cameras that can be placed in a scene.
     // A camera defines the view from which a scene will be rendered. Different camera settings would present a scene from different points of view.
@@ -44,7 +47,15 @@ package away3d.core.proto
             return Matrix3D.inverse(Matrix3D.multiply(transform, _flipY));
         }
     
-        static private var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);
+        public function screen(object:Object3D, vertex:Vertex3D = null):Vertex2D
+        {
+            if (vertex == null)
+                vertex = new Vertex3D(0,0,0);
+
+            return vertex.project(new Projection(Matrix3D.multiply(getView(), object.relative()), focus, zoom));
+        }
+    
+        private static var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);
     
        /**
         * Rotate the camera in its vertical plane.
