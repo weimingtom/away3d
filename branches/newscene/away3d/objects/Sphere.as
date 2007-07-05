@@ -2,14 +2,14 @@ package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
     /** Sphere */ 
     public class Sphere extends Mesh3D
     {
-    	public var radius:Number = 100;
+        public var radius:Number = 100;
         public var segmentsW:int = 8;
         public var segmentsH:int = 6;
 
@@ -24,12 +24,6 @@ package away3d.objects
             segmentsH = init.getInt("segmentsH", 2, {min:2})
 
             buildSphere();
-            var particle:Vertex3D = new Vertex3D();
-            particle.radius = radius;
-            particle.parent = this;
-            particle.scenePosition = sceneTransform.transformPoint(particle.position);
-            particle.fixed = true;
-            particles.push(particle);
         }
     
         private function buildSphere():void
@@ -55,7 +49,7 @@ package away3d.objects
                     if (((0 < j) && (j < segmentsH)) || (i == 0)) 
                     { 
                         vertex = new Vertex3D(y,z,x);
-                        addVertex3D(vertex);
+                        vertices.push(vertex);
                     }
                     row.push(vertex);
                 }
@@ -81,9 +75,9 @@ package away3d.objects
                     var uvd:NumberUV = new NumberUV(uad,vcd);
 
                     if (j < segmentsH)  
-                        addFace3D(new Face3D(a,b,c, null, uva,uvb,uvc));
+                        faces.push(new Face3D(a,b,c, null, uva,uvb,uvc));
                     if (j > 1)                
-                        addFace3D(new Face3D(a,c,d, null, uva,uvc,uvd));
+                        faces.push(new Face3D(a,c,d, null, uva,uvc,uvd));
                 }
             }
         }

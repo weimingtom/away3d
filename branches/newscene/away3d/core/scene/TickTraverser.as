@@ -1,11 +1,5 @@
-package away3d.core.proto
+package away3d.core.scene
 {
-    import away3d.core.*;
-    import away3d.core.proto.*;
-    import away3d.core.draw.*;
-
-    import flash.geom.*;
-
     /** Traverser that updates time for all objects on scene */
     public class TickTraverser extends Traverser
     {

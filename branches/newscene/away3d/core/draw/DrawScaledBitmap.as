@@ -2,7 +2,7 @@ package away3d.core.draw
 {
     import away3d.core.*;
     import away3d.core.material.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
                                
@@ -67,7 +67,22 @@ package away3d.core.draw
 
         public override function contains(x:Number, y:Number):Boolean
         {   
-            return true;
+            if (!bitmap.transparent)
+                return true;
+
+            var px:int = int(Math.round(bitmap.width*((x-minX)/(maxX-minX))));
+            var py:int = int(Math.round(bitmap.height*((y-minY)/(maxY-minY))));
+            if (px < 0)
+                px = 0;
+            if (py < 0)
+                py = 0;
+            if (px >= bitmap.width)
+                px = bitmap.width-1;
+            if (py >= bitmap.height)
+                py = bitmap.height-1;
+
+            var p:uint = bitmap.getPixel(px, py);
+            return (p & 0xFF000000) > 0;
         }
     }
 }

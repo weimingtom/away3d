@@ -1,7 +1,7 @@
 package away3d.loaders
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
 
@@ -91,7 +91,7 @@ package away3d.loaders
                             con = drc[4];
                             var c:Vertex3D = mesh.vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
     
-                            mesh.addFace3D(new Face3D(a, b, c));
+                            mesh.faces.push(new Face3D(a, b, c));
                         }
                         break;
     

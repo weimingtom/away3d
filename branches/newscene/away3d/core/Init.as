@@ -1,7 +1,8 @@
 package away3d.core
 {
-    import away3d.core.math.*
-    import away3d.core.proto.*
+    import away3d.core.math.*;
+    import away3d.core.scene.*;
+    import away3d.core.material.*;
 
     /** Convinient object initialization support */
     public class Init
@@ -185,6 +186,21 @@ package away3d.core
                 return [];
         
             var result:Array = init[name];
+
+            delete init[name];
+        
+            return result;
+        }
+
+        public function getMaterial(name:String, def:IMaterial = null):IMaterial
+        {
+            if (init == null)
+                return def;
+        
+            if (!init.hasOwnProperty(name))
+                return def;
+        
+            var result:IMaterial = init[name];
 
             delete init[name];
         

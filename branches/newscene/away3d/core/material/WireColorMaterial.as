@@ -2,7 +2,7 @@ package away3d.core.material
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
@@ -18,9 +18,7 @@ package away3d.core.material
 
         public var fillColor:int;
         public var fillAlpha:Number;
-		
-		internal var graphics:Graphics;
-		
+
         public function WireColorMaterial(color:int = -1, wirecolor:int = 0x000000, alpha:Number = 1.0, wirealpha:Number = 1.0, wirewidth:Number = 1)
         {
             if (color == -1)
@@ -37,7 +35,7 @@ package away3d.core.material
         {
             if (lineAlpha > 0)
             {                                                  
-                graphics = session.graphics;
+                var graphics:Graphics = session.graphics;
                 graphics.lineStyle(lineWidth, lineColor, lineAlpha/*, false, LineScaleMode.NORMAL, CapsStyle.SQUARE*/);
                 graphics.moveTo(seg.v0.x, seg.v0.y);
                 graphics.lineTo(seg.v1.x, seg.v1.y);
@@ -47,7 +45,7 @@ package away3d.core.material
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            graphics = session.graphics;
+            var graphics:Graphics = session.graphics;
 
             if (lineAlpha > 0)
                 graphics.lineStyle(lineWidth, lineColor, lineAlpha);

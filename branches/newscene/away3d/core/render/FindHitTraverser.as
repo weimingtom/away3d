@@ -1,7 +1,7 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.geom.*;
@@ -31,12 +31,12 @@ package away3d.core.render
             screenY = y;
         }
 
-        public override function apply(node:Object3D):void
+        public override function apply(object:Object3D):void
         {
-            if (node is IPrimitiveProvider)
+            if (object is IPrimitiveProvider)
             {
-                var provider:IPrimitiveProvider = (node as IPrimitiveProvider);
-                var projection:Projection = new Projection(view, node.sceneTransform);
+                var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
+                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
                 provider.primitives(projection, this);
             }
         }
@@ -62,9 +62,9 @@ package away3d.core.render
                     var persp:Number = view.camera.zoom / (1 + screenZ / view.camera.focus);
                     var inv:Matrix3D = Matrix3D.inverse(view.camera.getView());
 
-                    worldX = screenX / persp * inv.n11 + screenY / persp * inv.n12 + screenZ * inv.n13 + inv.n14;
-                    worldY = screenX / persp * inv.n21 + screenY / persp * inv.n22 + screenZ * inv.n23 + inv.n24;
-                    worldZ = screenX / persp * inv.n31 + screenY / persp * inv.n32 + screenZ * inv.n33 + inv.n34;
+                    worldX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
+                    worldY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
+                    worldZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
 
                     drawpri = pri;
                     object = pri.source;

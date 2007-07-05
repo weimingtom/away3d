@@ -1,9 +1,7 @@
-package away3d.core.proto
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.proto.*;
-    import away3d.core.physics.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
     import away3d.core.material.*;
@@ -18,19 +16,14 @@ package away3d.core.proto
     /** Scene that gets rendered */
     public class Scene3D extends ObjectContainer3D
     {
-    	
-        public function Scene3D(init:Object = null, ...childarray)
+        use namespace arcane;
+
+        public function Scene3D(...objects)
         {
-        	fixed = true;
-        	innerCollisions = true;
-        	if (init != null && init is Object3D) {
-                childarray.push(init);
-                init = null;
-            }
-        	super(init);
-        	
-        	for each (child in childarray)
-            	addChild(child);
+            for each (var object:Object3D in objects)
+                addChild(object);
+
+            _scene = this;
         }
 
         public function updateTime(time:int = -1):void
@@ -39,12 +32,17 @@ package away3d.core.proto
                 time = getTimer();
             traverse(new TickTraverser(time));
         }
-        
-        public function updatePhysics(dt:Number):void
+
+        public override function set parent(value:ObjectContainer3D):void
         {
-        	traverse(new AccelerateTraverser(accelerations));
-        	traverse(new VerletTraverser(dt));
-            traverse(new CollisionTraverser());
+            if (value != null)
+                throw new Error("Scene can't be parented");
         }
+
+        public override function get world():Matrix3D
+        {
+            return transform;
+        }
+
     }
 }

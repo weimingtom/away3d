@@ -1,8 +1,8 @@
-package away3d.core.proto
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
     import away3d.core.material.*;
@@ -16,6 +16,8 @@ package away3d.core.proto
     /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */ 
     public class View3D extends Sprite
     {
+        use namespace arcane;
+
         /** Background under the rendered scene */
         public var background:Sprite;
         /** Sprite that contains last rendered frame */
@@ -33,7 +35,7 @@ package away3d.core.proto
         public var renderer:IRenderer;
 
         /** Object for subscribing to events */
-        public var events:Object3DEvents;
+//        public var events:EventDispatcher;
 
         /** Create new View3D */
         public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
@@ -42,7 +44,7 @@ package away3d.core.proto
             this.camera = camera || new Camera3D({x:1000, y:1000, z:1000, lookat:new Object3D()});
             this.renderer = renderer || new BasicRenderer();
             
-            events = new Object3DEvents();
+//            events = new EventDispatcher();
 
             background = new Sprite();
             addChild(background);
@@ -70,8 +72,6 @@ package away3d.core.proto
         /** Render frame */
         public function render():void
         {
-            Init.checkUnusedArguments();
-
             clear();
 
             var oldclip:Clipping = clip;
@@ -81,6 +81,8 @@ package away3d.core.proto
             renderer.render(this);
 
             clip = oldclip;
+
+            Init.checkUnusedArguments();
 
             fireMouseMoveEvent();
         }
@@ -119,19 +121,21 @@ package away3d.core.proto
         {
             var findhit:FindHitTraverser = new FindHitTraverser(this, x, y);
             scene.traverse(findhit);
-            var event:MouseEvent3D = findhit.getMouseEvent(type);
+            var event:MouseEvent3D = findhit.getMouseEvent(type+"3D");
             event.ctrlKey = ctrlKey;
             event.shiftKey = shiftKey;
 
-            events.dispatchEvent(event);
+            dispatchMouseEvent(event);
 
             var target:Object3D = event.object;
             while (target != null)
             {
-                if (target.hasEvents)
-                    target.events.dispatchEvent(event);
+                if (target.dispatchMouseEvent(event))
+                    ; // break;
                 target = target.parent;
             }
+        /*
+        */
         }
 
         /*
@@ -149,5 +153,41 @@ package away3d.core.proto
             return callback;
         }
         */
+
+        public function addOnMouseMove(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false, 0, true);
+        }
+        public function removeOnMouseMove(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false);
+        }
+
+        public function addOnMouseDown(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false, 0, true);
+        }
+        public function removeOnMouseDown(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false);
+        }
+
+        public function addOnMouseUp(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_UP+"3D", listener, false, 0, true);
+        }
+        public function removeOnMouseUp(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_UP+"3D", listener, false);
+        }
+
+        arcane function dispatchMouseEvent(event:MouseEvent3D):void
+        {
+            if (!hasEventListener(event.type))
+                return;
+
+            dispatchEvent(event);
+        }
+
     }
 }

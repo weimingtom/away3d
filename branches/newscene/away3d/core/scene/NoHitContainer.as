@@ -1,4 +1,4 @@
-package away3d.core.proto
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.proto.*;

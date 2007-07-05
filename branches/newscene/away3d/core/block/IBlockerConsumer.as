@@ -1,6 +1,6 @@
 package away3d.core.block
 {
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
 
     /** Interface for containers capable of storing blockers */

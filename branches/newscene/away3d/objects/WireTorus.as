@@ -2,17 +2,18 @@ package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
     /** Wire torus */ 
     public class WireTorus extends Mesh3D
     {
-    	public var radius:Number = 100;
-        public var segmentsR:int = 8;
-        public var segmentsT:int = 6;
-        public var tube:Number = 40;
+        public var segmentsR:int;
+        public var segmentsT:int;
+    
+        public var radius:Number;
+        public var tube:Number;
 
         public function WireTorus(material:ISegmentMaterial, init:Object = null)
         {
@@ -35,7 +36,7 @@ package away3d.objects
                 {
                     var u:Number = ix / segmentsR * 2 * Math.PI;
                     var v:Number = iy / segmentsT * 2 * Math.PI;
-                    addVertex3D(new Vertex3D((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u)));
+                    vertices.push(new Vertex3D((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u)));
                 }
 
             for (ix = 0; ix < segmentsR; ix++)

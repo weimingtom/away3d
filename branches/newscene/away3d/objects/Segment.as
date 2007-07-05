@@ -1,7 +1,7 @@
 package away3d.objects
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
@@ -25,8 +25,8 @@ package away3d.objects
             var a:Vertex3D = new Vertex3D(0, 0, 0); 
             var b:Vertex3D = new Vertex3D(1, 0, 0);
 
-            addVertex3D(a);
-            addVertex3D(b);
+            vertices.push(a);
+            vertices.push(b);
 
             segments.push(new Segment3D(a, b));
         }

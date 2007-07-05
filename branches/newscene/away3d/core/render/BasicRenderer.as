@@ -1,7 +1,7 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.block.*;
     import flash.utils.*;
@@ -30,7 +30,7 @@ package away3d.core.render
             var camera:Camera3D = view.camera;
             var container:Sprite = view.canvas;
             var clip:Clipping = view.clip;
-            
+
             var start:int = getTimer();
             info = "";
 

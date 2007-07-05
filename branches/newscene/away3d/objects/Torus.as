@@ -2,17 +2,17 @@ package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
     /** Torus */ 
     public class Torus extends Mesh3D
     {
-    	public var radius:Number = 100;
         public var segmentsR:int;
         public var segmentsT:int;
-        
+    
+        public var radius:Number;
         public var tube:Number;
 
         public function Torus(material:IMaterial, init:Object = null)
@@ -36,7 +36,7 @@ package away3d.objects
                 {
                     var u:Number = ix / segmentsR * 2 * Math.PI;
                     var v:Number = iy / segmentsT * 2 * Math.PI;
-                    addVertex3D(new Vertex3D((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u)));
+                    vertices.push(new Vertex3D((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u)));
                 }
 
             for (ix = 0; ix < segmentsR; ix++)
@@ -54,8 +54,8 @@ package away3d.objects
                     var uvc:NumberUV = new NumberUV(ix     / segmentsR, (iy+1) / segmentsT);
                     var uvd:NumberUV = new NumberUV((ix+1) / segmentsR, (iy+1) / segmentsT);
 
-                    addFace3D(new Face3D(a, b, c, null, uva, uvb, uvc));
-                    addFace3D(new Face3D(d, c, b, null, uvd, uvc, uvb));
+                    faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
+                    faces.push(new Face3D(d, c, b, null, uvd, uvc, uvb));
                 }
         }
 
