@@ -1,7 +1,6 @@
 package away3d.core.scene
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
     import away3d.core.render.*;
 
     /** Scene node that is transparent to mouse click */

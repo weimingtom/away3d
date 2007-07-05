@@ -49,6 +49,8 @@ package away3d.core.scene
         {
             _transform.tx = value;
 
+            _worldDirty = true;
+
             notifyTransformChange();
         }
     
@@ -61,6 +63,8 @@ package away3d.core.scene
         {
             _transform.ty = value;
 
+            _worldDirty = true;
+
             notifyTransformChange();
         }
     
@@ -72,6 +76,8 @@ package away3d.core.scene
         public function set z(value:Number):void
         {
             _transform.tz = value;
+
+            _worldDirty = true;
 
             notifyTransformChange();
         }
@@ -87,6 +93,7 @@ package away3d.core.scene
         public function set rotationX(rot:Number):void
         {
             _rotationX = -rot * toRADIANS;
+
             _transformDirty = true;
 
             notifyTransformChange();
@@ -103,6 +110,7 @@ package away3d.core.scene
         public function set rotationY(rot:Number):void
         {
             _rotationY = -rot * toRADIANS;
+
             _transformDirty = true;
 
             notifyTransformChange();
@@ -119,6 +127,7 @@ package away3d.core.scene
         public function set rotationZ(rot:Number):void
         {
             _rotationZ = -rot * toRADIANS;
+
             _transformDirty = true;
 
             notifyTransformChange();
@@ -514,29 +523,29 @@ package away3d.core.scene
 
         public function addOnMouseMove(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_MOVE, listener, false, 0, true);
+            addEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false, 0, false);
         }
         public function removeOnMouseMove(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_MOVE, listener, false);
+            removeEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false);
         }
 
         public function addOnMouseDown(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_DOWN, listener, false, 0, true);
+            addEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false, 0, false);
         }
         public function removeOnMouseDown(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_DOWN, listener, false);
+            removeEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false);
         }
 
         public function addOnMouseUp(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_UP, listener, false, 0, true);
+            addEventListener(MouseEvent.MOUSE_UP+"3D", listener, false, 0, false);
         }
         public function removeOnMouseUp(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_UP, listener, false);
+            removeEventListener(MouseEvent.MOUSE_UP+"3D", listener, false);
         }
 
         arcane function dispatchMouseEvent(event:MouseEvent3D):Boolean
