@@ -1,13 +1,13 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
     import flash.geom.*;
-	
-	/** Array of light sources */
+
+    /** Array of light sources */
     public class LightArray implements ILightConsumer
     {
         private var ambients:Array = [];
@@ -24,13 +24,12 @@ package away3d.core.render
             throw new Error("Not implemented");
         }
 
-        public function pointLight(projection:Projection, color:int, ambient:Number, diffuse:Number, specular:Number):void
+        public function pointLight(source:Matrix3D, color:int, ambient:Number, diffuse:Number, specular:Number):void
         {
-        	var source:Matrix3D = projection.view;
             var point:PointLightSource = new PointLightSource();
-            point.x = source.n14;
-            point.y = source.n24;
-            point.z = source.n34;
+            point.x = source.tx;
+            point.y = source.ty;
+            point.z = source.tz;
             point.red = (color & 0xFF0000) >> 16;
             point.green = (color & 0xFF00) >> 8;
             point.blue  = (color & 0xFF);

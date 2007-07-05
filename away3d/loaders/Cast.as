@@ -1,7 +1,7 @@
 package away3d.loaders
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
 

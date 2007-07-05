@@ -1,9 +1,5 @@
-package away3d.core.proto
+package away3d.core.scene
 {
-    import away3d.core.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
-
     /** Base abstract class for all actions on the whole scene */
     public class Traverser
     {
@@ -16,7 +12,7 @@ package away3d.core.proto
         {
         }
 
-        public function leave(node:Object3D):void
+        public function leave():void
         {
         }
 

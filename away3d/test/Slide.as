@@ -7,7 +7,7 @@ package away3d.test
     import flash.ui.Keyboard;
     import flash.geom.*;
 
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.render.*;
     
     /** Slide of the demo */ 

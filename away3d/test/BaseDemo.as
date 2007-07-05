@@ -10,7 +10,7 @@ package away3d.test
     import away3d.cameras.*;
     import away3d.objects.*;
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.render.*;
 
     /** Base class for Away3D demos */ 
@@ -176,7 +176,7 @@ package away3d.test
             camera.panangle = 0;
             camera.targetpanangle = 230;
 
-            camera.mintiltangle = -90;
+            camera.mintiltangle = -10;
 
             view.camera = camera;
     
@@ -272,7 +272,6 @@ package away3d.test
                 time = getTimer();
 
             slide.scene.updateTime(time);
-            slide.scene.updatePhysics(1/stage.frameRate);
             //slide.scene.render(camera, slide.renderer/*, new ClipRectRenderer()*/);
             view.render();
             

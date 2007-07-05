@@ -1,8 +1,7 @@
-package away3d.core.proto
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
     import away3d.core.draw.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
@@ -44,7 +43,7 @@ package away3d.core.proto
     
         public function getView():Matrix3D
         {
-            return Matrix3D.inverse(Matrix3D.multiply(transform, _flipY));
+            return Matrix3D.inverse(Matrix3D.multiply(scene ? world : transform, _flipY));
         }
     
         public function screen(object:Object3D, vertex:Vertex3D = null):Vertex2D
@@ -52,7 +51,7 @@ package away3d.core.proto
             if (vertex == null)
                 vertex = new Vertex3D(0,0,0);
 
-            return vertex.project(new Projection(Matrix3D.multiply(getView(), object.relative()), focus, zoom));
+            return vertex.project(new Projection(Matrix3D.multiply(getView(), object.world), focus, zoom));
         }
     
         private static var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);

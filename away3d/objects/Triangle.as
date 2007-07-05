@@ -2,7 +2,7 @@ package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
@@ -43,12 +43,12 @@ package away3d.objects
             var uvb:NumberUV = new NumberUV(1, 0);
             var uvc:NumberUV = new NumberUV(0, 1);
 
-            addVertex3D(a);
-            addVertex3D(b);
-            addVertex3D(c);
+            vertices.push(a);
+            vertices.push(b);
+            vertices.push(c);
 
-            addFace3D(new Face3D(a, b, c, null, uva, uvb, uvc));
-            addFace3D(new Face3D(a, c, b, null, uva, uvc, uvb));
+            faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
+            faces.push(new Face3D(a, c, b, null, uva, uvc, uvb));
 
             if (bordermaterial == null)
                 bordermaterial = new WireframeMaterial(0x000000);

@@ -3,7 +3,7 @@ package away3d.core.draw
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
 
@@ -22,7 +22,7 @@ package away3d.core.draw
         public var uv2:NumberUV;
         public var area:Number;
 
-        public var face:Face3D;
+        public var face:Face;
 
         public var material:ITriangleMaterial;
 

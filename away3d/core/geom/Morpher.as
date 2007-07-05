@@ -2,7 +2,7 @@ package away3d.core.geom
 {
     import away3d.core.*;
     import away3d.core.geom.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     
     /** Keyframe animation morpher */
     public class Morpher extends Object3D

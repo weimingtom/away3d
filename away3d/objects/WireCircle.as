@@ -2,7 +2,7 @@ package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
@@ -30,7 +30,7 @@ package away3d.objects
             for (var ix:int = 0; ix < segmentsR; ix++)
             {
                 var u:Number = ix / segmentsR * 2 * Math.PI;
-                addVertex3D(new Vertex3D(radius*Math.cos(u), 0, radius*Math.sin(u)));
+                vertices.push(new Vertex3D(radius*Math.cos(u), 0, radius*Math.sin(u)));
             }
 
             for (ix = 0; ix < segmentsR; ix++)

@@ -7,7 +7,7 @@ package away3d.extrusions
     import away3d.core.geom.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.render.*;
     
     import flash.geom.*;
@@ -80,11 +80,11 @@ package away3d.extrusions
                         vx = vec.x;
                         vy = vec.y;
                         vz = vec.z;
-                        sx = vx * sTransform.n11 + vy * sTransform.n12 + vz * sTransform.n13 + sTransform.n14;
-                        sy = vx * sTransform.n21 + vy * sTransform.n22 + vz * sTransform.n23 + sTransform.n24;
-                        sz = vx * sTransform.n31 + vy * sTransform.n32 + vz * sTransform.n33 + sTransform.n34;
+                        sx = vx * sTransform.sxx + vy * sTransform.sxy + vz * sTransform.sxz + sTransform.tx;
+                        sy = vx * sTransform.syx + vy * sTransform.syy + vz * sTransform.syz + sTransform.ty;
+                        sz = vx * sTransform.szx + vy * sTransform.szy + vz * sTransform.szz + sTransform.tz;
                         var oVtx:Vertex3D = new Vertex3D(sx + fPos.x, sy + fPos.y, sz + fPos.z);
-                        addVertex3D(oVtx);
+                        vertices.push(oVtx);
                         aRow.push(oVtx);
                     }
                     aVtc.push(aRow);
@@ -150,7 +150,7 @@ package away3d.extrusions
                         mat.setUVPoint(t4, aP4);
                     } else if (isTransform) {
                         oldLengthH = lengthH;
-                        lengthH += Number3D.sub(aP1.position, aP2.position).modulo;
+                        lengthH += Number3D.sub(aP1, aP2).modulo;
                         t1.x = lengthH;
                         t1.y = lengthV;
                         t2.x = oldLengthH;
@@ -191,8 +191,8 @@ package away3d.extrusions
                     aP4uv = new NumberUV(t4.x,t4.y);
                     if (mat.repeat || insideShape([test1,test2,test3,test4], [t1,t2,t3,t4])) {
                         // 2 faces
-                        addFace3D( new Face3D(aP1,aP2,aP3, mat as ITriangleMaterial, aP1uv,aP2uv,aP3uv) );
-                        addFace3D( new Face3D(aP1,aP3,aP4, mat as ITriangleMaterial, aP1uv,aP3uv,aP4uv) );
+                        faces.push( new Face3D(aP1,aP2,aP3, mat as ITriangleMaterial, aP1uv,aP2uv,aP3uv) );
+                        faces.push( new Face3D(aP1,aP3,aP4, mat as ITriangleMaterial, aP1uv,aP3uv,aP4uv) );
                     }
                 }
             }

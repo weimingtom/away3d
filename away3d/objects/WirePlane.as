@@ -1,7 +1,7 @@
 package away3d.objects
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
     
@@ -35,7 +35,7 @@ package away3d.objects
         {
             for (var ix:int = 0; ix < segmentsW + 1; ix++)
                 for (var iy:int = 0; iy < segmentsH + 1; iy++)
-                    addVertex3D(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
+                    vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
 
             for (ix = 0; ix < segmentsW; ix++)
                 for (iy = 0; iy < segmentsH + 1; iy++)

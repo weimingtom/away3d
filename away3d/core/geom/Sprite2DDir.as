@@ -1,7 +1,7 @@
 package away3d.core.geom
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
     import away3d.core.draw.*;
@@ -54,8 +54,8 @@ package away3d.core.geom
 
             var sc:Vertex2D = center.project(projection);
             if (!sc.visible)
-            	return;
-            	
+                return;
+                
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
 
             consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling));

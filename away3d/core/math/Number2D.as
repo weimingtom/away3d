@@ -25,7 +25,7 @@ package away3d.core.math
             return Math.sqrt(x*x + y*y);
         }
     
-        public static function scale( v:Number2D, s:Number ):Number2D
+        public static function scale(v:Number2D, s:Number):Number2D
         {
             return new Number2D
             (

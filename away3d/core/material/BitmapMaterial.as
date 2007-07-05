@@ -2,7 +2,7 @@ package away3d.core.material
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
@@ -17,12 +17,6 @@ package away3d.core.material
         public var debug:Boolean;
         public var repeat:Boolean;
         
-        public var bounce:Number;
-		public var friction:Number;
-		public var traction:Number;
-		
-		internal var mapping:Matrix, v0:Vertex2D, v1:Vertex2D, v2:Vertex2D, graphics:Graphics;
-		
         public function get width():Number
         {
             return bitmap.width;
@@ -46,11 +40,11 @@ package away3d.core.material
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            mapping = tri.texturemapping || tri.transformUV(this);
-            v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
-            graphics = session.graphics;
+            var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
+            var v0:Vertex2D = tri.v0;
+            var v1:Vertex2D = tri.v1;
+            var v2:Vertex2D = tri.v2;
+            var graphics:Graphics = session.graphics;
 
             RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 

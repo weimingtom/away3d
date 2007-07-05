@@ -1,7 +1,6 @@
-package away3d.core.proto
+package away3d.core.scene
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
     import away3d.core.math.*;
 
     /** Container that is drawn only if its scaling to to perspective fall within given range */ 
@@ -21,10 +20,12 @@ package away3d.core.proto
                 addChild(child);
         }
 
-        public function matchLOD(view:View3D):Boolean
+        public function matchLOD(view:View3D, transform:Matrix3D):Boolean
         {
-            var proj:Matrix3D = Matrix3D.multiply(view.camera.getView(), sceneTransform);
-            var z:Number = proj.n34;
+            var proj:Matrix3D = Matrix3D.multiply(transform, this.transform);
+                              //Matrix3D.multiply(view.camera.getView(), transform);
+
+            var z:Number = proj.tz;
             var persp:Number = view.camera.zoom / (1 + z / view.camera.focus);
 
             if (persp < minp)

@@ -1,7 +1,7 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.block.*;
@@ -19,12 +19,12 @@ package away3d.core.render
             super(view);
         }
 
-        public override function apply(node:Object3D):void
+        public override function apply(object:Object3D):void
         {
-            if (node is IBlockerProvider)
+            if (object is IBlockerProvider)
             {
-                var provider:IBlockerProvider = (node as IBlockerProvider);
-                var projection:Projection = new Projection(view, node.sceneTransform);
+                var provider:IBlockerProvider = (object as IBlockerProvider);
+                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
                 provider.blockers(projection, consumer);
             }
         }

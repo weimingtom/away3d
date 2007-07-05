@@ -1,4 +1,4 @@
-package away3d.core.proto
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.geom.*;
@@ -30,9 +30,9 @@ package away3d.core.proto
             this.specular = specular * distance * distance;
         }
 
-        public function light(projection:Projection, consumer:ILightConsumer):void
+        public function light(transform:Matrix3D, consumer:ILightConsumer):void
         {
-            consumer.pointLight(projection, color, ambient, diffuse, specular);
+            consumer.pointLight(transform, color, ambient, diffuse, specular);
         }
 
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void

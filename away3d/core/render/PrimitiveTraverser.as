@@ -1,7 +1,7 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
@@ -18,19 +18,22 @@ package away3d.core.render
             super(view);
         }
 
-        public override function apply(node:Object3D):void
+        public override function apply(object:Object3D):void
         {
-            var projection:Projection = new Projection(view, node.sceneTransform);
-            if (node is IPrimitiveProvider)
+            if (object is IPrimitiveProvider)
             {
-                var provider:IPrimitiveProvider = (node as IPrimitiveProvider);
+//                if (object != null)
+//                    throw new Error("We do need primitives");
+
+                var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
+                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
                 provider.primitives(projection, consumer);
             }
 
-            if (node is ILightProvider)
+            if (object is ILightProvider)
             {
-                var lightsource:ILightProvider = (node as ILightProvider);
-                lightsource.light(projection, lights);
+                var lightsource:ILightProvider = (object as ILightProvider);
+                lightsource.light(transform, lights);
             }
         }
 

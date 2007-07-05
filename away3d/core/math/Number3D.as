@@ -3,7 +3,7 @@ package away3d.core.math
     /** A point in 3D space. */
     public class Number3D
     {
-        /** Horizontal coordinate. */
+        /** Horizontal coordinate. */ 
         public var x:Number;
     
         /** Vertical coordinate. */
@@ -26,24 +26,24 @@ package away3d.core.math
     
         public function get modulo():Number
         {
-            return Math.sqrt(modulo2);
+            return Math.sqrt(x*x + y*y + z*z);
         }
     
         public function get modulo2():Number
         {
             return x*x + y*y + z*z;
         }
+    
+        public static function scale( v:Number3D, s:Number ):Number3D
+        {
+            return new Number3D
+            (
+                v.x * s,
+                v.y * s,
+                v.z * s
+            );
+        }  
         
-    	public static function scale( v:Number3D, s:Number ):Number3D
-		{
-			return new Number3D
-			(
-				v.x * s,
-				v.y * s,
-				v.z * s
-			);
-		}  
-		
         public static function add(v:Number3D, w:Number3D):Number3D
         {
             return new Number3D
@@ -78,17 +78,17 @@ package away3d.core.math
                 (w.x * v.y) - (w.y * v.x)
            );
         }
-		
-		public static function getAngle(v:Number3D, w:Number3D = null):Number
-		{
-			if (w == null) w = new Number3D();
-			return Math.acos(Number3D.dot(v, w)/(v.modulo*w.modulo));
-		}
-		
+    
+        public static function getAngle(v:Number3D, w:Number3D = null):Number
+        {
+            if (w == null) w = new Number3D();
+            return Math.acos(Number3D.dot(v, w)/(v.modulo*w.modulo));
+        }
+        
         public function normalize(val:Number = 1):void
         {
             var mod:Number = modulo*val;
-            
+    
             if (mod != 0 && mod != 1)
             {
                 x /= mod;
@@ -100,9 +100,9 @@ package away3d.core.math
         public function rotate(m:Matrix3D):Number3D
         {
             var v:Number3D = new Number3D(
-                    x * m.n11 + y * m.n12 + z * m.n13,
-                    x * m.n21 + y * m.n22 + z * m.n23,
-                    x * m.n31 + y * m.n32 + z * m.n33);
+                    x * m.sxx + y * m.sxy + z * m.sxz,
+                    x * m.syx + y * m.syy + z * m.syz,
+                    x * m.szx + y * m.szy + z * m.szz);
             v.normalize();
             return v;
         }
@@ -115,13 +115,13 @@ package away3d.core.math
         public static var UP      :Number3D = new Number3D( 0,  1,  0);
         public static var DOWN    :Number3D = new Number3D( 0, -1,  0);
         
-    	
-    	public static function closestPointOnPlane(p:Number3D, k:Number3D, n:Number3D):Number3D
-    	{
-    		var distance:Number = Number3D.dot(n, Number3D.sub(p, k));
-    		return Number3D.sub(p, Number3D.scale(n, distance));
-    	}
-    	
+        
+        public static function closestPointOnPlane(p:Number3D, k:Number3D, n:Number3D):Number3D
+        {
+            var distance:Number = Number3D.dot(n, Number3D.sub(p, k));
+            return Number3D.sub(p, Number3D.scale(n, distance));
+        }
+    
         public function toString(): String
         {
             return 'x:' + x + ' y:' + y + ' z:' + z;
