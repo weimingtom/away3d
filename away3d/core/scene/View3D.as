@@ -34,9 +34,6 @@ package away3d.core.scene
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
         public var renderer:IRenderer;
 
-        /** Object for subscribing to events */
-//        public var events:EventDispatcher;
-
         /** Create new View3D */
         public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
         {
@@ -44,8 +41,6 @@ package away3d.core.scene
             this.camera = camera || new Camera3D({x:1000, y:1000, z:1000, lookat:new Object3D()});
             this.renderer = renderer || new BasicRenderer();
             
-//            events = new EventDispatcher();
-
             background = new Sprite();
             addChild(background);
             canvas = new Sprite();
@@ -128,10 +123,11 @@ package away3d.core.scene
             dispatchMouseEvent(event);
 
             var target:Object3D = event.object;
+
             while (target != null)
             {
                 if (target.dispatchMouseEvent(event))
-                    ; // break;
+                    break;
                 target = target.parent;
             }
         /*
@@ -156,7 +152,7 @@ package away3d.core.scene
 
         public function addOnMouseMove(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false, 0, true);
+            addEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false, 0, false);
         }
         public function removeOnMouseMove(listener:Function):void
         {
@@ -165,7 +161,7 @@ package away3d.core.scene
 
         public function addOnMouseDown(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false, 0, true);
+            addEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false, 0, false);
         }
         public function removeOnMouseDown(listener:Function):void
         {
@@ -174,7 +170,7 @@ package away3d.core.scene
 
         public function addOnMouseUp(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_UP+"3D", listener, false, 0, true);
+            addEventListener(MouseEvent.MOUSE_UP+"3D", listener, false, 0, false);
         }
         public function removeOnMouseUp(listener:Function):void
         {

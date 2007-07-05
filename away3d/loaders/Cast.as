@@ -6,6 +6,7 @@ package away3d.loaders
     import away3d.core.material.*;
 
     import flash.display.BitmapData;
+    import flash.utils.ByteArray;
     //import mx.core.BitmapAsset;
 
     /** Helper class for casting assets to usable objects */
@@ -20,6 +21,17 @@ package away3d.loaders
                 return data;
 
             return String(data);
+        }
+    
+        public static function bytearray(data:*):ByteArray
+        {
+            if (data is Class)
+                data = new data;
+
+            if (data is ByteArray)
+                return data;
+
+            return ByteArray(data);
         }
     
         public static function xml(data:*):XML
