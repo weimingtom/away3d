@@ -38,20 +38,20 @@ package away3d.core.scene
             var lookat:Object3D = init.getObject3D("lookat");
 
             if (lookat != null)
-                lookAt(lookat);
+                lookAt(lookat.position);
         }
     
-        public function getView():Matrix3D
+        public function get view():Matrix3D
         {
             return Matrix3D.inverse(Matrix3D.multiply(scene ? world : transform, _flipY));
         }
     
-        public function screen(object:Object3D, vertex:Vertex3D = null):Vertex2D
+        public function screen(object:Object3D, vertex:Vertex3D = null):ScreenVertex
         {
             if (vertex == null)
                 vertex = new Vertex3D(0,0,0);
 
-            return vertex.project(new Projection(Matrix3D.multiply(getView(), object.world), focus, zoom));
+            return vertex.project(new Projection(Matrix3D.multiply(view, object.world), focus, zoom));
         }
     
         private static var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);

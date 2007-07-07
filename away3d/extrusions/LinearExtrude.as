@@ -46,7 +46,7 @@ package away3d.extrusions
             }
             var iVerNum:int = aVtc.length;
     
-            var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
+            var aP4uv:UV, aP1uv:UV, aP2uv:UV, aP3uv:UV;
             var aP1:Vertex3D, aP2:Vertex3D, aP3:Vertex3D, aP4:Vertex3D;
     
             for (j=1;j<iVerNum;j++) {
@@ -64,10 +64,10 @@ package away3d.extrusions
                     var fJ1:Number = (j-1)/(iVerNum - 1);
                     var fI0:Number = iWrapped/iHorNum;
                     var fI1:Number = (iWrapped-1)/iHorNum;
-                    aP4uv = new NumberUV(fI0,fJ1);
-                    aP1uv = new NumberUV(fI0,fJ0);
-                    aP2uv = new NumberUV(fI1,fJ0);
-                    aP3uv = new NumberUV(fI1,fJ1);
+                    aP4uv = new UV(fI0,fJ1);
+                    aP1uv = new UV(fI0,fJ0);
+                    aP2uv = new UV(fI1,fJ0);
+                    aP3uv = new UV(fI1,fJ1);
                     // 2 faces
                     faces.push( new Face3D(aP1,aP2,aP3, null, aP1uv,aP2uv,aP3uv) );
                     faces.push( new Face3D(aP1,aP3,aP4, null, aP1uv,aP3uv,aP4uv) );

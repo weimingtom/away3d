@@ -9,7 +9,6 @@ package away3d.objects
     /** Wire sphere */ 
     public class WireSphere extends Mesh3D
     {
-        public var radius:Number = 100;
         public var segmentsW:int = 8;
         public var segmentsH:int = 6;
     
@@ -19,9 +18,9 @@ package away3d.objects
     
             init = Init.parse(init);
 
-            radius = init.getNumber("radius", 100, {min:0});
             segmentsW = init.getInt("segmentsW", 1, {min:3});
             segmentsH = init.getInt("segmentsH", 1, {min:2})
+            var radius:Number = init.getNumber("radius", 100, {min:0});
 
             buildSphere(radius);
         }

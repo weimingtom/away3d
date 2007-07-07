@@ -6,8 +6,6 @@ package away3d.core.material
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.display.Graphics;
-
     /** Interface for all material that are capable of drawing line segments */
     public interface ISegmentMaterial extends IMaterial
     {

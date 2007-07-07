@@ -13,17 +13,17 @@ package away3d.core.scene
     
     public class Object3DEvent extends Event
     {
-        public var object3D:Object3D;
+        public var object:Object3D;
 
-        public function Object3DEvent(type:String, object3D:Object3D)
+        public function Object3DEvent(type:String, object:Object3D)
         {
             super(type);
-            this.object3D = object3D;
+            this.object = object;
         }
 
         public override function clone():Event
         {
-            return new Object3DEvent(type, object3D);
+            return new Object3DEvent(type, object);
         }
     }
 }

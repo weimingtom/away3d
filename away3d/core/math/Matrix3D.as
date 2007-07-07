@@ -202,15 +202,15 @@ package away3d.core.math
             var sv:Number = nSin * v;
             var su:Number = nSin * u;
     
-            m.sxx =  nCos + u * u * scos;
-            m.sxy = -sw   + suv;
-            m.sxz =  sv   + suw;
+            m.sxx =  nCos + u * u * scos;       // nCos + u*u*(1-nCos)
+            m.sxy = -sw   + suv;                                                         // -nSin * w
+            m.sxz =  sv   + suw;                                                         // -nSin * v
     
-            m.syx =  sw   + suv;
+            m.syx =  sw   + suv;                // nSin*w + u*v*(1-nCos)
             m.syy =  nCos + v * v * scos;
             m.syz = -su   + svw;
     
-            m.szx = -sv   + suw;
+            m.szx = -sv   + suw;                // -nSin*v + u*w*(1-nCos)
             m.szy =  su   + svw;
             m.szz =  nCos + w * w * scos;
     

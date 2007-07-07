@@ -1,6 +1,3 @@
-/**
- * @author Philippe Ajoux (philippe.ajoux@gmail.com)
- */
 package away3d.loaders
 {
     import away3d.core.*;
@@ -78,7 +75,7 @@ package away3d.loaders
             //      Load them!
             data.position = offset_st;
             for (i = 0; i < num_st; i++)
-                uvs.push(new NumberUV(data.readShort() / skinwidth, 1 - ( data.readShort() / skinheight) ));
+                uvs.push(new UV(data.readShort() / skinwidth, 1 - ( data.readShort() / skinheight) ));
 
             // Faces
             //      Creates the faces with the proper references to vertices

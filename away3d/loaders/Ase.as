@@ -106,7 +106,7 @@ package away3d.loaders
                             textureline = textureline.substr(textureline.indexOf('*') + 1);
 
                             var mtvl:Array = textureline.split('\t');
-                            uvs.push(new NumberUV(parseFloat(mtvl[1]), parseFloat(mtvl[2])));
+                            uvs.push(new UV(parseFloat(mtvl[1]), parseFloat(mtvl[2])));
                         }
                         break;
                     case 'MESH_TFACELIST':

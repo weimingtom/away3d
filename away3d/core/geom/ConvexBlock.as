@@ -12,9 +12,12 @@ package away3d.core.geom
     import flash.geom.*;
     
     /** Convex object blocking all drawing primitives under it */
-    public class ConvexBlock extends Vertices3D implements IBlockerProvider, IPrimitiveProvider
+    public class ConvexBlock extends Object3D implements IBlockerProvider, IPrimitiveProvider
     {
+        use namespace arcane;
+
         public var debug:Boolean;
+        public var vertices:Array = [];
     
         public function ConvexBlock(vertices:Array, init:Object = null)
         {
@@ -44,10 +47,14 @@ package away3d.core.geom
                 return null;
 
             var points:Array = [];
-            var base:Vertex2D = null;
-            var v:Vertex2D;
-            for each (var vr:Vertex3D in vertices)
+            var base:ScreenVertex = null;
+            var v:ScreenVertex;
+            var s:String = "";
+            var p:String = "";
+            for each (var vr:* /*Vertex*/ in vertices)
             {
+                s += vr.toString() + "\n";
+
                 v = vr.project(projection);
 
                 if (base == null)
@@ -61,7 +68,10 @@ package away3d.core.geom
                         base = v;
 
                 points.push(v);
+                p += v.toString() + "\n";
             }
+
+//            throw new Error(s + p);
 
             for each (v in points)
                 v.num = (v.x - base.x) / (v.y - base.y);
@@ -91,7 +101,7 @@ package away3d.core.geom
             return new ConvexBlocker(result);
         }
 
-        private static function cross(a:Vertex2D, b:Vertex2D, c:Vertex2D):Number
+        private static function cross(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex):Number
         {
             return (b.x - a.x)*(c.y - a.y) - (c.x - a.x)*(b.y - a.y);
         }

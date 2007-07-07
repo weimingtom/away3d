@@ -6,7 +6,6 @@ package away3d.core.material
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.display.Graphics;
     import flash.display.BitmapData;
     import flash.geom.Matrix;
 
@@ -32,21 +31,14 @@ package away3d.core.material
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
 
-            var v0:Vertex2D = tri.v0;
-            var v1:Vertex2D = tri.v1;
-            var v2:Vertex2D = tri.v2;
+            var v0:ScreenVertex = tri.v0;
+            var v1:ScreenVertex = tri.v1;
+            var v2:ScreenVertex = tri.v2;
 
             renderRec(session, tri.projection, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 
             if (debug)
-            {
-                var graphics:Graphics = session.graphics;
-                graphics.lineStyle(2, 0xFFFFFF);
-                graphics.moveTo(tri.v0.x, tri.v0.y);
-                graphics.lineTo(tri.v1.x, tri.v1.y);
-                graphics.lineTo(tri.v2.x, tri.v2.y);
-                graphics.lineTo(tri.v0.x, tri.v0.y);
-            }
+                session.renderTriangleLine(2, 0x0000FF, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         }
 
         protected function renderRec(session:RenderSession, projection:Projection,
@@ -60,18 +52,11 @@ package away3d.core.material
                 return;
 
             var focus:Number = projection.focus;
-            var graphics:Graphics = session.graphics;
             if ((focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
-                RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
+                session.renderTriangleBitmap(bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
                 if (debug)
-                {
-                    graphics.lineStyle(1, 0x00FF00);
-                    graphics.moveTo(ax, ay);
-                    graphics.lineTo(bx, by);
-                    graphics.lineTo(cx, cy);
-                    graphics.lineTo(ax, ay);
-                }
+                    session.renderTriangleLine(1, 0x00FF00, 1, ax, ay, bx, by, cx, cy);
                 return;
             }
 
@@ -103,15 +88,9 @@ package away3d.core.material
 
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
-                RenderTriangle.renderBitmap(graphics, bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
+                session.renderTriangleBitmap(bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
                 if (debug)
-                {
-                    graphics.lineStyle(1, 0x0000FF);
-                    graphics.moveTo(ax, ay);
-                    graphics.lineTo(bx, by);
-                    graphics.lineTo(cx, cy);
-                    graphics.lineTo(ax, ay);
-                }
+                    session.renderTriangleLine(1, 0x00FF00, 1, ax, ay, bx, by, cx, cy);
                 return;
             }
 

@@ -35,9 +35,9 @@ package away3d.core.material
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            var v0:Vertex2D = tri.v0;
-            var v1:Vertex2D = tri.v1;
-            var v2:Vertex2D = tri.v2;
+            var v0:ScreenVertex = tri.v0;
+            var v1:ScreenVertex = tri.v1;
+            var v2:ScreenVertex = tri.v2;
             var projection:Projection = tri.projection;
             var focus:Number = projection.focus;
             var zoom:Number = projection.zoom;

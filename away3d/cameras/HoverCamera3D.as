@@ -36,11 +36,11 @@ package away3d.cameras
             update();
         }
 
-        public override function getView():Matrix3D
+        public override function get view():Matrix3D
         {
-            this.lookAt(this.target);
+            lookAt(target.position);
     
-            return super.getView();
+            return super.view;
         }
 
         /** Hover camera around the object @return <code>true</code> if camera changed position */

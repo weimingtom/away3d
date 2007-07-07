@@ -14,12 +14,14 @@ package away3d.core.draw
     /** Triangle drawing primitive */
     public class DrawTriangle extends DrawPrimitive
     {
-        public var v0:Vertex2D;
-        public var v1:Vertex2D;
-        public var v2:Vertex2D;
-        public var uv0:NumberUV;
-        public var uv1:NumberUV;
-        public var uv2:NumberUV;
+        use namespace arcane;
+
+        public var v0:ScreenVertex;
+        public var v1:ScreenVertex;
+        public var v2:ScreenVertex;
+        public var uv0:UV;
+        public var uv1:UV;
+        public var uv2:UV;
         public var area:Number;
 
         public var face:Face;
@@ -46,41 +48,41 @@ package away3d.core.draw
 
         public function maxEdgeSqr():Number
         {
-            var d01:Number = Vertex2D.distanceSqr(v0, v1);
-            var d12:Number = Vertex2D.distanceSqr(v1, v2);
-            var d20:Number = Vertex2D.distanceSqr(v2, v0);
+            var d01:Number = ScreenVertex.distanceSqr(v0, v1);
+            var d12:Number = ScreenVertex.distanceSqr(v1, v2);
+            var d20:Number = ScreenVertex.distanceSqr(v2, v0);
             return Math.max(Math.max(d01, d12), d20);
         }
 
         public function minEdgeSqr():Number
         {
-            var d01:Number = Vertex2D.distanceSqr(v0, v1);
-            var d12:Number = Vertex2D.distanceSqr(v1, v2);
-            var d20:Number = Vertex2D.distanceSqr(v2, v0);
+            var d01:Number = ScreenVertex.distanceSqr(v0, v1);
+            var d12:Number = ScreenVertex.distanceSqr(v1, v2);
+            var d20:Number = ScreenVertex.distanceSqr(v2, v0);
             return Math.min(Math.min(d01, d12), d20);
         }
 
         public function maxDistortSqr(focus:Number):Number
         {
-            var d01:Number = Vertex2D.distortSqr(v0, v1, focus);
-            var d12:Number = Vertex2D.distortSqr(v1, v2, focus);
-            var d20:Number = Vertex2D.distortSqr(v2, v0, focus);
+            var d01:Number = ScreenVertex.distortSqr(v0, v1, focus);
+            var d12:Number = ScreenVertex.distortSqr(v1, v2, focus);
+            var d20:Number = ScreenVertex.distortSqr(v2, v0, focus);
             return Math.max(Math.max(d01, d12), d20);
         }
 
         public function minDistortSqr(focus:Number):Number
         {
-            var d01:Number = Vertex2D.distortSqr(v0, v1, focus);
-            var d12:Number = Vertex2D.distortSqr(v1, v2, focus);
-            var d20:Number = Vertex2D.distortSqr(v2, v0, focus);
+            var d01:Number = ScreenVertex.distortSqr(v0, v1, focus);
+            var d12:Number = ScreenVertex.distortSqr(v1, v2, focus);
+            var d20:Number = ScreenVertex.distortSqr(v2, v0, focus);
             return Math.min(Math.min(d01, d12), d20);
         }
 
         public function acuteAngled():Boolean
         {
-            var d01:Number = Vertex2D.distanceSqr(v0, v1);
-            var d12:Number = Vertex2D.distanceSqr(v1, v2);
-            var d20:Number = Vertex2D.distanceSqr(v2, v0);
+            var d01:Number = ScreenVertex.distanceSqr(v0, v1);
+            var d12:Number = ScreenVertex.distanceSqr(v1, v2);
+            var d20:Number = ScreenVertex.distanceSqr(v2, v0);
             var dd01:Number = d01 * d01;
             var dd12:Number = d12 * d12;
             var dd20:Number = d20 * d20;
@@ -91,12 +93,12 @@ package away3d.core.draw
         {
             var width:Number = material.width;
             var height:Number = material.height;
-            var u0:Number = width * uv0.u;
-            var u1:Number = width * uv1.u;
-            var u2:Number = width * uv2.u;
-            var v0:Number = height * (1 - uv0.v);
-            var v1:Number = height * (1 - uv1.v);
-            var v2:Number = height * (1 - uv2.v);
+            var u0:Number = width * uv0._u;
+            var u1:Number = width * uv1._u;
+            var u2:Number = width * uv2._u;
+            var v0:Number = height * (1 - uv0._v);
+            var v1:Number = height * (1 - uv1._v);
+            var v2:Number = height * (1 - uv2._v);
     
             // Fix perpendicular projections
             if ((u0 == u1 && v0 == v1) || (u0 == u2 && v0 == v2))
@@ -111,9 +113,9 @@ package away3d.core.draw
                 v2 -= (v2 > 0.06) ? 0.06 : -0.06;
             }
                                         //ww
-            var m:Matrix = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
-            m.invert();
-            return m;
+            var texturemapping:Matrix = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
+            texturemapping.invert();
+            return texturemapping;
         }
 
         public override function riddle(another:DrawTriangle, focus:Number):Array
@@ -249,20 +251,20 @@ package away3d.core.draw
 
                 return fivepointcut(source, material, projection,
                     v2,  Vertex3D.weighted(tv2, tv0, -sv0, sv2).perspective(focus), v0, Vertex3D.weighted(tv0, tv1, sv1, -sv0).perspective(focus), v1,
-                    uv2, NumberUV.weighted(uv2, uv0, -sv0, sv2), uv0, NumberUV.weighted(uv0, uv1, sv1, -sv0), uv1);
+                    uv2, UV.weighted(uv2, uv0, -sv0, sv2), uv0, UV.weighted(uv0, uv1, sv1, -sv0), uv1);
             }                                                           
             else                                                        
             if (sv0*sv1 >= -1)                                           
             {
                 return fivepointcut(source, material, projection,
                     v1,  Vertex3D.weighted(tv1, tv2, -sv2, sv1).perspective(focus), v2, Vertex3D.weighted(tv2, tv0, sv0, -sv2).perspective(focus), v0,
-                    uv1, NumberUV.weighted(uv1, uv2, -sv2, sv1), uv2, NumberUV.weighted(uv2, uv0, sv0, -sv2), uv0);
+                    uv1, UV.weighted(uv1, uv2, -sv2, sv1), uv2, UV.weighted(uv2, uv0, sv0, -sv2), uv0);
             }                                                           
             else                                                        
             {                                                           
                 return fivepointcut(source, material, projection,
                     v0,  Vertex3D.weighted(tv0, tv1, -sv1, sv0).perspective(focus), v1, Vertex3D.weighted(tv1, tv2, sv2, -sv1).perspective(focus), v2,
-                    uv0, NumberUV.weighted(uv0, uv1, -sv1, sv0), uv1, NumberUV.weighted(uv1, uv2, sv2, -sv1), uv2);
+                    uv0, UV.weighted(uv0, uv1, -sv1, sv0), uv1, UV.weighted(uv1, uv2, sv2, -sv1), uv2);
             }
 
             return null;    
@@ -358,7 +360,7 @@ package away3d.core.draw
             return (da*az + db*bz + dc*cz) / det;
         }
 
-        public function getUV(x:Number, y:Number):NumberUV
+        public function getUV(x:Number, y:Number):UV
         {
             if (uv0 == null)
                 return null;
@@ -369,12 +371,12 @@ package away3d.core.draw
             if (uv2 == null)
                 return null;
 
-            var au:Number = uv0.u;
-            var av:Number = uv0.v;
-            var bu:Number = uv1.u;
-            var bv:Number = uv1.v;
-            var cu:Number = uv2.u;
-            var cv:Number = uv2.v;
+            var au:Number = uv0._u;
+            var av:Number = uv0._v;
+            var bu:Number = uv1._u;
+            var bv:Number = uv1._v;
+            var cu:Number = uv2._u;
+            var cv:Number = uv2._v;
 
             var focus:Number = projection.focus;
 
@@ -417,12 +419,12 @@ package away3d.core.draw
             var db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y);
             var dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
 
-            return new NumberUV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
+            return new UV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
 
-        public static function fivepointcut(source:Object3D, material:ITriangleMaterial, projection:Projection, v0:Vertex2D, v01:Vertex2D, v1:Vertex2D, v12:Vertex2D, v2:Vertex2D, uv0:NumberUV, uv01:NumberUV, uv1:NumberUV, uv12:NumberUV, uv2:NumberUV):Array
+        public static function fivepointcut(source:Object3D, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
         {
-            if (Vertex2D.distanceSqr(v0, v12) < Vertex2D.distanceSqr(v01, v2))
+            if (ScreenVertex.distanceSqr(v0, v12) < ScreenVertex.distanceSqr(v01, v2))
             {
                 return [
                     create(source, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
@@ -536,9 +538,9 @@ package away3d.core.draw
 
         public function bisect(focus:Number):Array
         {
-            var d01:Number = Vertex2D.distanceSqr(v0, v1);
-            var d12:Number = Vertex2D.distanceSqr(v1, v2);
-            var d20:Number = Vertex2D.distanceSqr(v2, v0);
+            var d01:Number = ScreenVertex.distanceSqr(v0, v1);
+            var d12:Number = ScreenVertex.distanceSqr(v1, v2);
+            var d20:Number = ScreenVertex.distanceSqr(v2, v0);
 
             if ((d12 >= d01) && (d12 >= d20))
                 return bisect12(focus);
@@ -551,9 +553,9 @@ package away3d.core.draw
 
         public function distortbisect(focus:Number):Array
         {
-            var d01:Number = Vertex2D.distortSqr(v0, v1, focus);
-            var d12:Number = Vertex2D.distortSqr(v1, v2, focus);
-            var d20:Number = Vertex2D.distortSqr(v2, v0, focus);
+            var d01:Number = ScreenVertex.distortSqr(v0, v1, focus);
+            var d12:Number = ScreenVertex.distortSqr(v1, v2, focus);
+            var d20:Number = ScreenVertex.distortSqr(v2, v0, focus);
 
             if ((d12 >= d01) && (d12 >= d20))
                 return bisect12(focus);
@@ -566,8 +568,8 @@ package away3d.core.draw
 
         private function bisect01(focus:Number):Array
         {
-            var v01:Vertex2D = Vertex2D.median(v0, v1, focus);
-            var uv01:NumberUV = NumberUV.median(uv0, uv1);
+            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
+            var uv01:UV = UV.median(uv0, uv1);
             return [
                 create(source, material, projection, v2, v0, v01, uv2, uv0, uv01),
                 create(source, material, projection, v01, v1, v2, uv01, uv1, uv2) 
@@ -576,8 +578,8 @@ package away3d.core.draw
 
         private function bisect12(focus:Number):Array
         {
-            var v12:Vertex2D = Vertex2D.median(v1, v2, focus);
-            var uv12:NumberUV = NumberUV.median(uv1, uv2);
+            var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus);
+            var uv12:UV = UV.median(uv1, uv2);
             return [
                 create(source, material, projection, v0, v1, v12, uv0, uv1, uv12),
                 create(source, material, projection, v12, v2, v0, uv12, uv2, uv0) 
@@ -586,8 +588,8 @@ package away3d.core.draw
 
         private function bisect20(focus:Number):Array
         {
-            var v20:Vertex2D = Vertex2D.median(v2, v0, focus);
-            var uv20:NumberUV = NumberUV.median(uv2, uv0);
+            var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus);
+            var uv20:UV = UV.median(uv2, uv0);
             return [
                 create(source, material, projection, v1, v2, v20, uv1, uv2, uv20),
                 create(source, material, projection, v20, v0, v1, uv20, uv0, uv1) 
@@ -599,12 +601,12 @@ package away3d.core.draw
             if (area < 20)
                 return null;
 
-            var v01:Vertex2D = Vertex2D.median(v0, v1, focus);
-            var v12:Vertex2D = Vertex2D.median(v1, v2, focus);
-            var v20:Vertex2D = Vertex2D.median(v2, v0, focus);
-            var uv01:NumberUV = NumberUV.median(uv0, uv1);
-            var uv12:NumberUV = NumberUV.median(uv1, uv2);
-            var uv20:NumberUV = NumberUV.median(uv2, uv0);
+            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
+            var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus);
+            var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus);
+            var uv01:UV = UV.median(uv0, uv1);
+            var uv12:UV = UV.median(uv1, uv2);
+            var uv20:UV = UV.median(uv2, uv0);
 
             return [
                 create(source, material, projection, v0, v01, v20, uv0, uv01, uv20),
@@ -637,7 +639,7 @@ package away3d.core.draw
         }
 
         public static function create(source:Object3D, material:ITriangleMaterial, projection:Projection,
-            v0:Vertex2D, v1:Vertex2D, v2:Vertex2D, uv0:NumberUV, uv1:NumberUV, uv2:NumberUV):DrawTriangle
+            v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
         {
             var tri:DrawTriangle = new DrawTriangle();
             tri.source = source;
@@ -684,24 +686,6 @@ package away3d.core.draw
         private static function num(n:Number):Number
         {
             return int(n*1000)/1000;
-        }
-
-        public static function test():void
-        {
-        /*
-            var t1:DrawTriangle = DrawTriangle.create(null, null, null,
-                new Vertex2D(100,  100, 100),
-                new Vertex2D(100, -100, 100),
-                new Vertex2D(-40,   0,  100),
-                null, null, null);
-
-            assert(t1.area == 14000);
-            assert(t1.contains(0, 0));
-            assert(!t1.contains(-30, -30));
-            assert(t1.getZ(0, 0, 100) == 100);
-            assert(t1.getZ(0, 0, 200) == 100);
-            assert(t1.getZ(1000, -1000, 200) == 100);
-        */
         }
 
     }

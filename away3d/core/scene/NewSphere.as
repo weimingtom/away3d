@@ -91,11 +91,11 @@ package away3d.core.scene
         public override function tick(time:int):void
         {
             use namespace arcane;
-
+/*
             if (time % 38 == 1)
                 if (faces.length > 0)
-                    removeFace(this._radiusFace/*faces[int(Math.random()*faces.length)]*/);
-
+                    removeFace(this._radiusFace);
+*/
             bothsides = true;
         }
     }

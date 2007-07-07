@@ -52,7 +52,7 @@ package away3d.core.geom
             if (bitmap == null)
                 throw new Error("AAAAAA");
 
-            var sc:Vertex2D = center.project(projection);
+            var sc:ScreenVertex = center.project(projection);
             if (!sc.visible)
                 return;
                 

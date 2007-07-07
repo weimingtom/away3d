@@ -18,7 +18,7 @@ package away3d.core.render
         public var element:Object;
         public var drawpri:DrawPrimitive;
         public var object:Object3D;
-        public var uv:NumberUV;
+        public var uv:UV;
 
         public var worldX:Number;
         public var worldY:Number;
@@ -29,6 +29,11 @@ package away3d.core.render
             super(view);
             screenX = x;
             screenY = y;
+        }
+
+        public override function match(node:Object3D):Boolean
+        {
+            return super.match(node) && node.mousable;
         }
 
         public override function apply(object:Object3D):void
@@ -60,7 +65,7 @@ package away3d.core.render
                     screenZ = z;
 
                     var persp:Number = view.camera.zoom / (1 + screenZ / view.camera.focus);
-                    var inv:Matrix3D = Matrix3D.inverse(view.camera.getView());
+                    var inv:Matrix3D = Matrix3D.inverse(view.camera.view);
 
                     worldX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     worldY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;

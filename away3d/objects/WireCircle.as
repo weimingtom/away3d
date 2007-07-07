@@ -9,23 +9,19 @@ package away3d.objects
     /** Wire circle */ 
     public class WireCircle extends Mesh3D
     {
-        public var segmentsR:int;
-    
-        public var radius:Number;
-
         public function WireCircle(material:ISegmentMaterial, init:Object = null)
         {
             super(material, init);
             
             init = Init.parse(init);
 
-            segmentsR = init.getInt("segmentsR", 8, {min:3});
-            radius = init.getInt("radius", 100, {min:0});
+            var radius:Number = init.getNumber("radius", 100, {min:0});
+            var segmentsR:int = init.getInt("segmentsR", 8, {min:3});
 
-            buildCircle();
+            buildCircle(radius, segmentsR);
         }
     
-        private function buildCircle():void
+        private function buildCircle(radius:Number, segmentsR:int):void
         {
             for (var ix:int = 0; ix < segmentsR; ix++)
             {

@@ -24,7 +24,7 @@ package away3d.core.block
             minY = Infinity;
             for (var i:int = 0; i < vertices.length; i++)
             {
-                var v:Vertex2D = vertices[i];
+                var v:ScreenVertex = vertices[i];
                 boundlines.push(Line2D.from2points(v, vertices[(i+1) % vertices.length]));
                 if (screenZ < v.z)
                     screenZ = v.z;
@@ -69,8 +69,8 @@ package away3d.core.block
                 var prev:Line2D = boundlines[(i-1+boundlines.length) % boundlines.length];
                 var next:Line2D = boundlines[(i+1+boundlines.length) % boundlines.length];
 
-                var a:Vertex2D = Line2D.cross(prev, line);
-                var b:Vertex2D = Line2D.cross(line, next);
+                var a:ScreenVertex = Line2D.cross(prev, line);
+                var b:ScreenVertex = Line2D.cross(line, next);
 
                 graphics.moveTo(a.x, a.y);
                 graphics.lineTo(b.x, b.y);

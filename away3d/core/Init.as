@@ -192,15 +192,15 @@ package away3d.core
             return result;
         }
 
-        public function getMaterial(name:String, def:IMaterial = null):IMaterial
+        public function getMaterial(name:String):IMaterial
         {
             if (init == null)
-                return def;
+                return null;
         
             if (!init.hasOwnProperty(name))
-                return def;
+                return null;
         
-            var result:IMaterial = init[name];
+            var result:IMaterial = Cast.material(init[name]);
 
             delete init[name];
         

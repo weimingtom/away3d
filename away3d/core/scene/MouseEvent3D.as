@@ -26,7 +26,7 @@ package away3d.core.scene
         public var object:Object3D;
         public var element:Object;
         public var drawpri:DrawPrimitive;
-        public var uv:NumberUV;
+        public var uv:UV;
 
         public var ctrlKey:Boolean;
         public var shiftKey:Boolean;

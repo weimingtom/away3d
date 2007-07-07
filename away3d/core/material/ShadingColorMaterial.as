@@ -7,10 +7,8 @@ package away3d.core.material
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.display.Graphics;
     import flash.display.BitmapData;
     import flash.geom.Matrix;
-    import flash.geom.Point;
 
     /** Solid color material that takes lighting into considiration */
     public class ShadingColorMaterial extends CenterLightingMaterial
@@ -30,9 +28,9 @@ package away3d.core.material
 
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            var v0:Vertex2D = tri.v0;
-            var v1:Vertex2D = tri.v1;
-            var v2:Vertex2D = tri.v2;
+            var v0:ScreenVertex = tri.v0;
+            var v1:ScreenVertex = tri.v1;
+            var v2:ScreenVertex = tri.v2;
 
             var fr:int = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
             var fg:int = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
@@ -47,7 +45,7 @@ package away3d.core.material
 
             var color:int = int(fr*0x10000) + int(fg*0x100) + fb;
 
-            RenderTriangle.renderColor(session.graphics, color, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+            session.renderTriangleColor(color, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         }
 
         public override function get visible():Boolean
