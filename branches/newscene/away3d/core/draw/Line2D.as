@@ -18,7 +18,7 @@ package away3d.core.draw
             this.c = c;
         }
 
-        public static function from2points(v0:Vertex2D, v1:Vertex2D):Line2D
+        public static function from2points(v0:ScreenVertex, v1:ScreenVertex):Line2D
         {
             var a:Number = v1.y - v0.y;
             var b:Number = v0.x - v1.x;
@@ -27,16 +27,16 @@ package away3d.core.draw
             return new Line2D(a, b, c);
         }
 
-        public static function cross(u:Line2D, v:Line2D):Vertex2D
+        public static function cross(u:Line2D, v:Line2D):ScreenVertex
         {
             var det:Number = u.a*v.b - u.b*v.a;
             var xd:Number = u.b*v.c - u.c*v.b;
             var yd:Number = v.a*u.c - u.a*v.c;
 
-            return new Vertex2D(xd / det, yd / det, 0);
+            return new ScreenVertex(xd / det, yd / det, 0);
         }
 
-        public function sideV(v:Vertex2D):Number
+        public function sideV(v:ScreenVertex):Number
         {
             return a*v.x + b*v.y + c;
         }
@@ -46,7 +46,7 @@ package away3d.core.draw
             return a*x + b*y + c;
         }
 
-        public function distance(v:Vertex2D):Number
+        public function distance(v:ScreenVertex):Number
         {
             return sideV(v) / Math.sqrt(a*a + b*b);
         }

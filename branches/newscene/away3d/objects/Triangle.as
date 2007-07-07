@@ -39,9 +39,9 @@ package away3d.objects
             var b:Vertex3D = new Vertex3D(edge, - s3 * edge, 0);  
             var c:Vertex3D = new Vertex3D(-edge, - s3 * edge, 0);
 
-            var uva:NumberUV = new NumberUV(0, 0);
-            var uvb:NumberUV = new NumberUV(1, 0);
-            var uvc:NumberUV = new NumberUV(0, 1);
+            var uva:UV = new UV(0, 0);
+            var uvb:UV = new UV(1, 0);
+            var uvc:UV = new UV(0, 1);
 
             vertices.push(a);
             vertices.push(b);

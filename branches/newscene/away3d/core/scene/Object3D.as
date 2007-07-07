@@ -9,26 +9,21 @@ package away3d.core.scene
     {
         use namespace arcane;
 
-        arcane var _transformDirty:Boolean;
-        arcane var _transform:Matrix3D = new Matrix3D();
+        private var _transformDirty:Boolean;
+        private var _transform:Matrix3D = new Matrix3D();
 
-        arcane var _rotationDirty:Boolean;
+        private var _rotationDirty:Boolean;
 
-        arcane var _rotationX:Number = 0;
-        arcane var _rotationY:Number = 0;
-        arcane var _rotationZ:Number = 0;
+        private var _rotationX:Number = 0;
+        private var _rotationY:Number = 0;
+        private var _rotationZ:Number = 0;
     
-        arcane var _scaleX:Number = 1;
-        arcane var _scaleY:Number = 1;
-        arcane var _scaleZ:Number = 1;
+        private var _worldDirty:Boolean;
+        private var _world:Matrix3D;
 
-        arcane var _worldDirty:Boolean;
-        arcane var _world:Matrix3D;
+        private var _scene:Scene3D;
 
-        //arcane var _sceneDirty:Boolean;
-        arcane var _scene:Scene3D;
-
-        arcane var _parent:ObjectContainer3D = null;
+        private var _parent:ObjectContainer3D = null;
 
         // Whether or not the display object is visible.
         public var visible:Boolean = true;
@@ -39,6 +34,24 @@ package away3d.core.scene
         // An object that contains user defined properties.
         public var extra:Object;
 
+        // Are the mouse events allowed
+        public var mousable:Boolean = true;
+
+        public function get radius():Number
+        {
+            return 0;
+        }
+        
+        arcane function get parentradius():Number
+        {
+            if (_transformDirty) 
+                updateTransform();
+
+            var x:Number = _transform.tx;
+            var y:Number = _transform.ty;
+            var z:Number = _transform.tz;
+            return radius + Math.sqrt(x*x + y*y + z*z);
+        }
 
         public function get x():Number
         {
@@ -143,54 +156,8 @@ package away3d.core.scene
             _rotationDirty = false;
         }
     
-        public function scale(scale:Number):void
-        {
-            _scaleX *= scale;
-            _scaleY *= scale;
-            _scaleZ *= scale;
-    
-            _transformDirty = true;
-
-            notifyTransformChange();
-        }
-    
-        public function scaleXYZ(scaleX:Number, scaleY:Number, scaleZ:Number):void
-        {
-            _scaleX *= scaleX;
-            _scaleY *= scaleY;
-            _scaleZ *= scaleZ;
-    
-            _transformDirty = true;
-
-            notifyTransformChange();
-        }
-    
-        public function scaleX(scale:Number):void
-        {
-            _scaleX *= scale;
-    
-            _transformDirty = true;
-
-            notifyTransformChange();
-        }
-    
-        public function scaleY(scale:Number):void
-        {
-            _scaleY *= scale;
-    
-            _transformDirty = true;
-
-            notifyTransformChange();
-        }
-    
-        public function scaleZ(scale:Number):void
-        {
-            _scaleZ *= scale;
-    
-            _transformDirty = true;
-
-            notifyTransformChange();
-        }
+        private static var toDEGREES:Number = 180 / Math.PI;
+        private static var toRADIANS:Number = Math.PI / 180;
 
         public function get position():Number3D
         {
@@ -212,10 +179,14 @@ package away3d.core.scene
             _transformDirty = false;
             _rotationDirty = true;
 
+            updateRotation();
+
+            _transformDirty = true;
+
             notifyTransformChange();
         }
 
-        arcane function updateTransform():void
+        private function updateTransform():void
         {
             if (!_transformDirty) 
                 return;
@@ -226,7 +197,7 @@ package away3d.core.scene
             m.tx = _transform.tx;
             m.ty = _transform.ty;
             m.tz = _transform.tz;
-            m.scale(_scaleX, _scaleY, _scaleZ); // !! WRONG !!
+            //m.scale(_scaleX, _scaleY, _scaleZ); // !! WRONG !!
 
             _transform = m;
             _transformDirty = false;
@@ -247,7 +218,7 @@ package away3d.core.scene
             return _world;
         }
 
-        arcane function updateWorld():void
+        private function updateWorld():void
         {
             if (!_worldDirty) 
                 return;
@@ -281,12 +252,16 @@ package away3d.core.scene
             extra = init.getObject("extra");
 
             parent = init.getObject3D("parent") as ObjectContainer3D;
-
+            /*
             var scaling:Number = init.getNumber("scale", 1);
 
             scaleX(init.getNumber("scaleX", 1) * scaling);
             scaleY(init.getNumber("scaleY", 1) * scaling);
             scaleZ(init.getNumber("scaleZ", 1) * scaling);
+            */
+
+            if (this is Scene3D)
+                _scene = this as Scene3D;
         }
     
         public function get parent():ObjectContainer3D
@@ -416,7 +391,7 @@ package away3d.core.scene
             rotate(Number3D.FORWARD, angle);
         }
 
-        arcane function rotate(axis:Number3D, angle:Number):void
+        public function rotate(axis:Number3D, angle:Number):void
         {
             var vector:Number3D = axis.rotate(transform);
     
@@ -431,11 +406,8 @@ package away3d.core.scene
         // Make the object look at a specific position.
         // @param targetObject Object to look at.
         // @param upAxis The vertical axis of the universe. Normally the positive Y axis.
-        public function lookAt(targetObject:*, upAxis:Number3D = null):void
+        public function lookAt(target:Number3D, upAxis:Number3D = null):void
         {
-            var position:Number3D = new Number3D(x, y, z);
-            var target:Number3D = new Number3D(targetObject.x, targetObject.y, targetObject.z);
-    
             var zAxis:Number3D = Number3D.sub(target, position);
             zAxis.normalize();
     
@@ -474,9 +446,6 @@ package away3d.core.scene
             return name + ': x:' + Math.round(x) + ' y:' + Math.round(y) + ' z:' + Math.round(z);
         }
     
-        private static var toDEGREES:Number = 180 / Math.PI;
-        private static var toRADIANS:Number = Math.PI / 180;
-
         public function tick(time:int):void
         {
         }
@@ -519,6 +488,26 @@ package away3d.core.scene
                 scenechanged = new Object3DEvent("scenechanged", this);
                 
             dispatchEvent(scenechanged);
+        }
+
+        public function addOnRadiusChange(listener:Function):void
+        {
+            addEventListener("radiuschanged", listener, false, 0, true);
+        }
+        public function removeOnRadiusChange(listener:Function):void
+        {
+            removeEventListener("radiuschanged", listener, false);
+        }
+        private var radiuschanged:Object3DEvent;
+        protected function notifyRadiusChange():void
+        {
+            if (!hasEventListener("radiuschanged"))
+                return;
+                
+            if (radiuschanged == null)
+                radiuschanged = new Object3DEvent("radiuschanged", this);
+                
+            dispatchEvent(radiuschanged);
         }
 
         public function addOnMouseMove(listener:Function):void

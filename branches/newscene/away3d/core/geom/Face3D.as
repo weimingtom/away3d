@@ -15,9 +15,9 @@ package away3d.core.geom
         public var v1:Vertex3D;
         public var v2:Vertex3D;
 
-        public var uv0:NumberUV;
-        public var uv1:NumberUV;
-        public var uv2:NumberUV;
+        public var uv0:UV;
+        public var uv1:UV;
+        public var uv2:UV;
     
         public var material:ITriangleMaterial;
 
@@ -25,7 +25,7 @@ package away3d.core.geom
 
         public var visible:Boolean = true;
 
-        public function Face3D(v0:Vertex3D, v1:Vertex3D, v2:Vertex3D, material:ITriangleMaterial = null, uv0:NumberUV = null, uv1:NumberUV = null, uv2:NumberUV = null)
+        public function Face3D(v0:Vertex3D, v1:Vertex3D, v2:Vertex3D, material:ITriangleMaterial = null, uv0:UV = null, uv1:UV = null, uv2:UV = null)
         {
             this.v0 = v0;
             this.v1 = v1;

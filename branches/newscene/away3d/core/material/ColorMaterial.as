@@ -5,8 +5,6 @@ package away3d.core.material
     import away3d.core.scene.*;
     import away3d.core.draw.*;
 
-    import flash.display.Graphics;
-
     /** Solid color material */
     public class ColorMaterial extends WireColorMaterial
     {

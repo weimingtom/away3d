@@ -93,7 +93,7 @@ package away3d.extrusions
             var iVerNum:int = aVtc.length;
     
             var aP1:Vertex3D, aP2:Vertex3D, aP3:Vertex3D, aP4:Vertex3D;
-            var aP4uv:NumberUV, aP1uv:NumberUV, aP2uv:NumberUV, aP3uv:NumberUV;
+            var aP4uv:UV, aP1uv:UV, aP2uv:UV, aP3uv:UV;
             var t1:Point = new Point();
             var t2:Point = new Point();
             var t3:Point = new Point();
@@ -185,10 +185,10 @@ package away3d.extrusions
                             t4.y -= tDiffy;
                         }
                     }
-                    aP1uv = new NumberUV(t1.x,t1.y);
-                    aP2uv = new NumberUV(t2.x,t2.y);
-                    aP3uv = new NumberUV(t3.x,t3.y);
-                    aP4uv = new NumberUV(t4.x,t4.y);
+                    aP1uv = new UV(t1.x,t1.y);
+                    aP2uv = new UV(t2.x,t2.y);
+                    aP3uv = new UV(t3.x,t3.y);
+                    aP4uv = new UV(t4.x,t4.y);
                     if (mat.repeat || insideShape([test1,test2,test3,test4], [t1,t2,t3,t4])) {
                         // 2 faces
                         faces.push( new Face3D(aP1,aP2,aP3, mat as ITriangleMaterial, aP1uv,aP2uv,aP3uv) );

@@ -12,11 +12,11 @@ package away3d.core.geom
         /** An object that contains user defined properties. @default null */
         public var extra:Object;
 
-        private var projected:Vertex2D;
+        private var projected:ScreenVertex;
         private var projection:Projection;
 
         /** Project a point to the screen space */
-        public function project(projection:Projection):Vertex2D
+        public function project(projection:Projection):ScreenVertex
         {
             if (this.projection == projection)
                 return projected;
@@ -24,11 +24,11 @@ package away3d.core.geom
             this.projection = projection;
 
             if (projected == null) 
-                projected = new Vertex2D();
+                projected = new ScreenVertex();
 
-            var vx:Number = this.x;
-            var vy:Number = this.y;
-            var vz:Number = this.z;
+            var vx:Number = x;
+            var vy:Number = y;
+            var vz:Number = z;
 
             var view:Matrix3D = projection.view;
     
@@ -52,11 +52,11 @@ package away3d.core.geom
         }
         
         /** Apply perspective distortion */
-        public function perspective(focus:Number):Vertex2D
+        public function perspective(focus:Number):ScreenVertex
         {
             var persp:Number = 1 / (1 + z / focus);
 
-            return new Vertex2D(x * persp, y * persp, z);
+            return new ScreenVertex(x * persp, y * persp, z);
         }                     
 
         /**  */

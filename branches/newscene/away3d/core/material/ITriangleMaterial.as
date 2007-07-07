@@ -6,8 +6,6 @@ package away3d.core.material
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.display.Graphics;
-
     /** Interface for all material that are capable of triangle faces */
     public interface ITriangleMaterial extends IMaterial
     {

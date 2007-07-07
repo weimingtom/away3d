@@ -108,7 +108,7 @@ package away3d.loaders
                     throw new Error("TEXTURE_VERTEX_BLOCK");
                     size = data.readUnsignedShort();
                     for (i = 0; i < size; i++)
-                        uvs.push(new NumberUV(data.readFloat(), data.readFloat()));
+                        uvs.push(new UV(data.readFloat(), data.readFloat()));
                     break;
                         
                 // Other blocks are just skipped completely by their length

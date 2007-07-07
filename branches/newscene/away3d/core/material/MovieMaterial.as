@@ -6,12 +6,10 @@ package away3d.core.material
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    import flash.display.Graphics;
     import flash.display.BitmapData;
     import flash.display.MovieClip;
     import flash.display.Sprite;
     import flash.geom.Matrix;
-    import flash.geom.Point;
 
     /** Material that can render a MovieClip on object */
     public class MovieMaterial implements ITriangleMaterial, IUVMaterial
@@ -20,8 +18,9 @@ package away3d.core.material
         public var bitmap:BitmapData;
         private var lastsession:int;
         public var transparent:Boolean;
-        public var debug:Boolean;
         public var smooth:Boolean;
+        public var repeat:Boolean;
+        public var debug:Boolean;
         
         public function get width():Number
         {
@@ -50,8 +49,9 @@ package away3d.core.material
             init = Init.parse(init);
 
             transparent = init.getBoolean("transparent", false);
-            debug = init.getBoolean("debug", false);
             smooth = init.getBoolean("smooth", false);
+            repeat = init.getBoolean("repeat", false);
+            debug = init.getBoolean("debug", false);
 
             this.bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
@@ -59,10 +59,9 @@ package away3d.core.material
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
-            var v0:Vertex2D = tri.v0;
-            var v1:Vertex2D = tri.v1;
-            var v2:Vertex2D = tri.v2;
-            var graphics:Graphics = session.graphics;
+            var v0:ScreenVertex = tri.v0;
+            var v1:ScreenVertex = tri.v1;
+            var v2:ScreenVertex = tri.v2;
             
             if (lastsession != session.time)
             {
@@ -71,16 +70,10 @@ package away3d.core.material
                 bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
             }
 
-            RenderTriangle.renderBitmap(graphics, bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, false);
+            session.renderTriangleBitmap(bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 
             if (debug)
-            {
-                graphics.lineStyle(2, 0x0000FF);
-                graphics.moveTo(tri.v0.x, tri.v0.y);
-                graphics.lineTo(tri.v1.x, tri.v1.y);
-                graphics.lineTo(tri.v2.x, tri.v2.y);
-                graphics.lineTo(tri.v0.x, tri.v0.y);
-            }
+                session.renderTriangleLine(2, 0x0000FF, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         }
 
         public function get visible():Boolean

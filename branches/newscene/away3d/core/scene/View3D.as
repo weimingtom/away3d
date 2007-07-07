@@ -8,12 +8,13 @@ package away3d.core.scene
     import away3d.core.material.*;
     
     import flash.display.Sprite;
+    import flash.display.DisplayObject;
     import flash.utils.getTimer;
     import flash.utils.Dictionary;
     import flash.events.MouseEvent;
     import flash.events.Event;
 
-    /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */ 
+    /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */
     public class View3D extends Sprite
     {
         use namespace arcane;
@@ -34,7 +35,7 @@ package away3d.core.scene
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
         public var renderer:IRenderer;
 
-        /** Create new View3D */
+        /** Create a new View3D */
         public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
         {
             this.scene = scene || new Scene3D();
@@ -57,11 +58,15 @@ package away3d.core.scene
         /** Clear rendering area */
         public function clear():void
         {
-            if (canvas != null)
-                removeChild(canvas);
+            //if (canvas != null)
+            //    removeChild(canvas);
+            //canvas = new Sprite();
+            //addChildAt(canvas, 1);
 
-            canvas = new Sprite();
-            addChildAt(canvas, 1);
+            canvas.graphics.clear();
+
+            for (var i:int = 0; i < canvas.numChildren; i++)
+                canvas.getChildAt(i).visible = false;
         }
 
         /** Render frame */
@@ -130,8 +135,6 @@ package away3d.core.scene
                     break;
                 target = target.parent;
             }
-        /*
-        */
         }
 
         /*

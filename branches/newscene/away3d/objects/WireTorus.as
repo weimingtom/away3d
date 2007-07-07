@@ -12,7 +12,6 @@ package away3d.objects
         public var segmentsR:int;
         public var segmentsT:int;
     
-        public var radius:Number;
         public var tube:Number;
 
         public function WireTorus(material:ISegmentMaterial, init:Object = null)
@@ -23,13 +22,13 @@ package away3d.objects
 
             segmentsR = init.getInt("segmentsR", 8, {min:3});
             segmentsT = init.getInt("segmentsT", 6, {min:3})
-            radius = init.getInt("radius", 100, {min:0});
-            tube = init.getInt("tube", 40, {min:0, max:radius});
+            var radius:Number = init.getNumber("radius", 100, {min:0});
+            tube = init.getNumber("tube", 40, {min:0, max:radius});
 
-            buildTorus();
+            buildTorus(radius);
         }
     
-        private function buildTorus():void
+        private function buildTorus(radius:Number):void
         {
             for (var ix:int = 0; ix < segmentsR; ix++)
                 for (var iy:int = 0; iy < segmentsT; iy++)

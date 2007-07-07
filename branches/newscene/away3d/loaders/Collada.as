@@ -116,7 +116,7 @@ package away3d.loaders
                 }
             }
     
-            newnode.setTransform(matrix);
+            newnode.setTransform(matrix); 
         }
     
         private function parseGeometry(geometry:XML, instance:Mesh3D):void
@@ -207,15 +207,15 @@ package away3d.loaders
                 var tex:Array = semantics.TEXCOORD;
                 var uv:Array = semFaces[i].TEXCOORD;
     
-                var uvA:NumberUV = null;
-                var uvB:NumberUV = null;
-                var uvC:NumberUV = null;
+                var uvA:UV = null;
+                var uvB:UV = null;
+                var uvC:UV = null;
     
                 if (uv && tex)
                 {
-                    uvA = new NumberUV(tex[uv[0]].S, tex[uv[0]].T);
-                    uvB = new NumberUV(tex[uv[1]].S, tex[uv[1]].T);
-                    uvC = new NumberUV(tex[uv[2]].S, tex[uv[2]].T);
+                    uvA = new UV(tex[uv[0]].S, tex[uv[0]].T);
+                    uvB = new UV(tex[uv[1]].S, tex[uv[1]].T);
+                    uvC = new UV(tex[uv[2]].S, tex[uv[2]].T);
                 }
 
                 var materialName:String = semFaces[i].material || null;

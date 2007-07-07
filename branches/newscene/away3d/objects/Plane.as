@@ -7,22 +7,19 @@ package away3d.objects
     import away3d.core.material.*;
     
     /** Plane */ 
-    public class Plane extends Mesh3D
+    public class Plane extends Mesh
     {
-        public var segmentsW:int;
-        public var segmentsH:int;
-    
-        public function Plane(material:IMaterial, init:Object = null)
+        public function Plane(init:Object = null)
         {
-            super(material, init);
+            super(init);
     
             init = Init.parse(init);
 
-            width = init.getNumber("width", 0, {min:0});
-            height = init.getNumber("height", 0, {min:0});
+            var width:Number = init.getNumber("width", 0, {min:0});
+            var height:Number = init.getNumber("height", 0, {min:0});
             var segments:int = init.getInt("segments", 1, {min:1});
-            segmentsW = init.getInt("segmentsW", segments, {min:1});
-            segmentsH = init.getInt("segmentsH", segments, {min:1});
+            var segmentsW:int = init.getInt("segmentsW", segments, {min:1});
+            var segmentsH:int = init.getInt("segmentsH", segments, {min:1});
 
             if (width*height == 0)
             {
@@ -40,36 +37,42 @@ package away3d.objects
                     height = 100;
                 }
             }
-            buildPlane();
+            buildPlane(width, height, segmentsW, segmentsH);
         }
     
-        private function buildPlane():void
+        private var buildvertices:Array = [];
+
+        private function buildPlane(width:Number, height:Number, segmentsW:int, segmentsH:int):void
         {
-            for (var ix:int = 0; ix < segmentsW + 1; ix++)
-                for (var iy:int = 0; iy < segmentsH + 1; iy++)
-                    vertices.push(new Vertex3D((ix / segmentsW - 0.5) * width, 0, (iy / segmentsH - 0.5) * height));
+            buildvertices = [];
+            for (var i:int = 0; i < segmentsW + 1; i++)
+            {
+                buildvertices[i] = [];
+                for (var j:int = 0; j < segmentsH + 1; j++)
+                    buildvertices[i][j] = new Vertex((i / segmentsW - 0.5) * width, 0, (j / segmentsH - 0.5) * height);
+            }
 
-            for (ix = 0; ix < segmentsW; ix++)
-                for (iy = 0; iy < segmentsH; iy++)
+            for (i = 0; i < segmentsW; i++)
+                for (j = 0; j < segmentsH; j++)
                 {
-                    var a:Vertex3D = vertices[ix     * (segmentsH + 1) + iy    ]; 
-                    var b:Vertex3D = vertices[(ix+1) * (segmentsH + 1) + iy    ];
-                    var c:Vertex3D = vertices[ix     * (segmentsH + 1) + (iy+1)]; 
-                    var d:Vertex3D = vertices[(ix+1) * (segmentsH + 1) + (iy+1)];
+                    var a:Vertex = buildvertices[i  ][j  ]; 
+                    var b:Vertex = buildvertices[i+1][j  ];
+                    var c:Vertex = buildvertices[i  ][j+1]; 
+                    var d:Vertex = buildvertices[i+1][j+1];
 
-                    var uva:NumberUV = new NumberUV(ix     / segmentsW, iy     / segmentsH);
-                    var uvb:NumberUV = new NumberUV((ix+1) / segmentsW, iy     / segmentsH);
-                    var uvc:NumberUV = new NumberUV(ix     / segmentsW, (iy+1) / segmentsH);
-                    var uvd:NumberUV = new NumberUV((ix+1) / segmentsW, (iy+1) / segmentsH);
+                    var uva:UV = new UV(i     / segmentsW, j     / segmentsH);
+                    var uvb:UV = new UV((i+1) / segmentsW, j     / segmentsH);
+                    var uvc:UV = new UV(i     / segmentsW, (j+1) / segmentsH);
+                    var uvd:UV = new UV((i+1) / segmentsW, (j+1) / segmentsH);
 
-                    faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
-                    faces.push(new Face3D(d, c, b, null, uvd, uvc, uvb));
+                    addFace(new Face(a, b, c, null, uva, uvb, uvc));
+                    addFace(new Face(d, c, b, null, uvd, uvc, uvb));
                 }
         }
 
-        public function vertice(ix:int, iy:int):Vertex3D
+        public function vertex(i:int, j:int):Vertex
         {
-            return vertices[ix * (segmentsH + 1) + iy];
+            return buildvertices[i][j];
         }
 
     }

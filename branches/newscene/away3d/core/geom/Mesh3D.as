@@ -9,10 +9,13 @@ package away3d.core.geom
     import away3d.core.math.*;
     
     import flash.geom.*;
+    import flash.utils.*;
     
     /** Mesh constisting of faces and segments */
     public class Mesh3D extends Vertices3D implements IPrimitiveProvider
     {
+        use namespace arcane;
+            
         public var faces:Array = [];
         public var segments:Array = [];
 
@@ -35,6 +38,17 @@ package away3d.core.geom
             this.material = material || new WireColorMaterial();
         }
     
+        public function asMesh():Mesh
+        {
+            var result:Mesh = new Mesh({material:material});
+            var vm:Dictionary = new Dictionary();
+            for each (var v:Vertex3D in vertices)
+                vm[v] = new Vertex(v.x, v.y, v.z);
+            for each (var f:Face3D in faces)
+                result.addFace(new Face(vm[f.v0], vm[f.v1], vm[f.v2], f.material, f.uv0, f.uv1, f.uv2));
+            return result;
+        }
+
         public function inverseFaces():void
         {
             for each (var face:Face3D in faces)
@@ -43,7 +57,7 @@ package away3d.core.geom
                 face.v1 = face.v2;
                 face.v2 = vt;
 
-                var uvt:NumberUV = face.uv1;
+                var uvt:UV = face.uv1;
                 face.uv1 = face.uv2;
                 face.uv2 = uvt;
             }    
@@ -61,12 +75,12 @@ package away3d.core.geom
                 var v01:Vertex3D = Vertex3D.median(v0, v1);
                 var v12:Vertex3D = Vertex3D.median(v1, v2);
                 var v20:Vertex3D = Vertex3D.median(v2, v0);
-                var uv0:NumberUV = face.uv0;
-                var uv1:NumberUV = face.uv1;
-                var uv2:NumberUV = face.uv2;
-                var uv01:NumberUV = NumberUV.median(uv0, uv1);
-                var uv12:NumberUV = NumberUV.median(uv1, uv2);
-                var uv20:NumberUV = NumberUV.median(uv2, uv0);
+                var uv0:UV = face.uv0;
+                var uv1:UV = face.uv1;
+                var uv2:UV = face.uv2;
+                var uv01:UV = UV.median(uv0, uv1);
+                var uv12:UV = UV.median(uv1, uv2);
+                var uv20:UV = UV.median(uv2, uv0);
                 var material:ITriangleMaterial = face.material;
                 faces.push(new Face3D(v0, v01, v20, material, uv0, uv01, uv20));
                 faces.push(new Face3D(v01, v1, v12, material, uv01, uv1, uv12));
@@ -137,12 +151,12 @@ package away3d.core.geom
                 {
                     // Make cleaner
                     tri.texturemapping = null;
-                    var vt:Vertex2D = tri.v1;
+                    var vt:ScreenVertex = tri.v1;
                     tri.v1 = tri.v2;
                     tri.v2 = vt;
 
-                    var uvt:NumberUV = tri.uv1;
-                    tri.uv1 = face.uv2;
+                    var uvt:UV = tri.uv1;
+                    tri.uv1 = tri.uv2;
                     tri.uv2 = uvt;
                 }
 

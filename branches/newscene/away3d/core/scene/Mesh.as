@@ -16,24 +16,55 @@ package away3d.core.scene
     {
         use namespace arcane;
 
-        arcane var _faces:Array = [];
+        private var _faces:Array = [];
 
         public function get faces():Array
         {
             return _faces;
         }
 
-        arcane var _neighbours:Boolean;
-        arcane var _neighbour01:Dictionary; 
-        arcane var _neighbour12:Dictionary; 
-        arcane var _neighbour20:Dictionary; 
+        private var _vertices:Array;
+        private var _verticesDirty:Boolean = true;
 
-        arcane function findNeighbours():void
+        public function get vertices():Array
         {
-            if (_neighbours)
+            if (_verticesDirty)
+            {
+                _vertices = [];
+                var processed:Dictionary = new Dictionary();
+                for each (var face:Face in _faces)
+                {
+                    if (!processed[face.v0])
+                    {
+                        _vertices.push(face.v0);
+                        processed[face.v0] = true;
+                    }
+                    if (!processed[face.v1])
+                    {
+                        _vertices.push(face.v1);
+                        processed[face.v1] = true;
+                    }
+                    if (!processed[face.v2])
+                    {
+                        _vertices.push(face.v2);
+                        processed[face.v2] = true;
+                    }
+                }
+                _verticesDirty = false;
+            }
+            return _vertices;
+        }
+
+        private var _neighboursDirty:Boolean = true;
+        private var _neighbour01:Dictionary; 
+        private var _neighbour12:Dictionary; 
+        private var _neighbour20:Dictionary; 
+
+        private function findNeighbours():void
+        {
+            if (!_neighboursDirty)
                 return;
 
-            _neighbours = true;
             _neighbour01 = new Dictionary();
             _neighbour12 = new Dictionary();
             _neighbour20 = new Dictionary();
@@ -104,13 +135,15 @@ package away3d.core.scene
                     }
                 }
             }
+
+            _neighboursDirty = false;
         }
          
-        arcane var _radiusFace:Face = null;
-        arcane var _radiusDirty:Boolean = false;
-        arcane var _radius:Number = 0;
+        private var _radiusFace:Face = null;
+        private var _radiusDirty:Boolean = false;
+        private var _radius:Number = 0;
 
-        public function get radius():Number
+        public override function get radius():Number
         {
             if (_radiusDirty)
             {
@@ -148,20 +181,76 @@ package away3d.core.scene
             init = Init.parse(init);
             
             material = init.getMaterial("material") || new WireColorMaterial();
-            outline = init.getMaterial("outline") || new WireframeMaterial(0xFFFF00, 1, 2); // should be null
+            outline = init.getMaterial("outline");
             back = init.getMaterial("back") || (material as ITriangleMaterial);
             bothsides = init.getBoolean("bothsides", false);
             pushback = init.getBoolean("pushback", false);
             pushfront = init.getBoolean("pushfront", false);
         }
     
+        public function scale(scale:Number):void
+        {
+            scaleXYZ(scale, scale, scale);
+        }
+
+        public function scaleX(scaleX:Number):void
+        {
+            if (scaleX != 1)
+                scaleXYZ(scaleX, 1, 1);
+        }
+    
+        public function scaleY(scaleY:Number):void
+        {
+            if (scaleY != 1)
+                scaleXYZ(1, scaleY, 1);
+        }
+    
+        public function scaleZ(scaleZ:Number):void
+        {
+            if (scaleZ != 1)
+                scaleXYZ(1, 1, scaleZ);
+        }
+
+        public function scaleXYZ(scaleX:Number, scaleY:Number, scaleZ:Number):void
+        {
+            var processed:Dictionary = new Dictionary();
+            for each (var face:Face in _faces)
+            {
+                if (!processed[face.v0])
+                {
+                    face.v0.x *= scaleX;
+                    face.v0.y *= scaleY;
+                    face.v0.z *= scaleZ;
+                    processed[face.v0] = true;
+                }
+                if (!processed[face.v1])
+                {
+                    face.v1.x *= scaleX;
+                    face.v1.y *= scaleY;
+                    face.v1.z *= scaleZ;
+                    processed[face.v1] = true;
+                }
+                if (!processed[face.v2])
+                {
+                    face.v2.x *= scaleX;
+                    face.v2.y *= scaleY;
+                    face.v2.z *= scaleZ;
+                    processed[face.v2] = true;
+                }
+            }
+        }
+
+
         public function addFace(face:Face):void
         {
             _faces.push(face);
+            _verticesDirty = true;
                               
             face.addOnVertexChange(onFaceVertexChange);
-
-            rememberFace(face);
+            face.addOnVertexValueChange(onFaceVertexValueChange);
+                                                
+            rememberFaceRadius(face);
+            rememberFaceNeighbours(face);
         }
 
         public function removeFace(face:Face):void
@@ -170,60 +259,17 @@ package away3d.core.scene
             if (index == -1)
                 return;
 
-            forgetFace(face);
+            forgetFaceNeighbours(face);
+            forgetFaceRadius(face);
 
+            face.removeOnVertexValueChange(onFaceVertexValueChange);
             face.removeOnVertexChange(onFaceVertexChange);
 
             _faces.splice(index, 1);
+            _verticesDirty = true;
         }
 
-        private function forgetFace(face:Face):void
-        {
-            if (face == _radiusFace)
-            {
-                _radiusFace = null;
-                _radiusDirty = true;
-            }
-
-            if (_neighbours)
-            {
-                var n01:Face = _neighbour01[face];
-                if (n01 != null)
-                {
-                    delete _neighbour01[face];
-                    if (_neighbour01[n01] == face)
-                        delete _neighbour01[n01];
-                    if (_neighbour12[n01] == face)
-                        delete _neighbour12[n01];
-                    if (_neighbour20[n01] == face)
-                        delete _neighbour20[n01];
-                }
-                var n12:Face = _neighbour12[face];
-                if (n12 != null)
-                {
-                    delete _neighbour12[face];
-                    if (_neighbour01[n12] == face)
-                        delete _neighbour01[n12];
-                    if (_neighbour12[n12] == face)
-                        delete _neighbour12[n12];
-                    if (_neighbour20[n12] == face)
-                        delete _neighbour20[n12];
-                }
-                var n20:Face = _neighbour20[face];
-                if (n20 != null)
-                {
-                    delete _neighbour20[face];
-                    if (_neighbour01[n20] == face)
-                        delete _neighbour01[n20];
-                    if (_neighbour12[n20] == face)
-                        delete _neighbour12[n20];
-                    if (_neighbour20[n20] == face)
-                        delete _neighbour20[n20];
-                }
-            }
-        }
-
-        private function rememberFace(face:Face):void
+        private function rememberFaceRadius(face:Face):void
         {
             var r2:Number = face.rad2();
             if (r2 > _radius*_radius)
@@ -231,69 +277,123 @@ package away3d.core.scene
                 _radius = Math.sqrt(r2);
                 _radiusFace = face;
                 _radiusDirty = false;
+                notifyRadiusChange();
             }
+        }
 
-            if (_neighbours)
+        private function forgetFaceRadius(face:Face):void
+        {
+            if (face == _radiusFace)
             {
-                for each (var another:Face in _faces)
+                _radiusFace = null;
+                _radiusDirty = true;
+                notifyRadiusChange();
+            }
+        }
+
+        private function rememberFaceNeighbours(face:Face):void
+        {
+            if (_neighboursDirty)
+                return;
+            
+            for each (var another:Face in _faces)
+            {
+                if (face == another)
+                    continue;
+
+                if ((face._v0 == another._v2) && (face._v1 == another._v1))
                 {
-                    if (face == another)
-                        continue;
-
-                    if ((face._v0 == another._v2) && (face._v1 == another._v1))
-                    {
-                        _neighbour01[face] = another;
-                        _neighbour12[another] = face;
-                    }
-
-                    if ((face._v0 == another._v0) && (face._v1 == another._v2))
-                    {
-                        _neighbour01[face] = another;
-                        _neighbour20[another] = face;
-                    }
-
-                    if ((face._v0 == another._v1) && (face._v1 == another._v0))
-                    {
-                        _neighbour01[face] = another;
-                        _neighbour01[another] = face;
-                    }
-                
-                    if ((face._v1 == another._v2) && (face._v2 == another._v1))
-                    {
-                        _neighbour12[face] = another;
-                        _neighbour12[another] = face;
-                    }
-
-                    if ((face._v1 == another._v0) && (face._v2 == another._v2))
-                    {
-                        _neighbour12[face] = another;
-                        _neighbour20[another] = face;
-                    }
-
-                    if ((face._v1 == another._v1) && (face._v2 == another._v0))
-                    {
-                        _neighbour12[face] = another;
-                        _neighbour01[another] = face;
-                    }
-                
-                    if ((face._v2 == another._v2) && (face._v0 == another._v1))
-                    {
-                        _neighbour20[face] = another;
-                        _neighbour12[another] = face;
-                    }
-
-                    if ((face._v2 == another._v0) && (face._v0 == another._v2))
-                    {
-                        _neighbour20[face] = another;
-                        _neighbour20[another] = face;
-                    }
-
-                    if ((face._v2 == another._v1) && (face._v0 == another._v0))
-                    {
-                        _neighbour20[face] = another;
-                        _neighbour01[another] = face;
-                    }
+                    _neighbour01[face] = another;
+                    _neighbour12[another] = face;
                 }
+
+                if ((face._v0 == another._v0) && (face._v1 == another._v2))
+                {
+                    _neighbour01[face] = another;
+                    _neighbour20[another] = face;
+                }
+
+                if ((face._v0 == another._v1) && (face._v1 == another._v0))
+                {
+                    _neighbour01[face] = another;
+                    _neighbour01[another] = face;
+                }
+            
+                if ((face._v1 == another._v2) && (face._v2 == another._v1))
+                {
+                    _neighbour12[face] = another;
+                    _neighbour12[another] = face;
+                }
+
+                if ((face._v1 == another._v0) && (face._v2 == another._v2))
+                {
+                    _neighbour12[face] = another;
+                    _neighbour20[another] = face;
+                }
+
+                if ((face._v1 == another._v1) && (face._v2 == another._v0))
+                {
+                    _neighbour12[face] = another;
+                    _neighbour01[another] = face;
+                }
+            
+                if ((face._v2 == another._v2) && (face._v0 == another._v1))
+                {
+                    _neighbour20[face] = another;
+                    _neighbour12[another] = face;
+                }
+
+                if ((face._v2 == another._v0) && (face._v0 == another._v2))
+                {
+                    _neighbour20[face] = another;
+                    _neighbour20[another] = face;
+                }
+
+                if ((face._v2 == another._v1) && (face._v0 == another._v0))
+                {
+                    _neighbour20[face] = another;
+                    _neighbour01[another] = face;
+                }
+            }
+        }
+
+        private function forgetFaceNeighbours(face:Face):void
+        {
+            if (_neighboursDirty)
+                return;
+            
+            var n01:Face = _neighbour01[face];
+            if (n01 != null)
+            {
+                delete _neighbour01[face];
+                if (_neighbour01[n01] == face)
+                    delete _neighbour01[n01];
+                if (_neighbour12[n01] == face)
+                    delete _neighbour12[n01];
+                if (_neighbour20[n01] == face)
+                    delete _neighbour20[n01];
+            }
+            var n12:Face = _neighbour12[face];
+            if (n12 != null)
+            {
+                delete _neighbour12[face];
+                if (_neighbour01[n12] == face)
+                    delete _neighbour01[n12];
+                if (_neighbour12[n12] == face)
+                    delete _neighbour12[n12];
+                if (_neighbour20[n12] == face)
+                    delete _neighbour20[n12];
+            }
+            var n20:Face = _neighbour20[face];
+            if (n20 != null)
+            {
+                delete _neighbour20[face];
+                if (_neighbour01[n20] == face)
+                    delete _neighbour01[n20];
+                if (_neighbour12[n20] == face)
+                    delete _neighbour12[n20];
+                if (_neighbour20[n20] == face)
+                    delete _neighbour20[n20];
             }
         }
 
@@ -301,17 +401,87 @@ package away3d.core.scene
         {
             var face:Face = event.face;
 
-            forgetFace(face);
-            rememberFace(face);
+            forgetFaceRadius(face);
+            forgetFaceNeighbours(face);
+            rememberFaceNeighbours(face);
+            rememberFaceRadius(face);
+
+            _verticesDirty = true;
+        }
+
+        private function onFaceVertexValueChange(event:FaceEvent):void
+        {
+            var face:Face = event.face;
+
+            forgetFaceRadius(face);
+            rememberFaceRadius(face);
+        }
+
+        private function clear():void
+        {
+            for each (var face:Face in _faces.concat([]))
+                removeFace(face);
+        }
+
+        public function quarterFaces():void
+        {
+            var medians:Dictionary = new Dictionary();
+            for each (var face:Face in _faces.concat([]))
+            {
+                var v0:Vertex = face.v0;
+                var v1:Vertex = face.v1;
+                var v2:Vertex = face.v2;
+
+                if (medians[v0] == null)
+                    medians[v0] = new Dictionary();
+                if (medians[v1] == null)
+                    medians[v1] = new Dictionary();
+                if (medians[v2] == null)
+                    medians[v2] = new Dictionary();
+
+                var v01:Vertex = medians[v0][v1];
+                if (v01 == null)
+                {
+                   v01 = Vertex.median(v0, v1);
+                   medians[v0][v1] = v01;
+                   medians[v1][v0] = v01;
+                }
+                var v12:Vertex = medians[v1][v2];
+                if (v12 == null)
+                {
+                   v12 = Vertex.median(v1, v2);
+                   medians[v1][v2] = v12;
+                   medians[v2][v1] = v12;
+                }
+                var v20:Vertex = medians[v2][v0];
+                if (v20 == null)
+                {
+                   v20 = Vertex.median(v2, v0);
+                   medians[v2][v0] = v20;
+                   medians[v0][v2] = v20;
+                }
+                var uv0:UV = face.uv0;
+                var uv1:UV = face.uv1;
+                var uv2:UV = face.uv2;
+                var uv01:UV = UV.median(uv0, uv1);
+                var uv12:UV = UV.median(uv1, uv2);
+                var uv20:UV = UV.median(uv2, uv0);
+                var material:ITriangleMaterial = face.material;
+                removeFace(face);
+                addFace(new Face(v0, v01, v20, material, uv0, uv01, uv20));
+                addFace(new Face(v01, v1, v12, material, uv01, uv1, uv12));
+                addFace(new Face(v20, v12, v2, material, uv20, uv12, uv2));
+                addFace(new Face(v12, v20, v01, material, uv12, uv20, uv01));
+            }
         }
 
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
             //if (boundingsphere == null)
-            {
-                boundingsphere = new Sphere(new WireColorMaterial(0xFFFFFF, 0xFFFFFF, 0.1, 0.1), {segmentsW:16, segmentsH:12, radius:radius});
+            //{
+                //boundingsphere = new Sphere(new WireColorMaterial(0xFFFFFF, 0xFFFFFF, 0.1, 0.1), {segmentsW:16, segmentsH:12, radius:radius});
                 //throw new Error(radius);
-            }
+            //}
 
             //boundingsphere.primitives(projection, consumer);
 
@@ -321,7 +491,8 @@ package away3d.core.scene
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
             var trimat:ITriangleMaterial = (material is ITriangleMaterial) ? (material as ITriangleMaterial) : null;
-            for each (var face:Face in faces)
+            var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
+            for each (var face:Face in _faces)
             {
                 if (!face.visible)
                     continue;
@@ -350,21 +521,16 @@ package away3d.core.scene
                 if (tri.maxZ < 0)
                     continue;
 
-                tri.material = face._material || trimat;
-
-                if (tri.material == null)
-                    continue;
-
-                if (!tri.material.visible)
-                    continue;
-
                 var backface:Boolean = tri.area <= 0;
 
                 if (backface)
-                {
                     if (!bothsides)
                         continue;
 
+                tri.material = face._material || trimat;
+
+                if (backface)
+                {
                     if (back != null)
                     {
                         if (!back.visible)
@@ -374,38 +540,42 @@ package away3d.core.scene
                     }
                 }
 
+                if (tri.material == null)
+                    continue;
+
+                if (!tri.material.visible)
+                {
+                    if (outline == null)
+                        continue;
+
+                    tri.material = transparent;
+                }
+
                 if (pushback)
                     tri.screenZ = tri.maxZ;
 
                 if (pushfront)
                     tri.screenZ = tri.minZ;
 
-                tri.uv0 = new NumberUV(face.uv0.u, face.uv0.v);
-                tri.uv1 = new NumberUV(face.uv1.u, face.uv1.v);
-                tri.uv2 = new NumberUV(face.uv2.u, face.uv2.v);
+                tri.uv0 = face._uv0;
+                tri.uv1 = face._uv1;
+                tri.uv2 = face._uv2;
 
-                if (tri.uv0 != null)
-                {
-                    if (face._texturemapping == null)
-                        if (tri.material is IUVMaterial)
-                            face._texturemapping = tri.transformUV(tri.material as IUVMaterial);
-                    tri.texturemapping = face._texturemapping;
-                }
+                tri.texturemapping = face.mapping;
 
                 if (backface)
                 {
-                    //if (tri.texturemapping != null)
-                    {
-                        // Make cleaner
-                        tri.texturemapping = null;
-                        var vt:Vertex2D = tri.v1;
-                        tri.v1 = tri.v2;
-                        tri.v2 = vt;
+                    // Make cleaner
+                    tri.texturemapping = null;
 
-                        var uvt:NumberUV = tri.uv1;
-                        tri.uv1 = tri.uv2;
-                        tri.uv2 = uvt;
-                    }
+                    var vt:ScreenVertex = tri.v1;
+                    tri.v1 = tri.v2;
+                    tri.v2 = vt;
+
+                    var uvt:UV = tri.uv1;
+                    tri.uv1 = tri.uv2;
+                    tri.uv2 = uvt;
+
                     tri.area = -tri.area;
                 }
 

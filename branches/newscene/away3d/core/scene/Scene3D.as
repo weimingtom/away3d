@@ -22,8 +22,6 @@ package away3d.core.scene
         {
             for each (var object:Object3D in objects)
                 addChild(object);
-
-            _scene = this;
         }
 
         public function updateTime(time:int = -1):void

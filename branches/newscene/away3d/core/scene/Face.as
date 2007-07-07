@@ -13,6 +13,8 @@ package away3d.core.scene
     {
         use namespace arcane;
 
+        public var extra:Object;
+
         arcane var _v0:Vertex;
         arcane var _v1:Vertex;
         arcane var _v2:Vertex;
@@ -20,7 +22,6 @@ package away3d.core.scene
         arcane var _uv1:UV;
         arcane var _uv2:UV;
         arcane var _material:ITriangleMaterial;
-        arcane var _extra:Object;
         arcane var _visible:Boolean = true;
         arcane var _texturemapping:Matrix;
         arcane var _normal:Number3D;
@@ -37,13 +38,13 @@ package away3d.core.scene
 
             if (_v0 != null)
                 if ((_v0 != _v1) && (_v0 != _v2))
-                    _v0.removeOnChange(onVertexChange);
+                    _v0.removeOnChange(onVertexValueChange);
 
             _v0 = value;
 
             if (_v2 != null)
                 if ((_v0 != _v1) && (_v0 != _v2))
-                    _v0.addOnChange(onVertexChange);
+                    _v0.addOnChange(onVertexValueChange);
 
             notifyVertexChange();
         }
@@ -60,13 +61,13 @@ package away3d.core.scene
 
             if (_v1 != null)
                 if ((_v1 != _v0) && (_v1 != _v2))
-                    _v1.removeOnChange(onVertexChange);
+                    _v1.removeOnChange(onVertexValueChange);
 
             _v1 = value;
 
             if (_v2 != null)
                 if ((_v1 != _v0) && (_v1 != _v2))
-                    _v1.addOnChange(onVertexChange);
+                    _v1.addOnChange(onVertexValueChange);
 
             notifyVertexChange();
         }
@@ -83,13 +84,13 @@ package away3d.core.scene
 
             if (_v2 != null)
                 if ((_v2 != _v1) && (_v2 != _v0))
-                    _v2.removeOnChange(onVertexChange);
+                    _v2.removeOnChange(onVertexValueChange);
 
             _v2 = value;
 
             if (_v2 != null)
                 if ((_v2 != _v1) && (_v2 != _v0))
-                    _v2.addOnChange(onVertexChange);
+                    _v2.addOnChange(onVertexValueChange);
 
             notifyVertexChange();
         }
@@ -128,6 +129,8 @@ package away3d.core.scene
 
         public function get uv0():UV
         {
+            _texturemapping = null;
+
             return _uv0;
         }
 
@@ -138,15 +141,17 @@ package away3d.core.scene
 
             if (_uv0 != null)
                 if ((_uv0 != _uv1) && (_uv0 != _uv2))
-                    _uv0.removeOnChange(onVertexChange);
+                    _uv0.removeOnChange(onUVChange);
 
             _uv0 = value;
 
             if (_uv0 != null)
                 if ((_uv0 != _uv1) && (_uv0 != _uv2))
-                    _uv0.addOnChange(onVertexChange);
+                    _uv0.addOnChange(onUVChange);
 
-            notifyUVChange();
+            _texturemapping = null;
+
+            notifyMappingChange();
         }
 
         public function get uv1():UV
@@ -161,15 +166,17 @@ package away3d.core.scene
 
             if (_uv1 != null)
                 if ((_uv1 != _uv0) && (_uv1 != _uv2))
-                    _uv1.removeOnChange(onVertexChange);
+                    _uv1.removeOnChange(onUVChange);
 
             _uv1 = value;
 
             if (_uv1 != null)
                 if ((_uv1 != _uv0) && (_uv1 != _uv2))
-                    _uv1.addOnChange(onVertexChange);
+                    _uv1.addOnChange(onUVChange);
 
-            notifyUVChange();
+            _texturemapping = null;
+
+            notifyMappingChange();
         }
 
         public function get uv2():UV
@@ -184,15 +191,17 @@ package away3d.core.scene
 
             if (_uv2 != null)
                 if ((_uv2 != _uv1) && (_uv2 != _uv0))
-                    _uv2.removeOnChange(onVertexChange);
+                    _uv2.removeOnChange(onUVChange);
 
             _uv2 = value;
 
             if (_uv2 != null)
                 if ((_uv2 != _uv1) && (_uv2 != _uv0))
-                    _uv2.addOnChange(onVertexChange);
+                    _uv2.addOnChange(onUVChange);
 
-            notifyUVChange();
+            _texturemapping = null;
+
+            notifyMappingChange();
         }
 
         public function get normal():Number3D
@@ -240,6 +249,45 @@ package away3d.core.scene
             }
         }
 
+        arcane function get mapping():Matrix
+        {
+            if (_texturemapping != null)
+                return _texturemapping;
+
+            if (_material == null)
+                return null;
+
+            if (!(_material is IUVMaterial))
+                return null;
+
+            var uvm:IUVMaterial = _material as IUVMaterial;
+            var width:Number = uvm.width;
+            var height:Number = uvm.height;
+            var u0:Number = width * uv0._u;
+            var u1:Number = width * uv1._u;
+            var u2:Number = width * uv2._u;
+            var v0:Number = height * (1 - uv0._v);
+            var v1:Number = height * (1 - uv1._v);
+            var v2:Number = height * (1 - uv2._v);
+    
+            // Fix perpendicular projections
+            if ((u0 == u1 && v0 == v1) || (u0 == u2 && v0 == v2))
+            {
+                u0 -= (u0 > 0.05) ? 0.05 : -0.05;
+                v0 -= (v0 > 0.07) ? 0.07 : -0.07;
+            }
+    
+            if (u2 == u1 && v2 == v1)
+            {
+                u2 -= (u2 > 0.05) ? 0.04 : -0.04;
+                v2 -= (v2 > 0.06) ? 0.06 : -0.06;
+            }
+
+            _texturemapping = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
+            _texturemapping.invert();
+            return _texturemapping;
+        }
+
         public function Face(v0:Vertex, v1:Vertex, v2:Vertex, material:ITriangleMaterial = null, uv0:UV = null, uv1:UV = null, uv2:UV = null)
         {
             this.v0 = v0;
@@ -257,25 +305,36 @@ package away3d.core.scene
             notifyVertexChange();
         }
 
+        private function onVertexValueChange(event:Event):void
+        {
+            _normal = null;
+            notifyVertexValueChange();
+        }
 
-        public function addOnUVChange(listener:Function):void
+        private function onUVChange(event:Event):void
         {
-            addEventListener("uvchanged", listener, false, 0, true);
+            _texturemapping = null;
+            notifyMappingChange();
         }
-        public function removeOnUVChange(listener:Function):void
+
+        public function addOnMappingChange(listener:Function):void
         {
-            removeEventListener("uvchanged", listener, false);
+            addEventListener("mappingchanged", listener, false, 0, true);
         }
-        private var uvchanged:FaceEvent;
-        protected function notifyUVChange():void
+        public function removeOnMappingChange(listener:Function):void
         {
-            if (!hasEventListener("uvchanged"))
+            removeEventListener("mappingchanged", listener, false);
+        }
+        private var mappingchanged:FaceEvent;
+        protected function notifyMappingChange():void
+        {
+            if (!hasEventListener("mappingchanged"))
                 return;
 
-            if (uvchanged == null)
-                uvchanged = new FaceEvent("uvchanged", this);
+            if (mappingchanged == null)
+                mappingchanged = new FaceEvent("mappingchanged", this);
                 
-            dispatchEvent(uvchanged);
+            dispatchEvent(mappingchanged);
         }
 
         public function addOnVertexChange(listener:Function):void
@@ -296,6 +355,26 @@ package away3d.core.scene
                 vertexchanged = new FaceEvent("vertexchanged", this);
                 
             dispatchEvent(vertexchanged);
+        }
+
+        public function addOnVertexValueChange(listener:Function):void
+        {
+            addEventListener("vertexvaluechanged", listener, false, 0, true);
+        }
+        public function removeOnVertexValueChange(listener:Function):void
+        {
+            removeEventListener("vertexvaluechanged", listener, false);
+        }
+        private var vertexvaluechanged:FaceEvent;
+        protected function notifyVertexValueChange():void
+        {
+            if (!hasEventListener("vertexvaluechanged"))
+                return;
+
+            if (vertexvaluechanged == null)
+                vertexvaluechanged = new FaceEvent("vertexvaluechanged", this);
+                
+            dispatchEvent(vertexvaluechanged);
         }
 
         public function addOnMaterialChange(listener:Function):void

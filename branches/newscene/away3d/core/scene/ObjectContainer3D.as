@@ -1,19 +1,45 @@
 package away3d.core.scene
 {
     import away3d.core.*;
+    import away3d.core.math.*;
 
     /** Container node for other objects of the scene */
     public class ObjectContainer3D extends Object3D
     {
         use namespace arcane;
 
-        arcane var _children:Array = new Array();
+        private var _children:Array = new Array();
 
         public function get children():Array
         {
             return _children;
         }
         
+        private var _radiusChild:Object3D = null;
+        private var _radiusDirty:Boolean = false;
+        private var _radius:Number = 0;
+
+        public override function get radius():Number
+        {
+            if (_radiusDirty)
+            {
+                var mr:Number = 0;
+                _radiusChild = null;
+                for each (var child:Object3D in _children)
+                {
+                    var r:Number = child.parentradius;
+                    if (r > mr)
+                    {
+                        mr = r;
+                        _radiusChild = child;
+                    }
+                }
+                _radius = mr;
+                _radiusDirty = false;
+            }
+            return _radius;
+        }
+
         public function ObjectContainer3D(init:Object = null, ...childarray)
         {
             if (init != null)
@@ -29,6 +55,18 @@ package away3d.core.scene
                 addChild(child);
         }
 
+        public function scale(scale:Number):void
+        {
+            for each (var child:Object3D in children)
+            {
+                child.x *= scale;
+                child.y *= scale;
+                child.z *= scale;
+                if (child is ObjectContainer3D)
+                    (child as ObjectContainer3D).scale(scale);
+            }
+        }
+    
         public function addChildren(...childarray):void
         {
             for each (var child:Object3D in childarray)
@@ -41,13 +79,7 @@ package away3d.core.scene
                 throw new Error("ObjectContainer3D.addChild(null)");
             if (child.parent == this)
                 return;
-            //internalAddChild(child);
             child.parent = this;
-        }
-
-        public function internalAddChild(child:Object3D):void
-        {
-            children.push(child);
         }
 
         public function removeChild(child:Object3D):void
@@ -56,8 +88,17 @@ package away3d.core.scene
                 throw new Error("ObjectContainer3D.removeChild(null)");
             if (child.parent != this)
                 return;
-            //internalRemoveChild(child);
             child.parent = null;
+        }
+
+        arcane function internalAddChild(child:Object3D):void
+        {
+            children.push(child);
+
+            child.addOnTransformChange(onChildChange);
+            child.addOnRadiusChange(onChildChange);
+
+            rememberChild(child);
         }
 
         arcane function internalRemoveChild(child:Object3D):void
@@ -65,7 +106,43 @@ package away3d.core.scene
             var index:int = children.indexOf(child);
             if (index == -1)
                 return;
+
+            forgetChild(child);
+
+            child.removeOnTransformChange(onChildChange);
+            child.removeOnRadiusChange(onChildChange);
+
             children.splice(index, 1);
+        }
+
+        private function onChildChange(event:Object3DEvent):void
+        {
+            var child:Object3D = event.object;
+
+            forgetChild(child);
+            rememberChild(child);
+        }
+        
+        private function forgetChild(child:Object3D):void
+        {
+            if (child == _radiusChild)
+            {
+                _radiusChild = null;
+                _radiusDirty = true;
+                notifyRadiusChange();
+            }
+        }
+
+        private function rememberChild(child:Object3D):void
+        {
+            var r:Number = child.parentradius;
+            if (r > _radius)
+            {
+                _radius = r;
+                _radiusChild = child;
+                _radiusDirty = false;
+                notifyRadiusChange();
+            }
         }
 
         public function getChildByName(name:String):Object3D

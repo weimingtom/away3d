@@ -15,7 +15,7 @@ package away3d.core.render
         public function ProjectionTraverser(view:View3D)
         {
             this.view = view;
-            this.transform = view.camera.getView();
+            this.transform = view.camera.view;
         }
 
         public override function match(node:Object3D):Boolean

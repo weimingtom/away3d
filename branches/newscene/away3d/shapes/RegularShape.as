@@ -9,7 +9,7 @@ package away3d.shapes
     /** Regular shape */
     public class RegularShape extends Vertices3D
     {   
-        public var radius:Number = 100;
+        public var xradius:Number = 100;
         public var sides:int = 3;
         
         public function RegularShape(init:Object = null)
@@ -18,9 +18,9 @@ package away3d.shapes
 
             init = Init.parse(init);
 
-            radius = init.getNumber("radius", 100);
-            width  = init.getNumber("width", radius*2);
-            height = init.getNumber("height", radius*2);
+            xradius = init.getNumber("radius", 100);
+            width  = init.getNumber("width", xradius*2);
+            height = init.getNumber("height", xradius*2);
             sides  = init.getInt("sides", 3, {min:2});
 
             buildShape();

@@ -24,7 +24,7 @@ package away3d.core.render
         private var sumtriarea:int;
         private var info:String;
 
-        public function render(view:View3D/*scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping*/):void
+        public function render(view:View3D):void
         {
             var scene:Scene3D = view.scene;
             var camera:Camera3D = view.camera;

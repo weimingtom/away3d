@@ -11,8 +11,8 @@ package away3d.core.draw
     /** Line segment drawing primitive */
     public class DrawSegment extends DrawPrimitive
     {
-        public var v0:Vertex2D;
-        public var v1:Vertex2D;
+        public var v0:ScreenVertex;
+        public var v1:ScreenVertex;
 
         public var length:Number;
 
@@ -119,7 +119,7 @@ package away3d.core.draw
             if (!another.contains(tv01x, tv01y))
                 return null;
 
-            var v01:Vertex2D = new Vertex2D(tv01x, tv01y, tv01z);
+            var v01:ScreenVertex = new ScreenVertex(tv01x, tv01y, tv01z);
 
             return [create(source, material, projection, v0, v01), create(source, material, projection, v01, v1)];
         }
@@ -173,7 +173,7 @@ package away3d.core.draw
             if (length < 5)
                 return null;
 
-            var v01:Vertex2D = Vertex2D.median(v0, v1, focus);
+            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 
             return [create(source, material, projection, v0, v01), create(source, material, projection, v01, v1)];
         }
@@ -186,7 +186,7 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(source:Object3D, material:ISegmentMaterial, projection:Projection, v0:Vertex2D, v1:Vertex2D):DrawSegment
+        public static function create(source:Object3D, material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
         {
             var tri:DrawSegment = new DrawSegment();
             tri.source = source;
@@ -219,8 +219,8 @@ package away3d.core.draw
         {
         /*
             var s1:DrawSegment = DrawSegment.create(null, null,
-                new Vertex2D(100,  100, 300),
-                new Vertex2D(-100, -100, 200));
+                new ScreenVertex(100,  100, 300),
+                new ScreenVertex(-100, -100, 200));
 
             assert(s1.length == 200*Math.sqrt(2));
             assert(s1.contains(0, 0));

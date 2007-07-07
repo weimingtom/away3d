@@ -106,14 +106,14 @@ package away3d.core.scene
         /** String representation */
         public function toString(): String
         {
-            return "new Vertex("+_x+", "+_y+", "+z+");";
+            return "new Vertex("+_x+", "+_y+", "+z+")";
         }
 
-        private var projected:Vertex2D;
+        private var projected:ScreenVertex;
         private var projection:Projection;
 
         /** @private Project a point to the screen space */
-        arcane function project(projection:Projection):Vertex2D
+        arcane function project(projection:Projection):ScreenVertex
         {
             if (this.projection == projection)
                 return projected;
@@ -121,11 +121,11 @@ package away3d.core.scene
             this.projection = projection;
 
             if (projected == null) 
-                projected = new Vertex2D();
+                projected = new ScreenVertex();
 
-            var vx:Number = this.x;
-            var vy:Number = this.y;
-            var vz:Number = this.z;
+            var vx:Number = x;
+            var vy:Number = y;
+            var vz:Number = z;
 
             var view:Matrix3D = projection.view;
     
@@ -149,11 +149,11 @@ package away3d.core.scene
         }
         
         /** @private Apply perspective distortion */
-        arcane function perspective(focus:Number):Vertex2D
+        arcane function perspective(focus:Number):ScreenVertex
         {
             var persp:Number = 1 / (1 + z / focus);
 
-            return new Vertex2D(x * persp, y * persp, z);
+            return new ScreenVertex(x * persp, y * persp, z);
         }                     
 
         /** @private Set vertex coordinates */
