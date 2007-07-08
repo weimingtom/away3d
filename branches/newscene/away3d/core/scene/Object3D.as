@@ -14,19 +14,19 @@ package away3d.core.scene
 
         private var _rotationDirty:Boolean;
 
-        private var _rotationX:Number = 0;
-        private var _rotationY:Number = 0;
-        private var _rotationZ:Number = 0;
+        private var _rotationX:Number;
+        private var _rotationY:Number;
+        private var _rotationZ:Number;
     
         private var _worldDirty:Boolean;
         private var _world:Matrix3D;
 
         private var _scene:Scene3D;
 
-        private var _parent:ObjectContainer3D = null;
+        private var _parent:ObjectContainer3D;
 
         // Whether or not the display object is visible.
-        public var visible:Boolean = true;
+        public var visible:Boolean;
     
         // An optional object name.
         public var name:String;
@@ -35,7 +35,7 @@ package away3d.core.scene
         public var extra:Object;
 
         // Are the mouse events allowed
-        public var mousable:Boolean = true;
+        public var mousable:Boolean;
 
         public function get radius():Number
         {
@@ -240,7 +240,8 @@ package away3d.core.scene
             name = init.getString("name", null);
 
             visible = init.getBoolean("visible", true);
-
+            mousable = init.getBoolean("mousable", true);
+                                           
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
             z = init.getNumber("z", 0);
@@ -252,6 +253,7 @@ package away3d.core.scene
             extra = init.getObject("extra");
 
             parent = init.getObject3D("parent") as ObjectContainer3D;
+
             /*
             var scaling:Number = init.getNumber("scale", 1);
 
@@ -259,6 +261,7 @@ package away3d.core.scene
             scaleY(init.getNumber("scaleY", 1) * scaling);
             scaleZ(init.getNumber("scaleZ", 1) * scaling);
             */
+
 
             if (this is Scene3D)
                 _scene = this as Scene3D;

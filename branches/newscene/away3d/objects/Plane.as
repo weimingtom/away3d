@@ -40,25 +40,28 @@ package away3d.objects
             buildPlane(width, height, segmentsW, segmentsH);
         }
     
-        private var buildvertices:Array = [];
+        private var grid:Array;
 
         private function buildPlane(width:Number, height:Number, segmentsW:int, segmentsH:int):void
         {
-            buildvertices = [];
-            for (var i:int = 0; i < segmentsW + 1; i++)
+        	var i:int;
+        	var j:int;
+
+        	grid = new Array(segmentsW+1);
+            for (i = 0; i <= segmentsW; i++)
             {
-                buildvertices[i] = [];
-                for (var j:int = 0; j < segmentsH + 1; j++)
-                    buildvertices[i][j] = new Vertex((i / segmentsW - 0.5) * width, 0, (j / segmentsH - 0.5) * height);
+            	grid[i] = new Array(segmentsH+1);
+                for (j = 0; j <= segmentsH; j++)
+                    grid[i][j] = new Vertex((i / segmentsW - 0.5) * width, 0, (j / segmentsH - 0.5) * height);
             }
 
             for (i = 0; i < segmentsW; i++)
                 for (j = 0; j < segmentsH; j++)
                 {
-                    var a:Vertex = buildvertices[i  ][j  ]; 
-                    var b:Vertex = buildvertices[i+1][j  ];
-                    var c:Vertex = buildvertices[i  ][j+1]; 
-                    var d:Vertex = buildvertices[i+1][j+1];
+                    var a:Vertex = grid[i  ][j  ]; 
+                    var b:Vertex = grid[i+1][j  ];
+                    var c:Vertex = grid[i  ][j+1]; 
+                    var d:Vertex = grid[i+1][j+1];
 
                     var uva:UV = new UV(i     / segmentsW, j     / segmentsH);
                     var uvb:UV = new UV((i+1) / segmentsW, j     / segmentsH);
@@ -72,7 +75,7 @@ package away3d.objects
 
         public function vertex(i:int, j:int):Vertex
         {
-            return buildvertices[i][j];
+            return grid[i][j];
         }
 
     }

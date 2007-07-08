@@ -7,60 +7,64 @@ package away3d.objects
     import away3d.core.material.*;
     
     /** Torus */ 
-    public class Torus extends Mesh3D
+    public class Torus extends Mesh
     {
-        public var segmentsR:int;
-        public var segmentsT:int;
-    
-        public var tube:Number;
-
-        public function Torus(material:IMaterial, init:Object = null)
+        public function Torus(init:Object = null)
         {
-            super(material, init);
+            super(init);
             
             init = Init.parse(init);
 
-            segmentsR = init.getInt("segmentsR", 8, {min:3});
-            segmentsT = init.getInt("segmentsT", 6, {min:3})
             var radius:Number = init.getNumber("radius", 100, {min:0});
-            tube = init.getNumber("tube", 40, {min:0, max:radius});
+            var tube:Number = init.getNumber("tube", 40, {min:0, max:radius});
+            var segmentsR:int = init.getInt("segmentsR", 8, {min:3});
+            var segmentsT:int = init.getInt("segmentsT", 6, {min:3})
 
-            buildTorus(radius);
+            buildTorus(radius, tube, segmentsR, segmentsT);
         }
     
-        private function buildTorus(radius:Number):void
+        private var grid:Array;
+
+        private function buildTorus(radius:Number, tube:Number, segmentsR:int, segmentsT:int):void
         {
-            for (var ix:int = 0; ix < segmentsR; ix++)
-                for (var iy:int = 0; iy < segmentsT; iy++)
+        	var i:int;
+        	var j:int;
+
+        	grid = new Array(segmentsR);
+            for (i = 0; i < segmentsR; i++)
+            {
+            	grid[i] = new Array(segmentsT);
+                for (j = 0; j < segmentsT; j++)
                 {
-                    var u:Number = ix / segmentsR * 2 * Math.PI;
-                    var v:Number = iy / segmentsT * 2 * Math.PI;
-                    vertices.push(new Vertex3D((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u)));
+                    var u:Number = i / segmentsR * 2 * Math.PI;
+                    var v:Number = j / segmentsT * 2 * Math.PI;
+                    grid[i][j] = new Vertex((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u));
                 }
+            }
 
-            for (ix = 0; ix < segmentsR; ix++)
-                for (iy = 0; iy < segmentsT; iy++)
+            for (i = 0; i < segmentsR; i++)
+                for (j = 0; j < segmentsT; j++)
                 {
-                    var ixp:int = (ix+1) % segmentsR;
-                    var iyp:int = (iy+1) % segmentsT;
-                    var a:Vertex3D = vertices[ix  * (segmentsT) + iy]; 
-                    var b:Vertex3D = vertices[ixp * (segmentsT) + iy];
-                    var c:Vertex3D = vertices[ix  * (segmentsT) + iyp]; 
-                    var d:Vertex3D = vertices[ixp * (segmentsT) + iyp];
+                    var ip:int = (i+1) % segmentsR;
+                    var jp:int = (j+1) % segmentsT;
+                    var a:Vertex = grid[i ][j]; 
+                    var b:Vertex = grid[ip][j];
+                    var c:Vertex = grid[i ][jp]; 
+                    var d:Vertex = grid[ip][jp];
 
-                    var uva:UV = new UV(ix     / segmentsR, iy     / segmentsT);
-                    var uvb:UV = new UV((ix+1) / segmentsR, iy     / segmentsT);
-                    var uvc:UV = new UV(ix     / segmentsR, (iy+1) / segmentsT);
-                    var uvd:UV = new UV((ix+1) / segmentsR, (iy+1) / segmentsT);
+                    var uva:UV = new UV(i     / segmentsR, j     / segmentsT);
+                    var uvb:UV = new UV((i+1) / segmentsR, j     / segmentsT);
+                    var uvc:UV = new UV(i     / segmentsR, (j+1) / segmentsT);
+                    var uvd:UV = new UV((i+1) / segmentsR, (j+1) / segmentsT);
 
-                    faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
-                    faces.push(new Face3D(d, c, b, null, uvd, uvc, uvb));
+                    addFace(new Face(a, b, c, null, uva, uvb, uvc));
+                    addFace(new Face(d, c, b, null, uvd, uvc, uvb));
                 }
         }
 
-        public function vertice(ix:int, iy:int):Vertex3D
+        public function vertice(i:int, j:int):Vertex3D
         {
-            return vertices[ix * (segmentsT) + iy];
+            return vertices[i][j];
         }
 
     }
