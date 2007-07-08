@@ -8,7 +8,6 @@ package away3d.core.physics
     import away3d.core.draw.*;
 
     import flash.geom.*;
-    import away3d.objects.Plane;
 
     public class AccelerateTraverser extends Traverser
     {
