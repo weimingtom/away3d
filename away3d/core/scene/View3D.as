@@ -35,6 +35,9 @@ package away3d.core.scene
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
         public var renderer:IRenderer;
 
+        /** Fire mouse move events even in case mouse pointer doesn't move */
+        public var zeromousemove:Boolean;
+
         /** Create a new View3D */
         public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
         {
@@ -110,10 +113,20 @@ package away3d.core.scene
             }
         }
 
+        private var _lastmove_mouseX:Number;
+        private var _lastmove_mouseY:Number;
+
         /** Manually fire mouse move event */
         public function fireMouseMoveEvent():void
         {
+        	if (!zeromousemove)
+        		if ((mouseX == _lastmove_mouseX) && (mouseY == _lastmove_mouseY))
+        			return;
+
             fireMouseEvent(MouseEvent.MOUSE_MOVE, mouseX, mouseY);
+
+        	 _lastmove_mouseX = mouseX;
+        	 _lastmove_mouseY = mouseY;
         }
 
         /** Manually fire custom mouse event */

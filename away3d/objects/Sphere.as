@@ -22,31 +22,34 @@ package away3d.objects
             buildSphere(radius, segmentsW, segmentsH);
         }
     
+        private var grid:Array;
+
         private function buildSphere(radius:Number, segmentsW:int, segmentsH:int):void
         {
             var i:int;
             var j:int;
-            var grid:Array = [];
 
+            grid = new Array(segmentsH + 1);
             for (j = 0; j <= segmentsH; j++)  
             { 
                 var horangle:Number = j / segmentsH * Math.PI;
                 var z:Number = -radius * Math.cos(horangle);
                 var ringradius:Number = radius * Math.sin(horangle);
-                var row:Array = [];
-                var vertex:Vertex;
 
+                grid[j] = new Array(segmentsW);
+
+                var vertex:Vertex;
                 for (i = 0; i < segmentsW; i++) 
                 { 
                     var verangle:Number = 2 * i / segmentsW;
                     var x:Number = ringradius * Math.sin(verangle*Math.PI);
                     var y:Number = ringradius * Math.cos(verangle*Math.PI);
 
-                    if (((0 < j) && (j < segmentsH)) || (i == 0)) 
+                    if ((i == 0) || ((0 < j) && (j < segmentsH)))
                         vertex = new Vertex(y, z, x);
-                    row.push(vertex);
+
+                    grid[j][i] = vertex;
                 }
-                grid.push(row);
             }
 
             for (j = 1; j <= segmentsH; j++) 
@@ -71,6 +74,11 @@ package away3d.objects
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
+        }
+
+        public function vertex(i:int, j:int):Vertex
+        {
+            return grid[j][i];
         }
     }
 }
