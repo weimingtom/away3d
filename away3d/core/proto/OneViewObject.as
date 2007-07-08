@@ -24,7 +24,7 @@ package away3d.core.proto
             addChild(mesh);
         }
 
-        public function matchLOD(view:View3D, transform:Matrix3D):Boolean
+        public function matchLOD(view:View3D):Boolean
         {
             return view == this.view;
         }

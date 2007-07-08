@@ -134,6 +134,15 @@ package away3d.core.proto
             }
         }
 
+        public function screen(object:Object3D, vertex:Vertex3D = null):Vertex2D
+        {
+            if (vertex == null)
+                vertex = new Vertex3D(0,0,0);
+
+            // return vertex.project(new Projection(Matrix3D.multiply(getView(), object.relative()), focus, zoom));
+            return vertex.project(new Projection(this, object.relative()));
+        }
+
         /*
         public function findHit(x:Number, y:Number):Object3D
         {

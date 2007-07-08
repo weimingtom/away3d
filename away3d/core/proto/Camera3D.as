@@ -47,14 +47,6 @@ package away3d.core.proto
             return Matrix3D.inverse(Matrix3D.multiply(transform, _flipY));
         }
     
-        public function screen(object:Object3D, vertex:Vertex3D = null):Vertex2D
-        {
-            if (vertex == null)
-                vertex = new Vertex3D(0,0,0);
-
-            return vertex.project(new Projection(Matrix3D.multiply(getView(), object.relative()), focus, zoom));
-        }
-    
         private static var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);
     
        /**
