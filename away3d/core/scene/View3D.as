@@ -117,16 +117,16 @@ package away3d.core.scene
         private var _lastmove_mouseY:Number;
 
         /** Manually fire mouse move event */
-        public function fireMouseMoveEvent():void
+        public function fireMouseMoveEvent(force:Boolean = false):void
         {
-        	if (!zeromousemove)
-        		if ((mouseX == _lastmove_mouseX) && (mouseY == _lastmove_mouseY))
-        			return;
+            if (!(zeromousemove || force))
+                if ((mouseX == _lastmove_mouseX) && (mouseY == _lastmove_mouseY))
+                    return;
 
             fireMouseEvent(MouseEvent.MOUSE_MOVE, mouseX, mouseY);
 
-        	 _lastmove_mouseX = mouseX;
-        	 _lastmove_mouseY = mouseY;
+             _lastmove_mouseX = mouseX;
+             _lastmove_mouseY = mouseY;
         }
 
         /** Manually fire custom mouse event */

@@ -1,4 +1,4 @@
-package away3d.core.scene
+package away3d.core.utils
 {
     import away3d.core.*;
     import away3d.core.math.*;

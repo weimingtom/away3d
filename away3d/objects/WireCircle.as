@@ -4,44 +4,36 @@ package away3d.objects
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.material.*;
     
     /** Wire circle */ 
-    public class WireCircle extends Mesh3D
+    public class WireCircle extends WireMesh
     {
-        public function WireCircle(material:ISegmentMaterial, init:Object = null)
+        public function WireCircle(init:Object = null)
         {
-            super(material, init);
+            super(init);
             
             init = Init.parse(init);
 
             var radius:Number = init.getNumber("radius", 100, {min:0});
-            var segmentsR:int = init.getInt("segmentsR", 8, {min:3});
+            var segments:int = init.getInt("segments", 8, {min:3});
 
-            buildCircle(radius, segmentsR);
+            buildCircle(radius, segments);
         }
     
-        private function buildCircle(radius:Number, segmentsR:int):void
+        private function buildCircle(radius:Number, segments:int):void
         {
-            for (var ix:int = 0; ix < segmentsR; ix++)
+            var vertices:Array = [];
+            var i:int;
+            for (i = 0; i < segments; i++)
             {
-                var u:Number = ix / segmentsR * 2 * Math.PI;
-                vertices.push(new Vertex3D(radius*Math.cos(u), 0, radius*Math.sin(u)));
+                var u:Number = i / segments * 2 * Math.PI;
+                vertices.push(new Vertex(radius*Math.cos(u), 0, radius*Math.sin(u)));
             }
 
-            for (ix = 0; ix < segmentsR; ix++)
-            {
-                var ixp:int = (ix+1) % segmentsR;
-                var a:Vertex3D = vertices[ix ]; 
-                var b:Vertex3D = vertices[ixp];
-
-                segments.push(new Segment3D(a, b));
-            }
-        }
-
-        public function vertice(ix:int):Vertex3D
-        {
-            return vertices[ix];
+            for (i = 0; i < segments; i++)
+                addSegment(new Segment(vertices[i], vertices[(i+1) % segments]));
         }
 
     }

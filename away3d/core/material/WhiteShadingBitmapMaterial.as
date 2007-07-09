@@ -16,15 +16,8 @@ package away3d.core.material
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
         public var diffuse:BitmapData;
-        public var smooth:Boolean = false;
-        
-        protected var _width:int;
-        protected var _height:int;
-        protected var _transform:Matrix = new Matrix();
-        protected var _normal:Number3D = new Number3D(0,0,0);
-        protected var _repeat:Boolean = false;
-        protected var _scalex:Boolean = false;
-        protected var _scaley:Boolean = false;
+        public var smooth:Boolean;
+        public var repeat:Boolean;
         
         public var blackrender:Boolean;
         public var whiterender:Boolean;
@@ -32,37 +25,12 @@ package away3d.core.material
 
         public function get width():Number
         {
-            return _width;
+            return diffuse.width;
         }
 
         public function get height():Number
         {
-            return _height;
-        }
-        
-        public function get transform():Matrix
-        {
-            return _transform;
-        }
-        
-        public function get normal():Number3D
-        {
-            return _normal;
-        }
-                
-        public function get repeat():Boolean
-        {
-            return _repeat;
-        }
-        
-        public function get scalex():Boolean
-        {
-            return _scalex;
-        }
-        
-        public function get scaley():Boolean
-        {
-            return _scaley;
+            return diffuse.height;
         }
         
         public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object)
@@ -70,17 +38,11 @@ package away3d.core.material
             super(init);
 
             this.diffuse = diffuse;
-            _width = diffuse.width;
-            _height = diffuse.height;
 
             init = Init.parse(init);
 
             smooth = init.getBoolean("smooth", false);
-            _transform = init.getObject("transform", new Matrix());
-            _normal = init.getNumber3D("normal");
-            _repeat = init.getBoolean("repeat", false);
-            _scalex = init.getBoolean("scalex", false);
-            _scaley = init.getBoolean("scaley", false);
+            repeat = init.getBoolean("repeat", false);
         }
 
         private var cache:Dictionary = new Dictionary();

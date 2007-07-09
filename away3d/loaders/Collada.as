@@ -5,6 +5,7 @@ package away3d.loaders
     import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
+    import away3d.core.mesh.*;
 
     /** Collada scene loader */
     public class Collada
@@ -15,25 +16,29 @@ package away3d.loaders
         private var scaling:Number;
         private var yUp:Boolean;
     
-        public function Collada(xml:XML, materials:MaterialLibrary = null, init:Object = null)
+        public function Collada(xml:XML, init:Object = null)
         {
             collada = xml;
 
-            library = materials;
-    
             init = Init.parse(init);
 
             scaling = init.getNumber("scaling", 1) * 100;
+            library = Cast.library(init.getObject("materials"));
+            library.def = init.getMaterial("material");
     
             container = new ObjectContainer3D(init);
 
             buildCollada();
         }
 
-        public static function parse(data:*, materials:* = null, init:Object = null):ObjectContainer3D
+        public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-            var collada:Collada = new Collada(Cast.xml(data), Cast.library(materials), init);
-            return collada.container;
+            return new Collada(Cast.xml(data), init).container;
+        }
+
+        public static function load(url:String, init:Object = null, title:String = null, loader:Class = null):Object3D
+        {
+            return new (loader || CubeLoader)(url, parse, init, title);
         }
 
         protected function buildCollada():void
@@ -66,7 +71,7 @@ package away3d.loaders
             if (String(node.instance_geometry) == "")
                 newnode = new ObjectContainer3D();
             else                                                
-                newnode = new Mesh3D(null);
+                newnode = new Mesh(null);
 
             newnode.name = node.@name;
             parent.addChild(newnode);
@@ -110,7 +115,7 @@ package away3d.loaders
 
                             var geoId:String = getId(geometry.@url);
                             var geo:XML = collada.library_geometries.geometry.(@id == geoId)[0];
-                            parseGeometry(geo, newnode as Mesh3D);
+                            parseGeometry(geo, newnode as Mesh);
                         }
                         break;
                 }
@@ -119,7 +124,7 @@ package away3d.loaders
             newnode.setTransform(matrix); 
         }
     
-        private function parseGeometry(geometry:XML, instance:Mesh3D):void
+        private function parseGeometry(geometry:XML, instance:Mesh):void
         {
             // Semantics
             var semantics:Object = new Object();
@@ -167,11 +172,10 @@ package away3d.loaders
             buildObject(semantics, instance);
         }
     
-        private function buildObject(semantics:Object, mesh:Mesh3D):void
+        private function buildObject(semantics:Object, mesh:Mesh):void
         {
             // Vertices
-            var vertices:Array = mesh.vertices;
-            var accVerts:Number= vertices.length;
+            var vertices:Array = [];
     
             var semVertices:Array = semantics.VERTEX;
             var len:Number = semVertices.length;
@@ -186,13 +190,13 @@ package away3d.loaders
                 var z:Number = Number(vert.Z) * scaling;
     
                 if (this.yUp)
-                    vertices.push(new Vertex3D(-x, y, z));
+                    vertices.push(new Vertex(-x, y, z));
                 else
-                    vertices.push(new Vertex3D( x, z, y));
+                    vertices.push(new Vertex( x, z, y));
             }
     
             // Faces
-            var faces:Array = mesh.faces;
+            //var faces:Array = mesh.faces;
             var semFaces:Array = semantics.triangles;
             len = semFaces.length;
     
@@ -200,9 +204,9 @@ package away3d.loaders
             {
                 // Triangle
                 var tri:Array = semFaces[i].VERTEX;
-                var a:Vertex3D = vertices[accVerts + tri[0]];
-                var b:Vertex3D = vertices[accVerts + tri[1]];
-                var c:Vertex3D = vertices[accVerts + tri[2]];
+                var a:Vertex = vertices[tri[0]];
+                var b:Vertex = vertices[tri[1]];
+                var c:Vertex = vertices[tri[2]];
     
                 var tex:Array = semantics.TEXCOORD;
                 var uv:Array = semFaces[i].TEXCOORD;
@@ -220,8 +224,8 @@ package away3d.loaders
 
                 var materialName:String = semFaces[i].material || null;
     
-                var face:Face3D = new Face3D(a, b, c, library.getTriangleMaterial(materialName), uvA, uvB, uvC);
-                faces.push(face);
+                var face:Face = new Face(a, b, c, library.getTriangleMaterial(materialName), uvA, uvB, uvC);
+                mesh.addFace(face);
             }
     
             mesh.material = new WireColorMaterial(0xFF0000, 0.25, 0, 0.25);

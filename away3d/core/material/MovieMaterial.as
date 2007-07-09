@@ -8,7 +8,6 @@ package away3d.core.material
 
     import flash.display.BitmapData;
     import flash.display.MovieClip;
-    import flash.display.Sprite;
     import flash.geom.Matrix;
 
     /** Material that can render a MovieClip on object */

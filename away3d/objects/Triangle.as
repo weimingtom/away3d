@@ -4,58 +4,59 @@ package away3d.objects
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.material.*;
     
     /** Triangle */ 
-    public class Triangle extends Mesh3D
+    public class Triangle extends Mesh
     {
-        public function get v0():Vertex3D
+        private var _a:Vertex;
+        private var _b:Vertex;
+        private var _c:Vertex;
+        private var _face:Face;
+
+        public function get a():Vertex
         {
-            return vertices[0];
+            return _face.v0;
         }
 
-        public function get v1():Vertex3D
+        public function set a(value:Vertex):void
         {
-            return vertices[1];
+            _face.v0 = value;
         }
 
-        public function get v2():Vertex3D
+        public function get b():Vertex
         {
-            return vertices[2];
+            return _face.v1;
         }
 
-        public function Triangle(material:IMaterial = null, bordermaterial:ISegmentMaterial = null, edge:Number = 0, init:Object = null)
+        public function set b(value:Vertex):void
         {
-            super(material, init);
+            _face.v1 = value;
+        }
+
+        public function get c():Vertex
+        {
+            return _face.v2;
+        }
+
+        public function set c(value:Vertex):void
+        {
+            _face.v2 = value;
+        }
+
+
+        public function Triangle(init:Object = null)
+        {
+            super(init);
     
-            if (edge == 0)
-                edge = 170;
+            init = Init.parse(init);
 
-            edge /= 2;
-
+            var edge:Number = init.getNumber("edge", 100, {min:0}) / 2;
             var s3:Number = 1 / Math.sqrt(3);
 
-            var a:Vertex3D = new Vertex3D(0, 2 * s3 * edge, 0); 
-            var b:Vertex3D = new Vertex3D(edge, - s3 * edge, 0);  
-            var c:Vertex3D = new Vertex3D(-edge, - s3 * edge, 0);
-
-            var uva:UV = new UV(0, 0);
-            var uvb:UV = new UV(1, 0);
-            var uvc:UV = new UV(0, 1);
-
-            vertices.push(a);
-            vertices.push(b);
-            vertices.push(c);
-
-            faces.push(new Face3D(a, b, c, null, uva, uvb, uvc));
-            faces.push(new Face3D(a, c, b, null, uva, uvc, uvb));
-
-            if (bordermaterial == null)
-                bordermaterial = new WireframeMaterial(0x000000);
-
-            segments.push(new Segment3D(a, b, bordermaterial));
-            segments.push(new Segment3D(b, c, bordermaterial));
-            segments.push(new Segment3D(c, a, bordermaterial));
+            _face = new Face(new Vertex(0, 2*s3*edge, 0), new Vertex(edge, - s3*edge, 0), new Vertex(-edge, - s3*edge, 0), null, new UV(0, 0), new UV(1, 0), new UV(0, 1));
+            addFace(_face);
         }
     
     }

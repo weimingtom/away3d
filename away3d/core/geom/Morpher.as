@@ -2,15 +2,16 @@ package away3d.core.geom
 {
     import away3d.core.*;
     import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.scene.*;
     
     /** Keyframe animation morpher */
     public class Morpher extends Object3D
     {
         public var weight:Number;
-        public var vertices:Vertices3D;
+        public var vertices:BaseMesh;
 
-        public function Morpher(vertices:Vertices3D)
+        public function Morpher(vertices:BaseMesh)
         {
             this.vertices = vertices;
         }
@@ -18,7 +19,7 @@ package away3d.core.geom
         public function start():void
         {
             weight = 0;
-            for each (var v:Vertex3D in vertices.vertices)
+            for each (var v:Vertex in vertices.vertices)
             {
                 v.x = 0;
                 v.y = 0;
@@ -26,7 +27,7 @@ package away3d.core.geom
             }
         }
 
-        public function mix(comp:Vertices3D, k:Number):void
+        public function mix(comp:BaseMesh, k:Number):void
         {
             weight += k;
             var length:int = vertices.vertices.length;
@@ -38,7 +39,7 @@ package away3d.core.geom
             }
         }
 
-        public function finish(comp:Vertices3D):void
+        public function finish(comp:BaseMesh):void
         {
             mix(comp, 1 - weight);
             weight = 1;
