@@ -9,6 +9,7 @@ package away3d.extrusions
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.render.*;
+    import away3d.core.mesh.*;
     
     /** Linear extrude */
     public class LinearExtrude extends Mesh3D

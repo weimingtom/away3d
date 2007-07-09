@@ -4,6 +4,7 @@ package away3d.objects
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.material.*;
     
     /** Torus */ 
@@ -27,13 +28,13 @@ package away3d.objects
 
         private function buildTorus(radius:Number, tube:Number, segmentsR:int, segmentsT:int):void
         {
-        	var i:int;
-        	var j:int;
+            var i:int;
+            var j:int;
 
-        	grid = new Array(segmentsR);
+            grid = new Array(segmentsR);
             for (i = 0; i < segmentsR; i++)
             {
-            	grid[i] = new Array(segmentsT);
+                grid[i] = new Array(segmentsT);
                 for (j = 0; j < segmentsT; j++)
                 {
                     var u:Number = i / segmentsR * 2 * Math.PI;
@@ -62,7 +63,7 @@ package away3d.objects
                 }
         }
 
-        public function vertice(i:int, j:int):Vertex3D
+        public function vertex(i:int, j:int):Vertex3D
         {
             return vertices[i][j];
         }

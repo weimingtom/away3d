@@ -5,6 +5,7 @@ package away3d.core.scene
     import away3d.core.draw.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
+    import away3d.core.mesh.*;
     
     // The Camera3D class is the base class for all the cameras that can be placed in a scene.
     // A camera defines the view from which a scene will be rendered. Different camera settings would present a scene from different points of view.
@@ -27,7 +28,7 @@ package away3d.core.scene
         // @param init An optional object that contains user defined properties with which to populate the newly created Object3D.
         // It includes x, y, z, rotationX, rotationY, rotationZ, scaleX, scaleY scaleZ and a user defined extra object.
         // If extra is not an object, it is ignored. All properties of the extra field are copied into the new instance. The properties specified with extra are publicly available.
-        public function Camera3D(/*zoom:Number = 3, focus:Number = 500,*/ init:Object = null)
+        public function Camera3D(init:Object = null)
         {
             super(init);
 
@@ -46,10 +47,12 @@ package away3d.core.scene
             return Matrix3D.inverse(Matrix3D.multiply(scene ? world : transform, _flipY));
         }
     
-        public function screen(object:Object3D, vertex:Vertex3D = null):ScreenVertex
+        public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
+            use namespace arcane;
+
             if (vertex == null)
-                vertex = new Vertex3D(0,0,0);
+                vertex = new Vertex(0,0,0);
 
             return vertex.project(new Projection(Matrix3D.multiply(view, object.world), focus, zoom));
         }

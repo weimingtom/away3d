@@ -1,4 +1,4 @@
-package away3d.core.scene
+package away3d.core.mesh
 {
     import away3d.core.draw.*;
     import away3d.core.geom.*;
@@ -11,19 +11,19 @@ package away3d.core.scene
     import flash.events.MouseEvent;
     import flash.events.Event;
     
-    public class FaceEvent extends Event
+    public class SegmentEvent extends Event
     {
-        public var face:Face;
+        public var segment:Segment;
 
-        public function FaceEvent(type:String, face:Face)
+        public function SegmentEvent(type:String, segment:Segment)
         {
             super(type);
-            this.face = face;
+            this.segment = segment;
         }
 
         public override function clone():Event
         {
-            return new FaceEvent(type, face);
+            return new SegmentEvent(type, segment);
         }
     }
 }

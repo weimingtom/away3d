@@ -1,9 +1,10 @@
-package away3d.core.scene
+package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.math.*;
+    import away3d.core.utils.*;
 
     /** A vertex in the 3D space */
     public class Vertex extends ValueObject

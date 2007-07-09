@@ -7,7 +7,7 @@ package away3d.loaders
     /** Set of the named materials */
     public class MaterialLibrary
     {
-        private var def:IMaterial;
+        public var def:IMaterial;
         private var materials:Dictionary = new Dictionary();
     
         public function MaterialLibrary(def:IMaterial = null):void
@@ -17,10 +17,7 @@ package away3d.loaders
     
         public function add(material:IMaterial, name:String):void
         {
-            if (name == "def")
-                def = material;
-            else
-                materials[name] = material;
+            materials[name] = material;
         }
     
         public function getMaterialByName(name:String):IMaterial

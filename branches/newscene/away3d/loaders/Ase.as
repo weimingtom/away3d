@@ -4,36 +4,43 @@ package away3d.loaders
     import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.material.*;
+    import away3d.core.mesh.*;
 
     import flash.display.BitmapData;
 
     /** Ase file format loader */
     public class Ase
     {
-        private var mesh:Mesh3D;
+        private var mesh:Mesh;
         private var scaling:Number;
 
-        public function Ase(data:String, material:IMaterial, init:Object = null)
+        public function Ase(data:String, init:Object = null)
         {
             init = Init.parse(init);
 
             scaling = init.getNumber("scaling", 1) * 100;
 
-            mesh = new Mesh3D(material, init);
+            mesh = new Mesh(init);
 
             parseAse(data);
         }
 
-        public static function parse(data:*, material:* = null, init:Object = null):Mesh3D
+        public static function parse(data:*, init:Object = null):Mesh
         {
-            var ase:Ase = new Ase(Cast.string(data), Cast.material(material), init);
-            return ase.mesh;
+            return new Ase(Cast.string(data), init).mesh;
+        }
+    
+        public static function load(url:String, init:Object = null, title:String = null, loader:Class = null):Object3D
+        {
+            return new (loader || CubeLoader)(url, parse, init, title);
         }
     
         private function parseAse(data:String):void
         {
             var lines:Array = data.split('\r\n');
+            var vertices:Array = [];
             var uvs:Array = [];
+            var faces:Array = [];
     
             while (lines.length > 0)
             {
@@ -65,7 +72,7 @@ package away3d.loaders
                             var z:Number = parseFloat(mvl[2]) * scaling; 
                             var y:Number = parseFloat(mvl[3]) * scaling;
     
-                            mesh.vertices.push(new Vertex3D(x, y, z));
+                            vertices.push(new Vertex(x, y, z));
                         }
                         break;
                     case 'MESH_FACE_LIST':
@@ -83,15 +90,15 @@ package away3d.loaders
     
                             var con:String;
                             con = drc[2]
-                            var a:Vertex3D = mesh.vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
+                            var a:Vertex = vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
     
                             con = drc[3];
-                            var b:Vertex3D = mesh.vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
+                            var b:Vertex = vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
     
                             con = drc[4];
-                            var c:Vertex3D = mesh.vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
+                            var c:Vertex = vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
     
-                            mesh.faces.push(new Face3D(a, b, c));
+                            faces.push(new Face(a, b, c));
                         }
                         break;
     
@@ -110,7 +117,7 @@ package away3d.loaders
                         }
                         break;
                     case 'MESH_TFACELIST':
-                        var num: int = 0;
+                        var num:int = 0;
     
                         while (true)
                         {
@@ -123,7 +130,7 @@ package away3d.loaders
 
                             var mtfl:Array = mapline.split('\t');
     
-                            var face:Face3D = mesh.faces[num];
+                            var face:Face = faces[num];
                             face.uv0 = uvs[parseInt(mtfl[1])];
                             face.uv1 = uvs[parseInt(mtfl[2])];
                             face.uv2 = uvs[parseInt(mtfl[3])];
@@ -133,6 +140,9 @@ package away3d.loaders
                         break;
                 }
             }
+
+            for each (var f:Face in faces)
+                mesh.addFace(f);
         }
     }
 }

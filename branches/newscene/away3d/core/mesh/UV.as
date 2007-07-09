@@ -1,7 +1,8 @@
-package away3d.core.scene
+package away3d.core.mesh
 {
     /** Texture coordinates value. <br/> Properties u and v represent the horizontal and vertical texture axes. */
     import away3d.core.*;
+    import away3d.core.utils.*;
 
     public class UV extends ValueObject
     {

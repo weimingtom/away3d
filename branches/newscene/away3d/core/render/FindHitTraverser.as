@@ -6,6 +6,7 @@ package away3d.core.render
     import away3d.core.render.*;
     import away3d.core.geom.*;
     import away3d.core.math.*;
+    import away3d.core.mesh.*;
 
     /** Traverser that finds object that is rendered on certain screen coordinates. Used for mouse click event. */
     public class FindHitTraverser extends ProjectionTraverser implements IPrimitiveConsumer

@@ -192,6 +192,21 @@ package away3d.core
             return result;
         }
 
+        public function getInit(name:String):Init
+        {
+            if (init == null)
+                return new Init(null);
+        
+            if (!init.hasOwnProperty(name))
+                return new Init(null);
+        
+            var result:Init = Init.parse(init[name]);
+
+            delete init[name];
+        
+            return result;
+        }
+
         public function getMaterial(name:String):IMaterial
         {
             if (init == null)
@@ -205,6 +220,16 @@ package away3d.core
             delete init[name];
         
             return result;
+        }
+
+        public function getTriangleMaterial(name:String):ITriangleMaterial
+        {
+            return getMaterial(name) as ITriangleMaterial;
+        }
+
+        public function getSegmentMaterial(name:String):ISegmentMaterial
+        {
+            return getMaterial(name) as ISegmentMaterial;
         }
 
         private static var inits:Array = [];

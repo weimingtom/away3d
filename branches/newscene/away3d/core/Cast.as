@@ -73,7 +73,9 @@ package away3d.core
             if (colornames[data] != null)
                 return colornames[data];
 
-            throw new Error(data+" "+parseInt("0x"+data));
+            //throw new Error(data+" "+parseInt("0x"+data));
+            if (data.length == 6)
+                return parseInt("0x"+data);
 
             throw new Error("Unknown color: "+data);
             //return unknowncolor;
@@ -165,6 +167,7 @@ package away3d.core
             if (data is MaterialLibrary)
                 return data;
 
+            /*
             if (data is IMaterial)
                 return new MaterialLibrary(data);
 
@@ -174,6 +177,7 @@ package away3d.core
             // if (data is BitmapAsset)
             if (data.bitmapData) 
                 return new MaterialLibrary(new BitmapMaterial(data.bitmapData, {smooth:true}));
+            */
 
             var result:MaterialLibrary = new MaterialLibrary();
             for (var name:String in data)

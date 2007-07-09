@@ -1,15 +1,16 @@
-package away3d.core.scene
+package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
     import away3d.core.geom.*;
+    import away3d.core.utils.*;
     
     import flash.geom.Matrix;
     import flash.events.Event;
 
     /** Mesh's triangle face */
-    public class Face extends LazyEventDispatcher
+    public class Face extends BaseMeshElement
     {
         use namespace arcane;
 
@@ -22,9 +23,13 @@ package away3d.core.scene
         arcane var _uv1:UV;
         arcane var _uv2:UV;
         arcane var _material:ITriangleMaterial;
-        arcane var _visible:Boolean = true;
-        arcane var _texturemapping:Matrix;
-        arcane var _normal:Number3D;
+        private var _texturemapping:Matrix;
+        private var _normal:Number3D;
+
+        public override function get vertices():Array
+        {
+            return [_v0, _v1, _v2];
+        }
 
         public function get v0():Vertex
         {
@@ -42,7 +47,7 @@ package away3d.core.scene
 
             _v0 = value;
 
-            if (_v2 != null)
+            if (_v0 != null)
                 if ((_v0 != _v1) && (_v0 != _v2))
                     _v0.addOnChange(onVertexValueChange);
 
@@ -65,7 +70,7 @@ package away3d.core.scene
 
             _v1 = value;
 
-            if (_v2 != null)
+            if (_v1 != null)
                 if ((_v1 != _v0) && (_v1 != _v2))
                     _v1.addOnChange(onVertexValueChange);
 
@@ -110,21 +115,6 @@ package away3d.core.scene
             _texturemapping = null;
 
             notifyMaterialChange();
-        }
-
-        public function get visible():Boolean
-        {
-            return _visible;
-        }
-
-        public function set visible(value:Boolean):void
-        {
-            if (value == _visible)
-                return;
-
-            _visible = value;
-
-            notifyVisibleChange();
         }
 
         public function get uv0():UV
@@ -227,7 +217,7 @@ package away3d.core.scene
             return _normal;
         }
 
-        arcane function rad2():Number
+        public override function get radius2():Number
         {
             var rv0:Number = _v0._x*_v0._x + _v0._y*_v0._y + _v0._z*_v0._z;
             var rv1:Number = _v1._x*_v1._x + _v1._y*_v1._y + _v1._z*_v1._z;
@@ -337,46 +327,6 @@ package away3d.core.scene
             dispatchEvent(mappingchanged);
         }
 
-        public function addOnVertexChange(listener:Function):void
-        {
-            addEventListener("vertexchanged", listener, false, 0, true);
-        }
-        public function removeOnVertexChange(listener:Function):void
-        {
-            removeEventListener("vertexchanged", listener, false);
-        }
-        private var vertexchanged:FaceEvent;
-        protected function notifyVertexChange():void
-        {
-            if (!hasEventListener("vertexchanged"))
-                return;
-
-            if (vertexchanged == null)
-                vertexchanged = new FaceEvent("vertexchanged", this);
-                
-            dispatchEvent(vertexchanged);
-        }
-
-        public function addOnVertexValueChange(listener:Function):void
-        {
-            addEventListener("vertexvaluechanged", listener, false, 0, true);
-        }
-        public function removeOnVertexValueChange(listener:Function):void
-        {
-            removeEventListener("vertexvaluechanged", listener, false);
-        }
-        private var vertexvaluechanged:FaceEvent;
-        protected function notifyVertexValueChange():void
-        {
-            if (!hasEventListener("vertexvaluechanged"))
-                return;
-
-            if (vertexvaluechanged == null)
-                vertexvaluechanged = new FaceEvent("vertexvaluechanged", this);
-                
-            dispatchEvent(vertexvaluechanged);
-        }
-
         public function addOnMaterialChange(listener:Function):void
         {
             addEventListener("materialchanged", listener, false, 0, true);
@@ -395,26 +345,6 @@ package away3d.core.scene
                 materialchanged = new FaceEvent("materialchanged", this);
                 
             dispatchEvent(materialchanged);
-        }
-
-        public function addOnVisibleChange(listener:Function):void
-        {
-            addEventListener("visiblechanged", listener, false, 0, true);
-        }
-        public function removeOnVisibleChange(listener:Function):void
-        {
-            removeEventListener("visiblechanged", listener, false);
-        }
-        private var visiblechanged:FaceEvent;
-        protected function notifyVisibleChange():void
-        {
-            if (!hasEventListener("visiblechanged"))
-                return;
-
-            if (visiblechanged == null)
-                visiblechanged = new FaceEvent("visiblechanged", this);
-                
-            dispatchEvent(visiblechanged);
         }
 
     }

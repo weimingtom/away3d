@@ -4,57 +4,56 @@ package away3d.objects
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.material.*;
     
     /** Wire torus */ 
-    public class WireTorus extends Mesh3D
+    public class WireTorus extends WireMesh
     {
-        public var segmentsR:int;
-        public var segmentsT:int;
-    
-        public var tube:Number;
-
-        public function WireTorus(material:ISegmentMaterial, init:Object = null)
+        public function WireTorus(init:Object = null)
         {
-            super(material, init);
+            super(init);
             
             init = Init.parse(init);
 
-            segmentsR = init.getInt("segmentsR", 8, {min:3});
-            segmentsT = init.getInt("segmentsT", 6, {min:3})
             var radius:Number = init.getNumber("radius", 100, {min:0});
-            tube = init.getNumber("tube", 40, {min:0, max:radius});
+            var tube:Number = init.getNumber("tube", 40, {min:0, max:radius});
+            var segmentsR:int = init.getInt("segmentsR", 8, {min:3});
+            var segmentsT:int = init.getInt("segmentsT", 6, {min:3})
 
-            buildTorus(radius);
+            buildTorus(radius, tube, segmentsR, segmentsT);
         }
     
-        private function buildTorus(radius:Number):void
+        private var grid:Array;
+
+        private function buildTorus(radius:Number, tube:Number, segmentsR:int, segmentsT:int):void
         {
-            for (var ix:int = 0; ix < segmentsR; ix++)
-                for (var iy:int = 0; iy < segmentsT; iy++)
+            var i:int;
+            var j:int;
+
+            grid = new Array(segmentsR);
+            for (i = 0; i < segmentsR; i++)
+            {
+                grid[i] = new Array(segmentsT);
+                for (j = 0; j < segmentsT; j++)
                 {
-                    var u:Number = ix / segmentsR * 2 * Math.PI;
-                    var v:Number = iy / segmentsT * 2 * Math.PI;
-                    vertices.push(new Vertex3D((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u)));
+                    var u:Number = i / segmentsR * 2 * Math.PI;
+                    var v:Number = j / segmentsT * 2 * Math.PI;
+                    grid[i][j] = new Vertex((radius + tube*Math.cos(v))*Math.cos(u), tube*Math.sin(v), (radius + tube*Math.cos(v))*Math.sin(u));
                 }
+            }
 
-            for (ix = 0; ix < segmentsR; ix++)
-                for (iy = 0; iy < segmentsT; iy++)
+            for (i = 0; i < segmentsR; i++)
+                for (j = 0; j < segmentsT; j++)
                 {
-                    var ixp:int = (ix+1) % segmentsR;
-                    var iyp:int = (iy+1) % segmentsT;
-                    var a:Vertex3D = vertices[ix  * (segmentsT) + iy]; 
-                    var b:Vertex3D = vertices[ixp * (segmentsT) + iy];
-                    var c:Vertex3D = vertices[ix  * (segmentsT) + iyp]; 
-
-                    segments.push(new Segment3D(a, b));
-                    segments.push(new Segment3D(a, c));
+                    addSegment(new Segment(grid[i][j], grid[(i+1) % segmentsR][j]));
+                    addSegment(new Segment(grid[i][j], grid[i][(j+1) % segmentsT]));
                 }
         }
 
-        public function vertice(ix:int, iy:int):Vertex3D
+        public function vertex(i:int, j:int):Vertex3D
         {
-            return vertices[ix * (segmentsT) + iy];
+            return vertices[i][j];
         }
 
     }

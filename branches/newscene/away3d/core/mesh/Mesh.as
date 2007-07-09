@@ -1,18 +1,16 @@
-package away3d.core.scene
+package away3d.core.mesh
 {
     import away3d.core.*;
-    import away3d.core.geom.*;
+    import away3d.core.scene.*;
     import away3d.core.render.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
     
-    import away3d.objects.*;
-
     import flash.utils.Dictionary;
     
     /** Mesh constisting of faces and segments */
-    public class Mesh extends Object3D implements IPrimitiveProvider
+    public class Mesh extends BaseMesh implements IPrimitiveProvider
     {
         use namespace arcane;
 
@@ -23,36 +21,9 @@ package away3d.core.scene
             return _faces;
         }
 
-        private var _vertices:Array;
-        private var _verticesDirty:Boolean = true;
-
-        public function get vertices():Array
+        public override function get elements():Array
         {
-            if (_verticesDirty)
-            {
-                _vertices = [];
-                var processed:Dictionary = new Dictionary();
-                for each (var face:Face in _faces)
-                {
-                    if (!processed[face.v0])
-                    {
-                        _vertices.push(face.v0);
-                        processed[face.v0] = true;
-                    }
-                    if (!processed[face.v1])
-                    {
-                        _vertices.push(face.v1);
-                        processed[face.v1] = true;
-                    }
-                    if (!processed[face.v2])
-                    {
-                        _vertices.push(face.v2);
-                        processed[face.v2] = true;
-                    }
-                }
-                _verticesDirty = false;
-            }
-            return _vertices;
+            return _faces;
         }
 
         private var _neighboursDirty:Boolean = true;
@@ -139,117 +110,29 @@ package away3d.core.scene
             _neighboursDirty = false;
         }
          
-        private var _radiusFace:Face = null;
-        private var _radiusDirty:Boolean = false;
-        private var _radius:Number = 0;
-
-        public override function get radius():Number
-        {
-            if (_radiusDirty)
-            {
-                var mr:Number = 0;
-                _radiusFace = null;
-                for each (var face:Face in _faces)
-                {
-                    var r2:Number = face.rad2();
-                    if (r2 > mr)
-                    {
-                        mr = r2;
-                        _radiusFace = face;
-                    }
-                }
-                _radius = Math.sqrt(mr);
-                _radiusDirty = false;
-            }
-            return _radius;
-        }
-
-        public var material:IMaterial;
         public var outline:ISegmentMaterial;
         public var back:ITriangleMaterial;
-
         public var bothsides:Boolean;
-        public var pushback:Boolean;
-        public var pushfront:Boolean;
 
-        private var boundingsphere:Sphere;
-    
         public function Mesh(init:Object = null)
         {
             super(init);
 
             init = Init.parse(init);
             
-            material = init.getMaterial("material") || new WireColorMaterial();
+            material = (material as ITriangleMaterial) || new WireColorMaterial();
             outline = init.getMaterial("outline");
-            back = init.getMaterial("back") || (material as ITriangleMaterial);
+            back = init.getTriangleMaterial("back") || (material as ITriangleMaterial);
             bothsides = init.getBoolean("bothsides", false);
-            pushback = init.getBoolean("pushback", false);
-            pushfront = init.getBoolean("pushfront", false);
         }
-    
-        public function scale(scale:Number):void
-        {
-            scaleXYZ(scale, scale, scale);
-        }
-
-        public function scaleX(scaleX:Number):void
-        {
-            if (scaleX != 1)
-                scaleXYZ(scaleX, 1, 1);
-        }
-    
-        public function scaleY(scaleY:Number):void
-        {
-            if (scaleY != 1)
-                scaleXYZ(1, scaleY, 1);
-        }
-    
-        public function scaleZ(scaleZ:Number):void
-        {
-            if (scaleZ != 1)
-                scaleXYZ(1, 1, scaleZ);
-        }
-
-        public function scaleXYZ(scaleX:Number, scaleY:Number, scaleZ:Number):void
-        {
-            var processed:Dictionary = new Dictionary();
-            for each (var face:Face in _faces)
-            {
-                if (!processed[face.v0])
-                {
-                    face.v0.x *= scaleX;
-                    face.v0.y *= scaleY;
-                    face.v0.z *= scaleZ;
-                    processed[face.v0] = true;
-                }
-                if (!processed[face.v1])
-                {
-                    face.v1.x *= scaleX;
-                    face.v1.y *= scaleY;
-                    face.v1.z *= scaleZ;
-                    processed[face.v1] = true;
-                }
-                if (!processed[face.v2])
-                {
-                    face.v2.x *= scaleX;
-                    face.v2.y *= scaleY;
-                    face.v2.z *= scaleZ;
-                    processed[face.v2] = true;
-                }
-            }
-        }
-
 
         public function addFace(face:Face):void
         {
+            addElement(face);
+
             _faces.push(face);
-            _verticesDirty = true;
-                              
+
             face.addOnVertexChange(onFaceVertexChange);
-            face.addOnVertexValueChange(onFaceVertexValueChange);
-                                                
-            rememberFaceRadius(face);
             rememberFaceNeighbours(face);
         }
 
@@ -259,36 +142,12 @@ package away3d.core.scene
             if (index == -1)
                 return;
 
-            forgetFaceNeighbours(face);
-            forgetFaceRadius(face);
+            removeElement(face);
 
-            face.removeOnVertexValueChange(onFaceVertexValueChange);
+            forgetFaceNeighbours(face);
             face.removeOnVertexChange(onFaceVertexChange);
 
             _faces.splice(index, 1);
-            _verticesDirty = true;
-        }
-
-        private function rememberFaceRadius(face:Face):void
-        {
-            var r2:Number = face.rad2();
-            if (r2 > _radius*_radius)
-            {
-                _radius = Math.sqrt(r2);
-                _radiusFace = face;
-                _radiusDirty = false;
-                notifyRadiusChange();
-            }
-        }
-
-        private function forgetFaceRadius(face:Face):void
-        {
-            if (face == _radiusFace)
-            {
-                _radiusFace = null;
-                _radiusDirty = true;
-                notifyRadiusChange();
-            }
         }
 
         private function rememberFaceNeighbours(face:Face):void
@@ -397,24 +256,12 @@ package away3d.core.scene
             }
         }
 
-        private function onFaceVertexChange(event:FaceEvent):void
+        private function onFaceVertexChange(event:MeshElementEvent):void
         {
-            var face:Face = event.face;
+            var face:Face = event.element as Face;
 
-            forgetFaceRadius(face);
             forgetFaceNeighbours(face);
             rememberFaceNeighbours(face);
-            rememberFaceRadius(face);
-
-            _verticesDirty = true;
-        }
-
-        private function onFaceVertexValueChange(event:FaceEvent):void
-        {
-            var face:Face = event.face;
-
-            forgetFaceRadius(face);
-            rememberFaceRadius(face);
         }
 
         private function clear():void
@@ -477,24 +324,16 @@ package away3d.core.scene
 
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
-            //if (boundingsphere == null)
-            //{
-                //boundingsphere = new Sphere(new WireColorMaterial(0xFFFFFF, 0xFFFFFF, 0.1, 0.1), {segmentsW:16, segmentsH:12, radius:radius});
-                //throw new Error(radius);
-            //}
-
-            //boundingsphere.primitives(projection, consumer);
-
             if (outline != null)
                 findNeighbours();
 
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
-            var trimat:ITriangleMaterial = (material is ITriangleMaterial) ? (material as ITriangleMaterial) : null;
+            var trimat:ITriangleMaterial = material as ITriangleMaterial;
             var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
             for each (var face:Face in _faces)
             {
-                if (!face.visible)
+                if (!face._visible)
                     continue;
 
                 if (tri == null)
