@@ -4,7 +4,7 @@ package away3d.core.draw
     import away3d.core.material.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.render.*;
 
     import flash.display.Graphics;

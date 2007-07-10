@@ -1,6 +1,6 @@
-package away3d.core.draw
+package away3d.trash
 {
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
 
     /** Vertex in the screen space */
     public class Vertex2D

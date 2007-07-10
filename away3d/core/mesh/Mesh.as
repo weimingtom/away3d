@@ -110,6 +110,7 @@ package away3d.core.mesh
             _neighboursDirty = false;
         }
          
+        public var material:ITriangleMaterial;
         public var outline:ISegmentMaterial;
         public var back:ITriangleMaterial;
         public var bothsides:Boolean;
@@ -120,10 +121,13 @@ package away3d.core.mesh
 
             init = Init.parse(init);
             
-            material = (material as ITriangleMaterial) || new WireColorMaterial();
+            material = init.getTriangleMaterial("material");
             outline = init.getMaterial("outline");
             back = init.getTriangleMaterial("back") || (material as ITriangleMaterial);
             bothsides = init.getBoolean("bothsides", false);
+
+            if (material == null)
+                material = new WireColorMaterial();
         }
 
         public function addFace(face:Face):void
@@ -329,7 +333,6 @@ package away3d.core.mesh
 
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
-            var trimat:ITriangleMaterial = material as ITriangleMaterial;
             var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
             for each (var face:Face in _faces)
             {
@@ -366,7 +369,7 @@ package away3d.core.mesh
                     if (!bothsides)
                         continue;
 
-                tri.material = face._material || trimat;
+                tri.material = face._material || material;
 
                 if (backface)
                 {

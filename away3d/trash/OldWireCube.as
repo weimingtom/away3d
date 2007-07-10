@@ -1,8 +1,7 @@
-package away3d.objects
+package away3d.trash
 {
     import away3d.core.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
 

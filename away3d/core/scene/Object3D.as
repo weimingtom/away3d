@@ -179,11 +179,11 @@ package away3d.core.scene
 
             _transformDirty = false;
             _rotationDirty = true;
-
+            /*
             updateRotation();
 
             _transformDirty = true;
-
+            */
             notifyTransformChange();
         }
 

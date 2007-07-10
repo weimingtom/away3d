@@ -4,7 +4,7 @@ package away3d.core.draw
     import away3d.core.material.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.render.*;
     import away3d.core.mesh.*;
 
@@ -241,30 +241,30 @@ package away3d.core.draw
 
             // TODO: segment cross check - now some extra cuts are made
 
-            var tv0:Vertex3D = v0.deperspective(focus);
-            var tv1:Vertex3D = v1.deperspective(focus);
-            var tv2:Vertex3D = v2.deperspective(focus);
+            var tv0:Vertex = v0.deperspective(focus);
+            var tv1:Vertex = v1.deperspective(focus);
+            var tv2:Vertex = v2.deperspective(focus);
                 
             if (sv1*sv2 >= -1)
             {
-                //var tv20:Vertex = Vertex3D.weighted(tv2, tv0, -sv0, sv2);
-                //var tv01:Vertex = Vertex3D.weighted(tv0, tv1, sv1, -sv0);
+                //var tv20:Vertex = Vertex.weighted(tv2, tv0, -sv0, sv2);
+                //var tv01:Vertex = Vertex.weighted(tv0, tv1, sv1, -sv0);
 
                 return fivepointcut(source, material, projection,
-                    v2,  Vertex3D.weighted(tv2, tv0, -sv0, sv2).perspective(focus), v0, Vertex3D.weighted(tv0, tv1, sv1, -sv0).perspective(focus), v1,
+                    v2,  Vertex.weighted(tv2, tv0, -sv0, sv2).perspective(focus), v0, Vertex.weighted(tv0, tv1, sv1, -sv0).perspective(focus), v1,
                     uv2, UV.weighted(uv2, uv0, -sv0, sv2), uv0, UV.weighted(uv0, uv1, sv1, -sv0), uv1);
             }                                                           
             else                                                        
             if (sv0*sv1 >= -1)                                           
             {
                 return fivepointcut(source, material, projection,
-                    v1,  Vertex3D.weighted(tv1, tv2, -sv2, sv1).perspective(focus), v2, Vertex3D.weighted(tv2, tv0, sv0, -sv2).perspective(focus), v0,
+                    v1,  Vertex.weighted(tv1, tv2, -sv2, sv1).perspective(focus), v2, Vertex.weighted(tv2, tv0, sv0, -sv2).perspective(focus), v0,
                     uv1, UV.weighted(uv1, uv2, -sv2, sv1), uv2, UV.weighted(uv2, uv0, sv0, -sv2), uv0);
             }                                                           
             else                                                        
             {                                                           
                 return fivepointcut(source, material, projection,
-                    v0,  Vertex3D.weighted(tv0, tv1, -sv1, sv0).perspective(focus), v1, Vertex3D.weighted(tv1, tv2, sv2, -sv1).perspective(focus), v2,
+                    v0,  Vertex.weighted(tv0, tv1, -sv1, sv0).perspective(focus), v1, Vertex.weighted(tv1, tv2, sv2, -sv1).perspective(focus), v2,
                     uv0, UV.weighted(uv0, uv1, -sv1, sv0), uv1, UV.weighted(uv1, uv2, sv2, -sv1), uv2);
             }
 

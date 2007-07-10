@@ -113,8 +113,8 @@ package away3d.core.mesh
         private var projected:ScreenVertex;
         private var projection:Projection;
 
-        /** @private Project a point to the screen space */
-        arcane function project(projection:Projection):ScreenVertex
+        /** Project a point to the screen space */
+        public function project(projection:Projection):ScreenVertex
         {
             if (this.projection == projection)
                 return projected;
