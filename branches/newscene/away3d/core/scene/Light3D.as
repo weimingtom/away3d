@@ -1,7 +1,7 @@
 package away3d.core.scene
 {
     import away3d.core.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.math.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -38,10 +38,12 @@ package away3d.core.scene
 
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
+            use namespace arcane;
+
             if (!debug)
                 return;
 
-            var v:Vertex3D = new Vertex3D(0, 0, 0);
+            var v:Vertex = new Vertex(0, 0, 0);
             var vp:ScreenVertex = v.project(projection);
             if (!vp.visible)
                 return;

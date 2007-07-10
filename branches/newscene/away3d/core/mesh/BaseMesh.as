@@ -67,7 +67,6 @@ package away3d.core.mesh
             return _radius;
         }
 
-        public var material:IMaterial;
         public var pushback:Boolean;
         public var pushfront:Boolean;
 
@@ -77,7 +76,6 @@ package away3d.core.mesh
 
             init = Init.parse(init);
             
-            material = init.getMaterial("material");
             pushback = init.getBoolean("pushback", false);
             pushfront = init.getBoolean("pushfront", false);
         }

@@ -4,6 +4,8 @@ package away3d.core
     import away3d.core.scene.*;
     import away3d.core.material.*;
 
+    import flash.display.BitmapData;
+
     /** Convinient object initialization support */
     public class Init
     {
@@ -216,6 +218,21 @@ package away3d.core
                 return null;
         
             var result:IMaterial = Cast.material(init[name]);
+
+            delete init[name];
+        
+            return result;
+        }
+
+        public function getBitmap(name:String):BitmapData
+        {
+            if (init == null)
+                return null;
+        
+            if (!init.hasOwnProperty(name))
+                return null;
+        
+            var result:BitmapData = Cast.bitmap(init[name]);
 
             delete init[name];
         

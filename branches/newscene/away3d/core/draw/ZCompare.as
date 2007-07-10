@@ -3,7 +3,7 @@ package away3d.core.draw
     import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
 
     import flash.display.Graphics;
     import flash.display.BitmapData;

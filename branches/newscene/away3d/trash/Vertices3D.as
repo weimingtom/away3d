@@ -1,7 +1,7 @@
-package away3d.core.geom
+package away3d.trash
 {
     import away3d.core.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.scene.*;
     
     /** Abstract class for objects based on the set of vertices */

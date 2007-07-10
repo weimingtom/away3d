@@ -3,7 +3,6 @@ package away3d.objects
     import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     
@@ -45,13 +44,13 @@ package away3d.objects
 
         private function buildPlane(width:Number, height:Number, segmentsW:int, segmentsH:int):void
         {
-        	var i:int;
-        	var j:int;
+            var i:int;
+            var j:int;
 
-        	grid = new Array(segmentsW+1);
+            grid = new Array(segmentsW+1);
             for (i = 0; i <= segmentsW; i++)
             {
-            	grid[i] = new Array(segmentsH+1);
+                grid[i] = new Array(segmentsH+1);
                 for (j = 0; j <= segmentsH; j++)
                     grid[i][j] = new Vertex((i / segmentsW - 0.5) * width, 0, (j / segmentsH - 0.5) * height);
             }

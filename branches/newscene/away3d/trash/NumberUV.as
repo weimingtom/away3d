@@ -1,4 +1,4 @@
-package away3d.core.geom
+package away3d.trash
 {
     /** Texture coordinates value. <br/> Properties u and v represent the horizontal and vertical texture axes. */
     public class NumberUV

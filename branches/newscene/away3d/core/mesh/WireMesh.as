@@ -26,13 +26,18 @@ package away3d.core.mesh
             return _segments;
         }
 
+        public var material:ISegmentMaterial;
+
         public function WireMesh(init:Object = null)
         {
             super(init);
 
             init = Init.parse(init);
 
-            material = (material as ISegmentMaterial) || new WireframeMaterial();
+            material = init.getSegmentMaterial("material");
+
+            if (material == null)
+                material = new WireframeMaterial();
         }
 
         public function addSegment(segment:Segment):void
@@ -62,7 +67,6 @@ package away3d.core.mesh
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
             var seg:DrawSegment;
-            var segmat:ISegmentMaterial = material as ISegmentMaterial;
             for each (var segment:Segment in _segments)
             {
                 seg = seg || new DrawSegment();
@@ -81,7 +85,7 @@ package away3d.core.mesh
                 if (seg.maxZ < 0)
                     continue;
 
-                seg.material = segment.material || segmat;
+                seg.material = segment.material || material;
 
                 if (seg.material == null)
                     continue;

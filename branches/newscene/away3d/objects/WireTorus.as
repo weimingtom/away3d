@@ -3,7 +3,6 @@ package away3d.objects
     import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     
@@ -51,7 +50,7 @@ package away3d.objects
                 }
         }
 
-        public function vertex(i:int, j:int):Vertex3D
+        public function vertex(i:int, j:int):Vertex
         {
             return vertices[i][j];
         }

@@ -1,7 +1,7 @@
 package away3d.core
 {
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.loaders.*;
 
@@ -48,8 +48,6 @@ package away3d.core
     
         private static var colornames:Dictionary;
 
-        public static const unknowncolor:uint = 0xFFFFFFFF;
-
         public static function color(data:String):uint
         {
             if (data == "random")
@@ -77,12 +75,14 @@ package away3d.core
             if (data.length == 6)
                 return parseInt("0x"+data);
 
-            throw new Error("Unknown color: "+data);
-            //return unknowncolor;
+            throw new Error("Can't cast to color: "+data);
         }
 
         public static function bitmap(data:*):BitmapData
         {
+            if (data == null)
+                return null;
+
             if (data is Class)
                 data = new data;
 
@@ -93,11 +93,14 @@ package away3d.core
             if (data.bitmapData) 
                 return data.bitmapData;
 
-            return null;
+            throw new Error("Can't cast to bitmap: "+data);
         }
 
         public static function material(data:*):IMaterial
         {
+            if (data == null)
+                return null;
+
             if (data is Class)
                 data = new data;
 
@@ -143,7 +146,6 @@ package away3d.core
                             return new WireColorMaterial(color(hash[0]), color(line[0]), 1, 1, parseFloat(line[1]));
                     }
                 }
-                throw new Error("Can't convert to material: "+data);
             }
 
             if (data is BitmapData)
@@ -153,7 +155,7 @@ package away3d.core
             if (data.bitmapData) 
                 return new BitmapMaterial(data.bitmapData, {smooth:true});
 
-            return null;
+            throw new Error("Can't cast to material: "+data);
         }
 
         public static function library(data:*):MaterialLibrary

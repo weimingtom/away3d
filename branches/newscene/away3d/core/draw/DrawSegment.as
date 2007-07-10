@@ -3,7 +3,7 @@ package away3d.core.draw
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
     import away3d.core.render.*;
 
     import flash.display.Graphics;
@@ -104,8 +104,8 @@ package away3d.core.draw
             if (sv0*sv1 >= 0)                                           
                 return null;
 
-            //var tv0:Vertex3D = v0.deperspective(focus);
-            //var tv1:Vertex3D = v1.deperspective(focus);
+            //var tv0:Vertex = v0.deperspective(focus);
+            //var tv1:Vertex = v1.deperspective(focus);
 
             var d:Number = sv1 - sv0;
             var k0:Number = sv1 / d;

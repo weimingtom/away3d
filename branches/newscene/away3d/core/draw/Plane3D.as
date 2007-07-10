@@ -1,6 +1,6 @@
 package away3d.core.draw
 {
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
 
     /** Plane in 3D space */
     public class Plane3D
@@ -21,7 +21,7 @@ package away3d.core.draw
             this.d = d;
         }
 
-        public static function from3points(v0:Vertex3D, v1:Vertex3D, v2:Vertex3D):Plane3D
+        public static function from3points(v0:Vertex, v1:Vertex, v2:Vertex):Plane3D
         {
             var d1x:Number = v1.x - v0.x;
             var d1y:Number = v1.y - v0.y;
@@ -40,7 +40,7 @@ package away3d.core.draw
             return new Plane3D(a, b, c, d);
         }
 
-        public function side(v:Vertex3D):Number
+        public function side(v:Vertex):Number
         {
             var result:Number = a*v.x + b*v.y + c*v.z + d;
             if ((result > -0.001) && (result < 0.001))
@@ -48,7 +48,7 @@ package away3d.core.draw
             return a*v.x + b*v.y + c*v.z + d;
         }
 
-        public function distance(v:Vertex3D):Number
+        public function distance(v:Vertex):Number
         {
             return side(v) / Math.sqrt(a*a + b*b + c*c);
         }

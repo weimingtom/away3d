@@ -2,7 +2,6 @@ package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
-    import away3d.core.geom.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
 

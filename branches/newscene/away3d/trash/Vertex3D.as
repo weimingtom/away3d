@@ -1,4 +1,4 @@
-package away3d.core.geom
+package away3d.trash
 {
     import away3d.core.*;
     import away3d.core.draw.*;

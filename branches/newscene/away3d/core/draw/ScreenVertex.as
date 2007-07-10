@@ -1,6 +1,6 @@
 package away3d.core.draw
 {
-    import away3d.core.geom.*;
+    import away3d.core.mesh.*;
 
     /** Vertex in the screen space */
     public class ScreenVertex
@@ -30,11 +30,11 @@ package away3d.core.draw
             return "new ScreenVertex("+x+', '+y+', '+z+")";
         }
 
-        public function deperspective(focus:Number):Vertex3D
+        public function deperspective(focus:Number):Vertex
         {
             var persp:Number = 1 + z / focus;
 
-            return new Vertex3D(x * persp, y * persp, z);
+            return new Vertex(x * persp, y * persp, z);
         }
 
         public static function distanceSqr(a:ScreenVertex, b:ScreenVertex):Number
