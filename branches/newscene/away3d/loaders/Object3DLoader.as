@@ -53,7 +53,7 @@ package away3d.loaders
 
             if (parent != null)
             {
-                result.setTransform(transform);
+                result.transform = transform;
                 result.parent = parent;
                 parent = null;
             }

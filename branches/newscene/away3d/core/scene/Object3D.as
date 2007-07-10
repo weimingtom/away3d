@@ -173,7 +173,7 @@ package away3d.core.scene
             return _transform;
         }
 
-        public function setTransform(value:Matrix3D):void
+        public function set transform(value:Matrix3D):void
         {
             _transform = value.clone();
 

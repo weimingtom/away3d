@@ -121,7 +121,7 @@ package away3d.loaders
                 }
             }
     
-            newnode.setTransform(matrix); 
+            newnode.transform = matrix; 
         }
     
         private function parseGeometry(geometry:XML, instance:Mesh):void
