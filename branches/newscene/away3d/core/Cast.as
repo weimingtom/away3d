@@ -48,32 +48,41 @@ package away3d.core
     
         private static var colornames:Dictionary;
 
-        public static function color(data:String):uint
+        public static function color(data:*):uint
         {
-            if (data == "random")
-                return uint(Math.random()*0x1000000);
+            if (data is uint)
+                return data as uint;
 
-            if (colornames == null)
+            if (data is int)
+                return data as uint;
+
+            if (data is String)
             {
-                colornames = new Dictionary();
-                colornames["black"]  = 0x000000;
-                colornames["white"]  = 0xFFFFFF;
-                colornames["grey"]   = 0x808080;
-                colornames["red"]    = 0xFF0000;
-                colornames["green"]  = 0x00FF00;
-                colornames["blue"]   = 0x0000FF;
-                colornames["yellow"] = 0xFFFF00;
-                colornames["cyan"]   = 0x00FFFF;
-                colornames["purple"] = 0xFF00FF;
-                colornames["transparent"] = 0xFF000000;
+                if (data == "random")
+                    return uint(Math.random()*0x1000000);
+            
+                if (colornames == null)
+                {
+                    colornames = new Dictionary();
+                    colornames["black"]  = 0x000000;
+                    colornames["white"]  = 0xFFFFFF;
+                    colornames["grey"]   = 0x808080;
+                    colornames["red"]    = 0xFF0000;
+                    colornames["green"]  = 0x00FF00;
+                    colornames["blue"]   = 0x0000FF;
+                    colornames["yellow"] = 0xFFFF00;
+                    colornames["cyan"]   = 0x00FFFF;
+                    colornames["purple"] = 0xFF00FF;
+                    colornames["transparent"] = 0xFF000000;
+                }
+            
+                if (colornames[data] != null)
+                    return colornames[data];
+            
+                //throw new Error(data+" "+parseInt("0x"+data));
+                if (data.length == 6)
+                    return parseInt("0x"+data);
             }
-
-            if (colornames[data] != null)
-                return colornames[data];
-
-            //throw new Error(data+" "+parseInt("0x"+data));
-            if (data.length == 6)
-                return parseInt("0x"+data);
 
             throw new Error("Can't cast to color: "+data);
         }

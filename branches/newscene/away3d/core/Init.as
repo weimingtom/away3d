@@ -224,6 +224,21 @@ package away3d.core
             return result;
         }
 
+        public function getColor(name:String, def:uint):uint
+        {
+            if (init == null)
+                return def;
+        
+            if (!init.hasOwnProperty(name))
+                return def;
+        
+            var result:uint = Cast.color(init[name]);
+
+            delete init[name];
+        
+            return result;
+        }
+
         public function getBitmap(name:String):BitmapData
         {
             if (init == null)

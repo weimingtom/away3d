@@ -194,6 +194,16 @@ package away3d.core.mesh
             notifyMappingChange();
         }
 
+        public function get area():Number
+        {
+            // not quick enough
+            var a:Number = Number3D.distance(v0.position, v1.position);
+            var b:Number = Number3D.distance(v1.position, v2.position);
+            var c:Number = Number3D.distance(v2.position, v0.position);
+            var s:Number = (a + b + c) / 2;
+            return Math.sqrt(s*(s - a)*(s - b)*(s - c));
+        }
+
         public function get normal():Number3D
         {
             if (_normal == null)
@@ -236,6 +246,114 @@ package away3d.core.mesh
                     return rv1;
                 else        
                     return rv2;
+            }
+        }
+
+        public override function get maxX():Number
+        {
+            if (_v0._x > _v1._x)
+            {
+                if (_v0._x > _v2._x)
+                    return _v0._x;
+                else
+                    return _v2._x;
+            }
+            else
+            {
+                if (_v1._x > _v2._x)
+                    return _v1._x;
+                else
+                    return _v2._x;
+            }
+        }
+        
+        public override function get minX():Number
+        {
+            if (_v0._x < _v1._x)
+            {
+                if (_v0._x < _v2._x)
+                    return _v0._x;
+                else
+                    return _v2._x;
+            }
+            else
+            {
+                if (_v1._x < _v2._x)
+                    return _v1._x;
+                else
+                    return _v2._x;
+            }
+        }
+        
+        public override function get maxY():Number
+        {
+            if (_v0._y > _v1._y)
+            {
+                if (_v0._y > _v2._y)
+                    return _v0._y;
+                else
+                    return _v2._y;
+            }
+            else
+            {
+                if (_v1._y > _v2._y)
+                    return _v1._y;
+                else
+                    return _v2._y;
+            }
+        }
+        
+        public override function get minY():Number
+        {
+            if (_v0._y < _v1._y)
+            {
+                if (_v0._y < _v2._y)
+                    return _v0._y;
+                else
+                    return _v2._y;
+            }
+            else
+            {
+                if (_v1._y < _v2._y)
+                    return _v1._y;
+                else
+                    return _v2._y;
+            }
+        }
+        
+        public override function get maxZ():Number
+        {
+            if (_v0._z > _v1._z)
+            {
+                if (_v0._z > _v2._z)
+                    return _v0._z;
+                else
+                    return _v2._z;
+            }
+            else
+            {
+                if (_v1._z > _v2._z)
+                    return _v1._z;
+                else
+                    return _v2._z;
+            }
+        }
+        
+        public override function get minZ():Number
+        {
+            if (_v0._z < _v1._z)
+            {
+                if (_v0._z < _v2._z)
+                    return _v0._z;
+                else
+                    return _v2._z;
+            }
+            else
+            {
+                if (_v1._z < _v2._z)
+                    return _v1._z;
+                else
+                    return _v2._z;
             }
         }
 

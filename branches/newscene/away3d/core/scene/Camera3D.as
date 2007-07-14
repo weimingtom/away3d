@@ -33,8 +33,8 @@ package away3d.core.scene
 
             init = Init.parse(init);
 
-            zoom = init.getNumber("zoom", 3);
-            focus = init.getNumber("focus", 500);
+            zoom = init.getNumber("zoom", 15);
+            focus = init.getNumber("focus", 100);
             var lookat:Object3D = init.getObject3D("lookat");
 
             if (lookat != null)

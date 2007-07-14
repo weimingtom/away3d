@@ -29,6 +29,15 @@ package away3d.core.mesh
             if (value == _x)
                 return;
 
+            if (isNaN(value))
+                Debug.warning("isNaN(x)");
+
+            if (value == Infinity)
+                Debug.warning("x == Infinity");
+
+            if (value == -Infinity)
+                Debug.warning("x == -Infinity");
+
             _x = value;
 
             notifyChange();
@@ -45,6 +54,15 @@ package away3d.core.mesh
             if (value == _y)
                 return;
 
+            if (isNaN(value))
+                Debug.warning("isNaN(y)");
+
+            if (value == Infinity)
+                Debug.warning("y == Infinity");
+
+            if (value == -Infinity)
+                Debug.warning("y == -Infinity");
+
             _y = value;
 
             notifyChange();
@@ -60,6 +78,15 @@ package away3d.core.mesh
         {
             if (value == _z)
                 return;
+
+            if (isNaN(value))
+                throw new Error("isNaN(z)");
+
+            if (value == Infinity)
+                Debug.warning("z == Infinity");
+
+            if (value == -Infinity)
+                Debug.warning("z == -Infinity");
 
             _z = value;
 
@@ -132,6 +159,9 @@ package away3d.core.mesh
     
             var sz:Number = vx * view.szx + vy * view.szy + vz * view.szz + view.tz;
     
+            if (isNaN(sz))
+                throw new Error("isNaN(sz)");
+
             if (sz*2 <= -projection.focus)
             {
                 projected.visible = false;

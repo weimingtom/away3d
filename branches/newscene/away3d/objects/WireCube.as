@@ -8,6 +8,15 @@ package away3d.objects
     /** Wire cube */ 
     public class WireCube extends WireMesh
     {
+        public var v000:Vertex;
+        public var v001:Vertex;
+        public var v010:Vertex;
+        public var v011:Vertex;
+        public var v100:Vertex;
+        public var v101:Vertex;
+        public var v110:Vertex;
+        public var v111:Vertex;
+
         public function WireCube(init:Object = null)
         {
             super(init);
@@ -18,14 +27,14 @@ package away3d.objects
             var height:Number = init.getNumber("height", 100, {min:0});
             var depth:Number  = init.getNumber("depth", 100, {min:0});
 
-            var v000:Vertex = new Vertex(-width/2, -height/2, -depth/2); 
-            var v001:Vertex = new Vertex(-width/2, -height/2, +depth/2); 
-            var v010:Vertex = new Vertex(-width/2, +height/2, -depth/2); 
-            var v011:Vertex = new Vertex(-width/2, +height/2, +depth/2); 
-            var v100:Vertex = new Vertex(+width/2, -height/2, -depth/2); 
-            var v101:Vertex = new Vertex(+width/2, -height/2, +depth/2); 
-            var v110:Vertex = new Vertex(+width/2, +height/2, -depth/2); 
-            var v111:Vertex = new Vertex(+width/2, +height/2, +depth/2); 
+            v000 = new Vertex(-width/2, -height/2, -depth/2); 
+            v001 = new Vertex(-width/2, -height/2, +depth/2); 
+            v010 = new Vertex(-width/2, +height/2, -depth/2); 
+            v011 = new Vertex(-width/2, +height/2, +depth/2); 
+            v100 = new Vertex(+width/2, -height/2, -depth/2); 
+            v101 = new Vertex(+width/2, -height/2, +depth/2); 
+            v110 = new Vertex(+width/2, +height/2, -depth/2); 
+            v111 = new Vertex(+width/2, +height/2, +depth/2); 
 
             addSegment(new Segment(v000, v001));
             addSegment(new Segment(v011, v001));
@@ -42,6 +51,7 @@ package away3d.objects
             addSegment(new Segment(v111, v110));
             addSegment(new Segment(v100, v110));
         }
+
     }
     
 }

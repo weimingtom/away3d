@@ -47,6 +47,36 @@ package away3d.core.mesh
             return maxr;
         }
 
+        public function get maxX():Number
+        {
+            return Math.sqrt(radius2);
+        }
+        
+        public function get minX():Number
+        {
+            return -Math.sqrt(radius2);
+        }
+        
+        public function get maxY():Number
+        {
+            return Math.sqrt(radius2);
+        }
+        
+        public function get minY():Number
+        {
+            return -Math.sqrt(radius2);
+        }
+        
+        public function get maxZ():Number
+        {
+            return Math.sqrt(radius2);
+        }
+        
+        public function get minZ():Number
+        {
+            return -Math.sqrt(radius2);
+        }
+        
         public function addOnVertexChange(listener:Function):void
         {
             addEventListener("vertexchanged", listener, false, 0, true);

@@ -39,6 +39,11 @@ package away3d.core.math
             return new Matrix3D();
         }
         
+        public function get position():Number3D
+        {
+            return new Number3D(tx, ty, tz);
+        }
+
         public function toString(): String
         {
             var s:String = "";

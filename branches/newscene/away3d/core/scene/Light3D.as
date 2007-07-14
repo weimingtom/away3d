@@ -16,19 +16,18 @@ package away3d.core.scene
         public var specular:Number;
         public var debug:Boolean;
 
-        public function Light3D(color:int, ambient:Number, diffuse:Number, specular:Number, init:Object = null)
+        public function Light3D(/*color:int, ambient:Number, diffuse:Number, specular:Number,*/ init:Object = null)
         {
             super(init);
 
             init = Init.parse(init);
 
-            var distance:Number = init.getNumber("distance", 30);
+            var distance:Number = init.getNumber("distance", Math.sqrt(1000));
+            color = init.getColor("color", 0xFFFFFF);
+            ambient = init.getNumber("ambient", 1) * distance * distance;
+            diffuse = init.getNumber("diffuse", 1) * distance * distance;
+            specular = init.getNumber("specular", 1) * distance * distance;
             debug = init.getBoolean("debug", false);
-
-            this.color = color;
-            this.ambient = ambient * distance * distance;
-            this.diffuse = diffuse * distance * distance;
-            this.specular = specular * distance * distance;
         }
 
         public function light(transform:Matrix3D, consumer:ILightConsumer):void
