@@ -97,6 +97,54 @@ package away3d.core.mesh
                 return rv1;
         }
 
+        public override function get maxX():Number
+        {
+            if (_v0._x > _v1._x)
+                return _v0._x;
+            else
+                return _v1._x;
+        }
+        
+        public override function get minX():Number
+        {
+            if (_v0._x < _v1._x)
+                return _v0._x;
+            else
+                return _v1._x;
+        }
+        
+        public override function get maxY():Number
+        {
+            if (_v0._y > _v1._y)
+                return _v0._y;
+            else
+                return _v1._y;
+        }
+        
+        public override function get minY():Number
+        {
+            if (_v0._y < _v1._y)
+                return _v0._y;
+            else
+                return _v1._y;
+        }
+        
+        public override function get maxZ():Number
+        {
+            if (_v0._z > _v1._z)
+                return _v0._z;
+            else
+                return _v1._z;
+        }
+        
+        public override function get minZ():Number
+        {
+            if (_v0._z < _v1._z)
+                return _v0._z;
+            else
+                return _v1._z;
+        }
+
         public function Segment(v0:Vertex, v1:Vertex, material:ISegmentMaterial = null)
         {
             this.v0 = v0;

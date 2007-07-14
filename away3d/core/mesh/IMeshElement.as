@@ -11,8 +11,14 @@ package away3d.core.mesh
     public interface IMeshElement
     {
         function get vertices():Array;
-        function get radius2():Number;
         function get visible():Boolean;
+        function get radius2():Number;
+        function get maxX():Number;
+        function get minX():Number;
+        function get maxY():Number;
+        function get minY():Number;
+        function get maxZ():Number;
+        function get minZ():Number;
         function addOnVertexChange(listener:Function):void;
         function removeOnVertexChange(listener:Function):void;
         function addOnVertexValueChange(listener:Function):void;

@@ -9,12 +9,13 @@ package away3d.core.scene
         public var maxp:Number;
         public var minp:Number;
 
-        public function LODObject(minp:Number, maxp:Number, init:Object = null, ...childarray)
+        public function LODObject(init:Object = null, ...childarray)
         {
             super(init);
 
-            this.maxp = maxp;
-            this.minp = minp;
+            init = Init.parse(init);
+            maxp = init.getNumber("maxp", Infinity);
+            minp = init.getNumber("minp", 0);
 
             for each (var child:Object3D in childarray)
                 addChild(child);

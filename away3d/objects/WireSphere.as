@@ -15,8 +15,8 @@ package away3d.objects
     
             init = Init.parse(init);
 
-            var segmentsW:int = init.getInt("segmentsW", 1, {min:3});
-            var segmentsH:int = init.getInt("segmentsH", 1, {min:2})
+            var segmentsW:int = init.getInt("segmentsW", 8, {min:3});
+            var segmentsH:int = init.getInt("segmentsH", 6, {min:2})
             var radius:Number = init.getNumber("radius", 100, {min:0});
 
             buildSphere(radius, segmentsW, segmentsH);

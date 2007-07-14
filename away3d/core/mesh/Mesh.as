@@ -7,6 +7,8 @@ package away3d.core.mesh
     import away3d.core.material.*;
     import away3d.core.math.*;
     
+    import away3d.objects.*;
+
     import flash.utils.Dictionary;
     
     /** Mesh constisting of faces and segments */
@@ -30,6 +32,33 @@ package away3d.core.mesh
         private var _neighbour01:Dictionary; 
         private var _neighbour12:Dictionary; 
         private var _neighbour20:Dictionary; 
+       
+        arcane function forceRecalcNeighbours():void
+        {
+            _neighboursDirty = true;
+            findNeighbours();
+        }
+
+        arcane function neighbour01(face:Face):Face
+        {
+            if (_neighboursDirty)
+                findNeighbours();
+            return _neighbour01[face];
+        }
+
+        arcane function neighbour12(face:Face):Face
+        {
+            if (_neighboursDirty)
+                findNeighbours();
+            return _neighbour12[face];
+        }
+
+        arcane function neighbour20(face:Face):Face
+        {
+            if (_neighboursDirty)
+                findNeighbours();
+            return _neighbour20[face];
+        }
 
         private function findNeighbours():void
         {
@@ -113,7 +142,9 @@ package away3d.core.mesh
         public var material:ITriangleMaterial;
         public var outline:ISegmentMaterial;
         public var back:ITriangleMaterial;
+
         public var bothsides:Boolean;
+        public var debugbb:Boolean;
 
         public function Mesh(init:Object = null)
         {
@@ -125,6 +156,7 @@ package away3d.core.mesh
             outline = init.getMaterial("outline");
             back = init.getTriangleMaterial("back") || (material as ITriangleMaterial);
             bothsides = init.getBoolean("bothsides", false);
+            debugbb = init.getBoolean("debugbb", false);
 
             if (material == null)
                 material = new WireColorMaterial();
@@ -265,6 +297,8 @@ package away3d.core.mesh
             var face:Face = event.element as Face;
 
             forgetFaceNeighbours(face);
+            //removeElement(face);
+            //addElement(face);
             rememberFaceNeighbours(face);
         }
 
@@ -326,10 +360,91 @@ package away3d.core.mesh
             }
         }
 
+        private var _debugboundingbox:WireCube;
+
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
         {
             if (outline != null)
-                findNeighbours();
+                if (_neighboursDirty)
+                    findNeighbours();
+
+            // START
+            if (debugbb)
+            {
+                if (_debugboundingbox == null)
+                    _debugboundingbox = new WireCube({material:"#white"});
+                _debugboundingbox.v000.x = minX;
+                _debugboundingbox.v001.x = minX;
+                _debugboundingbox.v010.x = minX;
+                _debugboundingbox.v011.x = minX;
+                _debugboundingbox.v100.x = maxX;
+                _debugboundingbox.v101.x = maxX;
+                _debugboundingbox.v110.x = maxX;
+                _debugboundingbox.v111.x = maxX;
+                _debugboundingbox.v000.y = minY;
+                _debugboundingbox.v001.y = minY;
+                _debugboundingbox.v010.y = maxY;
+                _debugboundingbox.v011.y = maxY;
+                _debugboundingbox.v100.y = minY;
+                _debugboundingbox.v101.y = minY;
+                _debugboundingbox.v110.y = maxY;
+                _debugboundingbox.v111.y = maxY;
+                _debugboundingbox.v000.z = minZ;
+                _debugboundingbox.v001.z = maxZ;
+                _debugboundingbox.v010.z = minZ;
+                _debugboundingbox.v011.z = maxZ;
+                _debugboundingbox.v100.z = minZ;
+                _debugboundingbox.v101.z = maxZ;
+                _debugboundingbox.v110.z = minZ;
+                _debugboundingbox.v111.z = maxZ;
+                if (_faces.length > 0)
+                    _debugboundingbox.primitives(projection, consumer);
+            }
+
+            /*
+            var bblll:ScreenVertex = (new Vertex(minX, minY, minZ)).project(projection);
+            var bbllh:ScreenVertex = (new Vertex(minX, minY, maxZ)).project(projection);
+            var bblhl:ScreenVertex = (new Vertex(minX, maxY, minZ)).project(projection);
+            var bblhh:ScreenVertex = (new Vertex(minX, maxY, maxZ)).project(projection);
+            var bbhll:ScreenVertex = (new Vertex(maxX, minY, minZ)).project(projection);
+            var bbhlh:ScreenVertex = (new Vertex(maxX, minY, maxZ)).project(projection);
+            var bbhhl:ScreenVertex = (new Vertex(maxX, maxY, minZ)).project(projection);
+            var bbhhh:ScreenVertex = (new Vertex(maxX, maxY, maxZ)).project(projection);
+            var bbmat:ISegmentMaterial = new WireframeMaterial(0xFFFFFF);
+
+            var seg:DrawSegment;
+            for each (var arr:Array in [[bblll]])
+            {
+                seg = seg || new DrawSegment();
+
+                seg.v0 = segment._v0.project(projection);
+                seg.v1 = segment._v1.project(projection);
+    
+                if (!seg.v0.visible)
+                    continue;
+
+                if (!seg.v1.visible)
+                    continue;
+
+                seg.calc();
+
+                if (seg.maxZ < 0)
+                    continue;
+
+                seg.material = segment.material || material;
+
+                if (seg.material == null)
+                    continue;
+
+                if (!seg.material.visible)
+                    continue;
+
+                seg.source = this;
+                seg.projection = projection;
+                consumer.primitive(seg);
+            }
+            */
+            // END
 
             var tri:DrawTriangle;
             var ntri:DrawTriangle;

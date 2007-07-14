@@ -34,7 +34,7 @@ package away3d.core.math
             return x*x + y*y + z*z;
         }
     
-        public static function scale( v:Number3D, s:Number ):Number3D
+        public static function scale(v:Number3D, s:Number):Number3D
         {
             return new Number3D
             (
@@ -62,6 +62,11 @@ package away3d.core.math
                 v.y - w.y,
                 v.z - w.z
            );
+        }
+    
+        public static function distance(v:Number3D, w:Number3D):Number
+        {
+            return Math.sqrt((v.x - w.x)*(v.x - w.x) + (v.y - w.y)*(v.y - w.y) + (v.z - w.z)*(v.z - w.z));
         }
     
         public static function dot(v:Number3D, w:Number3D):Number

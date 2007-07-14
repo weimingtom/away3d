@@ -43,15 +43,75 @@ package away3d.core.scene
             return 0;
         }
         
+        public function get maxX():Number
+        {
+            return radius;
+        }
+        
+        public function get minX():Number
+        {
+            return -radius;
+        }
+        
+        public function get maxY():Number
+        {
+            return radius;
+        }
+        
+        public function get minY():Number
+        {
+            return -radius;
+        }
+        
+        public function get maxZ():Number
+        {
+            return radius;
+        }
+        
+        public function get minZ():Number
+        {
+            return -radius;
+        }
+        
         arcane function get parentradius():Number
         {
-            if (_transformDirty) 
-                updateTransform();
+            //if (_transformDirty)   ???
+            //    updateTransform();
 
             var x:Number = _transform.tx;
             var y:Number = _transform.ty;
             var z:Number = _transform.tz;
-            return radius + Math.sqrt(x*x + y*y + z*z);
+            return Math.sqrt(x*x + y*y + z*z) + radius;
+        }
+
+        arcane function get parentmaxX():Number
+        {
+            return radius + _transform.tx;
+        }
+
+        arcane function get parentminX():Number
+        {
+            return -radius + _transform.tx;
+        }
+
+        arcane function get parentmaxY():Number
+        {
+            return radius + _transform.ty;
+        }
+
+        arcane function get parentminY():Number
+        {
+            return -radius + _transform.ty;
+        }
+
+        arcane function get parentmaxZ():Number
+        {
+            return radius + _transform.tz;
+        }
+
+        arcane function get parentminZ():Number
+        {
+            return -radius + _transform.tz;
         }
 
         public function get x():Number
@@ -61,6 +121,15 @@ package away3d.core.scene
     
         public function set x(value:Number):void
         {
+            if (isNaN(value))
+                throw new Error("isNaN(x)");
+
+            if (value == Infinity)
+                Debug.warning("x == Infinity");
+
+            if (value == -Infinity)
+                Debug.warning("x == -Infinity");
+
             _transform.tx = value;
 
             _worldDirty = true;
@@ -75,6 +144,15 @@ package away3d.core.scene
     
         public function set y(value:Number):void
         {
+            if (isNaN(value))
+                throw new Error("isNaN(y)");
+
+            if (value == Infinity)
+                Debug.warning("y == Infinity");
+
+            if (value == -Infinity)
+                Debug.warning("y == -Infinity");
+
             _transform.ty = value;
 
             _worldDirty = true;
@@ -89,6 +167,15 @@ package away3d.core.scene
     
         public function set z(value:Number):void
         {
+            if (isNaN(value))
+                throw new Error("isNaN(z)");
+
+            if (value == Infinity)
+                Debug.warning("z == Infinity");
+
+            if (value == -Infinity)
+                Debug.warning("z == -Infinity");
+
             _transform.tz = value;
 
             _worldDirty = true;
@@ -179,11 +266,7 @@ package away3d.core.scene
 
             _transformDirty = false;
             _rotationDirty = true;
-            /*
-            updateRotation();
 
-            _transformDirty = true;
-            */
             notifyTransformChange();
         }
 
@@ -208,7 +291,7 @@ package away3d.core.scene
         public function get world():Matrix3D
         {
             if (_scene == null)
-                throw new Error("Can't access world transform of an object not belonging to the scene");
+                Debug.error("Can't access world transform of an object not belonging to the scene");
 
             if (_transformDirty) 
                 updateTransform();
@@ -512,6 +595,26 @@ package away3d.core.scene
                 radiuschanged = new Object3DEvent("radiuschanged", this);
                 
             dispatchEvent(radiuschanged);
+        }
+
+        public function addOnDimensionsChange(listener:Function):void
+        {
+            addEventListener("dimensionschanged", listener, false, 0, true);
+        }
+        public function removeOnDimensionsChange(listener:Function):void
+        {
+            removeEventListener("dimensionschanged", listener, false);
+        }
+        private var dimensionschanged:Object3DEvent;
+        protected function notifyDimensionsChange():void
+        {
+            if (!hasEventListener("dimensionschanged"))
+                return;
+                
+            if (dimensionschanged == null)
+                dimensionschanged = new Object3DEvent("dimensionschanged", this);
+                
+            dispatchEvent(dimensionschanged);
         }
 
         public function addOnMouseMove(listener:Function):void
