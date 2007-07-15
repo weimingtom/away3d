@@ -4,16 +4,36 @@ package away3d.core.material
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.render.*;
 
-    /** Solid color material */
-    public class ColorMaterial extends WireColorMaterial
+    import flash.display.Graphics;
+    import flash.display.*;
+
+    /** Material for solid color drawing with face's border outlining */
+    public class ColorMaterial implements ITriangleMaterial
     {
-        public function ColorMaterial(color:int = -1, alpha:Number = 1.0)
-        {
-            if (color == -1)
-                color = int(0xFFFFFF * Math.random());
+        public var color:uint;
+        public var alpha:Number;
 
-            super(color, 0, alpha, 0, 0);
+        public function ColorMaterial(color:* = null, init:Object = null)
+        {
+            if (color == null)
+                color = "random";
+
+            this.color = Cast.trycolor(color);
+
+            init = Init.parse(init);
+            alpha = init.getNumber("alpha", 1, {min:0, max:1});
+        }
+
+        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        {
+            session.renderTriangleColor(color, alpha, tri.v0.x, tri.v0.y, tri.v1.x, tri.v1.y, tri.v2.x, tri.v2.y);
+        }
+
+        public function get visible():Boolean
+        {
+            return (alpha > 0);
         }
     }
 }

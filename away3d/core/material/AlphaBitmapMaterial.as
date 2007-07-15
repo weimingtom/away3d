@@ -29,12 +29,12 @@ package away3d.core.material
                    
         private var _current:BitmapData;
         private var _cache:Dictionary;
+        private var _alpha:Number;
+        private var _grades:int;
 
         public var smooth:Boolean;
         public var debug:Boolean;
         public var repeat:Boolean;
-        private var _alpha:Number;
-        private var _grades:int;
         
         public function get alpha():Number
         {

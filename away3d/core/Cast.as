@@ -48,7 +48,7 @@ package away3d.core
     
         private static var colornames:Dictionary;
 
-        public static function color(data:*):uint
+        public static function trycolor(data:*):uint
         {
             if (data is uint)
                 return data as uint;
@@ -84,7 +84,17 @@ package away3d.core
                     return parseInt("0x"+data);
             }
 
-            throw new Error("Can't cast to color: "+data);
+            return 0xFFFFFFFF;
+        }
+
+        public static function color(data:*):uint
+        {
+            var result:uint = trycolor(data);
+
+            if (result == 0xFFFFFFFF)
+                throw new Error("Can't cast to color: "+data);
+
+            return result;
         }
 
         public static function bitmap(data:*):BitmapData
@@ -143,16 +153,16 @@ package away3d.core
                         if (hash[0] == "")
                             return new WireframeMaterial(color(hash[1]));
                         else
-                            return new WireColorMaterial(color(hash[0]), color(hash[1]));
+                            return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
                     }
                     else
                     {
                         var line:Array = hash[1].split("|");
                         if (hash[0] == "")
                             //throw new Error(line[0]+" <-> "+line[1]); 
-                            return new WireframeMaterial(color(line[0]), 1, parseFloat(line[1]));
+                            return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
                         else
-                            return new WireColorMaterial(color(hash[0]), color(line[0]), 1, 1, parseFloat(line[1]));
+                            return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
                     }
                 }
             }

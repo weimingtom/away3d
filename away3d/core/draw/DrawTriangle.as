@@ -673,7 +673,7 @@ package away3d.core.draw
             var color:String = "";
             if (material is WireColorMaterial)
             {
-                switch ((material as WireColorMaterial).fillColor)
+                switch ((material as WireColorMaterial).color)
                 {
                     case 0x00FF00: color = "green"; break;
                     case 0xFFFF00: color = "yellow"; break;
