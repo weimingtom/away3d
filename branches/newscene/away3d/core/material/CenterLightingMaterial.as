@@ -18,7 +18,7 @@ package away3d.core.material
         public var ambient_brightness:Number = 1;
         public var diffuse_brightness:Number = 1;
         public var specular_brightness:Number = 1;
-        public var alpha:Number = 20;
+        public var ak:Number = 20;
         
         public var draw_normal:Boolean = false;
         public var draw_fall:Boolean = false;
@@ -30,7 +30,7 @@ package away3d.core.material
         {
             init = Init.parse(init);
 
-            alpha = init.getNumber("alpha", 20);
+            ak = init.getNumber("ak", 20);
         }
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
@@ -125,7 +125,7 @@ package away3d.core.material
                 if (rfz < 0)
                     continue;
 
-                var specular:Number = source.specular * fade * Math.pow(rfz, alpha) * specular_brightness;
+                var specular:Number = source.specular * fade * Math.pow(rfz, ak) * specular_brightness;
 
                 ksr += red * specular;
                 ksg += green * specular;

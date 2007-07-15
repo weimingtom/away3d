@@ -227,7 +227,7 @@ package away3d.loaders
                 mesh.addFace(face);
             }
     
-            mesh.material = new WireColorMaterial(0xFF0000, 0.25, 0, 0.25);
+            mesh.material = new WireColorMaterial(0xFF0000);
     
             mesh.visible = true;
         }

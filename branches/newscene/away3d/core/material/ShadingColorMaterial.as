@@ -17,13 +17,16 @@ package away3d.core.material
         public var diffuse:int;
         public var specular:int;
 
-        public function ShadingColorMaterial(ambient:int, diffuse:int, specular:int, init:Object = null)
+        public function ShadingColorMaterial(init:Object = null)
         {
             super(init);
 
-            this.ambient = ambient;
-            this.diffuse = diffuse;
-            this.specular = specular;
+            init = Init.parse(init);
+
+            var color:int = init.getColor("color", 0xFFFFFF);
+            ambient = init.getColor("ambient", color);
+            diffuse = init.getColor("diffuse", color);
+            specular = init.getColor("specular", color);
         }
 
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void

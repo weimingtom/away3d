@@ -17,20 +17,21 @@ package away3d.core.draw
 
         public var v:ScreenVertex;
 
-        //public var x:Number;
-        //public var y:Number;
         public var scale:Number;
         public var left:Number;
         public var top:Number;
         public var width:Number;
         public var height:Number;
 
-        public function DrawScaledBitmap(source:Object3D, bitmap:BitmapData, v:ScreenVertex, scale:Number)
+        public var smooth:Boolean;
+
+        public function DrawScaledBitmap(source:Object3D, bitmap:BitmapData, v:ScreenVertex, scale:Number, smooth:Boolean)
         {
             this.source = source;
             this.bitmap = bitmap;
             this.v = v;
             this.scale = scale;
+            this.smooth = smooth;
             calc();
         }
 
@@ -58,10 +59,10 @@ package away3d.core.draw
         {
             var graphics:Graphics = session.graphics;
             graphics.lineStyle();
-            graphics.beginBitmapFill(bitmap, new Matrix(scale, 0, 0, scale, minX, minY), false);
-            graphics.drawRect(minX, minY, maxX-minX, maxY-minY);
-            //graphics.beginBitmapFill(bitmap, new Matrix(scale, 0, 0, scale, minX, minY));
-            //graphics.drawRect(left, top, width, height);
+            //graphics.beginBitmapFill(bitmap, new Matrix(scale, 0, 0, scale, minX, minY), false);
+            //graphics.drawRect(minX, minY, maxX-minX, maxY-minY);
+            graphics.beginBitmapFill(bitmap, new Matrix(scale, 0, 0, scale, left, top), false, smooth);
+            graphics.drawRect(left, top, width, height);
             graphics.endFill();
         }
 
@@ -70,8 +71,8 @@ package away3d.core.draw
             if (!bitmap.transparent)
                 return true;
 
-            var px:int = int(Math.round(bitmap.width*((x-minX)/(maxX-minX))));
-            var py:int = int(Math.round(bitmap.height*((y-minY)/(maxY-minY))));
+            var px:int = int(Math.round((x-left)/scale));
+            var py:int = int(Math.round((y-top)/scale));
             if (px < 0)
                 px = 0;
             if (py < 0)
@@ -82,7 +83,7 @@ package away3d.core.draw
                 py = bitmap.height-1;
 
             var p:uint = bitmap.getPixel(px, py);
-            return (p & 0xFF000000) > 0;
+            return (p >> 24) <= 0x80;
         }
     }
 }

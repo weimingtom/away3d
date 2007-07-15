@@ -334,7 +334,7 @@ package away3d.core.math
             return m;
         }
     
-        static private var toDEGREES:Number = 180 / Math.PI;
-        static private var toRADIANS:Number = Math.PI / 180;
+        private static var toDEGREES:Number = 180 / Math.PI;
+        private static var toRADIANS:Number = Math.PI / 180;
     }
 }

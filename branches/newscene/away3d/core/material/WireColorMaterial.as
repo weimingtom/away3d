@@ -10,65 +10,55 @@ package away3d.core.material
     import flash.display.*;
 
     /** Material for solid color drawing with face's border outlining */
-    public class WireColorMaterial implements ITriangleMaterial, ISegmentMaterial
+    public class WireColorMaterial implements ITriangleMaterial
     {
-        public var lineWidth:Number;
-        public var lineColor:int;
-        public var lineAlpha:Number;
+        public var color:int;
+        public var alpha:Number;
 
-        public var fillColor:int;
-        public var fillAlpha:Number;
+        public var width:Number;
+        public var wirecolor:int;
+        public var wirealpha:Number;
 
-        public function WireColorMaterial(color:int = -1, wirecolor:int = 0x000000, alpha:Number = 1.0, wirealpha:Number = 1.0, wirewidth:Number = 1)
+        public function WireColorMaterial(color:* = null, init:Object = null)
         {
-            if (color == -1)
-                color = int(0xFFFFFF * Math.random());
+            if (color == null)
+                color = "random";
 
-            fillColor = color;
-            lineColor = wirecolor;
-            fillAlpha = alpha;
-            lineAlpha = wirealpha;
-            lineWidth = wirewidth;
-        }
+            this.color = Cast.trycolor(color);
 
-        public function renderSegment(seg:DrawSegment, session:RenderSession):void
-        {
-            if (lineAlpha > 0)
-            {                                                  
-                var graphics:Graphics = session.graphics;
-                graphics.lineStyle(lineWidth, lineColor, lineAlpha/*, false, LineScaleMode.NORMAL, CapsStyle.SQUARE*/);
-                graphics.moveTo(seg.v0.x, seg.v0.y);
-                graphics.lineTo(seg.v1.x, seg.v1.y);
-                graphics.moveTo(seg.v0.x, seg.v0.y); // ????? bug?
-            }
+            init = Init.parse(init);
+            alpha = init.getNumber("alpha", 1, {min:0, max:1});
+            wirecolor = init.getColor("wirecolor", 0x000000);
+            width = init.getNumber("width", 1, {min:0});
+            wirealpha = init.getNumber("wirealpha", 1, {min:0, max:1});
         }
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
             var graphics:Graphics = session.graphics;
 
-            if (lineAlpha > 0)
-                graphics.lineStyle(lineWidth, lineColor, lineAlpha);
+            if (wirealpha > 0)
+                graphics.lineStyle(width, wirecolor, wirealpha);
             else
                 graphics.lineStyle();
     
-            if (fillAlpha > 0)
-                graphics.beginFill(fillColor, fillAlpha);
+            if (alpha > 0)
+                graphics.beginFill(color, alpha);
     
             graphics.moveTo(tri.v0.x, tri.v0.y);
             graphics.lineTo(tri.v1.x, tri.v1.y);
             graphics.lineTo(tri.v2.x, tri.v2.y);
     
-            if (lineAlpha > 0)
+            if (wirealpha > 0)
                 graphics.lineTo(tri.v0.x, tri.v0.y);
     
-            if (fillAlpha > 0)
+            if (alpha > 0)
                 graphics.endFill();
         }
 
         public function get visible():Boolean
         {
-            return (fillAlpha > 0) || (lineAlpha > 0);
+            return (alpha > 0) || (wirealpha > 0);
         }
  
     }

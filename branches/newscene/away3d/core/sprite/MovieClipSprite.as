@@ -8,26 +8,24 @@ package away3d.core.sprite
     import away3d.core.material.*;
     import away3d.core.math.*;
 
-    import flash.display.BitmapData;
+    import flash.display.DisplayObject;
 
-    /** Simple billboard sprite */
-    public class Sprite2D extends Object3D implements IPrimitiveProvider
+    public class MovieClipSprite extends Object3D implements IPrimitiveProvider
     {
         private var center:Vertex = new Vertex();
 
-        public var bitmap:BitmapData;
+        public var movieclip:DisplayObject;
         public var scaling:Number;
-        public var smooth:Boolean;
     
-        public function Sprite2D(init:Object = null)
+        public function MovieClipSprite(movieclip:DisplayObject, init:Object = null)
         {
             super(init);
 
+            this.movieclip = movieclip;
+
             init = Init.parse(init);
-    
-            scaling = init.getNumber("scaling", 1, {min:0});
-            bitmap = init.getBitmap("bitmap");
-            smooth = init.getBoolean("smooth", false);
+
+            scaling = init.getNumber("scaling", NaN);
         }
     
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
@@ -37,7 +35,7 @@ package away3d.core.sprite
             var sc:ScreenVertex = center.project(projection);
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
 
-            consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, smooth));
+            consumer.primitive(new DrawDisplayObject(this, movieclip, sc/*, persp*scaling*/));
         }
     }
 }

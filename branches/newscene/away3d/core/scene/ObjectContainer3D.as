@@ -429,5 +429,11 @@ package away3d.core.scene
                 }
         }
 
+        /*
+        public function replaceMaterial():void
+        {
+        }
+        */
+
     }
 }
