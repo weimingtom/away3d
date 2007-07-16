@@ -20,27 +20,33 @@ package away3d.loaders
     {
         private var side:MovieClip;
         private var info:TextField;
+        private var title:String;
 
-        public function CubeLoader(url:String, parse:Function, init:Object = null, title:String = null) 
+        public function CubeLoader(url:String, parse:Function, init:Object = null) 
         {
-            super(url, parse, init, title);
+            super(url, parse, init);
 
             side = new MovieClip();
             var graphics:Graphics = side.graphics;
             graphics.lineStyle(1, 0xFFFFFF);
             graphics.drawCircle(50, 50, 50);
             info = new TextField();
+            info.wordWrap = true;
             side.addChild(info);
 
-            addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:100, height:100, depth:100}));
+            init = Init.parse(init);
+            var size:Number = init.getNumber("loadersize", 200);
+            title = init.getString("title", "Loading...");
+
+            addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
         }
 
         protected override function onError(event:IOErrorEvent):void 
         {
-            info.text = title + "\n" + event.toString();
+            info.text = title + "\n" + event.text;
             var graphics:Graphics = side.graphics;
             graphics.beginFill(0xFF0000);
-            graphics.drawCircle(50, 50, 50);
+            graphics.drawRect(0, 0, 100, 100);
             graphics.endFill();
         }
 

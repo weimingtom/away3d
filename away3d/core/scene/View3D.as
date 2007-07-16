@@ -36,14 +36,20 @@ package away3d.core.scene
         public var renderer:IRenderer;
 
         /** Fire mouse move events even in case mouse pointer doesn't move */
-        public var zeromousemove:Boolean;
+        public var mouseZeroMove:Boolean;
 
         /** Create a new View3D */
-        public function View3D(scene:Scene3D = null, camera:Camera3D = null, renderer:IRenderer = null)
+        public function View3D(init:Object = null)
         {
-            this.scene = scene || new Scene3D();
-            this.camera = camera || new Camera3D({x:1000, y:1000, z:1000, lookat:new Object3D()});
-            this.renderer = renderer || new BasicRenderer();
+            init = Init.parse(init);
+
+            scene = init.getObject("scene") || new Scene3D();
+            camera = init.getObject("camera") || new Camera3D({x:1000, y:1000, z:1000, lookat:new Object3D()});
+            renderer = init.getObject("renderer") || new BasicRenderer();
+            mouseChildren = init.getBoolean("mouseChildren", false);
+            mouseZeroMove = init.getBoolean("mouseZeroMove", false);
+            x = init.getNumber("x", false);
+            y = init.getNumber("y", false);
             
             background = new Sprite();
             addChild(background);
@@ -55,7 +61,6 @@ package away3d.core.scene
             addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-            mouseChildren = false;
         }
 
         /** Clear rendering area */
@@ -119,7 +124,7 @@ package away3d.core.scene
         /** Manually fire mouse move event */
         public function fireMouseMoveEvent(force:Boolean = false):void
         {
-            if (!(zeromousemove || force))
+            if (!(mouseZeroMove || force))
                 if ((mouseX == _lastmove_mouseX) && (mouseY == _lastmove_mouseY))
                     return;
 

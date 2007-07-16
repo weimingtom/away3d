@@ -266,7 +266,27 @@ package away3d.core
 
         private static var inits:Array = [];
 
-        public static function checkUnusedArguments():void
+        arcane function removeFromCheck():void
+        {
+            init.dontCheckUnused = true;
+            /*
+
+            var index:int = inits.indexOf(init);
+
+            if (index == -1)
+                return;
+
+            inits.splice(index, 1);
+            */
+        }
+
+        arcane function addForCheck():void
+        {
+            init.dontCheckUnused = false;
+            inits.push(init);
+        }
+
+        arcane static function checkUnusedArguments():void
         {
             if (inits.length == 0)
                 return;
@@ -275,9 +295,16 @@ package away3d.core
             inits = [];
             for each (var init:Object in list)
             {
+                if (init.hasOwnProperty("dontCheckUnused"))
+                    if (init.dontCheckUnused)
+                        continue;
+                        
                 var s:String = null;
                 for (var name:String in init)
                 {
+                    if (name == "dontCheckUnused")
+                        continue;
+
                     if (s == null)
                         s = "";
                     else

@@ -32,7 +32,7 @@ package away3d.loaders
         {
             init = Init.parse(init);
 
-            scaling = init.getNumber("scaling", 1) * 100;
+            scaling = init.getNumber("scaling", 1) * 10;
 
             mesh = new Mesh(init);
 
@@ -44,9 +44,9 @@ package away3d.loaders
             return new Obj(Cast.string(data), init).mesh;
         }
     
-        public static function load(url:String, init:Object = null, title:String = null, loader:Class = null):Object3D
+        public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return new (loader || CubeLoader)(url, parse, init, title);
+            return Object3DLoader.load(url, parse, init);
         }
     
         private function parseObj(data:String):void 

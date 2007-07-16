@@ -1,4 +1,4 @@
-package away3d.core.scene
+﻿package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -454,6 +454,15 @@ package away3d.core.scene
             translate(Number3D.DOWN, distance); 
         }
     
+        public function moveTo(target:Number3D):void
+        {
+            _transform.tx = target.x;
+            _transform.ty = target.y;
+            _transform.tz = target.z;
+            
+            notifyTransformChange();
+        }
+
         public function translate(axis:Number3D, distance:Number):void
         {
             var vector:Number3D = axis.rotate(transform);
