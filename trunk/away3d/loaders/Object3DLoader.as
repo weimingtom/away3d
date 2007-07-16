@@ -18,19 +18,24 @@ package away3d.loaders
 
     public class Object3DLoader extends ObjectContainer3D
     {
+        use namespace arcane;
+
         public var result:Object3D;
 
         private var urlloader:URLLoader;
         private var parse:Function;
-        private var init:Object;
+        private var init:Init;
 
-        protected var title:String;
+        public function get handle():Object3D
+        {
+            return result || this;
+        }
 
-        public function Object3DLoader(url:String, parse:Function, init:Object = null, title:String = null) 
+        public function Object3DLoader(url:String, parse:Function, init:Object = null) 
         {
             this.parse = parse;
-            this.title = title || "Loading...";
-            this.init = init;
+            this.init = Init.parse(init);
+            this.init.removeFromCheck();
 
             urlloader = new URLLoader();
             urlloader.addEventListener(IOErrorEvent.IO_ERROR, onError);
@@ -49,6 +54,8 @@ package away3d.loaders
 
         private function onComplete(event:Event):void 
         {
+            init.addForCheck();
+
             result = parse(urlloader.data, init);
 
             if (parent != null)
@@ -57,6 +64,13 @@ package away3d.loaders
                 result.parent = parent;
                 parent = null;
             }
+        }
+
+        public static function load(url:String, parse:Function, init:Object):Object3DLoader
+        {
+            init = Init.parse(init);
+            var loader:Class = init.getObject("loader") || CubeLoader;
+            return new loader(url, parse, init);
         }
 
     }

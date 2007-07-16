@@ -29,9 +29,9 @@ package away3d.loaders
             return new Ase(Cast.string(data), init).mesh;
         }
     
-        public static function load(url:String, init:Object = null, title:String = null, loader:Class = null):Object3D
+        public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return new (loader || CubeLoader)(url, parse, init, title);
+            return Object3DLoader.load(url, parse, init);
         }
     
         private function parseAse(data:String):void

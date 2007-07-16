@@ -24,7 +24,7 @@ package away3d.objects
 
             var vertices:Array = []
             for (i = 0; i < sections; i++)
-                vertices.push(new Vertex(radius*Math.sin(i*tp/sections), 0, radius*Math.cos(i*tp/sections)));
+                vertices.push(new Vertex(radius*Math.cos(i*tp/sections), 0, radius*Math.sin(i*tp/sections)));
 
             var center:Vertex = new Vertex(0,0,0);
             vertices.push(center);
@@ -40,7 +40,7 @@ package away3d.objects
                     break;
                 case "planar":
                     for (i = 0; i <= sections; i++)
-                        uvs.push(new UV(Math.sin(i*tp/sections)/2+0.5, Math.cos(i*tp/sections)/2+0.5));
+                        uvs.push(new UV(Math.cos(i*tp/sections)/2+0.5, Math.sin(i*tp/sections)/2+0.5));
                     centeruv = new UV(0.5, 0.5);
                     break;
                 default:

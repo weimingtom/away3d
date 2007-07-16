@@ -1,6 +1,3 @@
-/**
- * @author Philippe Ajoux (philippe.ajoux@gmail.com)
- */
 package away3d.loaders
 {
     import away3d.core.*;
@@ -11,6 +8,9 @@ package away3d.loaders
     
     import flash.utils.*;
 
+   /**
+    * @author Philippe Ajoux (philippe.ajoux@gmail.com)
+    */
     public class Max3DS
     {
         private var mesh:Mesh;
@@ -32,9 +32,9 @@ package away3d.loaders
             return new Max3DS(Cast.bytearray(data), init).mesh;
         }
     
-        public static function load(url:String, init:Object = null, title:String = null, loader:Class = null):Object3D
+        public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return new (loader || CubeLoader)(url, parse, init, title);
+            return Object3DLoader.load(url, parse, init);
         }
     
         private function parse3DS(data:ByteArray):void

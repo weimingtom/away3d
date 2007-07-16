@@ -63,9 +63,6 @@ package away3d.test
             stage.showDefaultContextMenu = false;
             stage.stageFocusRect = false;
 
-            view = new View3D(null, null, null);
-            addChild(view);
-            
             lefttopgroup = new Sprite();
             addChild(lefttopgroup);
 
@@ -178,8 +175,9 @@ package away3d.test
 
             camera.mintiltangle = -10;
 
-            view.camera = camera;
-    
+            view = new View3D({camera:camera});
+            addChild(view);
+            
             stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
             stage.addEventListener(Event.RESIZE, onResize);
             stage.addEventListener(Event.ACTIVATE, onActivate);
@@ -196,15 +194,11 @@ package away3d.test
 
         protected function addSlide(title:String, text:String, scene:Scene3D, renderer:IRenderer):void
         {
-            //view.addChild(scene.container);
             slides.push(new Slide(title, text, scene, renderer));
         }
 
         private function changeSlide():void
         {
-            //if (slide != null)
-            //    slide.scene.clear();
-
             slide = slides[slideindex];
             dirty = true;
             messagelabel.htmlText = "<font size='16' face='arial'>"
@@ -233,8 +227,6 @@ package away3d.test
 
         private function onEnterFrame(event:Event):void
         {
-            Init.checkUnusedArguments();
-
             if (slide == null)
                 changeSlide();
 
