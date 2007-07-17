@@ -67,15 +67,17 @@ package away3d.core.scene
         /** Clear rendering area */
         public function clear():void
         {
-            //if (canvas != null)
-            //    removeChild(canvas);
-            //canvas = new Sprite();
-            //addChildAt(canvas, 1);
+             if (canvas != null)
+                removeChild(canvas);
+            canvas = new Sprite();
+            addChildAt(canvas, 1);
 
+			/* 
             canvas.graphics.clear();
 
             for (var i:int = 0; i < canvas.numChildren; i++)
                 canvas.getChildAt(i).visible = false;
+			*/
         }
 
         /** Render frame */

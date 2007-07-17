@@ -93,6 +93,7 @@ package away3d.core.render
             this.scene = scene;
             this.camera = camera;
             this.container = container;
+            _graphics = container.graphics;
             this.clip = clip;
             this.lightarray = lightarray;
             this.time = getTimer();
