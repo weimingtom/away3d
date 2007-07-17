@@ -5,6 +5,7 @@ package away3d.shapes
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     import away3d.trash.*;
 
     /** Regular shape */
@@ -35,7 +36,7 @@ package away3d.shapes
             var i:int, j:String, vx:Number, vy:Number, fRad2:Number, oldV:Vertex3D, v:Vertex3D;
             
             length = 0;
-            for (i=0;i<sides;i++) 
+            for (i = 0; i < sides; i++) 
             {
                 fRad2 = fRad*i - fRad/2;
                 oldV = v;

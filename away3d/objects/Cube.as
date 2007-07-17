@@ -1,12 +1,10 @@
 package away3d.objects
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     
-    import flash.geom.*;
-
     /** Cube */ 
     public class Cube extends Mesh
     {
@@ -16,16 +14,17 @@ package away3d.objects
             
             init = Init.parse(init);
 
-            var width:Number  = init.getNumber("width",  100, {min:0});
-            var height:Number = init.getNumber("height", 100, {min:0});
-            var depth:Number  = init.getNumber("depth",  100, {min:0});
+            var size:Number  = init.getNumber("size", 100, {min:0});
+            var width:Number  = init.getNumber("width",  size, {min:0});
+            var height:Number = init.getNumber("height", size, {min:0});
+            var depth:Number  = init.getNumber("depth",  size, {min:0});
             var faces:Init  = init.getInit("faces");
-            var left:ITriangleMaterial   = faces.getTriangleMaterial("left");
-            var right:ITriangleMaterial  = faces.getTriangleMaterial("right");
-            var bottom:ITriangleMaterial = faces.getTriangleMaterial("bottom");
-            var top:ITriangleMaterial    = faces.getTriangleMaterial("top");
-            var front:ITriangleMaterial  = faces.getTriangleMaterial("front");
-            var back:ITriangleMaterial   = faces.getTriangleMaterial("back");
+            var left:ITriangleMaterial   = faces.getMaterial("left");
+            var right:ITriangleMaterial  = faces.getMaterial("right");
+            var bottom:ITriangleMaterial = faces.getMaterial("bottom");
+            var top:ITriangleMaterial    = faces.getMaterial("top");
+            var front:ITriangleMaterial  = faces.getMaterial("front");
+            var back:ITriangleMaterial   = faces.getMaterial("back");
 
             var v000:Vertex = new Vertex(-width/2, -height/2, -depth/2); 
             var v001:Vertex = new Vertex(-width/2, -height/2, +depth/2); 

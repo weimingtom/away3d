@@ -12,6 +12,7 @@ package away3d.test
     import away3d.core.*;
     import away3d.core.scene.*;
     import away3d.core.render.*;
+    import away3d.core.utils.*;
 
     /** Base class for Away3D demos */ 
     public class BaseDemo extends Sprite

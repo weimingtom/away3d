@@ -3,6 +3,7 @@ package away3d.cameras
     import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
+    import away3d.core.utils.*;
 
     /** Camera that hovers around an object */
     public class HoverCamera3D extends Camera3D

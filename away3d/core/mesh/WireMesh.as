@@ -6,6 +6,7 @@ package away3d.core.mesh
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.utils.*;
     
     import flash.utils.Dictionary;
     

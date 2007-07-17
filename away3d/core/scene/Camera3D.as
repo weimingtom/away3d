@@ -5,6 +5,7 @@ package away3d.core.scene
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.mesh.*;
+    import away3d.core.utils.*;
     
     /** Camera in 3D-space */
     public class Camera3D extends Object3D

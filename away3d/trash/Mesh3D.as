@@ -7,6 +7,7 @@ package away3d.trash
     import away3d.core.material.*;
     import away3d.core.math.*;
     import away3d.core.mesh.*;
+    import away3d.core.utils.*;
     
     import flash.geom.*;
     import flash.utils.*;

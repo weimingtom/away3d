@@ -15,6 +15,7 @@ package away3d.loaders
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
 
     import flash.net.URLRequest;
     import flash.net.URLLoader;

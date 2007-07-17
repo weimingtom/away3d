@@ -3,6 +3,7 @@ package away3d.trash
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.scene.*;
+    import away3d.core.utils.*;
 
     /** Mesh's line segment */
     public class Segment3D

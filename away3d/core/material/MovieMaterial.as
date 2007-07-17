@@ -5,6 +5,7 @@ package away3d.core.material
     import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
+    import away3d.core.utils.*;
 
     import flash.display.BitmapData;
     import flash.display.MovieClip;

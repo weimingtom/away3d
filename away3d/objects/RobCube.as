@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.math.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     import away3d.trash.*;
     
     import flash.geom.*;

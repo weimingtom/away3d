@@ -1,4 +1,4 @@
-package away3d.core
+package away3d.core.utils
 {
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
@@ -6,8 +6,8 @@ package away3d.core
     import away3d.loaders.*;
 
     import flash.display.BitmapData;
-    import flash.utils.ByteArray;
-    import flash.utils.Dictionary;
+    import flash.display.Sprite;
+    import flash.utils.*;
     //import mx.core.BitmapAsset;
 
     /** Helper class for casting assets to usable objects */
@@ -47,6 +47,16 @@ package away3d.core
         }
     
         private static var colornames:Dictionary;
+        private static var hexchars:String = "0123456789abcdefABCDEF";
+
+        private static function hexstring(string:String):Boolean
+        {
+            for (var i:int = 0; i < string.length; i++)
+                if (hexchars.indexOf(string.charAt(i)) == -1)
+                    return false;
+
+            return true;
+        }
 
         public static function trycolor(data:*):uint
         {
@@ -210,8 +220,7 @@ package away3d.core
                 if (colornames[data] != null)
                     return colornames[data];
             
-                //throw new Error(data+" "+parseInt("0x"+data));
-                if (data.length == 6)
+                if ((data.length == 6) && hexstring(data))
                     return parseInt("0x"+data);
             }
 
@@ -223,7 +232,7 @@ package away3d.core
             var result:uint = trycolor(data);
 
             if (result == 0xFFFFFFFF)
-                throw new Error("Can't cast to color: "+data);
+                throw new CastError("Can't cast to color: "+data);
 
             return result;
         }
@@ -232,6 +241,9 @@ package away3d.core
         {
             if (data == null)
                 return null;
+
+            if (data is String)
+                data = tryclass(data);
 
             if (data is Class)
                 data = new data;
@@ -242,16 +254,61 @@ package away3d.core
             if (data.hasOwnProperty("bitmapData")) // if (data is BitmapAsset)
                 return data.bitmapData;
 
-            throw new Error("Can't cast to bitmap: "+data);
+            if (data is Sprite)
+            {
+                var sprite:Sprite = data as Sprite;
+                var bmd:BitmapData = new BitmapData(sprite.width, sprite.height, true, 0x00FFFFFF);
+                bmd.draw(sprite, null, null, null, bmd.rect, true);
+                return bmd;
+            }
+
+            throw new CastError("Can't cast to bitmap: "+data);
         }
 
-        public static function material(data:*):IMaterial
+        private static var notclasses:Dictionary = new Dictionary();
+        private static var classes:Dictionary = new Dictionary();
+
+        public static function tryclass(name:String):Object
+        {
+            if (notclasses[name])
+                return name;
+
+            var result:Class = classes[name];
+
+            if (result != null)
+                return result;
+
+            try
+            {
+                result = getDefinitionByName(name) as Class;
+                classes[name] = result;
+                return result;
+            }
+            catch (error:ReferenceError) {}
+
+            notclasses[name] = true;
+            return name;
+        }
+
+        public static function material(data:*):ITriangleMaterial
         {
             if (data == null)
                 return null;
 
+            if (data is String)
+                data = tryclass(data);
+
             if (data is Class)
-                data = new data;
+            {
+                try
+                {
+                    data = new data;
+                }
+                catch (error:ArgumentError)
+                {
+                    data = new data(0,0);
+                }
+            }
 
             if (data is IMaterial)
                 return data;
@@ -259,7 +316,7 @@ package away3d.core
             if (data is int) 
                 return new ColorMaterial(data);
 
-            if (data is String) 
+            if (data is String)
             {
                 if (data == "")
                     return null;
@@ -269,71 +326,148 @@ package away3d.core
 
                 if (data.indexOf("#") == -1)
                     return new ColorMaterial(color(data));
+
+                var hash:Array = data.split("#");
+                if (hash[1] == "")
+                    return new WireColorMaterial(color(hash[0]));
+
+                if (hash[1].indexOf("|") == -1)
+                {
+                    if (hash[0] == "")
+                        return new WireframeMaterial(color(hash[1]));
+                    else
+                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
+                }
                 else
                 {
-                    if (data == "#")
-                        return new WireframeMaterial();
-
-                    var hash:Array = data.split("#");
-                    if (hash[1] == "")
-                        return new WireColorMaterial(color(hash[0]));
-
-                    if (hash[1].indexOf("|") == -1)
-                    {
-                        if (hash[0] == "")
-                            return new WireframeMaterial(color(hash[1]));
-                        else
-                            return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
-                    }
+                    var line:Array = hash[1].split("|");
+                    if (hash[0] == "")
+                        return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
                     else
-                    {
-                        var line:Array = hash[1].split("|");
-                        if (hash[0] == "")
-                            //throw new Error(line[0]+" <-> "+line[1]); 
-                            return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
-                        else
-                            return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
-                    }
+                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
                 }
             }
 
-            if (data is BitmapData)
-                return new BitmapMaterial(data, {smooth:true});
+            try
+            {
+                var bmd:BitmapData = bitmap(data);
+                return new BitmapMaterial(bmd, {smooth:true});
+            }
+            catch (error:CastError) {}
 
-            if (data.hasOwnProperty("bitmapData")) // if (data is BitmapAsset)
-                return new BitmapMaterial(data.bitmapData, {smooth:true});
-
-            throw new Error("Can't cast to material: "+data);
+            throw new CastError("Can't cast to material: "+data);
         }
 
-        public static function library(data:*):MaterialLibrary
+        public static function wirematerial(data:*):ISegmentMaterial
         {
             if (data == null)
-                return new MaterialLibrary();
+                return null;
 
-            if (data is Class)
-                data = new data;
-
-            if (data is MaterialLibrary)
+            if (data is ISegmentMaterial)
                 return data;
 
-            /*
+            if (data is int) 
+                return new WireframeMaterial(data);
+
+            if (data is String)
+            {
+                if (data == "")
+                    return null;
+
+                if (data == "transparent")
+                    return new TransparentMaterial();
+
+                if (data.indexOf("#") == 0)
+                    data = data.substring(1);
+
+                if (data.indexOf("|") == -1)
+                    return new WireframeMaterial(color(data));
+
+                var line:Array = data.split("|");
+                return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
+            }
+
+            throw new CastError("Can't cast to wirematerial: "+data);
+        }
+
+        public static function imaterial(data:*, wire:Boolean = false):IMaterial
+        {
+            throw new Error("imaterial");
+
+            if (data == null)
+                return null;
+
+            if (data is String)
+                data = tryclass(data);
+
+            if (data is Class)
+            {
+                try
+                {
+                    data = new data;
+                }
+                catch (error:ArgumentError)
+                {
+                    data = new data(0,0);
+                }
+            }
+
             if (data is IMaterial)
-                return new MaterialLibrary(data);
+                return data;
 
-            if (data is BitmapData)
-                return new MaterialLibrary(new BitmapMaterial(data, {smooth:true}));
+            if (data is int) 
+                if (wire)
+                    return new WireframeMaterial(data);
+                else
+                    return new ColorMaterial(data);
 
-            // if (data is BitmapAsset)
-            if (data.bitmapData) 
-                return new MaterialLibrary(new BitmapMaterial(data.bitmapData, {smooth:true}));
-            */
+            if (data is String)
+            {
+                if (data == "")
+                    return null;
 
-            var result:MaterialLibrary = new MaterialLibrary();
-            for (var name:String in data)
-                result.add(Cast.material(data[name]), name);
+                if (data == "transparent")
+                    return new TransparentMaterial();
 
-            return result;
+                if (data.indexOf("#") == -1)
+                {
+                    throw new Error(color(data)+"?!");
+
+                    return new ColorMaterial(color(data));
+                }
+
+                if (data == "#")
+                    return new WireframeMaterial();
+
+                var hash:Array = data.split("#");
+                if (hash[1] == "")
+                    return new WireColorMaterial(color(hash[0]));
+
+                if (hash[1].indexOf("|") == -1)
+                {
+                    if (hash[0] == "")
+                        return new WireframeMaterial(color(hash[1]));
+                    else
+                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
+                }
+                else
+                {
+                    var line:Array = hash[1].split("|");
+                    if (hash[0] == "")
+                        return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
+                    else
+                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
+                }
+            }
+
+            try
+            {
+                var bmd:BitmapData = bitmap(data);
+                return new BitmapMaterial(bmd, {smooth:true});
+            }
+            catch (error:CastError) {}
+
+            throw new CastError("Can't cast to material: "+data);
         }
 
     }

@@ -7,27 +7,20 @@ package away3d.loaders
     /** Set of the named materials */
     public class MaterialLibrary
     {
-        public var def:IMaterial;
         private var materials:Dictionary = new Dictionary();
     
-        public function MaterialLibrary(def:IMaterial = null):void
+        public function MaterialLibrary(def:ITriangleMaterial = null):void
         {
-            this.def = def;
         }
     
-        public function add(material:IMaterial, name:String):void
+        public function add(material:ITriangleMaterial, name:String):void
         {
             materials[name] = material;
         }
     
-        public function getMaterialByName(name:String):IMaterial
+        public function getMaterial(name:String):ITriangleMaterial
         {
-            return (materials[name] || def);
-        }
-    
-        public function getTriangleMaterial(name:String):ITriangleMaterial
-        {
-            return (materials[name] || def) as ITriangleMaterial;
+            return materials[name];
         }
     
     }
