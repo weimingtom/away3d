@@ -1,5 +1,6 @@
-package away3d.core
+package away3d.core.utils
 {
+    import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.scene.*;
     import away3d.core.material.*;
@@ -209,21 +210,6 @@ package away3d.core
             return result;
         }
 
-        public function getMaterial(name:String):IMaterial
-        {
-            if (init == null)
-                return null;
-        
-            if (!init.hasOwnProperty(name))
-                return null;
-        
-            var result:IMaterial = Cast.material(init[name]);
-
-            delete init[name];
-        
-            return result;
-        }
-
         public function getColor(name:String, def:uint):uint
         {
             if (init == null)
@@ -254,34 +240,51 @@ package away3d.core
             return result;
         }
 
-        public function getTriangleMaterial(name:String):ITriangleMaterial
+        public function getMaterial(name:String):ITriangleMaterial
         {
-            return getMaterial(name) as ITriangleMaterial;
+            if (init == null)
+                return null;
+        
+            if (!init.hasOwnProperty(name))
+                return null;
+        
+            var result:ITriangleMaterial = Cast.material(init[name]);
+
+            delete init[name];
+        
+            return result;
         }
 
         public function getSegmentMaterial(name:String):ISegmentMaterial
         {
-            return getMaterial(name) as ISegmentMaterial;
+            if (init == null)
+                return null;
+        
+            if (!init.hasOwnProperty(name))
+                return null;
+        
+            var result:ISegmentMaterial = Cast.wirematerial(init[name]);
+
+            delete init[name];
+        
+            return result;
         }
 
         private static var inits:Array = [];
 
         arcane function removeFromCheck():void
         {
-            init.dontCheckUnused = true;
-            /*
-
-            var index:int = inits.indexOf(init);
-
-            if (index == -1)
+            if (init == null)
                 return;
 
-            inits.splice(index, 1);
-            */
+            init.dontCheckUnused = true;
         }
 
         arcane function addForCheck():void
         {
+            if (init == null)
+                return;
+
             init.dontCheckUnused = false;
             inits.push(init);
         }
@@ -313,7 +316,7 @@ package away3d.core
                 }
                 if (s != null)
                 {
-                    Debug.warning("Unused arguments: {"+s+"}"); // warning
+                    Debug.warning("Unused arguments: {"+s+"}");
                 }
             }
         }

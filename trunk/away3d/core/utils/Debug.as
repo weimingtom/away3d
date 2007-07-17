@@ -1,4 +1,4 @@
-package away3d.core
+package away3d.core.utils
 {
     /** Class for emmiting debuging messages, warnings and errors */
     public class Debug

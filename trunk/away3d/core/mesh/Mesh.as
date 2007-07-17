@@ -6,6 +6,7 @@ package away3d.core.mesh
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.utils.*;
     
     import away3d.objects.*;
 
@@ -152,9 +153,9 @@ package away3d.core.mesh
 
             init = Init.parse(init);
             
-            material = init.getTriangleMaterial("material");
-            outline = init.getMaterial("outline");
-            back = init.getTriangleMaterial("back") || (material as ITriangleMaterial);
+            material = init.getMaterial("material");
+            outline = init.getSegmentMaterial("outline");
+            back = init.getMaterial("back") || material;
             bothsides = init.getBoolean("bothsides", false);
             debugbb = init.getBoolean("debugbb", false);
 
@@ -400,51 +401,6 @@ package away3d.core.mesh
                 if (_faces.length > 0)
                     _debugboundingbox.primitives(projection, consumer);
             }
-
-            /*
-            var bblll:ScreenVertex = (new Vertex(minX, minY, minZ)).project(projection);
-            var bbllh:ScreenVertex = (new Vertex(minX, minY, maxZ)).project(projection);
-            var bblhl:ScreenVertex = (new Vertex(minX, maxY, minZ)).project(projection);
-            var bblhh:ScreenVertex = (new Vertex(minX, maxY, maxZ)).project(projection);
-            var bbhll:ScreenVertex = (new Vertex(maxX, minY, minZ)).project(projection);
-            var bbhlh:ScreenVertex = (new Vertex(maxX, minY, maxZ)).project(projection);
-            var bbhhl:ScreenVertex = (new Vertex(maxX, maxY, minZ)).project(projection);
-            var bbhhh:ScreenVertex = (new Vertex(maxX, maxY, maxZ)).project(projection);
-            var bbmat:ISegmentMaterial = new WireframeMaterial(0xFFFFFF);
-
-            var seg:DrawSegment;
-            for each (var arr:Array in [[bblll]])
-            {
-                seg = seg || new DrawSegment();
-
-                seg.v0 = segment._v0.project(projection);
-                seg.v1 = segment._v1.project(projection);
-    
-                if (!seg.v0.visible)
-                    continue;
-
-                if (!seg.v1.visible)
-                    continue;
-
-                seg.calc();
-
-                if (seg.maxZ < 0)
-                    continue;
-
-                seg.material = segment.material || material;
-
-                if (seg.material == null)
-                    continue;
-
-                if (!seg.material.visible)
-                    continue;
-
-                seg.source = this;
-                seg.projection = projection;
-                consumer.primitive(seg);
-            }
-            */
-            // END
 
             var tri:DrawTriangle;
             var ntri:DrawTriangle;

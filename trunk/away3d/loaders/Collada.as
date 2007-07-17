@@ -5,13 +5,17 @@ package away3d.loaders
     import away3d.core.scene.*;
     import away3d.core.material.*;
     import away3d.core.mesh.*;
+    import away3d.core.utils.*;
+
+    import flash.utils.*;
 
     /** Collada scene loader */
     public class Collada
     {
         private var container:ObjectContainer3D;
         private var collada:XML;
-        private var library:MaterialLibrary;
+        private var library:Dictionary;
+        private var material:ITriangleMaterial;
         private var scaling:Number;
         private var yUp:Boolean;
     
@@ -22,8 +26,12 @@ package away3d.loaders
             init = Init.parse(init);
 
             scaling = init.getNumber("scaling", 1) * 100;
-            library = Cast.library(init.getObject("materials"));
-            library.def = init.getMaterial("material");
+            material = init.getMaterial("material");
+            var materials:Object = init.getObject("materials") || {};
+
+            library = new Dictionary();
+            for (var name:String in materials)
+                library[name] = Cast.material(materials[name]);
     
             container = new ObjectContainer3D(init);
 
@@ -195,7 +203,6 @@ package away3d.loaders
             }
     
             // Faces
-            //var faces:Array = mesh.faces;
             var semFaces:Array = semantics.triangles;
             len = semFaces.length;
     
@@ -210,24 +217,24 @@ package away3d.loaders
                 var tex:Array = semantics.TEXCOORD;
                 var uv:Array = semFaces[i].TEXCOORD;
     
-                var uvA:UV = null;
-                var uvB:UV = null;
-                var uvC:UV = null;
+                var uva:UV = null;
+                var uvb:UV = null;
+                var uvc:UV = null;
     
                 if (uv && tex)
                 {
-                    uvA = new UV(tex[uv[0]].S, tex[uv[0]].T);
-                    uvB = new UV(tex[uv[1]].S, tex[uv[1]].T);
-                    uvC = new UV(tex[uv[2]].S, tex[uv[2]].T);
+                    uva = new UV(tex[uv[0]].S, tex[uv[0]].T);
+                    uvb = new UV(tex[uv[1]].S, tex[uv[1]].T);
+                    uvc = new UV(tex[uv[2]].S, tex[uv[2]].T);
                 }
 
-                var materialName:String = semFaces[i].material || null;
+                var matname:String = semFaces[i].material || null;
     
-                var face:Face = new Face(a, b, c, library.getTriangleMaterial(materialName), uvA, uvB, uvC);
+                var face:Face = new Face(a, b, c, library[matname] || material, uva, uvb, uvc);
                 mesh.addFace(face);
             }
     
-            mesh.material = new WireColorMaterial(0xFF0000);
+            mesh.material = new WireColorMaterial(0xFF00FF);
     
             mesh.visible = true;
         }

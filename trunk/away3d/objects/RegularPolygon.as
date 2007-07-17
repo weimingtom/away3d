@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     
     /** Regular polygon */
     public class RegularPolygon extends Mesh

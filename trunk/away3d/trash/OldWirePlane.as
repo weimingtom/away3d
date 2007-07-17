@@ -4,6 +4,7 @@ package away3d.trash
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     
     /** Wire plane */ 
     public class OldWirePlane extends Mesh3D

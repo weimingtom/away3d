@@ -500,7 +500,7 @@
 
     
         // Make the object look at a specific position.
-        // @param targetObject Object to look at.
+        // @param target Position to look at.
         // @param upAxis The vertical axis of the universe. Normally the positive Y axis.
         public function lookAt(target:Number3D, upAxis:Number3D = null):void
         {

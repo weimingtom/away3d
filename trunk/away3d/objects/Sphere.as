@@ -5,6 +5,7 @@ package away3d.objects
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     
     /** Sphere */ 
     public class Sphere extends Mesh

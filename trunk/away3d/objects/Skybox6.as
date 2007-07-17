@@ -4,6 +4,7 @@ package away3d.objects
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
 
     /** Skybox that is initialized with one solid image */ 
     public class Skybox6 extends Mesh

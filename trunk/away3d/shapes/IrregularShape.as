@@ -5,6 +5,7 @@ package away3d.shapes
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     import away3d.trash.*;
     
     /** Irregular shape */

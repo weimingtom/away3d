@@ -4,6 +4,7 @@ package away3d.objects
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
     
     /** Segment */ 
     public class LineSegment extends WireMesh

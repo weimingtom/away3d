@@ -6,6 +6,7 @@ package away3d.core.scene
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.material.*;
+    import away3d.core.utils.*;
 
     /** Light source */ 
     public class Light3D extends Object3D implements ILightProvider, IPrimitiveProvider
@@ -16,7 +17,7 @@ package away3d.core.scene
         public var specular:Number;
         public var debug:Boolean;
 
-        public function Light3D(/*color:int, ambient:Number, diffuse:Number, specular:Number,*/ init:Object = null)
+        public function Light3D(init:Object = null)
         {
             super(init);
 

@@ -6,6 +6,7 @@ package away3d.core.scene
     import away3d.core.render.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.utils.*;
     
     import flash.display.Sprite;
     import flash.utils.getTimer;
