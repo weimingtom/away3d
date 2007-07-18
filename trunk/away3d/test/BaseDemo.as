@@ -64,6 +64,18 @@ package away3d.test
             stage.showDefaultContextMenu = false;
             stage.stageFocusRect = false;
 
+            camera = new HoverCamera3D(null, {zoom:3, focus:200, distance:800});
+            camera.tiltangle = 10;
+            camera.targettiltangle = 40;
+
+            camera.panangle = 0;
+            camera.targetpanangle = 230;
+
+            camera.mintiltangle = -10;
+
+            view = new View3D({camera:camera});
+            addChild(view);
+            
             lefttopgroup = new Sprite();
             addChild(lefttopgroup);
 
@@ -167,18 +179,6 @@ package away3d.test
             startlabel.htmlText = "Start demo";
             centergroup.addChild(startlabel);
 
-            camera = new HoverCamera3D(null, {zoom:3, focus:200, distance:800});
-            camera.tiltangle = 10;
-            camera.targettiltangle = 40;
-
-            camera.panangle = 0;
-            camera.targetpanangle = 230;
-
-            camera.mintiltangle = -10;
-
-            view = new View3D({camera:camera});
-            addChild(view);
-            
             stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
             stage.addEventListener(Event.RESIZE, onResize);
             stage.addEventListener(Event.ACTIVATE, onActivate);
