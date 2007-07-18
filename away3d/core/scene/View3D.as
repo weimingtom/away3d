@@ -39,6 +39,13 @@ package away3d.core.scene
         /** Fire mouse move events even in case mouse pointer doesn't move */
         public var mouseZeroMove:Boolean;
 
+
+        /** Keeps track of current object under the mouse */
+        public var mouseObject:Object3D;
+        
+        /** Traverser used to find the current object under the mouse */
+        public var findhit:FindHitTraverser
+         
         /** Create a new View3D */
         public function View3D(init:Object = null)
         {
@@ -62,6 +69,8 @@ package away3d.core.scene
             addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+            addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+            buttonMode = true;
         }
 
         /** Clear rendering area */
@@ -114,11 +123,15 @@ package away3d.core.scene
 
         private function onMouseOut(e:MouseEvent):void
         {
-            if (mousedown)
-            {
-                mousedown = false;
-                fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY, e.ctrlKey, e.shiftKey);
-            }
+        	var event:MouseEvent3D = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
+			event.object = mouseObject;
+			bubbleMouseEvent(event);
+			mouseObject = null;
+        }
+        
+        private function onMouseOver(e:MouseEvent):void
+        {
+        	fireMouseEvent(MouseEvent.MOUSE_OVER, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
         private var _lastmove_mouseX:Number;
@@ -140,22 +153,42 @@ package away3d.core.scene
         /** Manually fire custom mouse event */
         public function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
-            var findhit:FindHitTraverser = new FindHitTraverser(this, x, y);
+            findhit = new FindHitTraverser(this, x, y);
             scene.traverse(findhit);
             var event:MouseEvent3D = findhit.getMouseEvent(type+"3D");
+            var target:Object3D = event.object;
             event.ctrlKey = ctrlKey;
             event.shiftKey = shiftKey;
 
-            dispatchMouseEvent(event);
-
-            var target:Object3D = event.object;
-
+            //dispatchMouseEvent(event);
+			bubbleMouseEvent(event);
+			
+			//catch rollover/rollout object3d events
+			if (mouseObject != event.object) {
+				if (mouseObject != null) {
+					event = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
+					event.object = mouseObject;
+					bubbleMouseEvent(event);
+				}
+				if (target != null) {
+					event = findhit.getMouseEvent(MouseEvent.MOUSE_OVER+"3D");
+					event.object = mouseObject = target;
+					bubbleMouseEvent(event);
+					useHandCursor = mouseObject.useHandCursor;
+				}
+			}
+			
+        }
+        
+        public function bubbleMouseEvent(event:MouseEvent3D)
+        {
+        	var target:Object3D = event.object;
             while (target != null)
             {
                 if (target.dispatchMouseEvent(event))
                     break;
                 target = target.parent;
-            }
+            }      	
         }
 
         /*
@@ -201,6 +234,24 @@ package away3d.core.scene
             removeEventListener(MouseEvent.MOUSE_UP+"3D", listener, false);
         }
 
+        public function addOnMouseOver(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_OVER+"3D", listener, false, 0, false);
+        }
+        public function removeOnMouseOver(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_OVER+"3D", listener, false);
+        }
+
+        public function addOnMouseOut(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_OUT+"3D", listener, false, 0, false);
+        }
+        public function removeOnMouseOut(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_OUT+"3D", listener, false);
+        }
+                
         arcane function dispatchMouseEvent(event:MouseEvent3D):void
         {
             if (!hasEventListener(event.type))
