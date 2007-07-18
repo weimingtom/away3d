@@ -37,7 +37,10 @@
 
         // Are the mouse events allowed
         public var mousable:Boolean;
-
+		
+		//use hand cursor when mouse is over object
+		public var useHandCursor:Boolean = true;
+		
         public function get radius():Number
         {
             return 0;
@@ -652,7 +655,25 @@
         {
             removeEventListener(MouseEvent.MOUSE_UP+"3D", listener, false);
         }
+        
+        public function addOnMouseOver(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_OVER+"3D", listener, false, 0, false);
+        }
+        public function removeOnMouseOver(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_OVER+"3D", listener, false);
+        }
 
+        public function addOnMouseOut(listener:Function):void
+        {
+            addEventListener(MouseEvent.MOUSE_OUT+"3D", listener, false, 0, false);
+        }
+        public function removeOnMouseOut(listener:Function):void
+        {
+            removeEventListener(MouseEvent.MOUSE_OUT+"3D", listener, false);
+        }
+        
         arcane function dispatchMouseEvent(event:MouseEvent3D):Boolean
         {
             if (!hasEventListener(event.type))
