@@ -1,7 +1,7 @@
 package away3d.core.math
 {
     /** 3D transformation 4x3 matrix */
-    public class Matrix3D
+    public final class Matrix3D
     {
         public var sxx:Number;     public var sxy:Number;     public var sxz:Number;     public var tx:Number;
         public var syx:Number;     public var syy:Number;     public var syz:Number;     public var ty:Number;

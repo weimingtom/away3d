@@ -120,64 +120,86 @@ package away3d.core.utils
             return result;
         }
 
-        public function getObject(name:String, def:Object = null):Object
+        public function getObject(name:String, type:Class = null):Object
         {
             if (init == null)
-                return def;
+                return null;
         
             if (!init.hasOwnProperty(name))
-                return def;
+                return null;
         
             var result:Object = init[name];
 
             delete init[name];
+
+            if (result == null)
+                return null;
+
+            if (type != null)
+                if (!(result is type))
+                    throw new CastError("Parameter \""+name+"\" is not of class "+type+": "+result);
+
+            return result;
+        }
+
+        public function getObjectOrInit(name:String, type:Class = null):Object
+        {
+            if (init == null)
+                return null;
         
+            if (!init.hasOwnProperty(name))
+                return null;
+        
+            var result:Object = init[name];
+
+            delete init[name];
+
+            if (result == null)
+                return null;
+
+            if (type != null)
+                if (!(result is type))
+                    return new type(result);
+
             return result;
         }
 
         public function getObject3D(name:String):Object3D
         {
-            if (init == null)
-                return null;
-        
-            if (!init.hasOwnProperty(name))
-                return null;
-        
-            var result:Object3D = init[name];
-
-            delete init[name];
-        
-            return result;
+            return getObject(name, Object3D) as Object3D;
         }
 
         public function getNumber2D(name:String):Number2D
         {
-            if (init == null)
-                return new Number2D();
-        
-            if (!init.hasOwnProperty(name))
-                return new Number2D();
-        
-            var result:Number2D = init[name];
-
-            delete init[name];
-        
-            return result;
+            return getObject(name, Number2D) as Number2D;
         }
 
         public function getNumber3D(name:String):Number3D
         {
-            if (init == null)
-                return new Number3D();
-        
-            if (!init.hasOwnProperty(name))
-                return new Number3D();
-        
-            var result:Number3D = init[name];
+            return getObject(name, Number3D) as Number3D;
+        }
 
-            delete init[name];
-        
-            return result;
+        public function getPosition(name:String):Number3D
+        {
+            var value:Object = getObject(name);
+
+            if (value == null)
+                return null;
+
+            if (value is Number3D)
+                return value as Number3D;
+
+            if (value is Object3D)
+            {
+                var o:Object = value as Object3D;
+                return o.scene ? o.scenePosition : o.position;
+            }
+
+            if (value is String)
+                if (value == "center")
+                    return new Number3D();
+
+            throw new CastError("Cast get position of "+value);
         }
 
         public function getArray(name:String):Array

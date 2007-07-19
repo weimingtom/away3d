@@ -1,7 +1,7 @@
 package away3d.core.math
 {
     /** A point in 2D space. */
-    public class Number2D
+    public final class Number2D
     {
         /** Horizontal coordinate. */ 
         public var x:Number;

@@ -8,7 +8,7 @@ package away3d.core.render
     import flash.display.*;
 
     /** Object holding information for one rendering frame */
-    public class RenderSession
+    public final class RenderSession
     {
         public var scene:Scene3D;
         public var camera:Camera3D;

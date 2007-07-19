@@ -19,9 +19,9 @@ package away3d.core.scene
         public var screenY:Number;
         public var screenZ:Number;
 
-        public var worldX:Number;
-        public var worldY:Number;
-        public var worldZ:Number;
+        public var sceneX:Number;
+        public var sceneY:Number;
+        public var sceneZ:Number;
 
         public var view:View3D;
         public var object:Object3D;
@@ -45,9 +45,9 @@ package away3d.core.scene
             result.screenY = screenY;
             result.screenZ = screenZ;
                                      
-            result.worldX = worldX;
-            result.worldY = worldY;
-            result.worldZ = worldZ;
+            result.sceneX = sceneX;
+            result.sceneY = sceneY;
+            result.sceneZ = sceneZ;
                                      
             result.view = view;
             result.object = object;

@@ -19,8 +19,8 @@
         private var _rotationY:Number;
         private var _rotationZ:Number;
     
-        private var _worldDirty:Boolean;
-        private var _world:Matrix3D;
+        private var _sceneTransformDirty:Boolean;
+        private var _sceneTransform:Matrix3D;
 
         private var _scene:Scene3D;
 
@@ -37,10 +37,10 @@
 
         // Are the mouse events allowed
         public var mousable:Boolean;
-		
-		//use hand cursor when mouse is over object
-		public var useHandCursor:Boolean = true;
-		
+        
+        //use hand cursor when mouse is over object
+        public var handCursor:Boolean;
+        
         public function get radius():Number
         {
             return 0;
@@ -135,7 +135,7 @@
 
             _transform.tx = value;
 
-            _worldDirty = true;
+            _sceneTransformDirty = true;
 
             notifyTransformChange();
         }
@@ -158,7 +158,7 @@
 
             _transform.ty = value;
 
-            _worldDirty = true;
+            _sceneTransformDirty = true;
 
             notifyTransformChange();
         }
@@ -181,7 +181,7 @@
 
             _transform.tz = value;
 
-            _worldDirty = true;
+            _sceneTransformDirty = true;
 
             notifyTransformChange();
         }
@@ -288,36 +288,36 @@
 
             _transform = m;
             _transformDirty = false;
-            _worldDirty = true;
+            _sceneTransformDirty = true;
         }
     
-        public function get world():Matrix3D
+        public function get sceneTransform():Matrix3D
         {
             if (_scene == null)
-                Debug.error("Can't access world transform of an object not belonging to the scene");
+                Debug.error("Can't access sceneTransform transform of an object not belonging to the scene");
 
             if (_transformDirty) 
                 updateTransform();
 
-            if (_worldDirty) 
-                updateWorld();
+            if (_sceneTransformDirty) 
+                updateSceneTransform();
 
-            return _world;
+            return _sceneTransform;
         }
 
-        private function updateWorld():void
+        private function updateSceneTransform():void
         {
-            if (!_worldDirty) 
+            if (!_sceneTransformDirty) 
                 return;
 
-            _world = Matrix3D.multiply(_parent.world, transform);
+            _sceneTransform = Matrix3D.multiply(_parent.sceneTransform, transform);
 
-            _worldDirty = false;
+            _sceneTransformDirty = false;
         }
     
-        public function get worldPosition():Number3D
+        public function get scenePosition():Number3D
         {
-            return new Number3D(world.tx, world.ty, world.tz);
+            return new Number3D(sceneTransform.tx, sceneTransform.ty, sceneTransform.tz);
         }
 
         public function Object3D(init:Object = null):void
@@ -328,6 +328,7 @@
 
             visible = init.getBoolean("visible", true);
             mousable = init.getBoolean("mousable", true);
+            handCursor = init.getBoolean("handCursor", false);
                                            
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
@@ -386,7 +387,7 @@
             if (_scene != oldscene)
                 notifySceneChange();
 
-            _worldDirty = true;
+            _sceneTransformDirty = true;
             notifyTransformChange();
         }
 
@@ -401,7 +402,7 @@
 
         private function onParentTransformChange(event:Object3DEvent):void
         {
-            _worldDirty = true;
+            _sceneTransformDirty = true;
             notifyTransformChange();
         }
 
@@ -412,8 +413,8 @@
 
         public function distanceTo(obj:Object3D):Number
         {
-            var m1:Matrix3D = scene == null ? transform : world;
-            var m2:Matrix3D = obj.scene == null ? obj.transform : obj.world;
+            var m1:Matrix3D = scene == null ? transform : sceneTransform;
+            var m2:Matrix3D = obj.scene == null ? obj.transform : obj.sceneTransform;
 
             var dx:Number = m1.tx - m2.tx;
             var dy:Number = m1.ty - m2.ty;
@@ -424,7 +425,12 @@
     
         public function traverse(traverser:Traverser):void
         {
-            traverser.apply(this);
+            if (traverser.match(this))
+            {
+                traverser.enter(this);
+                traverser.apply(this);
+                traverser.leave();
+            }
         }
 
         public function moveForward(distance:Number):void 

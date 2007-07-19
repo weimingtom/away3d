@@ -39,7 +39,6 @@ package away3d.core.scene
         /** Fire mouse move events even in case mouse pointer doesn't move */
         public var mouseZeroMove:Boolean;
 
-
         /** Keeps track of current object under the mouse */
         public var mouseObject:Object3D;
         
@@ -52,12 +51,12 @@ package away3d.core.scene
             init = Init.parse(init);
 
             scene = init.getObject("scene") || new Scene3D();
-            camera = init.getObject("camera") || new Camera3D({x:1000, y:1000, z:1000, lookat:new Object3D()});
+            camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:1000, y:1000, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
             mouseChildren = init.getBoolean("mouseChildren", false);
             mouseZeroMove = init.getBoolean("mouseZeroMove", false);
-            x = init.getNumber("x", false);
-            y = init.getNumber("y", false);
+            x = init.getNumber("x", 0);
+            y = init.getNumber("y", 0);
             
             background = new Sprite();
             addChild(background);
@@ -76,17 +75,17 @@ package away3d.core.scene
         /** Clear rendering area */
         public function clear():void
         {
-             if (canvas != null)
+            if (canvas != null)
                 removeChild(canvas);
             canvas = new Sprite();
             addChildAt(canvas, 1);
 
-			/* 
+            /* 
             canvas.graphics.clear();
 
             for (var i:int = 0; i < canvas.numChildren; i++)
                 canvas.getChildAt(i).visible = false;
-			*/
+            */
         }
 
         /** Render frame */
@@ -123,15 +122,15 @@ package away3d.core.scene
 
         private function onMouseOut(e:MouseEvent):void
         {
-        	var event:MouseEvent3D = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
-			event.object = mouseObject;
-			bubbleMouseEvent(event);
-			mouseObject = null;
+            var event:MouseEvent3D = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
+            event.object = mouseObject;
+            bubbleMouseEvent(event);
+            mouseObject = null;
         }
         
         private function onMouseOver(e:MouseEvent):void
         {
-        	fireMouseEvent(MouseEvent.MOUSE_OVER, e.localX, e.localY, e.ctrlKey, e.shiftKey);
+            fireMouseEvent(MouseEvent.MOUSE_OVER, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
         private var _lastmove_mouseX:Number;
@@ -161,34 +160,34 @@ package away3d.core.scene
             event.shiftKey = shiftKey;
 
             //dispatchMouseEvent(event);
-			bubbleMouseEvent(event);
-			
-			//catch rollover/rollout object3d events
-			if (mouseObject != event.object) {
-				if (mouseObject != null) {
-					event = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
-					event.object = mouseObject;
-					bubbleMouseEvent(event);
-				}
-				if (target != null) {
-					event = findhit.getMouseEvent(MouseEvent.MOUSE_OVER+"3D");
-					event.object = mouseObject = target;
-					bubbleMouseEvent(event);
-					useHandCursor = mouseObject.useHandCursor;
-				}
-			}
-			
+            bubbleMouseEvent(event);
+            
+            //catch rollover/rollout object3d events
+            if (mouseObject != event.object) {
+                if (mouseObject != null) {
+                    event = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
+                    event.object = mouseObject;
+                    bubbleMouseEvent(event);
+                }
+                if (target != null) {
+                    event = findhit.getMouseEvent(MouseEvent.MOUSE_OVER+"3D");
+                    event.object = mouseObject = target;
+                    bubbleMouseEvent(event);
+                    useHandCursor = mouseObject.handCursor;
+                }
+            }
+            
         }
         
-        public function bubbleMouseEvent(event:MouseEvent3D)
+        public function bubbleMouseEvent(event:MouseEvent3D):void
         {
-        	var target:Object3D = event.object;
+            var target:Object3D = event.object;
             while (target != null)
             {
                 if (target.dispatchMouseEvent(event))
                     break;
                 target = target.parent;
-            }      	
+            }       
         }
 
         /*

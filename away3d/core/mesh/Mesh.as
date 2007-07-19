@@ -159,7 +159,7 @@ package away3d.core.mesh
             bothsides = init.getBoolean("bothsides", false);
             debugbb = init.getBoolean("debugbb", false);
 
-            if (material == null)
+            if ((material == null) && (outline == null))
                 material = new WireColorMaterial();
         }
 
@@ -369,7 +369,6 @@ package away3d.core.mesh
                 if (_neighboursDirty)
                     findNeighbours();
 
-            // START
             if (debugbb)
             {
                 if (_debugboundingbox == null)
@@ -443,26 +442,16 @@ package away3d.core.mesh
                 tri.material = face._material || material;
 
                 if (backface)
-                {
                     if (back != null)
-                    {
-                        if (!back.visible)
-                            continue;
-
                         tri.material = back;
-                    }
-                }
 
-                if (tri.material == null)
-                    continue;
+                if (tri.material != null)
+                    if (!tri.material.visible)
+                        tri.material = null;
 
-                if (!tri.material.visible)
-                {
-                    if (outline == null)
+                if (outline == null)
+                    if (tri.material == null)
                         continue;
-
-                    tri.material = transparent;
-                }
 
                 if (pushback)
                     tri.screenZ = tri.maxZ;
@@ -495,6 +484,7 @@ package away3d.core.mesh
                 if ((outline != null) && (!backface))
                 {
                     var btri:DrawBorderTriangle = tri as DrawBorderTriangle;
+                        
                     if (ntri == null)
                         ntri = new DrawTriangle();
 
@@ -539,6 +529,14 @@ package away3d.core.mesh
                     }
                     else
                         btri.s20material = outline;
+
+                    if (btri.material == null)
+                    {
+                        if ((btri.s01material == null) && (btri.s12material == null) && (btri.s20material == null))
+                            continue;
+                        else
+                            btri.material = transparent;
+                    }
                 }
 
                 tri.source = this;

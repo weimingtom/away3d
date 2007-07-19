@@ -21,15 +21,15 @@ package away3d.core.scene
 
             zoom = init.getNumber("zoom", 10);
             focus = init.getNumber("focus", 100);
-            var lookat:Object3D = init.getObject3D("lookat");
+            var lookat:Number3D = init.getPosition("lookat");
 
             if (lookat != null)
-                lookAt(lookat.position);
+                lookAt(lookat);
         }
     
         public function get view():Matrix3D
         {
-            return Matrix3D.inverse(Matrix3D.multiply(scene ? world : transform, _flipY));
+            return Matrix3D.inverse(Matrix3D.multiply(scene ? sceneTransform : transform, _flipY));
         }
     
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
@@ -39,7 +39,7 @@ package away3d.core.scene
             if (vertex == null)
                 vertex = new Vertex(0,0,0);
 
-            return vertex.project(new Projection(Matrix3D.multiply(view, object.world), focus, zoom));
+            return vertex.project(new Projection(Matrix3D.multiply(view, object.sceneTransform), focus, zoom));
         }
     
         private static var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);

@@ -10,12 +10,12 @@ package away3d.core.render
     {
         protected var view:View3D;
         protected var transform:Matrix3D;
-        protected var transforms:Array = [];
+        protected var cameraview:Matrix3D;
 
         public function ProjectionTraverser(view:View3D)
         {
             this.view = view;
-            this.transform = view.camera.view;
+            this.cameraview = view.camera.view;
         }
 
         public override function match(node:Object3D):Boolean
@@ -29,14 +29,7 @@ package away3d.core.render
 
         public override function enter(node:Object3D):void
         {
-            transforms.push(transform);
-            transform = Matrix3D.multiply(transform, node.transform);
+            transform = Matrix3D.multiply(cameraview, node.sceneTransform);
         }
-
-        public override function leave():void
-        {
-            transform = transforms.pop();
-        }
-
     }
 }

@@ -418,15 +418,14 @@ package away3d.core.scene
 
         public override function traverse(traverser:Traverser):void
         {
-            traverser.apply(this);
-
-            for each (var child:Object3D in children)
-                if (traverser.match(child))
-                {
-                    traverser.enter(child);
+            if (traverser.match(this))
+            {
+                traverser.enter(this);
+                traverser.apply(this);
+                for each (var child:Object3D in children)
                     child.traverse(traverser);
-                    traverser.leave();
-                }
+                traverser.leave();
+            }
         }
 
         /*

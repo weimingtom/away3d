@@ -6,11 +6,8 @@ package away3d.cameras
     import away3d.core.utils.*;
 
     /** Camera that hovers around an object */
-    public class HoverCamera3D extends Camera3D
+    public class HoverCamera3D extends TargetCamera3D
     {
-        /** Object the camera hovers around */
-        public var target:Object3D;
-
         public var yfactor:Number = 2;
 
         /** Distance the camera keeps to the target */
@@ -23,25 +20,15 @@ package away3d.cameras
         public var maxtiltangle:Number = 90;
         public var steps:Number = 8;
 
-        /** Distance the camera keeps to the target */
-        public function HoverCamera3D(target:Object3D = null, /*zoom:Number = 2, focus:Number = 100, distance:Number = 800,*/ init:Object = null)
+        public function HoverCamera3D(init:Object = null)
         {
             super(init);
     
-            this.target = target || new Object3D();
-
             init = Init.parse(init);
 
             distance = init.getNumber("distance", 800);
 
             update();
-        }
-
-        public override function get view():Matrix3D
-        {
-            lookAt(target.position);
-    
-            return super.view;
         }
 
         /** Hover camera around the object @return <code>true</code> if camera changed position */
