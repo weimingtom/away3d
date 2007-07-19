@@ -6,7 +6,7 @@ package away3d.trash
     import away3d.core.math.*;
 
     /** A vertex in 3D space */
-    public class Vertex3D extends Number3D
+    public class Vertex3D extends OldNumber3D
     {
 
         /** An object that contains user defined properties. @default null */
@@ -51,6 +51,11 @@ package away3d.trash
             return projected;
         }
         
+        public function get position():Number3D
+        {
+            return new Number3D(x, y, z);
+        }
+
         /** Apply perspective distortion */
         public function perspective(focus:Number):ScreenVertex
         {

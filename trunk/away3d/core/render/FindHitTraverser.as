@@ -20,9 +20,9 @@ package away3d.core.render
         public var object:Object3D;
         public var uv:UV;
 
-        public var worldX:Number;
-        public var worldY:Number;
-        public var worldZ:Number;
+        public var sceneX:Number;
+        public var sceneY:Number;
+        public var sceneZ:Number;
 
         public function FindHitTraverser(view:View3D, x:Number, y:Number)
         {
@@ -67,9 +67,9 @@ package away3d.core.render
                     var persp:Number = view.camera.zoom / (1 + screenZ / view.camera.focus);
                     var inv:Matrix3D = Matrix3D.inverse(view.camera.view);
 
-                    worldX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
-                    worldY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
-                    worldZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
+                    sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
+                    sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
+                    sceneZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
 
                     drawpri = pri;
                     object = pri.source;
@@ -91,9 +91,9 @@ package away3d.core.render
             event.screenX = screenX;
             event.screenY = screenY;
             event.screenZ = screenZ;
-            event.worldX = worldX;
-            event.worldY = worldY;
-            event.worldZ = worldZ;
+            event.sceneX = sceneX;
+            event.sceneY = sceneY;
+            event.sceneZ = sceneZ;
             event.view = view;
             event.drawpri = drawpri;
             event.element = element;

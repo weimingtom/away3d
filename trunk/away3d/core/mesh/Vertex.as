@@ -110,7 +110,7 @@ package away3d.core.mesh
         /** @private */
         arcane function transform(m:Matrix3D):void
         {
-            set(_x * m.sxx + _y * m.sxy + _z * m.sxz + m.tx, _x * m.syx + _y * m.syy + _z * m.syz + m.ty, _x * m.szx + _y * m.szy + _z * m.szz + m.tz);
+            setValue(_x * m.sxx + _y * m.sxy + _z * m.sxz + m.tx, _x * m.syx + _y * m.syy + _z * m.syz + m.ty, _x * m.szx + _y * m.szy + _z * m.szz + m.tz);
         }
         
         /** Vertex position */
@@ -188,7 +188,7 @@ package away3d.core.mesh
         }                     
 
         /** @private Set vertex coordinates */
-        arcane function set(x:Number, y:Number, z:Number):void
+        arcane function setValue(x:Number, y:Number, z:Number):void
         {
             _x = x;
             _y = y;

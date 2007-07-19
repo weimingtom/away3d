@@ -152,7 +152,7 @@ package away3d.extrusions
                         mat.setUVPoint(t4, aP4);
                     } else if (isTransform) {
                         oldLengthH = lengthH;
-                        lengthH += Number3D.sub(aP1, aP2).modulo;
+                        lengthH += Number3D.sub(aP1.position, aP2.position).modulo;
                         t1.x = lengthH;
                         t1.y = lengthV;
                         t2.x = oldLengthH;

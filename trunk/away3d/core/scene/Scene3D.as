@@ -58,7 +58,7 @@ package away3d.core.scene
                 throw new Error("Scene can't be parented");
         }
 
-        public override function get world():Matrix3D
+        public override function get sceneTransform():Matrix3D
         {
             return transform;
         }

@@ -9,7 +9,7 @@ package away3d.core.render
     import flash.display.*;
 
     /** Quadrant tree node */
-    public class PrimitiveQuadrantTreeNode
+    public final class PrimitiveQuadrantTreeNode
     {
         private var children:Array;
         private var center:Array;

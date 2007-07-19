@@ -3,7 +3,7 @@ package away3d.core.draw
     import away3d.core.mesh.*;
 
     /** Vertex in the screen space */
-    public class ScreenVertex
+    public final class ScreenVertex
     {
         public var x:Number;
         public var y:Number;

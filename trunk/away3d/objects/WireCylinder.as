@@ -7,51 +7,58 @@ package away3d.objects
     import away3d.core.material.*;
     import away3d.core.utils.*;
     
-    /** Wire sphere */ 
-    public class WireSphere extends WireMesh
+    /** Wire cylinder */ 
+    public class WireCylinder extends WireMesh
     {
-        public function WireSphere(init:Object = null)
+        public function WireCylinder(init:Object = null)
         {
             super(init);
-    
+            
             init = Init.parse(init);
 
-            var segmentsW:int = init.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = init.getInt("segmentsH", 6, {min:2})
             var radius:Number = init.getNumber("radius", 100, {min:0});
+            var height:Number = init.getNumber("height", 200, {min:0});
+            var segmentsW:int = init.getInt("segmentsW", 8, {min:3});
+            var segmentsH:int = init.getInt("segmentsH", 1, {min:1})
 
-            buildSphere(radius, segmentsW, segmentsH);
+            buildSphere(radius, height, segmentsW, segmentsH);
         }
     
         private var grid:Array;
 
-        private function buildSphere(radius:Number, segmentsW:int, segmentsH:int):void
+        private function buildSphere(radius:Number, height:Number, segmentsW:int, segmentsH:int):void
         {
             var i:int;
             var j:int;
 
+            height /= 2;
+            segmentsH += 2;
+
             grid = new Array(segmentsH + 1);
-            for (j = 0; j <= segmentsH; j++)  
+
+            var bottom:Vertex = new Vertex(0, -height, 0);
+            grid[0] = new Array(segmentsW);
+            for (i = 0; i < segmentsW; i++) 
+                grid[0][i] = bottom;
+
+            for (j = 1; j < segmentsH; j++)  
             { 
-                var horangle:Number = j / segmentsH * Math.PI;
-                var z:Number = -radius * Math.cos(horangle);
-                var ringradius:Number = radius * Math.sin(horangle);
+                var z:Number = -height + 2 * height * (j-1) / (segmentsH-2);
 
                 grid[j] = new Array(segmentsW);
-
-                var vertex:Vertex;
                 for (i = 0; i < segmentsW; i++) 
                 { 
                     var verangle:Number = 2 * i / segmentsW * Math.PI;
-                    var x:Number = ringradius * Math.sin(verangle);
-                    var y:Number = ringradius * Math.cos(verangle);
-
-                    if ((i == 0) || ((0 < j) && (j < segmentsH)))
-                        vertex = new Vertex(y, z, x);
-
-                    grid[j][i] = vertex;
+                    var x:Number = radius * Math.sin(verangle);
+                    var y:Number = radius * Math.cos(verangle);
+                    grid[j][i] = new Vertex(y, z, x);
                 }
             }
+
+            var top:Vertex = new Vertex(0, height, 0);
+            grid[segmentsH] = new Array(segmentsW);
+            for (i = 0; i < segmentsW; i++) 
+                grid[segmentsH][i] = top;
 
             for (j = 1; j <= segmentsH; j++) 
                 for (i = 0; i < segmentsW; i++) 

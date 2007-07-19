@@ -64,7 +64,7 @@ package away3d.test
             stage.showDefaultContextMenu = false;
             stage.stageFocusRect = false;
 
-            camera = new HoverCamera3D(null, {zoom:3, focus:200, distance:800});
+            camera = new HoverCamera3D({zoom:3, focus:200, distance:800});
             camera.tiltangle = 10;
             camera.targettiltangle = 40;
 

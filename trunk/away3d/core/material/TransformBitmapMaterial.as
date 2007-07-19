@@ -55,7 +55,7 @@ package away3d.core.material
             
             init = Init.parse(init);
 
-            _transform = init.getObject("transform", new Matrix());
+            _transform = init.getObject("transform") || new Matrix();
             _normal = init.getNumber3D("normal");
             _scalex = init.getBoolean("scalex", false);
             _scaley = init.getBoolean("scaley", false);

@@ -377,7 +377,7 @@ package away3d.core.mesh
             var v0:Number = height * (1 - uv0._v);
             var v1:Number = height * (1 - uv1._v);
             var v2:Number = height * (1 - uv2._v);
-    
+      
             // Fix perpendicular projections
             if ((u0 == u1 && v0 == v1) || (u0 == u2 && v0 == v2))
             {
@@ -390,7 +390,7 @@ package away3d.core.mesh
                 u2 -= (u2 > 0.05) ? 0.04 : -0.04;
                 v2 -= (v2 > 0.06) ? 0.06 : -0.06;
             }
-
+  
             _texturemapping = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
             _texturemapping.invert();
             return _texturemapping;
