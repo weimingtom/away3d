@@ -415,6 +415,8 @@ package away3d.core.mesh
                     else
                         tri = new DrawBorderTriangle();
 
+                //tri = face.dt;
+
                 tri.v0 = face._v0.project(projection);
                 tri.v1 = face._v1.project(projection);
                 tri.v2 = face._v2.project(projection);
@@ -463,8 +465,11 @@ package away3d.core.mesh
                 tri.uv1 = face._uv1;
                 tri.uv2 = face._uv2;
 
-                tri.texturemapping = face.mapping;
+                tri.texturemapping = face._texturemapping;
 
+                if ((tri.uv0 != null) && (tri.texturemapping == null))
+                    tri.texturemapping = face.mapping;
+        
                 if (backface)
                 {
                     // Make cleaner
@@ -546,5 +551,50 @@ package away3d.core.mesh
                 tri = null;
             }
         }
+
+        public override function clone(object:* = null):*
+        {
+            var mesh:Mesh = object || new Mesh();
+            super.clone(mesh);
+            mesh.material = material;
+            mesh.outline = outline;
+            mesh.back = back;
+            mesh.bothsides = bothsides;
+            mesh.debugbb = debugbb;
+
+            var clonedvertices:Dictionary = new Dictionary();
+            var clonevertex:Function = function(vertex:Vertex):Vertex
+            {
+                var result:Vertex = clonedvertices[vertex];
+                if (result == null)
+                {
+                    result = new Vertex(vertex._x, vertex._y, vertex._z);
+                    result.extra = (vertex.extra is IClonable) ? (vertex.extra as IClonable).clone() : vertex.extra;
+                    clonedvertices[vertex] = result;
+                }
+                return result;
+            }
+
+            var cloneduvs:Dictionary = new Dictionary();
+            var cloneuv:Function = function(uv:UV):UV
+            {
+                if (uv == null)
+                    return null;
+
+                var result:UV = cloneduvs[uv];
+                if (result == null)
+                {
+                    result = new UV(uv._u, uv._v);
+                    cloneduvs[uv] = result;
+                }
+                return result;
+            }
+
+            for each (var face:Face in _faces)
+                mesh.addFace(new Face(clonevertex(face._v0), clonevertex(face._v1), clonevertex(face._v2), face.material, cloneuv(face._uv0), cloneuv(face._uv1), cloneuv(face._uv2)));
+
+            return mesh;
+        }
+
     }
 }

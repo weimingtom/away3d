@@ -60,7 +60,7 @@ package away3d.loaders
             
             for each (var line:String in lines)
             {
-                var trunk:Array = line.replace("  "," ").replace("  "," ").split(" ");
+                var trunk:Array = line.replace("  "," ").replace("  "," ").replace("  "," ").split(" ");
                 switch (trunk[0])
                 {
                     case "v":
@@ -79,7 +79,7 @@ package away3d.loaders
                         var face2:Array = trysplit(trunk[3], "/");
                         var face3:Array = trysplit(trunk[4], "/");
 
-                        if (face3[0] != null)
+                        if (face3 != null)
                         {
                             mesh.addFace(new Face(vertices[parseInt(face1[0])], vertices[parseInt(face0[0])], vertices[parseInt(face3[0])], 
                                              null, uvs[parseInt(face1[1])], uvs[parseInt(face0[1])], uvs[parseInt(face3[1])]));
@@ -104,7 +104,7 @@ package away3d.loaders
         private static function trysplit(source:String, by:String):Array
         {
             if (source == null)
-                return [];
+                return null;
             if (source.indexOf(by) == -1)
                 return [source];
             return source.split(by);

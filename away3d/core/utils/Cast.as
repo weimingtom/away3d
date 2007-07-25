@@ -246,7 +246,16 @@ package away3d.core.utils
                 data = tryclass(data);
 
             if (data is Class)
-                data = new data;
+            {
+                try
+                {
+                    data = new data;
+                }
+                catch (error:ArgumentError)
+                {
+                    data = new data(0,0);
+                }
+            }
 
             if (data is BitmapData)
                 return data;
@@ -324,36 +333,114 @@ package away3d.core.utils
                 if (data == "transparent")
                     return new TransparentMaterial();
 
-                if (data.indexOf("#") == -1)
-                    return new ColorMaterial(color(data));
+                var hash:Array;
 
-                var hash:Array = data.split("#");
-                if (hash[1] == "")
-                    return new WireColorMaterial(color(hash[0]));
-
-                if (hash[1].indexOf("|") == -1)
+                if (data.indexOf("#") != -1)
                 {
-                    if (hash[0] == "")
-                        return new WireframeMaterial(color(hash[1]));
+                    hash = data.split("#");
+                    if (hash[1] == "")
+                        return new WireColorMaterial(color(hash[0]));
+
+                    if (hash[1].indexOf("|") == -1)
+                    {
+                        if (hash[0] == "")
+                            return new WireframeMaterial(color(hash[1]));
+                        else
+                           return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
+                    }
                     else
-                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
+                    {
+                        var line:Array = hash[1].split("|");
+                        if (hash[0] == "")
+                            return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
+                        else
+                            return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
+                    }
+                }
+                else
+                if (data.indexOf("@") != -1)
+                {
+                    hash = data.split("@");
+                    if (hash[1] == "")
+                        return new ShadingColorMaterial({color:color(hash[0])});
                 }
                 else
                 {
-                    var line:Array = hash[1].split("|");
-                    if (hash[0] == "")
-                        return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
-                    else
-                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
+                    return new ColorMaterial(color(data));
                 }
+
             }
 
             try
             {
-                var bmd:BitmapData = bitmap(data);
-                return new BitmapMaterial(bmd, {smooth:true});
+                var bmd:BitmapData = Cast.bitmap(data);
+                return new BitmapMaterial(bmd);
             }
             catch (error:CastError) {}
+
+            if (data is Object)
+            {
+                data = Init.parse(data);
+                var bitmap:BitmapData = data.getBitmap("bitmap");
+                var color:uint = data.getColor("color", 0xFFFFFFFF);
+                var alpha:Number = data.getNumber("alpha", 1, {min:0, max:1});
+                var lighting:Boolean = data.getBoolean("lighting", false);
+                var wire:WireframeMaterial = wirematerial(data.getObject("wire")) as WireframeMaterial;
+
+                if ((bitmap != null) && (color != 0xFFFFFFFF))
+                    throw new CastError("Can't create material with color and bitmap: "+data);
+
+                if (bitmap != null)
+                {
+                    if (wire != null)
+                        Debug.warning("Bitmap materials do not support wire");
+                        
+                    var smooth:Number = data.getNumber("smooth", false);
+                    var precision:Number = data.getNumber("precision", Infinity);
+                    if (precision < Infinity)
+                    {
+                        if (lighting)
+                            Debug.warning("Can't create precise bitmap material with lighting (yet)");
+
+                        if (alpha < 1)
+                            Debug.warning("Can't create precise bitmap material with alpha (yet)");
+
+                        return new PreciseBitmapMaterial(bitmap, {smooth:smooth});
+                    }
+                        
+                    if (lighting)
+                    {
+                        if (alpha < 1)
+                            Debug.warning("Can't create bitmap material with lighting and alpha (yet)");
+
+                        return new WhiteShadingBitmapMaterial(bitmap, {smooth:smooth});
+                    }
+
+                    if (alpha < 1)
+                        return new AlphaBitmapMaterial(bitmap, {smooth:smooth, alpha:alpha});
+
+                    return new BitmapMaterial(bitmap, {smooth:smooth});
+                }
+
+                if (color != 0xFFFFFFFF)
+                {
+                    if (lighting)
+                    {
+                        if (wire != null)
+                            Debug.warning("Can't create shading material with wire");
+
+                        return new ShadingColorMaterial({color:color, alpha:alpha});
+                    }
+
+                    if (wire == null)
+                        return new ColorMaterial(color, {alpha:alpha});
+                    else
+                        return new WireColorMaterial(color, {alpha:alpha, wirecolor:wire.color, wirealpha:wire.alpha, width:wire.width});
+                }
+
+                if (wire != null)
+                    return wire;
+            }
 
             throw new CastError("Can't cast to material: "+data);
         }
@@ -387,87 +474,17 @@ package away3d.core.utils
                 return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
             }
 
+            if (data is Object)
+            {
+                data = Init.parse(data);
+                var color:uint = data.getColor("color", 0);
+                var alpha:Number = data.getNumber("alpha", 1, {min:0, max:1});
+                var width:Number = data.getNumber("width", 1, {min:0});
+
+                return new WireframeMaterial(color, {alpha:alpha, width:width});
+            }
+
             throw new CastError("Can't cast to wirematerial: "+data);
-        }
-
-        public static function imaterial(data:*, wire:Boolean = false):IMaterial
-        {
-            throw new Error("imaterial");
-
-            if (data == null)
-                return null;
-
-            if (data is String)
-                data = tryclass(data);
-
-            if (data is Class)
-            {
-                try
-                {
-                    data = new data;
-                }
-                catch (error:ArgumentError)
-                {
-                    data = new data(0,0);
-                }
-            }
-
-            if (data is IMaterial)
-                return data;
-
-            if (data is int) 
-                if (wire)
-                    return new WireframeMaterial(data);
-                else
-                    return new ColorMaterial(data);
-
-            if (data is String)
-            {
-                if (data == "")
-                    return null;
-
-                if (data == "transparent")
-                    return new TransparentMaterial();
-
-                if (data.indexOf("#") == -1)
-                {
-                    throw new Error(color(data)+"?!");
-
-                    return new ColorMaterial(color(data));
-                }
-
-                if (data == "#")
-                    return new WireframeMaterial();
-
-                var hash:Array = data.split("#");
-                if (hash[1] == "")
-                    return new WireColorMaterial(color(hash[0]));
-
-                if (hash[1].indexOf("|") == -1)
-                {
-                    if (hash[0] == "")
-                        return new WireframeMaterial(color(hash[1]));
-                    else
-                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
-                }
-                else
-                {
-                    var line:Array = hash[1].split("|");
-                    if (hash[0] == "")
-                        return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
-                    else
-                        return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:parseFloat(line[1])});
-                }
-            }
-
-            try
-            {
-                var bmd:BitmapData = bitmap(data);
-                return new BitmapMaterial(bmd, {smooth:true});
-            }
-            catch (error:CastError) {}
-
-            throw new CastError("Can't cast to material: "+data);
         }
 
     }

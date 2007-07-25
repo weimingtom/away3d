@@ -27,6 +27,7 @@ package away3d.core.draw
 
         public function render(session:RenderSession):void
         {
+            throw new Error("Not implemented");
         }
 
         public function contains(x:Number, y:Number):Boolean

@@ -115,14 +115,20 @@ package away3d.loaders
                         break;
     
                     case "instance_geometry":
-                        for each(var geometry:XML in child)
+                        for each (var geometry:XML in child)
                         {                       
                             if (String(geometry) == "")
                                 continue;
 
-                            var geoId:String = getId(geometry.@url);
-                            var geo:XML = collada.library_geometries.geometry.(@id == geoId)[0];
-                            parseGeometry(geo, newnode as Mesh);
+                            var materials:Dictionary = new Dictionary();
+                            for each (var instance_material:XML in child..instance_material)
+                            {
+                                var symbol:String = instance_material.@symbol;
+                                materials[symbol] = instance_material.@target.split("#")[1];
+                            }
+                                 
+                            var geo:XML = collada.library_geometries.geometry.(@id == getId(geometry.@url))[0];
+                            parseGeometry(geo, newnode as Mesh, materials);
                         }
                         break;
                 }
@@ -131,7 +137,7 @@ package away3d.loaders
             newnode.transform = matrix; 
         }
     
-        private function parseGeometry(geometry:XML, instance:Mesh):void
+        private function parseGeometry(geometry:XML, instance:Mesh, materials:Dictionary):void
         {
             // Semantics
             var semantics:Object = new Object();
@@ -176,10 +182,10 @@ package away3d.loaders
                 }
             }
     
-            buildObject(semantics, instance);
+            buildObject(semantics, instance, materials);
         }
     
-        private function buildObject(semantics:Object, mesh:Mesh):void
+        private function buildObject(semantics:Object, mesh:Mesh, materials:Dictionary):void
         {
             // Vertices
             var vertices:Array = [];
@@ -228,9 +234,7 @@ package away3d.loaders
                     uvc = new UV(tex[uv[2]].S, tex[uv[2]].T);
                 }
 
-                var matname:String = semFaces[i].material || null;
-    
-                var face:Face = new Face(a, b, c, library[matname] || material, uva, uvb, uvc);
+                var face:Face = new Face(a, b, c, getMaterial(semFaces[i].material, materials), uva, uvb, uvc);
                 mesh.addFace(face);
             }
     
@@ -239,7 +243,67 @@ package away3d.loaders
             mesh.visible = true;
         }
     
-    
+        private function getMaterial(name:String, materials:Dictionary):ITriangleMaterial
+        {
+            if (name == null)
+                return material;
+
+            if (library[name] != null)
+                return library[name];
+
+            name = materials[name];
+
+            if (name == null)
+                return material;
+
+            if (library[name] != null)
+                return library[name];
+
+            var matxml:XML = collada.library_materials.material.(@id == name)[0];
+
+            if (matxml == null)
+                return material;
+
+            var effectId:String = getId(matxml.instance_effect.@url);
+            var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+
+            if (effect..texture.length() == 0) 
+                return material;
+
+            var textureId:String = effect..texture[0].@texture;
+            var sampler:XML =  effect..newparam.(@sid == textureId)[0];
+
+            // Blender
+            var imageId:String = textureId;
+
+            // Not Blender
+            if (sampler)
+            {
+                var sourceId:String = sampler..source[0];
+                var source:XML =  effect..newparam.(@sid == sourceId)[0];
+
+                imageId = source..init_from[0];
+            }
+
+            var image:XML = collada.library_images.image.(@id == imageId)[0];
+
+            var filename:String = image.init_from;
+
+            if (filename.indexOf("/") != -1)
+                filename = filename.substring(filename.lastIndexOf("/")+1);
+
+            filename = filename.replace(/\-/g, "");
+
+            try
+            {
+                return Cast.material(filename);
+            }
+            catch (error:CastError)
+            {
+            }
+            return material;
+        }
+        
         private function getArray(spaced:String):Array
         {
             var strings:Array = spaced.split(" ");

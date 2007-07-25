@@ -4,6 +4,7 @@ package away3d.core.mesh
     import away3d.core.material.*;
     import away3d.core.math.*;
     import away3d.core.mesh.*;
+    import away3d.core.draw.*;
     import away3d.core.utils.*;
     
     import flash.geom.Matrix;
@@ -23,7 +24,7 @@ package away3d.core.mesh
         arcane var _uv1:UV;
         arcane var _uv2:UV;
         arcane var _material:ITriangleMaterial;
-        private var _texturemapping:Matrix;
+        arcane var _texturemapping:Matrix;
         private var _normal:Number3D;
 
         public override function get vertices():Array
@@ -371,6 +372,23 @@ package away3d.core.mesh
             var uvm:IUVMaterial = _material as IUVMaterial;
             var width:Number = uvm.width;
             var height:Number = uvm.height;
+
+            if (uv0 == null)
+            {
+                _texturemapping = new Matrix();
+                return _texturemapping;
+            }
+            if (uv1 == null)
+            {
+                _texturemapping = new Matrix();
+                return _texturemapping;
+            }
+            if (uv2 == null)
+            {
+                _texturemapping = new Matrix();
+                return _texturemapping;
+            }
+
             var u0:Number = width * uv0._u;
             var u1:Number = width * uv1._u;
             var u2:Number = width * uv2._u;

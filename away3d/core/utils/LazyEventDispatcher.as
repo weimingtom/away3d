@@ -11,6 +11,11 @@ package away3d.core.utils
     public class LazyEventDispatcher
     {
         private var _dispatcher:EventDispatcher;
+
+        arcane function get dispatcher():EventDispatcher
+        {
+            return _dispatcher;
+        }
         
         protected function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
         {
@@ -50,6 +55,6 @@ package away3d.core.utils
                 return false;
 
             return _dispatcher.willTrigger(type);
-        }        
+        }
     }
 }

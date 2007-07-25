@@ -47,7 +47,7 @@ package away3d.core.draw
             material.renderTriangle(this, session);
         }
 
-        public function maxEdgeSqr():Number
+        public final function maxEdgeSqr():Number
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1);
             var d12:Number = ScreenVertex.distanceSqr(v1, v2);
@@ -55,7 +55,7 @@ package away3d.core.draw
             return Math.max(Math.max(d01, d12), d20);
         }
 
-        public function minEdgeSqr():Number
+        public final function minEdgeSqr():Number
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1);
             var d12:Number = ScreenVertex.distanceSqr(v1, v2);
@@ -63,7 +63,7 @@ package away3d.core.draw
             return Math.min(Math.min(d01, d12), d20);
         }
 
-        public function maxDistortSqr(focus:Number):Number
+        public final function maxDistortSqr(focus:Number):Number
         {
             var d01:Number = ScreenVertex.distortSqr(v0, v1, focus);
             var d12:Number = ScreenVertex.distortSqr(v1, v2, focus);
@@ -71,7 +71,7 @@ package away3d.core.draw
             return Math.max(Math.max(d01, d12), d20);
         }
 
-        public function minDistortSqr(focus:Number):Number
+        public final function minDistortSqr(focus:Number):Number
         {
             var d01:Number = ScreenVertex.distortSqr(v0, v1, focus);
             var d12:Number = ScreenVertex.distortSqr(v1, v2, focus);
@@ -79,7 +79,7 @@ package away3d.core.draw
             return Math.min(Math.min(d01, d12), d20);
         }
 
-        public function acuteAngled():Boolean
+        public final function acuteAngled():Boolean
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1);
             var d12:Number = ScreenVertex.distanceSqr(v1, v2);
@@ -90,10 +90,17 @@ package away3d.core.draw
             return (dd01 <= dd12 + dd20) && (dd12 <= dd20 + dd01) && (dd20 <= dd01 + dd12);
         }
 
-        public function transformUV(material:IUVMaterial):Matrix
+        public final function transformUV(material:IUVMaterial):Matrix
         {
             var width:Number = material.width;
             var height:Number = material.height;
+            if (uv0 == null)
+                return new Matrix();
+            if (uv1 == null)
+                return new Matrix();
+            if (uv2 == null)
+                return new Matrix();
+
             var u0:Number = width * uv0._u;
             var u1:Number = width * uv1._u;
             var u2:Number = width * uv2._u;
@@ -119,7 +126,7 @@ package away3d.core.draw
             return texturemapping;
         }
 
-        public override function riddle(another:DrawTriangle, focus:Number):Array
+        public override final function riddle(another:DrawTriangle, focus:Number):Array
         {
             if (area < 10)
                 return null;
@@ -271,7 +278,7 @@ package away3d.core.draw
             return null;    
         }
 
-        public override function getZ(x:Number, y:Number):Number
+        public override final function getZ(x:Number, y:Number):Number
         {
             if (projection == null)
                 return screenZ;
@@ -537,7 +544,7 @@ package away3d.core.draw
         }
 
 
-        public function bisect(focus:Number):Array
+        public final function bisect(focus:Number):Array
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1);
             var d12:Number = ScreenVertex.distanceSqr(v1, v2);
@@ -552,7 +559,7 @@ package away3d.core.draw
                 return bisect20(focus);
         }
 
-        public function distortbisect(focus:Number):Array
+        public final function distortbisect(focus:Number):Array
         {
             var d01:Number = ScreenVertex.distortSqr(v0, v1, focus);
             var d12:Number = ScreenVertex.distortSqr(v1, v2, focus);
@@ -567,7 +574,7 @@ package away3d.core.draw
                 return bisect20(focus);
         }
 
-        private function bisect01(focus:Number):Array
+        private final function bisect01(focus:Number):Array
         {
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
             var uv01:UV = UV.median(uv0, uv1);
@@ -577,7 +584,7 @@ package away3d.core.draw
             ];
         }
 
-        private function bisect12(focus:Number):Array
+        private final function bisect12(focus:Number):Array
         {
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus);
             var uv12:UV = UV.median(uv1, uv2);
@@ -587,7 +594,7 @@ package away3d.core.draw
             ];
         }
 
-        private function bisect20(focus:Number):Array
+        private final function bisect20(focus:Number):Array
         {
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus);
             var uv20:UV = UV.median(uv2, uv0);
@@ -597,7 +604,7 @@ package away3d.core.draw
             ];                                                
         }
 
-        public override function quarter(focus:Number):Array
+        public override final function quarter(focus:Number):Array
         {
             if (area < 20)
                 return null;
@@ -617,7 +624,7 @@ package away3d.core.draw
             ];
         }
 
-        public override function contains(x:Number, y:Number):Boolean
+        public override final function contains(x:Number, y:Number):Boolean
         {   
             if (v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y) < -0.001)
                 return false;
@@ -631,7 +638,7 @@ package away3d.core.draw
             return true;
         }
 
-        public function distanceToCenter(x:Number, y:Number):Number
+        public final function distanceToCenter(x:Number, y:Number):Number
         {   
             var centerx:Number = (v0.x + v1.x + v2.x) / 3;
             var centery:Number = (v0.y + v1.y + v2.y) / 3;
@@ -658,13 +665,13 @@ package away3d.core.draw
 
         public function calc():void
         {
-            minZ = Math.min(v0.z, Math.min(v1.z, v2.z));
-            maxZ = Math.max(v0.z, Math.max(v1.z, v2.z));
+            minZ = (v0.z > v1.z) ? (v1.z > v2.z ?  v2.z : v1.z) : (v0.z > v2.z ?  v2.z : v0.z);
+            maxZ = (v0.z < v1.z) ? (v1.z < v2.z ?  v2.z : v1.z) : (v0.z < v2.z ?  v2.z : v0.z);
             screenZ = (v0.z + v1.z + v2.z) / 3;
-            minX = int(Math.floor(Math.min(v0.x, Math.min(v1.x, v2.x))));
-            minY = int(Math.floor(Math.min(v0.y, Math.min(v1.y, v2.y))));
-            maxX = int(Math.ceil(Math.max(v0.x, Math.max(v1.x, v2.x))));
-            maxY = int(Math.ceil(Math.max(v0.y, Math.max(v1.y, v2.y))));
+            minX = int(Math.floor((v0.x > v1.x) ? (v1.x > v2.x ?  v2.x : v1.x) : (v0.x > v2.x ?  v2.x : v0.x)));
+            minY = int(Math.floor((v0.y > v1.y) ? (v1.y > v2.y ?  v2.y : v1.y) : (v0.y > v2.y ?  v2.y : v0.y)));
+            maxX = int(Math.ceil ((v0.x < v1.x) ? (v1.x < v2.x ?  v2.x : v1.x) : (v0.x < v2.x ?  v2.x : v0.x)));
+            maxY = int(Math.ceil ((v0.y < v1.y) ? (v1.y < v2.y ?  v2.y : v1.y) : (v0.y < v2.y ?  v2.y : v0.y)));
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
         }
 

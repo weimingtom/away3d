@@ -17,6 +17,7 @@ package away3d.core.material
         public var ambient:int;
         public var diffuse:int;
         public var specular:int;
+        public var alpha:Number;
 
         public function ShadingColorMaterial(init:Object = null)
         {
@@ -28,6 +29,7 @@ package away3d.core.material
             ambient = init.getColor("ambient", color);
             diffuse = init.getColor("diffuse", color);
             specular = init.getColor("specular", color);
+            alpha = init.getNumber("alpha", 1);
         }
 
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
@@ -49,7 +51,7 @@ package away3d.core.material
 
             var color:int = int(fr*0x10000) + int(fg*0x100) + fb;
 
-            session.renderTriangleColor(color, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+            session.renderTriangleColor(color, alpha, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         }
 
         public override function get visible():Boolean
