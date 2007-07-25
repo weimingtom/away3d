@@ -77,6 +77,9 @@ package away3d.core.material
             }
             else
             {
+                if (step < 64)
+                    if (Math.random() < 0.01)
+                        doubleStepTo(64);
                 var brightness:Number = ladder(br);
                 var bitmap:BitmapData = cache[brightness];
                 if (bitmap == null)

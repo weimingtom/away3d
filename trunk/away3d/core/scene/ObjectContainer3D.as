@@ -428,11 +428,16 @@ package away3d.core.scene
             }
         }
 
-        /*
-        public function replaceMaterial():void
+        public override function clone(object:* = null):*
         {
+            var container:ObjectContainer3D = object || new ObjectContainer3D();
+            super.clone(container);
+
+            for each (var child:Object3D in children)
+                container.addChild(child.clone());
+                
+            return container;
         }
-        */
 
     }
 }

@@ -18,6 +18,7 @@ package away3d.objects
             var width:Number  = init.getNumber("width",  size, {min:0});
             var height:Number = init.getNumber("height", size, {min:0});
             var depth:Number  = init.getNumber("depth",  size, {min:0});
+            //var segments:Number  = init.getNumber("segments", 1, {min:1});
             var faces:Init  = init.getInit("faces");
             var left:ITriangleMaterial   = faces.getMaterial("left");
             var right:ITriangleMaterial  = faces.getMaterial("right");

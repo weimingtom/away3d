@@ -63,5 +63,14 @@ package away3d.core.scene
         {
             super.yaw(angle);
         }
+
+        public override function clone(object:* = null):*
+        {
+            var camera:Camera3D = camera || new Camera3D();
+            super.clone(camera);
+            camera.zoom = zoom;
+            camera.focus = focus;
+            return camera;
+        }
     }
 }

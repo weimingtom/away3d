@@ -9,7 +9,7 @@ package away3d.core.scene
     import away3d.core.utils.*;
 
     /** Light source */ 
-    public class Light3D extends Object3D implements ILightProvider, IPrimitiveProvider
+    public class Light3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
     {
         public var color:int;
         public var ambient:Number;
@@ -23,11 +23,12 @@ package away3d.core.scene
 
             init = Init.parse(init);
 
+            var brightness:Number = init.getNumber("brightness", 1);
             var distance:Number = init.getNumber("distance", Math.sqrt(1000));
             color = init.getColor("color", 0xFFFFFF);
-            ambient = init.getNumber("ambient", 1) * distance * distance;
-            diffuse = init.getNumber("diffuse", 1) * distance * distance;
-            specular = init.getNumber("specular", 1) * distance * distance;
+            ambient = init.getNumber("ambient", 1) * distance * distance * brightness;
+            diffuse = init.getNumber("diffuse", 1) * distance * distance * brightness;
+            specular = init.getNumber("specular", 1) * distance * distance * brightness;
             debug = init.getBoolean("debug", false);
         }
 
@@ -58,6 +59,18 @@ package away3d.core.scene
             tri.material = new ColorMaterial(color);
             consumer.primitive(tri);
 
+        }
+
+        public override function clone(object:* = null):*
+        {
+            var light:Light3D = object || new Light3D();
+            super.clone(light);
+            light.color = color;
+            light.ambient = ambient;
+            light.diffuse = diffuse;
+            light.specular = specular;
+            light.debug = debug;
+            return light;
         }
 
     }

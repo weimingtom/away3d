@@ -19,10 +19,12 @@ package away3d.core.render
             this.filters.push(new ZSortFilter());
         }
 
+        /*
         private var tricount:int;
         private var maxtriarea:Number;
         private var sumtriarea:int;
         private var info:String;
+        */
 
         public function render(view:View3D):void
         {
@@ -30,9 +32,6 @@ package away3d.core.render
             var camera:Camera3D = view.camera;
             var container:Sprite = view.canvas;
             var clip:Clipping = view.clip;
-
-            var start:int = getTimer();
-            info = "";
 
             var graphics:Graphics = container.graphics;
 
@@ -49,27 +48,15 @@ package away3d.core.render
             scene.traverse(pritraverser);
             var primitives:Array = priarray.list();
 
-            info += (getTimer() - start) + "ms ";
-            start = getTimer();
-
             // apply filters
             for each (var filter:IPrimitiveFilter in filters)
                 primitives = filter.filter(primitives, scene, camera, container, clip);
 
-            tricount = primitives.length;
-
-            info += (getTimer() - start) + "ms ";
-            start = getTimer();
-            
             var session:RenderSession = new RenderSession(scene, camera, container, clip, lightarray);
 
             // render all
             for each (var primitive:DrawPrimitive in primitives)
                 primitive.render(session);
-
-            info += (getTimer() - start) + "ms ";
-            start = getTimer();
-
         }
 
         public function desc():String
@@ -80,7 +67,6 @@ package away3d.core.render
         public function stats():String
         {
             return "";
-            //return tricount+" triangles "+info;
         }
     }
 }

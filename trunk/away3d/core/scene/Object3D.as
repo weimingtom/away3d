@@ -1,4 +1,4 @@
-﻿package away3d.core.scene
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,7 +6,7 @@
 
     import flash.events.MouseEvent;
     
-    public class Object3D extends LazyEventDispatcher
+    public class Object3D extends LazyEventDispatcher implements IClonable
     {
         use namespace arcane;
 
@@ -553,6 +553,32 @@
     
         public function tick(time:int):void
         {
+        }
+
+        public function clone(object:* = null):*
+        {
+            object = object || new Object3D();
+            object.transform = transform;
+            object.name = name;
+            object.visible = visible;
+            object.mousable = mousable;
+            object.handCursor = handCursor;
+            object.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
+            return object;
+
+
+
+
+
+        /*
+            return new Light3D({x:x, y:y, z:z, 
+                rotationX:rotationX, rotationY:rotationY, rotationZ:rotationZ, 
+                name:name, visible:visible, mousable:mousable, handCursor:handCursor,
+                extra: (extra is IClonable) ? (extra as IClonable).clone() : null,
+                color:color, distance:1, brightness:1, 
+                ambient:ambient, diffuse:diffuse, specular:specular,
+                debug:debug});
+        */
         }
 
         public function addOnTransformChange(listener:Function):void

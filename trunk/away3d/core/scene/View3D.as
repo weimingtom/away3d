@@ -50,7 +50,7 @@ package away3d.core.scene
         {
             init = Init.parse(init);
 
-            scene = init.getObject("scene") || new Scene3D();
+            scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
             camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:1000, y:1000, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
             mouseChildren = init.getBoolean("mouseChildren", false);
@@ -70,6 +70,7 @@ package away3d.core.scene
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
             buttonMode = true;
+            useHandCursor = false;
         }
 
         /** Clear rendering area */
@@ -159,7 +160,7 @@ package away3d.core.scene
             event.ctrlKey = ctrlKey;
             event.shiftKey = shiftKey;
 
-            //dispatchMouseEvent(event);
+            dispatchMouseEvent(event);
             bubbleMouseEvent(event);
             
             //catch rollover/rollout object3d events

@@ -10,7 +10,7 @@ package away3d.core.draw
         public var z:Number;
     
         /** An object that contains user defined properties. */
-        public var extra:Object;
+//        public var extra:Object;
         public var num:Number;
     
         /** Indicates whether the vertex is visible after projection. */
