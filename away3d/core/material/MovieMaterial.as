@@ -8,13 +8,13 @@ package away3d.core.material
     import away3d.core.utils.*;
 
     import flash.display.BitmapData;
-    import flash.display.MovieClip;
+    import flash.display.Sprite;
     import flash.geom.Matrix;
 
-    /** Material that can render a MovieClip on object */
+    /** Material that can render a Sprite on object */
     public class MovieMaterial implements ITriangleMaterial, IUVMaterial
     {
-        public var movie:MovieClip;
+        public var movie:Sprite;
         public var bitmap:BitmapData;
         private var lastsession:int;
         public var transparent:Boolean;
@@ -42,7 +42,7 @@ package away3d.core.material
             return new Number3D(0, 0, 0);
         }
 
-        public function MovieMaterial(movie:MovieClip, init:Object = null)
+        public function MovieMaterial(movie:Sprite, init:Object = null)
         {
             this.movie = movie;
 

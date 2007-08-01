@@ -18,6 +18,7 @@ package away3d.core.material
         public var diffuse:int;
         public var specular:int;
         public var alpha:Number;
+        public var static:Boolean;
 
         public function ShadingColorMaterial(init:Object = null)
         {
@@ -30,6 +31,7 @@ package away3d.core.material
             diffuse = init.getColor("diffuse", color);
             specular = init.getColor("specular", color);
             alpha = init.getNumber("alpha", 1);
+            static = init.getBoolean("static", false);
         }
 
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
@@ -41,7 +43,7 @@ package away3d.core.material
             var fr:int = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
             var fg:int = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
             var fb:int = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
-
+            
             if (fr > 0xFF)
                 fr = 0xFF;
             if (fg > 0xFF)
@@ -49,9 +51,28 @@ package away3d.core.material
             if (fb > 0xFF)
                 fb = 0xFF;
 
-            var color:int = int(fr*0x10000) + int(fg*0x100) + fb;
+            var color:int = fr << 16 | fg << 8 | fb;
 
             session.renderTriangleColor(color, alpha, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+
+            if (static)
+                if (tri.face != null)
+                {
+                    var sfr:int = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr) >> 16);
+                    var sfg:int = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg) >> 8);
+                    var sfb:int = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb));
+
+                    if (sfr > 0xFF)
+                        sfr = 0xFF;
+                    if (sfg > 0xFF)
+                        sfg = 0xFF;
+                    if (sfb > 0xFF)
+                        sfb = 0xFF;
+
+                    var scolor:int = sfr << 16 | sfg << 8 | sfb;
+
+                    tri.face.material = new ColorMaterial(scolor);
+                }
         }
 
         public override function get visible():Boolean
