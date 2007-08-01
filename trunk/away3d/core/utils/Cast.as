@@ -7,6 +7,7 @@ package away3d.core.utils
 
     import flash.display.BitmapData;
     import flash.display.Sprite;
+    import flash.display.MovieClip;
     import flash.utils.*;
     //import mx.core.BitmapAsset;
 
@@ -325,6 +326,9 @@ package away3d.core.utils
             if (data is int) 
                 return new ColorMaterial(data);
 
+            if (data is MovieClip) 
+                return new MovieMaterial(data);
+
             if (data is String)
             {
                 if (data == "")
@@ -385,6 +389,7 @@ package away3d.core.utils
                 var color:uint = data.getColor("color", 0xFFFFFFFF);
                 var alpha:Number = data.getNumber("alpha", 1, {min:0, max:1});
                 var lighting:Boolean = data.getBoolean("lighting", false);
+                var static:Boolean = data.getBoolean("static", false);
                 var wire:WireframeMaterial = wirematerial(data.getObject("wire")) as WireframeMaterial;
 
                 if ((bitmap != null) && (color != 0xFFFFFFFF))
@@ -429,7 +434,7 @@ package away3d.core.utils
                         if (wire != null)
                             Debug.warning("Can't create shading material with wire");
 
-                        return new ShadingColorMaterial({color:color, alpha:alpha});
+                        return new ShadingColorMaterial({color:color, alpha:alpha, static:static});
                     }
 
                     if (wire == null)
