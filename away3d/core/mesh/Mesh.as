@@ -596,10 +596,10 @@ package away3d.core.mesh
             return mesh;
         }
 
-        public function asAS3Class(classname:String = null):String
+        public function asAS3Class(classname:String = null, packagename:String = ""):String
         {
             classname = classname || name || "MyAway3DObject";
-            var source:String = "package\n{\n\timport away3d.core.mesh.*;\n\n\tpublic class "+classname+" extends Mesh\n\t{\n";
+            var source:String = "package "+packagename+"\n{\n\timport away3d.core.mesh.*;\n\n\tpublic class "+classname+" extends Mesh\n\t{\n";
             source += "\t\tprivate var varr:Array = [];\n";
             source += "\t\tprivate var uvarr:Array = [];\n\n";
             source += "\t\tprivate function v(x:Number,y:Number,z:Number):void\n\t\t{\n";

@@ -36,6 +36,9 @@ package away3d.core.sprite
             use namespace arcane;
 
             var sc:ScreenVertex = center.project(projection);
+            if (!sc.visible)
+                return;
+                
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
 
             consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, smooth));
