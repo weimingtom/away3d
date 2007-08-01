@@ -596,5 +596,67 @@ package away3d.core.mesh
             return mesh;
         }
 
+        public function asAS3Class(classname:String = null):String
+        {
+            classname = classname || name || "MyAway3DObject";
+            var source:String = "package\n{\n\timport away3d.core.mesh.*;\n\n\tpublic class "+classname+" extends Mesh\n\t{\n";
+            source += "\t\tprivate var varr:Array = [];\n";
+            source += "\t\tprivate var uvarr:Array = [];\n\n";
+            source += "\t\tprivate function v(x:Number,y:Number,z:Number):void\n\t\t{\n";
+            source += "\t\t\tvarr.push(new Vertex(x,y,z));\n\t\t}\n\n";
+            source += "\t\tprivate function uv(u:Number,v:Number):void\n\t\t{\n";
+            source += "\t\t\tuvarr.push(new UV(u,v));\n\t\t}\n\n";
+            source += "\t\tprivate function f(vn0:int, vn1:int, vn2:int, uvn0:int, uvn1:int, uvn2:int):void\n\t\t{\n";
+            source += "\t\t\taddFace(new Face(varr[vn0],varr[vn1],varr[vn2], null, uvarr[uvn0],uvarr[uvn1],uvarr[uvn2]));\n\t\t}\n\n";
+            source += "\t\tpublic function "+classname+"(init:Object = null)\n\t\t{\n\t\t\tsuper(init);\n\t\t\tbuild();\n\t\t}\n\n";
+            source += "\t\tprivate function build():void\n\t\t{\n";
+            
+            var refvertices:Dictionary = new Dictionary();
+            var verticeslist:Array = [];
+            var remembervertex:Function = function(vertex:Vertex):void
+            {
+                if (refvertices[vertex] == null)
+                {
+                    refvertices[vertex] = verticeslist.length;
+                    verticeslist.push(vertex);
+                }
+            }
+
+            var refuvs:Dictionary = new Dictionary();
+            var uvslist:Array = [];
+            var rememberuv:Function = function(uv:UV):void
+            {
+                if (uv == null)
+                    return;
+
+                if (refuvs[uv] == null)
+                {
+                    refuvs[uv] = uvslist.length;
+                    uvslist.push(uv);
+                }
+            }
+
+            for each (var face:Face in _faces)
+            {
+                remembervertex(face._v0);
+                remembervertex(face._v1);
+                remembervertex(face._v2);
+                rememberuv(face._uv0);
+                rememberuv(face._uv1);
+                rememberuv(face._uv2);
+            }
+
+            for each (var v:Vertex in verticeslist)
+                source += "\t\t\tv("+v._x+","+v._y+","+v._z+");\n";
+
+            for each (var uv:UV in uvslist)
+                source += "\t\t\tuv("+uv._u+","+uv._v+");\n";
+
+            for each (var f:Face in _faces)
+                source += "\t\t\tf("+refvertices[f._v0]+","+refvertices[f._v1]+","+refvertices[f._v2]+","+refuvs[f._uv0]+","+refuvs[f._uv1]+","+refuvs[f._uv2]+");\n"
+
+            source += "\t\t}\n\t}\n}";
+            return source;
+        }
     }
 }
