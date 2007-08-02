@@ -155,7 +155,7 @@ package away3d.core.mesh
             
             material = init.getMaterial("material");
             outline = init.getSegmentMaterial("outline");
-            back = init.getMaterial("back") || material;
+            back = init.getMaterial("back");
             bothsides = init.getBoolean("bothsides", false);
             debugbb = init.getBoolean("debugbb", false);
 
@@ -404,6 +404,7 @@ package away3d.core.mesh
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
             var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
+            var backmat:ITriangleMaterial = back || material;
             for each (var face:Face in _faces)
             {
                 if (!face._visible)
@@ -441,11 +442,13 @@ package away3d.core.mesh
                     if (!bothsides)
                         continue;
 
-                tri.material = face._material || material;
+                tri.material = face._material;
 
-                if (backface)
-                    if (back != null)
-                        tri.material = back;
+                if (tri.material == null)
+                    if (backface)
+                        tri.material = backmat;
+                    else
+                        tri.material = material;
 
                 if (tri.material != null)
                     if (!tri.material.visible)
