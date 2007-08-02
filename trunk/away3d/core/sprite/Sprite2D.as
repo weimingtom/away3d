@@ -19,6 +19,7 @@ package away3d.core.sprite
         public var bitmap:BitmapData;
         public var scaling:Number;
         public var smooth:Boolean;
+        public var deltaZ:Number;
     
         public function Sprite2D(init:Object = null)
         {
@@ -29,6 +30,7 @@ package away3d.core.sprite
             scaling = init.getNumber("scaling", 1, {min:0});
             bitmap = init.getBitmap("bitmap");
             smooth = init.getBoolean("smooth", false);
+            deltaZ = init.getNumber("deltaZ", 0);
         }
     
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
@@ -40,7 +42,7 @@ package away3d.core.sprite
                 return;
                 
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
-
+            sc.z += deltaZ;
             consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, smooth));
         }
     }

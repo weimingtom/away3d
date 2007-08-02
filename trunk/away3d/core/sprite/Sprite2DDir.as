@@ -21,6 +21,7 @@ package away3d.core.sprite
         public var smooth:Boolean;
         public var vertices:Array = [];
         public var bitmaps:Dictionary = new Dictionary();
+        public var deltaZ:Number;
     
         public function Sprite2DDir(init:Object = null)
         {
@@ -30,6 +31,7 @@ package away3d.core.sprite
     
             scaling = init.getNumber("scaling", 1, {min:0});
             smooth = init.getBoolean("smooth", false);
+            deltaZ = init.getNumber("deltaZ", 0);
 
             var btmps:Array = init.getArray("bitmaps");
             for each (var btmp:Object in btmps)
@@ -86,7 +88,7 @@ package away3d.core.sprite
                 return;
                 
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
-
+            sc.z += deltaZ;
             consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, smooth));
         }
     }

@@ -17,7 +17,8 @@ package away3d.core.sprite
 
         public var movieclip:DisplayObject;
         public var scaling:Number;
-    
+        public var deltaZ:Number;
+
         public function MovieClipSprite(movieclip:DisplayObject, init:Object = null)
         {
             super(init);
@@ -27,6 +28,7 @@ package away3d.core.sprite
             init = Init.parse(init);
 
             scaling = init.getNumber("scaling", NaN);
+            deltaZ = init.getNumber("deltaZ", 0);
         }
     
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
@@ -35,7 +37,7 @@ package away3d.core.sprite
 
             var sc:ScreenVertex = center.project(projection);
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
-
+            sc.z += deltaZ;
             consumer.primitive(new DrawDisplayObject(this, movieclip, sc/*, persp*scaling*/));
         }
     }
