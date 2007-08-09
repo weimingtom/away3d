@@ -33,11 +33,43 @@ package away3d.core.mesh
         private var _neighbour01:Dictionary; 
         private var _neighbour12:Dictionary; 
         private var _neighbour20:Dictionary; 
-       
-        arcane function forceRecalcNeighbours():void
+
+        private var _vertfacesDirty:Boolean = true;
+        private var _vertfaces:Dictionary;
+
+        private function findVertFaces():void
         {
-            _neighboursDirty = true;
-            findNeighbours();
+            if (!_vertfacesDirty)
+                return;
+            
+            _vertfaces = new Dictionary();
+            for each (var face:Face in faces)
+            {
+                var v0:Vertex = face.v0;
+                if (_vertfaces[face.v0] == null)
+                    _vertfaces[face.v0] = [face];
+                else
+                    _vertfaces[face.v0].push(face);
+                var v1:Vertex = face.v1;
+                if (_vertfaces[face.v1] == null)
+                    _vertfaces[face.v1] = [face];
+                else
+                    _vertfaces[face.v1].push(face);
+                var v2:Vertex = face.v2;
+                if (_vertfaces[face.v2] == null)
+                    _vertfaces[face.v2] = [face];
+                else
+                    _vertfaces[face.v2].push(face);
+            }
+            _vertfacesDirty = false;    
+        }
+
+        arcane function getFacesByVertex(vertex:Vertex):Array
+        {
+            if (_vertfacesDirty)
+                findVertFaces();
+
+            return _vertfaces[vertex];
         }
 
         arcane function neighbour01(face:Face):Face
@@ -171,6 +203,7 @@ package away3d.core.mesh
 
             face.addOnVertexChange(onFaceVertexChange);
             rememberFaceNeighbours(face);
+            _vertfacesDirty = true;
         }
 
         public function removeFace(face:Face):void
@@ -181,6 +214,7 @@ package away3d.core.mesh
 
             removeElement(face);
 
+            _vertfacesDirty = true;
             forgetFaceNeighbours(face);
             face.removeOnVertexChange(onFaceVertexChange);
 
@@ -295,18 +329,26 @@ package away3d.core.mesh
 
         private function onFaceVertexChange(event:MeshElementEvent):void
         {
-            var face:Face = event.element as Face;
+            if (!_neighboursDirty)
+            {
+                var face:Face = event.element as Face;
+                forgetFaceNeighbours(face);
+                rememberFaceNeighbours(face);
+            }
 
-            forgetFaceNeighbours(face);
-            //removeElement(face);
-            //addElement(face);
-            rememberFaceNeighbours(face);
+            _vertfacesDirty = true;
         }
 
         private function clear():void
         {
             for each (var face:Face in _faces.concat([]))
                 removeFace(face);
+        }
+
+        public function invertFaces():void
+        {
+            for each (var face:Face in _faces)
+                face.invert();
         }
 
         public function quarterFaces():void
@@ -359,6 +401,20 @@ package away3d.core.mesh
                 addFace(new Face(v20, v12, v2, material, uv20, uv12, uv2));
                 addFace(new Face(v12, v20, v01, material, uv12, uv20, uv01));
             }
+        }
+
+        public function movePivot(dx:Number, dy:Number, dz:Number):void
+        {
+            _neighboursDirty = true;
+            for each (var vertex:Vertex in vertices)
+            {
+                vertex.x += dx;
+                vertex.y += dy;
+                vertex.z += dz;
+            }
+            x -= dx;
+            y -= dy;
+            z -= dz;
         }
 
         private var _debugboundingbox:WireCube;
@@ -468,16 +524,11 @@ package away3d.core.mesh
                 tri.uv1 = face._uv1;
                 tri.uv2 = face._uv2;
 
-                tri.texturemapping = face._texturemapping;
+                tri.texturemapping = null;
 
-                if ((tri.uv0 != null) && (tri.texturemapping == null))
-                    tri.texturemapping = face.mapping;
-        
                 if (backface)
                 {
                     // Make cleaner
-                    tri.texturemapping = null;
-
                     var vt:ScreenVertex = tri.v1;
                     tri.v1 = tri.v2;
                     tri.v2 = vt;
@@ -487,6 +538,17 @@ package away3d.core.mesh
                     tri.uv2 = uvt;
 
                     tri.area = -tri.area;
+                }
+                else
+                {
+                    var uvm:IUVMaterial = tri.material as IUVMaterial;
+                    if (uvm != null)
+                    {
+                        if (tri.material == face._mappingmaterial)
+                            tri.texturemapping = face._texturemapping;
+                        else
+                            tri.texturemapping = face.mapping(uvm);
+                    }
                 }
 
                 if ((outline != null) && (!backface))
@@ -499,12 +561,7 @@ package away3d.core.mesh
                     var n01:Face = _neighbour01[face];
                     if (n01 != null)
                     {
-                        ntri.v0 = n01._v0.project(projection);
-                        ntri.v1 = n01._v1.project(projection);
-                        ntri.v2 = n01._v2.project(projection);
-                        ntri.calc();
-    
-                        if (ntri.area <= 0)
+                        if (n01.front(projection) <= 0)
                             btri.s01material = outline;
                     }
                     else
@@ -513,12 +570,7 @@ package away3d.core.mesh
                     var n12:Face = _neighbour12[face];
                     if (n12 != null)
                     {
-                        ntri.v0 = n12._v0.project(projection);
-                        ntri.v1 = n12._v1.project(projection);
-                        ntri.v2 = n12._v2.project(projection);
-                        ntri.calc();
-
-                        if (ntri.area <= 0)
+                        if (n12.front(projection) <= 0)
                             btri.s12material = outline;
                     }
                     else
@@ -527,12 +579,16 @@ package away3d.core.mesh
                     var n20:Face = _neighbour20[face];
                     if (n20 != null)
                     {
+                    /*
                         ntri.v0 = n20._v0.project(projection);
                         ntri.v1 = n20._v1.project(projection);
                         ntri.v2 = n20._v2.project(projection);
                         ntri.calc();
     
                         if (ntri.area <= 0)
+                    */
+                        if (n20.front(projection) <= 0)
+
                             btri.s20material = outline;
                     }
                     else
@@ -592,7 +648,7 @@ package away3d.core.mesh
                 }
                 return result;
             }
-
+            
             for each (var face:Face in _faces)
                 mesh.addFace(new Face(clonevertex(face._v0), clonevertex(face._v1), clonevertex(face._v2), face.material, cloneuv(face._uv0), cloneuv(face._uv1), cloneuv(face._uv2)));
 

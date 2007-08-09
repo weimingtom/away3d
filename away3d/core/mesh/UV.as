@@ -47,6 +47,11 @@ package away3d.core.mesh
             _v = v;
         }
     
+        public function clone():UV
+        {
+            return new UV(_u, _v);
+        }
+    
         public function toString():String
         {
             return "new UV("+_u+", "+_v+")";

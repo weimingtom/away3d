@@ -265,6 +265,9 @@ package away3d.core.scene
 
         public function set transform(value:Matrix3D):void
         {
+            if (value == _transform)
+                return;
+
             _transform = value.clone();
 
             _transformDirty = false;

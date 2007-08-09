@@ -223,6 +223,19 @@ package away3d.core.scene
                 addChild(child);
         }
 
+        public function movePivot(dx:Number, dy:Number, dz:Number):void
+        {
+            for each (var child:Object3D in _children)
+            {
+                child.x -= dx;
+                child.y -= dy;
+                child.z -= dz;
+            }
+            x += dx;
+            y += dy;
+            z += dz;
+        }
+
         public function addChild(child:Object3D):void
         {
             if (child == null)
