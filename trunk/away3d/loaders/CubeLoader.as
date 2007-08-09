@@ -44,6 +44,7 @@ package away3d.loaders
 
         protected override function onError(event:IOErrorEvent):void 
         {
+            super.onError(event);
             info.text = title + "\n" + event.text;
             var graphics:Graphics = side.graphics;
             graphics.beginFill(0xFF0000);

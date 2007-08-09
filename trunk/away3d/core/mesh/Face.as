@@ -6,6 +6,7 @@ package away3d.core.mesh
     import away3d.core.mesh.*;
     import away3d.core.draw.*;
     import away3d.core.utils.*;
+    import away3d.core.render.*;
     
     import flash.geom.Matrix;
     import flash.events.Event;
@@ -24,7 +25,6 @@ package away3d.core.mesh
         arcane var _uv1:UV;
         arcane var _uv2:UV;
         arcane var _material:ITriangleMaterial;
-        arcane var _texturemapping:Matrix;
         private var _normal:Number3D;
 
         public override function get vertices():Array
@@ -358,18 +358,38 @@ package away3d.core.mesh
             }
         }
 
-        arcane function get mapping():Matrix
+        public function invert():void
         {
+            var v1:Vertex = this._v1;
+            var v2:Vertex = this._v2;
+            var uv1:UV = this._uv1;
+            var uv2:UV = this._uv2;
+
+            this._v1 = v2;
+            this._v2 = v1;
+            this._uv1 = uv2;
+            this._uv2 = uv1;
+
+            _texturemapping = null;
+
+            notifyVertexChange();
+            notifyMappingChange();
+        }
+
+        arcane var _texturemapping:Matrix;
+        arcane var _mappingmaterial:IUVMaterial;
+
+        arcane function mapping(uvm:IUVMaterial):Matrix
+        {
+            if (uvm == null)
+                return null;
+
             if (_texturemapping != null)
-                return _texturemapping;
+                if (_mappingmaterial == uvm)
+                    return _texturemapping;
 
-            if (_material == null)
-                return null;
+            _mappingmaterial = uvm;
 
-            if (!(_material is IUVMaterial))
-                return null;
-
-            var uvm:IUVMaterial = _material as IUVMaterial;
             var width:Number = uvm.width;
             var height:Number = uvm.height;
 
@@ -412,6 +432,15 @@ package away3d.core.mesh
             _texturemapping = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
             _texturemapping.invert();
             return _texturemapping;
+        }
+
+        arcane function front(projection:Projection):Number
+        {
+            var sv0:ScreenVertex = _v0.project(projection);
+            var sv1:ScreenVertex = _v1.project(projection);
+            var sv2:ScreenVertex = _v2.project(projection);
+                
+            return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
         }
 
         public function Face(v0:Vertex, v1:Vertex, v2:Vertex, material:ITriangleMaterial = null, uv0:UV = null, uv1:UV = null, uv2:UV = null)

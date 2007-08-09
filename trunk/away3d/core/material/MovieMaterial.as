@@ -21,6 +21,7 @@ package away3d.core.material
         public var smooth:Boolean;
         public var repeat:Boolean;
         public var debug:Boolean;
+        public var auto:Boolean;
         
         public function get width():Number
         {
@@ -52,6 +53,7 @@ package away3d.core.material
             smooth = init.getBoolean("smooth", false);
             repeat = init.getBoolean("repeat", false);
             debug = init.getBoolean("debug", false);
+            auto = init.getBoolean("auto", true);
 
             this.bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
@@ -63,17 +65,23 @@ package away3d.core.material
             var v1:ScreenVertex = tri.v1;
             var v2:ScreenVertex = tri.v2;
             
-            if (lastsession != session.time)
-            {
-                lastsession = session.time;
-                bitmap.fillRect(bitmap.rect, 0);
-                bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
-            }
+            if (auto)
+                if (lastsession != session.time)
+                {
+                    lastsession = session.time;
+                    update();
+                }
 
             session.renderTriangleBitmap(bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+        }
+
+        public function update():void
+        {
+            bitmap.fillRect(bitmap.rect, 0);
+            bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
         }
 
         public function get visible():Boolean

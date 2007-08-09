@@ -47,6 +47,7 @@ package away3d.loaders
 
         protected function onError(event:IOErrorEvent):void 
         {
+            notifyError();
         }
 
         protected function onProgress(event:ProgressEvent):void 
@@ -57,7 +58,15 @@ package away3d.loaders
         {
             init.addForCheck();
 
-            result = parse(urlloader.data, init);
+            try
+            {
+                result = parse(urlloader.data, init);
+            }
+            catch (error:Error)
+            {
+                notifyError();
+                return;
+            }
 
             if (parent != null)
             {
@@ -65,6 +74,8 @@ package away3d.loaders
                 result.parent = parent;
                 parent = null;
             }
+
+            notifySuccess();
         }
 
         public static function load(url:String, parse:Function, init:Object):Object3DLoader
@@ -72,6 +83,38 @@ package away3d.loaders
             init = Init.parse(init);
             var loader:Class = init.getObject("loader") || CubeLoader;
             return new loader(url, parse, init);
+        }
+
+        public function addOnSuccess(listener:Function):void
+        {
+            addEventListener("loadsuccess", listener, false, 0, true);
+        }
+        public function removeOnSuccess(listener:Function):void
+        {
+            removeEventListener("loadsuccess", listener, false);
+        }
+        protected function notifySuccess():void
+        {
+            if (!hasEventListener("loadsuccess"))
+                return;
+
+            dispatchEvent(new Event("loadsuccess"));
+        }
+
+        public function addOnError(listener:Function):void
+        {
+            addEventListener("loaderror", listener, false, 0, true);
+        }
+        public function removeOnError(listener:Function):void
+        {
+            removeEventListener("loaderror", listener, false);
+        }
+        protected function notifyError():void
+        {
+            if (!hasEventListener("loaderror"))
+                return;
+                
+            dispatchEvent(new Event("loaderror"));
         }
 
     }
