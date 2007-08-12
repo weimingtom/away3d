@@ -12,11 +12,15 @@ package
     import away3d.loaders.*;
     import away3d.test.*;
     import away3d.core.*;
-    import away3d.core.material.*;
-    import away3d.core.render.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
+    import away3d.core.block.*;
     import away3d.core.draw.*;
+    import away3d.core.material.*;
+    import away3d.core.math.*;
+    import away3d.core.mesh.*;
+    import away3d.core.render.*;
+    import away3d.core.scene.*;
+    import away3d.core.sprite.*;
+    import away3d.core.utils.*;
     
     [SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
     public class EngineTest extends BaseDemo
@@ -141,26 +145,27 @@ package
     }
 }
 
-    import flash.display.*;
-    import flash.events.*;
-    import flash.text.*;
-    import flash.utils.*;
-    import flash.geom.*;
+import flash.display.*;
+import flash.events.*;
+import flash.text.*;
+import flash.utils.*;
 
-    import mx.core.BitmapAsset;
-    
-    import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
-    import away3d.core.*;
-    import away3d.core.render.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
-    import away3d.core.draw.*;
-    import away3d.core.math.*;
-    import away3d.shapes.*
-    import away3d.extrusions.*
-    import away3d.core.material.*;
+import mx.core.BitmapAsset;
+
+import away3d.cameras.*;
+import away3d.objects.*;
+import away3d.loaders.*;
+import away3d.test.*;
+import away3d.core.*;
+import away3d.core.block.*;
+import away3d.core.draw.*;
+import away3d.core.material.*;
+import away3d.core.math.*;
+import away3d.core.mesh.*;
+import away3d.core.render.*;
+import away3d.core.scene.*;
+import away3d.core.sprite.*;
+import away3d.core.utils.*;
 
 class Asset
 {
@@ -1065,4 +1070,3 @@ class Morphing extends ObjectContainer3D
         texture.fillColor = int(255*kt)*0x10000 + int(255*(1-kt-ks))*0x100 + int(255*ks);
     }
 }
-
