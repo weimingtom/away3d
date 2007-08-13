@@ -65,12 +65,12 @@ package
 "First class support for segments", 
             new Scene3D(new WirePrimitives), 
             Renderer.CORRECT_Z_ORDER);
-
+/*
             addSlide("Bezier extrusion", 
 "Bezier extrusion of a plane", 
             new Scene3D(new BezierCurve), 
             Renderer.BASIC);
-            
+            */
             addSlide("Mouse events", 
 "Click on the objects to change their color", 
             new Scene3D(new MouseEvents), 
@@ -149,6 +149,7 @@ import flash.display.*;
 import flash.events.*;
 import flash.text.*;
 import flash.utils.*;
+import flash.geom.*;
 
 import mx.core.BitmapAsset;
 
@@ -427,7 +428,7 @@ class AseMesh extends ObjectContainer3D
 {
     public function AseMesh()
     {
-        var turtle:Mesh3D = Ase.parse(Asset.SeaTurtleModel, Asset.SeaTurtleImage);
+        var turtle:Mesh = Ase.parse(Asset.SeaTurtleModel, Asset.SeaTurtleImage);
         //turtle.y = -40;
 
         super(turtle);
@@ -443,7 +444,7 @@ class LostSoul extends Sprite2DDir
 
     public function LostSoul(init:Object = null)
     {
-        super(3, init);
+        super(init);
 
         add( 0  , 0,-1  , Asset.getLostSoul("front"));
         add(-0.7, 0,-0.7, Asset.getLostSoul("leftfront"));
@@ -493,7 +494,7 @@ class Sprites extends ObjectContainer3D
 
     public function Sprites()
     {
-        plane = new Plane(new PreciseBitmapMaterial(Asset.yellow, {precision:1.5}), {y:-100 , width:1000, height:1000});
+        plane = new Plane({material:new PreciseBitmapMaterial(Asset.yellow, {precision:1.5}), y:-100 , width:1000, height:1000});
 
         super(plane);
 
@@ -513,22 +514,22 @@ class AutoLODSphere extends ObjectContainer3D
 {
     public function AutoLODSphere(color:int, init:Object = null)
     {
-        var sphere0:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW: 4, segmentsH:3 });
-        var sphere1:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW: 6, segmentsH:4 });
-        var sphere2:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW: 8, segmentsH:6 });
-        var sphere3:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:10, segmentsH:8 });
-        var sphere4:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:12, segmentsH:9 });
-        var sphere5:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:14, segmentsH:10});
-        var sphere6:Sphere = new Sphere(new WireColorMaterial(color), {radius:150, segmentsW:16, segmentsH:12});
+        var sphere0:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW: 4, segmentsH:3 });
+        var sphere1:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW: 6, segmentsH:4 });
+        var sphere2:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW: 8, segmentsH:6 });
+        var sphere3:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW:10, segmentsH:8 });
+        var sphere4:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW:12, segmentsH:9 });
+        var sphere5:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW:14, segmentsH:10});
+        var sphere6:Sphere = new Sphere({material:new WireColorMaterial(color), radius:150, segmentsW:16, segmentsH:12});
                                                                                    
         super(init,                                                                
-            new LODObject(0, 0.1, sphere0), 
-            new LODObject(0.1, 0.3, sphere1), 
-            new LODObject(0.3, 0.5, sphere2), 
-            new LODObject(0.5, 1, sphere3), 
-            new LODObject(1, 2, sphere4), 
-            new LODObject(2, 3, sphere5), 
-            new LODObject(3, 10, sphere6));
+            new LODObject({minp:0, maxp:0.1}, sphere0), 
+            new LODObject({minp:0.1, maxp:0.3}, sphere1), 
+            new LODObject({minp:0.3, maxp:0.5}, sphere2), 
+            new LODObject({minp:0.5, maxp:1}, sphere3), 
+            new LODObject({minp:1, maxp:2}, sphere4), 
+            new LODObject({minp:2, maxp:3}, sphere5), 
+            new LODObject({minp:3, maxp:10}, sphere6));
     }
 }
 
@@ -538,7 +539,7 @@ class LODs extends ObjectContainer3D
 
     public function LODs()
     {
-        plane = new Plane(new PreciseBitmapMaterial(Asset.green, {precision:1.5}), {y:-200 , width:1000, height:1000});
+        plane = new Plane({material:new PreciseBitmapMaterial(Asset.green, {precision:1.5}), y:-200 , width:1000, height:1000});
 
         super(plane, 
             new AutoLODSphere(0xFF0000, {x: 350, y:160, z: 350}), 
@@ -557,10 +558,10 @@ class Primitives extends ObjectContainer3D
                        
     public function Primitives()
     {
-        plane = new Plane(new WireColorMaterial(0xFFFF00),   {y:-20, width:1000, height:1000});
-        sphere = new Sphere(new WireColorMaterial(0xFF0000), {x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
-        cube = new Cube(new WireColorMaterial(0x0000FF),     {x: 300, y:160, z: -80, width:200, height:200, depth:200});
-        torus = new Torus(new WireColorMaterial(0x00FF00),   {x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
+        plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000});
+        sphere = new Sphere({material:new WireColorMaterial(0xFF0000), x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
+        cube = new Cube({material:new WireColorMaterial(0x0000FF), x: 300, y:160, z: -80, width:200, height:200, depth:200});
+        torus = new Torus({material:new WireColorMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
 
         super(sphere, plane, cube, torus);
     }
@@ -569,10 +570,16 @@ class Primitives extends ObjectContainer3D
 
 class Transforms extends Primitives
 {
+	public var cubeScaleX:Number = 0;
+	public var cubeScaleY:Number = 0;
     public override function tick(time:int):void
     {
-        cube.scaleX = 1 + 0.5 * Math.sin(time / 200);
-        cube.scaleY = 1 - 0.5 * Math.sin(time / 200);
+    	var newScaleX:Number = 0.5 * Math.sin(time / 200);
+    	var newScaleY:Number = -0.5 * Math.sin(time / 200);
+        cube.scaleX(1 + newScaleX - cubeScaleX);
+        cube.scaleY(1 + newScaleY - cubeScaleY);
+        cubeScaleX = newScaleX;
+        cubeScaleY = newScaleY;
         sphere.rotationY = Math.tan(time / 3000)*90;
         torus.rotationX = time / 20;
         torus.rotationY = time / 30;
@@ -634,13 +641,13 @@ class WirePrimitives extends ObjectContainer3D
                        
     public function WirePrimitives()
     {
-        plane = new WirePlane(new WireframeMaterial(0xFFFF00, 1, 0), {y:-70, width:1000, height:1000, segments:10});
-        sphere = new WireSphere(new WireframeMaterial(0xFF0000, 1, 2), {x:300, y:160, z:300, radius:150, segmentsW:12, segmentsH:9});
-        cube = new WireCube(new WireframeMaterial(0x0000FF, 1, 2), {x:300, y:160, z:-80, width:200, height:200, depth:200});
-        gridplane = new GridPlane(new WireframeMaterial(0xFFFFFF), {y:-170, width:1000, height:1000, segmentsW:10});
-        torus = new WireTorus(new WireframeMaterial(0x00FF00), {x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
+        plane = new WirePlane({material:new WireframeMaterial(0xFFFF00), y:-70, width:1000, height:1000, segments:10});
+        sphere = new WireSphere({material:new WireframeMaterial(0xFF0000), x:300, y:160, z:300, radius:150, segmentsW:12, segmentsH:9});
+        cube = new WireCube({material:new WireframeMaterial(0x0000FF), x:300, y:160, z:-80, width:200, height:200, depth:200});
+        gridplane = new GridPlane({material:new WireframeMaterial(0xFFFFFF), y:-170, width:1000, height:1000, segmentsW:10});
+        torus = new WireTorus({material:new WireframeMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
 
-        for each (var v:Vertex3D in plane.vertices)
+        for each (var v:Vertex in plane.vertices)
             v.y += Math.random() * 50;
 
         super(sphere, plane, cube, gridplane, torus);
@@ -660,13 +667,13 @@ class Blockers extends ObjectContainer3D
 
     public function Blockers()
     {
-        plane = new Plane(new WireColorMaterial(0xFFFF00),   {y:-20, width:1000, height:1000, pushback:true});
-        cube = new Cube(new WireColorMaterial(0x0000FF),     {x: 300, y:160, z: -80, width:200, height:200, depth:200});
-        torus = new Torus(new WireColorMaterial(0x00FF00),   {x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
-        sphere = new Sphere(new WireColorMaterial(0xFF0000), {x:300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
+        plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000, pushback:true});
+        cube = new Cube({material:new WireColorMaterial(0x0000FF), x: 300, y:160, z: -80, width:200, height:200, depth:200});
+        torus = new Torus({material:new WireColorMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
+        sphere = new Sphere({material:new WireColorMaterial(0xFF0000), x:300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
 
-        sphereblock = new ConvexBlock(new Sphere(null, {radius:150, segmentsW:8, segmentsH:6}).vertices, {x:-300, y:160, z: 300, debug:true});
-        planeblock = new ConvexBlock(new Plane(null, {width:400, height:1000}).vertices, {x:650, y:200, z:0, rotationZ:90, debug:true});
+        sphereblock = new ConvexBlock(new Sphere({radius:150, segmentsW:8, segmentsH:6}).vertices, {x:-300, y:160, z: 300, debug:true});
+        planeblock = new ConvexBlock(new Plane({width:400, height:1000}).vertices, {x:650, y:200, z:0, rotationZ:90, debug:true});
 
         super(sphere, plane, cube, torus, sphereblock, planeblock);
     }
@@ -684,8 +691,8 @@ class BezierCurve extends ObjectContainer3D
         for(var i:int = -1000; i < 1000; i += 500) 
             vertices.push(new Number3D(0,i+0,0), new Number3D(250,i+50,0), new Number3D(500,i+100,500), new Number3D(500,i+150,750), new Number3D(0,i+200,1000), new Number3D(-250,i+250,1000), new Number3D(-500,i+300,500), new Number3D(-500,i+350,250));
 
-        var plane:BezierExtrude = new BezierExtrude(null, new IrregularShape([new Vertex3D(-130,0,0), new Vertex3D(-100,0,0), new Vertex3D(100,0,0), new Vertex3D(130,0,0)], {wrap:false}), vertices, {bothsides:true, segmentsH:10, axisMaterials:[texture1, texture2, texture1, texture2]});
-        addChild(plane);
+        //var plane:BezierExtrude = new BezierExtrude(null, new IrregularShape([new Vertex3D(-130,0,0), new Vertex3D(-100,0,0), new Vertex3D(100,0,0), new Vertex3D(130,0,0)], {wrap:false}), vertices, {bothsides:true, segmentsH:10, axisMaterials:[texture1, texture2, texture1, texture2]});
+        //addChild(plane);
     }
 }
 
@@ -693,14 +700,14 @@ class MouseEvents extends Primitives
 {
     public function MouseEvents()
     {
-        events.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+		addOnMouseDown(onMouseDown);
     }
 
     public function onMouseDown(e:MouseEvent3D):void
     {
-        if (e.object is Mesh3D)
+        if (e.object is Mesh)
         {
-            var mesh:Mesh3D = e.object as Mesh3D;
+            var mesh:Mesh = e.object as Mesh;
             mesh.material = new WireColorMaterial();
         }
     }
@@ -724,11 +731,11 @@ class Drawing extends ObjectContainer3D
     public function Drawing()
     {
         canvas = new BitmapData(400, 400);
-        plane = new Plane(new PreciseBitmapMaterial(canvas, {precision:8, smooth:true}), {width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
-        wireplane = new WirePlane(new WireframeMaterial(0x000000, 1, 2), {width:1002, height:1002, y:-20});
+        plane = new Plane({material:new PreciseBitmapMaterial(canvas, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
+        wireplane = new WirePlane({material:new WireframeMaterial(0x000000), width:1002, height:1002, y:-20});
 
-        plane.events.addEventListener(MouseEvent.MOUSE_DOWN, onPlaneMouseDown);
-        plane.events.addEventListener(MouseEvent.MOUSE_MOVE, onPlaneMouseMove);
+        plane.addOnMouseDown(onPlaneMouseDown);
+        plane.addOnMouseDown(onPlaneMouseMove);
 
         super(plane, wireplane);
     }
@@ -769,7 +776,7 @@ class Drawing extends ObjectContainer3D
                     var px:Number = (bx / canvas.width * 2 - 1) * 500;
                     var py:Number = (1 - by / canvas.height * 2) * 500;
 
-                    for each (var vertex:Vertex3D in plane.vertices)
+                    for each (var vertex:Vertex in plane.vertices)
                         vertex.y += 40 * thickness / ((vertex.x-px)*(vertex.x-px) + (vertex.z-py)*(vertex.z-py) + 5000);
                 }
 
@@ -786,7 +793,7 @@ class PerspectiveTexturing extends ObjectContainer3D
                        
     public function PerspectiveTexturing()
     {
-        cube = new Cube(new PreciseBitmapMaterial(Asset.httt, {precision:2.5}), {width:800, height:800, depth:800});
+        cube = new Cube({material:new PreciseBitmapMaterial(Asset.httt, {precision:2.5}), width:800, height:800, depth:800});
         
         super(cube);
     }
@@ -856,36 +863,36 @@ class ZOrdering extends ObjectContainer3D
         var white:IMaterial = new WireColorMaterial(0xFFFFFF, 0xEEEEEE);// new ColorShadingBitmapMaterial(0xFFFFFF, 0xFFFFFF, 0);
         var grey:IMaterial = new WireColorMaterial(0x808080, 0x777777);// new ColorShadingBitmapMaterial(0x808080, 0x808080, 0);
 
-        cube = new Cube(white, {width:600, height:600, depth:600});
+        cube = new Cube({material:white, width:600, height:600, depth:600});
 
         super(null, cube);
 
-        addChild(new Cube(grey, {x: 340, y: 210, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 340, y: 210, z:-210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 340, y:-210, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 340, y:-210, z:-210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-340, y: 210, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-340, y: 210, z:-210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-340, y:-210, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-340, y:-210, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 340, y: 210, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 340, y: 210, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 340, y:-210, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 340, y:-210, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-340, y: 210, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-340, y: 210, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-340, y:-210, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-340, y:-210, z:-210, width:60, height:60, depth:60}));
 
-        addChild(new Cube(grey, {x: 210, y: 340, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 210, y: 340, z:-210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 210, y:-340, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 210, y:-340, z:-210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y: 340, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y: 340, z:-210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y:-340, z: 210, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y:-340, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y: 340, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y: 340, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y:-340, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y:-340, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y: 340, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y: 340, z:-210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y:-340, z: 210, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y:-340, z:-210, width:60, height:60, depth:60}));
 
-        addChild(new Cube(grey, {x: 210, y: 210, z: 340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 210, y: 210, z:-340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 210, y:-210, z: 340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x: 210, y:-210, z:-340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y: 210, z: 340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y: 210, z:-340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y:-210, z: 340, width:60, height:60, depth:60}));
-        addChild(new Cube(grey, {x:-210, y:-210, z:-340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y: 210, z: 340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y: 210, z:-340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y:-210, z: 340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x: 210, y:-210, z:-340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y: 210, z: 340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y: 210, z:-340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y:-210, z: 340, width:60, height:60, depth:60}));
+        addChild(new Cube({material:grey, x:-210, y:-210, z:-340, width:60, height:60, depth:60}));
     }
     
 }
@@ -898,9 +905,9 @@ class IntersectingObjects extends ObjectContainer3D
                        
     public function IntersectingObjects()
     {
-        cubeA = new Cube(new PreciseBitmapMaterial(Asset.red, {precision:2}), {width:40, height:120, depth:400});
-        cubeB = new Cube(new PreciseBitmapMaterial(Asset.yellow, {precision:2}), {width:400, height:40, depth:120});
-        cubeC = new Cube(new PreciseBitmapMaterial(Asset.blue, {precision:2}), {width:120, height:400, depth:40});
+        cubeA = new Cube({material:new PreciseBitmapMaterial(Asset.red, {precision:2}), width:40, height:120, depth:400});
+        cubeB = new Cube({material:new PreciseBitmapMaterial(Asset.yellow, {precision:2}), width:400, height:40, depth:120});
+        cubeC = new Cube({material:new PreciseBitmapMaterial(Asset.blue, {precision:2}), width:120, height:400, depth:40});
 
         super(cubeA, cubeB, cubeC);
 
@@ -917,8 +924,8 @@ class IntersectingObjects2 extends ObjectContainer3D
     public function IntersectingObjects2()
     {
         var k:int = 1;
-        a = new Sphere(new WireColorMaterial(0xFFFFFF, 0x000000, 1, 0), {radius:280, segmentsW:3, segmentsH:2});
-        b = new Sphere(new BitmapMaterial(Asset.foilColor), {radius:200, segmentsW:8, segmentsH:6});
+        a = new Sphere({material:new WireColorMaterial(0xFFFFFF, 0x000000), radius:280, segmentsW:3, segmentsH:2});
+        b = new Sphere({material:new BitmapMaterial(Asset.foilColor), radius:200, segmentsW:8, segmentsH:6});
 
         a.rotationY = 360 / 6 / 2;
         super(a, b);
@@ -939,20 +946,20 @@ class ColorLighting extends ObjectContainer3D
 
     public function ColorLighting()
     {
-        texture = new ShadingColorMaterial(0xFFFFFF, 0xFFFFFF, 0xFFFFFF, {alpha:20});
-        plane = new Plane(texture, {y:-100, width:1000, height:1000, segments:16});
-        sphere = new Sphere(texture, {y:800, radius:200, segmentsW:12, segmentsH:9});
-        light1 = new Light3D(0xFF0000, 0.5, 0.5, 1);
-        light2 = new Light3D(0x808000, 0.5, 0.5, 1);
-        light3 = new Light3D(0x0000FF, 0.5, 0.5, 1);
+        texture = new ShadingColorMaterial({ambient:0xFFFFFF, diffuse:0xFFFFFF, specular:0xFFFFFF, alpha:20});
+        plane = new Plane({material:texture, y:-100, width:1000, height:1000, segments:16});
+        sphere = new Sphere({material:texture, y:800, radius:200, segmentsW:12, segmentsH:9});
+        light1 = new Light3D({color:0xFF0000, ambient:0.5, diffuse:0.5, specular:1});
+        light2 = new Light3D({color:0x808000, ambient:0.5, diffuse:0.5, specular:1});
+        light3 = new Light3D({color:0x0000FF, ambient:0.5, diffuse:0.5, specular:1});
         super(plane, light1, light2, light3);
     }
     
     public override function tick(time:int):void
     {
-        for (var x:int = 0; x <= plane.segmentsW; x++)
-            for (var y:int = 0; y <= plane.segmentsH; y++)
-                plane.vertice(x, y).y = 50*Math.sin(dist(x-plane.segmentsW/2*Math.sin(time/5000), y-plane.segmentsH/2*Math.cos(time/7000))/2+time/500);
+        for (var x:int = 0; x <= 16; x++)
+            for (var y:int = 0; y <= 16; y++)
+                plane.vertex(x, y).y = 50*Math.sin(dist(x-16/2*Math.sin(time/5000), y-16/2*Math.cos(time/7000))/2+time/500);
 
         light1.x = 600*Math.sin(time/5000) + 200*Math.sin(time/6000) + 200*Math.sin(time/7000);
         light1.z = 400*Math.cos(time/5000) + 500*Math.cos(time/6000) + 100*Math.cos(time/7000);
@@ -984,13 +991,13 @@ class WhiteLighting extends ObjectContainer3D
 
     public function WhiteLighting()
     {
-        texture = new WhiteShadingBitmapMaterial(Asset.mandelbrot, {alpha:10});
+        texture = new WhiteShadingBitmapMaterial(Asset.mandelbrot);
         texture.smooth = true;
 
-        sphere = new Sphere(texture, {radius:200, segmentsW:4*7, segmentsH:3*7});
-        sphere.scaleY = 1.2;
+        sphere = new Sphere({material:texture, radius:200, segmentsW:4*7, segmentsH:3*7});
+        sphere.scaleY(1.2);
 
-        for each (var v:Vertex3D in sphere.vertices)
+        for each (var v:Vertex in sphere.vertices)
         {
             var y:Number = v.y / sphere.radius;
             y = y + (y*y - 1)*0.2;
@@ -1001,11 +1008,11 @@ class WhiteLighting extends ObjectContainer3D
             v.y += Math.random()*2-1;
         }
 
-        light1 = new Light3D(0x555555, 1, 1, 1);
+        light1 = new Light3D({color:0x555555, ambient:1, diffuse:1, specular:1});
         light1.x = 3500/2;
         light1.y = 3500/2;
         light1.z = 3500/2;
-        light2 = new Light3D(0xAAAAAA, 1, 1, 1);
+        light2 = new Light3D({color:0xAAAAAA, ambient:1, diffuse:1, specular:1});
         light2.x = -3000/2;
         light2.y = 3000/2;
         light2.z = 3000/2;
@@ -1040,20 +1047,20 @@ class WhiteLighting extends ObjectContainer3D
 
 class Morphing extends ObjectContainer3D
 {
-    private var circle:Mesh3D;
-    private var tri:Mesh3D;
-    private var square:Mesh3D;
-    private var morph:Mesh3D;
+    private var circle:Mesh;
+    private var tri:Mesh;
+    private var square:Mesh;
+    private var morph:Mesh;
     private var morpher:Morpher;
     private var texture:WireColorMaterial;
 
     public function Morphing()
     {
         texture = new WireColorMaterial();
-        circle = Collada.parse(Asset.CircleModel, null).children[0];
-        tri    = Collada.parse(Asset.TriModel, {def:texture}).children[0];
-        square = Collada.parse(Asset.SquareModel, texture).children[0];
-        morph  = Collada.parse(Asset.CircleModel, {face:texture}).children[0];
+        circle = Collada.parse(Asset.CircleModel, {materials:{face:texture}}).children[0];
+        tri    = Collada.parse(Asset.TriModel, {materials:{face:texture}}).children[0];
+        square = Collada.parse(Asset.SquareModel, {materials:{face:texture}}).children[0];
+        morph  = Collada.parse(Asset.CircleModel, {materials:{face:texture}}).children[0];
         morpher = new Morpher(morph);
 
         super(morph);
@@ -1067,6 +1074,6 @@ class Morphing extends ObjectContainer3D
         morpher.mix(tri, kt);
         morpher.mix(square, ks);
         morpher.finish(circle);
-        texture.fillColor = int(255*kt)*0x10000 + int(255*(1-kt-ks))*0x100 + int(255*ks);
+        texture.color = int(255*kt)*0x10000 + int(255*(1-kt-ks))*0x100 + int(255*ks);
     }
 }
