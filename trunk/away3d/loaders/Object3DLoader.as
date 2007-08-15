@@ -12,6 +12,7 @@ package away3d.loaders
     import flash.text.TextField;
     import flash.net.URLRequest;
     import flash.net.URLLoader;
+    import flash.net.URLLoaderDataFormat;
     import flash.events.EventDispatcher;
     import flash.events.Event;
     import flash.events.ProgressEvent;
@@ -32,13 +33,14 @@ package away3d.loaders
             return result || this;
         }
 
-        public function Object3DLoader(url:String, parse:Function, init:Object = null) 
+        public function Object3DLoader(url:String, parse:Function, binary:Boolean, init:Object = null) 
         {
             this.parse = parse;
             this.init = Init.parse(init);
             this.init.removeFromCheck();
 
             urlloader = new URLLoader();
+            urlloader.dataFormat = binary ? URLLoaderDataFormat.BINARY : URLLoaderDataFormat.TEXT;
             urlloader.addEventListener(IOErrorEvent.IO_ERROR, onError);
             urlloader.addEventListener(ProgressEvent.PROGRESS, onProgress);
             urlloader.addEventListener(Event.COMPLETE, onComplete);
@@ -58,15 +60,17 @@ package away3d.loaders
         {
             init.addForCheck();
 
-            try
+//            try
             {
                 result = parse(urlloader.data, init);
             }
+/*
             catch (error:Error)
             {
                 notifyError();
                 return;
             }
+*/
 
             if (parent != null)
             {
@@ -78,11 +82,11 @@ package away3d.loaders
             notifySuccess();
         }
 
-        public static function load(url:String, parse:Function, init:Object):Object3DLoader
+        public static function load(url:String, parse:Function, binary:Boolean, init:Object):Object3DLoader
         {
             init = Init.parse(init);
             var loader:Class = init.getObject("loader") || CubeLoader;
-            return new loader(url, parse, init);
+            return new loader(url, parse, binary, init);
         }
 
         public function addOnSuccess(listener:Function):void

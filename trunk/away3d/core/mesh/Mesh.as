@@ -468,11 +468,9 @@ package away3d.core.mesh
 
                 if (tri == null)
                     if (outline == null)
-                        tri = new DrawTriangle();
+                        tri = face._dt; //new DrawTriangle();
                     else
                         tri = new DrawBorderTriangle();
-
-                //tri = face.dt;
 
                 tri.v0 = face._v0.project(projection);
                 tri.v1 = face._v1.project(projection);
@@ -579,16 +577,7 @@ package away3d.core.mesh
                     var n20:Face = _neighbour20[face];
                     if (n20 != null)
                     {
-                    /*
-                        ntri.v0 = n20._v0.project(projection);
-                        ntri.v1 = n20._v1.project(projection);
-                        ntri.v2 = n20._v2.project(projection);
-                        ntri.calc();
-    
-                        if (ntri.area <= 0)
-                    */
                         if (n20.front(projection) <= 0)
-
                             btri.s20material = outline;
                     }
                     else

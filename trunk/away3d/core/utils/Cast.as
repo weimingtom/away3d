@@ -27,6 +27,8 @@ package away3d.core.utils
     
         public static function bytearray(data:*):ByteArray
         {
+            //throw new Error(typeof(data));
+
             if (data is Class)
                 data = new data;
 

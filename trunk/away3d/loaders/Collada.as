@@ -45,7 +45,7 @@ package away3d.loaders
 
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.load(url, parse, init);
+            return Object3DLoader.load(url, parse, false, init);
         }
     
         protected function buildCollada():void

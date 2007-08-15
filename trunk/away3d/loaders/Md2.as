@@ -1,4 +1,4 @@
-package away3d.loaders
+﻿package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -12,7 +12,7 @@ package away3d.loaders
    /**
     * @author Philippe Ajoux (philippe.ajoux@gmail.com)
     */
-    public class Md2still
+    public class Md2
     {
         private var ident:int;
         private var version:int;
@@ -35,7 +35,7 @@ package away3d.loaders
         private var mesh:Mesh;
         private var scaling:Number;
 
-        public function Md2still(data:ByteArray, init:Object = null)
+        public function Md2(data:ByteArray, init:Object = null)
         {
             init = Init.parse(init);
 
@@ -43,12 +43,12 @@ package away3d.loaders
 
             mesh = new Mesh(init);
 
-            parseMd2still(data);
+            parseMd2(data);
         }
         
         public static function parse(data:*, init:Object = null):Mesh
         {
-            return new Md2still(Cast.bytearray(data), init).mesh;
+            return new Md2(Cast.bytearray(data), init).mesh;
         }
     
         public static function load(url:String, init:Object = null):Object3DLoader
@@ -56,7 +56,7 @@ package away3d.loaders
             return Object3DLoader.load(url, parse, true, init);
         }
     
-        private function parseMd2still(data:ByteArray):void
+        private function parseMd2(data:ByteArray):void
         {
             data.endian = Endian.LITTLE_ENDIAN;
 
@@ -121,9 +121,10 @@ package away3d.loaders
         
         private function readFrames(data:ByteArray, vertices:Array, num_frames:int):void
         {
+            mesh.frames = new Dictionary();
             for (var i:int = 0; i < num_frames; i++)
             {
-                var frame:Object = {name:""};
+                var frame:Frame = new Frame();
                 
                 var sx:Number = data.readFloat();
                 var sy:Number = data.readFloat();
@@ -133,21 +134,28 @@ package away3d.loaders
                 var ty:Number = data.readFloat();
                 var tz:Number = data.readFloat();
 
+                var name:String = "";
                 for (var j:int = 0; j < 16; j++)
                 {
                     var char:int = data.readUnsignedByte();
                     if (char != 0)
-                        frame.name += String.fromCharCode(char);
+                        name += String.fromCharCode(char);
                 }
                 
+                trace("[ "+name+" ]");
+
+                mesh.frames[name || i] = frame;
                 for (var h:int = 0; h < vertices.length; h++)
                 {
-                    vertices[h].x = -((sx * data.readUnsignedByte()) + tx) * scaling;
-                    vertices[h].z = ((sy * data.readUnsignedByte()) + ty) * scaling;
-                    vertices[h].y = ((sz * data.readUnsignedByte()) + tz) * scaling;
+                    var vp:VertexPosition = new VertexPosition(vertices[h]);
+                    vp.x = -((sx * data.readUnsignedByte()) + tx) * scaling;
+                    vp.z = ((sy * data.readUnsignedByte()) + ty) * scaling;
+                    vp.y = ((sz * data.readUnsignedByte()) + tz) * scaling;
                     data.readUnsignedByte(); // "vertex normal index"
+                    frame.vertexpositions.push(vp);
                 }
-                break; // only 1st frame for now
+                if (i == 0)
+                    frame.adjust();
             }
         }
         

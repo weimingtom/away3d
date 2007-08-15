@@ -437,5 +437,47 @@ package away3d.core.mesh
         {
             throw new Error("Not implemented");
         }
+
+        public var frames:Dictionary;
+        public var animation:Animation;
+
+        private var _frame:*;
+
+        public function get frame():*
+        {
+            return _frame;
+        }
+
+        public function set frame(value:*):void
+        {
+            if (_frame == value)
+                return;
+
+            _frame = value;
+
+            frames[_frame].adjust(1);
+            /*
+            if (frames)
+
+            var ceil:int = Math.ceil(_frame);
+            var floor:int = Math.floor(_frame);
+                
+            if (ceil == floor)
+            {
+                _sequence[_lastframe]
+            }
+            */
+        }
+
+
+        public override function tick(time:int):void
+        {
+            if ((animation != null) && (frames != null))
+            {
+                animation.update();
+                frame = animation.renderframe;
+            }
+        }
+
     }
 }
