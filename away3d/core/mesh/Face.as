@@ -25,6 +25,7 @@ package away3d.core.mesh
         arcane var _uv1:UV;
         arcane var _uv2:UV;
         arcane var _material:ITriangleMaterial;
+        arcane var _dt:DrawTriangle = new DrawTriangle();
         private var _normal:Number3D;
 
         public override function get vertices():Array
