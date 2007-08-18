@@ -34,7 +34,7 @@ package away3d.core.material
             return diffuse.height;
         }
         
-        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object)
+        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object = null)
         {
             super(init);
 
