@@ -27,21 +27,48 @@ package away3d.core.material
 
             precision = precision * precision * 1.4;
         }
-
+        
         public override function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
-
-            var v0:ScreenVertex = tri.v0;
-            var v1:ScreenVertex = tri.v1;
-            var v2:ScreenVertex = tri.v2;
+            mapping = tri.texturemapping || tri.transformUV(this);
+           	v0 = tri.v0;
+            v1 = tri.v1;
+            v2 = tri.v2;
 
             renderRec(session, tri.projection, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         }
+        
+		internal var faz:Number;
+        internal var fbz:Number;
+        internal var fcz:Number;
 
+        internal var mabz:Number;
+        internal var mbcz:Number;
+        internal var mcaz:Number;
+
+        internal var mabx:Number;
+        internal var maby:Number;
+        internal var mbcx:Number;
+        internal var mbcy:Number;
+        internal var mcax:Number;
+        internal var mcay:Number;
+
+        internal var dabx:Number;
+        internal var daby:Number;
+        internal var dbcx:Number;
+        internal var dbcy:Number;
+        internal var dcax:Number;
+        internal var dcay:Number;
+            
+        internal var dsab:Number;
+        internal var dsbc:Number;
+        internal var dsca:Number;
+        
+        internal var dmax:Number;
+        
         protected function renderRec(session:RenderSession, projection:Projection,
             ta:Number, tb:Number, tc:Number, td:Number, tx:Number, ty:Number, 
             ax:Number, ay:Number, az:Number, bx:Number, by:Number, bz:Number, cx:Number, cy:Number, cz:Number):void
@@ -61,31 +88,31 @@ package away3d.core.material
                 return;
             }
 
-            var faz:Number = focus + az;
-            var fbz:Number = focus + bz;
-            var fcz:Number = focus + cz;
+            faz = focus + az;
+            fbz = focus + bz;
+            fcz = focus + cz;
 
-            var mabz:Number = 2 / (faz + fbz);
-            var mbcz:Number = 2 / (fbz + fcz);
-            var mcaz:Number = 2 / (fcz + faz);
+            mabz = 2 / (faz + fbz);
+            mbcz = 2 / (fbz + fcz);
+            mcaz = 2 / (fcz + faz);
 
-            var mabx:Number = (ax*faz + bx*fbz)*mabz;
-            var maby:Number = (ay*faz + by*fbz)*mabz;
-            var mbcx:Number = (bx*fbz + cx*fcz)*mbcz;
-            var mbcy:Number = (by*fbz + cy*fcz)*mbcz;
-            var mcax:Number = (cx*fcz + ax*faz)*mcaz;
-            var mcay:Number = (cy*fcz + ay*faz)*mcaz;
+            mabx = (ax*faz + bx*fbz)*mabz;
+            maby = (ay*faz + by*fbz)*mabz;
+            mbcx = (bx*fbz + cx*fcz)*mbcz;
+            mbcy = (by*fbz + cy*fcz)*mbcz;
+            mcax = (cx*fcz + ax*faz)*mcaz;
+            mcay = (cy*fcz + ay*faz)*mcaz;
 
-            var dabx:Number = ax + bx - mabx;
-            var daby:Number = ay + by - maby;
-            var dbcx:Number = bx + cx - mbcx;
-            var dbcy:Number = by + cy - mbcy;
-            var dcax:Number = cx + ax - mcax;
-            var dcay:Number = cy + ay - mcay;
+            dabx = ax + bx - mabx;
+            daby = ay + by - maby;
+            dbcx = bx + cx - mbcx;
+            dbcy = by + cy - mbcy;
+            dcax = cx + ax - mcax;
+            dcay = cy + ay - mcay;
             
-            var dsab:Number = (dabx*dabx + daby*daby);
-            var dsbc:Number = (dbcx*dbcx + dbcy*dbcy);
-            var dsca:Number = (dcax*dcax + dcay*dcay);
+            dsab = (dabx*dabx + daby*daby);
+            dsbc = (dbcx*dbcx + dbcy*dbcy);
+            dsca = (dcax*dcax + dcay*dcay);
 
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
@@ -96,53 +123,75 @@ package away3d.core.material
             }
 
             //Debug.trace(num(ta)+" "+num(tb)+" "+num(tc)+" "+num(td)+" "+num(tx)+" "+num(ty));
-
+			
+			var mabx2:Number;
+        	var maby2:Number;
+        	var mbcx2:Number;
+        	var mbcy2:Number;
+        	var mcax2:Number;
+        	var mcay2:Number;
+        	
             if ((dsab > precision) && (dsca > precision) && (dsbc > precision))
             {
+            	mabx2 = mabx*0.5;
+            	maby2 = maby*0.5;
+            	mbcx2 = mbcx*0.5;
+            	mbcy2 = mbcy*0.5;
+            	mcax2 = mcax*0.5;
+            	mcay2 = mcay*0.5;
+            	
                 renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2,
-                    ax, ay, az, mabx/2, maby/2, (az+bz)/2, mcax/2, mcay/2, (cz+az)/2);
+                    ax, ay, az, mabx2, maby2, (az+bz)*0.5, mcax2, mcay2, (cz+az)*0.5);
 
                 renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2-1, ty*2,
-                    mabx/2, maby/2, (az+bz)/2, bx, by, bz, mbcx/2, mbcy/2, (bz+cz)/2);
+                    mabx2, maby2, (az+bz)*0.5, bx, by, bz, mbcx2, mbcy2, (bz+cz)*0.5);
 
                 renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2-1,
-                    mcax/2, mcay/2, (cz+az)/2, mbcx/2, mbcy/2, (bz+cz)/2, cx, cy, cz);
+                    mcax2, mcay2, (cz+az)*0.5, mbcx2, mbcy2, (bz+cz)*0.5, cx, cy, cz);
 
                 renderRec(session, projection, -ta*2, -tb*2, -tc*2, -td*2, -tx*2+1, -ty*2+1,
-                    mbcx/2, mbcy/2, (bz+cz)/2, mcax/2, mcay/2, (cz+az)/2, mabx/2, maby/2, (az+bz)/2);
+                    mbcx2, mbcy2, (bz+cz)*0.5, mcax2, mcay2, (cz+az)*0.5, mabx2, maby2, (az+bz)*0.5);
 
                 return;
             }
 
-            var dmax:Number = Math.max(dsab, Math.max(dsca, dsbc));
+            dmax = Math.max(dsab, Math.max(dsca, dsbc));
             if (dsab == dmax)
             {
+            	mabx2 = mabx*0.5;
+            	maby2 = maby*0.5;
+            	
                 renderRec(session, projection, ta*2, tb*1, tc*2, td*1, tx*2, ty*1,
-                    ax, ay, az, mabx/2, maby/2, (az+bz)/2, cx, cy, cz);
+                    ax, ay, az, mabx2, maby2, (az+bz)*0.5, cx, cy, cz);
 
                 renderRec(session, projection, ta*2+tb, tb*1, 2*tc+td, td*1, tx*2+ty-1, ty*1,
-                    mabx/2, maby/2, (az+bz)/2, bx, by, bz, cx, cy, cz);
+                    mabx2, maby2, (az+bz)*0.5, bx, by, bz, cx, cy, cz);
             
                 return;
             }
 
             if (dsca == dmax)
             {
+            	mcax2 = mcax*0.5;
+            	mcay2 = mcay*0.5;
+            	
                 renderRec(session, projection, ta*1, tb*2, tc*1, td*2, tx*1, ty*2,
-                    ax, ay, az, bx, by, bz, mcax/2, mcay/2, (cz+az)/2);
+                    ax, ay, az, bx, by, bz, mcax2, mcay2, (cz+az)*0.5);
 
                 renderRec(session, projection, ta*1, tb*2 + ta, tc*1, td*2 + tc, tx, ty*2+tx-1,
-                    mcax/2, mcay/2, (cz+az)/2, bx, by, bz, cx, cy, cz);
+                    mcax2, mcay2, (cz+az)*0.5, bx, by, bz, cx, cy, cz);
             
                 return;
             }
-
+			
+			mbcx2 = mbcx*0.5;
+            mbcy2 = mbcy*0.5;
 
             renderRec(session, projection, ta-tb, tb*2, tc-td, td*2, tx-ty, ty*2,
-                ax, ay, az, bx, by, bz, mbcx/2, mbcy/2, (bz+cz)/2);
+                ax, ay, az, bx, by, bz, mbcx2, mbcy2, (bz+cz)*0.5);
 
             renderRec(session, projection, 2*ta, tb-ta, tc*2, td-tc, 2*tx, ty-tx,
-                ax, ay, az, mbcx/2, mbcy/2, (bz+cz)/2, cx, cy, cz);
+                ax, ay, az, mbcx2, mbcy2, (bz+cz)*0.5, cx, cy, cz);
         }
 
         private static function num(n:Number):Number

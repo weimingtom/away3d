@@ -38,13 +38,18 @@ package away3d.core.material
             debug = init.getBoolean("debug", false);
             repeat = init.getBoolean("repeat", false);
         }
-
+		
+		internal var mapping:Matrix;
+        internal var v0:ScreenVertex;
+        internal var v1:ScreenVertex;
+        internal var v2:ScreenVertex;
+        
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
-            var v0:ScreenVertex = tri.v0;
-            var v1:ScreenVertex = tri.v1;
-            var v2:ScreenVertex = tri.v2;
+            mapping = tri.texturemapping || tri.transformUV(this);
+           	v0 = tri.v0;
+            v1 = tri.v1;
+            v2 = tri.v2;
 
             session.renderTriangleBitmap(bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
 

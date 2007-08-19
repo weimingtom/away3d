@@ -33,10 +33,12 @@ package away3d.core.material
             width = init.getNumber("width", 1, {min:0});
             wirealpha = init.getNumber("wirealpha", 1, {min:0, max:1});
         }
-
+		
+		internal var graphics:Graphics;
+		
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            var graphics:Graphics = session.graphics;
+            graphics = session.graphics;
 
             if (wirealpha > 0)
                 graphics.lineStyle(width, wirecolor, wirealpha);

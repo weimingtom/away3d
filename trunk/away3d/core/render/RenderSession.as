@@ -16,7 +16,8 @@ package away3d.core.render
         public var clip:Clipping;
         public var lightarray:LightArray;
         public var time:int;
-
+        
+		public var gfx:Graphics
         private var _graphics:Graphics;
 
         public function get graphics():Graphics
@@ -29,56 +30,57 @@ package away3d.core.render
             }
             return _graphics;
         }
+        
+        internal var a2:Number;
+        internal var b2:Number;
+        internal var c2:Number;
+        internal var d2:Number;
 
         public function renderTriangleBitmap(bitmap:BitmapData, a:Number, b:Number, c:Number, d:Number, tx:Number, ty:Number, 
             v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, smooth:Boolean, repeat:Boolean):void
         {
-            var graphics:Graphics = _graphics || this.graphics;
+            	gfx = _graphics || graphics;
+            	a2 = v1x - v0x;
+            	b2 = v1y - v0y;
+            	c2 = v2x - v0x;
+            	d2 = v2y - v0y;
 
-            var a2:Number = v1x - v0x;
-            var b2:Number = v1y - v0y;
-            var c2:Number = v2x - v0x;
-            var d2:Number = v2y - v0y;
-                                   
-            var matrix:Matrix = new Matrix(a*a2 + b*c2, 
-                                           a*b2 + b*d2, 
-                                           c*a2 + d*c2, 
-                                           c*b2 + d*d2,
-                                           tx*a2 + ty*c2 + v0x, 
-                                           tx*b2 + ty*d2 + v0y);
-
-            graphics.lineStyle();
-            graphics.beginBitmapFill(bitmap, matrix, repeat, smooth && (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y) > 400));
-            graphics.moveTo(v0x, v0y);
-            graphics.lineTo(v1x, v1y);
-            graphics.lineTo(v2x, v2y);
-            graphics.endFill();
+            gfx.lineStyle();
+            gfx.beginBitmapFill(bitmap,
+            		new Matrix(a*a2 + b*c2, a*b2 + b*d2, c*a2 + d*c2, c*b2 + d*d2, tx*a2 + ty*c2 + v0x, tx*b2 + ty*d2 + v0y),
+            		repeat,
+            		smooth && (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y) > 400));
+            
+            gfx.moveTo(v0x, v0y);
+            gfx.lineTo(v1x, v1y);
+            gfx.lineTo(v2x, v2y);
+            gfx.endFill();
 
         }
 
         public function renderTriangleColor(color:int, alpha:Number, 
             v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number):void
         {
-            var graphics:Graphics = _graphics || this.graphics;
+            gfx = _graphics || graphics;
 
-            graphics.lineStyle();
-            graphics.beginFill(color, alpha);
-            graphics.moveTo(v0x, v0y);
-            graphics.lineTo(v1x, v1y);
-            graphics.lineTo(v2x, v2y);
-            graphics.endFill();
+            gfx.lineStyle();
+            gfx.beginFill(color, alpha);
+            gfx.moveTo(v0x, v0y);
+            gfx.lineTo(v1x, v1y);
+            gfx.lineTo(v2x, v2y);
+            gfx.endFill();
         }
 
         public function renderTriangleLine(color:int, alpha:Number, width:Number,
             v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number):void
         {
-            var graphics:Graphics = _graphics || this.graphics;
+            gfx = _graphics || graphics;
 
-            graphics.lineStyle(color, alpha, width);
-            graphics.moveTo(v0x, v0y);
-            graphics.lineTo(v1x, v1y);
-            graphics.lineTo(v2x, v2y);
-            graphics.lineTo(v0x, v0y);
+            gfx.lineStyle(color, alpha, width);
+            gfx.moveTo(v0x, v0y);
+            gfx.lineTo(v1x, v1y);
+            gfx.lineTo(v2x, v2y);
+            gfx.lineTo(v0x, v0y);
         }
 
         public function addDisplayObject(child:DisplayObject):void

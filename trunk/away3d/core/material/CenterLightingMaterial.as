@@ -33,120 +33,206 @@ package away3d.core.material
 
             ak = init.getNumber("ak", 20);
         }
-
+		
+		internal var source:PointLightSource;
+        internal var v0:ScreenVertex;
+        internal var v1:ScreenVertex;
+        internal var v2:ScreenVertex;
+        internal var projection:Projection;
+        internal var focus:Number;
+        internal var zoom:Number;
+        
+        internal var v0z:Number;
+        internal var v0p:Number;
+        internal var v0x:Number;
+        internal var v0y:Number;
+        
+        internal var v1z:Number;
+        internal var v1p:Number;
+        internal var v1x:Number;
+        internal var v1y:Number;
+        
+        internal var v2z:Number;
+        internal var v2p:Number;
+        internal var v2x:Number;
+        internal var v2y:Number;
+        
+        internal var d1x:Number;
+        internal var d1y:Number;
+        internal var d1z:Number;
+        
+        internal var d2x:Number;
+        internal var d2y:Number;
+        internal var d2z:Number;
+        
+        internal var pa:Number;
+        internal var pb:Number;
+        internal var pc:Number;
+        internal var pdd:Number;
+        
+        internal var c0x:Number;
+        internal var c0y:Number;
+        internal var c0z:Number;
+        
+        internal var kar:Number;
+        internal var kag:Number;
+        internal var kab:Number;
+        internal var kdr:Number;
+        internal var kdg:Number;
+        internal var kdb:Number;
+        internal var ksr:Number;
+        internal var ksg:Number;
+        internal var ksb:Number;
+        
+        internal var red:Number;
+        internal var green:Number;
+        internal var blue:Number;
+        
+        internal var dfx:Number;
+        internal var dfy:Number;
+        internal var dfz:Number;
+        internal var df:Number;
+        
+        internal var fade:Number;
+        internal var amb:Number;
+        internal var nf:Number;
+        
+        internal var diff:Number;
+        internal var rfx:Number;
+        internal var rfy:Number;
+        internal var rfz:Number;
+        
+        internal var spec:Number;
+        
+        internal var graphics:Graphics;
+        
+        internal var cz:Number;
+        internal var cx:Number;
+        internal var cy:Number;
+        
+        internal var ncz:Number;
+        internal var ncx:Number;
+        internal var ncy:Number;
+        
+        internal var sum:Number;
+        
+        internal var ffz:Number;
+        internal var ffx:Number;
+        internal var ffy:Number;
+        
+        internal var fz:Number;
+        internal var fx:Number;
+        internal var fy:Number;
+        
+        internal var rz:Number;
+        internal var rx:Number;
+        internal var ry:Number;
+        
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            var v0:ScreenVertex = tri.v0;
-            var v1:ScreenVertex = tri.v1;
-            var v2:ScreenVertex = tri.v2;
-            var projection:Projection = tri.projection;
-            var focus:Number = projection.focus;
-            var zoom:Number = projection.zoom;
+            v0 = tri.v0;
+            v1 = tri.v1;
+            v2 = tri.v2;
+            projection = tri.projection;
+            focus = projection.focus;
+            zoom = projection.zoom;
 
-            var v0z:Number = v0.z;
-            var v0p:Number = (1 + v0z / focus) / zoom;
-            var v0x:Number = v0.x * v0p;
-            var v0y:Number = v0.y * v0p;
+            v0z = v0.z;
+            v0p = (1 + v0z / focus) / zoom;
+            v0x = v0.x * v0p;
+            v0y = v0.y * v0p;
 
-            var v1z:Number = v1.z;
-            var v1p:Number = (1 + v1z / focus) / zoom;
-            var v1x:Number = v1.x * v1p;
-            var v1y:Number = v1.y * v1p;
+            v1z = v1.z;
+            v1p = (1 + v1z / focus) / zoom;
+            v1x = v1.x * v1p;
+            v1y = v1.y * v1p;
 
-            var v2z:Number = v2.z;
-            var v2p:Number = (1 + v2z / focus) / zoom;
-            var v2x:Number = v2.x * v2p;
-            var v2y:Number = v2.y * v2p;
+            v2z = v2.z;
+            v2p = (1 + v2z / focus) / zoom;
+            v2x = v2.x * v2p;
+            v2y = v2.y * v2p;
             
-            var d1x:Number = v1x - v0x;
-            var d1y:Number = v1y - v0y;
-            var d1z:Number = v1z - v0z;
+            d1x = v1x - v0x;
+            d1y = v1y - v0y;
+            d1z = v1z - v0z;
 
-            var d2x:Number = v2x - v0x;
-            var d2y:Number = v2y - v0y;
-            var d2z:Number = v2z - v0z;
+            d2x = v2x - v0x;
+            d2y = v2y - v0y;
+            d2z = v2z - v0z;
 
-            var pa:Number = d1y*d2z - d1z*d2y;
-            var pb:Number = d1z*d2x - d1x*d2z;
-            var pc:Number = d1x*d2y - d1y*d2x;
-            var pdd:Number = Math.sqrt(pa*pa + pb*pb + pc*pc);
+            pa = d1y*d2z - d1z*d2y;
+            pb = d1z*d2x - d1x*d2z;
+            pc = d1x*d2y - d1y*d2x;
+            pdd = Math.sqrt(pa*pa + pb*pb + pc*pc);
+            
             pa /= pdd;
             pb /= pdd;
             pc /= pdd;
 
-            var c0x:Number = (v0x + v1x + v2x) / 3;
-            var c0y:Number = (v0y + v1y + v2y) / 3;
-            var c0z:Number = (v0z + v1z + v2z) / 3;
+            c0x = (v0x + v1x + v2x) / 3;
+            c0y = (v0y + v1y + v2y) / 3;
+            c0z = (v0z + v1z + v2z) / 3;
 
-            var kar:Number = 0;
-            var kag:Number = 0;
-            var kab:Number = 0;
-            var kdr:Number = 0;
-            var kdg:Number = 0;
-            var kdb:Number = 0;
-            var ksr:Number = 0;
-            var ksg:Number = 0;
-            var ksb:Number = 0;
+            kar = kag = kab = kdr = kdg = kdb = ksr = ksg = ksb = 0;
 
-            for each (var source:PointLightSource in session.lightarray.points)
+            for each (source in session.lightarray.points)
             {
-                var red:Number = source.red;
-                var green:Number = source.green;
-                var blue:Number = source.blue;
+                red = source.red;
+                green = source.green;
+                blue = source.blue;
 
-                var dfx:Number = source.x - c0x;
-                var dfy:Number = source.y - c0y;
-                var dfz:Number = source.z - c0z;
-                var df:Number = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz);
+                dfx = source.x - c0x;
+                dfy = source.y - c0y;
+                dfz = source.z - c0z;
+                df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz);
                 dfx /= df;
                 dfy /= df;
                 dfz /= df;
-                var fade:Number = 1 / df / df;
-            
-                var ambient:Number = source.ambient * fade * ambient_brightness;
+                
+                fade = 1 / df / df;
+                amb = source.ambient * fade * ambient_brightness;
+                nf = dfx*pa + dfy*pb + dfz*pc;
 
-                kar += red * ambient;
-                kag += green * ambient;
-                kab += blue * ambient;
+                kar += red * amb;
+                kag += green * amb;
+                kab += blue * amb;
 
-                var nf:Number = dfx*pa + dfy*pb + dfz*pc;
                 if (nf < 0)
                     continue;
 
-                var diffuse:Number = source.diffuse * fade * nf * diffuse_brightness;
+                diff = source.diffuse * fade * nf * diffuse_brightness;
+                rfx = dfx - 2*nf*pa;
+                rfy = dfy - 2*nf*pb;
+                rfz = dfz - 2*nf*pc;
 
-                kdr += red * diffuse;
-                kdg += green * diffuse;
-                kdb += blue * diffuse;
+                kdr += red * diff;
+                kdg += green * diff;
+                kdb += blue * diff;
 
-                var rfx:Number = dfx - 2*nf*pa;
-                var rfy:Number = dfy - 2*nf*pb;
-                var rfz:Number = dfz - 2*nf*pc;
-            
                 if (rfz < 0)
                     continue;
 
-                var specular:Number = source.specular * fade * Math.pow(rfz, ak) * specular_brightness;
+                spec = source.specular * fade * Math.pow(rfz, ak) * specular_brightness;
 
-                ksr += red * specular;
-                ksg += green * specular;
-                ksb += blue * specular;
+                ksr += red * spec;
+                ksg += green * spec;
+                ksb += blue * spec;
             }
 
             renderTri(tri, session, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
 
             if (draw_fall || draw_reflect || draw_normal)
             {
-                var graphics:Graphics = session.graphics;
-                var cz:Number = c0z;
-                var cx:Number = c0x * zoom / (1 + cz / focus);
-                var cy:Number = c0y * zoom / (1 + cz / focus);
+                graphics = session.graphics,
+                cz = c0z,
+                cx = c0x * zoom / (1 + cz / focus),
+                cy = c0y * zoom / (1 + cz / focus);
                 
                 if (draw_normal)
                 {
-                    var ncz:Number = (c0z + 30*pc);
-                    var ncx:Number = (c0x + 30*pa) * zoom * focus / (focus + ncz);
-                    var ncy:Number = (c0y + 30*pb) * zoom * focus / (focus + ncz);
+                    ncz = (c0z + 30*pc),
+                    ncx = (c0x + 30*pa) * zoom * focus / (focus + ncz),
+                    ncy = (c0y + 30*pb) * zoom * focus / (focus + ncz);
 
                     graphics.lineStyle(1, 0x000000, 1);
                     graphics.moveTo(cx, cy);
@@ -161,7 +247,7 @@ package away3d.core.material
                         red = source.red;
                         green = source.green;
                         blue = source.blue;
-                        var sum:Number = (red + green + blue) / 0xFF;
+                        sum = (red + green + blue) / 0xFF;
                         red /= sum;
                         green /= sum;
                         blue /= sum;
@@ -180,13 +266,13 @@ package away3d.core.material
                 
                         if (draw_fall)
                         {
-                            var ffz:Number = (c0z + 30*dfz*(1-draw_fall_k));
-                            var ffx:Number = (c0x + 30*dfx*(1-draw_fall_k)) * zoom * focus / (focus + ffz);
-                            var ffy:Number = (c0y + 30*dfy*(1-draw_fall_k)) * zoom * focus / (focus + ffz);
+                            ffz = (c0z + 30*dfz*(1-draw_fall_k)),
+                            ffx = (c0x + 30*dfx*(1-draw_fall_k)) * zoom * focus / (focus + ffz),
+                            ffy = (c0y + 30*dfy*(1-draw_fall_k)) * zoom * focus / (focus + ffz),
 
-                            var fz:Number = (c0z + 30*dfz);
-                            var fx:Number = (c0x + 30*dfx) * zoom * focus / (focus + fz);
-                            var fy:Number = (c0y + 30*dfy) * zoom * focus / (focus + fz);
+                            fz = (c0z + 30*dfz),
+                            fx = (c0x + 30*dfx) * zoom * focus / (focus + fz),
+                            fy = (c0y + 30*dfy) * zoom * focus / (focus + fz);
 
                             graphics.lineStyle(1, int(red)*0x10000 + int(green)*0x100 + int(blue), 1);
                             graphics.moveTo(ffx, ffy);
@@ -200,11 +286,11 @@ package away3d.core.material
                             rfy = dfy - 2*nf*pb;
                             rfz = dfz - 2*nf*pc;
                     
-                            var rz:Number = (c0z - 30*rfz*draw_reflect_k);
-                            var rx:Number = (c0x - 30*rfx*draw_reflect_k) * zoom * focus / (focus + rz);
-                            var ry:Number = (c0y - 30*rfy*draw_reflect_k) * zoom * focus / (focus + rz);
+                            rz = (c0z - 30*rfz*draw_reflect_k),
+                            rx = (c0x - 30*rfx*draw_reflect_k) * zoom * focus / (focus + rz),
+                            ry = (c0y - 30*rfy*draw_reflect_k) * zoom * focus / (focus + rz);
                         
-                            graphics.lineStyle(1, int(red/2)*0x10000 + int(green/2)*0x100 + int(blue/2), 1);
+                            graphics.lineStyle(1, int(red*0.5)*0x10000 + int(green*0.5)*0x100 + int(blue*0.5), 1);
                             graphics.moveTo(cx, cy);
                             graphics.lineTo(rx, ry);
                             graphics.moveTo(cx, cy);
