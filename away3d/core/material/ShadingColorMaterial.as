@@ -33,16 +33,23 @@ package away3d.core.material
             alpha = init.getNumber("alpha", 1);
             static = init.getBoolean("static", false);
         }
-
+		
+		internal var fr:int;
+		internal var fg:int;
+		internal var fb:int;
+		internal var sfr:int;
+		internal var sfg:int;
+		internal var sfb:int;
+		
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            var v0:ScreenVertex = tri.v0;
-            var v1:ScreenVertex = tri.v1;
-            var v2:ScreenVertex = tri.v2;
+            v0 = tri.v0;
+            v1 = tri.v1;
+            v2 = tri.v2;
 
-            var fr:int = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
-            var fg:int = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
-            var fb:int = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
+            fr = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
+            fg = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
+            fb = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
             
             if (fr > 0xFF)
                 fr = 0xFF;
@@ -51,16 +58,14 @@ package away3d.core.material
             if (fb > 0xFF)
                 fb = 0xFF;
 
-            var color:int = fr << 16 | fg << 8 | fb;
-
-            session.renderTriangleColor(color, alpha, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+            session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
 
             if (static)
                 if (tri.face != null)
                 {
-                    var sfr:int = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr) >> 16);
-                    var sfg:int = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg) >> 8);
-                    var sfb:int = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb));
+                    sfr = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr) >> 16);
+                    sfg = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg) >> 8);
+                    sfb = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb));
 
                     if (sfr > 0xFF)
                         sfr = 0xFF;
@@ -69,9 +74,7 @@ package away3d.core.material
                     if (sfb > 0xFF)
                         sfb = 0xFF;
 
-                    var scolor:int = sfr << 16 | sfg << 8 | sfb;
-
-                    tri.face.material = new ColorMaterial(scolor);
+                    tri.face.material = new ColorMaterial(sfr << 16 | sfg << 8 | sfb);
                 }
         }
 

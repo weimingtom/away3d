@@ -55,15 +55,18 @@ package away3d.core.material
             if (step < limit)
                 step *= 2;
         }
-
+		
+		internal var mapping:Matrix;
+		internal var br:Number;
+		
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            var mapping:Matrix = tri.texturemapping || tri.transformUV(this);
-            var v0:ScreenVertex = tri.v0;
-            var v1:ScreenVertex = tri.v1;
-            var v2:ScreenVertex = tri.v2;
-            //var graphics:Graphics = session.graphics;
-            var br:Number = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
+            mapping = tri.texturemapping || tri.transformUV(this);
+           	v0 = tri.v0;
+            v1 = tri.v1;
+            v2 = tri.v2;
+            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
+            
             if ((br < 1) && (blackrender || ((step < 16) && (!diffuse.transparent))))
             {
                 session.renderTriangleBitmap(diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
