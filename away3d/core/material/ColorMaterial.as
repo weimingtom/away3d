@@ -29,7 +29,7 @@ package away3d.core.material
 
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            session.renderTriangleColor(color, alpha, tri.v0.x, tri.v0.y, tri.v1.x, tri.v1.y, tri.v2.x, tri.v2.y);
+            session.renderTriangleColor(color, alpha, tri);
         }
 
         public function get visible():Boolean

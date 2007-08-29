@@ -3,9 +3,11 @@ package away3d.core.render
     import away3d.core.*;
     import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.material.*;
     import flash.utils.*;
     import flash.geom.*;
     import flash.display.*;
+    import away3d.core.mesh.Vertex;
 
     /** Object holding information for one rendering frame */
     public final class RenderSession
@@ -31,26 +33,51 @@ package away3d.core.render
             return _graphics;
         }
         
+        internal var a:Number;
+        internal var b:Number;
+        internal var c:Number;
+        internal var d:Number;
+        internal var tx:Number;
+        internal var ty:Number;
+        
+        internal var v0x:Number;
+        internal var v0y:Number;
+        internal var v1x:Number;
+        internal var v1y:Number;
+        internal var v2x:Number;
+        internal var v2y:Number;
+        
         internal var a2:Number;
         internal var b2:Number;
         internal var c2:Number;
         internal var d2:Number;
-
-        public function renderTriangleBitmap(bitmap:BitmapData, a:Number, b:Number, c:Number, d:Number, tx:Number, ty:Number, 
-            v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, smooth:Boolean, repeat:Boolean):void
+		internal var m:Matrix = new Matrix();
+		
+		internal var map:Matrix;
+		internal var v0:ScreenVertex;
+		internal var v1:ScreenVertex;
+		internal var v2:ScreenVertex;
+		
+        public function renderTriangleBitmap(bitmap:BitmapData, tri:DrawTriangle, smooth:Boolean, repeat:Boolean):void
         {
-            	gfx = _graphics || graphics;
-            	a2 = v1x - v0x;
-            	b2 = v1y - v0y;
-            	c2 = v2x - v0x;
-            	d2 = v2y - v0y;
-
+        	gfx = _graphics || graphics;
+        	
+        	map = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
+        	
+        	a2 = (v1x = (v1 = tri.v1).x) - (v0x = (v0 = tri.v0).x);
+        	b2 = (v1y = v1.y) - (v0y = v0.y);
+        	c2 = (v2x = (v2 = tri.v2).x) - v0x;
+        	d2 = (v2y = v2.y) - v0y;
+        	
+			m.a = (a = map.a)*a2 + (b = map.b)*c2;
+			m.b = a*b2 + b*d2;
+			m.c = (c = map.c)*a2 + (d = map.d)*c2;
+			m.d = c*b2 + d*d2;
+			m.tx = (tx = map.tx)*a2 + (ty = map.ty)*c2 + v0x;
+			m.ty = tx*b2 + ty*d2 + v0y;
+			
             gfx.lineStyle();
-            gfx.beginBitmapFill(bitmap,
-            		new Matrix(a*a2 + b*c2, a*b2 + b*d2, c*a2 + d*c2, c*b2 + d*d2, tx*a2 + ty*c2 + v0x, tx*b2 + ty*d2 + v0y),
-            		repeat,
-            		smooth && (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y) > 400));
-            
+            gfx.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 - v2x*b2 > 400));
             gfx.moveTo(v0x, v0y);
             gfx.lineTo(v1x, v1y);
             gfx.lineTo(v2x, v2y);
@@ -58,28 +85,26 @@ package away3d.core.render
 
         }
 
-        public function renderTriangleColor(color:int, alpha:Number, 
-            v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number):void
+        public function renderTriangleColor(color:int, alpha:Number, tri:DrawTriangle):void
         {
             gfx = _graphics || graphics;
-
+        	
             gfx.lineStyle();
             gfx.beginFill(color, alpha);
-            gfx.moveTo(v0x, v0y);
-            gfx.lineTo(v1x, v1y);
-            gfx.lineTo(v2x, v2y);
+            gfx.moveTo((v0 = tri.v0).x, v0.y);
+            gfx.lineTo((v1 = tri.v1).x, v1.y);
+            gfx.lineTo((v2 = tri.v2).x, v2.y);
             gfx.endFill();
         }
 
-        public function renderTriangleLine(color:int, alpha:Number, width:Number,
-            v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number):void
+        public function renderTriangleLine(color:int, alpha:Number, width:Number, tri:DrawTriangle):void
         {
             gfx = _graphics || graphics;
-
+        	
             gfx.lineStyle(color, alpha, width);
-            gfx.moveTo(v0x, v0y);
-            gfx.lineTo(v1x, v1y);
-            gfx.lineTo(v2x, v2y);
+            gfx.moveTo(v0x = (v0 = tri.v0).x, v0y = v0.y);
+            gfx.lineTo((v1 = tri.v1).x, v1.y);
+            gfx.lineTo((v2 = tri.v2).x, v2.y);
             gfx.lineTo(v0x, v0y);
         }
 

@@ -14,12 +14,14 @@ package away3d.core.scene
     import flash.utils.Dictionary;
     import flash.events.MouseEvent;
     import flash.events.Event;
+    import flash.display.Bitmap;
 
     /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */
     public class View3D extends Sprite
     {
         use namespace arcane;
-
+		
+		public var bmp:Bitmap;
         /** Background under the rendered scene */
         public var background:Sprite;
         /** Sprite that contains last rendered frame */

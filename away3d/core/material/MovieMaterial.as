@@ -58,18 +58,12 @@ package away3d.core.material
             this.bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
 		
-		internal var mapping:Matrix;
         internal var v0:ScreenVertex;
         internal var v1:ScreenVertex;
         internal var v2:ScreenVertex;
         
         public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            mapping = tri.texturemapping || tri.transformUV(this);
-           	v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
-            
             if (auto)
                 if (lastsession != session.time)
                 {
@@ -77,10 +71,10 @@ package away3d.core.material
                     update();
                 }
 
-            session.renderTriangleBitmap(bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
+            session.renderTriangleBitmap(bitmap, tri, smooth, repeat);
 
             if (debug)
-                session.renderTriangleLine(2, 0x0000FF, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+                session.renderTriangleLine(2, 0x0000FF, 1, tri);
         }
 
         public function update():void
