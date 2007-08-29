@@ -40,7 +40,6 @@ package away3d.core.material
         
         internal var session:RenderSession;
         internal var focus:Number;
-        internal var mapping:Matrix;
         internal var map:Matrix = new Matrix();
         internal var triangle:DrawTriangle = new DrawTriangle();
         
@@ -50,7 +49,7 @@ package away3d.core.material
         {
         	this.session = session;
         	focus = tri.projection.focus;
-        	mapping = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
+        	mapping = tri.texturemapping || tri.transformUV(this);
         	map.a = mapping.a;
         	map.b = mapping.b;
         	map.c = mapping.c;
@@ -61,7 +60,7 @@ package away3d.core.material
             renderRec(tri.v0, tri.v1, tri.v2, 0);
 
             if (debug)
-                session.renderTriangleLine(2, 0x0000FF, 1, tri);
+                session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
         
 		internal var faz:Number;
@@ -108,8 +107,6 @@ package away3d.core.material
         
         protected function renderRec(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex, index:Number):void
         {
-            if (index >= 100)
-            	return;
             
         	ax = a.x;
         	ay = a.y;
@@ -127,15 +124,17 @@ package away3d.core.material
             if ((az <= 0) && (bz <= 0) && (cz <= 0))
                 return;
 			
-            if ((focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
+            if (index >= 100 || (focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
+            	/*
             	triangle.v0 = a;
 	    		triangle.v1 = b;
 	    		triangle.v2 = c;
 	    		triangle.texturemapping = map;
-                session.renderTriangleBitmap(bitmap, triangle, smooth, repeat);
+	    		*/
+                session.renderTriangleBitmap(bitmap, map, a, b, c, smooth, repeat);
                 if (debug)
-                    session.renderTriangleLine(1, 0x00FF00, 1, triangle);
+                    session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
 
@@ -160,13 +159,15 @@ package away3d.core.material
 
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
+            	/*
             	triangle.v0 = a;
 	    		triangle.v1 = b;
 	    		triangle.v2 = c;
 	    		triangle.texturemapping = map;
-                session.renderTriangleBitmap(bitmap, triangle, smooth, repeat);
+	    		*/
+                session.renderTriangleBitmap(bitmap, map, a, b, c, smooth, repeat);
                 if (debug)
-                    session.renderTriangleLine(1, 0x00FF00, 1,  triangle);
+                    session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
             

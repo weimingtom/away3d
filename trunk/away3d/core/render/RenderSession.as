@@ -54,19 +54,19 @@ package away3d.core.render
 		internal var m:Matrix = new Matrix();
 		
 		internal var map:Matrix;
-		internal var v0:ScreenVertex;
-		internal var v1:ScreenVertex;
-		internal var v2:ScreenVertex;
+		//internal var v0:ScreenVertex;
+		//internal var v1:ScreenVertex;
+		//internal var v2:ScreenVertex;
 		
-        public function renderTriangleBitmap(bitmap:BitmapData, tri:DrawTriangle, smooth:Boolean, repeat:Boolean):void
+        public function renderTriangleBitmap(bitmap:BitmapData, map:Matrix, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean):void
         {
         	gfx = _graphics || graphics;
         	
-        	map = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
+        	//map = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
         	
-        	a2 = (v1x = (v1 = tri.v1).x) - (v0x = (v0 = tri.v0).x);
+        	a2 = (v1x = v1.x) - (v0x = v0.x);
         	b2 = (v1y = v1.y) - (v0y = v0.y);
-        	c2 = (v2x = (v2 = tri.v2).x) - v0x;
+        	c2 = (v2x = v2.x) - v0x;
         	d2 = (v2y = v2.y) - v0y;
         	
 			m.a = (a = map.a)*a2 + (b = map.b)*c2;
@@ -85,26 +85,26 @@ package away3d.core.render
 
         }
 
-        public function renderTriangleColor(color:int, alpha:Number, tri:DrawTriangle):void
+        public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
             gfx = _graphics || graphics;
         	
             gfx.lineStyle();
             gfx.beginFill(color, alpha);
-            gfx.moveTo((v0 = tri.v0).x, v0.y);
-            gfx.lineTo((v1 = tri.v1).x, v1.y);
-            gfx.lineTo((v2 = tri.v2).x, v2.y);
+            gfx.moveTo(v0.x, v0.y);
+            gfx.lineTo(v1.x, v1.y);
+            gfx.lineTo(v2.x, v2.y);
             gfx.endFill();
         }
 
-        public function renderTriangleLine(color:int, alpha:Number, width:Number, tri:DrawTriangle):void
+        public function renderTriangleLine(color:int, alpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
             gfx = _graphics || graphics;
         	
             gfx.lineStyle(color, alpha, width);
-            gfx.moveTo(v0x = (v0 = tri.v0).x, v0y = v0.y);
-            gfx.lineTo((v1 = tri.v1).x, v1.y);
-            gfx.lineTo((v2 = tri.v2).x, v2.y);
+            gfx.moveTo(v0x = v0.x, v0y = v0.y);
+            gfx.lineTo(v1.x, v1.y);
+            gfx.lineTo(v2.x, v2.y);
             gfx.lineTo(v0x, v0y);
         }
 
