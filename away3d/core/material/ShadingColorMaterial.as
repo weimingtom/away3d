@@ -55,7 +55,7 @@ package away3d.core.material
             if (fb > 0xFF)
                 fb = 0xFF;
 
-            session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, tri);
+            session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, tri.v0, tri.v1, tri.v2);
 
             if (static)
                 if (tri.face != null)

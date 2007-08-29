@@ -57,22 +57,28 @@ package away3d.core.material
         }
 		
 		internal var mapping:Matrix;
+		
 		internal var br:Number;
 		
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
             
+            mapping = tri.texturemapping || tri.transformUV(this);
+            v0 = tri.v0;
+            v1 = tri.v1;
+            v2 = tri.v2;
+            
             if ((br < 1) && (blackrender || ((step < 16) && (!diffuse.transparent))))
             {
-                session.renderTriangleBitmap(diffuse, tri, smooth, repeat);
-                session.renderTriangleColor(0x000000, 1 - br, tri);
+                session.renderTriangleBitmap(diffuse, mapping, v0, v1, v2, smooth, repeat);
+                session.renderTriangleColor(0x000000, 1 - br, v0, v1, v2);
             }
             else
             if ((br > 1) && (whiterender))
             {
-                session.renderTriangleBitmap(diffuse, tri, smooth, repeat);
-                session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, tri);
+                session.renderTriangleBitmap(diffuse, mapping, v0, v1, v2, smooth, repeat);
+                session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, v0, v1, v2);
             }
             else
             {
@@ -87,7 +93,7 @@ package away3d.core.material
                     bitmap.colorTransform(bitmap.rect, new ColorTransform(brightness, brightness, brightness));
                     cache[brightness] = bitmap;
                 }
-                session.renderTriangleBitmap(bitmap, tri, smooth, repeat);
+                session.renderTriangleBitmap(bitmap, mapping, v0, v1, v2, smooth, repeat);
             }
         }
 
