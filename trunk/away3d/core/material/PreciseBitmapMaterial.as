@@ -26,19 +26,42 @@ package away3d.core.material
             precision = init.getNumber("precision", 1);
 
             precision = precision * precision * 1.4;
+            
+            createVertexArray();
         }
+        
+        public function createVertexArray():void
+        {
+        	var index:Number = 100;
+        	while (index--) {
+        		svArray.push(new ScreenVertex());
+        	}
+        }
+        
+        internal var session:RenderSession;
+        internal var focus:Number;
+        internal var mapping:Matrix;
+        internal var map:Matrix = new Matrix();
+        internal var triangle:DrawTriangle = new DrawTriangle();
+        
+        internal var svArray:Array = new Array();
         
         public override function renderTriangle(tri:DrawTriangle, session:RenderSession):void
         {
-            mapping = tri.texturemapping || tri.transformUV(this);
-           	v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
-
-            renderRec(session, tri.projection, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+        	this.session = session;
+        	focus = tri.projection.focus;
+        	mapping = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
+        	map.a = mapping.a;
+        	map.b = mapping.b;
+        	map.c = mapping.c;
+        	map.d = mapping.d;
+        	map.tx = mapping.tx;
+        	map.ty = mapping.ty;
+        	
+            renderRec(tri.v0, tri.v1, tri.v2, 0);
 
             if (debug)
-                session.renderTriangleLine(2, 0x0000FF, 1, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+                session.renderTriangleLine(2, 0x0000FF, 1, tri);
         }
         
 		internal var faz:Number;
@@ -69,22 +92,50 @@ package away3d.core.material
         
         internal var dmax:Number;
         
-        protected function renderRec(session:RenderSession, projection:Projection,
-            ta:Number, tb:Number, tc:Number, td:Number, tx:Number, ty:Number, 
-            ax:Number, ay:Number, az:Number, bx:Number, by:Number, bz:Number, cx:Number, cy:Number, cz:Number):void
+        //internal var a:ScreenVertex;
+        //internal var b:ScreenVertex;
+        //internal var c:ScreenVertex;
+        
+        internal var ax:Number;
+        internal var ay:Number;
+        internal var az:Number;
+        internal var bx:Number;
+        internal var by:Number;
+        internal var bz:Number;
+        internal var cx:Number;
+        internal var cy:Number;
+        internal var cz:Number;
+        
+        protected function renderRec(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex, index:Number):void
         {
+            if (index >= 100)
+            	return;
+            
+        	ax = a.x;
+        	ay = a.y;
+        	az = a.z;
+        	bx = b.x;
+        	by = b.y;
+        	bz = b.z;
+        	cx = c.x;
+        	cy = c.y;
+        	cz = c.z;
+        	
             if (!session.clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
             if ((az <= 0) && (bz <= 0) && (cz <= 0))
                 return;
-
-            var focus:Number = projection.focus;
+			
             if ((focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
-                session.renderTriangleBitmap(bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
+            	triangle.v0 = a;
+	    		triangle.v1 = b;
+	    		triangle.v2 = c;
+	    		triangle.texturemapping = map;
+                session.renderTriangleBitmap(bitmap, triangle, smooth, repeat);
                 if (debug)
-                    session.renderTriangleLine(1, 0x00FF00, 1, ax, ay, bx, by, cx, cy);
+                    session.renderTriangleLine(1, 0x00FF00, 1, triangle);
                 return;
             }
 
@@ -96,19 +147,12 @@ package away3d.core.material
             mbcz = 2 / (fbz + fcz);
             mcaz = 2 / (fcz + faz);
 
-            mabx = (ax*faz + bx*fbz)*mabz;
-            maby = (ay*faz + by*fbz)*mabz;
-            mbcx = (bx*fbz + cx*fcz)*mbcz;
-            mbcy = (by*fbz + cy*fcz)*mbcz;
-            mcax = (cx*fcz + ax*faz)*mcaz;
-            mcay = (cy*fcz + ay*faz)*mcaz;
-
-            dabx = ax + bx - mabx;
-            daby = ay + by - maby;
-            dbcx = bx + cx - mbcx;
-            dbcy = by + cy - mbcy;
-            dcax = cx + ax - mcax;
-            dcay = cy + ay - mcay;
+            dabx = ax + bx - (mabx = (ax*faz + bx*fbz)*mabz);
+            daby = ay + by - (maby = (ay*faz + by*fbz)*mabz);
+            dbcx = bx + cx - (mbcx = (bx*fbz + cx*fcz)*mbcz);
+            dbcy = by + cy - (mbcy = (by*fbz + cy*fcz)*mbcz);
+            dcax = cx + ax - (mcax = (cx*fcz + ax*faz)*mcaz);
+            dcay = cy + ay - (mcay = (cy*fcz + ay*faz)*mcaz);
             
             dsab = (dabx*dabx + daby*daby);
             dsbc = (dbcx*dbcx + dbcy*dbcy);
@@ -116,84 +160,167 @@ package away3d.core.material
 
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
-                session.renderTriangleBitmap(bitmap, ta, tb, tc, td, tx, ty, ax, ay, bx, by, cx, cy, smooth, repeat);
+            	triangle.v0 = a;
+	    		triangle.v1 = b;
+	    		triangle.v2 = c;
+	    		triangle.texturemapping = map;
+                session.renderTriangleBitmap(bitmap, triangle, smooth, repeat);
                 if (debug)
-                    session.renderTriangleLine(1, 0x00FF00, 1, ax, ay, bx, by, cx, cy);
+                    session.renderTriangleLine(1, 0x00FF00, 1,  triangle);
                 return;
             }
-
+            
             //Debug.trace(num(ta)+" "+num(tb)+" "+num(tc)+" "+num(td)+" "+num(tx)+" "+num(ty));
-			
-			var mabx2:Number;
-        	var maby2:Number;
-        	var mbcx2:Number;
-        	var mbcy2:Number;
-        	var mcax2:Number;
-        	var mcay2:Number;
+			/*
+			var map:Matrix;
+        	mIndex++;
+			if (matrixArray.length < mIndex){
+				trace("matrix");
+				map = matrixArray[matrixArray.length] = new Matrix(mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty);
+			} else {
+				map = matrixArray[mIndex-1];
+				map.a = mapping.a;
+				map.b = mapping.b;
+				map.c = mapping.c;
+				map.d = mapping.d;
+				map.tx = mapping.tx;
+				map.ty = mapping.ty;	
+			}
+			*/
+			var map_a:Number = map.a;
+			var map_b:Number = map.b;
+			var map_c:Number = map.c;
+			var map_d:Number = map.d;
+			var map_tx:Number = map.tx;
+			var map_ty:Number = map.ty;
+        	
+        	var sv1:ScreenVertex;
+        	var sv2:ScreenVertex;
+        	var sv3:ScreenVertex = svArray[index++];
+        	sv3.x = mbcx/2;
+        	sv3.y = mbcy/2;
+        	sv3.z = (bz+cz)/2;
         	
             if ((dsab > precision) && (dsca > precision) && (dsbc > precision))
             {
-            	mabx2 = mabx*0.5;
-            	maby2 = maby*0.5;
-            	mbcx2 = mbcx*0.5;
-            	mbcy2 = mbcy*0.5;
-            	mcax2 = mcax*0.5;
-            	mcay2 = mcay*0.5;
-            	
-                renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2,
-                    ax, ay, az, mabx2, maby2, (az+bz)*0.5, mcax2, mcay2, (cz+az)*0.5);
-
-                renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2-1, ty*2,
-                    mabx2, maby2, (az+bz)*0.5, bx, by, bz, mbcx2, mbcy2, (bz+cz)*0.5);
-
-                renderRec(session, projection, ta*2, tb*2, tc*2, td*2, tx*2, ty*2-1,
-                    mcax2, mcay2, (cz+az)*0.5, mbcx2, mbcy2, (bz+cz)*0.5, cx, cy, cz);
-
-                renderRec(session, projection, -ta*2, -tb*2, -tc*2, -td*2, -tx*2+1, -ty*2+1,
-                    mbcx2, mbcy2, (bz+cz)*0.5, mcax2, mcay2, (cz+az)*0.5, mabx2, maby2, (az+bz)*0.5);
-
+            	sv1 = svArray[index++];
+            	sv1.x = mabx/2;
+	        	sv1.y = maby/2;
+	        	sv1.z = (az+bz)/2;
+	        	
+	        	sv2 = svArray[index++];
+	        	sv2.x = mcax/2;
+		        sv2.y = mcay/2;
+		        sv2.z = (cz+az)/2;
+	        	
+            	map.a = map_a*=2;
+            	map.b = map_b*=2;
+            	map.c = map_c*=2;
+            	map.d = map_d*=2;
+            	map.tx = map_tx*=2;
+            	map.ty = map_ty*=2;
+                renderRec(a, sv1, sv2, index);
+	        	
+				map.a = map_a;
+            	map.b = map_b;
+            	map.c = map_c;
+            	map.d = map_d;
+            	map.tx = map_tx-1;
+            	map.ty = map_ty;
+                renderRec(sv1, b, sv3, index);
+	        	
+				map.a = map_a;
+            	map.b = map_b;
+            	map.c = map_c;
+            	map.d = map_d;
+            	map.tx = map_tx;
+            	map.ty = map_ty-1;
+                renderRec(sv2, sv3, c, index);
+	        	
+				map.a = -map_a;
+            	map.b = -map_b;
+            	map.c = -map_c;
+            	map.d = -map_d;
+            	map.tx = 1-map_tx;
+            	map.ty = 1-map_ty;
+                renderRec(sv3, sv2, sv1, index);
+				
                 return;
             }
 
             dmax = Math.max(dsab, Math.max(dsca, dsbc));
             if (dsab == dmax)
             {
-            	mabx2 = mabx*0.5;
-            	maby2 = maby*0.5;
+            	sv1 = svArray[index++];
+            	sv1.x = mabx/2;
+	        	sv1.y = maby/2;
+	        	sv1.z = (az+bz)/2;
+	        	
+            	map.a = map_a*=2;
+            	map.c = map_c*=2;
+            	map.tx = map_tx*=2;
+                renderRec(a, sv1, c, index);
+	        	
+				map.a = map_a + map_b;
+            	map.b = map_b;
+            	map.c = map_c + map_d;
+            	map.d = map_d;
+            	map.tx = map_tx + map_ty - 1;
+            	map.ty = map_ty;
+                renderRec(sv1, b, c, index);
             	
-                renderRec(session, projection, ta*2, tb*1, tc*2, td*1, tx*2, ty*1,
-                    ax, ay, az, mabx2, maby2, (az+bz)*0.5, cx, cy, cz);
-
-                renderRec(session, projection, ta*2+tb, tb*1, 2*tc+td, td*1, tx*2+ty-1, ty*1,
-                    mabx2, maby2, (az+bz)*0.5, bx, by, bz, cx, cy, cz);
-            
                 return;
             }
 
             if (dsca == dmax)
             {
-            	mcax2 = mcax*0.5;
-            	mcay2 = mcay*0.5;
+            	sv2 = svArray[index++];
+            	sv2.x = mcax/2;
+	        	sv2.y = mcay/2;
+	        	sv2.z = (cz+az)/2;
             	
-                renderRec(session, projection, ta*1, tb*2, tc*1, td*2, tx*1, ty*2,
-                    ax, ay, az, bx, by, bz, mcax2, mcay2, (cz+az)*0.5);
-
-                renderRec(session, projection, ta*1, tb*2 + ta, tc*1, td*2 + tc, tx, ty*2+tx-1,
-                    mcax2, mcay2, (cz+az)*0.5, bx, by, bz, cx, cy, cz);
-            
+            	map.b = map_b*=2;
+            	map.d = map_d*=2;
+            	map.ty = map_ty*=2;
+                renderRec(a, b, sv2, index);
+	        	
+				map.a = map_a;
+            	map.b = map_b + map_a;
+            	map.c = map_c;
+            	map.d = map_d + map_c;
+            	map.tx = map_tx;
+            	map.ty = map_ty + map_tx - 1;
+                renderRec(sv2, b, c, index);
+            	
                 return;
             }
-			
-			mbcx2 = mbcx*0.5;
-            mbcy2 = mbcy*0.5;
-
-            renderRec(session, projection, ta-tb, tb*2, tc-td, td*2, tx-ty, ty*2,
-                ax, ay, az, bx, by, bz, mbcx2, mbcy2, (bz+cz)*0.5);
-
-            renderRec(session, projection, 2*ta, tb-ta, tc*2, td-tc, 2*tx, ty-tx,
-                ax, ay, az, mbcx2, mbcy2, (bz+cz)*0.5, cx, cy, cz);
+	        	
+		    map.a = map_a - map_b;
+        	map.b = map_b*2;
+        	map.c = map_c - map_d;
+        	map.d = map_d*2;
+        	map.tx = map_tx - map_ty;
+        	map.ty = map_ty*2;
+            renderRec(a, b, sv3, index);
+	        	
+		    map.a = map_a*2;
+        	map.b = map_b - map_a;
+        	map.c = map_c*2;
+        	map.d = map_d - map_c;
+        	map.tx = map_tx*2;
+        	map.ty = map_ty - map_tx;
+            renderRec(a, sv3, c, index);
         }
-
+        /*
+		private function getScreenVertex():ScreenVertex
+		{
+			svIndex++;
+        	if (svArray.length < svIndex) 
+        		return svArray[svIndex-1] = new ScreenVertex();
+        	
+        	return svArray[svIndex-1];
+		}
+        */	
         private static function num(n:Number):Number
         {
             return int(n*1000)/1000;

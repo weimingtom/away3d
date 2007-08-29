@@ -85,7 +85,14 @@ package away3d.core.draw
             	dd20:Number = d20 * d20;
             return (dd01 <= dd12 + dd20) && (dd12 <= dd20 + dd01) && (dd20 <= dd01 + dd12);
         }
-
+		
+        internal var _u0:Number;
+        internal var _u1:Number;
+        internal var _u2:Number;
+		internal var _v0:Number;
+        internal var _v1:Number;
+        internal var _v2:Number;
+		
         public final function transformUV(material:IUVMaterial):Matrix
         {
             var width:Number = material.width,
@@ -98,31 +105,31 @@ package away3d.core.draw
             if (uv2 == null)
                 return new Matrix();
 
-            var u0:Number = width * uv0._u,
-            	u1:Number = width * uv1._u,
-            	u2:Number = width * uv2._u,
-            	v0:Number = height * (1 - uv0._v),
-            	v1:Number = height * (1 - uv1._v),
-            	v2:Number = height * (1 - uv2._v);
+            _u0 = width * uv0._u,
+            _u1 = width * uv1._u,
+            _u2 = width * uv2._u,
+            _v0 = height * (1 - uv0._v),
+            _v1 = height * (1 - uv1._v),
+            _v2 = height * (1 - uv2._v);
       
             // Fix perpendicular projections
-            if ((u0 == u1 && v0 == v1) || (u0 == u2 && v0 == v2))
+            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
             {
-                u0 -= (u0 > 0.05) ? 0.05 : -0.05;
-                v0 -= (v0 > 0.07) ? 0.07 : -0.07;
+                _u0 -= (_u0 > 0.05) ? 0.05 : -0.05;
+                _v0 -= (_v0 > 0.07) ? 0.07 : -0.07;
             }
     
-            if (u2 == u1 && v2 == v1)
+            if (_u2 == _u1 && _v2 == _v1)
             {
-                u2 -= (u2 > 0.05) ? 0.04 : -0.04;
-                v2 -= (v2 > 0.06) ? 0.06 : -0.06;
+                _u2 -= (_u2 > 0.05) ? 0.04 : -0.04;
+                _v2 -= (_v2 > 0.06) ? 0.06 : -0.06;
             }
  
-            texturemapping = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
+            texturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
             texturemapping.invert();
             return texturemapping;
         }
-
+		
         public override final function riddle(another:DrawTriangle, focus:Number):Array
         {
             if (area < 10)

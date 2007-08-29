@@ -61,22 +61,18 @@ package away3d.core.material
 		
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            mapping = tri.texturemapping || tri.transformUV(this);
-           	v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
             br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
             
             if ((br < 1) && (blackrender || ((step < 16) && (!diffuse.transparent))))
             {
-                session.renderTriangleBitmap(diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
-                session.renderTriangleColor(0x000000, 1 - br, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+                session.renderTriangleBitmap(diffuse, tri, smooth, repeat);
+                session.renderTriangleColor(0x000000, 1 - br, tri);
             }
             else
             if ((br > 1) && (whiterender))
             {
-                session.renderTriangleBitmap(diffuse, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
-                session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+                session.renderTriangleBitmap(diffuse, tri, smooth, repeat);
+                session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, tri);
             }
             else
             {
@@ -91,7 +87,7 @@ package away3d.core.material
                     bitmap.colorTransform(bitmap.rect, new ColorTransform(brightness, brightness, brightness));
                     cache[brightness] = bitmap;
                 }
-                session.renderTriangleBitmap(bitmap, mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, smooth, repeat);
+                session.renderTriangleBitmap(bitmap, tri, smooth, repeat);
             }
         }
 

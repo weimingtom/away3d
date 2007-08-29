@@ -379,7 +379,16 @@ package away3d.core.mesh
 
         arcane var _texturemapping:Matrix;
         arcane var _mappingmaterial:IUVMaterial;
-
+		
+		internal var uv_u0:Number;
+        internal var uv_u1:Number;
+        internal var uv_u2:Number;
+        internal var uv_v0:Number;
+        internal var uv_v1:Number;
+        internal var uv_v2:Number;
+        internal var width:Number;
+        internal var height:Number;
+            
         arcane function mapping(uvm:IUVMaterial):Matrix
         {
             if (uvm == null)
@@ -391,8 +400,8 @@ package away3d.core.mesh
 
             _mappingmaterial = uvm;
 
-            var width:Number = uvm.width;
-            var height:Number = uvm.height;
+            width = uvm.width;
+            height = uvm.height;
 
             if (uv0 == null)
             {
@@ -410,27 +419,27 @@ package away3d.core.mesh
                 return _texturemapping;
             }
 
-            var u0:Number = width * uv0._u;
-            var u1:Number = width * uv1._u;
-            var u2:Number = width * uv2._u;
-            var v0:Number = height * (1 - uv0._v);
-            var v1:Number = height * (1 - uv1._v);
-            var v2:Number = height * (1 - uv2._v);
+            uv_u0 = width * uv0._u;
+            uv_u1 = width * uv1._u;
+            uv_u2 = width * uv2._u;
+            uv_v0 = height * (1 - uv0._v);
+            uv_v1 = height * (1 - uv1._v);
+            uv_v2 = height * (1 - uv2._v);
       
             // Fix perpendicular projections
-            if ((u0 == u1 && v0 == v1) || (u0 == u2 && v0 == v2))
+            if ((uv_u0 == uv_u1 && uv_v0 == uv_v1) || (uv_u0 == uv_u2 && uv_v0 == uv_v2))
             {
-                u0 -= (u0 > 0.05) ? 0.05 : -0.05;
-                v0 -= (v0 > 0.07) ? 0.07 : -0.07;
+                uv_u0 -= (uv_u0 > 0.05) ? 0.05 : -0.05;
+                uv_v0 -= (uv_v0 > 0.07) ? 0.07 : -0.07;
             }
     
-            if (u2 == u1 && v2 == v1)
+            if (uv_u2 == uv_u1 && uv_v2 == uv_v1)
             {
-                u2 -= (u2 > 0.05) ? 0.04 : -0.04;
-                v2 -= (v2 > 0.06) ? 0.06 : -0.06;
+                uv_u2 -= (uv_u2 > 0.05) ? 0.04 : -0.04;
+                uv_v2 -= (uv_v2 > 0.06) ? 0.06 : -0.06;
             }
   
-            _texturemapping = new Matrix(u1 - u0, v1 - v0, u2 - u0, v2 - v0, u0, v0);
+            _texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
             _texturemapping.invert();
             return _texturemapping;
         }

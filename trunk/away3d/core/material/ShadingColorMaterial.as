@@ -43,9 +43,6 @@ package away3d.core.material
 		
         public override function renderTri(tri:DrawTriangle, session:RenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
 
             fr = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
             fg = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
@@ -58,7 +55,7 @@ package away3d.core.material
             if (fb > 0xFF)
                 fb = 0xFF;
 
-            session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+            session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, tri);
 
             if (static)
                 if (tri.face != null)
