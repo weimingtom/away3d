@@ -272,7 +272,7 @@ package away3d.core.scene
 
             _transformDirty = false;
             _rotationDirty = true;
-
+			_sceneTransformDirty = true;
             notifyTransformChange();
         }
 
