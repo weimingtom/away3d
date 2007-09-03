@@ -9,72 +9,26 @@ package away3d.core.mesh
     import flash.events.Event;
     import flash.utils.*;
 
-    public class Animation
+    public class Animation implements IAnimation
     {
         private var _frame:Number = 0;
         private var _fps:Number = 24;
         private var _loop:Boolean = false;
         private var _smooth:Boolean = false;
+        private var _delay:Number = 0;
         private var _sequence:Array = [];
-        private var _lastframe:Number = NaN;
 
-        public function Animation(startframe:Number = -1, endframe:Number = -1)
+        public function Animation()
         {
-            for (var i:int = 0; startframe + i <= endframe; i++)
-                _sequence.push(i);
         }
 
-        public function get renderframe():Object
+        public function get sequence():Array
         {
-            return _sequence[int(Math.round(_frame))];
-        /*
-            var result:Dictionary = new Dictionary();
-            if ((!_smooth) || (Math.round(_frame) == _frame))
-            {
-                result[1]
-                return
-            }
-            
-            return _smooth ? _frame : Math.round(_frame);
-        */
+            return _sequence;
         }
-
-        public function get frame():Number
+        public function set sequence(value:Array):void
         {
-            return _frame;
-        }
-
-        public function set frame(value:Number):void
-        {
-            _frame = value;
-
-            if (!_loop)
-                if (_frame > _sequence.length - 1)
-                {
-                    _frame = _sequence.length - 1;
-                    stop();
-                }
-
-            /*
-            var fr:Number = _frame;
-
-            if (!_smooth)
-                fr = Math.round(fr);
-
-            if (fr == _lastframe)
-                return;
-
-            _lastframe = fr;
-
-            var ceil:int = Math.ceil(_lastframe);
-            var floor:int = Math.floor(_lastframe);
-                
-            if (ceil == floor)
-            {
-                _sequence[_lastframe]
-            }
-            // !!!
-            */
+            _sequence = value;
         }
 
         public function get fps():Number
@@ -106,26 +60,66 @@ package away3d.core.mesh
 
         private var _running:Boolean;
         private var _time:uint;
-        private var _endframe:uint;
 
         public function start():void
         {
             _time = getTimer();
             _running = true;
 
-            frame = 0;
+            _frame = 0;
         }
 
-        public function update():void
+        public function update(mesh:BaseMesh):void
         {
             if (!_running)
                 return;
 
             var now:uint = getTimer();
-
-            frame += (now - _time) / (fps * 1000);
-
+            _frame += (now - _time) * fps / 1000;
             _time = now;
+
+            if (_sequence.length == 1)
+            {
+                _frame = 0;
+                _running = false;
+            }
+            else
+            if (_loop)
+            {
+                while (_frame > _sequence.length-1+_delay)
+                    _frame -= _sequence.length-1+_delay;
+            }
+            else
+            {
+                if (_frame > _sequence.length-1+_delay)
+                {
+                    _frame = _sequence.length-1+_delay;
+                    _running = false;
+                }
+            }
+
+            var rf:Number = _frame;
+
+            if (!_smooth)
+                rf = Math.round(rf);
+                
+            if (rf < 0)
+                rf = 0;
+
+            if (rf > _sequence.length-1)
+                rf = _sequence.length-1;
+
+            if (rf == Math.round(rf))
+            {
+                mesh.frames[_sequence[int(rf)].frame].adjust(1);
+            }
+            else
+            {
+                var lf:Number = Math.floor(rf);
+                var hf:Number = Math.ceil(rf);
+                mesh.frames[_sequence[int(lf)].frame].adjust(1);
+                mesh.frames[_sequence[int(hf)].frame].adjust(rf-lf);
+            }
         }
 
         public function stop():void
