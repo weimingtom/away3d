@@ -439,15 +439,16 @@ package away3d.core.mesh
         }
 
         public var frames:Dictionary;
+        public var framenames:Dictionary;
 
-        private var _frame:*;
+        private var _frame:int;
 
-        public function get frame():*
+        public function get frame():int
         {
             return _frame;
         }
 
-        public function set frame(value:*):void
+        public function set frame(value:int):void
         {
             if (_frame == value)
                 return;
@@ -459,46 +460,36 @@ package away3d.core.mesh
 
         public override function tick(time:int):void
         {
-            if ((sequence != null) && (frames != null))
-            {
-                if (sequence[0].time < getTimer())
-                {
-                    var af:AnimationFrame = sequence.shift();
-                    trace("> "+af.frameid)
-                    frame = af.frameid;
-                    if (sequence.length == 0)
-                        sequence = null;
-                }
-            }
+            if ((animation != null) && (frames != null))
+                animation.update(this);
         }
 
-        public var sequence:Array;
+        public var animation:Animation;
         public function play(init:Object = null):void
         {
             init = Init.parse(init);
             
             var fps:Number = init.getNumber("fps", 24);
             var prefix:String = init.getString("prefix", null);
+            var smooth:Boolean = init.getBoolean("smooth", false);
+            var loop:Boolean = init.getBoolean("loop", false);
 
-            sequence = [];
+            animation = new Animation();
+            animation.fps = fps;
+            animation.smooth = smooth;
+            animation.loop = loop;
 
             if (prefix != null)
             {
-                for (var frameid:String in frames)
-                    if (frameid.indexOf(prefix) == 0)
-                        sequence.push(new AnimationFrame(frameid, parseInt(frameid.substring(prefix.length))));
+                for (var framename:String in framenames)
+                    if (framename.indexOf(prefix) == 0)
+                        animation.sequence.push(new AnimationFrame(framenames[framename], ""+parseInt(framename.substring(prefix.length))));
                         
-                sequence.sortOn("framenum", Array.NUMERIC);
+                animation.sequence.sortOn("sort", Array.NUMERIC);
             }
 
-            
-            var time:uint = getTimer();
-            for each (var af:AnimationFrame in sequence)
-            {
-                af.time = time;
-                time += 1000 / fps;
-                trace(af.frameid, af.framenum, af.time);
-            }
+            animation.start();
         }
     }
 }
+                                

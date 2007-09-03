@@ -122,6 +122,7 @@
         private function readFrames(data:ByteArray, vertices:Array, num_frames:int):void
         {
             mesh.frames = new Dictionary();
+            mesh.framenames = new Dictionary();
             for (var i:int = 0; i < num_frames; i++)
             {
                 var frame:Frame = new Frame();
@@ -144,7 +145,8 @@
                 
                 trace("[ "+name+" ]");
 
-                mesh.frames[name || i] = frame;
+                mesh.framenames[name] = i;
+                mesh.frames[i] = frame;
                 for (var h:int = 0; h < vertices.length; h++)
                 {
                     var vp:VertexPosition = new VertexPosition(vertices[h]);

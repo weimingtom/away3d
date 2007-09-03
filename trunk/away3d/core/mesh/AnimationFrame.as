@@ -11,14 +11,14 @@ package away3d.core.mesh
 
     public class AnimationFrame
     {
-        public var frameid:String;
-        public var framenum:Number;
+        public var frame:Number;
         public var time:uint;
+        public var sort:String;
 
-        public function AnimationFrame(frameid:String, framenum:Number)
+        public function AnimationFrame(frame:Number, sort:String = null)
         {
-            this.frameid = frameid;
-            this.framenum = framenum;
+            this.frame = frame;
+            this.sort = sort;
         }
     }
 }

@@ -10,16 +10,6 @@ package away3d.core.mesh
 
     public interface IAnimation
     {
-        function get frame():Number;
-        function set frame(value:Number):void
-        function get fps():Number;
-        function set fps(value:Number):void
-        function start(frame:Number = -1, endframe:Number = -1):void
-        function stop():void
-        function get loop():Boolean;
-        function set loop(value:Boolean):void;
-        function get smooth():Boolean;
-        function set smooth(value:Boolean):void;
-        function update():void;
+        function update(mesh:BaseMesh):void;
     }
 }
