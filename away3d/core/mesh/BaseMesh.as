@@ -10,7 +10,7 @@ package away3d.core.mesh
     
     import away3d.objects.*;
 
-    import flash.utils.Dictionary;
+    import flash.utils.*;
     
     /** Base mesh constisting of elements */
     public class BaseMesh extends Object3D
@@ -439,7 +439,6 @@ package away3d.core.mesh
         }
 
         public var frames:Dictionary;
-        public var animation:Animation;
 
         private var _frame:*;
 
@@ -456,28 +455,50 @@ package away3d.core.mesh
             _frame = value;
 
             frames[_frame].adjust(1);
-            /*
-            if (frames)
-
-            var ceil:int = Math.ceil(_frame);
-            var floor:int = Math.floor(_frame);
-                
-            if (ceil == floor)
-            {
-                _sequence[_lastframe]
-            }
-            */
         }
-
 
         public override function tick(time:int):void
         {
-            if ((animation != null) && (frames != null))
+            if ((sequence != null) && (frames != null))
             {
-                animation.update();
-                frame = animation.renderframe;
+                if (sequence[0].time < getTimer())
+                {
+                    var af:AnimationFrame = sequence.shift();
+                    trace("> "+af.frameid)
+                    frame = af.frameid;
+                    if (sequence.length == 0)
+                        sequence = null;
+                }
             }
         }
 
+        public var sequence:Array;
+        public function play(init:Object = null):void
+        {
+            init = Init.parse(init);
+            
+            var fps:Number = init.getNumber("fps", 24);
+            var prefix:String = init.getString("prefix", null);
+
+            sequence = [];
+
+            if (prefix != null)
+            {
+                for (var frameid:String in frames)
+                    if (frameid.indexOf(prefix) == 0)
+                        sequence.push(new AnimationFrame(frameid, parseInt(frameid.substring(prefix.length))));
+                        
+                sequence.sortOn("framenum", Array.NUMERIC);
+            }
+
+            
+            var time:uint = getTimer();
+            for each (var af:AnimationFrame in sequence)
+            {
+                af.time = time;
+                time += 1000 / fps;
+                trace(af.frameid, af.framenum, af.time);
+            }
+        }
     }
 }
