@@ -5,7 +5,8 @@ package away3d.loaders
     import away3d.core.material.*;
     import away3d.core.mesh.*;
     import away3d.core.utils.*;
-
+	import away3d.core.stats.*;
+	
     import flash.display.BitmapData;
 
     /** Ase file format loader */
@@ -13,6 +14,7 @@ package away3d.loaders
     {
         private var mesh:Mesh;
         private var scaling:Number;
+        private var url:String = "";
 
         public function Ase(data:String, init:Object = null)
         {
@@ -32,6 +34,7 @@ package away3d.loaders
     
         public static function load(url:String, init:Object = null):Object3DLoader
         {
+        	url = url;
             return Object3DLoader.load(url, parse, false, init);
         }
     
@@ -41,7 +44,10 @@ package away3d.loaders
             var vertices:Array = [];
             var uvs:Array = [];
             var faces:Array = [];
-    
+            
+            if (lines.length == 1)
+            	lines = data.split('\n');
+            
             while (lines.length > 0)
             {
                 var line:String = lines.shift();
@@ -52,7 +58,7 @@ package away3d.loaders
                     continue;
     
                 var chunk:String = line.substr(0, line.indexOf(' '));
-    
+                
                 switch (chunk)
                 {
                     case 'MESH_VERTEX_LIST':
@@ -140,9 +146,11 @@ package away3d.loaders
                         break;
                 }
             }
-
+            
             for each (var f:Face in faces)
                 mesh.addFace(f);
+            
+            Stats.instance.register(".Ase",mesh.faces.length, url);
         }
     }
 }

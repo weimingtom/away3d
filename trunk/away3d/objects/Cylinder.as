@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,6 +6,7 @@ package away3d.objects
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
     
     /** Cylinder */ 
     public class Cylinder extends Mesh
@@ -21,12 +22,12 @@ package away3d.objects
             var segmentsW:int = init.getInt("segmentsW", 8, {min:3});
             var segmentsH:int = init.getInt("segmentsH", 1, {min:1})
 
-            buildSphere(radius, height, segmentsW, segmentsH);
+            buildCylinder(radius, height, segmentsW, segmentsH);
         }
     
         private var grid:Array;
 
-        private function buildSphere(radius:Number, height:Number, segmentsW:int, segmentsH:int):void
+        private function buildCylinder(radius:Number, height:Number, segmentsW:int, segmentsH:int):void
         {
             var i:int;
             var j:int;
@@ -82,7 +83,8 @@ package away3d.objects
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
-        }
+        Stats.instance.register("Cylinder",faces.length,"primitive");
+		}
 
         public function vertex(i:int, j:int):Vertex
         {

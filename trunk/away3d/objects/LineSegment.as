@@ -1,10 +1,11 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
     
     /** Segment */ 
     public class LineSegment extends WireMesh
@@ -40,6 +41,8 @@ package away3d.objects
             var edge:Number = init.getNumber("edge", 100, {min:0}) / 2;
             _segment = new Segment(new Vertex(-edge, 0, 0), new Vertex(edge, 0, 0));
             addSegment(_segment);
+			
+			Stats.instance.register("LineSegment",1,"primitive");
         }
     
     }

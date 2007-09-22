@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,6 +6,7 @@ package away3d.objects
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
     
     /** Plane */ 
     public class Plane extends Mesh
@@ -72,6 +73,10 @@ package away3d.objects
                     addFace(new Face(a, b, c, null, uva, uvb, uvc));
                     addFace(new Face(d, c, b, null, uvd, uvc, uvb));
                 }
+				//if (material is IUVMaterial)
+        		//	buildMaterial(material as IUVMaterial);
+				
+				Stats.instance.register("Plane",faces.length,"primitive");
         }
 
         public function vertex(i:int, j:int):Vertex

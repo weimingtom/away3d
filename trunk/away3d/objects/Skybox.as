@@ -1,10 +1,11 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
 
     /** Skybox that is initialized with six images */ 
     public class Skybox extends Mesh
@@ -53,6 +54,8 @@ package away3d.objects
             quarterFaces();
 
             mousable = false;
+			
+			Stats.instance.register("Skybox",faces.length,"primitive");
         }
     }
     

@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
@@ -7,6 +7,7 @@ package away3d.objects
     import away3d.core.material.*;
     import away3d.core.utils.*;
     import away3d.trash.*;
+	import away3d.core.stats.*;
     
     import flash.geom.*;
 
@@ -144,6 +145,8 @@ package away3d.objects
                 if ((isTransform && mat.repeat) || insideShape([test1,test2,test3,test4], [t3,t4,t2])) {
                     faces.push(new Face3D(aP3, aP4, aP2, mat as ITriangleMaterial, aP3uv, aP4uv, aP2uv));
                 }
+				
+				Stats.instance.register("RobCube",faces.length,"primitive");
             }
         }
     }

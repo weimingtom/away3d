@@ -1,10 +1,11 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
 
     /** Wire cube */ 
     public class WireCube extends WireMesh
@@ -51,6 +52,8 @@ package away3d.objects
             addSegment(new Segment(v111, v101));
             addSegment(new Segment(v111, v110));
             addSegment(new Segment(v100, v110));
+			
+			Stats.instance.register("WireCube",0,"primitive");
         }
 
     }

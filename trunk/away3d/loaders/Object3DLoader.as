@@ -5,7 +5,6 @@ package away3d.loaders
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-//    import away3d.objects.*;
 
     import flash.display.MovieClip;
     import flash.display.Graphics;

@@ -16,6 +16,10 @@ package away3d.core.scene
     import flash.events.Event;
     import flash.display.Bitmap;
 
+	import flash.utils.*;
+	import away3d.core.stats.Stats;
+	import flash.display.Stage;
+	
     /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */
     public class View3D extends Sprite
     {
@@ -73,8 +77,22 @@ package away3d.core.scene
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
             buttonMode = true;
             useHandCursor = false;
+            
+            createStatsMenu();
         }
-
+        
+		/** Create an registers new container for the stats panel */
+		public function createStatsMenu():void
+		{
+			try{
+				var framerate:Number = stage.frameRate;
+				Stats.instance.generateMenu(this, stage, framerate);
+			} catch(e:Error){
+				var intervalId:uint = setTimeout(createStatsMenu, 1000);
+			}
+			 
+		}
+		
         /** Clear rendering area */
         public function clear():void
         {

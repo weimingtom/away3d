@@ -4,10 +4,12 @@ package away3d.core.render
     import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.block.*;
+    import away3d.core.stats.*;
     import flash.utils.*;
     import flash.geom.*;
     import flash.display.*;
-
+	import flash.events.*;
+	
     /** Basic renderer implementation */
     public class BasicRenderer implements IRenderer
     {
@@ -28,6 +30,7 @@ package away3d.core.render
 
         public function render(view:View3D):void
         {
+        	
             var scene:Scene3D = view.scene;
             var camera:Camera3D = view.camera;
             var container:Sprite = view.canvas;
@@ -57,6 +60,12 @@ package away3d.core.render
             // render all
             for each (var primitive:DrawPrimitive in primitives)
                 primitive.render(session);
+            
+            //dispatch stats
+            var statsEvent:StatsEvent = new StatsEvent(StatsEvent.RENDER);
+			statsEvent.totalfaces = primitives.length;
+			statsEvent.camera = camera;
+			view.dispatchEvent(statsEvent);
         }
 
         public function desc():String
