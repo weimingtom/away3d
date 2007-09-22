@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,6 +6,7 @@ package away3d.objects
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
     
     /** Wire sphere */ 
     public class WireSphere extends WireMesh
@@ -20,12 +21,12 @@ package away3d.objects
             var segmentsH:int = init.getInt("segmentsH", 6, {min:2})
             var radius:Number = init.getNumber("radius", 100, {min:0});
 
-            buildSphere(radius, segmentsW, segmentsH);
+            buildWireSphere(radius, segmentsW, segmentsH);
         }
     
         private var grid:Array;
 
-        private function buildSphere(radius:Number, segmentsW:int, segmentsH:int):void
+        private function buildWireSphere(radius:Number, segmentsW:int, segmentsH:int):void
         {
             var i:int;
             var j:int;
@@ -66,6 +67,8 @@ package away3d.objects
                     if (j < segmentsH)  
                         addSegment(new Segment(a, b));
                 }
+				
+			Stats.instance.register("WireSphere",0,"primitive");
         }
 
         public function vertex(i:int, j:int):Vertex

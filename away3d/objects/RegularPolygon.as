@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,6 +6,7 @@ package away3d.objects
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
     
     /** Regular polygon */
     public class RegularPolygon extends Mesh
@@ -49,7 +50,11 @@ package away3d.objects
             }
 
             for (i = 0; i < sections; i++)
+			{
                 addFace(new Face(center, vertices[i], vertices[(i+1) % sections], null, centeruv, uvs[i], uvs[i+1]));
+			}
+				
+			Stats.instance.register("RegularPolygon",faces.length,"primitive");
         }
     }
 }

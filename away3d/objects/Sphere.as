@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,6 +6,8 @@ package away3d.objects
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
+	 
     
     /** Sphere */ 
     public class Sphere extends Mesh
@@ -66,8 +68,8 @@ package away3d.objects
                     var c:Vertex = grid[j-1][(i-1+segmentsW) % segmentsW];
                     var d:Vertex = grid[j-1][i];
 
-                    var vab:Number = j     / (segmentsH + 1);
-                    var vcd:Number = (j-1) / (segmentsH + 1);
+                    var vab:Number = j     / segmentsH;
+                    var vcd:Number = (j-1) / segmentsH;
                     var uad:Number = (i+1) / segmentsW;
                     var ubc:Number = i     / segmentsW;
                     var uva:UV = new UV(uad,vab);
@@ -80,6 +82,9 @@ package away3d.objects
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
+				//if (material is IUVMaterial)
+        		//	buildMaterial(material as IUVMaterial);
+				Stats.instance.register("Sphere",faces.length,"primitive");
         }
 
         public function vertex(i:int, j:int):Vertex

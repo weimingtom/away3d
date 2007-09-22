@@ -1,7 +1,6 @@
-package away3d.loaders
+﻿package away3d.loaders
 {
     import away3d.core.material.*;
-    
     import flash.utils.Dictionary;
     
     /** Set of the named materials */

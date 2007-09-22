@@ -3,7 +3,8 @@ package away3d.core.render
     import away3d.core.*;
     import away3d.core.scene.*;
     import away3d.core.draw.*;
-
+	import away3d.core.stats.*;
+	
     import flash.geom.*;
     import flash.display.*;
 
@@ -41,6 +42,12 @@ package away3d.core.render
                 qdrntfilter.filter(pritree, scene, camera, container, clip);
 
             pritree.render(session);
+            
+            //dispatch stats
+            var statsEvent:StatsEvent = new StatsEvent(StatsEvent.RENDER);
+			statsEvent.totalfaces = pritree.list().length;
+			statsEvent.camera = camera;
+			view.dispatchEvent(statsEvent);
         }
 
         public function desc():String

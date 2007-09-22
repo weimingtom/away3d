@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,6 +6,7 @@ package away3d.objects
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
+	import away3d.core.stats.*;
     
     /** Wire circle */ 
     public class WireCircle extends WireMesh
@@ -33,7 +34,10 @@ package away3d.objects
             }
 
             for (i = 0; i < segments; i++)
+			{
                 addSegment(new Segment(vertices[i], vertices[(i+1) % segments]));
+			}
+				Stats.instance.register("WireCircle", 0, "primitive");
         }
 
     }
