@@ -37,6 +37,8 @@ package away3d.core.scene
         public var scene:Scene3D;
         /** Camera to render from */
         public var camera:Camera3D;
+        /** Enables/Disables stats panel */
+        public var stats:Boolean;
         /** Clipping area for the view */
         public var clip:Clipping;
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
@@ -55,9 +57,10 @@ package away3d.core.scene
         public function View3D(init:Object = null)
         {
             init = Init.parse(init);
-
+			
+			stats = init.getBoolean("stats", false)
             scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
-            camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:1000, y:1000, z:1000, lookat:"center"});
+            camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
             mouseChildren = init.getBoolean("mouseChildren", false);
             mouseZeroMove = init.getBoolean("mouseZeroMove", false);
@@ -78,7 +81,7 @@ package away3d.core.scene
             buttonMode = true;
             useHandCursor = false;
             
-            createStatsMenu();
+            if (stats) createStatsMenu();
         }
         
 		/** Create an registers new container for the stats panel */
