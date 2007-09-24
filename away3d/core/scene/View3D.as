@@ -58,7 +58,7 @@ package away3d.core.scene
         {
             init = Init.parse(init);
 			
-			stats = init.getBoolean("stats", false)
+			stats = init.getBoolean("stats", true)
             scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
             camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
