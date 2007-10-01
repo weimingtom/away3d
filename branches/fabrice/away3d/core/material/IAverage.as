@@ -1,1 +1,0 @@
-﻿package away3d.core.material{    /** Interface for all objects that can serve as material */    public interface IAverage     {        function get average():Boolean;    }}

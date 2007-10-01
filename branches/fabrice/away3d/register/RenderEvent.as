@@ -1,1 +1,0 @@
-﻿package away3d.register{import flash.events.Event;	public class RenderEvent extends Event {		public var oData:Object = null;		//		function RenderEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false){			super(type, bubbles, cancelable);		}	}}
