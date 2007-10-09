@@ -8,8 +8,11 @@ package away3d.core.mesh
     import away3d.core.utils.*;
     import away3d.core.render.*;
     
-    import flash.geom.Matrix;
     import flash.events.Event;
+    import flash.display.BitmapData;
+    import flash.geom.*;
+    import flash.utils.*;
+    import flash.filters.ColorMatrixFilter;
 
     /** Mesh's triangle face */
     public class Face extends BaseMeshElement
@@ -27,12 +30,25 @@ package away3d.core.mesh
         arcane var _material:ITriangleMaterial;
         arcane var _dt:DrawTriangle = new DrawTriangle();
         private var _normal:Number3D;
-
+		private var _bitmapMaterial:BitmapData;
+		public var _bitmapPhong:BitmapData;
+		public var _bitmapNormal:BitmapData;
+		private var _byteNormal:ByteArray;
+		private var _bitmapRect:Rectangle;
+		private var _normalRect:Rectangle;
+		private var _normalPoint:Point = new Point(0,0);
+		public var parent:Mesh;
+		
         public override function get vertices():Array
         {
             return [_v0, _v1, _v2];
         }
-
+		
+		public function get uvs():Array
+        {
+            return [_uv0, _uv1, _uv2];
+        }
+        
         public function get v0():Vertex
         {
             return _v0;
@@ -115,7 +131,8 @@ package away3d.core.mesh
             _material = value;
 
             _texturemapping = null;
-
+			_bitmapMaterial = null;
+			
             notifyMaterialChange();
         }
 
@@ -228,7 +245,310 @@ package away3d.core.mesh
             }
             return _normal;
         }
-
+        
+        public function getBitmapMaterial(uvm:PhongBitmapMaterial):BitmapData
+        {
+            if (_bitmapMaterial == null)
+            {
+            	//sample bitmap rectangle required for this face
+            	_bitmapMaterial = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
+            }
+            _bitmapMaterial.copyPixels(uvm.bitmap, _bitmapRect, new Point(0,0));
+            return _bitmapMaterial;
+        }
+        
+        internal var colorTransform:ColorMatrixFilter = new ColorMatrixFilter();
+        
+        public function setBitmapPhongProjection(view:Matrix3D):void
+        {
+        	if (_bitmapPhong == null)
+        		getBitmapPhong();
+        	
+        	//conbine normal map
+        	var szx:Number = view.szz;
+			var szy:Number = view.szy;
+			var szz:Number = -view.szx;
+			/*
+        	var matrix:Array = new Array();
+			matrix = matrix.concat([szx, 0, 0, 0, 127-szx*127]); // red
+            matrix = matrix.concat([0, szy, 0, 0, 127-szy*127]); // green
+            matrix = matrix.concat([0, 0, szz, 0, 127-szz*127]); // blue
+            matrix = matrix.concat([0, 0, 0, 1, 0]); // alpha
+            */
+			colorTransform.matrix = [szx, 0, 0, 0, 127-szx*127, 0, szy, 0, 0, 127-szy*127, 0, 0, szz, 0, 127-szz*127, 0, 0, 0, 1, 0];
+            _bitmapPhong.applyFilter(_bitmapNormal, _normalRect, _normalPoint, colorTransform);
+            var s:Number = 2;
+            var o:Number = -127;
+            var ambientR:Number = 0x00;
+            var ambientG:Number = 0x22;
+            var ambientB:Number = 0x44;
+            /*
+            matrix = new Array();
+			matrix = matrix.concat([s, s, s, 0, (o-255)*s]); // red
+            matrix = matrix.concat([s, s, s, 0, (o-255)*s]); // green
+            matrix = matrix.concat([s, s, s, 0, (o-255)*s]); // blue
+            matrix = matrix.concat([0, 0, 0, 1, 0]); // alpha
+            */
+			colorTransform.matrix = [s, s, s, 0, (o-255)*s+ambientR, s, s, s, 0, (o-255)*s+ambientG, s, s, s, 0, (o-255)*s+ambientB, 0, 0, 0, 1, 0];
+			_bitmapPhong.applyFilter(_bitmapPhong, _normalRect, _normalPoint, colorTransform);
+        	      	
+        }
+        
+        internal var nUV:UV;
+        internal var oFace:Object;
+        internal var contains:Boolean;
+        
+        public function getBitmapPhong():BitmapData
+        {
+            if (_bitmapPhong == null)
+            {
+            	//setup bitmapdata objects
+            	_bitmapPhong = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
+            	_bitmapNormal = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
+            	
+            	//create normal map
+            	_normalRect = new Rectangle(0,0,_bitmapRect.width, _bitmapRect.height);
+            	_byteNormal = _bitmapNormal.getPixels(_normalRect);
+            	o = {};
+            	lineTri(_uv0,_uv1,_v0,_v1);
+				lineTri(_uv1,_uv2,_v1,_v2);
+				lineTri(_uv2,_uv0,_v2,_v0);
+				contains = _uv0._u*(_uv2._v - _uv1._v) + _uv1._u*(_uv0._v - _uv2._v) + _uv2._u*(_uv1._v - _uv0._v) > 0;
+				
+				oFace = getReflectedUV(parent.neighbour01(this), _v0, _v1, _uv0, _uv1);
+				
+				o = {};
+            	lineTri(_uv1,      _uv0,      _v1,      _v0);
+				lineTri(_uv0,      oFace.uv,  _v0,      oFace.v);
+				lineTri(oFace.uv,  _uv1,      oFace.v,  _v1);
+				
+				oFace = getReflectedUV(parent.neighbour12(this), _v1, _v2, _uv1, _uv2);
+				
+				o = {};
+            	lineTri(oFace.uv,   _uv2,       oFace.v,   _v2);
+				lineTri(_uv2,       _uv1,       _v2,       _v1);
+				lineTri(_uv1,       oFace.uv,   _v1,       oFace.v);
+				
+				oFace = getReflectedUV(parent.neighbour20(this), _v2, _v0, _uv2, _uv0);
+				
+				o = {};
+            	lineTri(_uv2,       oFace.uv,   _v2,       oFace.v);
+				lineTri(oFace.uv,   _uv0,       oFace.v,   _v0);
+				lineTri(_uv0,       _uv2,       _v0,       _v2);
+				
+            	_byteNormal.position = 0;
+				_bitmapNormal.setPixels(_normalRect, _byteNormal);
+            }
+            return _bitmapPhong;
+        }
+        
+        internal var udiff:Number;
+        internal var vdiff:Number;
+        internal var ncontains:Boolean;
+        internal var grad:Number;
+        internal var grad2:Number;
+        
+        public function getReflectedUV(neighbour:Face, point0:Vertex, point1:Vertex, line0:UV, line1:UV):Object
+        {
+        	var i:Number = 2;
+        	while (neighbour.vertices[i] == point0 || neighbour.vertices[i] == point1) i--;
+        	
+        	var neighbourV:Vertex = neighbour.vertices[i];
+        	var neighbourUV:UV = neighbour.uvs[i].clone();
+        	
+			ncontains = line0._u*(neighbourUV._v - line1._v) + line1._u*(line0._v - neighbourUV._v) + neighbourUV._u*(line1._v - line0._v) > 0;			
+			if (ncontains == contains) {
+				//reflect
+				grad = (line1._v - line0._v)/(line1._u - line0._u);
+				grad2 = grad*grad;
+				udiff = (neighbourUV._u - line0._u);
+				vdiff = (neighbourUV._v - line0._v);
+				neighbourUV._u = line0._u + (udiff*(1 - grad2) + vdiff*2*grad)/(1 + grad2);
+				neighbourUV._v = line0._v + (udiff*2*grad + vdiff*(grad2 - 1))/(1 + grad2);
+			}
+			return {uv:neighbourUV, v:neighbourV, ncontains:ncontains};
+        }
+        
+        internal var x0:int;
+        internal var x1:int;
+        internal var y0:int;
+        internal var y1:int;
+        internal var bwidth:int;
+        internal var bheight:int;
+        internal var o:Object;
+        
+        private function lineTri(uv0:UV,uv1:UV,v0:Vertex,v1:Vertex):void{
+			
+        	x0 = int(uv0._u*width-_bitmapRect.x);
+        	y0 = int((1-uv0._v)*height-_bitmapRect.y);
+        	x1 = int(uv1._u*width-_bitmapRect.x);
+        	y1 = int((1-uv1._v)*height-_bitmapRect.y);
+        	bwidth = _bitmapRect.width;
+        	bheight = _bitmapRect.height;
+        	
+			var steep:Boolean = (y1-y0)*(y1-y0) > (x1-x0)*(x1-x0);
+			var grad:Number = (y1-y0)/(x1-x0);
+			var swap:int;
+			var swapP:Vertex;
+			var swapUV:UV;
+			
+			if (steep){
+				swap=x0; x0=y0; y0=swap;
+				swap=x1; x1=y1; y1=swap;
+				swap = bwidth; bwidth = bheight; bheight = swap;
+			}
+			if (x0>x1){
+				swapP=v0; v0=v1; v1=swapP;
+				swapUV=uv0; uv0=uv1; uv1=swapUV;
+				x0^=x1; x1^=x0; x0^=x1;
+				y0^=y1; y1^=y0; y0^=y1;
+			}
+			
+			var deltax:int = x1 - x0
+			var deltay:int = Math.abs(y1 - y0);
+			
+			var error:int = 0;
+			
+			var y:int = y0;
+			var ystep:int = y0<y1 ? 1 : -1;
+			var x:int = x0;
+			var xend:int = x1-(deltax>>1);
+			var fx:int = x1;
+			var fy:int = y1;
+			var px:int = 0;
+			var xtotal:int = x1-x0;
+			
+			var xc:int;
+			
+			while (x++<=xend){
+				if (steep){
+					checkLine(o,y,x, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
+					if (fx!=x1 && fx!=xend) checkLine(o,fy,fx+1, uv0, uv1 ,v0, v1, (fx+1-x0)/xtotal, grad);
+				}
+					
+				error += deltay;
+				if ((error<<1) >= deltax){
+					if (!steep){
+						
+						checkLine(o,x-px+1,y, uv0, uv1, v0, v1, (x-px+1-x0)/xtotal, grad);
+						if (fx!=xend) checkLine(o,fx+1,fy, uv0, uv1, v0, v1, (fx+1-x0)/xtotal, grad);
+				
+					}
+					px = 0;
+					y += ystep;
+					fy -= ystep;
+					error -= deltax; 
+				}
+				px++;
+				fx--;
+			}
+			
+			if (!steep){
+				checkLine(o,x-px+1,y, uv0, uv1, v0, v1, (x-px+1-x0)/xtotal, grad);
+			}
+			
+		}
+		
+		internal var ox:int;
+		internal var ouv0:UV;
+		internal var ouv1:UV;
+		internal var ov0:Vertex;
+		internal var ov1:Vertex;
+		internal var oratio:Number;
+		internal var ograd:Number;
+		
+		private function checkLine(o:Object,x:int,y:int, uv0:UV, uv1:UV, v0:Vertex, v1:Vertex, ratio:Number, grad:Number):void{
+			if (y >=0 && y<=_bitmapRect.height) {
+				if (o[y]){
+					if (o[y].x > x){
+						ox = x;
+						ouv0 = uv0;
+						ouv1 = uv1;
+						ov0 = v0;
+						ov1 = v1;
+						oratio = ratio;
+						ograd = grad;
+						x = o[y].x;
+						uv0 = o[y].uv0;
+						uv1 = o[y].uv1;
+						v0 = o[y].v0;
+						v1 = o[y].v1;
+						ratio = o[y].ratio;
+						grad = o[y].grad;
+					} else {
+						ox = o[y].x;
+						ouv0 = o[y].uv0;
+						ouv1 = o[y].uv1;
+						ov0 = o[y].v0;
+						ov1 = o[y].v1;
+						oratio = o[y].ratio;
+						ograd = o[y].grad;
+					}
+					
+					var ratio1:Number = 1 - ratio;
+					var oratio1:Number = 1 - oratio;
+					var n0:Number3D = parent.getVertexNormal(v0);
+					var n1:Number3D = parent.getVertexNormal(v1);
+					
+					var n:Number3D = new Number3D(ratio1*n0.x + ratio*n1.x, ratio1*n0.y + ratio*n1.y, ratio1*n0.z + ratio*n1.z);
+					
+					var on0:Number3D = parent.getVertexNormal(ov0);
+					var on1:Number3D = parent.getVertexNormal(ov1);
+					
+					var on:Number3D = new Number3D(oratio1*on0.x + oratio*on1.x, oratio1*on0.y + oratio*on1.y, oratio1*on0.z + oratio*on1.z);
+					
+					//if (ograd > grad && y < _bitmapRect.height) y += 1;
+					//else if (ograd < grad && y > 0) y -= 1;
+					
+					//ox -= 1;
+					//if (ox < 0) ox = 0;
+					//x += 1;
+					//if (x > _bitmapRect.width) x = _bitmapRect.width;
+					var i:int = x+1;
+					var bi:int;
+					var xtotal:int = x - ox;
+					var iratio:Number;
+					var iratio1:Number;
+					
+					var ni:Number3D;
+					var disp:int;
+					
+					while(i-->ox)
+					{
+						if (i >= 0 && i <= _bitmapRect.width) {
+							bi = 4*(y*_bitmapRect.width+i);
+							//if (_byteNormal[bi] == 0) {
+								iratio = (i-ox)/xtotal;
+								iratio1 = (1 - iratio);
+								_byteNormal[bi] = 255;
+								
+								ni = new Number3D(iratio1*on.x + iratio*n.x, iratio1*on.y + iratio*n.y, iratio1*on.z + iratio*n.z);
+								ni.normalize();
+								
+								disp = int((ni.x+1)*127);
+								if (disp > 255) disp = 255;
+								else if (disp < 0) disp = 0;
+								_byteNormal[bi+1] = disp;
+								
+								disp = int((ni.y+1)*127);
+								if (disp > 255) disp = 255;
+								else if (disp < 0) disp = 0;
+								_byteNormal[bi+2] = disp;
+								
+								disp = int((ni.z+1)*127);
+								if (disp > 255) disp = 255;
+								else if (disp < 0) disp = 0;
+								_byteNormal[bi+3] = disp;
+							//}
+						}				
+					}
+					
+				}else{
+					o[y]={x:x, uv0:uv0, uv1:uv1, v0:v0, v1:v1, ratio:ratio, grad:grad};
+				}
+			}
+		}
+		
         public override function get radius2():Number
         {
             var rv0:Number = _v0._x*_v0._x + _v0._y*_v0._y + _v0._z*_v0._z;
@@ -251,21 +571,75 @@ package away3d.core.mesh
             }
         }
 
-        public override function get maxX():Number
+        public function get maxU():Number
         {
-            if (_v0._x > _v1._x)
+            if (_uv0._u > _uv1._u)
             {
-                if (_v0._x > _v2._x)
-                    return _v0._x;
+                if (_uv0.u > _uv2._u)
+                    return _uv0._u;
                 else
-                    return _v2._x;
+                    return _uv2._u;
             }
             else
             {
-                if (_v1._x > _v2._x)
-                    return _v1._x;
+                if (_uv1._u > _uv2._u)
+                    return _uv1._u;
                 else
-                    return _v2._x;
+                    return _uv2._u;
+            }
+        }
+        
+        public function get minU():Number
+        {
+            if (_uv0._u < _uv1._u)
+            {
+                if (_uv0._u < _uv2._u)
+                    return _uv0._u;
+                else
+                    return _uv2._u;
+            }
+            else
+            {
+                if (_uv1._u < _uv2._u)
+                    return _uv1._u;
+                else
+                    return _uv2._u;
+            }
+        }
+        
+        public function get maxV():Number
+        {
+            if (_uv0._v > _uv1._v)
+            {
+                if (_uv0._v > _uv2._v)
+                    return _uv0._v;
+                else
+                    return _uv2._v;
+            }
+            else
+            {
+                if (_uv1._v > _uv2._v)
+                    return _uv1._v;
+                else
+                    return _uv2._v;
+            }
+        }
+        
+        public function get minV():Number
+        {
+            if (_uv0._v < _uv1._v)
+            {
+                if (_uv0._v < _uv2._v)
+                    return _uv0._v;
+                else
+                    return _uv2._v;
+            }
+            else
+            {
+                if (_uv1._v < _uv2._v)
+                    return _uv1._v;
+                else
+                    return _uv2._v;
             }
         }
         
@@ -438,8 +812,17 @@ package away3d.core.mesh
                 uv_u2 -= (uv_u2 > 0.05) ? 0.04 : -0.04;
                 uv_v2 -= (uv_v2 > 0.06) ? 0.06 : -0.06;
             }
-  
-            _texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
+			if (uvm is PhongBitmapMaterial)
+			{
+				_bitmapRect = new Rectangle(int(width*minU)-1, int(height*(1 - maxV))-1, int(width*(maxU-minU))+1, int(height*(maxV-minV))+1);
+            	if (_bitmapRect.width == 0)
+            		_bitmapRect.width = 1;
+            	if (_bitmapRect.height == 0)
+            		_bitmapRect.height = 1;
+            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0 - _bitmapRect.x, uv_v0 - _bitmapRect.y);			
+			} else {
+            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
+			}
             _texturemapping.invert();
             return _texturemapping;
         }

@@ -18,6 +18,8 @@ package away3d.core.mesh
     import flash.geom.Point;
     import flash.geom.ColorTransform;
     import flash.filters.DisplacementMapFilter;
+    import flash.filters.ColorMatrixFilter;
+    import flash.geom.Matrix;
     
     /** Mesh constisting of faces and segments */
     public class Mesh extends BaseMesh implements IPrimitiveProvider
@@ -91,7 +93,8 @@ package away3d.core.mesh
             
             _vertfacesDirty = false;    
         }
-
+		
+		
         arcane function getFacesByVertex(vertex:Vertex):Array
         {
             if (_vertfacesDirty)
@@ -230,6 +233,471 @@ package away3d.core.mesh
             if ((material == null) && (outline == null))
                 material = new WireColorMaterial();
         }
+		public var normalBitmap:BitmapData;
+		internal var normalByte:ByteArray;
+		
+		public var perspBitmapX:BitmapData;
+		internal var perspByteX:ByteArray;
+		public var colTransformX:ColorTransform = new ColorTransform();
+		
+		public var perspBitmapY:BitmapData;
+		internal var perspByteY:ByteArray;
+		public var colTransformY:ColorTransform = new ColorTransform();
+		
+		public var perspBitmapZ:BitmapData;
+		internal var perspByteZ:ByteArray;
+		public var colTransformZ:ColorTransform = new ColorTransform();
+		
+		public var perspBitmapDX:BitmapData;
+		public var perspBitmapDY:BitmapData;	
+		public var perspBitmapDZ:BitmapData;
+		public var colTransform:ColorTransform = new ColorTransform();
+		
+		public var materialBitmap:BitmapData;
+		public var normalBitmapResult:BitmapData;
+		public var materialFilter:DisplacementMapFilter = new DisplacementMapFilter(null, new Point(0,0), BitmapDataChannel.RED, BitmapDataChannel.GREEN, 127, 127);
+		public var perspBitmap:BitmapData;
+		public var perspBitmapD:BitmapData;
+		internal var perspByteD:ByteArray;
+		
+		internal var uv0:UV;
+        internal var uv1:UV;
+        internal var uv2:UV;
+        
+        internal var x0:int;
+        internal var x1:int;
+        internal var y0:int;
+        internal var y1:int;
+        internal var o:Object;
+		internal var width:Number;
+		internal var height:Number;
+		internal var focus:Number = 200;
+		
+		internal var bx:Number;
+		internal var by:Number;
+		internal var bz:Number;
+		
+		internal var rect:Rectangle;
+		internal var pt:Point = new Point();
+		internal var normal:Number3D;
+		
+		public function buildMaterial(mat:IUVMaterial):void
+		{
+			//create containers for transformations
+			width = mat.width;
+			height = mat.height;
+			rect = new Rectangle(0,0,width,height);
+			
+			perspBitmapX = new BitmapData(width, height, true, 0xFF000000);
+			perspByteX = perspBitmapX.getPixels(rect);
+			perspBitmapY = new BitmapData(width, height, true, 0xFF000000);
+			perspByteY = perspBitmapY.getPixels(rect);
+			perspBitmapZ = new BitmapData(width, height, true, 0xFF000000);
+			perspByteZ = perspBitmapZ.getPixels(rect);
+			
+			perspBitmapDX = new BitmapData(width, height, true, 0xFF000000);
+			perspBitmapDY = new BitmapData(width, height, true, 0xFF000000);
+			perspBitmapDZ = new BitmapData(width, height, true, 0xFF000000);
+			perspByteD = perspBitmapDX.getPixels(rect);
+			
+			materialBitmap = new BitmapData(width, height);
+			perspBitmap = new BitmapData(width, height);
+			perspBitmapD = new BitmapData(width, height, true, 0XFF808080);
+			
+			normalBitmap = new BitmapData(width, height, true, 0x00000000);
+			normalBitmapResult = new BitmapData(width, height, true, 0x00000000);
+			normalByte = normalBitmap.getPixels(rect);
+			//calulate offset viewed from each axis
+        	
+			for each (var face:Face in _faces)
+            {
+            	uv0 = face._uv0;
+            	uv1 = face._uv1;
+            	uv2 = face._uv2;
+            	
+            	var v0:Vertex = face._v0;
+            	var v1:Vertex = face._v1;
+            	var v2:Vertex = face._v2;
+            	
+            	o = {};
+            	
+            	//normal
+            	//normal = Number3D.cross(Number3D.sub(p1, p0), Number3D.sub(p2, p0));
+            	//normal.normalize();
+            	// texture
+            	lineTri(uv0,uv1,v0,v1);
+				lineTri(uv1,uv2,v1,v2);
+				lineTri(uv2,uv0,v2,v0);
+            	
+            }
+            perspByteX.position = 0;
+            perspByteY.position = 0;
+            perspByteZ.position = 0;
+            perspByteD.position = 0;
+            normalByte.position = 0;
+            
+            perspBitmapX.setPixels(rect, perspByteX);
+            perspBitmapY.setPixels(rect, perspByteY);
+            perspBitmapZ.setPixels(rect, perspByteZ);
+            normalBitmap.setPixels(rect, normalByte);
+            
+            //perspBitmapD.setPixels(rect, perspByteD);
+            //perspBitmapDX.copyChannel(perspBitmapD, rect, pt, BitmapDataChannel.RED, 1);
+            //perspBitmapDY.copyChannel(perspBitmapD, rect, pt, BitmapDataChannel.GREEN, 1);
+            //perspBitmapDZ.copyChannel(perspBitmapD, rect, pt, BitmapDataChannel.BLUE, 1);
+		}
+		
+		private function lineTri(uv0:UV,uv1:UV,v0:Vertex,v1:Vertex):void{
+			
+        	x0 = int(uv0._u*width);
+        	y0 = int((1-uv0._v)*height);
+        	x1 = int(uv1._u*width);
+        	y1 = int((1-uv1._v)*height);
+        	
+			var steep:Boolean = (y1-y0)*(y1-y0) > (x1-x0)*(x1-x0);
+			var swap:int;
+			var swapP:Vertex;
+			var swapUV:UV;
+			
+			if (steep){
+				swap=x0; x0=y0; y0=swap;
+				swap=x1; x1=y1; y1=swap;
+			}
+			if (x0>x1){
+				swapP=v0; v0=v1; v1=swapP;
+				swapUV=uv0; uv0=uv1; uv1=swapUV;
+				x0^=x1; x1^=x0; x0^=x1;
+				y0^=y1; y1^=y0; y0^=y1;
+			}
+			
+			var deltax:int = x1 - x0
+			var deltay:int = Math.abs(y1 - y0);
+			
+			var error:int = 0;
+			
+			var y:int = y0;			
+			var ystep:int = y0<y1 ? 1 : -1;
+			var x:int = x0;
+			var xend:int = x1-(deltax>>1);
+			var fx:int = x1;
+			var fy:int = y1;
+			var px:int = 0;
+			var xtotal:int = x1-x0;
+						
+			while (x++<=xend){
+				if (steep){
+					checkLine(o,y,x, uv0, uv1, v0, v1, (x-x0)/xtotal);
+					if (fx!=x1 && fx!=xend)checkLine(o,fy,fx+1, uv0, uv1 ,v0, v1, (fx+1-x0)/xtotal);
+				}
+					
+				error += deltay;
+				if ((error<<1) >= deltax){
+					if (!steep){
+						checkLine(o,x-px+1,y, uv0, uv1, v0, v1, (x-px+1-x0)/xtotal);
+						if (fx!=xend)checkLine(o,fx+1,fy, uv0, uv1, v0, v1, (fx+1-x0)/xtotal);
+				
+					}
+					px = 0;
+					y += ystep;
+					fy -= ystep;
+					error -= deltax; 
+				}
+				px++;
+				fx--;
+			}
+			
+			if (!steep){
+				checkLine(o,x-px+1,y, uv0, uv1, v0, v1, (x-px+1-x0)/xtotal);
+			}
+			
+		}
+		
+		internal var ox:int;
+		internal var ouv0:UV;
+		internal var ouv1:UV;
+		internal var ov0:Vertex;
+		internal var ov1:Vertex;
+		internal var ratio:Number;
+		internal var oratio:Number;
+		
+		private function checkLine(o:Object,x:int,y:int, uv0:UV, uv1:UV, v0:Vertex, v1:Vertex, ratio:Number):void{
+			if (o[y]){
+				if (o[y].x > x){
+					ox = x;
+					ouv0 = uv0;
+					ouv1 = uv1;
+					ov0 = v0;
+					ov1 = v1;
+					oratio = ratio
+					x = o[y].x;
+					uv0 = o[y].uv0;
+					uv1 = o[y].uv1;
+					v0 = o[y].v0;
+					v1 = o[y].v1;
+					ratio = o[y].ratio;
+				} else {
+					ox = o[y].x;
+					ouv0 = o[y].uv0;
+					ouv1 = o[y].uv1;
+					ov0 = o[y].v0;
+					ov1 = o[y].v1;
+					oratio = o[y].ratio;
+				}
+				
+				var ratio1:Number = 1 - ratio;
+				var oratio1:Number = 1 - oratio;
+				/*
+				//setup default distances
+				var x0:Number = p0.x;
+				var y0:Number = p0.y;
+				var z0:Number = p0.z;
+				
+				var x1:Number = p1.x;
+				var y1:Number = p1.y;
+				var z1:Number = p1.z;
+				
+				var uratio:Number = (uv1._u - uv0._u)? (x/width - uv0._u)/(uv1._u - uv0._u) : ratio;
+				var uratio1:Number = (1 - uratio);
+				
+				var vratio:Number = (uv0._v - uv1._v)? (y/height - 1 + uv0._v)/(uv0._v - uv1._v) : ratio;
+				var vratio1:Number = (1 - vratio);
+				
+				
+				//calculate offsets
+				var ux0ratio:Number = uratio1*x0;
+				var uy0ratio:Number = uratio1*y0;
+				var uz0ratio:Number = uratio1*z0;
+				
+				var ux1ratio:Number = uratio*x1;
+				var uy1ratio:Number = uratio*y1;
+				var uz1ratio:Number = uratio*z1;
+				
+				var vx0ratio:Number = vratio1*x0;
+				var vy0ratio:Number = vratio1*y0;
+				var vz0ratio:Number = vratio1*z0;
+				
+				var vx1ratio:Number = vratio*x1;
+				var vy1ratio:Number = vratio*y1;
+				var vz1ratio:Number = vratio*z1;
+				
+				var uxX:Number = uratio1*x0 + uratio*x1;
+				var uyY:Number = uratio1*y0 + uratio*y1;
+				var uzZ:Number = uratio1*z0 + uratio*z1;
+				
+				var vxX:Number = vratio1*x0 + vratio*x1;
+				var vyY:Number = vratio1*y0 + vratio*y1;
+				var vzZ:Number = vratio1*z0 + vratio*z1;
+				
+				var u0:Number = int(uv0._u*width);
+				var u1:Number = int(uv1._u*width);
+				var uX:Number = u0*ux0ratio + u1*ux1ratio;
+				var uY:Number = u0*uy0ratio + u1*uy1ratio;
+				var uZ:Number = u0*uz0ratio + u1*uz1ratio;
+				
+				var v0:Number = int((1-uv0._v)*height);
+				var v1:Number = int((1-uv1._v)*height);
+				var vX:Number = v0*vx0ratio + v1*vx1ratio;
+				var vY:Number = v0*vy0ratio + v1*vy1ratio;
+				var vZ:Number = v0*vz0ratio + v1*vz1ratio;
+				
+				
+				var ouratio:Number = (ouv1._u - ouv0._u)? (ox/width - ouv0._u)/(ouv1._u - ouv0._u) : ratio;
+				var ouratio1:Number = (1 - ouratio);
+				
+				var ovratio:Number = (ouv0._v - ouv1._v)? (y/height - 1 + ouv0._v)/(ouv0._v - ouv1._v) : ratio;
+				var ovratio1:Number = (1 - ovratio);
+				
+				var ox0:Number = op0.x;
+				var oy0:Number = op0.y;
+				var oz0:Number = op0.z;
+				
+				var ox1:Number = op1.x;
+				var oy1:Number = op1.y;
+				var oz1:Number = op1.z;
+				
+				var oux0ratio:Number = ouratio1*ox0;
+				var ouy0ratio:Number = ouratio1*oy0;
+				var ouz0ratio:Number = ouratio1*oz0;
+				
+				var oux1ratio:Number = ouratio*ox1;
+				var ouy1ratio:Number = ouratio*oy1;
+				var ouz1ratio:Number = ouratio*oz1;
+				
+				var ovx0ratio:Number = ovratio1*ox0;
+				var ovy0ratio:Number = ovratio1*oy0;
+				var ovz0ratio:Number = ovratio1*oz0;
+				
+				var ovx1ratio:Number = ovratio*ox1;
+				var ovy1ratio:Number = ovratio*oy1;
+				var ovz1ratio:Number = ovratio*oz1;
+				
+				var ouxX:Number = ouratio1*ox0 + ouratio*ox1;
+				var ouyY:Number = ouratio1*oy0 + ouratio*oy1;
+				var ouzZ:Number = ouratio1*oz0 + ouratio*oz1;
+				
+				var ovxX:Number = ovratio1*ox0 + ovratio*ox1;
+				var ovyY:Number = ovratio1*oy0 + ovratio*oy1;
+				var ovzZ:Number = ovratio1*oz0 + ovratio*oz1;
+				
+				var ou0:Number = int(ouv0._u*width);
+				var ou1:Number = int(ouv1._u*width);
+				var ouX:Number = ou0*oux0ratio + ou1*oux1ratio;
+				var ouY:Number = ou0*ouy0ratio + ou1*ouy1ratio;
+				var ouZ:Number = ou0*ouz0ratio + ou1*ouz1ratio;
+				
+				var ov0:Number = int((1-ouv0._v)*height);
+				var ov1:Number = int((1-ouv1._v)*height);
+				var ovX:Number = ov0*ovx0ratio + ov1*ovx1ratio;
+				var ovY:Number = ov0*ovy0ratio + ov1*ovy1ratio;
+				var ovZ:Number = ov0*ovz0ratio + ov1*ovz1ratio;
+				*/
+				var n0:Number3D = getVertexNormal(v0);
+				var n1:Number3D = getVertexNormal(v1);
+				
+				var n:Number3D = new Number3D(ratio1*n0.x + ratio*n1.x, ratio1*n0.y + ratio*n1.y, ratio1*n0.z + ratio*n1.z);
+				
+				var on0:Number3D = getVertexNormal(ov0);
+				var on1:Number3D = getVertexNormal(ov1);
+				
+				var on:Number3D = new Number3D(oratio1*on0.x + oratio*on1.x, oratio1*on0.y + oratio*on1.y, oratio1*on0.z + oratio*on1.z);
+				
+				var i:int = x+1;
+				var bi:int;
+				var xtotal:int = x - ox;
+				var iratio:Number;
+				var iratio1:Number;
+				
+				var xiratio:Number;
+				var yiratio:Number;
+				var ziratio:Number;
+				var oxiratio:Number;
+				var oyiratio:Number;
+				var oziratio:Number;
+				
+				var ixX:Number;
+				var iyY:Number;
+				var izZ:Number;
+				
+				var disp:int;
+				
+				while(i-->=ox)
+				{
+					bi = 4*(y*width+i);
+					iratio = (i-ox)/xtotal;
+					iratio1 = (1 - iratio);
+					normalByte[bi] = 255;
+					
+					normal = new Number3D(iratio1*on.x + iratio*n.x, iratio1*on.y + iratio*n.y, iratio1*on.z + iratio*n.z);
+					normal.normalize();
+					
+					disp = int((normal.x+1)*127);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					normalByte[bi+1] = disp;
+					
+					disp = int((normal.y+1)*127);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					normalByte[bi+2] = disp;
+					
+					disp = int((normal.z+1)*127);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					normalByte[bi+3] = disp;
+					/*
+					
+					xiratio = iratio*uxX;
+					yiratio = iratio*uyY;
+					ziratio = iratio*uzZ;
+					
+					oxiratio = iratio1*ouxX;
+					oyiratio = iratio1*ouyY;
+					oziratio = iratio1*ouzZ;
+					
+					ixX = oxiratio + xiratio;
+					iyY = oyiratio + yiratio;
+					izZ = oziratio + ziratio;
+					
+					
+					disp = int(127 + (ouX*iratio1 + uX*iratio - ixX*i)/100);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteX[bi+1] = disp;
+					
+					disp =  int(127 + (ouY*iratio1 + uY*iratio - iyY*i)/100);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteY[bi+1] = disp;
+					
+					disp =  int(127 + (ouZ*iratio1 + uZ*iratio - izZ*i)/100);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteZ[bi+1] = disp;
+					
+					
+					disp = int(127 - ixX/5);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteX[bi+3] = disp;
+					
+					disp = int(127 - iyY/5);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteY[bi+3] = disp;
+					
+					disp = int(127 - izZ/5);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteZ[bi+3] = disp;
+					
+					xiratio = iratio*vxX;
+					yiratio = iratio*vyY;
+					ziratio = iratio*vzZ;
+					
+					oxiratio = iratio1*ovxX;
+					oyiratio = iratio1*ovyY;
+					oziratio = iratio1*ovzZ;
+					
+					ixX = oxiratio + xiratio;
+					iyY = oyiratio + yiratio;
+					izZ = oziratio + ziratio;
+					
+					disp = int(127 + (ovX*iratio1 + vX*iratio - ixX*y)/100);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteX[bi+2] = disp;
+					
+					disp = int(127 + (ovY*iratio1 + vY*iratio - iyY*y)/100);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteY[bi+2] = disp;
+					
+					disp = int(127 + (ovZ*iratio1 + vZ*iratio - izZ*y)/100);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteZ[bi+2] = disp;
+					/*
+					disp = int(127 + ixX/10);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteD[bi+1] = disp;
+					
+					disp = int(127 + iyY/10);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteD[bi+2] = disp;
+					
+					disp = int(127 + izZ/10);
+					if (disp > 255) disp = 255;
+					else if (disp < 0) disp = 0;
+					perspByteD[bi+3] = disp;
+					*/
+				}
+				
+			}else{
+				o[y]={x:x, uv0:uv0, uv1:uv1, v0:v0, v1:v1, ratio:ratio};
+			}
+		}
 		
         public function addFace(face:Face):void
         {
@@ -494,6 +962,76 @@ package away3d.core.mesh
                     _debugboundingbox.primitives(projection, consumer);
             }
 			
+			
+			//added code for material
+			//projection.view.sxx
+			//perspBitmap.merge(perspBitmapX, rect, pt, projection.view.sxx*255, 255, 0, 0);
+			//perspBitmap.merge(perspBitmapY, rect, pt, 127, 127, 0, 0);
+			//perspBitmap.merge(perspBitmapZ, rect, pt, 127, 127, 0, 0);
+			var sxx:Number = -projection.view.sxx;
+			var sxy:Number = -projection.view.sxy;
+			var sxz:Number = -projection.view.sxz;
+			var syx:Number = -projection.view.syx;
+			var syy:Number = -projection.view.syy;
+			var syz:Number = -projection.view.syz;
+			var szx:Number = projection.view.szz;
+			var szy:Number = -projection.view.szy;
+			var szz:Number = -projection.view.szx;
+			
+			var mod:Number = Math.abs(szx) + Math.abs(szy) + Math.abs(szz);
+			/*
+			var lightSource:Number3D = new Number3D(szx, szy, szz);
+			lightSource = lightSource.rotate(Matrix3D.rotationMatrix(1, 1, 0, 45*Math.PI/180));
+			//var mod:Number = Math.abs(lightSource.x) + Math.abs(lightSource.y) + Math.abs(lightSource.z);
+			szx = -lightSource.x;
+			szy = -lightSource.y;
+			szz = -lightSource.z;
+			*/
+			var matrix:Array = new Array();
+			matrix = matrix.concat([szx, 0, 0, 0, 127-szx*127]); // red
+            matrix = matrix.concat([0, szy, 0, 0, 127-szy*127]); // green
+            matrix = matrix.concat([0, 0, szz, 0, 127-szz*127]); // blue
+            matrix = matrix.concat([0, 0, 0, 1, 0]); // alpha
+			var colorTransform:ColorMatrixFilter = new ColorMatrixFilter(matrix);
+            normalBitmapResult.applyFilter(normalBitmap, rect, pt, colorTransform);
+            matrix = new Array();
+            var s:Number = 2;
+            var o:Number = -127;
+			matrix = matrix.concat([s, s, s, 0, (o-255)*s]); // red
+            matrix = matrix.concat([s, s, s, 0, (o-255)*s]); // green
+            matrix = matrix.concat([s, s, s, 0, (o-255)*s]); // blue
+            matrix = matrix.concat([0, 0, 0, 1, 0]); // alpha
+			colorTransform = new ColorMatrixFilter(matrix);
+			normalBitmapResult.applyFilter(normalBitmapResult, rect, pt, colorTransform);
+            /*
+			colTransformX.redMultiplier = colTransformX.greenMultiplier = colTransformX.blueMultiplier = szx;
+			colTransformX.redOffset = colTransformX.greenOffset = colTransformX.blueOffset = (szx > 0)? 0 : -szx*255;
+			colTransformY.redMultiplier = colTransformY.greenMultiplier = colTransformY.blueMultiplier = szy;
+			colTransformY.redOffset = colTransformY.greenOffset = colTransformY.blueOffset = (szy > 0)? 0 : -szy*255;
+			colTransformZ.redMultiplier = colTransformZ.greenMultiplier = colTransformZ.blueMultiplier = szz;
+			colTransformZ.redOffset = colTransformZ.greenOffset = colTransformZ.blueOffset = (szz > 0)? 0 : -szz*255;
+			perspBitmap.fillRect(rect, 0x00000000);
+			perspBitmap.draw(perspBitmapX, null, colTransformX, BlendMode.ADD);
+			perspBitmap.draw(perspBitmapY, null, colTransformY, BlendMode.ADD);
+			perspBitmap.draw(perspBitmapZ, null, colTransformZ, BlendMode.ADD);
+			
+			//scale perspbitmap
+			
+			var posZ:Number = projection.view.tz + focus;
+			colTransform.alphaMultiplier = 100000/(posZ*posZ);
+			//colTransform.alphaOffset = 220 - 25500/posZ;
+			colTransform.alphaOffset = 100-127*100000/(posZ*posZ) - 25500/posZ;
+			perspBitmapD.fillRect(rect, 0xFF808080);
+			perspBitmapD.copyChannel(perspBitmap, rect, pt, BitmapDataChannel.BLUE, BitmapDataChannel.ALPHA);
+			perspBitmap.draw(perspBitmapD, null, colTransform, BlendMode.NORMAL);
+			materialFilter.mapBitmap = perspBitmap;
+			*/
+			materialBitmap.copyPixels((material as IUVMaterial).bitmap, rect, pt);
+			materialBitmap.draw(normalBitmapResult, null, null, BlendMode.MULTIPLY);
+			//materialBitmap.applyFilter((material as IUVMaterial).bitmap, rect, pt, materialFilter);
+			//finished add
+			//trace(50000/(posZ*posZ));
+			
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
             var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
@@ -585,12 +1123,13 @@ package away3d.core.mesh
                         } else {
                             tri.texturemapping = face.mapping(uvm);
                         }
-                    }
-                    if (uvm is PhongBitmapMaterial)
+                        if (uvm is PhongBitmapMaterial)
                         	face.setBitmapPhongProjection(projection.view);
+                    }
+                    
                 }
 
-                if ((outline != null) && (!backface))
+                if (outline != null && !backface)
                 {
                     var btri:DrawBorderTriangle = tri as DrawBorderTriangle;
                         

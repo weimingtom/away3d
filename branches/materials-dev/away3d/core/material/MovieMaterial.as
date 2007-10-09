@@ -15,7 +15,7 @@ package away3d.core.material
     public class MovieMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var movie:Sprite;
-        public var bitmap:BitmapData;
+        private var _bitmap:BitmapData;
         private var lastsession:int;
         public var transparent:Boolean;
         public var smooth:Boolean;
@@ -31,6 +31,11 @@ package away3d.core.material
         public function get height():Number
         {
             return movie.height;
+        }
+        
+        public function get bitmap():BitmapData
+        {
+        	return _bitmap;
         }
         
         public function get scale():Number2D
@@ -55,7 +60,7 @@ package away3d.core.material
             debug = init.getBoolean("debug", false);
             auto = init.getBoolean("auto", true);
 
-            this.bitmap = new BitmapData(movie.width, movie.height, transparent);
+            this._bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
         
         internal var mapping:Matrix;
@@ -71,7 +76,7 @@ package away3d.core.material
 			
 			mapping = tri.texturemapping || tri.transformUV(this);
 			
-            session.renderTriangleBitmap(bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
+            session.renderTriangleBitmap(_bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
@@ -79,8 +84,8 @@ package away3d.core.material
 
         public function update():void
         {
-            bitmap.fillRect(bitmap.rect, 0);
-            bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
+            _bitmap.fillRect(_bitmap.rect, 0);
+            _bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
         }
 
         public function get visible():Boolean

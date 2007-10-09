@@ -13,24 +13,29 @@ package away3d.core.material
     /** Basic bitmap texture material */
     public class BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-        public var bitmap:BitmapData;
+        private var _bitmap:BitmapData;
         public var smooth:Boolean;
         public var debug:Boolean;
         public var repeat:Boolean;
         
         public function get width():Number
         {
-            return bitmap.width;
+            return _bitmap.width;
         }
 
         public function get height():Number
         {
-            return bitmap.height;
+            return _bitmap.height;
+        }
+        
+        public function get bitmap():BitmapData
+        {
+        	return _bitmap;
         }
         
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
-            this.bitmap = bitmap;
+            this._bitmap = bitmap;
             
             init = Init.parse(init);
 
@@ -45,8 +50,8 @@ package away3d.core.material
         {
         	mapping = tri.texturemapping || tri.transformUV(this);
         	
-            session.renderTriangleBitmap(bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
-
+			session.renderTriangleBitmap(_bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
+			
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }

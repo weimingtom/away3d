@@ -43,8 +43,7 @@ package away3d.core.mesh
 
         private var _vertfacesDirty:Boolean = true;
         private var _vertfaces:Dictionary;
-		private var _vertnormals:Dictionary;
-		
+
         private function findVertFaces():void
         {
             if (!_vertfacesDirty)
@@ -69,26 +68,6 @@ package away3d.core.mesh
                 else
                     _vertfaces[face.v2].push(face);
             }
-            
-            _vertnormals = new Dictionary();
-            for each (var v:Vertex in vertices)
-            {
-            	var vF:Array = _vertfaces[v];
-            	var nX:Number = 0;
-            	var nY:Number = 0;
-            	var nZ:Number = 0;
-            	for each (var f:Face in vF)
-            	{
-	            	var fNormal:Number3D = f.normal;
-            		nX += fNormal.x;
-            		nY += fNormal.y;
-            		nZ += fNormal.z;
-            	}
-            	var vertNormal:Number3D = new Number3D(nX, nY, nZ);
-            	vertNormal.normalize();
-            	_vertnormals[v] = vertNormal;
-            }            
-            
             _vertfacesDirty = false;    
         }
 
@@ -99,15 +78,7 @@ package away3d.core.mesh
 
             return _vertfaces[vertex];
         }
-		
-		arcane function getVertexNormal(vertex:Vertex):Number3D
-        {
-        	if (_vertfacesDirty)
-                findVertFaces();
-                
-            return _vertnormals[vertex];
-        }
-        
+
         arcane function neighbour01(face:Face):Face
         {
             if (_neighboursDirty)
@@ -236,8 +207,7 @@ package away3d.core.mesh
             addElement(face);
 
             _faces.push(face);
-			face.parent = this;
-			
+
             face.addOnVertexChange(onFaceVertexChange);
             rememberFaceNeighbours(face);
             _vertfacesDirty = true;
@@ -586,8 +556,6 @@ package away3d.core.mesh
                             tri.texturemapping = face.mapping(uvm);
                         }
                     }
-                    if (uvm is PhongBitmapMaterial)
-                        	face.setBitmapPhongProjection(projection.view);
                 }
 
                 if ((outline != null) && (!backface))

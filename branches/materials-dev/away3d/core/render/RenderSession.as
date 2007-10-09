@@ -10,7 +10,7 @@ package away3d.core.render
     import away3d.core.mesh.Vertex;
 
     /** Object holding information for one rendering frame */
-    public final class RenderSession
+    public class RenderSession
     {
         public var scene:Scene3D;
         public var camera:Camera3D;
