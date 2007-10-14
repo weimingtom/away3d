@@ -1,1 +1,0 @@
-﻿package away3d.core.ik{import flash.events.Event;	public class IKEvent extends Event {		public var oData:Object = null;		//		function IKEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false){			super(type, bubbles, cancelable);		}	}}
