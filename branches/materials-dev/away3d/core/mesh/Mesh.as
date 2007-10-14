@@ -587,7 +587,7 @@ package away3d.core.mesh
                         }
                     }
                     if (uvm is PhongBitmapMaterial)
-                        	face.setBitmapPhongProjection(projection.view);
+                        	face.setBitmapPhongProjection((uvm as PhongBitmapMaterial), projection.view);
                 }
 
                 if ((outline != null) && (!backface))
