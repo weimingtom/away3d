@@ -43,6 +43,7 @@ package away3d.core.mesh
 
         private var _vertfacesDirty:Boolean = true;
         private var _vertfaces:Dictionary;
+        private var _vertnormalsDirty:Boolean = true;
 		private var _vertnormals:Dictionary;
 		
         private function findVertFaces():void
@@ -70,6 +71,14 @@ package away3d.core.mesh
                     _vertfaces[face.v2].push(face);
             }
             
+            _vertfacesDirty = false;
+        }
+        
+        private function findVertNormals():void
+        {
+        	if (!_vertnormalsDirty)
+                return;
+            
             _vertnormals = new Dictionary();
             for each (var v:Vertex in vertices)
             {
@@ -89,7 +98,7 @@ package away3d.core.mesh
             	_vertnormals[v] = vertNormal;
             }            
             
-            _vertfacesDirty = false;    
+            _vertnormalsDirty = false;    
         }
 
         arcane function getFacesByVertex(vertex:Vertex):Array
@@ -104,7 +113,10 @@ package away3d.core.mesh
         {
         	if (_vertfacesDirty)
                 findVertFaces();
-                
+            
+            if (_vertnormalsDirty)
+                findVertNormals();
+            
             return _vertnormals[vertex];
         }
         

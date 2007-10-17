@@ -29,6 +29,11 @@ package away3d.core.draw
         {
             throw new Error("Not implemented");
         }
+        
+        public function shade(session:RenderSession):void
+        {
+            throw new Error("Not implemented");
+        }
 
         public function contains(x:Number, y:Number):Boolean
         {   

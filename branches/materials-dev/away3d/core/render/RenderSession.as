@@ -1,13 +1,13 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
-    import flash.utils.*;
-    import flash.geom.*;
+    import away3d.core.scene.*;
+    
     import flash.display.*;
-    import away3d.core.mesh.Vertex;
+    import flash.geom.*;
+    import flash.utils.*;
 
     /** Object holding information for one rendering frame */
     public class RenderSession
@@ -15,23 +15,12 @@ package away3d.core.render
         public var scene:Scene3D;
         public var camera:Camera3D;
         public var container:Sprite;
-        public var clip:Clipping;
-        public var lightarray:LightArray;
         public var time:int;
         
 		public var gfx:Graphics
-        private var _graphics:Graphics;
-
-        public function get graphics():Graphics
-        {
-            if (_graphics == null)
-            {
-                var sprite:Sprite = new Sprite();
-                container.addChild(sprite);
-                _graphics = sprite.graphics;
-            }
-            return _graphics;
-        }
+        public var graphics:Graphics;
+        public var lightarray:LightArray;
+        public var clip:Clipping;
         
         internal var a:Number;
         internal var b:Number;
@@ -54,15 +43,10 @@ package away3d.core.render
 		internal var m:Matrix = new Matrix();
 		
 		internal var map:Matrix;
-		//internal var v0:ScreenVertex;
-		//internal var v1:ScreenVertex;
-		//internal var v2:ScreenVertex;
 		
         public function renderTriangleBitmap(bitmap:BitmapData, map:Matrix, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean):void
         {
-        	gfx = _graphics || graphics;
-        	
-        	//map = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
+        	gfx = graphics;
         	
         	a2 = (v1x = v1.x) - (v0x = v0.x);
         	b2 = (v1y = v1.y) - (v0y = v0.y);
@@ -87,7 +71,7 @@ package away3d.core.render
 
         public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
-            gfx = _graphics || graphics;
+            gfx = graphics;
         	
             gfx.lineStyle();
             gfx.beginFill(color, alpha);
@@ -99,7 +83,7 @@ package away3d.core.render
 
         public function renderTriangleLine(color:int, alpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
-            gfx = _graphics || graphics;
+            gfx = graphics;
         	
             gfx.lineStyle(color, alpha, width);
             gfx.moveTo(v0x = v0.x, v0y = v0.y);
@@ -108,21 +92,14 @@ package away3d.core.render
             gfx.lineTo(v0x, v0y);
         }
 
-        public function addDisplayObject(child:DisplayObject):void
-        {
-            _graphics = null;
-            container.addChild(child);
-            child.visible = true;
-        }
-
         public function RenderSession(scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping, lightarray:LightArray)
         {
             this.scene = scene;
             this.camera = camera;
             this.container = container;
-            _graphics = container.graphics;
-            this.clip = clip;
+            this.graphics = container.graphics;
             this.lightarray = lightarray;
+            this.clip = clip;
             this.time = getTimer();
         }
     }

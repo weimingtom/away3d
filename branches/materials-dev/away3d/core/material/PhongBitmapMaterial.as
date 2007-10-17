@@ -16,7 +16,6 @@ package away3d.core.material
     /** Basic phong texture material */
     public class PhongBitmapMaterial extends BitmapMaterial
     {
-        public var bitmapMaterial:BitmapData;
         public var _byteMaterial:ByteArray;
         public var _bitmapBump:BitmapData;
         
@@ -31,13 +30,17 @@ package away3d.core.material
         {
         	mapping = tri.texturemapping || tri.transformUV(this);
         	
-        	bitmapMaterial = tri.face.getBitmapMaterial(tri.material as PhongBitmapMaterial);
-			bitmapMaterial.draw(tri.face.getBitmapPhong(), null, null, BlendMode.ADD);
-            session.renderTriangleBitmap(tri.face.getBitmapPhong(), mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
-            //bitmapMaterial.dispose();
+        	tri.bitmapMaterial = tri.face.getBitmapMaterial(tri.material as PhongBitmapMaterial);
+        	tri.bitmapMaterial.draw(tri.face.getBitmapPhong(), null, null, BlendMode.MULTIPLY);
+            session.renderTriangleBitmap(tri.bitmapMaterial, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
 			
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+        }
+        
+        public function shadeTriangle(tri:DrawTriangle, session:RenderSession):void
+        {
+			tri.bitmapMaterial.copyPixels(tri.face.getBitmapPhong(), tri.face._normalRect, tri.face._normalPoint);        	
         }
         
         public function getByteArray():ByteArray

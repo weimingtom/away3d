@@ -39,9 +39,9 @@ package away3d.core.mesh
 		private var _byteBump:ByteArray;
 		
 		private var _bitmapRect:Rectangle;
-		private var _normalRect:Rectangle;
+		public var _normalRect:Rectangle;
 		private var _totalRect:Rectangle;
-		private var _normalPoint:Point = new Point(0,0);
+		public var _normalPoint:Point = new Point(0,0);
 		public var parent:Mesh;
 		
         public override function get vertices():Array
@@ -359,9 +359,6 @@ package away3d.core.mesh
 				N.z = c*c2 + d*f2;
 				N.normalize();
 				
-				trace(M);
-				trace(N);
-				trace(" ")
 				e = (_uv0._u*(_uv2._v - _uv1._v) + _uv1._u*(_uv0._v - _uv2._v) + _uv2._u*(_uv1._v - _uv0._v) > 0)? 1 : -1;
             	o = {};
             	lineTri(_uv0,_uv1,_v0,_v1, e);
@@ -441,19 +438,19 @@ package away3d.core.mesh
         	bheight = _bitmapRect.height;
         	
 			var steep:Boolean = (y1-y0)*(y1-y0) > (x1-x0)*(x1-x0);
-			//var e:Number = -1;
 			var swap:int;
 			var swapP:Vertex;
 			var swapUV:UV;
+			//var e:Number = 1;
 			//var e = -1;
 			if (steep){
-				e = -e;
+				//e = -e;
 				swap=x0; x0=y0; y0=swap;
 				swap=x1; x1=y1; y1=swap;
 				swap = bwidth; bwidth = bheight; bheight = swap;
 			}
 			if (x0>x1){
-				e = -e;
+				//e = -e;
 				swapP=v0; v0=v1; v1=swapP;
 				swapUV=uv0; uv0=uv1; uv1=swapUV;
 				swap=x0; x0=x1; x1=swap;
@@ -461,7 +458,7 @@ package away3d.core.mesh
 			}
 			
 			if (y0<y1) {
-				e = -e;
+				//e = -e;
 			}
 			var deltax:int = x1 - x0
 			var deltay:int = Math.abs(y1 - y0);
@@ -469,11 +466,11 @@ package away3d.core.mesh
 			
 			var y:int = y0;
 			var ystep:int = y0<y1 ? 1 : -1;
-			var error:int = e*(deltax>>1);
+			var error:int = -(deltax>>1);//e*(deltax>>1);
 			var x:int = x0-1;
 			var xtotal:int = x1-x0;
-			
-			while (++x<x1){		
+			e = 1;
+			while (x++<x1){
 				if (steep && e > 0){
 					checkLine(o,y,x, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
 				}
@@ -491,6 +488,9 @@ package away3d.core.mesh
 				if (steep && e < 0){
 					checkLine(o,y,x, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
 				}
+			}
+			if (!steep && e > 0){
+				checkLine(o,x-1,y, uv0, uv1, v0, v1, (x-1-x0)/xtotal, grad);
 			}
 			
 		}
@@ -552,7 +552,7 @@ package away3d.core.mesh
 					//x += 1;
 					//if (x > _bitmapRect.width) x = _bitmapRect.width;
 					
-					var i:int = x+1;
+					var i:int = x;
 					var bi:int;
 					var xtotal:int = x - ox;
 					var iratio:Number;
@@ -563,13 +563,14 @@ package away3d.core.mesh
 					var ny:Number3D;
 					var disp:int;
 					var offsetRect:int = 4*(_bitmapRect.y*_totalRect.width + y*(_totalRect.width-_bitmapRect.width) + _bitmapRect.x);
-					while(i-->ox)
+					while(i>=ox)
 					{
 						//if (i == ox-1 || i == x-1) {
 						//	bi = 4*(y*_bitmapRect.width+i);
 						//	_byteNormal[bi] = 255;
 						//	_byteNormal[bi+1] = 255;
 						if (i >= 0 && i < _bitmapRect.width) {
+						//if (i == x || i == ox) {
 							bi = 4*(y*_bitmapRect.width+i);
 							//if (_byteNormal[bi] == 0) {
 								iratio = xtotal? (i-ox)/xtotal : 0.5;
@@ -611,7 +612,8 @@ package away3d.core.mesh
 								else if (disp < 0) disp = 0;
 								_byteNormal[bi+3] = disp;
 							//}
-						}				
+						}
+						i--;
 					}
 					
 				}else{
@@ -885,7 +887,7 @@ package away3d.core.mesh
             }
 			if (uvm is PhongBitmapMaterial)
 			{
-				_bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)), int(height*(maxV-minV)));
+				_bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)+2), int(height*(maxV-minV)+2));
             	if (_bitmapRect.width == 0)
             		_bitmapRect.width = 1;
             	if (_bitmapRect.height == 0)

@@ -2,23 +2,17 @@ package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.scene.*;
+    import away3d.core.material.*;
     import away3d.core.mesh.*;
     import away3d.core.render.*;
-    import away3d.core.material.*;
+    import away3d.core.stats.Stats;
     import away3d.core.utils.*;
     
-    import flash.display.Sprite;
-    import flash.display.DisplayObject;
-    import flash.utils.getTimer;
-    import flash.utils.Dictionary;
-    import flash.events.MouseEvent;
-    import flash.events.Event;
     import flash.display.Bitmap;
-
-	import flash.utils.*;
-	import away3d.core.stats.Stats;
-	import flash.display.Stage;
+    import flash.display.BlendMode;
+    import flash.display.Sprite;
+    import flash.events.MouseEvent;
+    import flash.utils.*;
 	
     /** Repesent the drawing surface for the scene, that can be used to render 3D graphics */
     public class View3D extends Sprite
@@ -27,11 +21,15 @@ package away3d.core.scene
 		
 		public var bmp:Bitmap;
         /** Background under the rendered scene */
-        public var background:Sprite;
+        public var background:Sprite = new Sprite();
         /** Sprite that contains last rendered frame */
-        public var canvas:Sprite;
+        public var canvas:Sprite = new Sprite();
+        /** Bitmap that contains last rendered textures */
+        public var bitmapTexture:Bitmap = new Bitmap();
+         /** Bitmap that contains last rendered shaders */
+        public var bitmapShader:Bitmap = new Bitmap();
         /** Head up display over the scene */
-        public var hud:Sprite;
+        public var hud:Sprite = new Sprite();
 
         /** Scene to be rendered */
         public var scene:Scene3D;
@@ -67,12 +65,12 @@ package away3d.core.scene
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
             
-            background = new Sprite();
             addChild(background);
-            canvas = new Sprite();
             addChild(canvas);
-            hud = new Sprite();
+            addChild(bitmapTexture);
+            addChild(bitmapShader);
             addChild(hud);
+            bitmapShader.blendMode = BlendMode.MULTIPLY;
             
             addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
