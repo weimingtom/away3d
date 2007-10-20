@@ -7,8 +7,9 @@ package away3d.core.draw
     import away3d.core.render.*;
     import away3d.core.scene.*;
     
+    import flash.display.*;
     import flash.geom.Matrix;
-	import flash.display.*;
+    import flash.geom.Rectangle;
 	
     /** Triangle drawing primitive */
     public class DrawTriangle extends DrawPrimitive
@@ -28,7 +29,12 @@ package away3d.core.draw
 		
         public var material:ITriangleMaterial;
 		public var bitmapMaterial:BitmapData;
+		public var bitmapPhong:BitmapData;
+		public var bitmapNormal:BitmapData;
 		
+		public var bitmapRect:Rectangle;
+		public var normalRect:Rectangle;
+        
         public var texturemapping:Matrix;
 
         public override function clear():void
@@ -45,11 +51,6 @@ package away3d.core.draw
         public override function render(session:RenderSession):void
         {
             material.renderTriangle(this, session);
-        }
-        
-        public override function shade(session:RenderSession):void
-        {
-            (material as PhongBitmapMaterial).shadeTriangle(this, session);
         }
 
         public final function maxEdgeSqr():Number

@@ -13,7 +13,7 @@ package away3d.core.material
     /** Basic bitmap texture material */
     public class BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-        private var _bitmap:BitmapData;
+        internal var _bitmap:BitmapData;
         public var smooth:Boolean;
         public var debug:Boolean;
         public var repeat:Boolean;

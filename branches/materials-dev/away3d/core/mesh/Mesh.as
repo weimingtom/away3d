@@ -248,7 +248,8 @@ package away3d.core.mesh
             addElement(face);
 
             _faces.push(face);
-			face.parent = this;
+			
+			face.parent = face._dt.object = this;
 			
             face.addOnVertexChange(onFaceVertexChange);
             rememberFaceNeighbours(face);
@@ -515,7 +516,7 @@ package away3d.core.mesh
                 if (!face._visible)
                     continue;
 
-                if (tri == null)
+                //if (tri == null)
                     if (outline == null)
                         tri = face._dt; //new DrawTriangle();
                     else
@@ -539,14 +540,14 @@ package away3d.core.mesh
                 if (tri.maxZ < 0)
                     continue;
 
-                var backface:Boolean = tri.area <= 0;
+                var backface:Boolean = tri.area < 0;
 
                 if (backface)
                     if (!bothsides)
                         continue;
 
                 tri.material = face._material;
-				tri.object = this;
+				//tri.object = this;
 				
                 if (tri.material == null)
                     if (backface)
@@ -598,8 +599,6 @@ package away3d.core.mesh
                             tri.texturemapping = face.mapping(uvm);
                         }
                     }
-                    if (uvm is PhongBitmapMaterial)
-                        	face.setBitmapPhongProjection((uvm as PhongBitmapMaterial), projection.view);
                 }
 
                 if ((outline != null) && (!backface))
@@ -645,11 +644,11 @@ package away3d.core.mesh
                     }
                 }
 
-                tri.source = this;
-                tri.face = face;
+                //tri.source = this;
+                //tri.face = face;
                 tri.projection = projection;
                 consumer.primitive(tri);
-                tri = null;
+                //tri = null;
             }
         }
 

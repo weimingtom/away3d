@@ -7,9 +7,7 @@ package away3d.core.mesh
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
-    import flash.display.BitmapData;
     import flash.events.Event;
-    import flash.filters.ColorMatrixFilter;
     import flash.geom.*;
     import flash.utils.*;
 
@@ -29,20 +27,9 @@ package away3d.core.mesh
         arcane var _material:ITriangleMaterial;
         arcane var _dt:DrawTriangle = new DrawTriangle();
         private var _normal:Number3D;
-		private var _bitmapMaterial:BitmapData;
-		public var _bitmapPhong:BitmapData;
 		
-		public var _bitmapNormal:BitmapData;
-		private var _byteNormal:ByteArray;
-		
-		public var _bitmapBump:BitmapData;
-		private var _byteBump:ByteArray;
-		
-		private var _bitmapRect:Rectangle;
-		public var _normalRect:Rectangle;
-		private var _totalRect:Rectangle;
-		public var _normalPoint:Point = new Point(0,0);
 		public var parent:Mesh;
+		public var bitmapRect:Rectangle;
 		
         public override function get vertices():Array
         {
@@ -136,7 +123,6 @@ package away3d.core.mesh
             _material = value;
 
             _texturemapping = null;
-			_bitmapMaterial = null;
 			
             notifyMaterialChange();
         }
@@ -250,377 +236,6 @@ package away3d.core.mesh
             }
             return _normal;
         }
-        
-        public function getBitmapMaterial(uvm:PhongBitmapMaterial):BitmapData
-        {
-            if (_bitmapMaterial == null)
-            {
-            	//sample bitmap rectangle required for this face
-            	_bitmapMaterial = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
-            }
-            _bitmapMaterial.copyPixels(uvm.bitmap, _bitmapRect, new Point(0,0));
-            return _bitmapMaterial;
-        }
-        
-        internal var colorTransform:ColorMatrixFilter = new ColorMatrixFilter();
-        
-        public function setBitmapPhongProjection(uvm:PhongBitmapMaterial, view:Matrix3D):void
-        {
-        	if (_bitmapPhong == null)
-        		getBitmapPhong(uvm);
-        	
-        	//conbine normal map
-        	var szx:Number = view.szz;
-			var szy:Number = view.szy;
-			var szz:Number = -view.szx;
-			
-			colorTransform.matrix = [szx, 0, 0, 0, 127-szx*127, 0, szy, 0, 0, 127-szy*127, 0, 0, szz, 0, 127-szz*127, 0, 0, 0, 1, 0];
-            _bitmapPhong.applyFilter(_bitmapNormal, _normalRect, _normalPoint, colorTransform);
-            var s:Number = 2;
-            var o:Number = -127;
-            var ambientR:Number = 0x00;
-            var ambientG:Number = 0x22;
-            var ambientB:Number = 0x88;
-			
-			colorTransform.matrix = [s, s, s, 0, (o-255)*s+ambientR, s, s, s, 0, (o-255)*s+ambientG, s, s, s, 0, (o-255)*s+ambientB, 0, 0, 0, 1, 0];
-			_bitmapPhong.applyFilter(_bitmapPhong, _normalRect, _normalPoint, colorTransform);
-        	      	
-        }
-        
-        internal var nUV:UV;
-        internal var oFace:Object;
-        internal var contains:Boolean;
-        
-        internal var d_uv0:UV;
-        internal var d_uv1:UV;
-        internal var d_uv2:UV;
-        internal var d_v0:Vertex;
-        internal var d_v1:Vertex;
-        internal var d_v2:Vertex;
-        internal var e:Number;
-        
-        internal var v0z:Number;
-       	internal var v0x:Number;
-        internal var v0y:Number;
-        internal var v1x:Number;
-        internal var v1y:Number;
-    	internal var v1z:Number;
-        internal var v2x:Number;
-        internal var v2y:Number;
-    	internal var v2z:Number;
-        
-        internal var a:Number;
-        internal var b:Number;
-        internal var c:Number;
-        internal var d:Number;
-        
-		internal var a2:Number;
-        internal var b2:Number;
-        internal var c2:Number;
-        internal var d2:Number;
-        internal var e2:Number;
-        internal var f2:Number;
-        
-        internal var M:Number3D = new Number3D();
-        internal var N:Number3D = new Number3D();
-        
-        public function getBitmapPhong(uvm:PhongBitmapMaterial = null):BitmapData
-        {
-            if (_bitmapPhong == null)
-            {
-            	//setup bitmapdata objects
-            	_bitmapPhong = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
-            	_bitmapNormal = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
-            	
-            	//create normal map
-            	_totalRect = new Rectangle(0,0,uvm.width, uvm.height);
-            	_normalRect = new Rectangle(0,0,_bitmapRect.width, _bitmapRect.height);
-            	_byteNormal = _bitmapNormal.getPixels(_normalRect);
-            	_byteBump = uvm.getByteArray();
-            	
-            	v0z = _v0.z;
-				v1z = _v1.z;
-				v2z = _v2.z;
-			
-            	// calc u and v 3d vectors
-            	a2 = (v1x = _v1.x) - (v0x = _v0.x);
-	        	b2 = (v1y = _v1.y) - (v0y = _v0.y);
-	        	c2 = v1z - v0z;
-	        	d2 = (v2x = _v2.x) - v0x;
-	        	e2 = (v2y = _v2.y) - v0y;
-	        	f2 = v2z - v0z;
-	        	
-				M.x = (a = _texturemapping.a)*a2 + (b = _texturemapping.b)*d2;
-				M.y = a*b2 + b*e2;
-				M.z = a*c2 + b*f2;
-				M.normalize();
-				N.x = (c = _texturemapping.c)*a2 + (d = _texturemapping.d)*d2;
-				N.y = c*b2 + d*e2;
-				N.z = c*c2 + d*f2;
-				N.normalize();
-				
-				e = (_uv0._u*(_uv2._v - _uv1._v) + _uv1._u*(_uv0._v - _uv2._v) + _uv2._u*(_uv1._v - _uv0._v) > 0)? 1 : -1;
-            	o = {};
-            	lineTri(_uv0,_uv1,_v0,_v1, e);
-				lineTri(_uv1,_uv2,_v1,_v2, e);
-				lineTri(_uv2,_uv0,_v2,_v0, e);
-				contains = _uv0._u*(_uv2._v - _uv1._v) + _uv1._u*(_uv0._v - _uv2._v) + _uv2._u*(_uv1._v - _uv0._v) > 0;
-				
-				oFace = getReflectedUV(parent.neighbour01(this), _v0, _v1, _uv0, _uv1);
-				
-				o = {};
-            	lineTri(_uv1,      _uv0,      _v1,      _v0, e);
-				lineTri(_uv0,      oFace.uv,  _v0,      oFace.v, e);
-				lineTri(oFace.uv,  _uv1,      oFace.v,  _v1, e);
-				
-				oFace = getReflectedUV(parent.neighbour12(this), _v1, _v2, _uv1, _uv2);
-				
-				o = {};
-            	lineTri(oFace.uv,   _uv2,       oFace.v,   _v2, e);
-				lineTri(_uv2,       _uv1,       _v2,       _v1, e);
-				lineTri(_uv1,       oFace.uv,   _v1,       oFace.v, e);
-				
-				oFace = getReflectedUV(parent.neighbour20(this), _v2, _v0, _uv2, _uv0);
-				
-				o = {};
-            	lineTri(_uv2,       oFace.uv,   _v2,       oFace.v, e);
-				lineTri(oFace.uv,   _uv0,       oFace.v,   _v0, e);
-				lineTri(_uv0,       _uv2,       _v0,       _v2, e);
-				
-            	_byteNormal.position = 0;
-				_bitmapNormal.setPixels(_normalRect, _byteNormal);
-            }
-            return _bitmapPhong;
-        }
-        
-        internal var udiff:Number;
-        internal var vdiff:Number;
-        internal var ncontains:Boolean;
-        internal var grad:Number;
-        internal var grad2:Number;
-        
-        public function getReflectedUV(neighbour:Face, point0:Vertex, point1:Vertex, line0:UV, line1:UV):Object
-        {
-        	var i:Number = 2;
-        	while (neighbour.vertices[i] == point0 || neighbour.vertices[i] == point1) i--;
-        	
-        	var neighbourV:Vertex = neighbour.vertices[i];
-        	var neighbourUV:UV = neighbour.uvs[i].clone();
-        	
-			ncontains = line0._u*(neighbourUV._v - line1._v) + line1._u*(line0._v - neighbourUV._v) + neighbourUV._u*(line1._v - line0._v) > 0;			
-			if (ncontains == contains) {
-				//reflect
-				grad = (line1._v - line0._v)/(line1._u - line0._u);
-				grad2 = grad*grad;
-				udiff = (neighbourUV._u - line0._u);
-				vdiff = (neighbourUV._v - line0._v);
-				neighbourUV._u = line0._u + (udiff*(1 - grad2) + vdiff*2*grad)/(1 + grad2);
-				neighbourUV._v = line0._v + (udiff*2*grad + vdiff*(grad2 - 1))/(1 + grad2);
-			}
-			return {uv:neighbourUV, v:neighbourV, ncontains:ncontains};
-        }
-        
-        internal var x0:int;
-        internal var x1:int;
-        internal var y0:int;
-        internal var y1:int;
-        internal var bwidth:int;
-        internal var bheight:int;
-        internal var o:Object;
-        
-        private function lineTri(uv0:UV,uv1:UV,v0:Vertex,v1:Vertex, e:Number):void{
-			
-        	x0 = int(uv0._u*width-_bitmapRect.x);
-        	y0 = int((1-uv0._v)*height-_bitmapRect.y);
-        	x1 = int(uv1._u*width-_bitmapRect.x);
-        	y1 = int((1-uv1._v)*height-_bitmapRect.y);
-        	bwidth = _bitmapRect.width;
-        	bheight = _bitmapRect.height;
-        	
-			var steep:Boolean = (y1-y0)*(y1-y0) > (x1-x0)*(x1-x0);
-			var swap:int;
-			var swapP:Vertex;
-			var swapUV:UV;
-			//var e:Number = 1;
-			//var e = -1;
-			if (steep){
-				//e = -e;
-				swap=x0; x0=y0; y0=swap;
-				swap=x1; x1=y1; y1=swap;
-				swap = bwidth; bwidth = bheight; bheight = swap;
-			}
-			if (x0>x1){
-				//e = -e;
-				swapP=v0; v0=v1; v1=swapP;
-				swapUV=uv0; uv0=uv1; uv1=swapUV;
-				swap=x0; x0=x1; x1=swap;
-				swap=y0; y0=y1; y1=swap;
-			}
-			
-			if (y0<y1) {
-				//e = -e;
-			}
-			var deltax:int = x1 - x0
-			var deltay:int = Math.abs(y1 - y0);
-			
-			
-			var y:int = y0;
-			var ystep:int = y0<y1 ? 1 : -1;
-			var error:int = -(deltax>>1);//e*(deltax>>1);
-			var x:int = x0-1;
-			var xtotal:int = x1-x0;
-			e = 1;
-			while (x++<x1){
-				if (steep && e > 0){
-					checkLine(o,y,x, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
-				}
-				error += deltay;
-				if (error > 0){
-					if (!steep && e > 0){
-						checkLine(o,x,y, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
-					}
-					y += ystep;
-					error -= deltax;
-					if (!steep && e < 0){
-						checkLine(o,x,y, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
-					}
-				}
-				if (steep && e < 0){
-					checkLine(o,y,x, uv0, uv1, v0, v1, (x-x0)/xtotal, grad);
-				}
-			}
-			if (!steep && e > 0){
-				checkLine(o,x-1,y, uv0, uv1, v0, v1, (x-1-x0)/xtotal, grad);
-			}
-			
-		}
-		
-		internal var ox:int;
-		internal var ouv0:UV;
-		internal var ouv1:UV;
-		internal var ov0:Vertex;
-		internal var ov1:Vertex;
-		internal var oratio:Number;
-		internal var ograd:Number;
-
-        
-		private function checkLine(o:Object,x:int,y:int, uv0:UV, uv1:UV, v0:Vertex, v1:Vertex, ratio:Number, grad:Number):void{
-			if (y >=0 && y<_bitmapRect.height) {
-				if (o[y]){
-					if (o[y].x > x){
-						ox = x;
-						ouv0 = uv0;
-						ouv1 = uv1;
-						ov0 = v0;
-						ov1 = v1;
-						oratio = ratio;
-						ograd = grad;
-						x = o[y].x;
-						uv0 = o[y].uv0;
-						uv1 = o[y].uv1;
-						v0 = o[y].v0;
-						v1 = o[y].v1;
-						ratio = o[y].ratio;
-						grad = o[y].grad;
-					} else {
-						ox = o[y].x;
-						ouv0 = o[y].uv0;
-						ouv1 = o[y].uv1;
-						ov0 = o[y].v0;
-						ov1 = o[y].v1;
-						oratio = o[y].ratio;
-						ograd = o[y].grad;
-					}
-					
-					var ratio1:Number = 1 - ratio;
-					var oratio1:Number = 1 - oratio;
-					var n0:Number3D = parent.getVertexNormal(v0);
-					var n1:Number3D = parent.getVertexNormal(v1);
-					
-					var n:Number3D = new Number3D(ratio1*n0.x + ratio*n1.x, ratio1*n0.y + ratio*n1.y, ratio1*n0.z + ratio*n1.z);
-					
-					var on0:Number3D = parent.getVertexNormal(ov0);
-					var on1:Number3D = parent.getVertexNormal(ov1);
-					
-					var on:Number3D = new Number3D(oratio1*on0.x + oratio*on1.x, oratio1*on0.y + oratio*on1.y, oratio1*on0.z + oratio*on1.z);
-					
-					//if (ograd > grad && y < _bitmapRect.height) y += 1;
-					//else if (ograd < grad && y > 0) y -= 1;
-					
-					//ox -= 1;
-					//if (ox < 0) ox = 0;
-					//x += 1;
-					//if (x > _bitmapRect.width) x = _bitmapRect.width;
-					
-					var i:int = x;
-					var bi:int;
-					var xtotal:int = x - ox;
-					var iratio:Number;
-					var iratio1:Number;
-					
-					var ni:Number3D;
-					var nx:Number3D;
-					var ny:Number3D;
-					var disp:int;
-					var offsetRect:int = 4*(_bitmapRect.y*_totalRect.width + y*(_totalRect.width-_bitmapRect.width) + _bitmapRect.x);
-					while(i>=ox)
-					{
-						//if (i == ox-1 || i == x-1) {
-						//	bi = 4*(y*_bitmapRect.width+i);
-						//	_byteNormal[bi] = 255;
-						//	_byteNormal[bi+1] = 255;
-						if (i >= 0 && i < _bitmapRect.width) {
-						//if (i == x || i == ox) {
-							bi = 4*(y*_bitmapRect.width+i);
-							//if (_byteNormal[bi] == 0) {
-								iratio = xtotal? (i-ox)/xtotal : 0.5;
-								iratio1 = (1 - iratio);
-								_byteNormal[bi] = 255;
-								
-								ni = new Number3D(iratio1*on.x + iratio*n.x, iratio1*on.y + iratio*n.y, iratio1*on.z + iratio*n.z);
-								var bumpByte:int = offsetRect + bi;
-								var offsetX:int = 0;
-								var offsetY:int = 0;
-								if (bumpByte < 4*_totalRect.width) {
-									bumpByte = 4*_totalRect.width;
-								} else if (bumpByte > _byteBump.length - 4*_totalRect.width) {
-									bumpByte = _byteBump.length - 4*_bitmapRect.width
-								} else {
-									
-								}
-								offsetX = _byteBump[int(bumpByte+4)] - _byteBump[int(bumpByte-4)];
-								offsetY = _byteBump[int(bumpByte+_totalRect.width*4)] - _byteBump[int(bumpByte-_totalRect.width*4)];	
-														
-								nx = Number3D.scale(M, -offsetX/100);
-								ny = Number3D.scale(N, -offsetY/100);
-								ni.normalize();
-								ni = Number3D.add(Number3D.add(nx, ny), ni);
-								ni.normalize();
-								
-								disp = int((ni.x+1)*127);
-								if (disp > 255) disp = 255;
-								else if (disp < 0) disp = 0;
-								_byteNormal[bi+1] = disp;
-								
-								disp = int((ni.y+1)*127);
-								if (disp > 255) disp = 255;
-								else if (disp < 0) disp = 0;
-								_byteNormal[bi+2] = disp;
-								
-								disp = int((ni.z+1)*127);
-								if (disp > 255) disp = 255;
-								else if (disp < 0) disp = 0;
-								_byteNormal[bi+3] = disp;
-							//}
-						}
-						i--;
-					}
-					
-				}else{
-					o[y]={x:x, uv0:uv0, uv1:uv1, v0:v0, v1:v1, ratio:ratio, grad:grad};
-				}
-			}
-		}
 		
         public override function get radius2():Number
         {
@@ -885,14 +500,15 @@ package away3d.core.mesh
                 uv_u2 -= (uv_u2 > 0.05) ? 0.04 : -0.04;
                 uv_v2 -= (uv_v2 > 0.06) ? 0.06 : -0.06;
             }
+            
 			if (uvm is PhongBitmapMaterial)
 			{
-				_bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)+2), int(height*(maxV-minV)+2));
-            	if (_bitmapRect.width == 0)
-            		_bitmapRect.width = 1;
-            	if (_bitmapRect.height == 0)
-            		_bitmapRect.height = 1;
-            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0 - _bitmapRect.x, uv_v0 - _bitmapRect.y);			
+				bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)+2), int(height*(maxV-minV)+2));
+            	if (bitmapRect.width == 0)
+            		bitmapRect.width = 1;
+            	if (bitmapRect.height == 0)
+            		bitmapRect.height = 1;
+            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0 - bitmapRect.x, uv_v0 - bitmapRect.y);			
 			} else {
             	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
 			}
@@ -918,6 +534,7 @@ package away3d.core.mesh
             this.uv0 = uv0;
             this.uv1 = uv1;
             this.uv2 = uv2;
+            _dt.face = this;
         }
 
         private function onVertexChange(event:Event):void
