@@ -1,4 +1,4 @@
-package away3d.core.scene
+﻿package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.draw.*;
@@ -81,20 +81,18 @@ package away3d.core.scene
             buttonMode = true;
             useHandCursor = false;
             
-            if (stats) createStatsMenu();
-        }
-        
-		/** Create an registers new container for the stats panel */
-		public function createStatsMenu():void
-		{
-			try{
-				var framerate:Number = stage.frameRate;
-				Stats.instance.generateMenu(this, stage, framerate);
-			} catch(e:Error){
-				var intervalId:uint = setTimeout(createStatsMenu, 1000);
+             if (stats){
+				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);
 			}
-			 
 		}
+        
+		/** Create and registers new container for the stats panel */
+		public function createStatsMenu(event:Event):void
+		{
+			var framerate:Number = stage.frameRate;
+			Stats.instance.generateMenu(this, stage, framerate); 
+		}
+		
 		
         /** Clear rendering area */
         public function clear():void
