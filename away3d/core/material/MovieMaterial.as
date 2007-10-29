@@ -1,4 +1,4 @@
-package away3d.core.material
+﻿package away3d.core.material
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -55,7 +55,7 @@ package away3d.core.material
             debug = init.getBoolean("debug", false);
             auto = init.getBoolean("auto", true);
 
-            this.bitmap = new BitmapData(movie.width, movie.height, transparent);
+            this.bitmap = new BitmapData(movie.width, movie.height, transparent, (transparent)? 0x00FFFFFF : 0x000000);
         }
         
         internal var mapping:Matrix;
@@ -79,8 +79,8 @@ package away3d.core.material
 
         public function update():void
         {
-            bitmap.fillRect(bitmap.rect, 0);
-            bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
+            bitmap.fillRect(bitmap.rect, 0x00FFFFFF);
+			bitmap.draw(movie);
         }
 
         public function get visible():Boolean
