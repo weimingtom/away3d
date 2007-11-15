@@ -1,4 +1,4 @@
-﻿package away3d.objects
+package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -51,8 +51,7 @@
                     addSegment(new Segment(grid[i][j], grid[i][(j+1) % segmentsT]));
                 }
 				
-				Stats.instance.register("WireTorus",0,"primitive");
-				
+			Stats.instance.register("WireTorus",0,"primitive");
         }
 
         public function vertex(i:int, j:int):Vertex

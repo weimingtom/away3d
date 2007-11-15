@@ -18,6 +18,8 @@ package away3d.core.mesh
 
         public var extra:Object;
 
+        //public static var defaultExtraClass:Class;
+
         arcane var _v0:Vertex;
         arcane var _v1:Vertex;
         arcane var _v2:Vertex;
@@ -25,6 +27,7 @@ package away3d.core.mesh
         arcane var _uv1:UV;
         arcane var _uv2:UV;
         arcane var _material:ITriangleMaterial;
+        arcane var _back:ITriangleMaterial;
         arcane var _dt:DrawTriangle = new DrawTriangle();
         private var _normal:Number3D;
 
@@ -117,6 +120,21 @@ package away3d.core.mesh
             _texturemapping = null;
 
             notifyMaterialChange();
+        }
+
+        public function get back():ITriangleMaterial
+        {
+            return _back;
+        }
+
+        public function set back(value:ITriangleMaterial):void
+        {
+            if (value == _back)
+                return;
+
+            _back = value;
+
+            // notifyBackChange(); TODO
         }
 
         public function get uv0():UV
@@ -379,8 +397,8 @@ package away3d.core.mesh
 
         arcane var _texturemapping:Matrix;
         arcane var _mappingmaterial:IUVMaterial;
-		
-		internal var uv_u0:Number;
+        
+        internal var uv_u0:Number;
         internal var uv_u1:Number;
         internal var uv_u2:Number;
         internal var uv_v0:Number;
@@ -462,6 +480,9 @@ package away3d.core.mesh
             this.uv0 = uv0;
             this.uv1 = uv1;
             this.uv2 = uv2;
+
+            //if (defaultExtraClass != null)
+            //    extra = new defaultExtraClass(this);
         }
 
         private function onVertexChange(event:Event):void

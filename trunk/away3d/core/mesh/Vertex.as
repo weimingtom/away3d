@@ -99,6 +99,9 @@ package away3d.core.mesh
             _x = x;
             _y = y;
             _z = z;
+
+            //if (defaultExtraClass != null)
+            //    extra = new defaultExtraClass(this);
         }
     
         /** Duplicate instance */
@@ -130,6 +133,8 @@ package away3d.core.mesh
         
         /** An object that contains user defined properties. @default null */
         public var extra:Object;
+
+        //public static var defaultExtraClass:Class;
 
         /** String representation */
         public function toString(): String
@@ -200,6 +205,12 @@ package away3d.core.mesh
         arcane static function median(a:Vertex, b:Vertex):Vertex
         {
             return new Vertex((a._x + b._x)/2, (a._y + b._y)/2, (a._z + b._z)/2);
+        }
+
+        /** @private Get the middle-point of two vertices */
+        arcane static function distanceSqr(a:Vertex, b:Vertex):Number
+        {
+            return (a._x + b._x)*(a._x + b._x) + (a._y + b._y)*(a._y + b._y) + (a._z + b._z)*(a._z + b._z);
         }
 
         /** @private Get the weighted average of two vertices */

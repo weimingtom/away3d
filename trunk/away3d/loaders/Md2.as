@@ -1,4 +1,4 @@
-﻿package away3d.loaders
+package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,7 +6,8 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
+    import away3d.core.stats.*;
+
     import flash.utils.*;
 
    /**
@@ -34,7 +35,7 @@
         
         private var mesh:Mesh;
         private var scaling:Number;
-		private var url:String = "";
+        private var url:String = "";
 
         public function Md2(data:ByteArray, init:Object = null)
         {
@@ -54,7 +55,7 @@
     
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-			url = url;
+            url = url;
             return Object3DLoader.load(url, parse, true, init);
         }
     
@@ -115,7 +116,7 @@
                 mesh.addFace(new Face(vertices[a], vertices[b], vertices[c], null, uvs[ta], uvs[tb], uvs[tc]));
             }
             
-			Stats.instance.register(".Md2",mesh.faces.length, url);
+            Stats.instance.register(".Md2",mesh.faces.length, url);
             // Frame animation data
             //      This part is a little funky.
             data.position = offset_frames;
@@ -125,6 +126,7 @@
         private function readFrames(data:ByteArray, vertices:Array, num_frames:int):void
         {
             mesh.frames = new Dictionary();
+            mesh.framenames = new Dictionary();
             for (var i:int = 0; i < num_frames; i++)
             {
                 var frame:Frame = new Frame();
@@ -145,9 +147,10 @@
                         name += String.fromCharCode(char);
                 }
                 
-                trace("[ "+name+" ]");
+                //trace("[ "+name+" ]");
 
-                mesh.frames[name || i] = frame;
+                mesh.framenames[name] = i;
+                mesh.frames[i] = frame;
                 for (var h:int = 0; h < vertices.length; h++)
                 {
                     var vp:VertexPosition = new VertexPosition(vertices[h]);

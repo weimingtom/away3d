@@ -1,4 +1,4 @@
-﻿package away3d.core.scene
+package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.draw.*;
@@ -24,8 +24,8 @@
     public class View3D extends Sprite
     {
         use namespace arcane;
-		
-		public var bmp:Bitmap;
+        
+        public var bmp:Bitmap;
         /** Background under the rendered scene */
         public var background:Sprite;
         /** Sprite that contains last rendered frame */
@@ -60,7 +60,7 @@
 			
 			stats = init.getBoolean("stats", true)
             scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
-            camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
+            camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:1000, y:1000, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
             mouseChildren = init.getBoolean("mouseChildren", false);
             mouseZeroMove = init.getBoolean("mouseZeroMove", false);
@@ -136,13 +136,13 @@
             fireMouseEvent(MouseEvent.MOUSE_DOWN, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
-        private function onMouseUp(e:MouseEvent):void
+        protected function onMouseUp(e:MouseEvent):void
         {
             mousedown = false;
             fireMouseEvent(MouseEvent.MOUSE_UP, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
-        private function onMouseOut(e:MouseEvent):void
+        protected function onMouseOut(e:MouseEvent):void
         {
             var event:MouseEvent3D = findhit.getMouseEvent(MouseEvent.MOUSE_OUT+"3D");
             event.object = mouseObject;
@@ -150,7 +150,7 @@
             mouseObject = null;
         }
         
-        private function onMouseOver(e:MouseEvent):void
+        protected function onMouseOver(e:MouseEvent):void
         {
             fireMouseEvent(MouseEvent.MOUSE_OVER, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }

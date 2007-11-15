@@ -1,4 +1,4 @@
-﻿package away3d.loaders
+package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.scene.*;
@@ -16,7 +16,6 @@
     import flash.events.Event;
     import flash.events.ProgressEvent;
     import flash.events.IOErrorEvent;
- 
 
     public class CubeLoader extends Object3DLoader
     {

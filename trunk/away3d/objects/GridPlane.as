@@ -1,4 +1,4 @@
-﻿package away3d.objects
+package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
@@ -34,6 +34,6 @@
                 addSegment(new Segment(new Vertex(-0.5*width, 0, (j/segmentsH - 0.5)*height), new Vertex(0.5*width, 0, (j/segmentsH - 0.5)*height)));
        
 	   		Stats.instance.register("GridPlane",segmentsW+segmentsH,"primitive");
-		}
+        }
     }
 }

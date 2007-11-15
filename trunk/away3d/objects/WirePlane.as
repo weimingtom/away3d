@@ -1,4 +1,4 @@
-﻿package away3d.objects
+package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
@@ -22,12 +22,12 @@
             var segmentsW:int = init.getInt("segmentsW", segments, {min:1});
             var segmentsH:int = init.getInt("segmentsH", segments, {min:1});
     
-            buildPlane(width, height, segmentsW, segmentsH);
+            buildWirePlane(width, height, segmentsW, segmentsH);
         }
 
         private var grid:Array;
 
-        private function buildPlane(width:Number, height:Number, segmentsW:int, segmentsH:int):void
+        private function buildWirePlane(width:Number, height:Number, segmentsW:int, segmentsH:int):void
         {
             var i:int;
             var j:int;

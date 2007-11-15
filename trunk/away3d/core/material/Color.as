@@ -32,9 +32,9 @@ package away3d.core.material
             var ga:int = colora & 0xFF00 >> 8;
             var ba:int = colora & 0xFF;
 
-            var rb:int = colorb & 0xFF0000 >> 16;
-            var gb:int = colorb & 0xFF00 >> 8;
-            var bb:int = colorb & 0xFF;
+            var rb:int = colora & 0xFF0000 >> 16;
+            var gb:int = colora & 0xFF00 >> 8;
+            var bb:int = colora & 0xFF;
 
             return fromIntsCheck(ra+rb, ga+gb, ba+bb);
         }
@@ -45,9 +45,9 @@ package away3d.core.material
             var ga:int = 255 - colora & 0xFF00 >> 8;
             var ba:int = 255 - colora & 0xFF;
 
-            var rb:int = 255 - colorb & 0xFF0000 >> 16;
-            var gb:int = 255 - colorb & 0xFF00 >> 8;
-            var bb:int = 255 - colorb & 0xFF;
+            var rb:int = 255 - colora & 0xFF0000 >> 16;
+            var gb:int = 255 - colora & 0xFF00 >> 8;
+            var bb:int = 255 - colora & 0xFF;
 
             return fromIntsCheck(255 - (ra+rb), 255 - (ga+gb), 255 - (ba+bb));
         }
