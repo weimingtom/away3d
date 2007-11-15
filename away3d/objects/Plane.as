@@ -1,4 +1,4 @@
-﻿package away3d.objects
+package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -73,8 +73,6 @@
                     addFace(new Face(a, b, c, null, uva, uvb, uvc));
                     addFace(new Face(d, c, b, null, uvd, uvc, uvb));
                 }
-				//if (material is IUVMaterial)
-        		//	buildMaterial(material as IUVMaterial);
 				
 				Stats.instance.register("Plane",faces.length,"primitive");
         }

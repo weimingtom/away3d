@@ -272,7 +272,7 @@ package away3d.core.scene
 
             _transformDirty = false;
             _rotationDirty = true;
-			_sceneTransformDirty = true;
+            _sceneTransformDirty = true;
             notifyTransformChange();
         }
 
@@ -551,7 +551,7 @@ package away3d.core.scene
 
         public function toString():String
         {
-            return name + ': x:' + Math.round(x) + ' y:' + Math.round(y) + ' z:' + Math.round(z);
+            return (name ? name : "$") + ': x:' + Math.round(x) + ' y:' + Math.round(y) + ' z:' + Math.round(z);
         }
     
         public function tick(time:int):void

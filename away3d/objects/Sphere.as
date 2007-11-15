@@ -1,4 +1,4 @@
-﻿package away3d.objects
+package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -82,8 +82,7 @@
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
-				//if (material is IUVMaterial)
-        		//	buildMaterial(material as IUVMaterial);
+
 				Stats.instance.register("Sphere",faces.length,"primitive");
         }
 

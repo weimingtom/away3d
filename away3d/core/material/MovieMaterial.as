@@ -1,4 +1,4 @@
-﻿package away3d.core.material
+package away3d.core.material
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -68,9 +68,9 @@
                     lastsession = session.time;
                     update();
                 }
-			
-			mapping = tri.texturemapping || tri.transformUV(this);
-			
+            
+            mapping = tri.texturemapping || tri.transformUV(this);
+            
             session.renderTriangleBitmap(bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
@@ -80,7 +80,7 @@
         public function update():void
         {
             bitmap.fillRect(bitmap.rect, 0x00FFFFFF);
-			bitmap.draw(movie);
+            bitmap.draw(movie);
         }
 
         public function get visible():Boolean

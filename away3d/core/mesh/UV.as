@@ -11,6 +11,8 @@ package away3d.core.mesh
         arcane var _u:Number;
         arcane var _v:Number;
     
+        public var extra:Object;
+
         public function get v():Number
         {
             return _v;

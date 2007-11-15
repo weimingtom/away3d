@@ -1,4 +1,4 @@
-﻿package away3d.objects
+package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -83,8 +83,9 @@
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
-        Stats.instance.register("Cylinder",faces.length,"primitive");
-		}
+
+             Stats.instance.register("Cylinder",faces.length,"primitive");
+        }
 
         public function vertex(i:int, j:int):Vertex
         {

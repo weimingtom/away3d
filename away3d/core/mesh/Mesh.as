@@ -172,6 +172,29 @@ package away3d.core.mesh
             _neighboursDirty = false;
         }
          
+        arcane function recalcNeighbours():void
+        {
+            if (!_neighboursDirty)
+            {
+                _neighboursDirty = true;
+                var sn01:Dictionary = _neighbour01;
+                var sn12:Dictionary = _neighbour12;
+                var sn20:Dictionary = _neighbour20;
+                findNeighbours();
+                /*
+                for each (var f:Face in faces)
+                {
+                    if (sn01[f] != _neighbour01[f])
+                        throw new Error("Got you!");
+                    if (sn12[f] != _neighbour12[f])
+                        throw new Error("Got you!");
+                    if (sn20[f] != _neighbour20[f])
+                        throw new Error("Got you!");
+                }
+                */
+            }
+        }
+
         public var material:ITriangleMaterial;
         public var outline:ISegmentMaterial;
         public var back:ITriangleMaterial;
@@ -405,6 +428,7 @@ package away3d.core.mesh
 
         public function movePivot(dx:Number, dy:Number, dz:Number):void
         {
+            var nd:Boolean = _neighboursDirty;
             _neighboursDirty = true;
             for each (var vertex:Vertex in vertices)
             {
@@ -415,6 +439,7 @@ package away3d.core.mesh
             x -= dx;
             y -= dy;
             z -= dz;
+            _neighboursDirty = nd;
         }
 
         private var _debugboundingbox:WireCube;
@@ -493,10 +518,13 @@ package away3d.core.mesh
                 var backface:Boolean = tri.area <= 0;
 
                 if (backface)
+                {
                     if (!bothsides)
                         continue;
-
-                tri.material = face._material;
+                    tri.material = face._back;
+                }
+                else
+                    tri.material = face._material;
 
                 if (tri.material == null)
                     if (backface)
@@ -706,5 +734,65 @@ package away3d.core.mesh
             source += "\t\t}\n\t}\n}";
             return source;
         }
+
+        public function asXML():XML
+        {
+            var result:XML = <mesh></mesh>;
+
+            var refvertices:Dictionary = new Dictionary();
+            var verticeslist:Array = [];
+            var remembervertex:Function = function(vertex:Vertex):void
+            {
+                if (refvertices[vertex] == null)
+                {
+                    refvertices[vertex] = verticeslist.length;
+                    verticeslist.push(vertex);
+                }
+            }
+
+            var refuvs:Dictionary = new Dictionary();
+            var uvslist:Array = [];
+            var rememberuv:Function = function(uv:UV):void
+            {
+                if (uv == null)
+                    return;
+
+                if (refuvs[uv] == null)
+                {
+                    refuvs[uv] = uvslist.length;
+                    uvslist.push(uv);
+                }
+            }
+
+            for each (var face:Face in _faces)
+            {
+                remembervertex(face._v0);
+                remembervertex(face._v1);
+                remembervertex(face._v2);
+                rememberuv(face._uv0);
+                rememberuv(face._uv1);
+                rememberuv(face._uv2);
+            }
+
+            var vn:int = 0;
+            for each (var v:Vertex in verticeslist)
+            {
+                result.appendChild(<vertex id={vn} x={v._x} y={v._y} z={v._z}/>);
+                vn++;
+            }
+
+            var uvn:int = 0;
+            for each (var uv:UV in uvslist)
+            {
+                result.appendChild(<uv id={uvn} u={uv._u} v={uv._v}/>);
+                uvn++;
+            }
+
+            for each (var f:Face in _faces)
+                result.appendChild(<face v0={refvertices[f._v0]} v1={refvertices[f._v1]} v2={refvertices[f._v2]} uv0={refuvs[f._uv0]} uv1={refuvs[f._uv1]} uv2={refuvs[f._uv2]}/>);
+
+            return result;
+        }
+
     }
 }
