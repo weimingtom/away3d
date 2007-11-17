@@ -1,17 +1,14 @@
 package away3d.core.material
 {
     import away3d.core.*;
-    import away3d.core.mesh.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
+    import away3d.core.mesh.*;
     import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.Graphics;
-    import flash.display.BitmapData;
-    import flash.geom.Matrix;
-    import flash.geom.Point;
 
     /** Abstract class for materials that calculate lighting for the face's center */
     public class CenterLightingMaterial implements ITriangleMaterial
@@ -128,8 +125,11 @@ package away3d.core.material
         internal var rx:Number;
         internal var ry:Number;
         
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        internal var session:RenderSession;
+        
+        public function renderTriangle(tri:DrawTriangle):void
         {
+        	session = tri.object.session;
             v0 = tri.v0;
             v1 = tri.v1;
             v2 = tri.v2;
@@ -191,6 +191,7 @@ package away3d.core.material
                 
                 fade = 1 / df / df;
                 amb = source.ambient * fade * ambient_brightness;
+                //amb = source.ambient * ambient_brightness;
                 nf = dfx*pa + dfy*pb + dfz*pc;
 
                 kar += red * amb;
@@ -201,6 +202,7 @@ package away3d.core.material
                     continue;
 
                 diff = source.diffuse * fade * nf * diffuse_brightness;
+                //diff = source.diffuse * nf * diffuse_brightness;
                 rfx = dfx - 2*nf*pa;
                 rfy = dfy - 2*nf*pb;
                 rfz = dfz - 2*nf*pc;
@@ -304,6 +306,11 @@ package away3d.core.material
             throw new Error("Not implemented");
         }
 
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             throw new Error("Not implemented");

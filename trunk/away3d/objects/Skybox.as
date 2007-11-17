@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
@@ -27,10 +27,10 @@ package away3d.objects
             var v110:Vertex = new Vertex(+width/2, +height/2, -depth/2); 
             var v111:Vertex = new Vertex(+width/2, +height/2, +depth/2); 
 
-            var uva:UV = new UV(0, 0);
-            var uvb:UV = new UV(1, 0);
-            var uvc:UV = new UV(1, 1);
-            var uvd:UV = new UV(0, 1);
+            var uva:UV = new UV(1, 0);
+            var uvb:UV = new UV(0, 0);
+            var uvc:UV = new UV(0, 1);
+            var uvd:UV = new UV(1, 1);
 
             addFace(new Face(v000, v001, v010, back, uva, uvb, uvd));
             addFace(new Face(v010, v001, v011, back, uvd, uvb, uvc));
@@ -38,11 +38,11 @@ package away3d.objects
             addFace(new Face(v100, v110, v101, front, uvb, uvc, uva));
             addFace(new Face(v110, v111, v101, front, uvc, uvd, uva));
                                            
-            addFace(new Face(v000, v100, v001, down, uva, uvb, uvd));
-            addFace(new Face(v001, v100, v101, down, uvd, uvb, uvc));
+            addFace(new Face(v000, v100, v001, down, uvb, uvc, uva));
+            addFace(new Face(v001, v100, v101, down, uva, uvc, uvd));
                                                  
-            addFace(new Face(v010, v011, v110,  up, uvd, uva, uvc));
-            addFace(new Face(v011, v111, v110,  up, uva, uvb, uvc));
+            addFace(new Face(v010, v011, v110,  up, uvc, uvd, uvb));
+            addFace(new Face(v011, v111, v110,  up, uvd, uva, uvb));
 
             addFace(new Face(v000, v010, v100, left, uvb, uvc, uva));
             addFace(new Face(v100, v010, v110, left, uva, uvc, uvd));
@@ -53,7 +53,7 @@ package away3d.objects
             quarterFaces();
             quarterFaces();
 
-            mousable = false;
+            mouseEnabled = false;
 			
 			Stats.instance.register("Skybox",faces.length,"primitive");
         }

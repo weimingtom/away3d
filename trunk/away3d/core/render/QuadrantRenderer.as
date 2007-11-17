@@ -20,34 +20,60 @@ package away3d.core.render
             for each (var filter:IPrimitiveQuadrantFilter in params)
                 qdrntfilters.push(filter);
         }
-
-        public function render(view:View3D):void
+		
+		protected var scene:Scene3D;
+        protected var camera:Camera3D;
+        protected var container:Sprite;
+        protected var clip:Clipping;
+        
+        protected var projtraverser:ProjectionTraverser;
+        
+        protected var pritree:PrimitiveQuadrantTree;
+        protected var lightarray:LightArray;
+        protected var pritraverser:PrimitiveTraverser;
+        protected var primitives:Array;
+        
+        protected var qdrntfilter:IPrimitiveQuadrantFilter;
+        
+        protected var session:RenderSession;
+        
+        protected var primitive:DrawPrimitive;
+        
+        protected var statsEvent:StatsEvent;
+        
+        public function render(view:View3D):Array
         {
-            var scene:Scene3D = view.scene;
-            var camera:Camera3D = view.camera;
-            var container:Sprite = view.canvas;
-            var clip:Clipping = view.clip;
+            scene = view.scene;
+            camera = view.camera;
+            container = view.canvas;
+            clip = view.clip;
             
-            var graphics:Graphics = container.graphics;
+            // resolve projection
+			projtraverser = new ProjectionTraverser(view);
+			scene.traverse(projtraverser);
             
-            var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree(clip);
-            var lightarray:LightArray = new LightArray();
-            var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(pritree, lightarray, view);
+            pritree = new PrimitiveQuadrantTree(clip);
+            lightarray = new LightArray();
+            session = new RenderSession(view, container, lightarray);
+            pritraverser = new PrimitiveTraverser(pritree, lightarray, view, session);
+            scene.traverse(pritraverser);			
+			primitives = pritree.list();
+			
+			//sort containers
+			pritree.sortContainers(view);
 
-            scene.traverse(pritraverser);
-
-            var session:RenderSession = new RenderSession(scene, camera, container, clip, lightarray);
-
-            for each (var qdrntfilter:IPrimitiveQuadrantFilter in qdrntfilters)
+            for each (qdrntfilter in qdrntfilters)
                 qdrntfilter.filter(pritree, scene, camera, container, clip);
 
-            pritree.render(session);
+            pritree.render();
             
             //dispatch stats
-            var statsEvent:StatsEvent = new StatsEvent(StatsEvent.RENDER);
-			statsEvent.totalfaces = pritree.list().length;
+            statsEvent = new StatsEvent(StatsEvent.RENDER);
+			statsEvent.totalfaces = primitives.length;
 			statsEvent.camera = camera;
 			view.dispatchEvent(statsEvent);
+			
+			return primitives;
         }
 
         public function desc():String

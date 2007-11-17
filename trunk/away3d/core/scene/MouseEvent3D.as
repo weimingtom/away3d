@@ -1,20 +1,21 @@
 package away3d.core.scene
 {
     import away3d.core.draw.*;
-    import away3d.core.mesh.*;
-    import away3d.core.render.*;
     import away3d.core.material.*;
     import away3d.core.mesh.*;
+    import away3d.core.render.*;
     
-    import flash.display.Sprite;
-    import flash.utils.getTimer;
-    import flash.utils.Dictionary;
-    import flash.events.MouseEvent;
     import flash.events.Event;
     
     /** Event that gets dispatched in case of mouse click or mouse move */ 
     public class MouseEvent3D extends Event
     {
+    	static	public var MOUSE_OVER:String = "mouseOver3D";
+    	static	public var MOUSE_OUT:String = "mouseOut3D";
+    	static	public var MOUSE_UP:String = "mouseUp3D";
+    	static	public var MOUSE_DOWN:String = "mouseDown3D";
+    	static	public var MOUSE_MOVE:String = "mouseMove3D";
+    	
         public var screenX:Number;
         public var screenY:Number;
         public var screenZ:Number;
@@ -27,6 +28,7 @@ package away3d.core.scene
         public var object:Object3D;
         public var element:Object;
         public var drawpri:DrawPrimitive;
+        public var material:IUVMaterial;
         public var uv:UV;
 
         public var ctrlKey:Boolean;
@@ -53,6 +55,7 @@ package away3d.core.scene
             result.object = object;
             result.element = element;
             result.drawpri = drawpri;
+            result.material = material;
             result.uv = uv;
                                      
             result.ctrlKey = ctrlKey;

@@ -38,11 +38,11 @@ package away3d.core.draw
             displayobject = null;
         }
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
             displayobject.x = v.x - displayobject.width/2;
             displayobject.y = v.y - displayobject.height/2;
-            session.addDisplayObject(displayobject);
+            object.session.addDisplayObject(displayobject);
         }
 
         public override function contains(x:Number, y:Number):Boolean

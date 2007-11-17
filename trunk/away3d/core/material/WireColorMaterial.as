@@ -36,29 +36,16 @@ package away3d.core.material
 		
 		internal var graphics:Graphics;
 		
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public function renderTriangle(tri:DrawTriangle):void
         {
-            graphics = session.graphics;
-
-            if (wirealpha > 0)
-                graphics.lineStyle(width, wirecolor, wirealpha);
-            else
-                graphics.lineStyle();
-    
-            if (alpha > 0)
-                graphics.beginFill(color, alpha);
-    
-            graphics.moveTo(tri.v0.x, tri.v0.y);
-            graphics.lineTo(tri.v1.x, tri.v1.y);
-            graphics.lineTo(tri.v2.x, tri.v2.y);
-    
-            if (wirealpha > 0)
-                graphics.lineTo(tri.v0.x, tri.v0.y);
-    
-            if (alpha > 0)
-                graphics.endFill();
+			tri.object.session.renderTriangleLineFill(color, alpha, wirecolor, wirealpha, width, tri.v0, tri.v1, tri.v2);
         }
-
+		
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             return (alpha > 0) || (wirealpha > 0);

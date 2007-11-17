@@ -22,12 +22,9 @@ package away3d.core.scene
                 addChild(child);
         }
 
-        public function matchLOD(view:View3D, transform:Matrix3D):Boolean
+        public function matchLOD(view:View3D):Boolean
         {
-            var proj:Matrix3D = Matrix3D.multiply(transform, this.transform);
-                              //Matrix3D.multiply(view.camera.getView(), transform);
-
-            var z:Number = proj.tz;
+            var z:Number = viewTransform.tz;
             var persp:Number = view.camera.zoom / (1 + z / view.camera.focus);
 
             if (persp < minp)

@@ -3,15 +3,14 @@ package away3d.core.draw
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.render.*;
-    import away3d.core.mesh.*;
-
-    import flash.display.Graphics;
-    import flash.display.BitmapData;
+    import away3d.core.scene.*;
+    
+    import flash.display.*;
     import flash.geom.Matrix;
-
+    import flash.geom.Rectangle;
+	
     /** Triangle drawing primitive */
     public class DrawTriangle extends DrawPrimitive
     {
@@ -26,9 +25,19 @@ package away3d.core.draw
         public var area:Number;
 
         public var face:Face;
-
+		
         public var material:ITriangleMaterial;
-
+		public var bitmapMaterial:BitmapData;
+		public var bitmapPhong:BitmapData;
+		public var bitmapNormal:BitmapData;
+		
+		public var bitmapReflection:BitmapData;
+		public var bitmapDisplacementX:BitmapData;
+		public var bitmapDisplacementY:BitmapData;
+		
+		public var bitmapRect:Rectangle;
+		public var normalRect:Rectangle;
+        
         public var texturemapping:Matrix;
 
         public override function clear():void
@@ -42,9 +51,14 @@ package away3d.core.draw
             texturemapping = null;
         }
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
-            material.renderTriangle(this, session);
+            material.renderTriangle(this);
+        }
+        
+        public override function shade():void
+        {
+            material.shadeTriangle(this);
         }
 
         public final function maxEdgeSqr():Number
@@ -130,6 +144,74 @@ package away3d.core.draw
             return texturemapping;
         }
 		
+		internal var av0z:Number;
+        internal var av0p:Number;
+        internal var av0x:Number;
+        internal var av0y:Number;
+
+        internal var av1z:Number;
+        internal var av1p:Number;
+        internal var av1x:Number;
+        internal var av1y:Number;
+
+        internal var av2z:Number;
+        internal var av2p:Number;
+        internal var av2x:Number;
+        internal var av2y:Number;
+
+        internal var ad1x:Number;
+        internal var ad1y:Number;
+        internal var ad1z:Number;
+
+        internal var ad2x:Number;
+        internal var ad2y:Number;
+        internal var ad2z:Number;
+
+        internal var apa:Number;
+        internal var apb:Number;
+        internal var apc:Number;
+        internal var apd:Number;
+        
+        internal var tv0z:Number;
+        internal var tv0p:Number;
+        internal var tv0x:Number;
+        internal var tv0y:Number;
+
+        internal var tv1z:Number;
+        internal var tv1p:Number;
+        internal var tv1x:Number;
+        internal var tv1y:Number;
+
+        internal var tv2z:Number;
+        internal var tv2p:Number;
+        internal var tv2x:Number;
+        internal var tv2y:Number;
+
+        internal var sv0:Number;
+        internal var sv1:Number;
+        internal var sv2:Number;
+        
+        internal var td1x:Number;
+        internal var td1y:Number;
+        internal var td1z:Number;
+
+        internal var td2x:Number;
+        internal var td2y:Number;
+        internal var td2z:Number;
+
+        internal var tpa:Number;
+        internal var tpb:Number;
+        internal var tpc:Number;
+        internal var tpd:Number;
+        
+        internal var sav0:Number;
+        internal var sav1:Number;
+        internal var sav2:Number;
+        
+        internal var tv0:Vertex;
+        internal var tv1:Vertex;
+        internal var tv2:Vertex;
+        	
         public override final function riddle(another:DrawTriangle, focus:Number):Array
         {
             if (area < 10)
@@ -156,59 +238,59 @@ package away3d.core.draw
             if (another.maxY < minY)
                 return null;
             */
-
+            
             if (!overlap(this, another))
                 return null;
 
-            var av0z:Number = another.v0.z,
-            	av0p:Number = 1 + av0z / focus,
-            	av0x:Number = another.v0.x * av0p,
-            	av0y:Number = another.v0.y * av0p,
+            av0z = another.v0.z;
+            av0p = 1 + av0z / focus;
+            av0x = another.v0.x * av0p;
+            av0y = another.v0.y * av0p;
 
-            	av1z:Number = another.v1.z,
-            	av1p:Number = 1 + av1z / focus,
-            	av1x:Number = another.v1.x * av1p,
-            	av1y:Number = another.v1.y * av1p,
+            av1z = another.v1.z;
+            av1p = 1 + av1z / focus;
+            av1x = another.v1.x * av1p;
+            av1y = another.v1.y * av1p;
 
-            	av2z:Number = another.v2.z,
-            	av2p:Number = 1 + av2z / focus,
-            	av2x:Number = another.v2.x * av2p,
-            	av2y:Number = another.v2.y * av2p,
+            av2z = another.v2.z;
+            av2p = 1 + av2z / focus;
+            av2x = another.v2.x * av2p;
+            av2y = another.v2.y * av2p;
 
-            	ad1x:Number = av1x - av0x,
-            	ad1y:Number = av1y - av0y,
-            	ad1z:Number = av1z - av0z,
+            ad1x = av1x - av0x;
+            ad1y = av1y - av0y;
+            ad1z = av1z - av0z;
 
-            	ad2x:Number = av2x - av0x,
-            	ad2y:Number = av2y - av0y,
-            	ad2z:Number = av2z - av0z,
+            ad2x = av2x - av0x;
+            ad2y = av2y - av0y;
+            ad2z = av2z - av0z;
 
-            	apa:Number = ad1y*ad2z - ad1z*ad2y,
-            	apb:Number = ad1z*ad2x - ad1x*ad2z,
-            	apc:Number = ad1x*ad2y - ad1y*ad2x,
-            	apd:Number = - (apa*av0x + apb*av0y + apc*av0z);
+            apa = ad1y*ad2z - ad1z*ad2y;
+            apb = ad1z*ad2x - ad1x*ad2z;
+            apc = ad1x*ad2y - ad1y*ad2x;
+            apd = - (apa*av0x + apb*av0y + apc*av0z);
 
             if (apa*apa + apb*apb + apc*apc < 1)
                 return null;
 
-            var tv0z:Number = v0.z,
-            	tv0p:Number = 1 + tv0z / focus,
-            	tv0x:Number = v0.x * tv0p,
-            	tv0y:Number = v0.y * tv0p,
+            tv0z = v0.z;
+            tv0p = 1 + tv0z / focus;
+            tv0x = v0.x * tv0p;
+            tv0y = v0.y * tv0p;
 
-            	tv1z:Number = v1.z,
-            	tv1p:Number = 1 + tv1z / focus,
-            	tv1x:Number = v1.x * tv1p,
-            	tv1y:Number = v1.y * tv1p,
+            tv1z = v1.z;
+            tv1p = 1 + tv1z / focus;
+            tv1x = v1.x * tv1p;
+            tv1y = v1.y * tv1p;
 
-            	tv2z:Number = v2.z,
-            	tv2p:Number = 1 + tv2z / focus,
-            	tv2x:Number = v2.x * tv2p,
-            	tv2y:Number = v2.y * tv2p,
+            tv2z = v2.z;
+            tv2p = 1 + tv2z / focus;
+            tv2x = v2.x * tv2p;
+            tv2y = v2.y * tv2p;
 
-            	sv0:Number = apa*tv0x + apb*tv0y + apc*tv0z + apd,
-            	sv1:Number = apa*tv1x + apb*tv1y + apc*tv1z + apd,
-            	sv2:Number = apa*tv2x + apb*tv2y + apc*tv2z + apd;
+            sv0 = apa*tv0x + apb*tv0y + apc*tv0z + apd;
+            sv1 = apa*tv1x + apb*tv1y + apc*tv1z + apd;
+            sv2 = apa*tv2x + apb*tv2y + apc*tv2z + apd;
 
             if (sv0*sv0 < 0.001)
                 sv0 = 0;
@@ -220,25 +302,25 @@ package away3d.core.draw
             if ((sv0*sv1 >= -0.01) && (sv1*sv2 >= -0.01) && (sv2*sv0 >= -0.01))
                 return null;
 
-            var td1x:Number = tv1x - tv0x,
-            	td1y:Number = tv1y - tv0y,
-            	td1z:Number = tv1z - tv0z,
+            td1x = tv1x - tv0x;
+            td1y = tv1y - tv0y;
+            td1z = tv1z - tv0z;
 
-            	td2x:Number = tv2x - tv0x,
-            	td2y:Number = tv2y - tv0y,
-            	td2z:Number = tv2z - tv0z,
+            td2x = tv2x - tv0x;
+            td2y = tv2y - tv0y;
+            td2z = tv2z - tv0z;
 
-            	tpa:Number = td1y*td2z - td1z*td2y,
-            	tpb:Number = td1z*td2x - td1x*td2z,
-            	tpc:Number = td1x*td2y - td1y*td2x,
-            	tpd:Number = - (tpa*tv0x + tpb*tv0y + tpc*tv0z);
+            tpa = td1y*td2z - td1z*td2y;
+            tpb = td1z*td2x - td1x*td2z;
+            tpc = td1x*td2y - td1y*td2x;
+            tpd = - (tpa*tv0x + tpb*tv0y + tpc*tv0z);
 
             if (tpa*tpa + tpb*tpb + tpc*tpc < 1)
                 return null;
 
-            var sav0:Number = tpa*av0x + tpb*av0y + tpc*av0z + tpd,
-            	sav1:Number = tpa*av1x + tpb*av1y + tpc*av1z + tpd,
-            	sav2:Number = tpa*av2x + tpb*av2y + tpc*av2z + tpd;
+            sav0 = tpa*av0x + tpb*av0y + tpc*av0z + tpd;
+            sav1 = tpa*av1x + tpb*av1y + tpc*av1z + tpd;
+            sav2 = tpa*av2x + tpb*av2y + tpc*av2z + tpd;
 
             if (sav0*sav0 < 0.001)
                 sav0 = 0;
@@ -252,42 +334,74 @@ package away3d.core.draw
 
             // TODO: segment cross check - now some extra cuts are made
 
-            var tv0:Vertex = v0.deperspective(focus),
-            	tv1:Vertex = v1.deperspective(focus),
-            	tv2:Vertex = v2.deperspective(focus);
+            tv0 = v0.deperspective(focus);
+            tv1 = v1.deperspective(focus);
+            tv2 = v2.deperspective(focus);
                 
             if (sv1*sv2 >= -1)
             {
                 //var tv20:Vertex = Vertex.weighted(tv2, tv0, -sv0, sv2);
                 //var tv01:Vertex = Vertex.weighted(tv0, tv1, sv1, -sv0);
 
-                return fivepointcut(source, material, projection,
+                return fivepointcut(object, material, projection,
                     v2,  Vertex.weighted(tv2, tv0, -sv0, sv2).perspective(focus), v0, Vertex.weighted(tv0, tv1, sv1, -sv0).perspective(focus), v1,
                     uv2, UV.weighted(uv2, uv0, -sv0, sv2), uv0, UV.weighted(uv0, uv1, sv1, -sv0), uv1);
             }                                                           
             else                                                        
             if (sv0*sv1 >= -1)                                           
             {
-                return fivepointcut(source, material, projection,
+                return fivepointcut(object, material, projection,
                     v1,  Vertex.weighted(tv1, tv2, -sv2, sv1).perspective(focus), v2, Vertex.weighted(tv2, tv0, sv0, -sv2).perspective(focus), v0,
                     uv1, UV.weighted(uv1, uv2, -sv2, sv1), uv2, UV.weighted(uv2, uv0, sv0, -sv2), uv0);
             }                                                           
             else                                                        
             {                                                           
-                return fivepointcut(source, material, projection,
+                return fivepointcut(object, material, projection,
                     v0,  Vertex.weighted(tv0, tv1, -sv1, sv0).perspective(focus), v1, Vertex.weighted(tv1, tv2, sv2, -sv1).perspective(focus), v2,
                     uv0, UV.weighted(uv0, uv1, -sv1, sv0), uv1, UV.weighted(uv1, uv2, sv2, -sv1), uv2);
             }
 
             return null;    
         }
+		
+		internal var focus:Number;
+		
+		internal var ax:Number;
+        internal var ay:Number;
+        internal var az:Number;
+        internal var bx:Number;
+        internal var by:Number;
+        internal var bz:Number;
+        internal var cx:Number;
+        internal var cy:Number;
+        internal var cz:Number;
+		
+		internal var azf:Number;
+        internal var bzf:Number;
+        internal var czf:Number;
 
+        internal var faz:Number;
+        internal var fbz:Number;
+        internal var fcz:Number;
+
+        internal var axf:Number;
+        internal var bxf:Number;
+        internal var cxf:Number;
+        internal var ayf:Number;
+        internal var byf:Number;
+        internal var cyf:Number;
+
+        internal var det:Number;
+        internal var da:Number;
+        internal var db:Number;
+        internal var dc:Number;
+            	
         public override final function getZ(x:Number, y:Number):Number
         {
             if (projection == null)
                 return screenZ;
 
-            var focus:Number = projection.focus;
+            focus = projection.focus;
             // v1v:Vector = v1 - v0
             // v2v:Vector = v2 - v0
 
@@ -330,15 +444,15 @@ package away3d.core.draw
 
             // mz = (da*az + db*bz + dc*cz)/det
 
-            var ax:Number = v0.x,
-            	ay:Number = v0.y,
-            	az:Number = v0.z,
-            	bx:Number = v1.x,
-            	by:Number = v1.y,
-            	bz:Number = v1.z,
-            	cx:Number = v2.x,
-            	cy:Number = v2.y,
-            	cz:Number = v2.z;
+            ax = v0.x;
+            ay = v0.y;
+            az = v0.z;
+            bx = v1.x;
+            by = v1.y;
+            bz = v1.z;
+            cx = v2.x;
+            cy = v2.y;
+            cz = v2.z;
 
             if ((ax == x) && (ay == y))
                 return az;
@@ -349,25 +463,25 @@ package away3d.core.draw
             if ((cx == x) && (cy == y))
                 return cz;
 
-            var azf:Number = az / focus,
-            	bzf:Number = bz / focus,
-            	czf:Number = cz / focus,
+            azf = az / focus;
+            bzf = bz / focus;
+            czf = cz / focus;
 
-            	faz:Number = 1 + azf,
-            	fbz:Number = 1 + bzf,
-            	fcz:Number = 1 + czf,
+            faz = 1 + azf;
+            fbz = 1 + bzf;
+            fcz = 1 + czf;
 
-            	axf:Number = ax*faz - x*azf,
-            	bxf:Number = bx*fbz - x*bzf,
-            	cxf:Number = cx*fcz - x*czf,
-            	ayf:Number = ay*faz - y*azf,
-            	byf:Number = by*fbz - y*bzf,
-            	cyf:Number = cy*fcz - y*czf,
+            axf = ax*faz - x*azf;
+            bxf = bx*fbz - x*bzf;
+            cxf = cx*fcz - x*czf;
+            ayf = ay*faz - y*azf;
+            byf = by*fbz - y*bzf;
+            cyf = cy*fcz - y*czf;
 
-            	det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf),
-            	da:Number = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y - byf),
-            	db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y),
-            	dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
+            det = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf);
+            da = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y - byf);
+            db = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y);
+            dc = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
 
             return (da*az + db*bz + dc*cz) / det;
         }
@@ -583,8 +697,8 @@ package away3d.core.draw
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
             	uv01:UV = UV.median(uv0, uv1);
             return [
-                create(source, material, projection, v2, v0, v01, uv2, uv0, uv01),
-                create(source, material, projection, v01, v1, v2, uv01, uv1, uv2) 
+                create(object, material, projection, v2, v0, v01, uv2, uv0, uv01),
+                create(object, material, projection, v01, v1, v2, uv01, uv1, uv2) 
             ];
         }
 
@@ -593,8 +707,8 @@ package away3d.core.draw
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
             	uv12:UV = UV.median(uv1, uv2);
             return [
-                create(source, material, projection, v0, v1, v12, uv0, uv1, uv12),
-                create(source, material, projection, v12, v2, v0, uv12, uv2, uv0) 
+                create(object, material, projection, v0, v1, v12, uv0, uv1, uv12),
+                create(object, material, projection, v12, v2, v0, uv12, uv2, uv0) 
             ];
         }
 
@@ -603,28 +717,35 @@ package away3d.core.draw
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
             	uv20:UV = UV.median(uv2, uv0);
             return [
-                create(source, material, projection, v1, v2, v20, uv1, uv2, uv20),
-                create(source, material, projection, v20, v0, v1, uv20, uv0, uv1) 
+                create(object, material, projection, v1, v2, v20, uv1, uv2, uv20),
+                create(object, material, projection, v20, v0, v1, uv20, uv0, uv1) 
             ];                                                
         }
-
+		
+		internal var v01:ScreenVertex;
+		internal var v12:ScreenVertex;
+		internal var v20:ScreenVertex;
+		internal var uv01:UV;
+		internal var uv12:UV;
+		internal var uv20:UV;
+		
         public override final function quarter(focus:Number):Array
         {
             if (area < 20)
                 return null;
 
-            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
-            	v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
-            	v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
-            	uv01:UV = UV.median(uv0, uv1),
-            	uv12:UV = UV.median(uv1, uv2),
-            	uv20:UV = UV.median(uv2, uv0);
+            v01 = ScreenVertex.median(v0, v1, focus),
+            v12 = ScreenVertex.median(v1, v2, focus),
+            v20 = ScreenVertex.median(v2, v0, focus),
+            uv01 = UV.median(uv0, uv1),
+            uv12 = UV.median(uv1, uv2),
+            uv20 = UV.median(uv2, uv0);
 
             return [
-                create(source, material, projection, v0, v01, v20, uv0, uv01, uv20),
-                create(source, material, projection, v1, v12, v01, uv1, uv12, uv01),
-                create(source, material, projection, v2, v20, v12, uv2, uv20, uv12),
-                create(source, material, projection, v01, v12, v20, uv01, uv12, uv20)
+                create(object, material, projection, v0, v01, v20, uv0, uv01, uv20),
+                create(object, material, projection, v1, v12, v01, uv1, uv12, uv01),
+                create(object, material, projection, v2, v20, v12, uv2, uv20, uv12),
+                create(object, material, projection, v01, v12, v20, uv01, uv12, uv20)
             ];
         }
 
@@ -650,11 +771,11 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(source:Object3D, material:ITriangleMaterial, projection:Projection,
+        public static function create(object:Object3D, material:ITriangleMaterial, projection:Projection,
             v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
         {
             var tri:DrawTriangle = new DrawTriangle();
-            tri.source = source;
+            tri.object = object;
             tri.material = material;
             tri.projection = projection;
             tri.v0 = v0;
@@ -669,16 +790,132 @@ package away3d.core.draw
 
         public function calc():void
         {
+            minX = int(getMinX());
+            minY = int(getMinY());
+            minZ = int(getMinZ());
+            maxX = int(getMaxX()+1);
+            maxY = int(getMaxY()+1);
+            maxZ = int(getMaxZ()+1);
+            /*
+            minX = int((v0.x > v1.x) ? (v1.x > v2.x ?  v2.x : v1.x) : (v0.x > v2.x ?  v2.x : v0.x));
+            minY = int((v0.y > v1.y) ? (v1.y > v2.y ?  v2.y : v1.y) : (v0.y > v2.y ?  v2.y : v0.x));
+            maxX = int(((v0.x < v1.x) ? (v1.x < v2.x ?  v2.x : v1.x) : (v0.x < v2.x ?  v2.x : v0.x))+1);
+            maxY = int(((v0.y < v1.y) ? (v1.y < v2.y ?  v2.y : v1.y) : (v0.y < v2.y ?  v2.y : v0.y))+1);
             minZ = (v0.z > v1.z) ? (v1.z > v2.z ?  v2.z : v1.z) : (v0.z > v2.z ?  v2.z : v0.z);
             maxZ = (v0.z < v1.z) ? (v1.z < v2.z ?  v2.z : v1.z) : (v0.z < v2.z ?  v2.z : v0.z);
+            */
             screenZ = (v0.z + v1.z + v2.z) / 3;
-            minX = int(Math.floor((v0.x > v1.x) ? (v1.x > v2.x ?  v2.x : v1.x) : (v0.x > v2.x ?  v2.x : v0.x)));
-            minY = int(Math.floor((v0.y > v1.y) ? (v1.y > v2.y ?  v2.y : v1.y) : (v0.y > v2.y ?  v2.y : v0.y)));
-            maxX = int(Math.ceil ((v0.x < v1.x) ? (v1.x < v2.x ?  v2.x : v1.x) : (v0.x < v2.x ?  v2.x : v0.x)));
-            maxY = int(Math.ceil ((v0.y < v1.y) ? (v1.y < v2.y ?  v2.y : v1.y) : (v0.y < v2.y ?  v2.y : v0.y)));
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
         }
-
+		
+		public function getMaxX():Number
+        {
+            if (v0.x > v1.x)
+            {
+                if (v0.x > v2.x)
+                    return v0.x;
+                else
+                    return v2.x;
+            }
+            else
+            {
+                if (v1.x > v2.x)
+                    return v1.x;
+                else
+                    return v2.x;
+            }
+        }
+        
+        public function getMinX():Number
+        {
+            if (v0.x < v1.x)
+            {
+                if (v0.x < v2.x)
+                    return v0.x;
+                else
+                    return v2.x;
+            }
+            else
+            {
+                if (v1.x < v2.x)
+                    return v1.x;
+                else
+                    return v2.x;
+            }
+        }
+        
+        public function getMaxY():Number
+        {
+            if (v0.y > v1.y)
+            {
+                if (v0.y > v2.y)
+                    return v0.y;
+                else
+                    return v2.y;
+            }
+            else
+            {
+                if (v1.y > v2.y)
+                    return v1.y;
+                else
+                    return v2.y;
+            }
+        }
+        
+        public function getMinY():Number
+        {
+            if (v0.y < v1.y)
+            {
+                if (v0.y < v2.y)
+                    return v0.y;
+                else
+                    return v2.y;
+            }
+            else
+            {
+                if (v1.y < v2.y)
+                    return v1.y;
+                else
+                    return v2.y;
+            }
+        }
+        
+        public function getMaxZ():Number
+        {
+            if (v0.z > v1.z)
+            {
+                if (v0.z > v2.z)
+                    return v0.z;
+                else
+                    return v2.z;
+            }
+            else
+            {
+                if (v1.z > v2.z)
+                    return v1.z;
+                else
+                    return v2.z;
+            }
+        }
+        
+        public function getMinZ():Number
+        {
+            if (v0.z < v1.z)
+            {
+                if (v0.z < v2.z)
+                    return v0.z;
+                else
+                    return v2.z;
+            }
+            else
+            {
+                if (v1.z < v2.z)
+                    return v1.z;
+                else
+                    return v2.z;
+            }
+        }
+        
         public override function toString():String
         {
             var color:String = "";

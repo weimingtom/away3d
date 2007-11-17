@@ -59,9 +59,9 @@ package away3d.core.block
             return contains(pri.minX, pri.minY) && contains(pri.minX, pri.maxY) && contains(pri.maxX, pri.maxY) && contains(pri.maxX, pri.minY);
         }
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
-            var graphics:Graphics = session.graphics;
+            var graphics:Graphics = object.session.graphics;
             graphics.lineStyle(2, Color.fromHSV(0, 0, (Math.sin(getTimer()/1000)+1)/2));
             for (var i:int = 0; i < boundlines.length; i++)
             {

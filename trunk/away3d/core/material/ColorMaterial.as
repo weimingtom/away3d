@@ -27,11 +27,16 @@ package away3d.core.material
             alpha = init.getNumber("alpha", 1, {min:0, max:1});
         }
 
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public function renderTriangle(tri:DrawTriangle):void
         {
-            session.renderTriangleColor(color, alpha, tri.v0, tri.v1, tri.v2);
+            tri.object.session.renderTriangleColor(color, alpha, tri.v0, tri.v1, tri.v2);
         }
-
+		
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             return (alpha > 0);

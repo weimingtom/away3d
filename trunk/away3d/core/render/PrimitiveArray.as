@@ -1,16 +1,16 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.draw.*;
-    import away3d.core.render.*;
     import away3d.core.block.*;
+    import away3d.core.draw.*;
+    import away3d.core.scene.*;
 
     /** Array for storing drawing primitives */
     public class PrimitiveArray implements IPrimitiveConsumer
     {
         private var triangles:Array = [];
-
+		private var containers:Array = [];
+		
         private var clip:Clipping;
         private var blockers:Array;
 
@@ -38,7 +38,21 @@ package away3d.core.render
                 triangles.push(pri);
             }
         }
-
+		
+		public function canvas(object:Object3D):void
+		{
+			containers.push(object);
+		}
+		
+		public function sortContainers(view:View3D):void
+		{
+			containers.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
+			for (var i:String in containers)
+			{
+				view.objectLayer.setChildIndex(containers[i].canvas[view], int(i));
+			}
+		}
+		
         public function list():Array
         {
             var triangles:Array = this.triangles;

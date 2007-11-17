@@ -1,4 +1,4 @@
-package away3d.loaders
+﻿package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,8 +6,7 @@ package away3d.loaders
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-    import away3d.core.stats.*;
-
+	import away3d.core.stats.*;
     import flash.utils.*;
 
    /**
@@ -35,7 +34,7 @@ package away3d.loaders
         
         private var mesh:Mesh;
         private var scaling:Number;
-        private var url:String = "";
+		private var url:String = "";
 
         public function Md2(data:ByteArray, init:Object = null)
         {
@@ -55,7 +54,7 @@ package away3d.loaders
     
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            url = url;
+			url = url;
             return Object3DLoader.load(url, parse, true, init);
         }
     
@@ -116,7 +115,7 @@ package away3d.loaders
                 mesh.addFace(new Face(vertices[a], vertices[b], vertices[c], null, uvs[ta], uvs[tb], uvs[tc]));
             }
             
-            Stats.instance.register(".Md2",mesh.faces.length, url);
+			Stats.instance.register(".Md2",mesh.faces.length, url);
             // Frame animation data
             //      This part is a little funky.
             data.position = offset_frames;

@@ -1,12 +1,12 @@
 package away3d.core.material
 {
     import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
     import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.BitmapData;
     import flash.display.Sprite;
     import flash.geom.Matrix;
@@ -15,13 +15,16 @@ package away3d.core.material
     public class MovieMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var movie:Sprite;
-        public var bitmap:BitmapData;
+        private var _bitmap:BitmapData;
         private var lastsession:int;
         public var transparent:Boolean;
         public var smooth:Boolean;
         public var repeat:Boolean;
         public var debug:Boolean;
         public var auto:Boolean;
+        public var interactive:Boolean;
+        
+        protected var session:RenderSession;
         
         public function get width():Number
         {
@@ -31,6 +34,11 @@ package away3d.core.material
         public function get height():Number
         {
             return movie.height;
+        }
+        
+        public function get bitmap():BitmapData
+        {
+        	return _bitmap;
         }
         
         public function get scale():Number2D
@@ -54,39 +62,83 @@ package away3d.core.material
             repeat = init.getBoolean("repeat", false);
             debug = init.getBoolean("debug", false);
             auto = init.getBoolean("auto", true);
+            interactive = init.getBoolean("interactive", true);
 
-            this.bitmap = new BitmapData(movie.width, movie.height, transparent, (transparent)? 0x00FFFFFF : 0x000000);
+            this._bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
         
-        internal var mapping:Matrix;
-        
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public function renderTriangle(tri:DrawTriangle):void
         {
-            if (auto)
-                if (lastsession != session.time)
-                {
-                    lastsession = session.time;
-                    update();
+        	session = tri.object.session;
+        	
+            if (lastsession != session.time)
+            {
+                lastsession = session.time;
+                if (auto)
+                	update();
+                if (interactive) {
+                	//check to see if interactiveLayer is initialised
+	                if (!session.view.interactiveLayer.contains(movie)) {
+                		session.view.interactiveLayer.addChild(movie);
+                		resetInteractiveLayer();
+                		tri.object.addOnMouseOver(onMouseOver);
+                		tri.object.addOnMouseOut(onMouseOut);
+	                }
+                	
                 }
-            
-            mapping = tri.texturemapping || tri.transformUV(this);
-            
-            session.renderTriangleBitmap(bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
+                	
+            }
+			
+            session.renderTriangleBitmap(_bitmap, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
-
+		
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function update():void
         {
-            bitmap.fillRect(bitmap.rect, 0x00FFFFFF);
-            bitmap.draw(movie);
+            _bitmap.fillRect(_bitmap.rect, 0);
+            _bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
         }
-
+		
+		public function onMouseOver(event:MouseEvent3D):void
+		{
+			if (event.material == this) {
+				event.object.addOnMouseMove(onMouseMove);
+				onMouseMove(event);
+			}
+		}
+		
+		public function onMouseOut(event:MouseEvent3D):void
+		{
+			if (event.material == this) {
+				event.object.removeOnMouseMove(onMouseMove);
+				resetInteractiveLayer();
+			}
+			
+		}
+		
+		public function onMouseMove(event:MouseEvent3D):void
+		{
+			movie.x = event.screenX - event.uv.u*movie.width;
+			movie.y = event.screenY - (1 - event.uv.v)*movie.height;
+		}
+						
         public function get visible():Boolean
         {
             return true;
         }
- 
+ 		
+ 		public function resetInteractiveLayer():void
+ 		{
+ 			movie.x = -10000;
+ 			movie.y = -10000;
+ 		}
+ 		
     }
 }

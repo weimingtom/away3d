@@ -1,14 +1,15 @@
 package away3d.core.render
 {
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
-    import flash.geom.*;
+    import away3d.core.scene.*;
+    
     import flash.display.*;
+    import flash.geom.*;
 
     /** Interface for renderers capable of rendering scene to the view */
     public interface IRenderer
     {
-        function render(view:View3D/*scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping*/):void;
+        function render(view:View3D):Array;
         function desc():String;
         function stats():String;
     }

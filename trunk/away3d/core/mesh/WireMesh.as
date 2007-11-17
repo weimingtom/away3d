@@ -1,11 +1,11 @@
 package away3d.core.mesh
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.render.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
     
     import flash.utils.Dictionary;
@@ -65,8 +65,10 @@ package away3d.core.mesh
                 removeSegment(segment);
         }
 
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             var seg:DrawSegment;
             for each (var segment:Segment in _segments)
             {
@@ -94,7 +96,7 @@ package away3d.core.mesh
                 if (!seg.material.visible)
                     continue;
 
-                seg.source = this;
+                seg.object = this;
                 seg.projection = projection;
                 consumer.primitive(seg);
                 seg = null;

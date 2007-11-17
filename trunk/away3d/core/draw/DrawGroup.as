@@ -46,11 +46,11 @@ package away3d.core.draw
             screenZ = (maxZ + minZ) / 2;
         }
         
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
             primitives.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
             for each (var pri:DrawPrimitive in primitives)
-                pri.render(session);
+                pri.render();
         }
 
         public override function contains(x:Number, y:Number):Boolean

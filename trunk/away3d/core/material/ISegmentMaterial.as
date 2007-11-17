@@ -9,6 +9,6 @@ package away3d.core.material
     /** Interface for all material that are capable of drawing line segments */
     public interface ISegmentMaterial extends IMaterial
     {
-        function renderSegment(seg:DrawSegment, session:RenderSession):void;
+        function renderSegment(seg:DrawSegment):void;
     }
 }

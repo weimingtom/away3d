@@ -61,7 +61,7 @@ package away3d.test
         {
             stage.align = StageAlign.TOP_LEFT;
             stage.scaleMode = StageScaleMode.NO_SCALE;
-            stage.showDefaultContextMenu = false;
+            //stage.showDefaultContextMenu = false;
             stage.stageFocusRect = false;
 
             camera = new HoverCamera3D({zoom:3, focus:200, distance:800});
@@ -73,7 +73,7 @@ package away3d.test
 
             camera.mintiltangle = -10;
 
-            view = new View3D({camera:camera});
+            view = new View3D({camera:camera, stats:true});
             addChild(view);
             
             lefttopgroup = new Sprite();

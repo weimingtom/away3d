@@ -1,15 +1,15 @@
 package away3d.core.mesh
 {
     import away3d.core.*;
+    import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.mesh.*;
-    import away3d.core.draw.*;
-    import away3d.core.utils.*;
     import away3d.core.render.*;
+    import away3d.core.utils.*;
     
-    import flash.geom.Matrix;
     import flash.events.Event;
+    import flash.geom.*;
+    import flash.utils.*;
 
     /** Mesh's triangle face */
     public class Face extends BaseMeshElement
@@ -30,12 +30,20 @@ package away3d.core.mesh
         arcane var _back:ITriangleMaterial;
         arcane var _dt:DrawTriangle = new DrawTriangle();
         private var _normal:Number3D;
-
+		
+		public var parent:Mesh;
+		public var bitmapRect:Rectangle;
+		
         public override function get vertices():Array
         {
             return [_v0, _v1, _v2];
         }
-
+		
+		public function get uvs():Array
+        {
+            return [_uv0, _uv1, _uv2];
+        }
+        
         public function get v0():Vertex
         {
             return _v0;
@@ -118,7 +126,7 @@ package away3d.core.mesh
             _material = value;
 
             _texturemapping = null;
-
+			
             notifyMaterialChange();
         }
 
@@ -246,7 +254,7 @@ package away3d.core.mesh
             }
             return _normal;
         }
-
+		
         public override function get radius2():Number
         {
             var rv0:Number = _v0._x*_v0._x + _v0._y*_v0._y + _v0._z*_v0._z;
@@ -269,6 +277,78 @@ package away3d.core.mesh
             }
         }
 
+        public function get maxU():Number
+        {
+            if (_uv0._u > _uv1._u)
+            {
+                if (_uv0.u > _uv2._u)
+                    return _uv0._u;
+                else
+                    return _uv2._u;
+            }
+            else
+            {
+                if (_uv1._u > _uv2._u)
+                    return _uv1._u;
+                else
+                    return _uv2._u;
+            }
+        }
+        
+        public function get minU():Number
+        {
+            if (_uv0._u < _uv1._u)
+            {
+                if (_uv0._u < _uv2._u)
+                    return _uv0._u;
+                else
+                    return _uv2._u;
+            }
+            else
+            {
+                if (_uv1._u < _uv2._u)
+                    return _uv1._u;
+                else
+                    return _uv2._u;
+            }
+        }
+        
+        public function get maxV():Number
+        {
+            if (_uv0._v > _uv1._v)
+            {
+                if (_uv0._v > _uv2._v)
+                    return _uv0._v;
+                else
+                    return _uv2._v;
+            }
+            else
+            {
+                if (_uv1._v > _uv2._v)
+                    return _uv1._v;
+                else
+                    return _uv2._v;
+            }
+        }
+        
+        public function get minV():Number
+        {
+            if (_uv0._v < _uv1._v)
+            {
+                if (_uv0._v < _uv2._v)
+                    return _uv0._v;
+                else
+                    return _uv2._v;
+            }
+            else
+            {
+                if (_uv1._v < _uv2._v)
+                    return _uv1._v;
+                else
+                    return _uv2._v;
+            }
+        }
+        
         public override function get maxX():Number
         {
             if (_v0._x > _v1._x)
@@ -397,8 +477,8 @@ package away3d.core.mesh
 
         arcane var _texturemapping:Matrix;
         arcane var _mappingmaterial:IUVMaterial;
-        
-        internal var uv_u0:Number;
+		
+		internal var uv_u0:Number;
         internal var uv_u1:Number;
         internal var uv_u2:Number;
         internal var uv_v0:Number;
@@ -456,8 +536,19 @@ package away3d.core.mesh
                 uv_u2 -= (uv_u2 > 0.05) ? 0.04 : -0.04;
                 uv_v2 -= (uv_v2 > 0.06) ? 0.06 : -0.06;
             }
-  
-            _texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
+            /*
+			if (uvm is Dot3BitmapMaterial || uvm is PhongBitmapMaterial)
+			{
+				bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)+2), int(height*(maxV-minV)+2));
+            	if (bitmapRect.width == 0)
+            		bitmapRect.width = 1;
+            	if (bitmapRect.height == 0)
+            		bitmapRect.height = 1;
+            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0 - bitmapRect.x, uv_v0 - bitmapRect.y);			
+			} else {
+			*/
+            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
+			//}
             _texturemapping.invert();
             return _texturemapping;
         }
@@ -480,7 +571,8 @@ package away3d.core.mesh
             this.uv0 = uv0;
             this.uv1 = uv1;
             this.uv2 = uv2;
-
+            _dt.face = this;
+            
             //if (defaultExtraClass != null)
             //    extra = new defaultExtraClass(this);
         }

@@ -60,8 +60,10 @@ package away3d.core.sprite
             bitmaps[vertex] = bitmap;
         }
     
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             use namespace arcane;
 
             if (vertices.length == 0)

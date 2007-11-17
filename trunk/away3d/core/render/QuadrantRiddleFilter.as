@@ -37,13 +37,13 @@ package away3d.core.render
                         else
                             check = 0;
                     */
-                    var rivals:Array = tritree.get(tri.minX, tri.minY, tri.maxX, tri.maxY, tri.source);
+                    var rivals:Array = tritree.get(tri.minX, tri.minY, tri.maxX, tri.maxY, tri.object);
                     for each (var rivalp:DrawPrimitive in rivals)
                     {
                         if (rivalp == tri)
                             continue;
-                        if (tri.source != null)
-                            if (rivalp.source == tri.source)
+                        if (tri.object != null)
+                            if (rivalp.object == tri.object)
                                 continue;
                         if (rivalp.minZ >= tri.maxZ)
                             continue;

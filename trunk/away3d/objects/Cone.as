@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;

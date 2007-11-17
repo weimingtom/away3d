@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.scene.*;
@@ -93,7 +93,7 @@ package away3d.objects
             quarterFaces();
             quarterFaces();
 
-            mousable = false;
+            mouseEnabled = false;
 			
 			Stats.instance.register("Skybox6",faces.length,"primitive");
         }

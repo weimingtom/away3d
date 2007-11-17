@@ -2,8 +2,8 @@ package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.render.*;
     import away3d.core.math.*;
+    import away3d.core.render.*;
     import away3d.core.utils.*;
 
     /** A vertex in the 3D space */
@@ -142,9 +142,12 @@ package away3d.core.mesh
             return "new Vertex("+_x+", "+_y+", "+z+")";
         }
 
-        private var projected:ScreenVertex;
+        private var projected:ScreenVertex = new ScreenVertex();
         private var projection:Projection;
-
+		private var view:Matrix3D;
+		private var sz:Number;
+		private var persp:Number;
+		
         /** Project a point to the screen space */
         public function project(projection:Projection):ScreenVertex
         {
@@ -153,17 +156,23 @@ package away3d.core.mesh
 
             this.projection = projection;
 
-            if (projected == null) 
-                projected = new ScreenVertex();
-
-            var vx:Number = x;
-            var vy:Number = y;
-            var vz:Number = z;
-
-            var view:Matrix3D = projection.view;
+            view = projection.view;
     
-            var sz:Number = vx * view.szx + vy * view.szy + vz * view.szz + view.tz;
-    
+            sz = x * view.szx + y * view.szy + z * view.szz + view.tz;
+    		/*
+    		//modified
+    		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
+    		var wy:Number = x * view.syx + y * view.syy + z * view.syz + view.ty;
+    		var wz:Number = x * view.szx + y * view.szy + z * view.szz + view.tz;
+			var wx2:Number = Math.pow(wx, 2);
+			var wy2:Number = Math.pow(wy, 2);
+    		var c:Number = Math.sqrt(wx2 + wy2 + wz*wz);
+			var c2:Number = (wx2 + wy2);
+			persp = c2? projection.focus*(c - wz)/c2 : 0;
+			sz = (c != 0 && wz != -c)? c*Math.sqrt(0.5 + 0.5*wz/c) : 0;
+			*/
+    		//end modified
+    		
             if (isNaN(sz))
                 throw new Error("isNaN(sz)");
 
@@ -175,12 +184,15 @@ package away3d.core.mesh
             else
                 projected.visible = true;
 
-            var persp:Number = projection.zoom / (1 + sz / projection.focus);
+         	persp = projection.zoom / (1 + sz / projection.focus);
 
+            projected.x = (x * view.sxx + y * view.sxy + z * view.sxz + view.tx) * persp;
+            projected.y = (x * view.syx + y * view.syy + z * view.syz + view.ty) * persp;
             projected.z = sz;
-            projected.x = (vx * view.sxx + vy * view.sxy + vz * view.sxz + view.tx) * persp;
-            projected.y = (vx * view.syx + vy * view.syy + vz * view.syz + view.ty) * persp;
-
+            /*
+            projected.x = wx * persp;
+            projected.y = wy * persp;
+			*/				
             return projected;
         }
         

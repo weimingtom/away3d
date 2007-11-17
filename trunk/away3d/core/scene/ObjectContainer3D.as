@@ -437,7 +437,7 @@ package away3d.core.scene
                 traverser.apply(this);
                 for each (var child:Object3D in children)
                     child.traverse(traverser);
-                traverser.leave();
+                traverser.leave(this);
             }
         }
 
