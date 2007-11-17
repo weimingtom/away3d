@@ -1,37 +1,24 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
-    import flash.utils.*;
-    import flash.geom.*;
+    import away3d.core.scene.*;
+    
     import flash.display.*;
-    import away3d.core.mesh.Vertex;
+    import flash.geom.*;
+    import flash.utils.*;
 
     /** Object holding information for one rendering frame */
-    public final class RenderSession
+    public class RenderSession
     {
-        public var scene:Scene3D;
-        public var camera:Camera3D;
+        public var view:View3D;
         public var container:Sprite;
-        public var clip:Clipping;
-        public var lightarray:LightArray;
         public var time:int;
         
-		public var gfx:Graphics
-        private var _graphics:Graphics;
-
-        public function get graphics():Graphics
-        {
-            if (_graphics == null)
-            {
-                var sprite:Sprite = new Sprite();
-                container.addChild(sprite);
-                _graphics = sprite.graphics;
-            }
-            return _graphics;
-        }
+        public var graphics:Graphics;
+        public var lightarray:LightArray;
+        public var clip:Clipping;
         
         internal var a:Number;
         internal var b:Number;
@@ -54,16 +41,9 @@ package away3d.core.render
 		internal var m:Matrix = new Matrix();
 		
 		internal var map:Matrix;
-		//internal var v0:ScreenVertex;
-		//internal var v1:ScreenVertex;
-		//internal var v2:ScreenVertex;
 		
         public function renderTriangleBitmap(bitmap:BitmapData, map:Matrix, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean):void
         {
-        	gfx = _graphics || graphics;
-        	
-        	//map = tri.texturemapping || tri.transformUV(tri.material as IUVMaterial);
-        	
         	a2 = (v1x = v1.x) - (v0x = v0.x);
         	b2 = (v1y = v1.y) - (v0y = v0.y);
         	c2 = (v2x = v2.x) - v0x;
@@ -76,52 +56,61 @@ package away3d.core.render
 			m.tx = (tx = map.tx)*a2 + (ty = map.ty)*c2 + v0x;
 			m.ty = tx*b2 + ty*d2 + v0y;
 			
-            gfx.lineStyle();
-            gfx.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 - v2x*b2 > 400));
-            gfx.moveTo(v0x, v0y);
-            gfx.lineTo(v1x, v1y);
-            gfx.lineTo(v2x, v2y);
-            gfx.endFill();
+            graphics.lineStyle();
+            graphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
+            graphics.moveTo(v0x, v0y);
+            graphics.lineTo(v1x, v1y);
+            graphics.lineTo(v2x, v2y);
+            graphics.endFill();
 
         }
 
         public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
-        {
-            gfx = _graphics || graphics;
-        	
-            gfx.lineStyle();
-            gfx.beginFill(color, alpha);
-            gfx.moveTo(v0.x, v0.y);
-            gfx.lineTo(v1.x, v1.y);
-            gfx.lineTo(v2.x, v2.y);
-            gfx.endFill();
+        {       	
+            graphics.lineStyle();
+            graphics.beginFill(color, alpha);
+            graphics.moveTo(v0.x, v0.y);
+            graphics.lineTo(v1.x, v1.y);
+            graphics.lineTo(v2.x, v2.y);
+            graphics.endFill();
         }
 
         public function renderTriangleLine(color:int, alpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
-            gfx = _graphics || graphics;
-        	
-            gfx.lineStyle(color, alpha, width);
-            gfx.moveTo(v0x = v0.x, v0y = v0.y);
-            gfx.lineTo(v1.x, v1.y);
-            gfx.lineTo(v2.x, v2.y);
-            gfx.lineTo(v0x, v0y);
+            graphics.lineStyle(color, alpha, width);
+            graphics.moveTo(v0x = v0.x, v0y = v0.y);
+            graphics.lineTo(v1.x, v1.y);
+            graphics.lineTo(v2.x, v2.y);
+            graphics.lineTo(v0x, v0y);
         }
 
-        public function addDisplayObject(child:DisplayObject):void
+        public function renderTriangleLineFill(color:int, alpha:Number, wirecolor:int, wirealpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
-            _graphics = null;
-            container.addChild(child);
-            child.visible = true;
+            if (wirealpha > 0)
+                graphics.lineStyle(width, wirecolor, wirealpha);
+            else
+                graphics.lineStyle();
+    
+            if (alpha > 0)
+                graphics.beginFill(color, alpha);
+    
+            graphics.moveTo(v0.x, v0.y);
+            graphics.lineTo(v1.x, v1.y);
+            graphics.lineTo(v2.x, v2.y);
+    
+            if (wirealpha > 0)
+                graphics.lineTo(v0.x, v0.y);
+    
+            if (alpha > 0)
+                graphics.endFill();
         }
-
-        public function RenderSession(scene:Scene3D, camera:Camera3D, container:Sprite, clip:Clipping, lightarray:LightArray)
+        
+        public function RenderSession(view:View3D, container:Sprite, lightarray:LightArray)
         {
-            this.scene = scene;
-            this.camera = camera;
+            this.view = view;
+            this.clip = view.clip;
             this.container = container;
-            _graphics = container.graphics;
-            this.clip = clip;
+            this.graphics = container.graphics;
             this.lightarray = lightarray;
             this.time = getTimer();
         }

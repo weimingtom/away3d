@@ -1,4 +1,4 @@
-package away3d.core.mesh
+﻿package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.material.*;
@@ -10,8 +10,8 @@ package away3d.core.mesh
 
     public class VertexPosition
     {
-        use namespace arcane;
-        
+		use namespace arcane;
+		
         public var x:Number;
         public var y:Number;
         public var z:Number;

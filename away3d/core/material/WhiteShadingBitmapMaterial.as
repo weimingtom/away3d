@@ -1,16 +1,18 @@
 package away3d.core.material
 {
     import away3d.core.*;
-    import away3d.core.mesh.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
+    import away3d.core.mesh.*;
     import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.BitmapData;
-    import flash.geom.Matrix;
+    import flash.filters.ColorMatrixFilter;
     import flash.geom.ColorTransform;
+    import flash.geom.Matrix;
+    import flash.geom.Point;
     import flash.utils.Dictionary;
 
     /** Bitmap material that takes average of color lightings as a white lighting */
@@ -23,7 +25,10 @@ package away3d.core.material
         public var blackrender:Boolean;
         public var whiterender:Boolean;
         public var whitek:Number = 0.2;
-
+		
+		private var bitmapPoint:Point = new Point(0, 0);
+		private var colorTransform:ColorMatrixFilter = new ColorMatrixFilter();
+		
         public function get width():Number
         {
             return diffuse.width;
@@ -32,6 +37,11 @@ package away3d.core.material
         public function get height():Number
         {
             return diffuse.height;
+        }
+        
+        public function get bitmap():BitmapData
+        {
+        	return diffuse;
         }
         
         public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object = null)
@@ -89,8 +99,11 @@ package away3d.core.material
                 var bitmap:BitmapData = cache[brightness];
                 if (bitmap == null)
                 {
-                    bitmap = diffuse.clone();
-                    bitmap.colorTransform(bitmap.rect, new ColorTransform(brightness, brightness, brightness));
+                	bitmap = new BitmapData(diffuse.width, diffuse.height, true, 0x00000000);
+                	colorTransform.matrix = [brightness, 0, 0, 0, 0, 0, brightness, 0, 0, 0, 0, 0, brightness, 0, 0, 0, 0, 0, 1, 0];
+                	bitmap.applyFilter(diffuse, bitmap.rect, bitmapPoint, colorTransform);
+                    //bitmap = diffuse.clone();
+                    //bitmap.colorTransform(bitmap.rect, new ColorTransform(brightness, brightness, brightness));
                     cache[brightness] = bitmap;
                 }
                 session.renderTriangleBitmap(bitmap, mapping, v0, v1, v2, smooth, repeat);

@@ -18,16 +18,16 @@ package away3d.core.draw
         public var s12material:ISegmentMaterial;
         public var s20material:ISegmentMaterial;
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
             if (s01material != null)
-                s01material.renderSegment(DrawSegment.create(source, s01material, projection, v0, v1), session);
+                s01material.renderSegment(DrawSegment.create(object, s01material, projection, v0, v1));
             if (s12material != null)
-                s12material.renderSegment(DrawSegment.create(source, s12material, projection, v1, v2), session);
+                s12material.renderSegment(DrawSegment.create(object, s12material, projection, v1, v2));
             if (s20material != null)
-                s20material.renderSegment(DrawSegment.create(source, s20material, projection, v2, v0), session);
+                s20material.renderSegment(DrawSegment.create(object, s20material, projection, v2, v0));
 
-            material.renderTriangle(this, session);
+            material.renderTriangle(this);
         }
     }
 }

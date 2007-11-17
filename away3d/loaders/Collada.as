@@ -1,4 +1,4 @@
-package away3d.loaders
+﻿package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,7 +6,7 @@ package away3d.loaders
     import away3d.core.material.*;
     import away3d.core.mesh.*;
     import away3d.core.utils.*;
-    import away3d.core.stats.*;
+	import away3d.core.stats.*;
     import flash.utils.*;
 
     /** Collada scene loader */
@@ -18,7 +18,7 @@ package away3d.loaders
         private var material:ITriangleMaterial;
         private var scaling:Number;
         private var yUp:Boolean;
-        private var url:String = "";
+		private var url:String = "";
     
         public function Collada(xml:XML, init:Object = null)
         {
@@ -46,7 +46,7 @@ package away3d.loaders
 
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            url = url;
+			url = url;
             return Object3DLoader.load(url, parse, false, init);
         }
     
@@ -243,8 +243,8 @@ package away3d.loaders
             mesh.material = new WireColorMaterial(0xFF00FF);
     
             mesh.visible = true;
-            
-            Stats.instance.register(".Collada",mesh.faces.length, url);
+			
+			Stats.instance.register(".Collada",mesh.faces.length, url);
         }
     
         private function getMaterial(name:String, materials:Dictionary):ITriangleMaterial

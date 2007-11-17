@@ -13,7 +13,7 @@ package away3d.core.draw
     {
         public var projection:Projection;
 
-        public var source:Object3D;
+        public var object:Object3D;
 
         public var minZ:Number;
         public var maxZ:Number;
@@ -25,7 +25,12 @@ package away3d.core.draw
 
         //public var flag:int;
 
-        public function render(session:RenderSession):void
+        public function render():void
+        {
+            throw new Error("Not implemented");
+        }
+        
+        public function shade():void
         {
             throw new Error("Not implemented");
         }

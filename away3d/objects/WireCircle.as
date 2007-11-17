@@ -1,4 +1,4 @@
-package away3d.objects
+﻿package away3d.objects
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -34,9 +34,10 @@ package away3d.objects
             }
 
             for (i = 0; i < segments; i++)
+			{
                 addSegment(new Segment(vertices[i], vertices[(i+1) % segments]));
-			
-			Stats.instance.register("WireCircle", 0, "primitive");
+			}
+				Stats.instance.register("WireCircle", 0, "primitive");
         }
 
     }

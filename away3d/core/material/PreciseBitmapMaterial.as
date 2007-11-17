@@ -1,15 +1,15 @@
 package away3d.core.material
 {
     import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
     import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.BitmapData;
+    import flash.display.Sprite;
     import flash.geom.Matrix;
-
     import flash.utils.*;
 
     /** Bitmap material that renders bitmap texture taking into account perspective distortion */
@@ -44,10 +44,11 @@ package away3d.core.material
         internal var triangle:DrawTriangle = new DrawTriangle();
         
         internal var svArray:Array = new Array();
+        internal var mapping:Matrix;
         
-        public override function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public override function renderTriangle(tri:DrawTriangle):void
         {
-        	this.session = session;
+        	session = tri.object.session;
         	focus = tri.projection.focus;
         	mapping = tri.texturemapping || tri.transformUV(this);
         	map.a = mapping.a;

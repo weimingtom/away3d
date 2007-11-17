@@ -24,9 +24,9 @@ package away3d.core.draw
             v1 = null;
         }
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
-            material.renderSegment(this, session);
+            material.renderSegment(this);
         }
 
         public override function contains(x:Number, y:Number):Boolean
@@ -121,7 +121,7 @@ package away3d.core.draw
 
             var v01:ScreenVertex = new ScreenVertex(tv01x, tv01y, tv01z);
 
-            return [create(source, material, projection, v0, v01), create(source, material, projection, v01, v1)];
+            return [create(object, material, projection, v0, v01), create(object, material, projection, v01, v1)];
         }
 
         public override function getZ(x:Number, y:Number):Number
@@ -175,7 +175,7 @@ package away3d.core.draw
 
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 
-            return [create(source, material, projection, v0, v01), create(source, material, projection, v01, v1)];
+            return [create(object, material, projection, v0, v01), create(object, material, projection, v01, v1)];
         }
 
         public function distanceToCenter(x:Number, y:Number):Number
@@ -186,10 +186,10 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(source:Object3D, material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
+        public static function create(object:Object3D, material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
         {
             var tri:DrawSegment = new DrawSegment();
-            tri.source = source;
+            tri.object = object;
             tri.material = material;
             tri.projection = projection;
             tri.v0 = v0;

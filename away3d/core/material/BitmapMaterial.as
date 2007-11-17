@@ -13,24 +13,29 @@ package away3d.core.material
     /** Basic bitmap texture material */
     public class BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-        public var bitmap:BitmapData;
+        internal var _bitmap:BitmapData;
         public var smooth:Boolean;
         public var debug:Boolean;
         public var repeat:Boolean;
         
         public function get width():Number
         {
-            return bitmap.width;
+            return _bitmap.width;
         }
 
         public function get height():Number
         {
-            return bitmap.height;
+            return _bitmap.height;
+        }
+        
+        public function get bitmap():BitmapData
+        {
+        	return _bitmap;
         }
         
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
-            this.bitmap = bitmap;
+            this._bitmap = bitmap;
             
             init = Init.parse(init);
 
@@ -39,18 +44,19 @@ package away3d.core.material
             repeat = init.getBoolean("repeat", false);
         }
         
-        internal var mapping:Matrix;
-        
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
-        {
-        	mapping = tri.texturemapping || tri.transformUV(this);
-        	
-            session.renderTriangleBitmap(bitmap, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
-
+        public function renderTriangle(tri:DrawTriangle):void
+        {	
+			tri.object.session.renderTriangleBitmap(_bitmap, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
+			
             if (debug)
-                session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                tri.object.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
-
+		
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             return true;

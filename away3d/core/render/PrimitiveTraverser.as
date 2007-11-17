@@ -1,40 +1,58 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
-    import away3d.core.render.*;
+    import away3d.core.scene.*;
 
     /** Traverser that gathers drawing primitives to render the scene */
-    public class PrimitiveTraverser extends ProjectionTraverser
+    public class PrimitiveTraverser extends Traverser
     {
+    	protected var view:View3D;
+    	protected var session:RenderSession;
+    	protected var nodeSession:RenderSession;
         private var consumer:IPrimitiveConsumer;
         private var lights:ILightConsumer;
-
-        public function PrimitiveTraverser(consumer:IPrimitiveConsumer, lights:ILightConsumer, view:View3D)
+		
+		private var projection:Projection;
+		
+        public function PrimitiveTraverser(consumer:IPrimitiveConsumer, lights:ILightConsumer, view:View3D, session:RenderSession)
         {
+        	this.view = view;
+        	this.session = nodeSession = session;
             this.consumer = consumer;
             this.lights = lights;
-            super(view);
         }
-
-        public override function apply(object:Object3D):void
+		
+		public override function match(node:Object3D):Boolean
         {
-            if (object is IPrimitiveProvider)
+            if (!node.visible)
+                return false;
+            if (node is ILODObject)
+                return (node as ILODObject).matchLOD(view);
+            return true;
+        }
+        
+        public override function apply(node:Object3D):void
+        {
+            if (node is IPrimitiveProvider)
             {
-//                if (object != null)
-//                    throw new Error("We do need primitives");
-
-                var provider:IPrimitiveProvider = (object as IPrimitiveProvider);
-                var projection:Projection = new Projection(transform, view.camera.focus, view.camera.zoom);
-                provider.primitives(projection, consumer);
+                projection = new Projection(node.viewTransform, view.camera.focus, view.camera.zoom);
+                (node as IPrimitiveProvider).primitives(projection, consumer, nodeSession);
+                nodeSession = node.session;
             }
 
-            if (object is ILightProvider)
+            if (node is ILightProvider)
             {
-                var lightsource:ILightProvider = (object as ILightProvider);
-                lightsource.light(transform, lights);
+                (node as ILightProvider).light(node.viewTransform, lights);
             }
+        }
+        
+        public override function leave(node:Object3D):void
+        {
+        	if (node.parent is IPrimitiveProvider)
+        		nodeSession = node.parent.session;
+        	else if (node.parent == view.scene)
+        		nodeSession = session;
         }
 
     }

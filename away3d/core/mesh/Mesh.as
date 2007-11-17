@@ -1,15 +1,15 @@
 package away3d.core.mesh
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.render.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-    
     import away3d.objects.*;
-
+    
+    import flash.display.*;
     import flash.utils.Dictionary;
     
     /** Mesh constisting of faces and segments */
@@ -18,7 +18,8 @@ package away3d.core.mesh
         use namespace arcane;
 
         private var _faces:Array = [];
-
+		
+		
         public function get faces():Array
         {
             return _faces;
@@ -36,7 +37,10 @@ package away3d.core.mesh
 
         private var _vertfacesDirty:Boolean = true;
         private var _vertfaces:Dictionary;
-
+        
+        private var _vertnormalsDirty:Boolean = true;
+		private var _vertnormals:Dictionary;
+		
         private function findVertFaces():void
         {
             if (!_vertfacesDirty)
@@ -61,7 +65,35 @@ package away3d.core.mesh
                 else
                     _vertfaces[face.v2].push(face);
             }
-            _vertfacesDirty = false;    
+            
+            _vertfacesDirty = false;
+        }
+        
+        private function findVertNormals():void
+        {
+        	if (!_vertnormalsDirty)
+                return;
+            
+            _vertnormals = new Dictionary();
+            for each (var v:Vertex in vertices)
+            {
+            	var vF:Array = _vertfaces[v];
+            	var nX:Number = 0;
+            	var nY:Number = 0;
+            	var nZ:Number = 0;
+            	for each (var f:Face in vF)
+            	{
+	            	var fNormal:Number3D = f.normal;
+            		nX += fNormal.x;
+            		nY += fNormal.y;
+            		nZ += fNormal.z;
+            	}
+            	var vertNormal:Number3D = new Number3D(nX, nY, nZ);
+            	vertNormal.normalize();
+            	_vertnormals[v] = vertNormal;
+            }            
+            
+            _vertnormalsDirty = false;    
         }
 
         arcane function getFacesByVertex(vertex:Vertex):Array
@@ -71,7 +103,18 @@ package away3d.core.mesh
 
             return _vertfaces[vertex];
         }
-
+		
+		arcane function getVertexNormal(vertex:Vertex):Number3D
+        {
+        	if (_vertfacesDirty)
+                findVertFaces();
+            
+            if (_vertnormalsDirty)
+                findVertNormals();
+            
+            return _vertnormals[vertex];
+        }
+        
         arcane function neighbour01(face:Face):Face
         {
             if (_neighboursDirty)
@@ -217,13 +260,15 @@ package away3d.core.mesh
             if ((material == null) && (outline == null))
                 material = new WireColorMaterial();
         }
-
+		
         public function addFace(face:Face):void
         {
             addElement(face);
 
             _faces.push(face);
-
+			
+			face._dt.object = face.parent = this;
+			
             face.addOnVertexChange(onFaceVertexChange);
             rememberFaceNeighbours(face);
             _vertfacesDirty = true;
@@ -444,8 +489,10 @@ package away3d.core.mesh
 
         private var _debugboundingbox:WireCube;
 
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             if (outline != null)
                 if (_neighboursDirty)
                     findNeighbours();
@@ -479,9 +526,9 @@ package away3d.core.mesh
                 _debugboundingbox.v110.z = minZ;
                 _debugboundingbox.v111.z = maxZ;
                 if (_faces.length > 0)
-                    _debugboundingbox.primitives(projection, consumer);
+                    _debugboundingbox.primitives(projection, consumer, session);
             }
-
+			
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
             var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
@@ -491,7 +538,7 @@ package away3d.core.mesh
                 if (!face._visible)
                     continue;
 
-                if (tri == null)
+                //if (tri == null)
                     if (outline == null)
                         tri = face._dt; //new DrawTriangle();
                     else
@@ -515,7 +562,7 @@ package away3d.core.mesh
                 if (tri.maxZ < 0)
                     continue;
 
-                var backface:Boolean = tri.area <= 0;
+                var backface:Boolean = tri.area < 0;
 
                 if (backface)
                 {
@@ -618,13 +665,11 @@ package away3d.core.mesh
                         else
                             btri.material = transparent;
                     }
+	                tri.object = this;
+	                tri.face = face;
                 }
-
-                tri.source = this;
-                tri.face = face;
                 tri.projection = projection;
                 consumer.primitive(tri);
-                tri = null;
             }
         }
 

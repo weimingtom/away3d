@@ -2,9 +2,12 @@ package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.math.*;
+    import away3d.core.render.IPrimitiveConsumer;
+    import away3d.core.render.Projection;
+    import away3d.core.render.RenderSession;
     import away3d.core.utils.*;
-
-    import flash.events.MouseEvent;
+    
+    import flash.display.*;
     
     public class Object3D extends LazyEventDispatcher implements IClonable
     {
@@ -21,7 +24,11 @@ package away3d.core.scene
     
         private var _sceneTransformDirty:Boolean;
         private var _sceneTransform:Matrix3D;
-
+        
+		public var inverseSceneTransform:Matrix3D;
+		public var viewTransform:Matrix3D;
+		public var session:RenderSession;
+		
         private var _scene:Scene3D;
 
         private var _parent:ObjectContainer3D;
@@ -31,16 +38,29 @@ package away3d.core.scene
     
         // An optional object name.
         public var name:String;
+        
+        //an optional canvas array for the object in each view
+        public var canvas:Array = new Array();
     
+    	//an optional filters array that can be applied to the canvas
+    	public var filters:Array;
+    	
         // An object that contains user defined properties.
         public var extra:Object;
 
         // Are the mouse events allowed
-        public var mousable:Boolean;
+        public var mouseEnabled:Boolean;
         
         //use hand cursor when mouse is over object
-        public var handCursor:Boolean;
+        public var useHandCursor:Boolean;
         
+        public var ownCanvas:Boolean = false;
+        public var ownSession:RenderSession;
+        
+        public function get screenZ():Number
+        {
+        	return Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
+        }
         public function get radius():Number
         {
             return 0;
@@ -272,7 +292,7 @@ package away3d.core.scene
 
             _transformDirty = false;
             _rotationDirty = true;
-            _sceneTransformDirty = true;
+			_sceneTransformDirty = true;
             notifyTransformChange();
         }
 
@@ -314,7 +334,7 @@ package away3d.core.scene
                 return;
 
             _sceneTransform = Matrix3D.multiply(_parent.sceneTransform, transform);
-
+			inverseSceneTransform = Matrix3D.inverse(_sceneTransform);
             _sceneTransformDirty = false;
         }
     
@@ -328,10 +348,11 @@ package away3d.core.scene
             init = Init.parse(init);
 
             name = init.getString("name", null);
-
+			ownCanvas = init.getBoolean("ownCanvas", false);
             visible = init.getBoolean("visible", true);
-            mousable = init.getBoolean("mousable", true);
-            handCursor = init.getBoolean("handCursor", false);
+            mouseEnabled = init.getBoolean("mouseEnabled", true);
+            useHandCursor = init.getBoolean("useHandCursor", false);
+            filters = init.getArray("filters");
                                            
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
@@ -432,10 +453,31 @@ package away3d.core.scene
             {
                 traverser.enter(this);
                 traverser.apply(this);
-                traverser.leave();
+                traverser.leave(this);
             }
         }
-
+        
+		public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        {
+    		var v:View3D = session.view;
+        	if (ownCanvas) {
+        		if (canvas[v] == null)
+        			canvas[v] = new Sprite();
+        		var c:Sprite = canvas[v];
+        		c.filters = filters;
+        		if (!v.objectLayer.contains(c))
+        			v.objectLayer.addChild(c);
+        		this.session =  new RenderSession(v, c, session.lightarray);
+        		consumer.canvas(this);
+        	}
+        	else
+        	{
+        		if (canvas[v] != null)
+        			delete canvas[v];
+        		this.session = session;
+        	}
+        }
+        
         public function moveForward(distance:Number):void 
         { 
             translate(Number3D.FORWARD, distance); 
@@ -564,8 +606,8 @@ package away3d.core.scene
             object.transform = transform;
             object.name = name;
             object.visible = visible;
-            object.mousable = mousable;
-            object.handCursor = handCursor;
+            object.mouseEnabled = mouseEnabled;
+            object.useHandCursor = useHandCursor;
             object.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             return object;
 
@@ -576,7 +618,7 @@ package away3d.core.scene
         /*
             return new Light3D({x:x, y:y, z:z, 
                 rotationX:rotationX, rotationY:rotationY, rotationZ:rotationZ, 
-                name:name, visible:visible, mousable:mousable, handCursor:handCursor,
+                name:name, visible:visible, mouseEnabled:mouseEnabled, useHandCursor:useHandCursor,
                 extra: (extra is IClonable) ? (extra as IClonable).clone() : null,
                 color:color, distance:1, brightness:1, 
                 ambient:ambient, diffuse:diffuse, specular:specular,
@@ -666,47 +708,47 @@ package away3d.core.scene
 
         public function addOnMouseMove(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false, 0, false);
+            addEventListener(MouseEvent3D.MOUSE_MOVE, listener, false, 0, false);
         }
         public function removeOnMouseMove(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_MOVE+"3D", listener, false);
+            removeEventListener(MouseEvent3D.MOUSE_MOVE, listener, false);
         }
 
         public function addOnMouseDown(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false, 0, false);
+            addEventListener(MouseEvent3D.MOUSE_DOWN, listener, false, 0, false);
         }
         public function removeOnMouseDown(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_DOWN+"3D", listener, false);
+            removeEventListener(MouseEvent3D.MOUSE_DOWN, listener, false);
         }
 
         public function addOnMouseUp(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_UP+"3D", listener, false, 0, false);
+            addEventListener(MouseEvent3D.MOUSE_UP, listener, false, 0, false);
         }
         public function removeOnMouseUp(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_UP+"3D", listener, false);
+            removeEventListener(MouseEvent3D.MOUSE_UP, listener, false);
         }
         
         public function addOnMouseOver(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_OVER+"3D", listener, false, 0, false);
+            addEventListener(MouseEvent3D.MOUSE_OVER, listener, false, 0, false);
         }
         public function removeOnMouseOver(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_OVER+"3D", listener, false);
+            removeEventListener(MouseEvent3D.MOUSE_OVER, listener, false);
         }
 
         public function addOnMouseOut(listener:Function):void
         {
-            addEventListener(MouseEvent.MOUSE_OUT+"3D", listener, false, 0, false);
+            addEventListener(MouseEvent3D.MOUSE_OUT, listener, false, 0, false);
         }
         public function removeOnMouseOut(listener:Function):void
         {
-            removeEventListener(MouseEvent.MOUSE_OUT+"3D", listener, false);
+            removeEventListener(MouseEvent3D.MOUSE_OUT, listener, false);
         }
         
         arcane function dispatchMouseEvent(event:MouseEvent3D):Boolean

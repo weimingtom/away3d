@@ -9,7 +9,6 @@ package away3d.core.render
     public class ProjectionTraverser extends Traverser
     {
         protected var view:View3D;
-        protected var transform:Matrix3D;
         protected var cameraview:Matrix3D;
 
         public function ProjectionTraverser(view:View3D)
@@ -22,14 +21,14 @@ package away3d.core.render
         {
             if (!node.visible)
                 return false;
+            node.viewTransform = Matrix3D.multiply(cameraview, node.sceneTransform);
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(view, transform);
+                return (node as ILODObject).matchLOD(view);
             return true;
         }
 
         public override function enter(node:Object3D):void
         {
-            transform = Matrix3D.multiply(cameraview, node.sceneTransform);
         }
     }
 }

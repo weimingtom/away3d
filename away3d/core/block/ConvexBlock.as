@@ -1,13 +1,12 @@
 package away3d.core.block
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.mesh.*;
-    import away3d.core.render.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.block.*;
+    import away3d.core.mesh.*;
+    import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
     
     import flash.geom.*;
@@ -19,7 +18,7 @@ package away3d.core.block
 
         public var debug:Boolean;
         public var vertices:Array = [];
-    
+    	
         public function ConvexBlock(vertices:Array, init:Object = null)
         {
             super(init);
@@ -36,8 +35,10 @@ package away3d.core.block
             consumer.blocker(blocker(projection));
         }
 
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             if (debug)
                 consumer.primitive(blocker(projection));
         }
@@ -98,8 +99,10 @@ package away3d.core.block
             o = cross(result[result.length-2], result[result.length-1], result[0]);
             if (o > 0)
                 result.pop();
-
-            return new ConvexBlocker(result);
+			
+			var blkr:ConvexBlocker = new ConvexBlocker(result);
+			blkr.object = this;
+            return blkr;
         }
 
         private static function cross(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex):Number

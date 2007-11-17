@@ -29,31 +29,31 @@ package away3d.core.material
             width = init.getNumber("width", 1, {min:0});
         }
 
-        public function renderSegment(seg:DrawSegment, session:RenderSession):void
+        public function renderSegment(seg:DrawSegment):void
         {
             if (alpha <= 0)
                 return;
 
-            var graphics:Graphics = session.graphics;
+            var graphics:Graphics = seg.object.session.graphics;
             graphics.lineStyle(width, color, alpha);
             graphics.moveTo(seg.v0.x, seg.v0.y);
             graphics.lineTo(seg.v1.x, seg.v1.y);
             graphics.moveTo(seg.v0.x, seg.v0.y); // ????? bug?
         }
 
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public function renderTriangle(tri:DrawTriangle):void
         {
             if (alpha <= 0)
                 return;
 
-            var graphics:Graphics = session.graphics;
-            graphics.lineStyle(width, color, alpha);
-            graphics.moveTo(tri.v0.x, tri.v0.y);
-            graphics.lineTo(tri.v1.x, tri.v1.y);
-            graphics.lineTo(tri.v2.x, tri.v2.y);
-            graphics.lineTo(tri.v0.x, tri.v0.y);
+            tri.object.session.renderTriangleLine(color, alpha, width, tri.v0, tri.v1, tri.v2);
         }
-
+		
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             return (alpha > 0);

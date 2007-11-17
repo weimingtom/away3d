@@ -25,9 +25,9 @@ package away3d.core.draw
 
         public var smooth:Boolean;
 
-        public function DrawScaledBitmap(source:Object3D, bitmap:BitmapData, v:ScreenVertex, scale:Number, smooth:Boolean)
+        public function DrawScaledBitmap(object:Object3D, bitmap:BitmapData, v:ScreenVertex, scale:Number, smooth:Boolean)
         {
-            this.source = source;
+            this.object = object;
             this.bitmap = bitmap;
             this.v = v;
             this.scale = scale;
@@ -55,9 +55,9 @@ package away3d.core.draw
             bitmap = null;
         }
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
-            var graphics:Graphics = session.graphics;
+            var graphics:Graphics = object.session.graphics;
             graphics.lineStyle();
             //graphics.beginBitmapFill(bitmap, new Matrix(scale, 0, 0, scale, minX, minY), false);
             //graphics.drawRect(minX, minY, maxX-minX, maxY-minY);

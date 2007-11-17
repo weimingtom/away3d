@@ -12,11 +12,11 @@ package away3d.core.scene
         {
         }
 
-        public function leave():void
+        public function leave(node:Object3D):void
         {
         }
 
-        public function apply(object:Object3D):void
+        public function apply(node:Object3D):void
         {
         }
     }

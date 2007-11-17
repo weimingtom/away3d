@@ -90,9 +90,11 @@ package away3d.core.math
             return Math.acos(Number3D.dot(v, w)/(v.modulo*w.modulo));
         }
         
+        private var mod:Number;
+        
         public function normalize(val:Number = 1):void
         {
-            var mod:Number = modulo*val;
+            mod = modulo/val;
     
             if (mod != 0 && mod != 1)
             {
@@ -104,12 +106,12 @@ package away3d.core.math
     
         public function rotate(m:Matrix3D):Number3D
         {
-            var v:Number3D = new Number3D(
-                    x * m.sxx + y * m.sxy + z * m.sxz,
-                    x * m.syx + y * m.syy + z * m.syz,
-                    x * m.szx + y * m.szy + z * m.szz);
-            v.normalize();
-            return v;
+            return new Number3D
+            (
+                x * m.sxx + y * m.sxy + z * m.sxz,
+                x * m.syx + y * m.syy + z * m.syz,
+                x * m.szx + y * m.szy + z * m.szz
+            );
         }
         
         // Relative directions.
@@ -120,11 +122,12 @@ package away3d.core.math
         public static var UP      :Number3D = new Number3D( 0,  1,  0);
         public static var DOWN    :Number3D = new Number3D( 0, -1,  0);
         
+        private static var dist:Number;
         
         public static function closestPointOnPlane(p:Number3D, k:Number3D, n:Number3D):Number3D
         {
-            var distance:Number = Number3D.dot(n, Number3D.sub(p, k));
-            return Number3D.sub(p, Number3D.scale(n, distance));
+            dist = Number3D.dot(n, Number3D.sub(p, k));
+            return Number3D.sub(p, Number3D.scale(n, dist));
         }
     
         public function toString(): String

@@ -1,19 +1,22 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.draw.*;
     import away3d.core.block.*;
+    import away3d.core.draw.*;
+    import away3d.core.material.IUVMaterial;
+    import away3d.core.mesh.UV;
+    import away3d.core.scene.*;
     import away3d.core.stats.*;
-    import flash.utils.*;
-    import flash.geom.*;
+    
     import flash.display.*;
-	import flash.events.*;
+    import flash.events.*;
+    import flash.geom.*;
+    import flash.utils.*;
 	
     /** Basic renderer implementation */
     public class BasicRenderer implements IRenderer
     {
-        private var filters:Array;
+        protected var filters:Array;
 
         public function BasicRenderer(...filters)
         {
@@ -21,53 +24,78 @@ package away3d.core.render
             this.filters.push(new ZSortFilter());
         }
 
-        /*
-        private var tricount:int;
-        private var maxtriarea:Number;
-        private var sumtriarea:int;
-        private var info:String;
-        */
-
-        public function render(view:View3D):void
+        protected var scene:Scene3D;
+        protected var camera:Camera3D;
+        protected var container:Sprite;
+        protected var clip:Clipping;
+		
+		protected var projtraverser:ProjectionTraverser;
+		
+		protected var blockerarray:BlockerArray;
+        protected var blocktraverser:BlockerTraverser;
+        protected var blockers:Array;
+        
+        public var priarray:PrimitiveArray;
+        protected var lightarray:LightArray;
+        protected var pritraverser:PrimitiveTraverser;
+        protected var primitives:Array;
+        
+        protected var filter:IPrimitiveFilter;
+        
+        protected var session:RenderSession;
+        
+        protected var primitive:DrawPrimitive;
+        
+        protected var statsEvent:StatsEvent;
+        
+        public function render(view:View3D):Array
         {
         	
-            var scene:Scene3D = view.scene;
-            var camera:Camera3D = view.camera;
-            var container:Sprite = view.canvas;
-            var clip:Clipping = view.clip;
-
-            var graphics:Graphics = container.graphics;
-
-            // get blockers for occlution culling
-            var blockerarray:BlockerArray = new BlockerArray(clip);
-            var blocktraverser:BlockerTraverser = new BlockerTraverser(blockerarray, view);
+            scene = view.scene;
+            camera = view.camera;
+            container = view.canvas;
+            clip = view.clip;
+            
+			// resolve projection
+			projtraverser = new ProjectionTraverser(view);
+			scene.traverse(projtraverser);
+					
+            // get blockers for occlusion culling
+            blockerarray = new BlockerArray(clip);
+            blocktraverser = new BlockerTraverser(blockerarray, view);
             scene.traverse(blocktraverser);
-            var blockers:Array = blockerarray.list();
+            blockers = blockerarray.list();
 
+            
             // get lights and drawing primitives
-            var priarray:PrimitiveArray = new PrimitiveArray(clip, blockers);
-            var lightarray:LightArray = new LightArray();
-            var pritraverser:PrimitiveTraverser = new PrimitiveTraverser(priarray, lightarray, view);
+            priarray = new PrimitiveArray(clip, blockers);
+            lightarray = new LightArray();
+            session = new RenderSession(view, container, lightarray);
+            pritraverser = new PrimitiveTraverser(priarray, lightarray, view, session);
             scene.traverse(pritraverser);
-            var primitives:Array = priarray.list();
-
+            primitives = priarray.list();
+			
+			//sort containers
+			priarray.sortContainers(view);
+			
             // apply filters
-            for each (var filter:IPrimitiveFilter in filters)
+            for each (filter in filters)
                 primitives = filter.filter(primitives, scene, camera, container, clip);
 
-            var session:RenderSession = new RenderSession(scene, camera, container, clip, lightarray);
 
             // render all
-            for each (var primitive:DrawPrimitive in primitives)
-                primitive.render(session);
+            for each (primitive in primitives)
+                primitive.render();
             
             //dispatch stats
-            var statsEvent:StatsEvent = new StatsEvent(StatsEvent.RENDER);
+            statsEvent = new StatsEvent(StatsEvent.RENDER);
 			statsEvent.totalfaces = primitives.length;
 			statsEvent.camera = camera;
 			view.dispatchEvent(statsEvent);
+			
+			return primitives;
         }
-
+		
         public function desc():String
         {
             return "Basic ["+filters.join("+")+"]";

@@ -38,19 +38,19 @@ package away3d.core.render
             onlysource = dummysource;
         }
 
-        public function push(object:DrawPrimitive):void
+        public function push(pri:DrawPrimitive):void
         {
             if (onlysource == dummysource)
-                onlysource = object.source;
+                onlysource = pri.object;
             else
-                if (onlysource != object.source)
+                if (onlysource != pri.object)
                     onlysource == null;
 
-            if (((object.maxX > xdiv) && (object.minX < xdiv)) || ((object.maxY > ydiv) && (object.minY < ydiv)))
+            if (((pri.maxX > xdiv) && (pri.minX < xdiv)) || ((pri.maxY > ydiv) && (pri.minY < ydiv)))
             {
                 if (center == null)
                     center = new Array();
-                center.push(object);
+                center.push(pri);
                 return;
             }
 
@@ -59,7 +59,7 @@ package away3d.core.render
                 if (children == null)
                     children = new Array();
 
-                children.push(object);
+                children.push(pri);
 
                 if (children.length > level * 2)
                 {
@@ -72,48 +72,48 @@ package away3d.core.render
                 return;
             }
 
-            if (object.maxX <= xdiv)
+            if (pri.maxX <= xdiv)
             {
-                if (object.maxY <= ydiv)
+                if (pri.maxY <= ydiv)
                 {
                     if (lefttop == null)
                         lefttop = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
-                    lefttop.push(object);
+                    lefttop.push(pri);
                 }
                 else
                 {
                     if (leftbottom == null)
                         leftbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
-                    leftbottom.push(object);
+                    leftbottom.push(pri);
                 }
             }
             else
-            if (object.minX >= xdiv)
+            if (pri.minX >= xdiv)
             {
-                if (object.maxY <= ydiv)
+                if (pri.maxY <= ydiv)
                 {
                     if (righttop == null)
                         righttop = new PrimitiveQuadrantTreeNode(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
-                    righttop.push(object);
+                    righttop.push(pri);
                 }
                 else
                 {
                     if (rightbottom == null)
                         rightbottom = new PrimitiveQuadrantTreeNode(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
-                    rightbottom.push(object);
+                    rightbottom.push(pri);
                 }
             }
         }
 
-        public function remove(object:DrawPrimitive):void
+        public function remove(pri:DrawPrimitive):void
         {
             var index:int;
-            if (((object.maxX > xdiv) && (object.minX < xdiv)) || ((object.maxY > ydiv) && (object.minY < ydiv)))
+            if (((pri.maxX > xdiv) && (pri.minX < xdiv)) || ((pri.maxY > ydiv) && (pri.minY < ydiv)))
             {
                 if (center == null)
                     throw new Error("Can't remove");
 
-                index = center.indexOf(object);
+                index = center.indexOf(pri);
                 if (index == -1)
                     throw new Error("Can't remove");
                     
@@ -127,7 +127,7 @@ package away3d.core.render
                 if (children == null)
                     throw new Error("Can't remove");
 
-                index = children.indexOf(object);
+                index = children.indexOf(pri);
                 if (index == -1)
                     throw new Error("Can't remove");
 
@@ -136,35 +136,35 @@ package away3d.core.render
                 return;
             }
 
-            if (object.maxX <= xdiv)
+            if (pri.maxX <= xdiv)
             {
-                if (object.maxY <= ydiv)
+                if (pri.maxY <= ydiv)
                 {
                     if (lefttop == null)
                         throw new Error("Can't remove");
-                    lefttop.remove(object);
+                    lefttop.remove(pri);
                 }
                 else
                 {
                     if (leftbottom == null)
                         throw new Error("Can't remove");
-                    leftbottom.remove(object);
+                    leftbottom.remove(pri);
                 }
             }
             else
-            if (object.minX >= xdiv)
+            if (pri.minX >= xdiv)
             {
-                if (object.maxY <= ydiv)
+                if (pri.maxY <= ydiv)
                 {
                     if (righttop == null)
                         throw new Error("Can't remove");
-                    righttop.remove(object);
+                    righttop.remove(pri);
                 }
                 else
                 {
                     if (rightbottom == null)
                         throw new Error("Can't remove");
-                    rightbottom.remove(object);
+                    rightbottom.remove(pri);
                 }
             }
         }
@@ -195,7 +195,7 @@ package away3d.core.render
                     if (child.minY > maxY)
                         continue;
                     if (except != null)
-                        if (child.source == except)
+                        if (child.object == except)
                             continue;
                     result.push(child);
                 }
@@ -214,7 +214,7 @@ package away3d.core.render
                         if (child.minY > maxY)
                             continue;
                         if (except != null)
-                            if (child.source == except)
+                            if (child.object == except)
                                 continue;
                         result.push(child);
                     }
@@ -258,7 +258,7 @@ package away3d.core.render
 
         //private static var dummyprimitive:DrawPrimitive = new DrawDummy();
 
-        public function render(session:RenderSession, limit:Number):void
+        public function render(limit:Number):void
         {
             if (render_center_length == -1)
             {
@@ -290,17 +290,17 @@ package away3d.core.render
                 if (pri.screenZ < limit)
                     break;
 
-                render_other(session, pri.screenZ);
+                render_other(pri.screenZ);
 
-                pri.render(session);
+                pri.render();
 
                 render_center_index++;
             }
 
-            render_other(session, limit);
+            render_other(limit);
         }
 
-        private function render_other(session:RenderSession, limit:Number):void
+        private function render_other(limit:Number):void
         {
             if (render_children_length > 0)
             {
@@ -311,7 +311,7 @@ package away3d.core.render
                     if (pri.screenZ < limit)
                         return;
 
-                    pri.render(session);
+                    pri.render();
 
                     render_children_index++;
                 }
@@ -319,13 +319,13 @@ package away3d.core.render
             else
             {
                 if (lefttop != null)
-                    lefttop.render(session, limit);
+                    lefttop.render(limit);
                 if (leftbottom != null)
-                    leftbottom.render(session, limit);
+                    leftbottom.render(limit);
                 if (righttop != null)
-                    righttop.render(session, limit);
+                    righttop.render(limit);
                 if (rightbottom != null)
-                    rightbottom.render(session, limit);
+                    rightbottom.render(limit);
             }
         }
     }

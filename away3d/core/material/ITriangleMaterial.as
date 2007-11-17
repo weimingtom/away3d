@@ -9,6 +9,8 @@ package away3d.core.material
     /** Interface for all material that are capable of triangle faces */
     public interface ITriangleMaterial extends IMaterial
     {
-        function renderTriangle(tri:DrawTriangle, session:RenderSession):void;
+        function renderTriangle(tri:DrawTriangle):void;
+        
+        function shadeTriangle(tri:DrawTriangle):void;
     }
 }

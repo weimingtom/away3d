@@ -46,9 +46,9 @@ package away3d.core.draw
             bitmap = null;
         }
 
-        public override function render(session:RenderSession):void
+        public override function render():void
         {
-            var graphics:Graphics = session.graphics;
+            var graphics:Graphics = object.session.graphics;
             graphics.lineStyle();
             graphics.beginBitmapFill(bitmap, new Matrix(1, 0, 0, 1, v.x-bitmap.width/2, v.y-bitmap.height/2));
             graphics.drawRect(v.x-bitmap.width/2, v.y-bitmap.height/2, bitmap.width, bitmap.height);

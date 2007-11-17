@@ -1,16 +1,16 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
-    import away3d.core.render.*;
-
-    import flash.geom.*;
+    import away3d.core.scene.*;
+    
     import flash.display.*;
+    import flash.geom.*;
 
     /** Quadrant tree for storing drawing primitives */
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
+    	private var containers:Array = [];
         private var root:PrimitiveQuadrantTreeNode;
 
         private var clip:Clipping;
@@ -29,7 +29,21 @@ package away3d.core.render
                 root.push(pri);
             }
         }
-
+        
+		public function canvas(object:Object3D):void
+		{
+			containers.push(object);
+		}
+		
+		public function sortContainers(view:View3D):void
+		{
+			containers.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
+			for (var i:String in containers)
+			{
+				view.objectLayer.setChildIndex(containers[i].canvas[view], int(i));
+			}
+		}
+		
         public function push(object:DrawPrimitive):void
         {
             root.push(object);
@@ -56,9 +70,9 @@ package away3d.core.render
             return root.get(minX, minY, maxX, maxY, except);
         }
 
-        public function render(session:RenderSession):void
+        public function render():void
         {
-            root.render(session, -Infinity);
+            root.render(-Infinity);
         }
 
     }

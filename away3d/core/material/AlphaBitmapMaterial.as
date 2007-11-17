@@ -114,18 +114,19 @@ package away3d.core.material
             alpha = init.getNumber("alpha", 1, {min:0, max:1});
         }
         
-        internal var mapping:Matrix;
-        
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public function renderTriangle(tri:DrawTriangle):void
         {
-        	mapping = tri.texturemapping || tri.transformUV(this);
-        	
-            session.renderTriangleBitmap(_current, mapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
+            tri.object.session.renderTriangleBitmap(_current, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
-                session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                tri.object.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
-
+        
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             return _alpha > 0;

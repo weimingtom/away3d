@@ -14,14 +14,19 @@ package away3d.core.material
         {
         }
 
-        public function renderSegment(seg:DrawSegment, session:RenderSession):void
+        public function renderSegment(seg:DrawSegment):void
         {
         }
 
-        public function renderTriangle(tri:DrawTriangle, session:RenderSession):void
+        public function renderTriangle(tri:DrawTriangle):void
         {
         }
-
+		
+		public function shadeTriangle(tri:DrawTriangle):void
+        {
+        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
+        }
+        
         public function get visible():Boolean
         {
             return false;
