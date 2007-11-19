@@ -57,12 +57,12 @@ package away3d.core.material
 
             init = Init.parse(init);
 
-            transparent = init.getBoolean("transparent", false);
+            transparent = init.getBoolean("transparent", true);
             smooth = init.getBoolean("smooth", false);
             repeat = init.getBoolean("repeat", false);
             debug = init.getBoolean("debug", false);
             auto = init.getBoolean("auto", true);
-            interactive = init.getBoolean("interactive", true);
+            interactive = init.getBoolean("interactive", false);
 
             this._bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
