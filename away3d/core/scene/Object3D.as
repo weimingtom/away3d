@@ -270,6 +270,18 @@ package away3d.core.scene
         private static var toDEGREES:Number = 180 / Math.PI;
         private static var toRADIANS:Number = Math.PI / 180;
 
+        public function set position(value:Number3D):void
+        {
+            _transform.tx = value.x;
+            _transform.ty = value.y;
+            _transform.tz = value.z;
+
+            _sceneTransformDirty = true;
+
+            notifyTransformChange();
+            
+        }
+        
         public function get position():Number3D
         {
             return new Number3D(_transform.tx, _transform.ty, _transform.tz);
