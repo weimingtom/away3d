@@ -40,6 +40,8 @@ package away3d.core.render
 
         public function checkPrimitive(pri:DrawPrimitive):void
         {
+        	if (!pri.object.mouseEnabled)
+        		return;
             if (pri.minX > screenX)
                 return;
             if (pri.maxX < screenX)
