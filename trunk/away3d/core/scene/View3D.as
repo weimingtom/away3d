@@ -68,7 +68,6 @@ package away3d.core.scene
             scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
             camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
-            mouseChildren = init.getBoolean("mouseChildren", false);
             mouseZeroMove = init.getBoolean("mouseZeroMove", false);
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
