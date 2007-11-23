@@ -18,8 +18,8 @@ package away3d.core.mesh
         use namespace arcane;
 
         private var _faces:Array = [];
-		
-		
+        
+        
         public function get faces():Array
         {
             return _faces;
@@ -39,8 +39,8 @@ package away3d.core.mesh
         private var _vertfaces:Dictionary;
         
         private var _vertnormalsDirty:Boolean = true;
-		private var _vertnormals:Dictionary;
-		
+        private var _vertnormals:Dictionary;
+        
         private function findVertFaces():void
         {
             if (!_vertfacesDirty)
@@ -71,26 +71,26 @@ package away3d.core.mesh
         
         private function findVertNormals():void
         {
-        	if (!_vertnormalsDirty)
+            if (!_vertnormalsDirty)
                 return;
             
             _vertnormals = new Dictionary();
             for each (var v:Vertex in vertices)
             {
-            	var vF:Array = _vertfaces[v];
-            	var nX:Number = 0;
-            	var nY:Number = 0;
-            	var nZ:Number = 0;
-            	for each (var f:Face in vF)
-            	{
-	            	var fNormal:Number3D = f.normal;
-            		nX += fNormal.x;
-            		nY += fNormal.y;
-            		nZ += fNormal.z;
-            	}
-            	var vertNormal:Number3D = new Number3D(nX, nY, nZ);
-            	vertNormal.normalize();
-            	_vertnormals[v] = vertNormal;
+                var vF:Array = _vertfaces[v];
+                var nX:Number = 0;
+                var nY:Number = 0;
+                var nZ:Number = 0;
+                for each (var f:Face in vF)
+                {
+                    var fNormal:Number3D = f.normal;
+                    nX += fNormal.x;
+                    nY += fNormal.y;
+                    nZ += fNormal.z;
+                }
+                var vertNormal:Number3D = new Number3D(nX, nY, nZ);
+                vertNormal.normalize();
+                _vertnormals[v] = vertNormal;
             }            
             
             _vertnormalsDirty = false;    
@@ -103,10 +103,10 @@ package away3d.core.mesh
 
             return _vertfaces[vertex];
         }
-		
-		arcane function getVertexNormal(vertex:Vertex):Number3D
+        
+        arcane function getVertexNormal(vertex:Vertex):Number3D
         {
-        	if (_vertfacesDirty)
+            if (_vertfacesDirty)
                 findVertFaces();
             
             if (_vertnormalsDirty)
@@ -260,15 +260,15 @@ package away3d.core.mesh
             if ((material == null) && (outline == null))
                 material = new WireColorMaterial();
         }
-		
+        
         public function addFace(face:Face):void
         {
             addElement(face);
 
             _faces.push(face);
-			
-			face._dt.object = face.parent = this;
-			
+            
+            face._dt.source = face.parent = this;
+            
             face.addOnVertexChange(onFaceVertexChange);
             rememberFaceNeighbours(face);
             _vertfacesDirty = true;
@@ -489,10 +489,8 @@ package away3d.core.mesh
 
         private var _debugboundingbox:WireCube;
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
-        	
             if (outline != null)
                 if (_neighboursDirty)
                     findNeighbours();
@@ -528,7 +526,7 @@ package away3d.core.mesh
                 if (_faces.length > 0)
                     _debugboundingbox.primitives(projection, consumer, session);
             }
-			
+            
             var tri:DrawTriangle;
             var ntri:DrawTriangle;
             var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
@@ -665,8 +663,8 @@ package away3d.core.mesh
                         else
                             btri.material = transparent;
                     }
-	                tri.object = this;
-	                tri.face = face;
+                    tri.source = this;
+                    tri.face = face;
                 }
                 tri.projection = projection;
                 consumer.primitive(tri);

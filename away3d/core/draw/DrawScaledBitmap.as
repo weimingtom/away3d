@@ -25,9 +25,9 @@ package away3d.core.draw
 
         public var smooth:Boolean;
 
-        public function DrawScaledBitmap(object:Object3D, bitmap:BitmapData, v:ScreenVertex, scale:Number, smooth:Boolean)
+        public function DrawScaledBitmap(source:Object3D, bitmap:BitmapData, v:ScreenVertex, scale:Number, smooth:Boolean)
         {
-            this.object = object;
+            this.source = source;
             this.bitmap = bitmap;
             this.v = v;
             this.scale = scale;

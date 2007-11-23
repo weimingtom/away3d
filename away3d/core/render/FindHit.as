@@ -10,7 +10,7 @@ package away3d.core.render
     /** Class that finds object that is rendered on certain screen coordinates. Used for mouse click event. */
     public class FindHit
     {
-    	protected var view:View3D;
+        protected var view:View3D;
         public var screenX:Number;
         public var screenY:Number;
 
@@ -25,23 +25,23 @@ package away3d.core.render
         public var sceneX:Number;
         public var sceneY:Number;
         public var sceneZ:Number;
-		
-		private var primitive:DrawPrimitive;
-		
+        
+        private var primitive:DrawPrimitive;
+        
         public function FindHit(view:View3D, primitives:Array, x:Number, y:Number)
         {
-        	this.view = view;
+            this.view = view;
             screenX = x;
             screenY = y;
             
             for each (primitive in primitives)
-            	checkPrimitive(primitive);
+                checkPrimitive(primitive);
         }
 
         public function checkPrimitive(pri:DrawPrimitive):void
         {
-        	if (!pri.object.mouseEnabled)
-        		return;
+            if (!pri.object.mouseEnabled)
+                return;
             if (pri.minX > screenX)
                 return;
             if (pri.maxX < screenX)
@@ -50,7 +50,7 @@ package away3d.core.render
                 return;
             if (pri.maxY < screenY)
                 return;
-			
+            
             if (pri.contains(screenX, screenY))
             {
                 var z:Number = pri.getZ(screenX, screenY);
@@ -60,16 +60,16 @@ package away3d.core.render
                     {
                         var tri:DrawTriangle = pri as DrawTriangle;
                         var testuv:UV = tri.getUV(screenX, screenY);
-	                    if (tri.material is IUVMaterial) {
-	                        var testmaterial:IUVMaterial = (tri.material as IUVMaterial);
-	                        //return if material pixel is transparent
-	                        if (!(testmaterial.bitmap.getPixel32(testuv.u*testmaterial.width, (1 - testuv.v)*testmaterial.height) >> 24))
-	                        	return;
-	                        uv = testuv;
-	                    }
-	                    material = testmaterial;
+                        if (tri.material is IUVMaterial) {
+                            var testmaterial:IUVMaterial = (tri.material as IUVMaterial);
+                            //return if material pixel is transparent
+                            if (!(testmaterial.bitmap.getPixel32(testuv.u*testmaterial.width, (1 - testuv.v)*testmaterial.height) >> 24))
+                                return;
+                            uv = testuv;
+                        }
+                        material = testmaterial;
                     } else {
-                    	uv = null;
+                        uv = null;
                     }
                     screenZ = z;
                     var persp:Number = view.camera.zoom / (1 + screenZ / view.camera.focus);
@@ -80,7 +80,7 @@ package away3d.core.render
                     sceneZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
 
                     drawpri = pri;
-                    object = pri.object;
+                    object = pri.source;
                     element = null; // TODO face or segment
 
                 }

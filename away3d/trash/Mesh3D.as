@@ -90,10 +90,8 @@ package away3d.trash
             }    
         }
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
-        	
             var tri:DrawTriangle;
             var trimat:ITriangleMaterial = (material is ITriangleMaterial) ? (material as ITriangleMaterial) : null;
             for each (var face:Face3D in faces)
@@ -163,7 +161,7 @@ package away3d.trash
                     tri.uv2 = uvt;
                 }
 
-                tri.object = this;
+                tri.source = this;
                 tri.face = null; //face;
                 tri.projection = projection;
                 consumer.primitive(tri);
@@ -198,7 +196,7 @@ package away3d.trash
                 if (!seg.material.visible)
                     continue;
 
-                seg.object = this;
+                seg.source = this;
                 seg.projection = projection;
                 consumer.primitive(seg);
                 seg = null;

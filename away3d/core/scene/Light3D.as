@@ -10,20 +10,20 @@ package away3d.core.scene
     
     import flash.display.*;
     import flash.geom.Matrix;
-	
+    
     /** Light source */ 
     public class Light3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
     {
-    	internal var _bitmap:BitmapData;
+        internal var _bitmap:BitmapData;
         public var color:int;
         public var ambient:Number;
         public var diffuse:Number;
         public var specular:Number;
         public var debug:Boolean;
-		
-		public var _ls:PointLightSource = new PointLightSource();
-		
-		public function get width():Number
+        
+        public var _ls:PointLightSource = new PointLightSource();
+        
+        public function get width():Number
         {
             return _bitmap.width;
         }
@@ -35,17 +35,17 @@ package away3d.core.scene
         
         public function get bitmap():BitmapData
         {
-        	if (_bitmap == null) {
-        		_bitmap = new BitmapData(256, 256, false, 0x000000);
-        		var shape:Shape = new Shape();
-        		var matrix:Matrix = new Matrix();
-        		matrix.createGradientBox(256, 256, 0, 0, 0);
-        		shape.graphics.beginGradientFill(GradientType.RADIAL, [0xFFFFFF, 0x000000], [1, 1], [0, 255], matrix);
-        		shape.graphics.drawCircle(127, 127, 127);
-        		_bitmap.draw(shape);
-        		
-        	}
-        	return _bitmap;
+            if (_bitmap == null) {
+                _bitmap = new BitmapData(256, 256, false, 0x000000);
+                var shape:Shape = new Shape();
+                var matrix:Matrix = new Matrix();
+                matrix.createGradientBox(256, 256, 0, 0, 0);
+                shape.graphics.beginGradientFill(GradientType.RADIAL, [0xFFFFFF, 0x000000], [1, 1], [0, 255], matrix);
+                shape.graphics.drawCircle(127, 127, 127);
+                _bitmap.draw(shape);
+                
+            }
+            return _bitmap;
         }
         
         public function Light3D(init:Object = null)
@@ -54,7 +54,7 @@ package away3d.core.scene
 
             init = Init.parse(init);
             
-			_bitmap = init.getBitmap("bitmap");
+            _bitmap = init.getBitmap("bitmap");
             var brightness:Number = init.getNumber("brightness", 1);
             var distance:Number = init.getNumber("distance", Math.sqrt(1000));
             color = init.getColor("color", 0xFFFFFF);
@@ -69,10 +69,8 @@ package away3d.core.scene
             consumer.pointLight(transform, this, color, ambient, diffuse, specular);
         }
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
-        	
             use namespace arcane;
 
             if (!debug)
@@ -88,11 +86,10 @@ package away3d.core.scene
             tri.v1 = new ScreenVertex(vp.x - 3, vp.y + 2, vp.z);
             tri.v2 = new ScreenVertex(vp.x, vp.y - 3, vp.z);
             tri.calc();
-            tri.object = this;
+            tri.source = this;
             tri.projection = projection;
             tri.material = new ColorMaterial(color);
             consumer.primitive(tri);
-
         }
 
         public override function clone(object:* = null):*
