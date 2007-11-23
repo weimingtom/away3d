@@ -3,8 +3,8 @@ package away3d.core.render
     import away3d.core.*;
     import away3d.core.block.*;
     import away3d.core.draw.*;
-    import away3d.core.material.IUVMaterial;
-    import away3d.core.mesh.UV;
+    import away3d.core.material.*;
+    import away3d.core.mesh.*;
     import away3d.core.scene.*;
     import away3d.core.stats.*;
     
@@ -12,7 +12,7 @@ package away3d.core.render
     import flash.events.*;
     import flash.geom.*;
     import flash.utils.*;
-	
+    
     /** Basic renderer implementation */
     public class BasicRenderer implements IRenderer
     {
@@ -28,10 +28,10 @@ package away3d.core.render
         protected var camera:Camera3D;
         protected var container:Sprite;
         protected var clip:Clipping;
-		
-		protected var projtraverser:ProjectionTraverser;
-		
-		protected var blockerarray:BlockerArray;
+        
+        protected var projtraverser:ProjectionTraverser;
+        
+        protected var blockerarray:BlockerArray;
         protected var blocktraverser:BlockerTraverser;
         protected var blockers:Array;
         
@@ -50,16 +50,16 @@ package away3d.core.render
         
         public function render(view:View3D):Array
         {
-        	
+            
             scene = view.scene;
             camera = view.camera;
             container = view.canvas;
             clip = view.clip;
             
-			// resolve projection
-			projtraverser = new ProjectionTraverser(view);
-			scene.traverse(projtraverser);
-					
+            // resolve projection
+            projtraverser = new ProjectionTraverser(view);
+            scene.traverse(projtraverser);
+                    
             // get blockers for occlusion culling
             blockerarray = new BlockerArray(clip);
             blocktraverser = new BlockerTraverser(blockerarray, view);
@@ -74,10 +74,10 @@ package away3d.core.render
             pritraverser = new PrimitiveTraverser(priarray, lightarray, view, session);
             scene.traverse(pritraverser);
             primitives = priarray.list();
-			
-			//sort containers
-			priarray.sortContainers(view);
-			
+            
+            //sort containers
+            priarray.sortContainers(view);
+            
             // apply filters
             for each (filter in filters)
                 primitives = filter.filter(primitives, scene, camera, container, clip);
@@ -89,13 +89,13 @@ package away3d.core.render
             
             //dispatch stats
             statsEvent = new StatsEvent(StatsEvent.RENDER);
-			statsEvent.totalfaces = primitives.length;
-			statsEvent.camera = camera;
-			view.dispatchEvent(statsEvent);
-			
-			return primitives;
+            statsEvent.totalfaces = primitives.length;
+            statsEvent.camera = camera;
+            view.dispatchEvent(statsEvent);
+            
+            return primitives;
         }
-		
+        
         public function desc():String
         {
             return "Basic ["+filters.join("+")+"]";

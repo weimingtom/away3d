@@ -13,7 +13,7 @@ package away3d.core.draw
     {
         public var projection:Projection;
 
-        public var object:Object3D;
+        public var source:Object3D;
 
         public var minZ:Number;
         public var maxZ:Number;

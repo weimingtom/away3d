@@ -60,13 +60,13 @@ package away3d.core.scene
                 _debugboundingbox.v101.z = maxZ;
                 _debugboundingbox.v110.z = minZ;
                 _debugboundingbox.v111.z = maxZ;
-                _debugboundingbox.primitives(projection, consumer);
+                _debugboundingbox.primitives(projection, consumer, session);
             }
 
             if (debugbs)
             {
                 _debugboundingsphere = new WireSphere({material:"#cyan", radius:radius, segmentsW:16, segmentsH:12});
-                _debugboundingsphere.primitives(projection, consumer);
+                _debugboundingsphere.primitives(projection, consumer, session);
             }
         }
     }

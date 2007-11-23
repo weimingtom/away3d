@@ -65,10 +65,8 @@ package away3d.core.mesh
                 removeSegment(segment);
         }
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
-        	
             var seg:DrawSegment;
             for each (var segment:Segment in _segments)
             {
@@ -96,7 +94,7 @@ package away3d.core.mesh
                 if (!seg.material.visible)
                     continue;
 
-                seg.object = this;
+                seg.source = this;
                 seg.projection = projection;
                 consumer.primitive(seg);
                 seg = null;

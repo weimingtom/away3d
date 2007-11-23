@@ -10,7 +10,7 @@ package away3d.core.draw
     import flash.display.*;
     import flash.geom.Matrix;
     import flash.geom.Rectangle;
-	
+    
     /** Triangle drawing primitive */
     public class DrawTriangle extends DrawPrimitive
     {
@@ -25,18 +25,18 @@ package away3d.core.draw
         public var area:Number;
 
         public var face:Face;
-		
+        
         public var material:ITriangleMaterial;
-		public var bitmapMaterial:BitmapData;
-		public var bitmapPhong:BitmapData;
-		public var bitmapNormal:BitmapData;
-		
-		public var bitmapReflection:BitmapData;
-		public var bitmapDisplacementX:BitmapData;
-		public var bitmapDisplacementY:BitmapData;
-		
-		public var bitmapRect:Rectangle;
-		public var normalRect:Rectangle;
+        public var bitmapMaterial:BitmapData;
+        public var bitmapPhong:BitmapData;
+        public var bitmapNormal:BitmapData;
+        
+        public var bitmapReflection:BitmapData;
+        public var bitmapDisplacementX:BitmapData;
+        public var bitmapDisplacementY:BitmapData;
+        
+        public var bitmapRect:Rectangle;
+        public var normalRect:Rectangle;
         
         public var texturemapping:Matrix;
 
@@ -64,53 +64,53 @@ package away3d.core.draw
         public final function maxEdgeSqr():Number
         {
             return Math.max(Math.max(ScreenVertex.distanceSqr(v0, v1),
-            							ScreenVertex.distanceSqr(v1, v2)),
-            							ScreenVertex.distanceSqr(v2, v0));
+                                        ScreenVertex.distanceSqr(v1, v2)),
+                                        ScreenVertex.distanceSqr(v2, v0));
         }
 
         public final function minEdgeSqr():Number
         {
             return Math.min(Math.min(ScreenVertex.distanceSqr(v0, v1),
-            							ScreenVertex.distanceSqr(v1, v2)),
-            							ScreenVertex.distanceSqr(v2, v0));
+                                        ScreenVertex.distanceSqr(v1, v2)),
+                                        ScreenVertex.distanceSqr(v2, v0));
         }
 
         public final function maxDistortSqr(focus:Number):Number
         {
             return Math.max(Math.max(ScreenVertex.distortSqr(v0, v1, focus),
-            							ScreenVertex.distortSqr(v1, v2, focus)),
-            							ScreenVertex.distortSqr(v2, v0, focus));
+                                        ScreenVertex.distortSqr(v1, v2, focus)),
+                                        ScreenVertex.distortSqr(v2, v0, focus));
         }
 
         public final function minDistortSqr(focus:Number):Number
         {
             return Math.min(Math.min(ScreenVertex.distortSqr(v0, v1, focus),
-            							ScreenVertex.distortSqr(v1, v2, focus)),
-            							ScreenVertex.distortSqr(v2, v0, focus));
+                                        ScreenVertex.distortSqr(v1, v2, focus)),
+                                        ScreenVertex.distortSqr(v2, v0, focus));
         }
 
         public final function acuteAngled():Boolean
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1),
-            	d12:Number = ScreenVertex.distanceSqr(v1, v2),
-            	d20:Number = ScreenVertex.distanceSqr(v2, v0),
-            	dd01:Number = d01 * d01,
-            	dd12:Number = d12 * d12,
-            	dd20:Number = d20 * d20;
+                d12:Number = ScreenVertex.distanceSqr(v1, v2),
+                d20:Number = ScreenVertex.distanceSqr(v2, v0),
+                dd01:Number = d01 * d01,
+                dd12:Number = d12 * d12,
+                dd20:Number = d20 * d20;
             return (dd01 <= dd12 + dd20) && (dd12 <= dd20 + dd01) && (dd20 <= dd01 + dd12);
         }
-		
+        
         internal var _u0:Number;
         internal var _u1:Number;
         internal var _u2:Number;
-		internal var _v0:Number;
+        internal var _v0:Number;
         internal var _v1:Number;
         internal var _v2:Number;
-		
+        
         public final function transformUV(material:IUVMaterial):Matrix
         {
             var width:Number = material.width,
-            	height:Number = material.height;
+                height:Number = material.height;
             
             if (uv0 == null)
                 return new Matrix();
@@ -143,8 +143,8 @@ package away3d.core.draw
             texturemapping.invert();
             return texturemapping;
         }
-		
-		internal var av0z:Number;
+        
+        internal var av0z:Number;
         internal var av0p:Number;
         internal var av0x:Number;
         internal var av0y:Number;
@@ -211,7 +211,7 @@ package away3d.core.draw
         internal var tv0:Vertex;
         internal var tv1:Vertex;
         internal var tv2:Vertex;
-        	
+            
         public override final function riddle(another:DrawTriangle, focus:Number):Array
         {
             if (area < 10)
@@ -363,10 +363,10 @@ package away3d.core.draw
 
             return null;    
         }
-		
-		internal var focus:Number;
-		
-		internal var ax:Number;
+        
+        internal var focus:Number;
+        
+        internal var ax:Number;
         internal var ay:Number;
         internal var az:Number;
         internal var bx:Number;
@@ -375,8 +375,8 @@ package away3d.core.draw
         internal var cx:Number;
         internal var cy:Number;
         internal var cz:Number;
-		
-		internal var azf:Number;
+        
+        internal var azf:Number;
         internal var bzf:Number;
         internal var czf:Number;
 
@@ -395,7 +395,7 @@ package away3d.core.draw
         internal var da:Number;
         internal var db:Number;
         internal var dc:Number;
-            	
+                
         public override final function getZ(x:Number, y:Number):Number
         {
             if (projection == null)
@@ -498,23 +498,23 @@ package away3d.core.draw
                 return null;
 
             var au:Number = uv0._u,
-            	av:Number = uv0._v,
-            	bu:Number = uv1._u,
-            	bv:Number = uv1._v,
-            	cu:Number = uv2._u,
-            	cv:Number = uv2._v,
+                av:Number = uv0._v,
+                bu:Number = uv1._u,
+                bv:Number = uv1._v,
+                cu:Number = uv2._u,
+                cv:Number = uv2._v,
 
-            	focus:Number = projection.focus,
+                focus:Number = projection.focus,
 
-            	ax:Number = v0.x,
-            	ay:Number = v0.y,
-            	az:Number = v0.z,
-            	bx:Number = v1.x,
-            	by:Number = v1.y,
-            	bz:Number = v1.z,
-            	cx:Number = v2.x,
-            	cy:Number = v2.y,
-            	cz:Number = v2.z;
+                ax:Number = v0.x,
+                ay:Number = v0.y,
+                az:Number = v0.z,
+                bx:Number = v1.x,
+                by:Number = v1.y,
+                bz:Number = v1.z,
+                cx:Number = v2.x,
+                cy:Number = v2.y,
+                cz:Number = v2.z;
 
             if ((ax == x) && (ay == y))
                 return uv0;
@@ -526,24 +526,24 @@ package away3d.core.draw
                 return uv2;
 
             var azf:Number = az / focus,
-            	bzf:Number = bz / focus,
-            	czf:Number = cz / focus,
+                bzf:Number = bz / focus,
+                czf:Number = cz / focus,
 
-            	faz:Number = 1 + azf,
-            	fbz:Number = 1 + bzf,
-            	fcz:Number = 1 + czf,
+                faz:Number = 1 + azf,
+                fbz:Number = 1 + bzf,
+                fcz:Number = 1 + czf,
                                     
-            	axf:Number = ax*faz - x*azf,
-            	bxf:Number = bx*fbz - x*bzf,
-            	cxf:Number = cx*fcz - x*czf,
-            	ayf:Number = ay*faz - y*azf,
-            	byf:Number = by*fbz - y*bzf,
-            	cyf:Number = cy*fcz - y*czf,
+                axf:Number = ax*faz - x*azf,
+                bxf:Number = bx*fbz - x*bzf,
+                cxf:Number = cx*fcz - x*czf,
+                ayf:Number = ay*faz - y*azf,
+                byf:Number = by*fbz - y*bzf,
+                cyf:Number = cy*fcz - y*czf,
 
-            	det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf),
-            	da:Number = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y- byf),
-            	db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y),
-            	dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
+                det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf),
+                da:Number = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y- byf),
+                db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y),
+                dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
 
             return new UV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
@@ -578,82 +578,82 @@ package away3d.core.draw
                 return false;
         
             var q0x:Number = q.v0.x,
-            	q0y:Number = q.v0.y,
-            	q1x:Number = q.v1.x,
-            	q1y:Number = q.v1.y,
-            	q2x:Number = q.v2.x,
-            	q2y:Number = q.v2.y,
+                q0y:Number = q.v0.y,
+                q1x:Number = q.v1.x,
+                q1y:Number = q.v1.y,
+                q2x:Number = q.v2.x,
+                q2y:Number = q.v2.y,
         
-            	w0x:Number = w.v0.x,
-            	w0y:Number = w.v0.y,
-            	w1x:Number = w.v1.x,
-            	w1y:Number = w.v1.y,
-            	w2x:Number = w.v2.x,
-            	w2y:Number = w.v2.y,
+                w0x:Number = w.v0.x,
+                w0y:Number = w.v0.y,
+                w1x:Number = w.v1.x,
+                w1y:Number = w.v1.y,
+                w2x:Number = w.v2.x,
+                w2y:Number = w.v2.y,
         
-            	ql01a:Number = q1y - q0y,
-            	ql01b:Number = q0x - q1x,
-            	ql01c:Number = -(ql01b*q0y + ql01a*q0x),
-            	ql01s:Number = ql01a*q2x + ql01b*q2y + ql01c,
-            	ql01w0:Number = (ql01a*w0x + ql01b*w0y + ql01c) * ql01s,
-            	ql01w1:Number = (ql01a*w1x + ql01b*w1y + ql01c) * ql01s,
-            	ql01w2:Number = (ql01a*w2x + ql01b*w2y + ql01c) * ql01s;
+                ql01a:Number = q1y - q0y,
+                ql01b:Number = q0x - q1x,
+                ql01c:Number = -(ql01b*q0y + ql01a*q0x),
+                ql01s:Number = ql01a*q2x + ql01b*q2y + ql01c,
+                ql01w0:Number = (ql01a*w0x + ql01b*w0y + ql01c) * ql01s,
+                ql01w1:Number = (ql01a*w1x + ql01b*w1y + ql01c) * ql01s,
+                ql01w2:Number = (ql01a*w2x + ql01b*w2y + ql01c) * ql01s;
         
             if ((ql01w0 <= 0.0001) && (ql01w1 <= 0.0001) && (ql01w2 <= 0.0001))
                 return false;
         
             var ql12a:Number = q2y - q1y,
-            	ql12b:Number = q1x - q2x,
-            	ql12n:Boolean = (ql12a*ql12a + ql12b*ql12b) > 0.0001,
-            	ql12c:Number = -(ql12b*q1y + ql12a*q1x),
-            	ql12s:Number = ql12a*q0x + ql12b*q0y + ql12c,
-            	ql12w0:Number = (ql12a*w0x + ql12b*w0y + ql12c) * ql12s,
-            	ql12w1:Number = (ql12a*w1x + ql12b*w1y + ql12c) * ql12s,
-            	ql12w2:Number = (ql12a*w2x + ql12b*w2y + ql12c) * ql12s;
+                ql12b:Number = q1x - q2x,
+                ql12n:Boolean = (ql12a*ql12a + ql12b*ql12b) > 0.0001,
+                ql12c:Number = -(ql12b*q1y + ql12a*q1x),
+                ql12s:Number = ql12a*q0x + ql12b*q0y + ql12c,
+                ql12w0:Number = (ql12a*w0x + ql12b*w0y + ql12c) * ql12s,
+                ql12w1:Number = (ql12a*w1x + ql12b*w1y + ql12c) * ql12s,
+                ql12w2:Number = (ql12a*w2x + ql12b*w2y + ql12c) * ql12s;
         
             if ((ql12w0 <= 0.0001) && (ql12w1 <= 0.0001) && (ql12w2 <= 0.0001))
                 return false;
         
             var ql20a:Number = q0y - q2y,
-            	ql20b:Number = q2x - q0x,
-            	ql20c:Number = -(ql20b*q2y + ql20a*q2x),
-            	ql20s:Number = ql20a*q1x + ql20b*q1y + ql20c,
-            	ql20w0:Number = (ql20a*w0x + ql20b*w0y + ql20c) * ql20s,
-            	ql20w1:Number = (ql20a*w1x + ql20b*w1y + ql20c) * ql20s,
-            	ql20w2:Number = (ql20a*w2x + ql20b*w2y + ql20c) * ql20s;
+                ql20b:Number = q2x - q0x,
+                ql20c:Number = -(ql20b*q2y + ql20a*q2x),
+                ql20s:Number = ql20a*q1x + ql20b*q1y + ql20c,
+                ql20w0:Number = (ql20a*w0x + ql20b*w0y + ql20c) * ql20s,
+                ql20w1:Number = (ql20a*w1x + ql20b*w1y + ql20c) * ql20s,
+                ql20w2:Number = (ql20a*w2x + ql20b*w2y + ql20c) * ql20s;
         
             if ((ql20w0 <= 0.0001) && (ql20w1 <= 0.0001) && (ql20w2 <= 0.0001))
                 return false;
         
             var wl01a:Number = w1y - w0y,
-            	wl01b:Number = w0x - w1x,
-            	wl01c:Number = -(wl01b*w0y + wl01a*w0x),
-            	wl01s:Number = wl01a*w2x + wl01b*w2y + wl01c,
-            	wl01q0:Number = (wl01a*q0x + wl01b*q0y + wl01c) * wl01s,
-            	wl01q1:Number = (wl01a*q1x + wl01b*q1y + wl01c) * wl01s,
-            	wl01q2:Number = (wl01a*q2x + wl01b*q2y + wl01c) * wl01s;
+                wl01b:Number = w0x - w1x,
+                wl01c:Number = -(wl01b*w0y + wl01a*w0x),
+                wl01s:Number = wl01a*w2x + wl01b*w2y + wl01c,
+                wl01q0:Number = (wl01a*q0x + wl01b*q0y + wl01c) * wl01s,
+                wl01q1:Number = (wl01a*q1x + wl01b*q1y + wl01c) * wl01s,
+                wl01q2:Number = (wl01a*q2x + wl01b*q2y + wl01c) * wl01s;
         
             if ((wl01q0 <= 0.0001) && (wl01q1 <= 0.0001) && (wl01q2 <= 0.0001))
                 return false;
         
             var wl12a:Number = w2y - w1y,
-            	wl12b:Number = w1x - w2x,
-            	wl12c:Number = -(wl12b*w1y + wl12a*w1x),
-            	wl12s:Number = wl12a*w0x + wl12b*w0y + wl12c,
-            	wl12q0:Number = (wl12a*q0x + wl12b*q0y + wl12c) * wl12s,
-            	wl12q1:Number = (wl12a*q1x + wl12b*q1y + wl12c) * wl12s,
-            	wl12q2:Number = (wl12a*q2x + wl12b*q2y + wl12c) * wl12s;
+                wl12b:Number = w1x - w2x,
+                wl12c:Number = -(wl12b*w1y + wl12a*w1x),
+                wl12s:Number = wl12a*w0x + wl12b*w0y + wl12c,
+                wl12q0:Number = (wl12a*q0x + wl12b*q0y + wl12c) * wl12s,
+                wl12q1:Number = (wl12a*q1x + wl12b*q1y + wl12c) * wl12s,
+                wl12q2:Number = (wl12a*q2x + wl12b*q2y + wl12c) * wl12s;
         
             if ((wl12q0 <= 0.0001) && (wl12q1 <= 0.0001) && (wl12q2 <= 0.0001))
                 return false;
         
             var wl20a:Number = w0y - w2y,
-            	wl20b:Number = w2x - w0x,
-            	wl20c:Number = -(wl20b*w2y + wl20a*w2x),
-            	wl20s:Number = wl20a*w1x + wl20b*w1y + wl20c,
-            	wl20q0:Number = (wl20a*q0x + wl20b*q0y + wl20c) * wl20s,
-            	wl20q1:Number = (wl20a*q1x + wl20b*q1y + wl20c) * wl20s,
-            	wl20q2:Number = (wl20a*q2x + wl20b*q2y + wl20c) * wl20s;
+                wl20b:Number = w2x - w0x,
+                wl20c:Number = -(wl20b*w2y + wl20a*w2x),
+                wl20s:Number = wl20a*w1x + wl20b*w1y + wl20c,
+                wl20q0:Number = (wl20a*q0x + wl20b*q0y + wl20c) * wl20s,
+                wl20q1:Number = (wl20a*q1x + wl20b*q1y + wl20c) * wl20s,
+                wl20q2:Number = (wl20a*q2x + wl20b*q2y + wl20c) * wl20s;
         
             if ((wl20q0 <= 0.0001) && (wl20q1 <= 0.0001) && (wl20q2 <= 0.0001))
                 return false;
@@ -665,8 +665,8 @@ package away3d.core.draw
         public final function bisect(focus:Number):Array
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1),
-            	d12:Number = ScreenVertex.distanceSqr(v1, v2),
-            	d20:Number = ScreenVertex.distanceSqr(v2, v0);
+                d12:Number = ScreenVertex.distanceSqr(v1, v2),
+                d20:Number = ScreenVertex.distanceSqr(v2, v0);
 
             if ((d12 >= d01) && (d12 >= d20))
                 return bisect12(focus);
@@ -680,8 +680,8 @@ package away3d.core.draw
         public final function distortbisect(focus:Number):Array
         {
             var d01:Number = ScreenVertex.distortSqr(v0, v1, focus),
-            	d12:Number = ScreenVertex.distortSqr(v1, v2, focus),
-            	d20:Number = ScreenVertex.distortSqr(v2, v0, focus);
+                d12:Number = ScreenVertex.distortSqr(v1, v2, focus),
+                d20:Number = ScreenVertex.distortSqr(v2, v0, focus);
 
             if ((d12 >= d01) && (d12 >= d20))
                 return bisect12(focus);
@@ -695,7 +695,7 @@ package away3d.core.draw
         private final function bisect01(focus:Number):Array
         {
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
-            	uv01:UV = UV.median(uv0, uv1);
+                uv01:UV = UV.median(uv0, uv1);
             return [
                 create(object, material, projection, v2, v0, v01, uv2, uv0, uv01),
                 create(object, material, projection, v01, v1, v2, uv01, uv1, uv2) 
@@ -705,7 +705,7 @@ package away3d.core.draw
         private final function bisect12(focus:Number):Array
         {
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
-            	uv12:UV = UV.median(uv1, uv2);
+                uv12:UV = UV.median(uv1, uv2);
             return [
                 create(object, material, projection, v0, v1, v12, uv0, uv1, uv12),
                 create(object, material, projection, v12, v2, v0, uv12, uv2, uv0) 
@@ -715,20 +715,20 @@ package away3d.core.draw
         private final function bisect20(focus:Number):Array
         {
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
-            	uv20:UV = UV.median(uv2, uv0);
+                uv20:UV = UV.median(uv2, uv0);
             return [
                 create(object, material, projection, v1, v2, v20, uv1, uv2, uv20),
                 create(object, material, projection, v20, v0, v1, uv20, uv0, uv1) 
             ];                                                
         }
-		
-		internal var v01:ScreenVertex;
-		internal var v12:ScreenVertex;
-		internal var v20:ScreenVertex;
-		internal var uv01:UV;
-		internal var uv12:UV;
-		internal var uv20:UV;
-		
+        
+        internal var v01:ScreenVertex;
+        internal var v12:ScreenVertex;
+        internal var v20:ScreenVertex;
+        internal var uv01:UV;
+        internal var uv12:UV;
+        internal var uv20:UV;
+        
         public override final function quarter(focus:Number):Array
         {
             if (area < 20)
@@ -766,16 +766,15 @@ package away3d.core.draw
         public final function distanceToCenter(x:Number, y:Number):Number
         {   
             var centerx:Number = (v0.x + v1.x + v2.x) / 3,
-            	centery:Number = (v0.y + v1.y + v2.y) / 3;
+                centery:Number = (v0.y + v1.y + v2.y) / 3;
 
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(object:Object3D, material:ITriangleMaterial, projection:Projection,
-            v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
+        public static function create(source:Object3D, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
         {
             var tri:DrawTriangle = new DrawTriangle();
-            tri.object = object;
+            tri.source = source;
             tri.material = material;
             tri.projection = projection;
             tri.v0 = v0;
@@ -807,8 +806,8 @@ package away3d.core.draw
             screenZ = (v0.z + v1.z + v2.z) / 3;
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
         }
-		
-		public function getMaxX():Number
+        
+        public function getMaxX():Number
         {
             if (v0.x > v1.x)
             {
