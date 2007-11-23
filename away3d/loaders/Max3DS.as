@@ -1,4 +1,4 @@
-﻿package away3d.loaders
+package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -6,7 +6,7 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
+    import away3d.core.stats.*;
     import flash.utils.*;
 
    /**
@@ -16,7 +16,6 @@
     {
         private var mesh:Mesh;
         private var scaling:Number;
-		private var url:String = "";
 
         public function Max3DS(data:ByteArray, init:Object = null)
         {
@@ -31,7 +30,6 @@
         
         public static function parse(data:*, init:Object = null):Mesh
         {
-			url = url;
             return new Max3DS(Cast.bytearray(data), init).mesh;
         }
     
@@ -107,8 +105,6 @@
             // NOTE: We actually support loading files that have no texturing!
             for each (var face:Object in faces)
                 mesh.addFace(new Face(vertices[face.c], vertices[face.b], vertices[face.a], null, uvs[face.c], uvs[face.b], uvs[face.a]));
-				
-				Stats.instance.register(".3DS",mesh.faces.length, url);
         }
     }
 }

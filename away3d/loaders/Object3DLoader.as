@@ -26,6 +26,7 @@ package away3d.loaders
         private var urlloader:URLLoader;
         private var parse:Function;
         private var init:Init;
+        private var url:String;
 
         public function get handle():Object3D
         {
@@ -35,6 +36,7 @@ package away3d.loaders
         public function Object3DLoader(url:String, parse:Function, binary:Boolean, init:Object = null) 
         {
             this.parse = parse;
+            this.url = url;
             this.init = Init.parse(init);
             this.init.removeFromCheck();
 
@@ -59,23 +61,24 @@ package away3d.loaders
         {
             init.addForCheck();
 
-//            try
-            {
-                result = parse(urlloader.data, init);
-            }
-/*
-            catch (error:Error)
-            {
-                notifyError();
-                return;
-            }
-*/
+            result = parse(urlloader.data, init);
 
             if (parent != null)
             {
                 result.transform = transform;
                 result.parent = parent;
                 parent = null;
+            }
+
+            if (result is Mesh)
+            {
+                var mesh:Mesh = result as Mesh;
+                Stats.instance.register(mesh.name || "mesh", mesh.faces.length, url);
+            }
+
+            if (result is ObjectContainer3D)
+            {
+                // register collada
             }
 
             notifySuccess();
