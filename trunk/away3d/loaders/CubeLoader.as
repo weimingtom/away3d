@@ -1,4 +1,4 @@
-﻿package away3d.loaders
+package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.scene.*;

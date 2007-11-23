@@ -25,10 +25,10 @@ package away3d.core.scene
         private var _sceneTransformDirty:Boolean;
         private var _sceneTransform:Matrix3D;
         
-		public var inverseSceneTransform:Matrix3D;
-		public var viewTransform:Matrix3D;
-		public var session:RenderSession;
-		
+        public var inverseSceneTransform:Matrix3D;
+        public var viewTransform:Matrix3D;
+        public var session:RenderSession;
+        
         private var _scene:Scene3D;
 
         private var _parent:ObjectContainer3D;
@@ -42,9 +42,9 @@ package away3d.core.scene
         //an optional canvas array for the object in each view
         public var canvas:Array = new Array();
     
-    	//an optional filters array that can be applied to the canvas
-    	public var filters:Array;
-    	
+        //an optional filters array that can be applied to the canvas
+        public var filters:Array;
+        
         // An object that contains user defined properties.
         public var extra:Object;
 
@@ -59,7 +59,7 @@ package away3d.core.scene
         
         public function get screenZ():Number
         {
-        	return Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
+            return Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
         }
         public function get radius():Number
         {
@@ -304,7 +304,7 @@ package away3d.core.scene
 
             _transformDirty = false;
             _rotationDirty = true;
-			_sceneTransformDirty = true;
+            _sceneTransformDirty = true;
             notifyTransformChange();
         }
 
@@ -346,7 +346,7 @@ package away3d.core.scene
                 return;
 
             _sceneTransform = Matrix3D.multiply(_parent.sceneTransform, transform);
-			inverseSceneTransform = Matrix3D.inverse(_sceneTransform);
+            inverseSceneTransform = Matrix3D.inverse(_sceneTransform);
             _sceneTransformDirty = false;
         }
     
@@ -360,7 +360,7 @@ package away3d.core.scene
             init = Init.parse(init);
 
             name = init.getString("name", null);
-			ownCanvas = init.getBoolean("ownCanvas", false);
+            ownCanvas = init.getBoolean("ownCanvas", false);
             visible = init.getBoolean("visible", true);
             mouseEnabled = init.getBoolean("mouseEnabled", true);
             useHandCursor = init.getBoolean("useHandCursor", false);
@@ -469,25 +469,25 @@ package away3d.core.scene
             }
         }
         
-		public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-    		var v:View3D = session.view;
-        	if (ownCanvas) {
-        		if (canvas[v] == null)
-        			canvas[v] = new Sprite();
-        		var c:Sprite = canvas[v];
-        		c.filters = filters;
-        		if (!v.objectLayer.contains(c))
-        			v.objectLayer.addChild(c);
-        		this.session =  new RenderSession(v, c, session.lightarray);
-        		consumer.canvas(this);
-        	}
-        	else
-        	{
-        		if (canvas[v] != null)
-        			delete canvas[v];
-        		this.session = session;
-        	}
+            var v:View3D = session.view;
+            if (ownCanvas) {
+                if (canvas[v] == null)
+                    canvas[v] = new Sprite();
+                var c:Sprite = canvas[v];
+                c.filters = filters;
+                if (!v.objectLayer.contains(c))
+                    v.objectLayer.addChild(c);
+                this.session =  new RenderSession(v, c, session.lightarray);
+                consumer.canvas(this);
+            }
+            else
+            {
+                if (canvas[v] != null)
+                    delete canvas[v];
+                this.session = session;
+            }
         }
         
         public function moveForward(distance:Number):void 

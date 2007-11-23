@@ -16,8 +16,8 @@ package away3d.loaders
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
-	
+    import away3d.core.stats.*;
+    
     import flash.net.URLRequest;
     import flash.net.URLLoader;
     import flash.events.EventDispatcher;
@@ -29,7 +29,6 @@ package away3d.loaders
     {
         private var mesh:Mesh;
         private var scaling:Number;
-    	private var url:String = "";
 
         public function Obj(data:String, init:Object = null)
         {
@@ -49,7 +48,6 @@ package away3d.loaders
     
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-        	url = url;
             return Object3DLoader.load(url, parse, false, init);
         }
     
@@ -102,7 +100,6 @@ package away3d.loaders
                         break;
                 }
             }
-            Stats.instance.register(".obj",mesh.faces.length, url);
         }
             
         private static function trysplit(source:String, by:String):Array
