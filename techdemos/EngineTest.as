@@ -22,7 +22,8 @@ package
     import away3d.core.sprite.*;
     import away3d.core.utils.*;
     
-    [SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
+    //[SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
+    [SWF(backgroundColor="#222266", frameRate="60")]
     public class EngineTest extends BaseDemo
     {
         public function EngineTest()
@@ -428,7 +429,7 @@ class AseMesh extends ObjectContainer3D
 {
     public function AseMesh()
     {
-        var turtle:Mesh = Ase.parse(Asset.SeaTurtleModel, Asset.SeaTurtleImage);
+        var turtle:Mesh = Ase.parse(Asset.SeaTurtleModel, {material:new BitmapMaterial(Cast.bitmap(Asset.SeaTurtleImage))});
         //turtle.y = -40;
 
         super(turtle);
@@ -716,7 +717,7 @@ class MouseEvents extends Primitives
 class Drawing extends ObjectContainer3D
 {
     private var plane:Plane;
-    private var canvas:BitmapData;
+    private var paintData:BitmapData;
     private var pallete:BitmapData;
     private var drawing:Boolean;
     private var lastx:Number;
@@ -730,12 +731,12 @@ class Drawing extends ObjectContainer3D
 
     public function Drawing()
     {
-        canvas = new BitmapData(400, 400);
-        plane = new Plane({material:new PreciseBitmapMaterial(canvas, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
+        paintData = new BitmapData(400, 400);
+        plane = new Plane({material:new PreciseBitmapMaterial(paintData, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
         wireplane = new WirePlane({material:new WireframeMaterial(0x000000), width:1002, height:1002, y:-20});
 
         plane.addOnMouseDown(onPlaneMouseDown);
-        plane.addOnMouseDown(onPlaneMouseMove);
+        plane.addOnMouseMove(onPlaneMouseMove);
 
         super(plane, wireplane);
     }
@@ -745,8 +746,8 @@ class Drawing extends ObjectContainer3D
         drawing = !drawing;
         if (drawing)
         {
-            lastx = e.uv.u*canvas.width;
-            lasty = (1-e.uv.v)*canvas.height;
+            lastx = e.uv.u*paintData.width;
+            lasty = (1-e.uv.v)*paintData.height;
         }
     }
     
@@ -756,8 +757,8 @@ class Drawing extends ObjectContainer3D
         {
             color = Color.fromHSV((getTimer()/100) % 360, 1, 1);
 
-            var x:Number = e.uv.u*canvas.width;
-            var y:Number = (1-e.uv.v)*canvas.height;
+            var x:Number = e.uv.u*paintData.width;
+            var y:Number = (1-e.uv.v)*paintData.height;
             var n:Number = Math.sqrt((lastx-x)*(lastx-x) + (lasty-y)*(lasty-y)) * (thickness+1.2);
             for (var i:int = 0; i < n; i++)
             {
@@ -769,17 +770,17 @@ class Drawing extends ObjectContainer3D
 
                 var rx:int = int(Math.round(bx));
                 var ry:int = int(Math.round(by));
-                canvas.setPixel(rx, ry, color);
-
+                paintData.setPixel(rx, ry, color);
+				/*
                 if (i % 20 == 0)
                 {
-                    var px:Number = (bx / canvas.width * 2 - 1) * 500;
-                    var py:Number = (1 - by / canvas.height * 2) * 500;
+                    var px:Number = (bx / paintData.width * 2 - 1) * 500;
+                    var py:Number = (1 - by / paintData.height * 2) * 500;
 
                     for each (var vertex:Vertex in plane.vertices)
                         vertex.y += 40 * thickness / ((vertex.x-px)*(vertex.x-px) + (vertex.z-py)*(vertex.z-py) + 5000);
                 }
-
+				*/
             }
             lastx = x;
             lasty = y;
