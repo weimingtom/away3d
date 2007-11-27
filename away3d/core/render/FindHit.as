@@ -80,7 +80,7 @@ package away3d.core.render
                     sceneZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
 
                     drawpri = pri;
-                    object = pri.source;
+                    object = pri.object;
                     element = null; // TODO face or segment
 
                 }

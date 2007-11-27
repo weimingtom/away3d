@@ -7,5 +7,6 @@ package away3d.core.render
     public interface IPrimitiveConsumer
     {
         function primitive(pri:DrawPrimitive):void;
+        function canvas(object:Object3D):void;
     }
 }

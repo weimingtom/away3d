@@ -1,4 +1,4 @@
-oopackage away3d.core.material
+package away3d.core.material
 {
     import away3d.core.*;
     import away3d.core.draw.*;

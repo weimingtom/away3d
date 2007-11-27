@@ -186,10 +186,10 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(source:Object3D, material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
+        public static function create(object:Object3D, material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
         {
             var tri:DrawSegment = new DrawSegment();
-            tri.source = source;
+            tri.object = object;
             tri.material = material;
             tri.projection = projection;
             tri.v0 = v0;

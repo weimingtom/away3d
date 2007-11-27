@@ -548,21 +548,21 @@ package away3d.core.draw
             return new UV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
 
-        public static function fivepointcut(source:Object3D, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
+        public static function fivepointcut(object:Object3D, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
         {
             if (ScreenVertex.distanceSqr(v0, v12) < ScreenVertex.distanceSqr(v01, v2))
             {
                 return [
-                    create(source, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
-                    create(source, material, projection, v01,  v1, v12, uv01,  uv1, uv12),
-                    create(source, material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
+                    create(object, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
+                    create(object, material, projection, v01,  v1, v12, uv01,  uv1, uv12),
+                    create(object, material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
             }
             else
             {
                 return [
-                    create(source, material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
-                    create(source, material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
-                    create(source, material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
+                    create(object, material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
+                    create(object, material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
+                    create(object, material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
             }
         }
 
@@ -771,10 +771,10 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(source:Object3D, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
+        public static function create(object:Object3D, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
         {
             var tri:DrawTriangle = new DrawTriangle();
-            tri.source = source;
+            tri.object = object;
             tri.material = material;
             tri.projection = projection;
             tri.v0 = v0;

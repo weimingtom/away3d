@@ -14,9 +14,9 @@ package away3d.core.draw
 
         public var v:ScreenVertex;
 
-        public function DrawDisplayObject(source:Object3D, displayobject:DisplayObject, v:ScreenVertex)
+        public function DrawDisplayObject(object:Object3D, displayobject:DisplayObject, v:ScreenVertex)
         {
-            this.source = source;
+            this.object = object;
             this.displayobject = displayobject;
             this.v = v;
             calc();

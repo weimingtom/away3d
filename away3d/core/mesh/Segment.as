@@ -1,12 +1,11 @@
 package away3d.core.mesh
 {
     import away3d.core.*;
+    import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.mesh.*;
     import away3d.core.utils.*;
     
-    import flash.geom.Matrix;
     import flash.events.Event;
 
     /** Mesh's segment */
@@ -19,7 +18,10 @@ package away3d.core.mesh
         arcane var _v0:Vertex;
         arcane var _v1:Vertex;
         arcane var _material:ISegmentMaterial;
-
+        arcane var _ds:DrawSegment = new DrawSegment();
+		
+		public var parent:BaseMesh;
+		
         public override function get vertices():Array
         {
             return [_v0, _v1];

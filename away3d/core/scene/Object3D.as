@@ -2,12 +2,14 @@ package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.render.*;
+    import away3d.core.render.IPrimitiveConsumer;
+    import away3d.core.render.Projection;
+    import away3d.core.render.RenderSession;
     import away3d.core.utils.*;
     
     import flash.display.*;
     
-    public class Object3D extends LazyEventDispatcher implements IClonable, ICanvasProvider
+    public class Object3D extends LazyEventDispatcher implements IClonable
     {
         use namespace arcane;
 
@@ -467,7 +469,7 @@ package away3d.core.scene
             }
         }
         
-        public function canvases(projection:Projection, consumer:ICanvasConsumer, session:RenderSession):void
+        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
             var v:View3D = session.view;
             if (ownCanvas) {

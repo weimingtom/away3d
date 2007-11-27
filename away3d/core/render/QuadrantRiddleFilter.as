@@ -43,7 +43,7 @@ package away3d.core.render
                         if (rivalp == tri)
                             continue;
                         if (tri.object != null)
-                            if (rivalp.source == tri.object)
+                            if (rivalp.object == tri.object)
                                 continue;
                         if (rivalp.minZ >= tri.maxZ)
                             continue;

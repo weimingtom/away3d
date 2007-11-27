@@ -195,7 +195,7 @@ package away3d.core.render
                     if (child.minY > maxY)
                         continue;
                     if (except != null)
-                        if (child.source == except)
+                        if (child.object == except)
                             continue;
                     result.push(child);
                 }
@@ -214,7 +214,7 @@ package away3d.core.render
                         if (child.minY > maxY)
                             continue;
                         if (except != null)
-                            if (child.source == except)
+                            if (child.object == except)
                                 continue;
                         result.push(child);
                     }
