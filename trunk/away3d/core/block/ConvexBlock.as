@@ -18,7 +18,7 @@ package away3d.core.block
 
         public var debug:Boolean;
         public var vertices:Array = [];
-        
+    	
         public function ConvexBlock(vertices:Array, init:Object = null)
         {
             super(init);
@@ -35,8 +35,10 @@ package away3d.core.block
             consumer.blocker(blocker(projection));
         }
 
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             if (debug)
                 consumer.primitive(blocker(projection));
         }
@@ -97,9 +99,9 @@ package away3d.core.block
             o = cross(result[result.length-2], result[result.length-1], result[0]);
             if (o > 0)
                 result.pop();
-            
-            var blkr:ConvexBlocker = new ConvexBlocker(result);
-            blkr.source = this;
+			
+			var blkr:ConvexBlocker = new ConvexBlocker(result);
+			blkr.object = this;
             return blkr;
         }
 

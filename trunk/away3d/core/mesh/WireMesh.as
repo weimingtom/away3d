@@ -46,6 +46,8 @@ package away3d.core.mesh
             addElement(segment);
 
             _segments.push(segment);
+            
+            segment._ds.object = segment.parent = this;
         }
 
         public function removeSegment(segment:Segment):void
@@ -65,12 +67,14 @@ package away3d.core.mesh
                 removeSegment(segment);
         }
 
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             var seg:DrawSegment;
             for each (var segment:Segment in _segments)
             {
-                seg = seg || new DrawSegment();
+                seg = segment._ds;
 
                 seg.v0 = segment._v0.project(projection);
                 seg.v1 = segment._v1.project(projection);
@@ -93,11 +97,9 @@ package away3d.core.mesh
 
                 if (!seg.material.visible)
                     continue;
-
-                seg.source = this;
+                
                 seg.projection = projection;
                 consumer.primitive(seg);
-                seg = null;
             }
         }
     }

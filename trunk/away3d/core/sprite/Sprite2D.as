@@ -33,8 +33,10 @@ package away3d.core.sprite
             deltaZ = init.getNumber("deltaZ", 0);
         }
     
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
+        	super.primitives(projection, consumer, session);
+        	
             use namespace arcane;
 
             var sc:ScreenVertex = center.project(projection);
