@@ -50,5 +50,10 @@ package away3d.core.render
 
             return true;
         }
+        
+        public function toString():String
+        {
+        	return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + "}";
+        }
     }
 }

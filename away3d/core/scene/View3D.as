@@ -24,8 +24,6 @@ package away3d.core.scene
         public var background:Sprite = new Sprite();
         /** Sprite that contains last rendered frame */
         public var canvas:Sprite = new Sprite();
-        /** Sprite that contains object-based triangles */
-        public var objectLayer:Sprite = new Sprite();
         /** Bitmap that contains last rendered textures */
         public var bitmapTexture:Bitmap = new Bitmap();
          /** Bitmap that contains last rendered shaders */
@@ -44,7 +42,13 @@ package away3d.core.scene
         public var clip:Clipping;
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
         public var renderer:IRenderer;
-
+		
+		/** Array for storing old sprites to the canvas */
+		public var canvasStore:Array = new Array();
+		
+		/** Array for storing added sprites to the canvas */
+		public var canvasActive:Array = new Array();
+		
         /** Fire mouse move events even in case mouse pointer doesn't move */
         public var mouseZeroMove:Boolean;
 
@@ -74,13 +78,12 @@ package away3d.core.scene
             
             addChild(background);
             addChild(canvas);
-            addChild(objectLayer);
             addChild(bitmapTexture);
             addChild(bitmapShader);
             addChild(interactiveLayer);
             addChild(hud);
-            objectLayer.buttonMode = canvas.buttonMode = true;
-            objectLayer.useHandCursor = canvas.useHandCursor = false;
+            canvas.buttonMode = true;
+            canvas.useHandCursor = false;
             interactiveLayer.mouseEnabled = false;
             interactiveLayer.blendMode = BlendMode.ALPHA;
             //bitmapShader.blendMode = BlendMode.ADD;
@@ -102,13 +105,27 @@ package away3d.core.scene
 			Stats.instance.generateMenu(this, stage, framerate); 
 		}
 		
+        internal var i:int;
+        internal var c:Sprite;
+        
         /** Clear rendering area */
         public function clear():void
         {
+        	//clear base canvas
             canvas.graphics.clear();
-            var i:Number = objectLayer.numChildren;
-			while (i-- > 0)
-	            Sprite(objectLayer.getChildAt(i)).graphics.clear();
+            
+            //clear child canvases
+            i = canvasActive.length;
+            while (i--) {
+            	c = canvasActive[i];
+            	c.graphics.clear();
+            	canvasStore.push(canvasActive.pop());
+            }
+            
+            //remove all children
+            i = canvas.numChildren;
+			while (i--)
+				canvas.removeChild(canvas.getChildAt(i));
         }
 
         /** Render frame */
@@ -193,7 +210,7 @@ package away3d.core.scene
                     dispatchMouseEvent(event);
                     bubbleMouseEvent(event);
                     mouseObject = null;
-                    objectLayer.useHandCursor = canvas.useHandCursor = false;
+                    canvas.useHandCursor = false;
                 }
                 if (target != null && mouseObject == null) {
                     event = findhit.getMouseEvent(MouseEvent3D.MOUSE_OVER);
@@ -201,7 +218,7 @@ package away3d.core.scene
                     event.material = mouseMaterial = targetMaterial;
                     dispatchMouseEvent(event);
                     bubbleMouseEvent(event);
-                    objectLayer.useHandCursor = canvas.useHandCursor = mouseObject.useHandCursor;
+                    canvas.useHandCursor = mouseObject.useHandCursor;
                 }
             }
             

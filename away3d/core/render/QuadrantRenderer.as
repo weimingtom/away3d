@@ -58,9 +58,6 @@ package away3d.core.render
             pritraverser = new PrimitiveTraverser(pritree, lightarray, view, session);
             scene.traverse(pritraverser);			
 			primitives = pritree.list();
-			
-			//sort containers
-			pritree.sortContainers(view);
 
             for each (qdrntfilter in qdrntfilters)
                 qdrntfilter.filter(pritree, scene, camera, container, clip);

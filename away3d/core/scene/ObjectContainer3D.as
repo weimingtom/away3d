@@ -2,9 +2,10 @@ package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.math.*;
+    import away3d.core.render.IPrimitiveProvider;
 
     /** Container node for other objects of the scene */
-    public class ObjectContainer3D extends Object3D
+    public class ObjectContainer3D extends Object3D implements IPrimitiveProvider
     {
         use namespace arcane;
 

@@ -1,12 +1,11 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
-    import away3d.core.render.*;
-
-    import flash.geom.*;
+    import away3d.core.scene.*;
+    
     import flash.display.*;
+    import flash.geom.*;
 
     /** Quadrant tree node */
     public final class PrimitiveQuadrantTreeNode
@@ -27,7 +26,8 @@ package away3d.core.render
         private var halfwidth:Number;
         private var halfheight:Number;
         private var level:Number;
-
+		private var i:int;
+		
         public function PrimitiveQuadrantTreeNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number)
         {
             this.level = level;
@@ -50,7 +50,7 @@ package away3d.core.render
             {
                 if (center == null)
                     center = new Array();
-                center.push(pri);
+                center[center.length] = pri;
                 return;
             }
 
@@ -59,13 +59,14 @@ package away3d.core.render
                 if (children == null)
                     children = new Array();
 
-                children.push(pri);
+                children[children.length] = pri;
 
                 if (children.length > level * 2)
                 {
                     split = true;
-                    for each (var child:DrawPrimitive in children)
-                        push(child);
+                    i = children.length;
+	                while (i--)
+	                	push(children[i]);
                     children = null;
                 }
 
@@ -183,9 +184,11 @@ package away3d.core.render
                     return;
 
             var child:DrawPrimitive;
-            if (center != null)
-                for each (child in center)
+            if (center != null) {
+                i = center.length;
+                while (i--)
                 {
+                	child = center[i];
                     if (child.maxX < minX)
                         continue;
                     if (child.minX > maxX)
@@ -197,14 +200,17 @@ package away3d.core.render
                     if (except != null)
                         if (child.object == except)
                             continue;
-                    result.push(child);
+                    result[result.length] = child;
                 }
+            }
 
             if (!split)
             {
-                if (children != null)
-                    for each (child in children)
+                if (children != null) {
+                	i = children.length;
+                    while (i--)
                     {
+                    	child = children[i];
                         if (child.maxX < minX)
                             continue;
                         if (child.minX > maxX)
@@ -216,8 +222,9 @@ package away3d.core.render
                         if (except != null)
                             if (child.object == except)
                                 continue;
-                        result.push(child);
+                        result[result.length] = child;
                     }
+                }
                 return;
             }
 

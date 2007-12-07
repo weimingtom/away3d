@@ -40,7 +40,9 @@ package away3d.core.sprite
             var sc:ScreenVertex = center.project(projection);
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
             sc.z += deltaZ;
-            consumer.primitive(new DrawDisplayObject(this, movieclip, sc/*, persp*scaling*/));
+            sc.x -= movieclip.width/2;
+            sc.y -= movieclip.height/2;
+            consumer.primitive(new DrawDisplayObject(this, movieclip, sc, session));
         }
     }
 }
