@@ -105,6 +105,30 @@ package away3d.core.render
                 graphics.endFill();
         }
         
+        internal var newCanvas:Sprite;
+        internal var canvasStore:Array;
+        internal var canvasActive:Array;
+        
+        public function addDisplayObject(child:DisplayObject):void
+        {
+        	//add to container
+            container.addChild(child);
+            child.visible = true;
+            //create new canvas for remaining triangles if required
+            canvasStore = view.canvasStore
+            if (canvasStore.length) {
+            	newCanvas = canvasStore.pop();
+            } else {
+            	newCanvas = new Sprite();
+            }
+            //update graphics reference
+            graphics = newCanvas.graphics;
+            //store new canvas
+            view.canvasActive.push(newCanvas);
+            //add new canvas to base canvas
+            container.addChild(newCanvas);
+        }
+        
         public function RenderSession(view:View3D, container:Sprite, lightarray:LightArray)
         {
             this.view = view;

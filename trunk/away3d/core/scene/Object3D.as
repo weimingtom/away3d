@@ -1,6 +1,8 @@
 package away3d.core.scene
 {
     import away3d.core.*;
+    import away3d.core.draw.DrawDisplayObject;
+    import away3d.core.draw.ScreenVertex;
     import away3d.core.math.*;
     import away3d.core.render.IPrimitiveConsumer;
     import away3d.core.render.Projection;
@@ -34,7 +36,7 @@ package away3d.core.scene
         private var _parent:ObjectContainer3D;
 
         // Whether or not the display object is visible.
-        public var visible:Boolean;
+        public var visible:Boolean = true;
     
         // An optional object name.
         public var name:String;
@@ -49,10 +51,10 @@ package away3d.core.scene
         public var extra:Object;
 
         // Are the mouse events allowed
-        public var mouseEnabled:Boolean;
+        public var mouseEnabled:Boolean = true;
         
         //use hand cursor when mouse is over object
-        public var useHandCursor:Boolean;
+        public var useHandCursor:Boolean = false;
         
         public var ownCanvas:Boolean = false;
         public var ownSession:RenderSession;
@@ -359,11 +361,11 @@ package away3d.core.scene
         {
             init = Init.parse(init);
 
-            name = init.getString("name", null);
-            ownCanvas = init.getBoolean("ownCanvas", false);
-            visible = init.getBoolean("visible", true);
-            mouseEnabled = init.getBoolean("mouseEnabled", true);
-            useHandCursor = init.getBoolean("useHandCursor", false);
+            name = init.getString("name", name);
+            ownCanvas = init.getBoolean("ownCanvas", ownCanvas);
+            visible = init.getBoolean("visible", visible);
+            mouseEnabled = init.getBoolean("mouseEnabled", mouseEnabled);
+            useHandCursor = init.getBoolean("useHandCursor", useHandCursor);
             filters = init.getArray("filters");
                                            
             x = init.getNumber("x", 0);
@@ -469,18 +471,20 @@ package away3d.core.scene
             }
         }
         
+        internal var v:View3D;
+        internal var c:Sprite;
+        
         public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-            var v:View3D = session.view;
+            v = session.view;
             if (ownCanvas) {
                 if (canvas[v] == null)
                     canvas[v] = new Sprite();
-                var c:Sprite = canvas[v];
+                c = canvas[v];
+                c.graphics.clear();
                 c.filters = filters;
-                if (!v.objectLayer.contains(c))
-                    v.objectLayer.addChild(c);
-                this.session =  new RenderSession(v, c, session.lightarray);
-                consumer.canvas(this);
+                consumer.primitive(new DrawDisplayObject(this, c, new ScreenVertex(0, 0, screenZ), session));
+                this.session = new RenderSession(v, c, session.lightarray);
             }
             else
             {

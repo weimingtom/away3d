@@ -9,7 +9,7 @@ package away3d.core.render
     {
     	protected var view:View3D;
     	protected var session:RenderSession;
-    	protected var nodeSession:RenderSession;
+    	protected var sessions:Array = new Array();
         private var consumer:IPrimitiveConsumer;
         private var lights:ILightConsumer;
 		
@@ -18,7 +18,7 @@ package away3d.core.render
         public function PrimitiveTraverser(consumer:IPrimitiveConsumer, lights:ILightConsumer, view:View3D, session:RenderSession)
         {
         	this.view = view;
-        	this.session = nodeSession = session;
+        	this.session = session;
             this.consumer = consumer;
             this.lights = lights;
         }
@@ -31,14 +31,19 @@ package away3d.core.render
                 return (node as ILODObject).matchLOD(view);
             return true;
         }
+                
+        public override function enter(node:Object3D):void
+        {
+        	sessions.push(session);
+        }
         
         public override function apply(node:Object3D):void
         {
             if (node is IPrimitiveProvider)
             {
                 projection = new Projection(node.viewTransform, view.camera.focus, view.camera.zoom);
-                (node as IPrimitiveProvider).primitives(projection, consumer, nodeSession);
-                nodeSession = node.session;
+                (node as IPrimitiveProvider).primitives(projection, consumer, session);
+                session = node.session;
             }
 
             if (node is ILightProvider)
@@ -49,10 +54,7 @@ package away3d.core.render
         
         public override function leave(node:Object3D):void
         {
-        	if (node.parent is IPrimitiveProvider)
-        		nodeSession = node.parent.session;
-        	else if (node.parent == view.scene)
-        		nodeSession = session;
+        	session = sessions.pop();
         }
 
     }

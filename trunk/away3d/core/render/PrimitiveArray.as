@@ -39,20 +39,6 @@ package away3d.core.render
             }
         }
 		
-		public function canvas(object:Object3D):void
-		{
-			containers.push(object);
-		}
-		
-		public function sortContainers(view:View3D):void
-		{
-			containers.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
-			for (var i:String in containers)
-			{
-				view.objectLayer.setChildIndex(containers[i].canvas[view], int(i));
-			}
-		}
-		
         public function list():Array
         {
             var triangles:Array = this.triangles;

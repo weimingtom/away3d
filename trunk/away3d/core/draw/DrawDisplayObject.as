@@ -2,23 +2,24 @@ package away3d.core.draw
 {
     import away3d.core.*;
     import away3d.core.material.*;
-    import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.render.*;
-                               
+    import away3d.core.scene.*;
+    
     import flash.display.DisplayObject;
 
     public class DrawDisplayObject extends DrawPrimitive
     {
         public var displayobject:DisplayObject;
-
+		public var session:RenderSession;
         public var v:ScreenVertex;
 
-        public function DrawDisplayObject(object:Object3D, displayobject:DisplayObject, v:ScreenVertex)
+        public function DrawDisplayObject(object:Object3D, displayobject:DisplayObject, v:ScreenVertex, session:RenderSession)
         {
             this.object = object;
             this.displayobject = displayobject;
             this.v = v;
+            this.session = session;
             calc();
         }
 
@@ -40,9 +41,9 @@ package away3d.core.draw
 
         public override function render():void
         {
-            displayobject.x = v.x - displayobject.width/2;
-            displayobject.y = v.y - displayobject.height/2;
-            object.session.addDisplayObject(displayobject);
+            displayobject.x = v.x;// - displayobject.width/2;
+            displayobject.y = v.y;// - displayobject.height/2;
+            session.addDisplayObject(displayobject);
         }
 
         public override function contains(x:Number, y:Number):Boolean

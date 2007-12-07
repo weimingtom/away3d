@@ -75,9 +75,6 @@ package away3d.core.render
             scene.traverse(pritraverser);
             primitives = priarray.list();
             
-            //sort containers
-            priarray.sortContainers(view);
-            
             // apply filters
             for each (filter in filters)
                 primitives = filter.filter(primitives, scene, camera, container, clip);
