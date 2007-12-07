@@ -1,16 +1,6 @@
 package 
 {
-    import flash.display.*;
-    import flash.events.*;
-    import flash.text.*;
-    import flash.utils.*;
-
-    import mx.core.BitmapAsset;
-    
     import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
-    import away3d.test.*;
     import away3d.core.*;
     import away3d.core.block.*;
     import away3d.core.draw.*;
@@ -21,6 +11,16 @@ package
     import away3d.core.scene.*;
     import away3d.core.sprite.*;
     import away3d.core.utils.*;
+    import away3d.loaders.*;
+    import away3d.objects.*;
+    import away3d.test.*;
+    
+    import flash.display.*;
+    import flash.events.*;
+    import flash.text.*;
+    import flash.utils.*;
+    
+    import mx.core.BitmapAsset;
     
     //[SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
     [SWF(backgroundColor="#222266", frameRate="60")]
@@ -31,7 +31,6 @@ package
             Debug.warningsAsErrors = true;
 
             super("Away3D engine test", 5*5*5);
-
             addSlide("Primitives", 
 "Basic primitives to start playing with", 
             new Scene3D(new Primitives), 
@@ -56,7 +55,17 @@ package
 "Any Sprite or MovieClip can be used as a material", 
             new Scene3D(new MovieTexturing), 
             Renderer.CORRECT_Z_ORDER);
-                    
+
+            addSlide("MovieClipSprite", 
+"Insert a DisplayObject directly inline with z-sorted triangles", 
+            new Scene3D(new MovieSprite), 
+            Renderer.CORRECT_Z_ORDER);
+            
+            addSlide("ownCanvas and filters", 
+"render objects in separate sprites. Can apply filters at an object level", 
+            new Scene3D(new CanvasSprite), 
+            Renderer.CORRECT_Z_ORDER);
+                               
             addSlide("Occlusion culling", 
 "Unnecessary triangles elimination",
             new Scene3D(new Blockers), 
@@ -168,6 +177,8 @@ import away3d.core.render.*;
 import away3d.core.scene.*;
 import away3d.core.sprite.*;
 import away3d.core.utils.*;
+import flash.filters.GlowFilter;
+import flash.filters.BlurFilter;
 
 class Asset
 {
@@ -547,6 +558,63 @@ class LODs extends ObjectContainer3D
             new AutoLODSphere(0xFFFF00, {x: 350, y:160, z:-350}), 
             new AutoLODSphere(0x00FF00, {x:-350, y:160, z:-350}), 
             new AutoLODSphere(0x0000FF, {x:-350, y:160, z: 350}));
+    }
+}
+
+class MovieSprite extends ObjectContainer3D
+{
+	protected var torus:Torus;
+	protected var movieClip:MovieClip;
+	protected var movieClipSprite:MovieClipSprite;
+	protected var count:int = 0;
+	
+	public function MovieSprite()
+    {
+    	movieClip = new MovieClip();
+    	
+    	movieClipSprite = new MovieClipSprite(movieClip);
+    	torus = new Torus({material:new WireColorMaterial(0x00FF00), x:0, y:0, z:0, radius:400, tube:100, segmentsR:8, segmentsT:6});
+    	super(torus, movieClipSprite);
+    }
+    public override function tick(time:int):void
+    {
+    	var graphics:Graphics = movieClip.graphics;
+    	if (!count) {
+    		graphics.clear();
+    		graphics.beginFill(0xFFFFFF*Math.random());
+    		graphics.drawRect(0, 0, 80, 80);
+    	}
+    	count++;
+    	if (count > 100)
+    		count = 0;
+        graphics.beginFill(0xFFFFFF*Math.random());
+        graphics.drawCircle(20+40*Math.random(), 20+40*Math.random(), 20);
+    	//torus.rotationY = time / 20;
+    }
+}
+
+
+class CanvasSprite extends ObjectContainer3D
+{
+	protected var torus:Torus;
+	protected var sphere:Sphere;
+	protected var sphere1:Sphere;
+	protected var sphere2:Sphere;
+	protected var sphere3:Sphere;
+	protected var sphere4:Sphere;
+	
+	public function CanvasSprite()
+    {
+    	
+    	sphere = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFFFF, 1, 50, 50)], material:new WireColorMaterial(0xFF0000), x: 0, y:0, z: 0, radius:150, segmentsW:12, segmentsH:9});
+    	sphere1 = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFF00, 1, 50, 50)], material:new WireColorMaterial(0xFF00FF), x: 200, y:0, z: 0, radius:20, segmentsW:4, segmentsH:3});
+    	sphere2 = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFF00, 1, 50, 50)], material:new WireColorMaterial(0xFF00FF), x: -200, y:0, z: 0, radius:20, segmentsW:4, segmentsH:3});
+    	sphere3 = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFF00, 1, 50, 50)], material:new WireColorMaterial(0xFF00FF), x: 0, y:0, z: 200, radius:20, segmentsW:4, segmentsH:3});
+    	sphere4 = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFF00, 1, 50, 50)], material:new WireColorMaterial(0xFF00FF), x: 0, y:0, z: -200, radius:20, segmentsW:4, segmentsH:3});
+    	torus = new Torus({material:new WireColorMaterial(0x00FF00), x:0, y:0, z:0, radius:400, tube:100, segmentsR:8, segmentsT:6});
+    	ownCanvas = true;
+    	super(torus, sphere, sphere1, sphere2, sphere3, sphere4);
+    	filters = [new BlurFilter()];
     }
 }
 
