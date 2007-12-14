@@ -82,9 +82,6 @@ package away3d.core.scene
             addChild(bitmapShader);
             addChild(interactiveLayer);
             addChild(hud);
-            canvas.buttonMode = true;
-            canvas.useHandCursor = false;
-            interactiveLayer.mouseEnabled = false;
             interactiveLayer.blendMode = BlendMode.ALPHA;
             //bitmapShader.blendMode = BlendMode.ADD;
             
@@ -162,11 +159,15 @@ package away3d.core.scene
 
         private function onMouseOut(e:MouseEvent):void
         {
+        	if (e.eventPhase != EventPhase.AT_TARGET)
+        		return;
         	fireMouseEvent(MouseEvent3D.MOUSE_OUT, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
         
         private function onMouseOver(e:MouseEvent):void
         {
+        	if (e.eventPhase != EventPhase.AT_TARGET)
+        		return;
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, e.localX, e.localY, e.ctrlKey, e.shiftKey);
         }
 
@@ -210,7 +211,7 @@ package away3d.core.scene
                     dispatchMouseEvent(event);
                     bubbleMouseEvent(event);
                     mouseObject = null;
-                    canvas.useHandCursor = false;
+                    buttonMode = false;
                 }
                 if (target != null && mouseObject == null) {
                     event = findhit.getMouseEvent(MouseEvent3D.MOUSE_OVER);
@@ -218,7 +219,7 @@ package away3d.core.scene
                     event.material = mouseMaterial = targetMaterial;
                     dispatchMouseEvent(event);
                     bubbleMouseEvent(event);
-                    canvas.useHandCursor = mouseObject.useHandCursor;
+                    buttonMode = mouseObject.useHandCursor;
                 }
             }
             
