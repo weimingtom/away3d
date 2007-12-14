@@ -116,10 +116,10 @@ package away3d.core.material
         
         public function renderTriangle(tri:DrawTriangle):void
         {
-            tri.object.session.renderTriangleBitmap(_current, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
+            tri.source.session.renderTriangleBitmap(_current, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
-                tri.object.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                tri.source.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
         
 		public function shadeTriangle(tri:DrawTriangle):void

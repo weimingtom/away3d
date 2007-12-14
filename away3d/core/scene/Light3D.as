@@ -88,7 +88,7 @@ package away3d.core.scene
             tri.v1 = new ScreenVertex(vp.x - 3, vp.y + 2, vp.z);
             tri.v2 = new ScreenVertex(vp.x, vp.y - 3, vp.z);
             tri.calc();
-            tri.object = this;
+            tri.source = this;
             tri.projection = projection;
             tri.material = new ColorMaterial(color);
             consumer.primitive(tri);

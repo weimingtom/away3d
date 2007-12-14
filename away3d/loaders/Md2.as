@@ -142,8 +142,6 @@ package away3d.loaders
                     if (char != 0)
                         name += String.fromCharCode(char);
                 }
-                
-                //trace("[ "+name+" ]");
 
                 mesh.framenames[name] = i;
                 mesh.frames[i] = frame;

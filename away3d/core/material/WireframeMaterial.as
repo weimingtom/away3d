@@ -34,7 +34,7 @@ package away3d.core.material
             if (alpha <= 0)
                 return;
 
-            var graphics:Graphics = seg.object.session.graphics;
+            var graphics:Graphics = seg.source.session.graphics;
             graphics.lineStyle(width, color, alpha);
             graphics.moveTo(seg.v0.x, seg.v0.y);
             graphics.lineTo(seg.v1.x, seg.v1.y);
@@ -46,7 +46,7 @@ package away3d.core.material
             if (alpha <= 0)
                 return;
 
-            tri.object.session.renderTriangleLine(color, alpha, width, tri.v0, tri.v1, tri.v2);
+            tri.source.session.renderTriangleLine(color, alpha, width, tri.v0, tri.v1, tri.v2);
         }
 		
 		public function shadeTriangle(tri:DrawTriangle):void

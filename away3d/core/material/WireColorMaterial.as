@@ -38,7 +38,7 @@ package away3d.core.material
 		
         public function renderTriangle(tri:DrawTriangle):void
         {
-			tri.object.session.renderTriangleLineFill(color, alpha, wirecolor, wirealpha, width, tri.v0, tri.v1, tri.v2);
+			tri.source.session.renderTriangleLineFill(color, alpha, wirecolor, wirealpha, width, tri.v0, tri.v1, tri.v2);
         }
 		
 		public function shadeTriangle(tri:DrawTriangle):void
