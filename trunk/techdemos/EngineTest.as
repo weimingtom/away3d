@@ -627,10 +627,10 @@ class Primitives extends ObjectContainer3D
                        
     public function Primitives()
     {
-        plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000});
+        plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000, bothsides:true});
         sphere = new Sphere({material:new WireColorMaterial(0xFF0000), x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
         cube = new Cube({material:new WireColorMaterial(0x0000FF), x: 300, y:160, z: -80, width:200, height:200, depth:200});
-        torus = new Torus({material:new WireColorMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
+        torus = new Torus({pushfront:true, outline:new WireframeMaterial(0xFFFFFF, {width:5}), material:new WireColorMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
 
         super(sphere, plane, cube, torus);
     }
