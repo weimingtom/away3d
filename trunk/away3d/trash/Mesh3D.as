@@ -163,7 +163,7 @@ package away3d.trash
                     tri.uv2 = uvt;
                 }
 
-                tri.object = this;
+                tri.source = this;
                 tri.face = null; //face;
                 tri.projection = projection;
                 consumer.primitive(tri);
@@ -198,7 +198,7 @@ package away3d.trash
                 if (!seg.material.visible)
                     continue;
 
-                seg.object = this;
+                seg.source = this;
                 seg.projection = projection;
                 consumer.primitive(seg);
                 seg = null;

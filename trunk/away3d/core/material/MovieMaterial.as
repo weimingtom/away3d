@@ -69,7 +69,7 @@ package away3d.core.material
         
         public function renderTriangle(tri:DrawTriangle):void
         {
-        	session = tri.object.session;
+        	session = tri.source.session;
         	
             if (lastsession != session.time)
             {
@@ -81,8 +81,8 @@ package away3d.core.material
 	                if (!session.view.interactiveLayer.contains(movie)) {
                 		session.view.interactiveLayer.addChild(movie);
                 		resetInteractiveLayer();
-                		tri.object.addOnMouseOver(onMouseOver);
-                		tri.object.addOnMouseOut(onMouseOut);
+                		tri.source.addOnMouseOver(onMouseOver);
+                		tri.source.addOnMouseOut(onMouseOut);
 	                }
                 	
                 }

@@ -35,10 +35,10 @@ package away3d.core.draw
             screenZ = v.z;
             minZ = screenZ;
             maxZ = screenZ;
-            minX = int(Math.floor(v.x - bitmap.width/2));
-            minY = int(Math.floor(v.y - bitmap.height/2));
-            maxX = int(Math.ceil(v.x + bitmap.width/2));
-            maxY = int(Math.ceil(v.y + bitmap.height/2));
+            minX = v.x - bitmap.width/2;
+            minY = v.y - bitmap.height/2;
+            maxX = v.x + bitmap.width/2;
+            maxY = v.y + bitmap.height/2;
         }
 
         public override function clear():void
@@ -48,7 +48,7 @@ package away3d.core.draw
 
         public override function render():void
         {
-            var graphics:Graphics = object.session.graphics;
+            var graphics:Graphics = source.session.graphics;
             graphics.lineStyle();
             graphics.beginBitmapFill(bitmap, new Matrix(1, 0, 0, 1, v.x-bitmap.width/2, v.y-bitmap.height/2));
             graphics.drawRect(v.x-bitmap.width/2, v.y-bitmap.height/2, bitmap.width, bitmap.height);

@@ -11,18 +11,19 @@ package away3d.core.draw
     /** Abstract class for all drawing primitives */
     public class DrawPrimitive
     {
+        public var source:Object3D;
         public var projection:Projection;
-
-        public var object:Object3D;
+		public var create:Function;
 
         public var minZ:Number;
         public var maxZ:Number;
         public var screenZ:Number;
-        public var minX:int;
-        public var maxX:int;
-        public var minY:int;
-        public var maxY:int;
-
+        public var minX:Number;
+        public var maxX:Number;
+        public var minY:Number;
+        public var maxY:Number;
+		
+		
         //public var flag:int;
 
         public function render():void

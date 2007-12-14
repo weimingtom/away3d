@@ -40,7 +40,7 @@ package away3d.core.render
 
         public function checkPrimitive(pri:DrawPrimitive):void
         {
-            if (!pri.object.mouseEnabled)
+            if (!pri.source.mouseEnabled)
                 return;
             if (pri.minX > screenX)
                 return;
@@ -80,7 +80,7 @@ package away3d.core.render
                     sceneZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
 
                     drawpri = pri;
-                    object = pri.object;
+                    object = pri.source;
                     element = null; // TODO face or segment
 
                 }

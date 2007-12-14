@@ -1,15 +1,14 @@
 package away3d.core.mesh
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.render.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-    
     import away3d.objects.*;
-
+    
     import flash.utils.*;
     
     /** Base mesh constisting of elements */
@@ -287,7 +286,14 @@ package away3d.core.mesh
 
             launchNotifies();
         }
-
+		
+		override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        {
+        	super.primitives(projection, consumer, session);
+        	_dsStore = _dsStore.concat(_dsActive);
+        	_dsActive = new Array();
+        }
+        
         private var _needNotifyRadiusChange:Boolean = false;
         private var _needNotifyDimensionsChange:Boolean = false;
 
@@ -489,6 +495,27 @@ package away3d.core.mesh
             }
 
             animation.start();
+        }
+        
+        internal var seg:DrawSegment;
+        protected var _dsStore:Array = new Array();
+        protected var _dsActive:Array = new Array();
+        
+        public function createDrawSegment(material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
+        {
+            if (_dsStore.length)
+            	seg = _dsStore.pop();
+            else {
+            	_dsActive.push(seg = new DrawSegment());
+	            seg.source = this;
+	            seg.create = createDrawSegment;
+            }
+            seg.material = material;
+            seg.projection = projection;
+            seg.v0 = v0;
+            seg.v1 = v1;
+            seg.calc();
+            return seg;
         }
     }
 }

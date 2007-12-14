@@ -486,7 +486,8 @@ package away3d.core.mesh
         internal var uv_v2:Number;
         internal var width:Number;
         internal var height:Number;
-            
+        
+        /*
         arcane function mapping(uvm:IUVMaterial):Matrix
         {
             if (uvm == null)
@@ -536,7 +537,7 @@ package away3d.core.mesh
                 uv_u2 -= (uv_u2 > 0.05) ? 0.04 : -0.04;
                 uv_v2 -= (uv_v2 > 0.06) ? 0.06 : -0.06;
             }
-            /*
+            
 			if (uvm is Dot3BitmapMaterial || uvm is PhongBitmapMaterial)
 			{
 				bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)+2), int(height*(maxV-minV)+2));
@@ -546,13 +547,14 @@ package away3d.core.mesh
             		bitmapRect.height = 1;
             	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0 - bitmapRect.x, uv_v0 - bitmapRect.y);			
 			} else {
-			*/
+			
             	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
-			//}
+			}
             _texturemapping.invert();
             return _texturemapping;
         }
-
+		*/
+		
         arcane function front(projection:Projection):Number
         {
             var sv0:ScreenVertex = _v0.project(projection);

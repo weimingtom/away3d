@@ -41,12 +41,12 @@ package away3d.core.render
         public function push(pri:DrawPrimitive):void
         {
             if (onlysource == dummysource)
-                onlysource = pri.object;
+                onlysource = pri.source;
             else
-                if (onlysource != pri.object)
+                if (onlysource != pri.source)
                     onlysource == null;
 
-            if (((pri.maxX > xdiv) && (pri.minX < xdiv)) || ((pri.maxY > ydiv) && (pri.minY < ydiv)))
+            if ((pri.maxX > xdiv && pri.minX < xdiv) || (pri.maxY > ydiv && pri.minY < ydiv))
             {
                 if (center == null)
                     center = new Array();
@@ -177,7 +177,7 @@ package away3d.core.render
             return result;
         }
 
-        private function getList(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D, result:Array):void
+        public function getList(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D, result:Array):void
         {
             if (onlysource != null)
                 if (except == onlysource)
@@ -189,18 +189,12 @@ package away3d.core.render
                 while (i--)
                 {
                 	child = center[i];
-                    if (child.maxX < minX)
-                        continue;
-                    if (child.minX > maxX)
-                        continue;
-                    if (child.maxY < minY)
-                        continue;
-                    if (child.minY > maxY)
+                    if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
                         continue;
                     if (except != null)
-                        if (child.object == except)
+                        if (child.source == except)
                             continue;
-                    result[result.length] = child;
+                    result.push(child);
                 }
             }
 
@@ -211,18 +205,12 @@ package away3d.core.render
                     while (i--)
                     {
                     	child = children[i];
-                        if (child.maxX < minX)
-                            continue;
-                        if (child.minX > maxX)
-                            continue;
-                        if (child.maxY < minY)
-                            continue;
-                        if (child.minY > maxY)
+                        if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
                             continue;
                         if (except != null)
-                            if (child.object == except)
+                            if (child.source == except)
                                 continue;
-                        result[result.length] = child;
+                        result.push(child);
                     }
                 }
                 return;
@@ -230,29 +218,21 @@ package away3d.core.render
 
             if (minX < xdiv)
             {
-                if (minY < ydiv)
-                {
-                    if (lefttop != null)
-                        lefttop.getList(minX, minY, maxX, maxY, except, result);
-                }
-                if (maxY > ydiv)
-                {
-                    if (leftbottom != null)
-                        leftbottom.getList(minX, minY, maxX, maxY, except, result);
-                }
+                if (lefttop != null && minY < ydiv)
+	                lefttop.getList(minX, minY, maxX, maxY, except, result);
+	            
+                if (leftbottom != null && maxY > ydiv)
+                	leftbottom.getList(minX, minY, maxX, maxY, except, result);
             }
+            
             if (maxX > xdiv)
             {
-                if (minY < ydiv)
-                {
-                    if (righttop != null)
-                        righttop.getList(minX, minY, maxX, maxY, except, result);
-                }
-                if (maxY > ydiv)
-                {
-                    if (rightbottom != null)
-                        rightbottom.getList(minX, minY, maxX, maxY, except, result);
-                }
+                if (righttop != null && minY < ydiv)
+                	righttop.getList(minX, minY, maxX, maxY, except, result);
+                
+                if (rightbottom != null && maxY > ydiv)
+                	rightbottom.getList(minX, minY, maxX, maxY, except, result);
+                
             }
         }
 

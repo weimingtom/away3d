@@ -267,7 +267,8 @@ package away3d.core.mesh
 
             _faces.push(face);
 			
-			face._dt.object = face.parent = this;
+			face._dt.source = face.parent = this;
+			face._dt.create = createDrawTriangle;
 			
             face.addOnVertexChange(onFaceVertexChange);
             rememberFaceNeighbours(face);
@@ -354,13 +355,17 @@ package away3d.core.mesh
                 }
             }
         }
-
+        
+		internal var n01:Face;
+		internal var n12:Face;
+		internal var n20:Face;
+		
         private function forgetFaceNeighbours(face:Face):void
         {
             if (_neighboursDirty)
                 return;
             
-            var n01:Face = _neighbour01[face];
+            n01 = _neighbour01[face];
             if (n01 != null)
             {
                 delete _neighbour01[face];
@@ -371,7 +376,7 @@ package away3d.core.mesh
                 if (_neighbour20[n01] == face)
                     delete _neighbour20[n01];
             }
-            var n12:Face = _neighbour12[face];
+            n12 = _neighbour12[face];
             if (n12 != null)
             {
                 delete _neighbour12[face];
@@ -382,7 +387,7 @@ package away3d.core.mesh
                 if (_neighbour20[n12] == face)
                     delete _neighbour20[n12];
             }
-            var n20:Face = _neighbour20[face];
+            n20 = _neighbour20[face];
             if (n20 != null)
             {
                 delete _neighbour20[face];
@@ -487,11 +492,21 @@ package away3d.core.mesh
             _neighboursDirty = nd;
         }
 
-        private var _debugboundingbox:WireCube;
-
+        internal var _debugboundingbox:WireCube;
+		internal var tri:DrawTriangle;
+        internal var transparent:ITriangleMaterial;
+        internal var backmat:ITriangleMaterial;
+        internal var backface:Boolean;
+        
+        internal var vt:ScreenVertex;
+        internal var uvt:UV;
+        
         override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
         	super.primitives(projection, consumer, session);
+        	
+        	_dtStore = _dtStore.concat(_dtActive);
+        	_dtActive = new Array();
         	
             if (outline != null)
                 if (_neighboursDirty)
@@ -528,26 +543,22 @@ package away3d.core.mesh
                 if (_faces.length > 0)
                     _debugboundingbox.primitives(projection, consumer, session);
             }
+            
+            transparent = TransparentMaterial.INSTANCE;
+            backmat = back || material;
 			
-            var tri:DrawTriangle;
-            var ntri:DrawTriangle;
-            var transparent:ITriangleMaterial = TransparentMaterial.INSTANCE;
-            var backmat:ITriangleMaterial = back || material;
             for each (var face:Face in _faces)
             {
                 if (!face._visible)
                     continue;
-
-                //if (tri == null)
-                    if (outline == null)
-                        tri = face._dt; //new DrawTriangle();
-                    else
-                        tri = new DrawBorderTriangle();
-
+				
+				//project each Vertex to a ScreenVertex
+				tri = face._dt;
                 tri.v0 = face._v0.project(projection);
                 tri.v1 = face._v1.project(projection);
                 tri.v2 = face._v2.project(projection);
-
+				
+				//check each ScreenVertex is visible
                 if (!tri.v0.visible)
                     continue;
 
@@ -556,123 +567,123 @@ package away3d.core.mesh
 
                 if (!tri.v2.visible)
                     continue;
-
+				
+				//calculate DrawTriangle properties
                 tri.calc();
-
+				
+				//check triangle is not behind the camera
                 if (tri.maxZ < 0)
                     continue;
-
-                var backface:Boolean = tri.area < 0;
-
-                if (backface)
-                {
+				
+				//determine if triangle is facing towards or away from camera
+                backface = tri.area < 0;
+				
+				//if triangle facing away, check for backface material
+                if (backface) {
                     if (!bothsides)
                         continue;
                     tri.material = face._back;
-                }
-                else
+                } else
                     tri.material = face._material;
-
+				
+				//determine the material of the triangle
                 if (tri.material == null)
                     if (backface)
                         tri.material = backmat;
                     else
                         tri.material = material;
-
+				
+				//do not draw material if visible is false
                 if (tri.material != null)
                     if (!tri.material.visible)
                         tri.material = null;
-
+				
+				//if there is no material and no outline, continue
                 if (outline == null)
                     if (tri.material == null)
                         continue;
-
+				
                 if (pushback)
                     tri.screenZ = tri.maxZ;
 
                 if (pushfront)
                     tri.screenZ = tri.minZ;
-
-                tri.uv0 = face._uv0;
-                tri.uv1 = face._uv1;
-                tri.uv2 = face._uv2;
-
-                tri.texturemapping = null;
-
-                if (backface)
-                {
+				
+				
+				//swap ScreenVerticies if triangle facing away from camera
+                if (backface) {
                     // Make cleaner
-                    var vt:ScreenVertex = tri.v1;
+                    vt = tri.v1;
                     tri.v1 = tri.v2;
                     tri.v2 = vt;
-
-                    var uvt:UV = tri.uv1;
-                    tri.uv1 = tri.uv2;
-                    tri.uv2 = uvt;
+					
+					//pass accross uv values
+	                tri.uv0 = face._uv0;
+	                tri.uv1 = face._uv2;
+	                tri.uv2 = face._uv1;
 
                     tri.area = -tri.area;
+                } else {
+					//pass accross uv values
+	                tri.uv0 = face._uv0;
+	                tri.uv1 = face._uv1;
+	                tri.uv2 = face._uv2;
                 }
-                else
-                {
-                    var uvm:IUVMaterial = tri.material as IUVMaterial;
-                    if (uvm != null)
-                    {
-                        if (tri.material == face._mappingmaterial)
-                            tri.texturemapping = face._texturemapping;
-                        else
-                            tri.texturemapping = face.mapping(uvm);
-                    }
+                
+                //check if face swapped direction
+                if (tri.backface != backface && tri.material is IUVMaterial) {
+                	tri.backface = backface;
+                	tri.texturemapping = null;
                 }
-
-                if ((outline != null) && (!backface))
+                
+                if (outline != null && !backface)
                 {
-                    var btri:DrawBorderTriangle = tri as DrawBorderTriangle;
-                        
-                    if (ntri == null)
-                        ntri = new DrawTriangle();
+                    n01 = _neighbour01[face];
+                    if (n01 == null || n01.front(projection) <= 0)
+                    	consumer.primitive(createDrawSegment(outline, projection, tri.v0, tri.v1));
 
-                    var n01:Face = _neighbour01[face];
-                    if (n01 != null)
-                    {
-                        if (n01.front(projection) <= 0)
-                            btri.s01material = outline;
-                    }
-                    else
-                        btri.s01material = outline;
+                    n12 = _neighbour12[face];
+                    if (n12 == null || n12.front(projection) <= 0)
+                    	consumer.primitive(createDrawSegment(outline, projection, tri.v1, tri.v2));
 
-                    var n12:Face = _neighbour12[face];
-                    if (n12 != null)
-                    {
-                        if (n12.front(projection) <= 0)
-                            btri.s12material = outline;
-                    }
-                    else
-                        btri.s12material = outline;
+                    n20 = _neighbour20[face];
+                    if (n20 == null || n20.front(projection) <= 0)
+                    	consumer.primitive(createDrawSegment(outline, projection, tri.v2, tri.v0));
 
-                    var n20:Face = _neighbour20[face];
-                    if (n20 != null)
-                    {
-                        if (n20.front(projection) <= 0)
-                            btri.s20material = outline;
-                    }
-                    else
-                        btri.s20material = outline;
-
-                    if (btri.material == null)
-                    {
-                        if ((btri.s01material == null) && (btri.s12material == null) && (btri.s20material == null))
-                            continue;
-                        else
-                            btri.material = transparent;
-                    }
-	                tri.object = this;
-	                tri.face = face;
+                    if (tri.material == null)
+                    	continue;
                 }
                 tri.projection = projection;
                 consumer.primitive(tri);
             }
         }
-
+        
+		protected var _dtStore:Array = new Array();
+        protected var _dtActive:Array = new Array();
+        
+		public function createDrawTriangle(material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
+		{
+			
+			if (_dtStore.length) {
+            	tri = _dtStore.pop();
+            	tri.texturemapping = null;
+   			} else {
+            	_dtActive.push(tri = new DrawTriangle());
+	            tri.source = this;
+		        tri.create = createDrawTriangle;
+            }
+            tri.material = material;
+            tri.projection = projection;
+            tri.v0 = v0;
+            tri.v1 = v1;
+            tri.v2 = v2;
+            tri.uv0 = uv0;
+            tri.uv1 = uv1;
+            tri.uv2 = uv2;
+            tri.calc();
+            return tri;
+		}
+		
         public override function clone(object:* = null):*
         {
             var mesh:Mesh = object || new Mesh();

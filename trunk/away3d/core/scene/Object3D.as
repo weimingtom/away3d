@@ -46,6 +46,9 @@ package away3d.core.scene
     
         //an optional filters array that can be applied to the canvas
         public var filters:Array;
+    
+        //an optional blendMode that can be applied to the canvas
+        public var blendMode:String;
         
         // An object that contains user defined properties.
         public var extra:Object;
@@ -59,10 +62,6 @@ package away3d.core.scene
         public var ownCanvas:Boolean = false;
         public var ownSession:RenderSession;
         
-        public function get screenZ():Number
-        {
-            return Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
-        }
         public function get radius():Number
         {
             return 0;
@@ -483,7 +482,11 @@ package away3d.core.scene
                 c = canvas[v];
                 c.graphics.clear();
                 c.filters = filters;
-                consumer.primitive(new DrawDisplayObject(this, c, new ScreenVertex(0, 0, screenZ), session));
+                if (blendMode != null)
+                	c.blendMode = blendMode;
+                else
+                	c.blendMode = BlendMode.NORMAL;
+                consumer.primitive(new DrawDisplayObject(this, c, new ScreenVertex(0, 0, Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty)), session));
                 this.session = new RenderSession(v, c, session.lightarray);
             }
             else

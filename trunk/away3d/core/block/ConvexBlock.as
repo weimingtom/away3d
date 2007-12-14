@@ -101,7 +101,7 @@ package away3d.core.block
                 result.pop();
 			
 			var blkr:ConvexBlocker = new ConvexBlocker(result);
-			blkr.object = this;
+			blkr.source = this;
             return blkr;
         }
 

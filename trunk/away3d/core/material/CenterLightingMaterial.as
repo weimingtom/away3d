@@ -129,7 +129,7 @@ package away3d.core.material
         
         public function renderTriangle(tri:DrawTriangle):void
         {
-        	session = tri.object.session;
+        	session = tri.source.session;
             v0 = tri.v0;
             v1 = tri.v1;
             v2 = tri.v2;

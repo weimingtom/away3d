@@ -48,7 +48,7 @@ package away3d.core.material
         
         public override function renderTriangle(tri:DrawTriangle):void
         {
-            session = tri.object.session;
+            session = tri.source.session;
             focus = tri.projection.focus;
             mapping = tri.texturemapping || tri.transformUV(this);
             map.a = mapping.a;
@@ -171,24 +171,7 @@ package away3d.core.material
                     session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
-            
-            //Debug.trace(num(ta)+" "+num(tb)+" "+num(tc)+" "+num(td)+" "+num(tx)+" "+num(ty));
-            /*
-            var map:Matrix;
-            mIndex++;
-            if (matrixArray.length < mIndex){
-                trace("matrix");
-                map = matrixArray[matrixArray.length] = new Matrix(mapping.a, mapping.b, mapping.c, mapping.d, mapping.tx, mapping.ty);
-            } else {
-                map = matrixArray[mIndex-1];
-                map.a = mapping.a;
-                map.b = mapping.b;
-                map.c = mapping.c;
-                map.d = mapping.d;
-                map.tx = mapping.tx;
-                map.ty = mapping.ty;    
-            }
-            */
+
             var map_a:Number = map.a;
             var map_b:Number = map.b;
             var map_c:Number = map.c;

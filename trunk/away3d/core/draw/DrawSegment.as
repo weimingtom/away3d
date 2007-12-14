@@ -2,11 +2,9 @@ package away3d.core.draw
 {
     import away3d.core.*;
     import away3d.core.material.*;
-    import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.render.*;
-
-    import flash.display.Graphics;
+    import away3d.core.scene.*;
 
     /** Line segment drawing primitive */
     public class DrawSegment extends DrawPrimitive
@@ -17,7 +15,7 @@ package away3d.core.draw
         public var length:Number;
 
         public var material:ISegmentMaterial;
-
+		
         public override function clear():void
         {
             v0 = null;
@@ -121,7 +119,7 @@ package away3d.core.draw
 
             var v01:ScreenVertex = new ScreenVertex(tv01x, tv01y, tv01z);
 
-            return [create(object, material, projection, v0, v01), create(object, material, projection, v01, v1)];
+            return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
         }
 
         public override function getZ(x:Number, y:Number):Number
@@ -175,7 +173,7 @@ package away3d.core.draw
 
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 
-            return [create(object, material, projection, v0, v01), create(object, material, projection, v01, v1)];
+            return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
         }
 
         public function distanceToCenter(x:Number, y:Number):Number
@@ -186,54 +184,39 @@ package away3d.core.draw
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
 
-        public static function create(object:Object3D, material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
-        {
-            var tri:DrawSegment = new DrawSegment();
-            tri.object = object;
-            tri.material = material;
-            tri.projection = projection;
-            tri.v0 = v0;
-            tri.v1 = v1;
-            tri.calc();
-            return tri;
-        }
-
         public function calc():void
         {
-            minZ = Math.min(v0.z, v1.z);
-            maxZ = Math.max(v0.z, v1.z);
+        	if (v0.z < v1.z) {
+        		minZ = v0.z;
+        		maxZ = v1.z + 1;
+        	} else {
+        		minZ = v1.z;
+        		maxZ = v0.z + 1;
+        	}
             screenZ = (v0.z + v1.z) / 2;
-            minX = int(Math.min(v0.x, v1.x));
-            maxX = int(Math.max(v0.x, v1.x));
-            minY = int(Math.min(v0.y, v1.y));
-            maxY = int(Math.max(v0.y, v1.y));
+            
+            if (v0.x < v1.x) {
+        		minX = v0.x;
+        		maxX = v1.x + 1;
+        	} else {
+        		minX = v1.x;
+        		maxX = v0.x + 1;
+        	}
+        	
+        	if (v0.y < v1.y) {
+        		minY = v0.y;
+        		maxY = v1.y + 1;
+        	} else {
+        		minY = v1.y;
+        		maxY = v0.y + 1;
+        	}
+            
             length = Math.sqrt((maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY));
         }
 
         public override function toString():String
         {
             return "S{ screenZ = " + screenZ + ", minZ = " + minZ + ", maxZ = " + maxZ + " }";
-        }
-
-        public static function test():void
-        {
-        /*
-            var s1:DrawSegment = DrawSegment.create(null, null,
-                new ScreenVertex(100,  100, 300),
-                new ScreenVertex(-100, -100, 200));
-
-            assert(s1.length == 200*Math.sqrt(2));
-            assert(s1.contains(0, 0));
-            assert(s1.contains(10, 10));
-            assert(!s1.contains(-10, 10));
-            assert(s1.getZ(-60, 20, 300) == s1.getZ(20, -60, 300));
-            assert(s1.getZ(10, 10, 250) == 250);
-            assert(s1.getZ( 5,  5, 750) == 250);
-            assert(s1.getZ(20,  0, 250) == 250);
-            assert(s1.getZ( 0, 20, 250) == 250);
-            assert(s1.getZ(10,  0, 750) == 250);
-            assert(s1.getZ( 0, 10, 750) == 250);
-        */
         }
     }
 }

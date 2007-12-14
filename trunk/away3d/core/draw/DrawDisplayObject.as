@@ -16,7 +16,7 @@ package away3d.core.draw
 
         public function DrawDisplayObject(object:Object3D, displayobject:DisplayObject, v:ScreenVertex, session:RenderSession)
         {
-            this.object = object;
+            this.source = object;
             this.displayobject = displayobject;
             this.v = v;
             this.session = session;
@@ -28,10 +28,10 @@ package away3d.core.draw
             screenZ = v.z;
             minZ = screenZ;
             maxZ = screenZ;
-            minX = int(Math.floor(v.x - displayobject.width/2));
-            minY = int(Math.floor(v.y - displayobject.height/2));
-            maxX = int(Math.ceil(v.x + displayobject.width/2));
-            maxY = int(Math.ceil(v.y + displayobject.height/2));
+            minX = v.x - displayobject.width/2;
+            minY = v.y - displayobject.height/2;
+            maxX = v.x + displayobject.width/2;
+            maxY = v.y + displayobject.height/2;
         }
 
         public override function clear():void
