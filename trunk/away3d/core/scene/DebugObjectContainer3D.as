@@ -27,11 +27,13 @@ package away3d.core.scene
         private var _debugboundingbox:WireCube;
         private var _debugboundingsphere:WireSphere;
 
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
         {
             if (children.length == 0)
                 return;
-
+			
+			super.primitives(projection, consumer, session);
+			
             if (debugbb)
             {
                 if (_debugboundingbox == null)
