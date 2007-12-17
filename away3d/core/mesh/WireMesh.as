@@ -48,6 +48,7 @@ package away3d.core.mesh
             _segments.push(segment);
             
             segment._ds.source = segment.parent = this;
+            segment._ds.create = createDrawSegment;
         }
 
         public function removeSegment(segment:Segment):void
