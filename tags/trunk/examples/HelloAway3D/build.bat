@@ -1,0 +1,1 @@
+mxmlc -sp+=..\..\lib HelloAway3D.as
