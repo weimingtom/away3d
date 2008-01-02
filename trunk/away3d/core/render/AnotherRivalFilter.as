@@ -60,7 +60,7 @@ package away3d.core.render
                     maxZ = pri.maxZ + 1000;
                     minZ = pri.minZ - 1000;
                     maxdeltaZ = 0;
-                    rivals = tree.get(pri.minX, pri.minY, pri.maxX, pri.maxY, null);
+                    rivals = tree.get(pri.minX, pri.minY, pri.maxX, pri.maxY, pri.source);
                     for each (rival in rivals)
                     {
                         if (rival == pri)
