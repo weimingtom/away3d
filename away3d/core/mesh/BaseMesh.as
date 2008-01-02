@@ -503,9 +503,10 @@ package away3d.core.mesh
         
         public function createDrawSegment(material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
         {
-            if (_dsStore.length)
-            	seg = _dsStore.pop();
-            else {
+            if (_dsStore.length) {
+            	_dsActive.push(seg = _dsStore.pop());
+            	seg.create = createDrawSegment;
+        	} else {
             	_dsActive.push(seg = new DrawSegment());
 	            seg.source = this;
 	            seg.create = createDrawSegment;

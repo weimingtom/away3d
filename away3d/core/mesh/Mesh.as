@@ -658,15 +658,15 @@ package away3d.core.mesh
             }
         }
         
-		protected var _dtStore:Array = new Array();
-        protected var _dtActive:Array = new Array();
+		public var _dtStore:Array = new Array();
+        public var _dtActive:Array = new Array();
         
 		public function createDrawTriangle(material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
 		{
-			
 			if (_dtStore.length) {
-            	tri = _dtStore.pop();
+            	_dtActive.push(tri = _dtStore.pop());
             	tri.texturemapping = null;
+            	tri.create = createDrawTriangle;
    			} else {
             	_dtActive.push(tri = new DrawTriangle());
 	            tri.source = this;

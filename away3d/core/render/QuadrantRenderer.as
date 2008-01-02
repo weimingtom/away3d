@@ -1,12 +1,12 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
-	import away3d.core.stats.*;
-	
-    import flash.geom.*;
+    import away3d.core.scene.*;
+    import away3d.core.stats.*;
+    
     import flash.display.*;
+    import flash.geom.*;
 
     /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
     public class QuadrantRenderer implements IRenderer
@@ -41,6 +41,9 @@ package away3d.core.render
         
         protected var statsEvent:StatsEvent;
         
+        private var quadrantStore:Array = new Array();
+		private var quadrantActive:Array = new Array();
+		
         public function render(view:View3D):Array
         {
             scene = view.scene;
@@ -52,7 +55,9 @@ package away3d.core.render
 			projtraverser = new ProjectionTraverser(view);
 			scene.traverse(projtraverser);
             
-            pritree = new PrimitiveQuadrantTree(clip);
+            quadrantStore = quadrantStore.concat(quadrantActive);
+        	quadrantActive = new Array();
+            pritree = new PrimitiveQuadrantTree(clip, quadrantStore, quadrantActive);
             lightarray = new LightArray();
             session = new RenderSession(view, container, lightarray);
             pritraverser = new PrimitiveTraverser(pritree, lightarray, view, session);
