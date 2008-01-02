@@ -50,7 +50,7 @@ package away3d.core.render
             {
                 if (center == null)
                     center = new Array();
-                center[center.length] = pri;
+                center.push(pri);
                 return;
             }
 
@@ -59,7 +59,7 @@ package away3d.core.render
                 if (children == null)
                     children = new Array();
 
-                children[children.length] = pri;
+                children.push(pri);
 
                 if (children.length > level * 2)
                 {
@@ -169,20 +169,31 @@ package away3d.core.render
                 }
             }
         }
+		
+		internal var minX:Number;
+		internal var minY:Number;
+		internal var maxX:Number;
+		internal var maxY:Number;
 
         public function get(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D):Array
         {
             var result:Array = [];
-            getList(minX, minY, maxX, maxY, except, result);
+                    
+			this.minX = minX;
+			this.minY = minY;
+			this.maxX = maxX;
+			this.maxY = maxY;
+			
+            getList(except, result);
             return result;
         }
-
-        public function getList(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D, result:Array):void
+		
+        public function getList(except:Object3D, result:Array):void
         {
             if (onlysource != null)
                 if (except == onlysource)
                     return;
-
+			
             var child:DrawPrimitive;
             if (center != null) {
                 i = center.length;
@@ -219,19 +230,19 @@ package away3d.core.render
             if (minX < xdiv)
             {
                 if (lefttop != null && minY < ydiv)
-	                lefttop.getList(minX, minY, maxX, maxY, except, result);
+	                lefttop.getList(except, result);
 	            
                 if (leftbottom != null && maxY > ydiv)
-                	leftbottom.getList(minX, minY, maxX, maxY, except, result);
+                	leftbottom.getList(except, result);
             }
             
             if (maxX > xdiv)
             {
                 if (righttop != null && minY < ydiv)
-                	righttop.getList(minX, minY, maxX, maxY, except, result);
+                	righttop.getList(except, result);
                 
                 if (rightbottom != null && maxY > ydiv)
-                	rightbottom.getList(minX, minY, maxX, maxY, except, result);
+                	rightbottom.getList(except, result);
                 
             }
         }
