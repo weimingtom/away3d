@@ -10,19 +10,19 @@ package away3d.core.render
     /** Quadrant tree node */
     public final class PrimitiveQuadrantTreeNode
     {
-        private var children:Array;
-        private var center:Array;
-        private var lefttop:PrimitiveQuadrantTreeNode;
-        private var leftbottom:PrimitiveQuadrantTreeNode;
-        private var righttop:PrimitiveQuadrantTreeNode;
-        private var rightbottom:PrimitiveQuadrantTreeNode;
-        private var onlysource:Object3D;
+        public var children:Array;
+        public var center:Array;
+        public var lefttop:PrimitiveQuadrantTreeNode;
+        public var leftbottom:PrimitiveQuadrantTreeNode;
+        public var righttop:PrimitiveQuadrantTreeNode;
+        public var rightbottom:PrimitiveQuadrantTreeNode;
+        public var onlysource:Object3D;
 
         private static var dummysource:Object3D = new Object3D();
 
-        private var split:Boolean;
-        private var xdiv:Number;
-        private var ydiv:Number;
+        public var split:Boolean;
+        public var xdiv:Number;
+        public var ydiv:Number;
         private var halfwidth:Number;
         private var halfheight:Number;
         private var level:Number;

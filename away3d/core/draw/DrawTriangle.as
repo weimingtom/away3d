@@ -218,49 +218,43 @@ package away3d.core.draw
             
         public override final function riddle(another:DrawTriangle, focus:Number):Array
         {
+        	//return if triangle area below 10
             if (area < 10)
                 return null;
-
+			
+			//return if rival area below 10
             if (another.area < 10)
                 return null;
-
-//            if (another.area < area) // ?? >
-//                return null;
-
+            
+            //return if rivals do not overlap in the z-plane
             if (another.minZ > maxZ)
                 return null;
             if (another.maxZ < minZ)
                 return null;
-
-            /*
-            if (another.minX > maxX)
-                return null;
-            if (another.maxX < minX)
-                return null;
-            if (another.minY > maxY)
-                return null;
-            if (another.maxY < minY)
-                return null;
-            */
             
+            //return if actual rival triangles do not overlap
             if (!overlap(this, another))
                 return null;
-
+			
+			//deperspective rival v0 
             av0z = another.v0.z;
             av0p = 1 + av0z / focus;
             av0x = another.v0.x * av0p;
             av0y = another.v0.y * av0p;
-
+			
+			//deperspective rival v1
             av1z = another.v1.z;
             av1p = 1 + av1z / focus;
             av1x = another.v1.x * av1p;
             av1y = another.v1.y * av1p;
-
+			
+			//deperspective rival v2
             av2z = another.v2.z;
             av2p = 1 + av2z / focus;
             av2x = another.v2.x * av2p;
             av2y = another.v2.y * av2p;
-
+			
+			//calculate rival face normal
             ad1x = av1x - av0x;
             ad1y = av1y - av0y;
             ad1z = av1z - av0z;
@@ -273,25 +267,29 @@ package away3d.core.draw
             apb = ad1z*ad2x - ad1x*ad2z;
             apc = ad1x*ad2y - ad1y*ad2x;
             apd = - (apa*av0x + apb*av0y + apc*av0z);
-
+			
+			//return if normal length is less than 1
             if (apa*apa + apb*apb + apc*apc < 1)
                 return null;
-
+			
+			//deperspective v0
             tv0z = v0.z;
             tv0p = 1 + tv0z / focus;
             tv0x = v0.x * tv0p;
             tv0y = v0.y * tv0p;
 
+			//deperspective v1
             tv1z = v1.z;
             tv1p = 1 + tv1z / focus;
             tv1x = v1.x * tv1p;
             tv1y = v1.y * tv1p;
-
+			
+			//deperspective v2
             tv2z = v2.z;
             tv2p = 1 + tv2z / focus;
             tv2x = v2.x * tv2p;
             tv2y = v2.y * tv2p;
-
+            
             sv0 = apa*tv0x + apb*tv0y + apc*tv0z + apd;
             sv1 = apa*tv1x + apb*tv1y + apc*tv1z + apd;
             sv2 = apa*tv2x + apb*tv2y + apc*tv2z + apd;
@@ -303,9 +301,10 @@ package away3d.core.draw
             if (sv2*sv2 < 0.001)
                 sv2 = 0;
 
-            if ((sv0*sv1 >= -0.01) && (sv1*sv2 >= -0.01) && (sv2*sv0 >= -0.01))
+            if (sv0*sv1 >= -0.01 && sv1*sv2 >= -0.01 && sv2*sv0 >= -0.01)
                 return null;
-
+			
+			//calulate face normal
             td1x = tv1x - tv0x;
             td1y = tv1y - tv0y;
             td1z = tv1z - tv0z;
@@ -318,7 +317,8 @@ package away3d.core.draw
             tpb = td1z*td2x - td1x*td2z;
             tpc = td1x*td2y - td1y*td2x;
             tpd = - (tpa*tv0x + tpb*tv0y + tpc*tv0z);
-
+			
+			//return if normal length is less than 1
             if (tpa*tpa + tpb*tpb + tpc*tpc < 1)
                 return null;
 
@@ -406,47 +406,6 @@ package away3d.core.draw
                 return screenZ;
 
             focus = projection.focus;
-            // v1v:Vector = v1 - v0
-            // v2v:Vector = v2 - v0
-
-            // v:Vector = (x,y) - v0
-
-            // *-> v = a*v1v + b*v2v
-            // v = (-a-b)*v0 + a*v1 + b*v2 
-            // (x,y) = (1-a-b)*v0 + a*v1 + b*v2
-
-            // ---------------------------------
-
-            // (x, y, focus)
-
-            // faz = focus + az
-            // fbz = focus + bz
-            // fcz = focus + cz
-
-            // x = (ka*ax*faz + kb*bx*fbz + kc*cx*fcz) / (focus + mz)
-            // y = (ka*ay*faz + kb*by*fbz + kc*cy*fcz) / (focus + mz)
-            // ka+kb+kc = 1;
-            // mz = ka*az + kb*bz + kc*cz;
-            // ka? kb? kc?
-
-            // x * (focus + ka*az + kb*bz + kc*cz) = (ka*ax*faz + kb*bx*fbz + kc*cx*fcz)
-            // y * (focus + ka*az + kb*bz + kc*cz) = (ka*ay*faz + kb*by*fbz + kc*cy*fcz)
-            // ka + kb + kc = 1;
-            // ka * (ax*faz - x*az) + kb * (bx*fbz - x*bz) + kc * (cx*fcz - x*cz) = x * focus
-            // ka * (ay*faz - y*az) + kb * (by*fbz - y*bz) + kc * (cy*fcz - y*cz) = y * focus
-            // ka * (1)               + kb * (1)             + kc * (1)             = 1
-
-            // axf = ax*faz - x*az                     ayf = ay*faz - y*az 
-            // bxf = bx*fbz - x*bz                     ayf = by*fbz - y*bz 
-            // cxf = cx*fcz - x*cz                     ayf = cy*fcz - y*cz 
-            // 
-            // det = axf*byf - axf*cyf + bxf*cyf - bxf*ayf + cxf*ayf - cxf*byf
-
-            // da = (x*focus)*byf - (x*focus)*cyf + bxf*cyf - bxf*(y*focus) + cxf*(y*focus) - cxf*byf
-            // db = axf*(y*focus) - axf*cyf + (x*focus)*cyf - (x*focus)*ayf + cxf*ayf - cxf*(y*focus)
-            // dc = axf*byf - axf*(y*focus) + bxf*(y*focus) - bxf*ayf + (x*focus)*ayf - (x*focus)*byf
-
-            // mz = (da*az + db*bz + dc*cz)/det
 
             ax = v0.x;
             ay = v0.y;
