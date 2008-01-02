@@ -10,23 +10,23 @@ package away3d.core.render
     /** Quadrant tree node */
     public final class PrimitiveQuadrantTreeNode
     {
-        public var children:Array;
         public var center:Array;
         public var lefttop:PrimitiveQuadrantTreeNode;
         public var leftbottom:PrimitiveQuadrantTreeNode;
         public var righttop:PrimitiveQuadrantTreeNode;
         public var rightbottom:PrimitiveQuadrantTreeNode;
         public var onlysource:Object3D;
-
-        private static var dummysource:Object3D = new Object3D();
-
-        public var split:Boolean;
+		
+		public var onlysourceFlag:Boolean = true;
+        
         public var xdiv:Number;
         public var ydiv:Number;
-        private var halfwidth:Number;
-        private var halfheight:Number;
-        private var level:Number;
+        public var halfwidth:Number;
+        public var halfheight:Number;
+        public var level:Number;
 		private var i:int;
+		
+		public var create:Function;
 		
         public function PrimitiveQuadrantTreeNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number)
         {
@@ -35,227 +35,113 @@ package away3d.core.render
             this.ydiv = ydiv;
             halfwidth = width / 2;
             halfheight = height / 2;
-            onlysource = dummysource;
         }
 
         public function push(pri:DrawPrimitive):void
         {
-            if (onlysource == dummysource)
+            if (onlysource != null && onlysource != pri.source)
+            	onlysourceFlag = false;
+            if (onlysourceFlag)
                 onlysource = pri.source;
-            else
-                if (onlysource != pri.source)
-                    onlysource == null;
-
-            if ((pri.maxX > xdiv && pri.minX < xdiv) || (pri.maxY > ydiv && pri.minY < ydiv))
-            {
-                if (center == null)
-                    center = new Array();
-                center.push(pri);
-                return;
-            }
-
-            if (!split)
-            {       
-                if (children == null)
-                    children = new Array();
-
-                children.push(pri);
-
-                if (children.length > level * 2)
-                {
-                    split = true;
-                    i = children.length;
-	                while (i--)
-	                	push(children[i]);
-                    children = null;
-                }
-
-                return;
-            }
-
-            if (pri.maxX <= xdiv)
-            {
-                if (pri.maxY <= ydiv)
-                {
-                    if (lefttop == null)
-                        lefttop = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
-                    lefttop.push(pri);
-                }
-                else
-                {
-                    if (leftbottom == null)
-                        leftbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
-                    leftbottom.push(pri);
-                }
-            }
-            else
-            if (pri.minX >= xdiv)
-            {
-                if (pri.maxY <= ydiv)
-                {
-                    if (righttop == null)
-                        righttop = new PrimitiveQuadrantTreeNode(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
-                    righttop.push(pri);
-                }
-                else
-                {
-                    if (rightbottom == null)
-                        rightbottom = new PrimitiveQuadrantTreeNode(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
-                    rightbottom.push(pri);
-                }
-            }
+			
+			if (level < 5) {
+	            if (pri.maxX <= xdiv)
+	            {
+	                if (pri.maxY <= ydiv)
+	                {
+	                    if (lefttop == null)
+	                        lefttop = create(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
+	                    lefttop.push(pri);
+	                    return;
+	                }
+	                else if (pri.minY >= ydiv)
+	                {
+	                    if (leftbottom == null)
+	                        leftbottom = create(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
+	                    leftbottom.push(pri);
+	                    return;
+	                }
+	            }
+	            else if (pri.minX >= xdiv)
+	            {
+	                if (pri.maxY <= ydiv)
+	                {
+	                    if (righttop == null)
+	                        righttop = create(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
+	                    righttop.push(pri);
+	                    return;
+	                }
+	                else if (pri.minY >= ydiv)
+	                {
+	                    if (rightbottom == null)
+	                        rightbottom = create(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
+	                    rightbottom.push(pri);
+	                    return;
+	                }
+	            }
+			}
+			
+			//no quadrant, store in center array
+            if (center == null)
+                center = new Array();
+            center.push(pri);
         }
-
+		
+		internal var index:int;
+		
         public function remove(pri:DrawPrimitive):void
         {
-            var index:int;
-            if (((pri.maxX > xdiv) && (pri.minX < xdiv)) || ((pri.maxY > ydiv) && (pri.minY < ydiv)))
-            {
-                if (center == null)
-                    throw new Error("Can't remove");
-
-                index = center.indexOf(pri);
-                if (index == -1)
-                    throw new Error("Can't remove");
-                    
-                center.splice(index, 1);
-                
-                return;
-            }
-
-            if (!split)
-            {
-                if (children == null)
-                    throw new Error("Can't remove");
-
-                index = children.indexOf(pri);
-                if (index == -1)
-                    throw new Error("Can't remove");
-
-                children.splice(index, 1);
-
-                return;
-            }
-
-            if (pri.maxX <= xdiv)
-            {
-                if (pri.maxY <= ydiv)
-                {
-                    if (lefttop == null)
-                        throw new Error("Can't remove");
-                    lefttop.remove(pri);
-                }
-                else
-                {
-                    if (leftbottom == null)
-                        throw new Error("Can't remove");
-                    leftbottom.remove(pri);
-                }
-            }
-            else
-            if (pri.minX >= xdiv)
-            {
-                if (pri.maxY <= ydiv)
-                {
-                    if (righttop == null)
-                        throw new Error("Can't remove");
-                    righttop.remove(pri);
-                }
-                else
-                {
-                    if (rightbottom == null)
-                        throw new Error("Can't remove");
-                    rightbottom.remove(pri);
-                }
-            }
-        }
-		
-		internal var minX:Number;
-		internal var minY:Number;
-		internal var maxX:Number;
-		internal var maxY:Number;
-
-        public function get(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D):Array
-        {
-            var result:Array = [];
-                    
-			this.minX = minX;
-			this.minY = minY;
-			this.maxX = maxX;
-			this.maxY = maxY;
-			
-            getList(except, result);
-            return result;
-        }
-		
-        public function getList(except:Object3D, result:Array):void
-        {
-            if (onlysource != null)
-                if (except == onlysource)
-                    return;
-			
-            var child:DrawPrimitive;
-            if (center != null) {
-                i = center.length;
-                while (i--)
-                {
-                	child = center[i];
-                    if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
-                        continue;
-                    if (except != null)
-                        if (child.source == except)
-                            continue;
-                    result.push(child);
-                }
-            }
-
-            if (!split)
-            {
-                if (children != null) {
-                	i = children.length;
-                    while (i--)
-                    {
-                    	child = children[i];
-                        if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
-                            continue;
-                        if (except != null)
-                            if (child.source == except)
-                                continue;
-                        result.push(child);
-                    }
-                }
-                return;
-            }
-
-            if (minX < xdiv)
-            {
-                if (lefttop != null && minY < ydiv)
-	                lefttop.getList(except, result);
-	            
-                if (leftbottom != null && maxY > ydiv)
-                	leftbottom.getList(except, result);
-            }
+        	if (level < 5) {
+	            if (pri.maxX <= xdiv)
+	            {
+	                if (pri.maxY <= ydiv)
+	                {
+	                    if (lefttop == null)
+	                        throw new Error("Can't remove");
+	                    lefttop.remove(pri);
+	                    return;
+	                }
+	                else if (pri.minY >= ydiv)
+	                {
+	                    if (leftbottom == null)
+	                        throw new Error("Can't remove");
+	                    leftbottom.remove(pri);
+	                    return;
+	                }
+	            }
+	            else if (pri.minX >= xdiv)
+	            {
+	                if (pri.maxY <= ydiv)
+	                {
+	                    if (righttop == null)
+	                        throw new Error("Can't remove");
+	                    righttop.remove(pri);
+	                    return;
+	                }
+	                else if (pri.minY >= ydiv)
+	                {
+	                    if (rightbottom == null)
+	                        throw new Error("Can't remove");
+	                    rightbottom.remove(pri);
+	                    return;
+	                }
+	            }
+	        }
             
-            if (maxX > xdiv)
-            {
-                if (righttop != null && minY < ydiv)
-                	righttop.getList(except, result);
+            //no quadrant, remove from center array
+            if (center == null)
+                throw new Error("Can't remove");
+
+            index = center.indexOf(pri);
+            if (index == -1)
+                throw new Error("Can't remove");
                 
-                if (rightbottom != null && maxY > ydiv)
-                	rightbottom.getList(except, result);
-                
-            }
+            center.splice(index, 1);
         }
-
-        //private static var dummy_render_array:Array = [];
-        //private var render_array:Array;
-        private var render_center_length:int = -1;
-        private var render_center_index:int = -1;
-        private var render_children_length:int = -1;
-        private var render_children_index:int = -1;
-
-        //private static var dummyprimitive:DrawPrimitive = new DrawDummy();
-
+		
+        public var render_center_length:int = -1;
+        public var render_center_index:int = -1;
+        
         public function render(limit:Number):void
         {
             if (render_center_length == -1)
@@ -269,16 +155,6 @@ package away3d.core.render
                 else
                     render_center_length = 0;
                 render_center_index = 0;
-
-                if (children != null)
-                {
-                    render_children_length = children.length;
-                    if (render_children_length > 1)
-                        children.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
-                }
-                else
-                    render_children_length = 0;
-                render_children_index = 0;
             }
 
             while (render_center_index < render_center_length)
@@ -300,31 +176,14 @@ package away3d.core.render
 
         private function render_other(limit:Number):void
         {
-            if (render_children_length > 0)
-            {
-                while (render_children_index < render_children_length)
-                {
-                    var pri:DrawPrimitive = children[render_children_index];
-
-                    if (pri.screenZ < limit)
-                        return;
-
-                    pri.render();
-
-                    render_children_index++;
-                }
-            }
-            else
-            {
-                if (lefttop != null)
-                    lefttop.render(limit);
-                if (leftbottom != null)
-                    leftbottom.render(limit);
-                if (righttop != null)
-                    righttop.render(limit);
-                if (rightbottom != null)
-                    rightbottom.render(limit);
-            }
+        	if (lefttop != null)
+                lefttop.render(limit);
+            if (leftbottom != null)
+                leftbottom.render(limit);
+            if (righttop != null)
+                righttop.render(limit);
+            if (rightbottom != null)
+                rightbottom.render(limit);
         }
     }
 }

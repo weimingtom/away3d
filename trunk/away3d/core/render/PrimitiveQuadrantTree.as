@@ -11,15 +11,19 @@ package away3d.core.render
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
     	private var containers:Array = [];
-        private var root:PrimitiveQuadrantTreeNode;
-
+        public var root:PrimitiveQuadrantTreeNode;
+		public var quadrantStore:Array;
+		public var quadrantActive:Array;
+		
         private var clip:Clipping;
 
-        public function PrimitiveQuadrantTree(clip:Clipping)
+        public function PrimitiveQuadrantTree(clip:Clipping, quadrantStore:Array, quadrantActive:Array)
         {
             this.clip = clip;
+            this.quadrantStore = quadrantStore;
+            this.quadrantActive = quadrantActive;
             var rect:RectangleClipping = clip.asRectangleClipping();
-            root = new PrimitiveQuadrantTreeNode((rect.minX + rect.maxX)/2, (rect.minY + rect.maxY)/2, (rect.maxX - rect.minX)/2, (rect.maxY - rect.minY)/2, 0);
+            root = createNode((rect.minX + rect.maxX)/2, (rect.minY + rect.maxY)/2, (rect.maxX - rect.minX)/2, (rect.maxY - rect.minY)/2, 0);
         }
 
         public function primitive(pri:DrawPrimitive):void
@@ -78,9 +82,8 @@ package away3d.core.render
 		internal var i:int;
 		public function getList(node:PrimitiveQuadrantTreeNode):void
         {
-            if (node.onlysource != null)
-                if (except == node.onlysource)
-                    return;
+            if (node.onlysourceFlag && except == node.onlysource)
+                return;
 
             children = node.center;
             if (children != null) {
@@ -88,32 +91,13 @@ package away3d.core.render
                 while (i--)
                 {
                 	child = children[i];
-                    if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
-                        continue;
                     if (except != null)
                         if (child.source == except)
                             continue;
+                    if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
+                        continue;
                     result.push(child);
                 }
-            }
-            
-            if (!node.split)
-            {
-            	children = node.children;
-                if (children != null) {
-                	i = children.length;
-                    while (i--)
-                    {
-                    	child = children[i];
-                        if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
-                            continue;
-                        if (except != null)
-                            if (child.source == except)
-                                continue;
-                        result.push(child);
-                    }
-                }
-                return;
             }
             
             if (minX < node.xdiv)
@@ -140,6 +124,33 @@ package away3d.core.render
         {
             root.render(-Infinity);
         }
-
+        
+        internal var node:PrimitiveQuadrantTreeNode;
+        
+        public function createNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number):PrimitiveQuadrantTreeNode
+		{
+			
+			if (quadrantStore.length) {
+            	quadrantActive.push(node = quadrantStore.pop());
+            	node.xdiv = xdiv;
+            	node.ydiv = ydiv;
+            	node.halfwidth = width/2;
+            	node.halfheight = height/2;
+            	node.level = level;
+            	node.center = null;
+            	node.lefttop = null;
+            	node.leftbottom = null;
+            	node.righttop = null;
+            	node.rightbottom = null;
+            	node.onlysourceFlag = true;
+            	node.render_center_length = -1;
+            	node.render_center_index = -1;
+            	node.create = createNode;
+   			} else {
+            	quadrantActive.push(node = new PrimitiveQuadrantTreeNode(xdiv, ydiv, width, height, level));
+            	node.create = createNode;
+            }
+            return node;
+		}
     }
 }
