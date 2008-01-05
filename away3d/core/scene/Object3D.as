@@ -569,6 +569,7 @@ package away3d.core.scene
             _transform.copy3x3(Matrix3D.multiply3x3(m, transform));
     
             _rotationDirty = true;
+            _sceneTransformDirty = true;
         }
 
     
@@ -602,6 +603,7 @@ package away3d.core.scene
     
                 _transformDirty = false;
                 _rotationDirty = true;
+                _sceneTransformDirty = true;
                 // TODO: Implement scale
             }
             else
