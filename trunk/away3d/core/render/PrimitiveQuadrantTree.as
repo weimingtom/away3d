@@ -10,7 +10,6 @@ package away3d.core.render
     /** Quadrant tree for storing drawing primitives */
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
-    	private var containers:Array = [];
         public var root:PrimitiveQuadrantTreeNode;
 		public var quadrantStore:Array;
 		public var quadrantActive:Array;
@@ -52,7 +51,17 @@ package away3d.core.render
 
         public function list():Array
         {
-            return get(-1000000, -1000000, 1000000, 1000000, null);
+            result = [];
+                    
+			minX = -1000000;
+			minY = -1000000;
+			maxX = 1000000;
+			maxY = 1000000;
+			except = null;
+			
+            getList(root);
+            
+            return result;
         }
 		
 		internal var result:Array;
@@ -62,18 +71,18 @@ package away3d.core.render
 		internal var maxX:Number;
 		internal var maxY:Number;
 		
-        public function get(minX:Number, minY:Number, maxX:Number, maxY:Number, except:Object3D):Array
+        public function get(pri:DrawPrimitive, ex:Object3D):Array
         {
         	result = [];
                     
-			this.minX = minX;
-			this.minY = minY;
-			this.maxX = maxX;
-			this.maxY = maxY;
-			this.except = except;
+			minX = pri.minX;
+			minY = pri.minY;
+			maxX = pri.maxX;
+			maxY = pri.maxY;
+			except = ex;
 			
-            getList(root);
-            
+            getList(pri.quadrant);
+            getParent(pri.quadrant);
             return result;
         }
 		
@@ -91,10 +100,7 @@ package away3d.core.render
                 while (i--)
                 {
                 	child = children[i];
-                    if (except != null)
-                        if (child.source == except)
-                            continue;
-                    if (child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
+                    if ((except != null && child.source == except) || child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
                         continue;
                     result.push(child);
                 }
@@ -120,6 +126,25 @@ package away3d.core.render
             }
         }
         
+        public function getParent(node:PrimitiveQuadrantTreeNode = null):void
+        {
+            if (node == null || (node.onlysourceFlag && except == node.onlysource))
+                return;
+
+            children = node.center;
+            if (children != null) {
+                i = children.length;
+                while (i--)
+                {
+                	child = children[i];
+                    if ((except != null && child.source == except) || child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
+                        continue;
+                    result.push(child);
+                }
+            }
+            getParent(node.parent);
+        }
+        
         public function render():void
         {
             root.render(-Infinity);
@@ -127,7 +152,7 @@ package away3d.core.render
         
         internal var node:PrimitiveQuadrantTreeNode;
         
-        public function createNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number):PrimitiveQuadrantTreeNode
+        public function createNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number, parent:PrimitiveQuadrantTreeNode = null):PrimitiveQuadrantTreeNode
 		{
 			
 			if (quadrantStore.length) {
@@ -137,17 +162,11 @@ package away3d.core.render
             	node.halfwidth = width/2;
             	node.halfheight = height/2;
             	node.level = level;
-            	node.center = null;
-            	node.lefttop = null;
-            	node.leftbottom = null;
-            	node.righttop = null;
-            	node.rightbottom = null;
-            	node.onlysourceFlag = true;
-            	node.render_center_length = -1;
-            	node.render_center_index = -1;
+            	node.clear();
+            	node.parent = parent;
             	node.create = createNode;
    			} else {
-            	quadrantActive.push(node = new PrimitiveQuadrantTreeNode(xdiv, ydiv, width, height, level));
+            	quadrantActive.push(node = new PrimitiveQuadrantTreeNode(xdiv, ydiv, width, height, level, parent));
             	node.create = createNode;
             }
             return node;

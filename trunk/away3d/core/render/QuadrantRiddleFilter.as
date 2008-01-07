@@ -37,7 +37,7 @@ package away3d.core.render
                         else
                             check = 0;
                     */
-                    var rivals:Array = tritree.get(tri.minX, tri.minY, tri.maxX, tri.maxY, tri.source);
+                    var rivals:Array = tritree.get(tri, tri.source);
                     for each (var rivalp:DrawPrimitive in rivals)
                     {
                         if (rivalp == tri)
