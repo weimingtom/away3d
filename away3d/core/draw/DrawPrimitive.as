@@ -1,12 +1,9 @@
 package away3d.core.draw
 {
     import away3d.core.*;
-    import away3d.core.render.*;
-    import away3d.core.scene.*;
     import away3d.core.mesh.*;
     import away3d.core.render.*;
-
-    import flash.display.Graphics;
+    import away3d.core.scene.*;
 
     /** Abstract class for all drawing primitives */
     public class DrawPrimitive
@@ -23,6 +20,7 @@ package away3d.core.draw
         public var minY:Number;
         public var maxY:Number;
 		
+		public var quadrant:PrimitiveQuadrantTreeNode;
 		
         //public var flag:int;
 

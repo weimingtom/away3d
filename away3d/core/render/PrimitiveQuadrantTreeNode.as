@@ -23,12 +23,14 @@ package away3d.core.render
         public var ydiv:Number;
         public var halfwidth:Number;
         public var halfheight:Number;
-        public var level:Number;
+        public var level:int;
+        public var parent:PrimitiveQuadrantTreeNode;
+        public var maxlevel:int = 3;
 		private var i:int;
 		
 		public var create:Function;
 		
-        public function PrimitiveQuadrantTreeNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number)
+        public function PrimitiveQuadrantTreeNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:int, parent:PrimitiveQuadrantTreeNode = null)
         {
             this.level = level;
             this.xdiv = xdiv;
@@ -39,25 +41,26 @@ package away3d.core.render
 
         public function push(pri:DrawPrimitive):void
         {
-            if (onlysource != null && onlysource != pri.source)
-            	onlysourceFlag = false;
-            if (onlysourceFlag)
+            if (onlysourceFlag) {
+	            if (onlysource != null && onlysource != pri.source)
+	            	onlysourceFlag = false;
                 onlysource = pri.source;
+            }
 			
-			if (level < 5) {
+			if (level < maxlevel) {
 	            if (pri.maxX <= xdiv)
 	            {
 	                if (pri.maxY <= ydiv)
 	                {
 	                    if (lefttop == null)
-	                        lefttop = create(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
+	                        lefttop = create(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
 	                    lefttop.push(pri);
 	                    return;
 	                }
 	                else if (pri.minY >= ydiv)
 	                {
 	                    if (leftbottom == null)
-	                        leftbottom = create(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
+	                        leftbottom = create(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1, this);
 	                    leftbottom.push(pri);
 	                    return;
 	                }
@@ -67,14 +70,14 @@ package away3d.core.render
 	                if (pri.maxY <= ydiv)
 	                {
 	                    if (righttop == null)
-	                        righttop = create(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1);
+	                        righttop = create(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
 	                    righttop.push(pri);
 	                    return;
 	                }
 	                else if (pri.minY >= ydiv)
 	                {
 	                    if (rightbottom == null)
-	                        rightbottom = create(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1);
+	                        rightbottom = create(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1, this);
 	                    rightbottom.push(pri);
 	                    return;
 	                }
@@ -85,13 +88,14 @@ package away3d.core.render
             if (center == null)
                 center = new Array();
             center.push(pri);
+            pri.quadrant = this;
         }
 		
 		internal var index:int;
 		
         public function remove(pri:DrawPrimitive):void
         {
-        	if (level < 5) {
+        	if (level < maxlevel) {
 	            if (pri.maxX <= xdiv)
 	            {
 	                if (pri.maxY <= ydiv)
@@ -138,6 +142,20 @@ package away3d.core.render
                 
             center.splice(index, 1);
         }
+		
+		public function clear():void
+		{
+			parent = null;
+			center = null;
+            lefttop = null;
+            leftbottom = null;
+            righttop = null;
+            rightbottom = null;
+            onlysourceFlag = true;
+            onlysource = null;
+            render_center_length = -1;
+            render_center_index = -1;
+		}
 		
         public var render_center_length:int = -1;
         public var render_center_index:int = -1;
