@@ -25,7 +25,7 @@ package away3d.core.render
         public var halfheight:Number;
         public var level:int;
         public var parent:PrimitiveQuadrantTreeNode;
-        public var maxlevel:int = 3;
+        public var maxlevel:int = 4;
 		private var i:int;
 		
 		public var create:Function;
@@ -90,59 +90,7 @@ package away3d.core.render
             center.push(pri);
             pri.quadrant = this;
         }
-		
-		internal var index:int;
-		
-        public function remove(pri:DrawPrimitive):void
-        {
-        	if (level < maxlevel) {
-	            if (pri.maxX <= xdiv)
-	            {
-	                if (pri.maxY <= ydiv)
-	                {
-	                    if (lefttop == null)
-	                        throw new Error("Can't remove");
-	                    lefttop.remove(pri);
-	                    return;
-	                }
-	                else if (pri.minY >= ydiv)
-	                {
-	                    if (leftbottom == null)
-	                        throw new Error("Can't remove");
-	                    leftbottom.remove(pri);
-	                    return;
-	                }
-	            }
-	            else if (pri.minX >= xdiv)
-	            {
-	                if (pri.maxY <= ydiv)
-	                {
-	                    if (righttop == null)
-	                        throw new Error("Can't remove");
-	                    righttop.remove(pri);
-	                    return;
-	                }
-	                else if (pri.minY >= ydiv)
-	                {
-	                    if (rightbottom == null)
-	                        throw new Error("Can't remove");
-	                    rightbottom.remove(pri);
-	                    return;
-	                }
-	            }
-	        }
-            
-            //no quadrant, remove from center array
-            if (center == null)
-                throw new Error("Can't remove");
-
-            index = center.indexOf(pri);
-            if (index == -1)
-                throw new Error("Can't remove");
-                
-            center.splice(index, 1);
-        }
-		
+        
 		public function clear():void
 		{
 			parent = null;

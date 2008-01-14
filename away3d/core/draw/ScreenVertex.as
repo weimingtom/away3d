@@ -8,7 +8,12 @@ package away3d.core.draw
         public var x:Number;
         public var y:Number;
         public var z:Number;
-    
+    	
+    	/** A property containing the view x position. */
+    	public var vx:Number;
+    	/** A property containing the view y position. */
+    	public var vy:Number;
+    	
         /** An object that contains user defined properties. */
 //        public var extra:Object;
         public var num:Number;
@@ -29,10 +34,12 @@ package away3d.core.draw
         {
             return "new ScreenVertex("+x+', '+y+', '+z+")";
         }
-
+		
+		internal var persp:Number;
+		
         public function deperspective(focus:Number):Vertex
         {
-            var persp:Number = 1 + z / focus;
+            persp = 1 + z / focus;
 
             return new Vertex(x * persp, y * persp, z);
         }

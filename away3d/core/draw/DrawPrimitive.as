@@ -44,11 +44,6 @@ package away3d.core.draw
             return null;
         }
 
-        public function riddle(another:DrawTriangle, focus:Number):Array
-        {
-            return null;
-        }
-
         public function getZ(x:Number, y:Number):Number
         {
             return screenZ;
