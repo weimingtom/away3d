@@ -18,16 +18,10 @@ package away3d.core.material
         private var u:Number3D;
         private var v:Number3D;
         
-        protected var _transform:Matrix;
         protected var _normal:Number3D;
         protected var _scalex:Boolean;
         protected var _scaley:Boolean;
         protected var _isNormalized:Boolean;
-        
-        public function get transform():Matrix
-        {
-            return _transform;
-        }
         
         public function get normal():Number3D
         {

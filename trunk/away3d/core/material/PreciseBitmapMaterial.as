@@ -44,13 +44,24 @@ package away3d.core.material
         internal var triangle:DrawTriangle = new DrawTriangle();
         
         internal var svArray:Array = new Array();
-        internal var mapping:Matrix;
         
         public override function renderTriangle(tri:DrawTriangle):void
         {
             session = tri.source.session;
             focus = tri.projection.focus;
-            mapping = tri.texturemapping || tri.transformUV(this);
+            
+            if (transformDirty || !tri.texturemapping) {
+        		transformDirty = false;
+        		mapping = tri.transformUV(this);
+        		if (_transform) {
+	        		mapping = _transform.clone();
+	        		mapping.concat(tri.texturemapping);
+	        		tri.texturemapping = mapping;
+	        	}
+        	} else {
+        		mapping = tri.texturemapping;
+        	}
+        	
             map.a = mapping.a;
             map.b = mapping.b;
             map.c = mapping.c;
