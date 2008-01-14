@@ -43,10 +43,13 @@ package away3d.core.render
             for each (var object:DrawPrimitive in objects)
                 root.push(object);
         }
-
+		
+		internal var center:Array;
+		
         public function remove(tri:DrawPrimitive):void
         {
-            root.remove(tri);
+        	center = tri.quadrant.center;
+        	center.splice(center.indexOf(tri), 1);
         }
 
         public function list():Array
@@ -71,7 +74,7 @@ package away3d.core.render
 		internal var maxX:Number;
 		internal var maxY:Number;
 		
-        public function get(pri:DrawPrimitive, ex:Object3D):Array
+        public function get(pri:DrawPrimitive, ex:Object3D = null):Array
         {
         	result = [];
                     
@@ -94,18 +97,6 @@ package away3d.core.render
             if (node.onlysourceFlag && except == node.onlysource)
                 return;
 
-            children = node.center;
-            if (children != null) {
-                i = children.length;
-                while (i--)
-                {
-                	child = children[i];
-                    if ((except != null && child.source == except) || child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
-                        continue;
-                    result.push(child);
-                }
-            }
-            
             if (minX < node.xdiv)
             {
                 if (node.lefttop != null && minY < node.ydiv)
@@ -124,10 +115,23 @@ package away3d.core.render
                 	getList(node.rightbottom);
                 
             }
+            
+            children = node.center;
+            if (children != null) {
+                i = children.length;
+                while (i--)
+                {
+                	child = children[i];
+                    if ((except == null || child.source != except) && child.maxX > minX && child.minX < maxX && child.maxY > minY && child.minY < maxY)
+                        result.push(child);
+                }
+            }           
         }
         
         public function getParent(node:PrimitiveQuadrantTreeNode = null):void
         {
+        	node = node.parent;
+        	
             if (node == null || (node.onlysourceFlag && except == node.onlysource))
                 return;
 
@@ -137,12 +141,11 @@ package away3d.core.render
                 while (i--)
                 {
                 	child = children[i];
-                    if ((except != null && child.source == except) || child.maxX < minX || child.minX > maxX || child.maxY < minY || child.minY > maxY)
-                        continue;
-                    result.push(child);
+                    if ((except == null || child.source != except) && child.maxX > minX && child.minX < maxX && child.maxY > minY && child.minY < maxY)
+                        result.push(child);
                 }
             }
-            getParent(node.parent);
+            getParent(node);
         }
         
         public function render():void

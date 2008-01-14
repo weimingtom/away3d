@@ -53,8 +53,6 @@ package away3d.core.draw
             texturemapping = null;
         }
 		
-		internal var src:Mesh;
-		
         public override function render():void
         {
             material.renderTriangle(this);
@@ -92,17 +90,28 @@ package away3d.core.draw
                                         ScreenVertex.distortSqr(v1, v2, focus)),
                                         ScreenVertex.distortSqr(v2, v0, focus));
         }
-
+        
+		internal var d01:Number;
+        internal var d12:Number;
+        internal var d20:Number;
+        internal var dd01:Number;
+        internal var dd12:Number;
+        internal var dd20:Number;
+                
         public final function acuteAngled():Boolean
         {
-            var d01:Number = ScreenVertex.distanceSqr(v0, v1),
-                d12:Number = ScreenVertex.distanceSqr(v1, v2),
-                d20:Number = ScreenVertex.distanceSqr(v2, v0),
-                dd01:Number = d01 * d01,
-                dd12:Number = d12 * d12,
-                dd20:Number = d20 * d20;
+            d01 = ScreenVertex.distanceSqr(v0, v1);
+            d12 = ScreenVertex.distanceSqr(v1, v2);
+            d20 = ScreenVertex.distanceSqr(v2, v0);
+            dd01 = d01 * d01;
+            dd12 = d12 * d12;
+            dd20 = d20 * d20;
+            
             return (dd01 <= dd12 + dd20) && (dd12 <= dd20 + dd01) && (dd20 <= dd01 + dd12);
         }
+        
+        internal var materialWidth:Number;
+        internal var materialHeight:Number;
         
         internal var _u0:Number;
         internal var _u1:Number;
@@ -113,8 +122,8 @@ package away3d.core.draw
         
         public final function transformUV(material:IUVMaterial):Matrix
         {
-            var width:Number = material.width,
-                height:Number = material.height;
+            materialWidth = material.width,
+            materialHeight = material.height;
             
             if (uv0 == null)
                 return new Matrix();
@@ -123,12 +132,12 @@ package away3d.core.draw
             if (uv2 == null)
                 return new Matrix();
 
-            _u0 = width * uv0._u,
-            _u1 = width * uv1._u,
-            _u2 = width * uv2._u,
-            _v0 = height * (1 - uv0._v),
-            _v1 = height * (1 - uv1._v),
-            _v2 = height * (1 - uv2._v);
+            _u0 = materialWidth * uv0._u,
+            _u1 = materialWidth * uv1._u,
+            _u2 = materialWidth * uv2._u,
+            _v0 = materialHeight * (1 - uv0._v),
+            _v1 = materialHeight * (1 - uv1._v),
+            _v2 = materialHeight * (1 - uv2._v);
       
             // Fix perpendicular projections
             if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
@@ -146,226 +155,6 @@ package away3d.core.draw
             texturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
             texturemapping.invert();
             return texturemapping;
-        }
-        
-        internal var av0z:Number;
-        internal var av0p:Number;
-        internal var av0x:Number;
-        internal var av0y:Number;
-
-        internal var av1z:Number;
-        internal var av1p:Number;
-        internal var av1x:Number;
-        internal var av1y:Number;
-
-        internal var av2z:Number;
-        internal var av2p:Number;
-        internal var av2x:Number;
-        internal var av2y:Number;
-
-        internal var ad1x:Number;
-        internal var ad1y:Number;
-        internal var ad1z:Number;
-
-        internal var ad2x:Number;
-        internal var ad2y:Number;
-        internal var ad2z:Number;
-
-        internal var apa:Number;
-        internal var apb:Number;
-        internal var apc:Number;
-        internal var apd:Number;
-        
-        internal var tv0z:Number;
-        internal var tv0p:Number;
-        internal var tv0x:Number;
-        internal var tv0y:Number;
-
-        internal var tv1z:Number;
-        internal var tv1p:Number;
-        internal var tv1x:Number;
-        internal var tv1y:Number;
-
-        internal var tv2z:Number;
-        internal var tv2p:Number;
-        internal var tv2x:Number;
-        internal var tv2y:Number;
-
-        internal var sv0:Number;
-        internal var sv1:Number;
-        internal var sv2:Number;
-        
-        internal var td1x:Number;
-        internal var td1y:Number;
-        internal var td1z:Number;
-
-        internal var td2x:Number;
-        internal var td2y:Number;
-        internal var td2z:Number;
-
-        internal var tpa:Number;
-        internal var tpb:Number;
-        internal var tpc:Number;
-        internal var tpd:Number;
-        
-        internal var sav0:Number;
-        internal var sav1:Number;
-        internal var sav2:Number;
-        
-        internal var tv0:Vertex;
-        internal var tv1:Vertex;
-        internal var tv2:Vertex;
-            
-        public override final function riddle(another:DrawTriangle, focus:Number):Array
-        {
-        	//return if triangle area below 10
-            if (area < 10)
-                return null;
-			
-			//return if rival area below 10
-            if (another.area < 10)
-                return null;
-            
-            //return if rivals do not overlap in the z-plane
-            if (another.minZ > maxZ)
-                return null;
-            if (another.maxZ < minZ)
-                return null;
-            
-            //return if actual rival triangles do not overlap
-            if (!overlap(this, another))
-                return null;
-			
-			//deperspective rival v0 
-            av0z = another.v0.z;
-            av0p = 1 + av0z / focus;
-            av0x = another.v0.x * av0p;
-            av0y = another.v0.y * av0p;
-			
-			//deperspective rival v1
-            av1z = another.v1.z;
-            av1p = 1 + av1z / focus;
-            av1x = another.v1.x * av1p;
-            av1y = another.v1.y * av1p;
-			
-			//deperspective rival v2
-            av2z = another.v2.z;
-            av2p = 1 + av2z / focus;
-            av2x = another.v2.x * av2p;
-            av2y = another.v2.y * av2p;
-			
-			//calculate rival face normal
-            ad1x = av1x - av0x;
-            ad1y = av1y - av0y;
-            ad1z = av1z - av0z;
-
-            ad2x = av2x - av0x;
-            ad2y = av2y - av0y;
-            ad2z = av2z - av0z;
-
-            apa = ad1y*ad2z - ad1z*ad2y;
-            apb = ad1z*ad2x - ad1x*ad2z;
-            apc = ad1x*ad2y - ad1y*ad2x;
-            apd = - (apa*av0x + apb*av0y + apc*av0z);
-			
-			//return if normal length is less than 1
-            if (apa*apa + apb*apb + apc*apc < 1)
-                return null;
-			
-			//deperspective v0
-            tv0z = v0.z;
-            tv0p = 1 + tv0z / focus;
-            tv0x = v0.x * tv0p;
-            tv0y = v0.y * tv0p;
-
-			//deperspective v1
-            tv1z = v1.z;
-            tv1p = 1 + tv1z / focus;
-            tv1x = v1.x * tv1p;
-            tv1y = v1.y * tv1p;
-			
-			//deperspective v2
-            tv2z = v2.z;
-            tv2p = 1 + tv2z / focus;
-            tv2x = v2.x * tv2p;
-            tv2y = v2.y * tv2p;
-            
-            sv0 = apa*tv0x + apb*tv0y + apc*tv0z + apd;
-            sv1 = apa*tv1x + apb*tv1y + apc*tv1z + apd;
-            sv2 = apa*tv2x + apb*tv2y + apc*tv2z + apd;
-
-            if (sv0*sv0 < 0.001)
-                sv0 = 0;
-            if (sv1*sv1 < 0.001)
-                sv1 = 0;
-            if (sv2*sv2 < 0.001)
-                sv2 = 0;
-
-            if (sv0*sv1 >= -0.01 && sv1*sv2 >= -0.01 && sv2*sv0 >= -0.01)
-                return null;
-			
-			//calulate face normal
-            td1x = tv1x - tv0x;
-            td1y = tv1y - tv0y;
-            td1z = tv1z - tv0z;
-
-            td2x = tv2x - tv0x;
-            td2y = tv2y - tv0y;
-            td2z = tv2z - tv0z;
-
-            tpa = td1y*td2z - td1z*td2y;
-            tpb = td1z*td2x - td1x*td2z;
-            tpc = td1x*td2y - td1y*td2x;
-            tpd = - (tpa*tv0x + tpb*tv0y + tpc*tv0z);
-			
-			//return if normal length is less than 1
-            if (tpa*tpa + tpb*tpb + tpc*tpc < 1)
-                return null;
-
-            sav0 = tpa*av0x + tpb*av0y + tpc*av0z + tpd;
-            sav1 = tpa*av1x + tpb*av1y + tpc*av1z + tpd;
-            sav2 = tpa*av2x + tpb*av2y + tpc*av2z + tpd;
-
-            if (sav0*sav0 < 0.001)
-                sav0 = 0;
-            if (sav1*sav1 < 0.001)
-                sav1 = 0;
-            if (sav2*sav2 < 0.001)
-                sav2 = 0;
-
-            if ((sav0*sav1 >= -0.01) && (sav1*sav2 >= -0.01) && (sav2*sav0 >= -0.01))
-                return null;
-
-            // TODO: segment cross check - now some extra cuts are made
-
-            tv0 = v0.deperspective(focus);
-            tv1 = v1.deperspective(focus);
-            tv2 = v2.deperspective(focus);
-                
-            if (sv1*sv2 >= -1)
-            {
-                //var tv20:Vertex = Vertex.weighted(tv2, tv0, -sv0, sv2);
-                //var tv01:Vertex = Vertex.weighted(tv0, tv1, sv1, -sv0);
-
-                return fivepointcut(material, projection,
-                    v2,  Vertex.weighted(tv2, tv0, -sv0, sv2).perspective(focus), v0, Vertex.weighted(tv0, tv1, sv1, -sv0).perspective(focus), v1,
-                    uv2, UV.weighted(uv2, uv0, -sv0, sv2), uv0, UV.weighted(uv0, uv1, sv1, -sv0), uv1);
-            }                                                           
-            else                                                        
-            if (sv0*sv1 >= -1)                                           
-            {
-                return fivepointcut(material, projection,
-                    v1,  Vertex.weighted(tv1, tv2, -sv2, sv1).perspective(focus), v2, Vertex.weighted(tv2, tv0, sv0, -sv2).perspective(focus), v0,
-                    uv1, UV.weighted(uv1, uv2, -sv2, sv1), uv2, UV.weighted(uv2, uv0, sv0, -sv2), uv0);
-            }                                                           
-            else                                                        
-            {                                                           
-                return fivepointcut(material, projection,
-                    v0,  Vertex.weighted(tv0, tv1, -sv1, sv0).perspective(focus), v1, Vertex.weighted(tv1, tv2, sv2, -sv1).perspective(focus), v2,
-                    uv0, UV.weighted(uv0, uv1, -sv1, sv0), uv1, UV.weighted(uv1, uv2, sv2, -sv1), uv2);
-            }
-
-            return null;    
         }
         
         internal var focus:Number;
@@ -448,7 +237,14 @@ package away3d.core.draw
 
             return (da*az + db*bz + dc*cz) / det;
         }
-
+		
+		internal var au:Number;
+        internal var av:Number;
+        internal var bu:Number;
+        internal var bv:Number;
+        internal var cu:Number;
+        internal var cv:Number;
+        
         public function getUV(x:Number, y:Number):UV
         {
             if (uv0 == null)
@@ -460,24 +256,24 @@ package away3d.core.draw
             if (uv2 == null)
                 return null;
 
-            var au:Number = uv0._u,
-                av:Number = uv0._v,
-                bu:Number = uv1._u,
-                bv:Number = uv1._v,
-                cu:Number = uv2._u,
-                cv:Number = uv2._v,
+            au = uv0._u;
+            av = uv0._v;
+            bu = uv1._u;
+            bv = uv1._v;
+            cu = uv2._u;
+            cv = uv2._v;
 
-                focus:Number = projection.focus,
+            focus = projection.focus;
 
-                ax:Number = v0.x,
-                ay:Number = v0.y,
-                az:Number = v0.z,
-                bx:Number = v1.x,
-                by:Number = v1.y,
-                bz:Number = v1.z,
-                cx:Number = v2.x,
-                cy:Number = v2.y,
-                cz:Number = v2.z;
+            ax = v0.x;
+            ay = v0.y;
+            az = v0.z;
+            bx = v1.x;
+            by = v1.y;
+            bz = v1.z;
+            cx = v2.x;
+            cy = v2.y;
+            cz = v2.z;
 
             if ((ax == x) && (ay == y))
                 return uv0;
@@ -488,30 +284,30 @@ package away3d.core.draw
             if ((cx == x) && (cy == y))
                 return uv2;
 
-            var azf:Number = az / focus,
-                bzf:Number = bz / focus,
-                czf:Number = cz / focus,
+            azf = az / focus;
+            bzf = bz / focus;
+            czf = cz / focus;
 
-                faz:Number = 1 + azf,
-                fbz:Number = 1 + bzf,
-                fcz:Number = 1 + czf,
-                                    
-                axf:Number = ax*faz - x*azf,
-                bxf:Number = bx*fbz - x*bzf,
-                cxf:Number = cx*fcz - x*czf,
-                ayf:Number = ay*faz - y*azf,
-                byf:Number = by*fbz - y*bzf,
-                cyf:Number = cy*fcz - y*czf,
+            faz = 1 + azf;
+            fbz = 1 + bzf;
+            fcz = 1 + czf;
+                                
+            axf = ax*faz - x*azf;
+            bxf = bx*fbz - x*bzf;
+            cxf = cx*fcz - x*czf;
+            ayf = ay*faz - y*azf;
+            byf = by*fbz - y*bzf;
+            cyf = cy*fcz - y*czf;
 
-                det:Number = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf),
-                da:Number = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y- byf),
-                db:Number = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y),
-                dc:Number = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
+            det = axf*(byf - cyf) + bxf*(cyf - ayf) + cxf*(ayf - byf);
+            da = x*(byf - cyf) + bxf*(cyf - y) + cxf*(y- byf);
+            db = axf*(y - cyf) + x*(cyf - ayf) + cxf*(ayf - y);
+            dc = axf*(byf - y) + bxf*(y - ayf) + x*(ayf - byf);
 
             return new UV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
 
-        public function fivepointcut(material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
+        public function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
         {
             if (ScreenVertex.distanceSqr(v0, v12) < ScreenVertex.distanceSqr(v01, v2))
             {
@@ -528,103 +324,7 @@ package away3d.core.draw
                     create(material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
             }
         }
-
-        public function overlap(q:DrawTriangle, w:DrawTriangle):Boolean
-        {
-            if (q.minX > w.maxX)
-                return false;
-            if (q.maxX < w.minX)
-                return false;
-            if (q.minY > w.maxY)
-                return false;
-            if (q.maxY < w.minY)
-                return false;
         
-            var q0x:Number = q.v0.x,
-                q0y:Number = q.v0.y,
-                q1x:Number = q.v1.x,
-                q1y:Number = q.v1.y,
-                q2x:Number = q.v2.x,
-                q2y:Number = q.v2.y,
-        
-                w0x:Number = w.v0.x,
-                w0y:Number = w.v0.y,
-                w1x:Number = w.v1.x,
-                w1y:Number = w.v1.y,
-                w2x:Number = w.v2.x,
-                w2y:Number = w.v2.y,
-        
-                ql01a:Number = q1y - q0y,
-                ql01b:Number = q0x - q1x,
-                ql01c:Number = -(ql01b*q0y + ql01a*q0x),
-                ql01s:Number = ql01a*q2x + ql01b*q2y + ql01c,
-                ql01w0:Number = (ql01a*w0x + ql01b*w0y + ql01c) * ql01s,
-                ql01w1:Number = (ql01a*w1x + ql01b*w1y + ql01c) * ql01s,
-                ql01w2:Number = (ql01a*w2x + ql01b*w2y + ql01c) * ql01s;
-        
-            if ((ql01w0 <= 0.0001) && (ql01w1 <= 0.0001) && (ql01w2 <= 0.0001))
-                return false;
-        
-            var ql12a:Number = q2y - q1y,
-                ql12b:Number = q1x - q2x,
-                ql12n:Boolean = (ql12a*ql12a + ql12b*ql12b) > 0.0001,
-                ql12c:Number = -(ql12b*q1y + ql12a*q1x),
-                ql12s:Number = ql12a*q0x + ql12b*q0y + ql12c,
-                ql12w0:Number = (ql12a*w0x + ql12b*w0y + ql12c) * ql12s,
-                ql12w1:Number = (ql12a*w1x + ql12b*w1y + ql12c) * ql12s,
-                ql12w2:Number = (ql12a*w2x + ql12b*w2y + ql12c) * ql12s;
-        
-            if ((ql12w0 <= 0.0001) && (ql12w1 <= 0.0001) && (ql12w2 <= 0.0001))
-                return false;
-        
-            var ql20a:Number = q0y - q2y,
-                ql20b:Number = q2x - q0x,
-                ql20c:Number = -(ql20b*q2y + ql20a*q2x),
-                ql20s:Number = ql20a*q1x + ql20b*q1y + ql20c,
-                ql20w0:Number = (ql20a*w0x + ql20b*w0y + ql20c) * ql20s,
-                ql20w1:Number = (ql20a*w1x + ql20b*w1y + ql20c) * ql20s,
-                ql20w2:Number = (ql20a*w2x + ql20b*w2y + ql20c) * ql20s;
-        
-            if ((ql20w0 <= 0.0001) && (ql20w1 <= 0.0001) && (ql20w2 <= 0.0001))
-                return false;
-        
-            var wl01a:Number = w1y - w0y,
-                wl01b:Number = w0x - w1x,
-                wl01c:Number = -(wl01b*w0y + wl01a*w0x),
-                wl01s:Number = wl01a*w2x + wl01b*w2y + wl01c,
-                wl01q0:Number = (wl01a*q0x + wl01b*q0y + wl01c) * wl01s,
-                wl01q1:Number = (wl01a*q1x + wl01b*q1y + wl01c) * wl01s,
-                wl01q2:Number = (wl01a*q2x + wl01b*q2y + wl01c) * wl01s;
-        
-            if ((wl01q0 <= 0.0001) && (wl01q1 <= 0.0001) && (wl01q2 <= 0.0001))
-                return false;
-        
-            var wl12a:Number = w2y - w1y,
-                wl12b:Number = w1x - w2x,
-                wl12c:Number = -(wl12b*w1y + wl12a*w1x),
-                wl12s:Number = wl12a*w0x + wl12b*w0y + wl12c,
-                wl12q0:Number = (wl12a*q0x + wl12b*q0y + wl12c) * wl12s,
-                wl12q1:Number = (wl12a*q1x + wl12b*q1y + wl12c) * wl12s,
-                wl12q2:Number = (wl12a*q2x + wl12b*q2y + wl12c) * wl12s;
-        
-            if ((wl12q0 <= 0.0001) && (wl12q1 <= 0.0001) && (wl12q2 <= 0.0001))
-                return false;
-        
-            var wl20a:Number = w0y - w2y,
-                wl20b:Number = w2x - w0x,
-                wl20c:Number = -(wl20b*w2y + wl20a*w2x),
-                wl20s:Number = wl20a*w1x + wl20b*w1y + wl20c,
-                wl20q0:Number = (wl20a*q0x + wl20b*q0y + wl20c) * wl20s,
-                wl20q1:Number = (wl20a*q1x + wl20b*q1y + wl20c) * wl20s,
-                wl20q2:Number = (wl20a*q2x + wl20b*q2y + wl20c) * wl20s;
-        
-            if ((wl20q0 <= 0.0001) && (wl20q1 <= 0.0001) && (wl20q2 <= 0.0001))
-                return false;
-            
-            return true;
-        }
-
-
         public final function bisect(focus:Number):Array
         {
             var d01:Number = ScreenVertex.distanceSqr(v0, v1),
@@ -697,11 +397,11 @@ package away3d.core.draw
             if (area < 20)
                 return null;
 
-            v01 = ScreenVertex.median(v0, v1, focus),
-            v12 = ScreenVertex.median(v1, v2, focus),
-            v20 = ScreenVertex.median(v2, v0, focus),
-            uv01 = UV.median(uv0, uv1),
-            uv12 = UV.median(uv1, uv2),
+            v01 = ScreenVertex.median(v0, v1, focus);
+            v12 = ScreenVertex.median(v1, v2, focus);
+            v20 = ScreenVertex.median(v2, v0, focus);
+            uv01 = UV.median(uv0, uv1);
+            uv12 = UV.median(uv1, uv2);
             uv20 = UV.median(uv2, uv0);
 
             return [

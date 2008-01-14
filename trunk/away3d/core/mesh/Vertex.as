@@ -199,7 +199,7 @@ package away3d.core.mesh
         /** @private Apply perspective distortion */
         arcane function perspective(focus:Number):ScreenVertex
         {
-            var persp:Number = 1 / (1 + z / focus);
+            persp = 1 / (1 + z / focus);
 
             return new ScreenVertex(x * persp, y * persp, z);
         }                     

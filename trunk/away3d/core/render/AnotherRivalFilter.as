@@ -56,12 +56,12 @@ package away3d.core.render
                             return;
                         else
                             check = 0;
-    
+					
                     maxZ = pri.maxZ + 1000;
                     minZ = pri.minZ - 1000;
                     maxdeltaZ = 0;
                     
-                    rivals = tree.get(pri, null);
+                    rivals = tree.get(pri);
                     for each (rival in rivals)
                     {
                         if (rival == pri)
@@ -72,38 +72,41 @@ package away3d.core.render
                             case ZOrderIrrelevant:
                                 break;
                             case ZOrderDeeper:
-                                minZ = Math.max(minZ, rival.screenZ);
+                            	if (minZ < rival.screenZ)
+                            		minZ = rival.screenZ;
                                 break;
                             case ZOrderHigher:
-                                maxZ = Math.min(maxZ, rival.screenZ);
+                            	if (maxZ > rival.screenZ)
+                            		maxZ = rival.screenZ;
                                 break;
                         }
                     }
-                    if ((maxZ >= pri.screenZ) && (pri.screenZ >= minZ))
+                    if (maxZ >= pri.screenZ && pri.screenZ >= minZ)
                     {
-                        // ok
+                        // screenZ still sits between the maxZ and minZ
                     }
-                    else
-                    if ((maxZ > minZ))
+                    else if (maxZ >= minZ)
                     {
+                    	//screenZ has to be re-calculated for the new maxZ and minZ
                         pri.screenZ = (maxZ + minZ) / 2;
                     }
                     else
                     {
+                    	//there is no value for screenZ, triangle is flagged for tesselation
                         if (turn % 3 == 2)
                         {
                             parts = pri.quarter(camera.focus);
                             
-                            if (parts != null)
-                            {
+                            if (parts == null)
+                            	continue;
+                            
                                 tree.remove(pri);
                                 for each (part in parts)
                                 {
-                                    part.screenZ = pri.screenZ;
+                                    //part.screenZ = pri.screenZ;
                                     leftover.push(part);
                                     tree.push(part);
                                 }
-                            }
                         }
                         else
                             leftover.push(pri);
