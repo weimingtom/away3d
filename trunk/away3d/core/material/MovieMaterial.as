@@ -12,33 +12,22 @@ package away3d.core.material
     import flash.geom.Matrix;
 
     /** Material that can render a Sprite on object */
-    public class MovieMaterial implements ITriangleMaterial, IUVMaterial
+    public class MovieMaterial extends BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var movie:Sprite;
-        private var _bitmap:BitmapData;
         private var lastsession:int;
         public var transparent:Boolean;
-        public var smooth:Boolean;
-        public var repeat:Boolean;
-        public var debug:Boolean;
         public var auto:Boolean;
         public var interactive:Boolean;
         
-        protected var session:RenderSession;
-        
-        public function get width():Number
+        public override function get width():Number
         {
             return movie.width;
         }
 
-        public function get height():Number
+        public override function get height():Number
         {
             return movie.height;
-        }
-        
-        public function get bitmap():BitmapData
-        {
-        	return _bitmap;
         }
         
         public function get scale():Number2D
@@ -53,21 +42,20 @@ package away3d.core.material
 
         public function MovieMaterial(movie:Sprite, init:Object = null)
         {
+        	super(_bitmap, init);
+        	
             this.movie = movie;
 
             init = Init.parse(init);
 
             transparent = init.getBoolean("transparent", true);
-            smooth = init.getBoolean("smooth", false);
-            repeat = init.getBoolean("repeat", false);
-            debug = init.getBoolean("debug", false);
             auto = init.getBoolean("auto", true);
             interactive = init.getBoolean("interactive", false);
 
-            this._bitmap = new BitmapData(movie.width, movie.height, transparent);
+            _bitmap = new BitmapData(movie.width, movie.height, transparent);
         }
         
-        public function renderTriangle(tri:DrawTriangle):void
+        public override function renderTriangle(tri:DrawTriangle):void
         {
         	session = tri.source.session;
         	
@@ -89,15 +77,10 @@ package away3d.core.material
                 	
             }
 			
-            session.renderTriangleBitmap(_bitmap, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
+            session.renderTriangleBitmap(_bitmap, getMapping(tri), tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
                 session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-        }
-		
-		public function shadeTriangle(tri:DrawTriangle):void
-        {
-        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
         }
         
         public function update():void
@@ -128,11 +111,6 @@ package away3d.core.material
 			movie.x = event.screenX - event.uv.u*movie.width;
 			movie.y = event.screenY - (1 - event.uv.v)*movie.height;
 		}
-						
-        public function get visible():Boolean
-        {
-            return true;
-        }
  		
  		public function resetInteractiveLayer():void
  		{

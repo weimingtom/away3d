@@ -40,6 +40,7 @@ package away3d.core.draw
         public var bitmapRect:Rectangle;
         public var normalRect:Rectangle;
         
+        public var invtexturemapping:Matrix;
         public var texturemapping:Matrix;
         
         public override function clear():void
@@ -113,6 +114,10 @@ package away3d.core.draw
         internal var materialWidth:Number;
         internal var materialHeight:Number;
         
+        internal var n0:Number3D;
+        internal var n1:Number3D;
+        internal var n2:Number3D;
+        
         internal var _u0:Number;
         internal var _u1:Number;
         internal var _u2:Number;
@@ -120,24 +125,46 @@ package away3d.core.draw
         internal var _v1:Number;
         internal var _v2:Number;
         
+        internal var transformMaterial:IUVTransformMaterial;
+        internal var t:Matrix;
+        
         public final function transformUV(material:IUVMaterial):Matrix
         {
-            materialWidth = material.width,
-            materialHeight = material.height;
-            
-            if (uv0 == null)
-                return new Matrix();
-            if (uv1 == null)
-                return new Matrix();
-            if (uv2 == null)
-                return new Matrix();
-
-            _u0 = materialWidth * uv0._u,
-            _u1 = materialWidth * uv1._u,
-            _u2 = materialWidth * uv2._u,
-            _v0 = materialHeight * (1 - uv0._v),
-            _v1 = materialHeight * (1 - uv1._v),
-            _v2 = materialHeight * (1 - uv2._v);
+        	if (material is IUVTransformMaterial && (transformMaterial = (material as IUVTransformMaterial)).projectionVector) {
+        		if (backface) {
+		    		n0 = new Number3D(face.v0.x, face.v0.y, face.v0.z);
+		    		n2 = new Number3D(face.v1.x, face.v1.y, face.v1.z);        			
+		    		n1 = new Number3D(face.v2.x, face.v2.y, face.v2.z);
+        		} else {
+		    		n0 = new Number3D(face.v0.x, face.v0.y, face.v0.z);
+		    		n1 = new Number3D(face.v1.x, face.v1.y, face.v1.z);
+		    		n2 = new Number3D(face.v2.x, face.v2.y, face.v2.z);
+        		}
+        		_u0 = Number3D.dot(n0, transformMaterial.N);
+	            _u1 = Number3D.dot(n1, transformMaterial.N);
+	            _u2 = Number3D.dot(n2, transformMaterial.N);
+	            _v0 = -Number3D.dot(n0, transformMaterial.M);
+	            _v1 = -Number3D.dot(n1, transformMaterial.M);
+	            _v2 = -Number3D.dot(n2, transformMaterial.M);
+	            
+        	} else {	
+	            materialWidth = material.width,
+	            materialHeight = material.height;
+	            
+	            if (uv0 == null)
+	                return new Matrix();
+	            if (uv1 == null)
+	                return new Matrix();
+	            if (uv2 == null)
+	                return new Matrix();
+	
+	            _u0 = materialWidth * uv0._u,
+	            _u1 = materialWidth * uv1._u,
+	            _u2 = materialWidth * uv2._u,
+	            _v0 = materialHeight * (1 - uv0._v),
+	            _v1 = materialHeight * (1 - uv1._v),
+	            _v2 = materialHeight * (1 - uv2._v);
+        	}
       
             // Fix perpendicular projections
             if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
@@ -151,10 +178,16 @@ package away3d.core.draw
                 _u2 -= (_u2 > 0.05) ? 0.04 : -0.04;
                 _v2 -= (_v2 > 0.06) ? 0.06 : -0.06;
             }
- 
-            texturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
-            texturemapping.invert();
-            return texturemapping;
+            
+            if (material is IUVMaterialContainer)
+            {
+            	bitmapRect = new Rectangle(int(materialWidth*face.minU), int(materialHeight*(1 - face.maxV)), int(materialWidth*(face.maxU-face.minU)+2), int(materialHeight*(face.maxV-face.minV)+2));
+            	return new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0 - bitmapRect.x, _v0 - bitmapRect.y);
+            }
+            
+            t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
+            t.invert();
+            return t;
         }
         
         internal var focus:Number;
