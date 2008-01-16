@@ -13,7 +13,7 @@ package away3d.core.material
     import flash.geom.*;
     
     /** Transform bitmap material */
-    public class TransformBitmapMaterial extends PreciseBitmapMaterial
+    public class TransformBitmapMaterial extends BitmapMaterial
     {
         private var u:Number3D;
         private var v:Number3D;

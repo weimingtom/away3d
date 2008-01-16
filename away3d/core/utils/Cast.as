@@ -412,7 +412,7 @@ package away3d.core.utils
                         if (alpha < 1)
                             Debug.warning("Can't create precise bitmap material with alpha (yet)");
 
-                        return new PreciseBitmapMaterial(bitmap, {smooth:smooth});
+                        return new BitmapMaterial(bitmap, {smooth:smooth});
                     }
                         
                     if (lighting)

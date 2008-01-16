@@ -1,25 +1,19 @@
 package away3d.core.material
 {
     import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
     import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.*;
     import flash.geom.*;
     import flash.utils.*;
 
     /** Bitmap texture material with adjustable transparency */
-    public class AlphaBitmapMaterial implements ITriangleMaterial, IUVMaterial
+    public class AlphaBitmapMaterial extends BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-        private var _bitmap:BitmapData;
-        
-        public function get bitmap():BitmapData
-        {
-            return _bitmap;
-        }
 
         public function set bitmap(value:BitmapData):void
         {
@@ -32,10 +26,6 @@ package away3d.core.material
         private var _cache:Dictionary;
         private var _alpha:Number;
         private var _grades:int;
-
-        public var smooth:Boolean;
-        public var debug:Boolean;
-        public var repeat:Boolean;
         
         public function get alpha():Number
         {
@@ -82,20 +72,11 @@ package away3d.core.material
                 _cache[_alpha] = _current;
             }
         }
-
-        public function get width():Number
-        {
-            return _bitmap.width;
-        }
-
-        public function get height():Number
-        {
-            return _bitmap.height;
-        }
         
         public function AlphaBitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
-            _bitmap = bitmap;
+            super(bitmap, init);
+            
             if (!bitmap.transparent)
             {
                 _bitmap = new BitmapData(bitmap.width, bitmap.height, true);
@@ -106,28 +87,20 @@ package away3d.core.material
             _cache = new Dictionary();
             
             init = Init.parse(init);
-
-            smooth = init.getBoolean("smooth", false);
-            debug = init.getBoolean("debug", false);
-            repeat = init.getBoolean("repeat", false);
+            
             _grades = init.getInt("grades", 32, {min:2, max:256});
             alpha = init.getNumber("alpha", 1, {min:0, max:1});
         }
         
-        public function renderTriangle(tri:DrawTriangle):void
+        public override function renderTriangle(tri:DrawTriangle):void
         {
-            tri.source.session.renderTriangleBitmap(_current, tri.texturemapping || tri.transformUV(this), tri.v0, tri.v1, tri.v2, smooth, repeat);
+            tri.source.session.renderTriangleBitmap(_current, getMapping(tri), tri.v0, tri.v1, tri.v2, smooth, repeat);
 
             if (debug)
                 tri.source.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
         
-		public function shadeTriangle(tri:DrawTriangle):void
-        {
-        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
-        }
-        
-        public function get visible():Boolean
+        public override function get visible():Boolean
         {
             return _alpha > 0;
         }
