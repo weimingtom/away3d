@@ -98,10 +98,13 @@ package away3d.core.material
         				}
         				
         				material.bitmapDictionary[tri] = new BitmapData(_zeroRect.width, _zeroRect.height, true, 0x00000000);
-        				material.bitmapDictionary[tri].draw(material.bitmap, _transform);
+        				if (_transform.a == _transform.d == 1 && _transform.b == 0 && _transform.c == 0) {
+        					material.bitmapDictionary[tri].copyPixels(material.bitmap, tri.bitmapRect, _zeroPoint);
+        				}else
+        					material.bitmapDictionary[tri].draw(material.bitmap, _transform);
         			}
         			
-        			bitmapDictionary[tri].copyPixels(material.bitmapDictionary[tri], _zeroRect, _zeroPoint, null, null, true);  	
+        			bitmapDictionary[tri].copyPixels(material.bitmapDictionary[tri], _zeroRect, _zeroPoint);  	
         		}
         		
         	}
