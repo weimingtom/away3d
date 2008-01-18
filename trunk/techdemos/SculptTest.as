@@ -14,7 +14,7 @@ package
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.render.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.draw.*;
     
@@ -50,9 +50,10 @@ package
     import away3d.loaders.*;
     import away3d.core.*;
     import away3d.core.render.*;
-    import away3d.core.proto.*;
+    import away3d.core.scene.*;
     import away3d.core.geom.*;
     import away3d.core.draw.*;
+    import away3d.core.mesh.*;
     import away3d.core.material.*;
 
 class Asset
@@ -89,7 +90,7 @@ class Sculpt extends ObjectContainer3D
         }
     }
 
-    public function removeFace(face:Face3D, level:int = 0):void
+    public function removeFace(face:Face, level:int = 0):void
     {
         var cavity:Cavity;
         for each (cavity in face.extra.cavities)
@@ -103,7 +104,7 @@ class Sculpt extends ObjectContainer3D
     public function removeCavity(cavity:Cavity, level:int):void
     {
         cavity.visible = false;
-        var face:Face3D;
+        var face:Face;
         for each (face in cavity.faces)
         {
             face.extra.viscount -= 1;
@@ -116,7 +117,7 @@ class Sculpt extends ObjectContainer3D
 
     public function build(n:int):void
     {
-        var white:IMaterial = new ColorShadingBitmapMaterial(0xFFFFFF, 0xFFFFFF, 0xFFFFFF, {alpha:20});
+        var white:IMaterial = new WhiteShadingBitmapMaterial({alpha:20});
         var i:int;
         var j:int;
         var h:int;
@@ -128,7 +129,7 @@ class Sculpt extends ObjectContainer3D
             {
                 vertices[i][j] = new Array();
                 for (h = 0; h <= n; h++)
-                    vertices[i][j][h] = new Vertex3D(i/n*1000-500, j/n*1000-500, h/n*1000-500);
+                    vertices[i][j][h] = new Vertex(i/n*1000-500, j/n*1000-500, h/n*1000-500);
             }
         }
 
@@ -140,7 +141,7 @@ class Sculpt extends ObjectContainer3D
             {
                 centers[i][j] = new Array();
                 for (h = 0; h < n; h++)
-                    centers[i][j][h] = new Vertex3D((i+0.5)/n*1000-500, (j+0.5)/n*1000-500, (h+0.5)/n*1000-500);
+                    centers[i][j][h] = new Vertex((i+0.5)/n*1000-500, (j+0.5)/n*1000-500, (h+0.5)/n*1000-500);
             }
         }
 
@@ -154,20 +155,20 @@ class Sculpt extends ObjectContainer3D
                 for (h = 0; h < n; h++)
                 {
                     centerfaces[i][j][h] = new Array();
-                    centerfaces[i][j][h]["i j "] = new Face3D(centers[i][j][h], vertices[i  ][j  ][h], vertices[i  ][j  ][h+1]);
-                    centerfaces[i][j][h]["i#j "] = new Face3D(centers[i][j][h], vertices[i+1][j  ][h], vertices[i+1][j  ][h+1]);
-                    centerfaces[i][j][h]["i j#"] = new Face3D(centers[i][j][h], vertices[i  ][j+1][h], vertices[i  ][j+1][h+1]);
-                    centerfaces[i][j][h]["i#j#"] = new Face3D(centers[i][j][h], vertices[i+1][j+1][h], vertices[i+1][j+1][h+1]);
+                    centerfaces[i][j][h]["i j "] = new Face(centers[i][j][h], vertices[i  ][j  ][h], vertices[i  ][j  ][h+1]);
+                    centerfaces[i][j][h]["i#j "] = new Face(centers[i][j][h], vertices[i+1][j  ][h], vertices[i+1][j  ][h+1]);
+                    centerfaces[i][j][h]["i j#"] = new Face(centers[i][j][h], vertices[i  ][j+1][h], vertices[i  ][j+1][h+1]);
+                    centerfaces[i][j][h]["i#j#"] = new Face(centers[i][j][h], vertices[i+1][j+1][h], vertices[i+1][j+1][h+1]);
 
-                    centerfaces[i][j][h]["i h "] = new Face3D(centers[i][j][h], vertices[i  ][j][h  ], vertices[i  ][j+1][h  ]);
-                    centerfaces[i][j][h]["i#h "] = new Face3D(centers[i][j][h], vertices[i+1][j][h  ], vertices[i+1][j+1][h  ]);
-                    centerfaces[i][j][h]["i h#"] = new Face3D(centers[i][j][h], vertices[i  ][j][h+1], vertices[i  ][j+1][h+1]);
-                    centerfaces[i][j][h]["i#h#"] = new Face3D(centers[i][j][h], vertices[i+1][j][h+1], vertices[i+1][j+1][h+1]);
+                    centerfaces[i][j][h]["i h "] = new Face(centers[i][j][h], vertices[i  ][j][h  ], vertices[i  ][j+1][h  ]);
+                    centerfaces[i][j][h]["i#h "] = new Face(centers[i][j][h], vertices[i+1][j][h  ], vertices[i+1][j+1][h  ]);
+                    centerfaces[i][j][h]["i h#"] = new Face(centers[i][j][h], vertices[i  ][j][h+1], vertices[i  ][j+1][h+1]);
+                    centerfaces[i][j][h]["i#h#"] = new Face(centers[i][j][h], vertices[i+1][j][h+1], vertices[i+1][j+1][h+1]);
 
-                    centerfaces[i][j][h]["j h "] = new Face3D(centers[i][j][h], vertices[i][j  ][h  ], vertices[i+1][j  ][h  ]);
-                    centerfaces[i][j][h]["j#h "] = new Face3D(centers[i][j][h], vertices[i][j+1][h  ], vertices[i+1][j+1][h  ]);
-                    centerfaces[i][j][h]["j h#"] = new Face3D(centers[i][j][h], vertices[i][j  ][h+1], vertices[i+1][j  ][h+1]);
-                    centerfaces[i][j][h]["j#h#"] = new Face3D(centers[i][j][h], vertices[i][j+1][h+1], vertices[i+1][j+1][h+1]);
+                    centerfaces[i][j][h]["j h "] = new Face(centers[i][j][h], vertices[i][j  ][h  ], vertices[i+1][j  ][h  ]);
+                    centerfaces[i][j][h]["j#h "] = new Face(centers[i][j][h], vertices[i][j+1][h  ], vertices[i+1][j+1][h  ]);
+                    centerfaces[i][j][h]["j h#"] = new Face(centers[i][j][h], vertices[i][j  ][h+1], vertices[i+1][j  ][h+1]);
+                    centerfaces[i][j][h]["j#h#"] = new Face(centers[i][j][h], vertices[i][j+1][h+1], vertices[i+1][j+1][h+1]);
                 }
             }
         }
@@ -182,8 +183,8 @@ class Sculpt extends ObjectContainer3D
                 for (h = 0; h < n; h++)
                 {
                     ifaces[i][j][h] = new Array();
-                    ifaces[i][j][h]["0++"] = new Face3D(vertices[i][j][h], vertices[i][j+1][h], vertices[i][j][h+1]);
-                    ifaces[i][j][h]["++1"] = new Face3D(vertices[i][j+1][h], vertices[i][j][h+1], vertices[i][j+1][h+1]);
+                    ifaces[i][j][h]["0++"] = new Face(vertices[i][j][h], vertices[i][j+1][h], vertices[i][j][h+1]);
+                    ifaces[i][j][h]["++1"] = new Face(vertices[i][j+1][h], vertices[i][j][h+1], vertices[i][j+1][h+1]);
                 }                                    
             }                                        
         }
@@ -198,8 +199,8 @@ class Sculpt extends ObjectContainer3D
                 for (h = 0; h < n; h++)
                 {
                     jfaces[i][j][h] = new Array();
-                    jfaces[i][j][h]["0++"] = new Face3D(vertices[i][j][h], vertices[i+1][j][h], vertices[i][j][h+1]);
-                    jfaces[i][j][h]["++1"] = new Face3D(vertices[i+1][j][h], vertices[i][j][h+1], vertices[i+1][j][h+1]);
+                    jfaces[i][j][h]["0++"] = new Face(vertices[i][j][h], vertices[i+1][j][h], vertices[i][j][h+1]);
+                    jfaces[i][j][h]["++1"] = new Face(vertices[i+1][j][h], vertices[i][j][h+1], vertices[i+1][j][h+1]);
                 }
             }
         }
@@ -214,14 +215,14 @@ class Sculpt extends ObjectContainer3D
                 for (h = 0; h <= n; h++)
                 {
                     hfaces[i][j][h] = new Array();
-                    hfaces[i][j][h]["0++"] = new Face3D(vertices[i][j][h], vertices[i+1][j][h], vertices[i][j+1][h]);
-                    hfaces[i][j][h]["++1"] = new Face3D(vertices[i+1][j][h], vertices[i][j+1][h], vertices[i+1][j+1][h]);
+                    hfaces[i][j][h]["0++"] = new Face(vertices[i][j][h], vertices[i+1][j][h], vertices[i][j+1][h]);
+                    hfaces[i][j][h]["++1"] = new Face(vertices[i+1][j][h], vertices[i][j+1][h], vertices[i+1][j+1][h]);
                 }
             }
         }
 
-        var face:Face3D;
-        var mesh:Mesh3D = new Mesh3D(white, {parent:this, bothsides:true});
+        var face:Face;
+        var mesh:Mesh = new Mesh({material:white, parent:this, bothsides:true});
         mesh.vertices = vertices.concat(centers);
         for (i = 0; i < n; i++)
             for (j = 0; j < n; j++)
@@ -280,7 +281,7 @@ class Cavity
 
     public function Cavity(...faces)
     {
-        for each (var face:Face3D in faces)
+        for each (var face:Face in faces)
         {
             this.faces.push(face);
             face.extra.cavities.push(this);
@@ -289,17 +290,17 @@ class Cavity
     }
 }
 
-class Pyramid extends Mesh3D
+class Pyramid extends Mesh
 {
-    public function Pyramid(material:IMaterial, top:Vertex3D, a:Vertex3D, b:Vertex3D, c:Vertex3D, d:Vertex3D, init:Object = null)
+    public function Pyramid(top:Vertex, a:Vertex, b:Vertex, c:Vertex, d:Vertex, init:Object = null)
     {
-        super(material, init);
+        super(init);
 
-        faces.push(new Face3D(a, d, c));
-        faces.push(new Face3D(c, b, a));
-        faces.push(new Face3D(top, a, b));
-        faces.push(new Face3D(top, b, c));
-        faces.push(new Face3D(top, c, d));
-        faces.push(new Face3D(top, d, a));
+        faces.push(new Face(a, d, c));
+        faces.push(new Face(c, b, a));
+        faces.push(new Face(top, a, b));
+        faces.push(new Face(top, b, c));
+        faces.push(new Face(top, c, d));
+        faces.push(new Face(top, d, a));
     }
 }

@@ -14,11 +14,11 @@ package
     import away3d.core.*;
     import away3d.core.material.*;
     import away3d.core.render.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
+    import away3d.core.scene.*;
+    import away3d.core.mesh.*;
     import away3d.core.draw.*;
     
-    [SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
+    [SWF(backgroundColor="#222266", frameRate="60")]
     public class PainterTest extends BaseDemo
     {
         public function PainterTest()
@@ -48,8 +48,8 @@ package
     import away3d.loaders.*;
     import away3d.core.*;
     import away3d.core.render.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
+    import away3d.core.scene.*;
+    import away3d.core.mesh.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
 
@@ -108,7 +108,7 @@ class Drawing extends ObjectContainer3D
     private var sphere6:Sphere;
     private var sphere7:Sphere;
     private var sphere8:Sphere;
-    private var sizepickermat:WireColorMaterial;
+    private var sizepickermat:ColorMaterial;
     private var selectedsizemat:WireColorMaterial;
     private var sizepicker:ObjectContainer3D;
     private var colorpicker:Triangle;
@@ -121,7 +121,7 @@ class Drawing extends ObjectContainer3D
     private var spray2:Sphere;
 
     private var plane:Plane;
-    private var canvas:BitmapData;
+    private var paintData:BitmapData;
     private var pallete:BitmapData;
     private var drawing:Boolean;
     private var lastx:Number;
@@ -134,29 +134,29 @@ class Drawing extends ObjectContainer3D
                        
     public function Drawing()
     {
-        canvas = new BitmapData(400, 400);
+        paintData = new BitmapData(400, 400);
         pallete = Asset.grad;
-        plane = new Plane(new PreciseBitmapMaterial(canvas, {precision:8, smooth:true}), {width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
+        plane = new Plane({material:new BitmapMaterial(paintData, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
 
         sizepickermat = new ColorMaterial(0x808080);
         selectedsizemat = new WireColorMaterial(0x808080);
-        sphere1 = new Sphere(sizepickermat,   {radius: 10, segmentsW:5, segmentsH:4, x:-400, y:160, z:560, extra:1});
-        sphere1 = new Sphere(sizepickermat,   {radius: 10, segmentsW:3, segmentsH:2, x:-400, y:160, z:560, extra:1});
-        sphere2 = new Sphere(sizepickermat,   {radius: 15, segmentsW:3, segmentsH:2, x:-345, y:160, z:560, extra:1.5});
-        sphere3 = new Sphere(sizepickermat,   {radius: 20, segmentsW:4, segmentsH:3, x:-280, y:160, z:560, extra:2});
-        sphere4 = new Sphere(selectedsizemat, {radius: 30, segmentsW:4, segmentsH:3, x:-200, y:160, z:560, extra:3});
-        sphere5 = new Sphere(sizepickermat,   {radius: 40, segmentsW:5, segmentsH:4, x:-100, y:160, z:560, extra:4});
-        sphere6 = new Sphere(sizepickermat,   {radius: 50, segmentsW:5, segmentsH:4, x:  20, y:160, z:560, extra:5});
-        sphere7 = new Sphere(sizepickermat,   {radius: 70, segmentsW:5, segmentsH:4, x: 170, y:160, z:560, extra:7});
-        sphere8 = new Sphere(sizepickermat,   {radius:100, segmentsW:5, segmentsH:4, x: 370, y:160, z:560, extra:10});
+        sphere1 = new Sphere({material:sizepickermat, radius: 10, segmentsW:5, segmentsH:4, x:-400, y:160, z:560, extra:1});
+        sphere1 = new Sphere({material:sizepickermat, radius: 10, segmentsW:3, segmentsH:2, x:-400, y:160, z:560, extra:1});
+        sphere2 = new Sphere({material:sizepickermat, radius: 15, segmentsW:3, segmentsH:2, x:-345, y:160, z:560, extra:1.5});
+        sphere3 = new Sphere({material:sizepickermat, radius: 20, segmentsW:4, segmentsH:3, x:-280, y:160, z:560, extra:2});
+        sphere4 = new Sphere({material:selectedsizemat, radius: 30, segmentsW:4, segmentsH:3, x:-200, y:160, z:560, extra:3});
+        sphere5 = new Sphere({material:sizepickermat, radius: 40, segmentsW:5, segmentsH:4, x:-100, y:160, z:560, extra:4});
+        sphere6 = new Sphere({material:sizepickermat, radius: 50, segmentsW:5, segmentsH:4, x:  20, y:160, z:560, extra:5});
+        sphere7 = new Sphere({material:sizepickermat, radius: 70, segmentsW:5, segmentsH:4, x: 170, y:160, z:560, extra:7});
+        sphere8 = new Sphere({material:sizepickermat, radius:100, segmentsW:5, segmentsH:4, x: 370, y:160, z:560, extra:10});
 
-        sizepicker = new ObjectContainer3D(null, sphere1, sphere2, sphere3, sphere4, sphere5, sphere6, sphere7, sphere8);
+        sizepicker = new ObjectContainer3D(sphere1, sphere2, sphere3, sphere4, sphere5, sphere6, sphere7, sphere8);
 
-        spray0 = new Sphere(sizepickermat,   {radius: 50, segmentsW:5, segmentsH:4, x:-350, y:260, z:660, extra:0});
-        spray1 = new Sphere(selectedsizemat, {radius: 50, segmentsW:5, segmentsH:4, x:-200, y:260, z:660, extra:0.5});
-        spray2 = new Sphere(sizepickermat,   {radius: 50, segmentsW:5, segmentsH:4, x:- 50, y:260, z:660, extra:1});
+        spray0 = new Sphere({material:sizepickermat, radius: 50, segmentsW:5, segmentsH:4, x:-350, y:260, z:660, extra:0});
+        spray1 = new Sphere({material:selectedsizemat, radius: 50, segmentsW:5, segmentsH:4, x:-200, y:260, z:660, extra:0.5});
+        spray2 = new Sphere({material:sizepickermat, radius: 50, segmentsW:5, segmentsH:4, x:- 50, y:260, z:660, extra:1});
 
-        var v:Vertex3D;
+        var v:Vertex;
         var k:Number;
         for each (v in spray1.vertices)
         {
@@ -173,23 +173,23 @@ class Drawing extends ObjectContainer3D
             v.z *= k;
         }
 
-        spraypicker = new ObjectContainer3D(null, spray0, spray1, spray2);
+        spraypicker = new ObjectContainer3D(spray0, spray1, spray2);
 
-        colorpicker = new Triangle(new PreciseBitmapMaterial(pallete, {precision:8, smooth:false}), null, 550, {rotationY: 90, x:600, y:300, rotationZ:-35});
+        colorpicker = new Triangle({material:new BitmapMaterial(pallete, {precision:8, smooth:false}), edge:550, rotationY: -90, x:600, y:300, rotationZ:-35});
 
-        smoothswitch = new Plane(new PreciseBitmapMaterial(Asset.bwwb, {precision:8, smooth:true}), {width:80, height:80, z:400, x:-600});
-        clearbutton = new Plane(new ColorMaterial(0xFFFFFF), {width:80, height:80, z:300, x:-600});
+        smoothswitch = new Plane({material:new BitmapMaterial(Asset.bwwb, {precision:8, smooth:true}), width:80, height:80, z:400, x:-600});
+        clearbutton = new Plane({material:new ColorMaterial(0xFFFFFF), width:80, height:80, z:300, x:-600});
 
-        plane.events.addEventListener(MouseEvent.MOUSE_DOWN, onPlaneMouseDown);
-        plane.events.addEventListener(MouseEvent.MOUSE_MOVE, onPlaneMouseMove);
+        plane.addOnMouseDown(onPlaneMouseDown);
+        plane.addOnMouseMove(onPlaneMouseMove);
 
-        sizepicker.events.addEventListener(MouseEvent.MOUSE_DOWN, onSizepickerMouseDown);
-        spraypicker.events.addEventListener(MouseEvent.MOUSE_DOWN, onSpraypickerMouseDown);
-        colorpicker.events.addEventListener(MouseEvent.MOUSE_DOWN, onColorpickerMouseDown);
-        smoothswitch.events.addEventListener(MouseEvent.MOUSE_DOWN, onSmoothswitchMouseDown);
-        clearbutton.events.addEventListener(MouseEvent.MOUSE_DOWN, onClearbuttonMouseDown);
+        sizepicker.addOnMouseDown(onSizepickerMouseDown);
+        spraypicker.addOnMouseDown(onSpraypickerMouseDown);
+        colorpicker.addOnMouseDown(onColorpickerMouseDown);
+        smoothswitch.addOnMouseDown(onSmoothswitchMouseDown);
+        clearbutton.addOnMouseDown(onClearbuttonMouseDown);
 
-        super(null, plane, sizepicker, spraypicker, colorpicker, smoothswitch, clearbutton);
+        super(plane, sizepicker, spraypicker, colorpicker, smoothswitch, clearbutton);
     }
 
     public function onPlaneMouseDown(e:MouseEvent3D):void
@@ -197,8 +197,8 @@ class Drawing extends ObjectContainer3D
         drawing = !drawing;
         if (drawing)
         {
-            lastx = e.uv.u*canvas.width;
-            lasty = (1-e.uv.v)*canvas.height;
+            lastx = e.uv.u*paintData.width;
+            lasty = (1-e.uv.v)*paintData.height;
         }
     }
     
@@ -232,23 +232,24 @@ class Drawing extends ObjectContainer3D
     {
         drawing = false;
         smooth = !smooth;
-        (smoothswitch.material as PreciseBitmapMaterial).smooth = smooth;
-        (plane.material as PreciseBitmapMaterial).smooth = smooth;
+        (smoothswitch.material as BitmapMaterial).smooth = smooth;
+        (plane.material as BitmapMaterial).smooth = smooth;
     }
 
     public function onClearbuttonMouseDown(e:MouseEvent3D):void
     {
         drawing = false;
-        for (var i:int = 0; i < canvas.width; i++)
-            for (var j:int = 0; j < canvas.height; j++)
-                canvas.setPixel(i, j, 0xFFFFFF);
+        for (var i:int = 0; i < paintData.width; i++)
+            for (var j:int = 0; j < paintData.height; j++)
+                paintData.setPixel(i, j, 0xFFFFFF);
 
-        for each (var vertex:Vertex3D in plane.vertices)
+        for each (var vertex:Vertex in plane.vertices)
             vertex.y = 0;
     }
 
     public function onColorpickerMouseDown(e:MouseEvent3D):void
     {
+    	trace("mousedown");
         drawing = false;
         if (e.uv == null)
             return;
@@ -256,16 +257,16 @@ class Drawing extends ObjectContainer3D
         var x:Number = e.uv.u*pallete.width;
         var y:Number = (1-e.uv.v)*pallete.height;
         color = pallete.getPixel(int(Math.round(x)), int(Math.round(y)));
-        sizepickermat.fillColor = color;
-        selectedsizemat.fillColor = color;
+        sizepickermat.color = color;
+        selectedsizemat.color = color;
     }
 
     public function onPlaneMouseMove(e:MouseEvent3D):void
     {
         if (drawing)
         {
-            var x:Number = e.uv.u*canvas.width;
-            var y:Number = (1-e.uv.v)*canvas.height;
+            var x:Number = e.uv.u*paintData.width;
+            var y:Number = (1-e.uv.v)*paintData.height;
             var n:Number = Math.sqrt((lastx-x)*(lastx-x) + (lasty-y)*(lasty-y)) * (thickness+1.2);
             for (var i:int = 0; i < n; i++)
             {
@@ -275,16 +276,17 @@ class Drawing extends ObjectContainer3D
                 var bx:Number = k*x + (1-k)*lastx + dx;
                 var by:Number = k*y + (1-k)*lasty + dy;
 
-                canvas.setPixel(int(Math.round(bx)), int(Math.round(by)), color);
-
+                paintData.setPixel(int(Math.round(bx)), int(Math.round(by)), color);
+				/*
                 if (i % 20 == 0)
                 {
-                    var px:Number = (bx / canvas.width * 2 - 1) * 500;
-                    var py:Number = (1 - by / canvas.height * 2) * 500;
+                    var px:Number = (bx / paintData.width * 2 - 1) * 500;
+                    var py:Number = (1 - by / paintData.height * 2) * 500;
 
-                    for each (var vertex:Vertex3D in plane.vertices)
+                    for each (var vertex:Vertex in plane.vertices)
                         vertex.y += 40 * thickness / ((vertex.x-px)*(vertex.x-px) + (vertex.z-py)*(vertex.z-py) + 5000);
                 }
+                */
 
             }
             lastx = x;
