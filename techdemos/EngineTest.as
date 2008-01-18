@@ -31,6 +31,7 @@ package
             Debug.warningsAsErrors = true;
 
             super("Away3D engine test", 5*5*5);
+            
             addSlide("Primitives", 
 "Basic primitives to start playing with", 
             new Scene3D(new Primitives), 
@@ -45,10 +46,25 @@ package
 "Bitmap texturing", 
             new Scene3D(new Texturing), 
             Renderer.CORRECT_Z_ORDER);
-
+            
+            addSlide("Texture Tiling", 
+"Tiling bitmap textures", 
+            new Scene3D(new Tiling), 
+            Renderer.CORRECT_Z_ORDER);
+            
+            addSlide("Texture Projecting", 
+"Projecting bitmap textures", 
+            new Scene3D(new Projecting), 
+            Renderer.CORRECT_Z_ORDER);
+            
             addSlide("Smooth texturing", 
 "Smooth bitmap texturing", 
             new Scene3D(new SmoothTexturing), 
+            Renderer.CORRECT_Z_ORDER);
+
+            addSlide("Wire primitives", 
+"First class support for segments", 
+            new Scene3D(new WirePrimitives), 
             Renderer.CORRECT_Z_ORDER);
 
             addSlide("Movie texturing", 
@@ -70,11 +86,6 @@ package
 "Unnecessary triangles elimination",
             new Scene3D(new Blockers), 
             Renderer.BASIC);
-
-            addSlide("Wire primitives", 
-"First class support for segments", 
-            new Scene3D(new WirePrimitives), 
-            Renderer.CORRECT_Z_ORDER);
 /*
             addSlide("Bezier extrusion", 
 "Bezier extrusion of a plane", 
@@ -182,6 +193,7 @@ import flash.filters.BlurFilter;
 
 class Asset
 {
+	
     [Embed(source="images/circle.dae",mimeType="application/octet-stream")]
     public static var CircleModel:Class;
 
@@ -312,7 +324,15 @@ class Asset
     {
         return Cast.bitmap(GreenImage);
     }
-
+    
+	[Embed(source="images/Smiley-face.gif")]
+	public static var SmileyImage:Class;
+	
+    public static function get smiley():BitmapData
+    {
+        return Cast.bitmap(SmileyImage);
+    }
+    
     [Embed(source="images/red.jpg")]
     public static var RedImage:Class;
 
@@ -506,7 +526,7 @@ class Sprites extends ObjectContainer3D
 
     public function Sprites()
     {
-        plane = new Plane({material:new PreciseBitmapMaterial(Asset.yellow, {precision:1.5}), y:-100 , width:1000, height:1000});
+        plane = new Plane({material:new BitmapMaterial(Asset.yellow, {precision:1.5}), y:-100 , width:1000, height:1000});
 
         super(plane);
 
@@ -551,7 +571,7 @@ class LODs extends ObjectContainer3D
 
     public function LODs()
     {
-        plane = new Plane({material:new PreciseBitmapMaterial(Asset.green, {precision:1.5}), y:-200 , width:1000, height:1000});
+        plane = new Plane({material:new BitmapMaterial(Asset.green, {precision:1.5}), y:-200 , width:1000, height:1000});
 
         super(plane, 
             new AutoLODSphere(0xFF0000, {x: 350, y:160, z: 350}), 
@@ -660,22 +680,76 @@ class Texturing extends Primitives
 {
     public function Texturing()
     {
-        plane.material = new PreciseBitmapMaterial(Asset.yellow, {precision:1.6});
-        sphere.material = new PreciseBitmapMaterial(Asset.red, {precision:1.6});
-        cube.material = new PreciseBitmapMaterial(Asset.blue, {precision:1.6});
-        torus.material = new PreciseBitmapMaterial(Asset.green, {precision:1.6});
+        plane.material = new BitmapMaterial(Asset.yellow, {precision:1.6});
+        sphere.material = new BitmapMaterial(Asset.red, {precision:1.6});
+        cube.material = new BitmapMaterial(Asset.blue, {precision:1.6});
+        torus.material = new BitmapMaterial(Asset.green, {precision:1.6});
     }
     
+}
+
+class Tiling extends Primitives
+{
+    public function Tiling()
+    {
+    	var t:Matrix = new Matrix();
+    	t.rotate(Math.PI/4);
+    	t.translate(100, 100);
+    	t.scale(0.2, 0.2);
+        plane.material = new BitmapMaterial(Asset.yellow, {precision:1.6, transform:t, repeat:true});
+        sphere.material = new BitmapMaterial(Asset.red, {precision:1.6});
+        cube.material = new BitmapMaterial(Asset.blue, {precision:1.6});
+        torus.material = new BitmapMaterial(Asset.green, {precision:1.6});
+    }
+    
+}
+
+
+class Projecting extends Primitives
+{
+	public var projectedMaterial:BitmapMaterial;
+	public var projectedTransform:Matrix;
+	public var projectionVector:Number3D;
+    public function Projecting()
+    {
+    	var t:Matrix = new Matrix();
+    	t.rotate(Math.PI/4);
+    	t.translate(100, 100);
+    	t.scale(0.2, 0.2);
+        plane.material = new BitmapMaterial(Asset.yellow, {precision:1.6, transform:t, repeat:true});
+        projectedTransform = new Matrix();
+        projectedTransform.translate(-64, -64);
+        projectionVector = new Number3D(1, 1, 1);
+        projectedMaterial = new BitmapMaterial(Asset.smiley, {projectionVector:projectionVector, transform:projectedTransform});
+        
+        sphere.material = new BitmapMaterialContainer(400, 400, {materials:[
+        				new BitmapMaterial(Asset.red),
+        				projectedMaterial
+        				]});
+        cube.material = new BitmapMaterial(Asset.blue, {precision:1.6});
+        torus.material = new BitmapMaterial(Asset.green, {precision:1.6});
+    }
+    
+    public override function tick(time:int):void
+    {
+    	projectedTransform = new Matrix();
+    	projectedTransform.translate(-64, -64);
+    	//projectedTransform.scale((Math.abs(Math.sin(time/2000))+1), (Math.abs(Math.cos(time/2000))+1));
+    	projectedTransform.rotate(time/1000);
+    	projectionVector = new Number3D(1*(Math.sin(time/500)), 1, 1*(Math.cos(time/500)));
+		projectedMaterial.transform = projectedTransform;
+		projectedMaterial.projectionVector = projectionVector;
+    }
 }
 
 class SmoothTexturing extends Primitives
 {
     public function SmoothTexturing()
     {
-        plane.material = new PreciseBitmapMaterial(Asset.yellow, {precision:1.5, smooth:true});
-        sphere.material = new PreciseBitmapMaterial(Asset.red, {precision:1.5, smooth:true});
-        cube.material = new PreciseBitmapMaterial(Asset.blue, {precision:1.5, smooth:true});
-        torus.material = new PreciseBitmapMaterial(Asset.green, {precision:1.5, smooth:true});
+        plane.material = new BitmapMaterial(Asset.yellow, {precision:1.5, smooth:true});
+        sphere.material = new BitmapMaterial(Asset.red, {precision:1.5, smooth:true});
+        cube.material = new BitmapMaterial(Asset.blue, {precision:1.5, smooth:true});
+        torus.material = new BitmapMaterial(Asset.green, {precision:1.5, smooth:true});
     }
 }
 
@@ -800,7 +874,7 @@ class Drawing extends ObjectContainer3D
     public function Drawing()
     {
         paintData = new BitmapData(400, 400);
-        plane = new Plane({material:new PreciseBitmapMaterial(paintData, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
+        plane = new Plane({material:new BitmapMaterial(paintData, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
         wireplane = new WirePlane({material:new WireframeMaterial(0x000000), width:1002, height:1002, y:-20});
 
         plane.addOnMouseDown(onPlaneMouseDown);
@@ -862,7 +936,7 @@ class PerspectiveTexturing extends ObjectContainer3D
                        
     public function PerspectiveTexturing()
     {
-        cube = new Cube({material:new PreciseBitmapMaterial(Asset.httt, {precision:2.5}), width:800, height:800, depth:800});
+        cube = new Cube({material:new BitmapMaterial(Asset.httt, {precision:2.5}), width:800, height:800, depth:800});
         
         super(cube);
     }
@@ -872,7 +946,7 @@ class PerspectiveTexturing extends ObjectContainer3D
 class FunnyCube extends ObjectContainer3D
 {
     public var cube:RobCube;
-    public var material:TransformBitmapMaterial;
+    public var material:BitmapMaterial;
                        
     public override function tick(time:int):void
     {
@@ -882,7 +956,7 @@ class FunnyCube extends ObjectContainer3D
         var m:Matrix = new Matrix();
         m.translate(-250,-250);
         m.scale(2*(Math.abs(Math.sin(time/2000))+0.2), 2*(Math.abs(Math.cos(time/2000))+0.2));
-        material = new TransformBitmapMaterial(Asset.target, {precision:2.5, transform:m, repeat:false, normal:new Number3D(1, 1, 1)});
+        material = new BitmapMaterial(Asset.target, {precision:2.5, transform:m, repeat:false, normal:new Number3D(1, 1, 1)});
         cube = new RobCube(material, {width:500, height:500, depth:500, bothsides:true});
 
         addChild(cube);
@@ -916,7 +990,7 @@ class SmoothSkybox extends ObjectContainer3D
                        
     public function SmoothSkybox()
     {
-        skybox = new Skybox6(new PreciseBitmapMaterial(Asset.darkSky, {precision:5}));                   
+        skybox = new Skybox6(new BitmapMaterial(Asset.darkSky, {precision:5}));                   
 
         super(skybox);
     }
@@ -974,9 +1048,9 @@ class IntersectingObjects extends ObjectContainer3D
                        
     public function IntersectingObjects()
     {
-        cubeA = new Cube({material:new PreciseBitmapMaterial(Asset.red, {precision:2}), width:40, height:120, depth:400});
-        cubeB = new Cube({material:new PreciseBitmapMaterial(Asset.yellow, {precision:2}), width:400, height:40, depth:120});
-        cubeC = new Cube({material:new PreciseBitmapMaterial(Asset.blue, {precision:2}), width:120, height:400, depth:40});
+        cubeA = new Cube({material:new BitmapMaterial(Asset.red, {precision:2}), width:40, height:120, depth:400});
+        cubeB = new Cube({material:new BitmapMaterial(Asset.yellow, {precision:2}), width:400, height:40, depth:120});
+        cubeC = new Cube({material:new BitmapMaterial(Asset.blue, {precision:2}), width:120, height:400, depth:40});
 
         super(cubeA, cubeB, cubeC);
 
