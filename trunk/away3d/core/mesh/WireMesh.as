@@ -68,9 +68,9 @@ package away3d.core.mesh
                 removeSegment(segment);
         }
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
+        	super.primitives(consumer, session);
         	
             var seg:DrawSegment;
             for each (var segment:Segment in _segments)

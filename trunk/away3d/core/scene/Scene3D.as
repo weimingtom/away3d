@@ -2,23 +2,20 @@ package away3d.core.scene
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.mesh.*;
-    import away3d.core.render.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.mesh.*;
+    import away3d.core.render.*;
     import away3d.core.utils.*;
     
-    import flash.display.Sprite;
     import flash.utils.getTimer;
-    import flash.utils.Dictionary;
-    import flash.events.MouseEvent;
-    import flash.events.Event;
     
     /** Scene that gets rendered */
     public class Scene3D extends ObjectContainer3D
     {
         public var physics:IPhysicsScene;
-
+		public var tickTraverser:TickTraverser = new TickTraverser();
+		
         public function Scene3D(init:Object = null, ...objects)
         {
             if (init != null)
@@ -45,9 +42,15 @@ package away3d.core.scene
 
         public function updateTime(time:int = -1):void
         {
+        	//set current time
             if (time == -1)
                 time = getTimer();
-            traverse(new TickTraverser(time));
+                
+            //traverser scene ticks
+            tickTraverser.now = time;
+            traverse(tickTraverser);
+            
+            
             if (physics != null)
                 physics.updateTime(time);
         }

@@ -27,6 +27,7 @@ package away3d.core.scene
         private var _sceneTransformDirty:Boolean;
         private var _sceneTransform:Matrix3D = new Matrix3D();
         
+        public var projection:Projection = new Projection();
         public var inverseSceneTransform:Matrix3D = new Matrix3D();
         public var viewTransform:Matrix3D = new Matrix3D();
         public var session:RenderSession;
@@ -486,7 +487,7 @@ package away3d.core.scene
         internal var v:View3D;
         internal var c:Sprite;
         
-        public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        public function primitives(consumer:IPrimitiveConsumer, session:RenderSession):void
         {
             v = session.view;
             if (ownCanvas) {

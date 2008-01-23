@@ -5,12 +5,12 @@ package away3d.core.render
     /** Rectangle clipping */
     public class RectangleClipping extends Clipping
     {
-        public var minX:Number;
-        public var maxX:Number;
-        public var minY:Number;
-        public var maxY:Number;
+        public var minX:Number = -1000000;
+        public var minY:Number = -1000000;
+        public var maxX:Number = 1000000;
+        public var maxY:Number = 1000000;
 
-        public function RectangleClipping(minX:Number, minY:Number, maxX:Number, maxY:Number)
+        public function RectangleClipping()
         {
             this.minX = minX;
             this.maxX = maxX;

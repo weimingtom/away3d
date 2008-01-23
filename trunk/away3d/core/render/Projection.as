@@ -9,12 +9,10 @@ package away3d.core.render
         public var view:Matrix3D;
         public var focus:Number;
         public var zoom:Number;
+        public var time:int;
 
-        public function Projection(view:Matrix3D, focus:Number, zoom:Number)
+        public function Projection()
         {
-            this.view = view;
-            this.focus = focus;
-            this.zoom = zoom;
         }
     }
 }

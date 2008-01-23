@@ -501,9 +501,9 @@ package away3d.core.mesh
         internal var vt:ScreenVertex;
         internal var uvt:UV;
         
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
+        	super.primitives(consumer, session);
         	
         	_dtStore = _dtStore.concat(_dtActive);
         	_dtActive = new Array();
@@ -541,7 +541,7 @@ package away3d.core.mesh
                 _debugboundingbox.v110.z = minZ;
                 _debugboundingbox.v111.z = maxZ;
                 if (_faces.length > 0)
-                    _debugboundingbox.primitives(projection, consumer, session);
+                    _debugboundingbox.primitives(consumer, session);
             }
             
             transparent = TransparentMaterial.INSTANCE;

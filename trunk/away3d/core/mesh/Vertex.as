@@ -145,7 +145,7 @@ package away3d.core.mesh
         }
 
         private var projected:ScreenVertex = new ScreenVertex();
-        private var projection:Projection;
+        private var projectionTime:int;
 		private var view:Matrix3D;
 		private var sz:Number;
 		private var persp:Number;
@@ -153,11 +153,13 @@ package away3d.core.mesh
         /** Project a point to the screen space */
         public function project(projection:Projection):ScreenVertex
         {
-            if (this.projection == projection)
+        	//check if current projection has been already applied
+            if (projectionTime == projection.time)
                 return projected;
-
-            this.projection = projection;
-
+			
+			//update projection time
+            projectionTime = projection.time;
+			
             view = projection.view;
     
             sz = _x * view.szx + _y * view.szy + _z * view.szz + view.tz;

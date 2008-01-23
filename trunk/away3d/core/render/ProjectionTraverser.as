@@ -5,13 +5,16 @@ package away3d.core.render
     import away3d.core.math.*;
     import away3d.core.mesh.BaseMesh;
     import away3d.core.scene.*;
-    import away3d.objects.Sphere;
+    
+    import flash.utils.getTimer;
 
     /** Base traverser for all traversers that rely on camera transform. */
     public class ProjectionTraverser extends Traverser
     {
         private var _view:View3D;
         private var _cameraview:Matrix3D;
+		
+		internal var _projection:Projection;
 		
 		public function set view(val:View3D):void
 		{
@@ -28,9 +31,21 @@ package away3d.core.render
 
         public override function match(node:Object3D):Boolean
         {
+        	//check if node is visible
             if (!node.visible)
                 return false;
+                
+            //compute viewTransform matrix
             node.viewTransform.multiply(_cameraview, node.sceneTransform);
+            
+            //update projection object
+            _projection = node.projection
+            _projection.view = node.viewTransform;
+            _projection.focus = _view.camera.focus;
+            _projection.zoom = _view.camera.zoom;
+            _projection.time = getTimer();
+            
+            //check which LODObject is visible
             if (node is ILODObject)
                 return (node as ILODObject).matchLOD(_view);
             return true;
