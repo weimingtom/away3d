@@ -86,12 +86,7 @@ package
 "Unnecessary triangles elimination",
             new Scene3D(new Blockers), 
             Renderer.BASIC);
-/*
-            addSlide("Bezier extrusion", 
-"Bezier extrusion of a plane", 
-            new Scene3D(new BezierCurve), 
-            Renderer.BASIC);
-            */
+            
             addSlide("Mouse events", 
 "Click on the objects to change their color", 
             new Scene3D(new MouseEvents), 
@@ -823,22 +818,6 @@ class Blockers extends ObjectContainer3D
     
 }
 
-class BezierCurve extends ObjectContainer3D
-{
-    public function BezierCurve()
-    {
-        var texture1:IMaterial = new TransformBitmapMaterial(Asset.sand, {smooth:false, repeat:true, /*precision:3,*/ debug:false, scalex:0.5, scaley:0.5, normal:new Number3D(1,1,1)});
-        var texture2:IMaterial = new TransformBitmapMaterial(Asset.trackedge, {smooth:false, repeat:true, /*precision:3,*/ debug:false, scalex:0, scaley:0.5});
-        var vertices:Array = new Array();
-
-        for(var i:int = -1000; i < 1000; i += 500) 
-            vertices.push(new Number3D(0,i+0,0), new Number3D(250,i+50,0), new Number3D(500,i+100,500), new Number3D(500,i+150,750), new Number3D(0,i+200,1000), new Number3D(-250,i+250,1000), new Number3D(-500,i+300,500), new Number3D(-500,i+350,250));
-
-        //var plane:BezierExtrude = new BezierExtrude(null, new IrregularShape([new Vertex3D(-130,0,0), new Vertex3D(-100,0,0), new Vertex3D(100,0,0), new Vertex3D(130,0,0)], {wrap:false}), vertices, {bothsides:true, segmentsH:10, axisMaterials:[texture1, texture2, texture1, texture2]});
-        //addChild(plane);
-    }
-}
-
 class MouseEvents extends Primitives
 {
     public function MouseEvents()
@@ -945,7 +924,7 @@ class PerspectiveTexturing extends ObjectContainer3D
 
 class FunnyCube extends ObjectContainer3D
 {
-    public var cube:RobCube;
+    public var cube:Cube;
     public var material:BitmapMaterial;
                        
     public override function tick(time:int):void
@@ -957,7 +936,7 @@ class FunnyCube extends ObjectContainer3D
         m.translate(-250,-250);
         m.scale(2*(Math.abs(Math.sin(time/2000))+0.2), 2*(Math.abs(Math.cos(time/2000))+0.2));
         material = new BitmapMaterial(Asset.target, {precision:2.5, transform:m, repeat:false, normal:new Number3D(1, 1, 1)});
-        cube = new RobCube(material, {width:500, height:500, depth:500, bothsides:true});
+        cube = new Cube({material:material, width:500, height:500, depth:500, bothsides:true});
 
         addChild(cube);
     }
