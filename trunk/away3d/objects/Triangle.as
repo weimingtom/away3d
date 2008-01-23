@@ -6,7 +6,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Triangle */ 
     public class Triangle extends Mesh
@@ -59,7 +58,8 @@
             _face = new Face(new Vertex(0, 2*s3*edge, 0), new Vertex(edge, - s3*edge, 0), new Vertex(-edge, - s3*edge, 0), null, new UV(0, 0), new UV(1, 0), new UV(0, 1));
             addFace(_face);
 			
-			Stats.instance.register("Triangle",1,"primitive");
+			type = "Triangle";
+        	url = "primitive";
         }
     
     }

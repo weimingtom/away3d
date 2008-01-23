@@ -497,7 +497,7 @@ package away3d.core.mesh
         internal var transparent:ITriangleMaterial;
         internal var backmat:ITriangleMaterial;
         internal var backface:Boolean;
-        
+        internal var uvmaterial:Boolean;
         internal var vt:ScreenVertex;
         internal var uvt:UV;
         
@@ -609,6 +609,7 @@ package away3d.core.mesh
                 if (pushfront)
                     tri.screenZ = tri.minZ;
 				
+				uvmaterial = (tri.material is IUVMaterial);
 				
 				//swap ScreenVerticies if triangle facing away from camera
                 if (backface) {
@@ -617,13 +618,15 @@ package away3d.core.mesh
                     tri.v1 = tri.v2;
                     tri.v2 = vt;
 					
-					//pass accross uv values
-	                tri.uv0 = face._uv0;
-	                tri.uv1 = face._uv2;
-	                tri.uv2 = face._uv1;
-
                     tri.area = -tri.area;
-                } else {
+                    
+                    if (uvmaterial) {
+						//pass accross uv values
+		                tri.uv0 = face._uv0;
+		                tri.uv1 = face._uv2;
+		                tri.uv2 = face._uv1;
+                    }
+                } else if (uvmaterial) {
 					//pass accross uv values
 	                tri.uv0 = face._uv0;
 	                tri.uv1 = face._uv1;
@@ -631,7 +634,7 @@ package away3d.core.mesh
                 }
                 
                 //check if face swapped direction
-                if (tri.backface != backface && tri.material is IUVMaterial) {
+                if (tri.backface != backface) {
                 	tri.backface = backface;
                 	tri.texturemapping = null;
                 }
@@ -661,7 +664,7 @@ package away3d.core.mesh
 		public var _dtStore:Array = new Array();
         public var _dtActive:Array = new Array();
         
-		public function createDrawTriangle(material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
+		public function createDrawTriangle(face:Face, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
 		{
 			if (_dtStore.length) {
             	_dtActive.push(tri = _dtStore.pop());
@@ -672,6 +675,7 @@ package away3d.core.mesh
 	            tri.source = this;
 		        tri.create = createDrawTriangle;
             }
+            tri.face = face;
             tri.material = material;
             tri.projection = projection;
             tri.v0 = v0;
@@ -849,6 +853,5 @@ package away3d.core.mesh
 
             return result;
         }
-
     }
 }

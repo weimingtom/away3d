@@ -11,12 +11,18 @@ package away3d.core.render
     public final class PrimitiveQuadrantTreeNode
     {
         public var center:Array;
+        
         public var lefttop:PrimitiveQuadrantTreeNode;
         public var leftbottom:PrimitiveQuadrantTreeNode;
         public var righttop:PrimitiveQuadrantTreeNode;
         public var rightbottom:PrimitiveQuadrantTreeNode;
+        
+        public var lefttopFlag:Boolean;
+        public var leftbottomFlag:Boolean;
+        public var righttopFlag:Boolean;
+        public var rightbottomFlag:Boolean;
+        
         public var onlysource:Object3D;
-		
 		public var onlysourceFlag:Boolean = true;
         
         public var xdiv:Number;
@@ -37,6 +43,7 @@ package away3d.core.render
             this.ydiv = ydiv;
             halfwidth = width / 2;
             halfheight = height / 2;
+            this.parent = parent;
         }
 
         public function push(pri:DrawPrimitive):void
@@ -52,15 +59,25 @@ package away3d.core.render
 	            {
 	                if (pri.maxY <= ydiv)
 	                {
-	                    if (lefttop == null)
-	                        lefttop = create(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                    if (lefttop == null) {
+	                    	lefttopFlag = true;
+	                        lefttop = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                    } else if (!lefttopFlag) {
+	                    	lefttopFlag = true;
+	                    	lefttop.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    }
 	                    lefttop.push(pri);
 	                    return;
 	                }
 	                else if (pri.minY >= ydiv)
 	                {
-	                    if (leftbottom == null)
-	                        leftbottom = create(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1, this);
+	                	if (leftbottom == null) {
+	                    	leftbottomFlag = true;
+	                        leftbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                    } else if (!leftbottomFlag) {
+	                    	leftbottomFlag = true;
+	                    	leftbottom.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    }
 	                    leftbottom.push(pri);
 	                    return;
 	                }
@@ -69,15 +86,25 @@ package away3d.core.render
 	            {
 	                if (pri.maxY <= ydiv)
 	                {
-	                    if (righttop == null)
-	                        righttop = create(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                	if (righttop == null) {
+	                    	righttopFlag = true;
+	                        righttop = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                    } else if (!righttopFlag) {
+	                    	righttopFlag = true;
+	                    	righttop.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    }
 	                    righttop.push(pri);
 	                    return;
 	                }
 	                else if (pri.minY >= ydiv)
 	                {
-	                    if (rightbottom == null)
-	                        rightbottom = create(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1, this);
+	                	if (rightbottom == null) {
+	                    	rightbottomFlag = true;
+	                        rightbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                    } else if (!rightbottomFlag) {
+	                    	rightbottomFlag = true;
+	                    	rightbottom.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    }
 	                    rightbottom.push(pri);
 	                    return;
 	                }
@@ -91,16 +118,23 @@ package away3d.core.render
             pri.quadrant = this;
         }
         
-		public function clear():void
+		public function reset(xdiv:Number, ydiv:Number, width:Number, height:Number):void
 		{
-			parent = null;
+			this.xdiv = xdiv;
+			this.ydiv = ydiv;
+			halfwidth = width / 2;
+            halfheight = height / 2;
+            
 			center = null;
-            lefttop = null;
-            leftbottom = null;
-            righttop = null;
-            rightbottom = null;
+			
+            lefttopFlag = false;
+            leftbottomFlag = false;
+            righttopFlag = false;
+            rightbottomFlag = false;
+            
             onlysourceFlag = true;
             onlysource = null;
+            
             render_center_length = -1;
             render_center_index = -1;
 		}
@@ -142,13 +176,13 @@ package away3d.core.render
 
         private function render_other(limit:Number):void
         {
-        	if (lefttop != null)
+        	if (lefttopFlag)
                 lefttop.render(limit);
-            if (leftbottom != null)
+            if (leftbottomFlag)
                 leftbottom.render(limit);
-            if (righttop != null)
+            if (righttopFlag)
                 righttop.render(limit);
-            if (rightbottom != null)
+            if (rightbottomFlag)
                 rightbottom.render(limit);
         }
     }

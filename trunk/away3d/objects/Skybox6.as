@@ -95,7 +95,8 @@
 
             mouseEnabled = false;
 			
-			Stats.instance.register("Skybox6",faces.length,"primitive");
+			type = "Skybox6";
+        	url = "primitive";
         }
     }
     

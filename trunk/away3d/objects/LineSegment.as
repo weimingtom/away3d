@@ -42,7 +42,8 @@
             _segment = new Segment(new Vertex(-edge, 0, 0), new Vertex(edge, 0, 0));
             addSegment(_segment);
 			
-			Stats.instance.register("LineSegment",1,"primitive");
+			type = "LineSegment";
+        	url = "primitive";
         }
     
     }

@@ -1,25 +1,32 @@
 package away3d.core.render
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.draw.*;
-    import away3d.core.render.*;
     import away3d.core.block.*;
-
+    import away3d.core.draw.*;
+    import away3d.core.scene.*;
+    
     import flash.geom.*;
 
     /** Traverser that gathers blockers for occlusion culling */
     public class BlockerTraverser extends Traverser
     {
-    	protected var view:View3D;
-        private var consumer:IBlockerConsumer;
+    	private var _view:View3D;
+        private var _consumer:IBlockerConsumer;
 		
 		private var projection:Projection;
 		
-        public function BlockerTraverser(consumer:IBlockerConsumer, view:View3D)
+		public function set view(val:View3D):void
+		{
+			_view = val;
+		}
+		
+		public function set consumer(val:IBlockerConsumer):void
+		{
+			_consumer = val;
+		}
+		
+        public function BlockerTraverser()
         {
-        	this.view = view;
-            this.consumer = consumer;
         }
 		
 		public override function match(node:Object3D):Boolean
@@ -27,7 +34,7 @@ package away3d.core.render
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(view);
+                return (node as ILODObject).matchLOD(_view);
             return true;
         }
         
@@ -35,8 +42,8 @@ package away3d.core.render
         {
             if (node is IBlockerProvider)
             {
-                projection = new Projection(node.viewTransform, view.camera.focus, view.camera.zoom);
-                (node as IBlockerProvider).blockers(projection, consumer);
+                projection = new Projection(node.viewTransform, _view.camera.focus, _view.camera.zoom);
+                (node as IBlockerProvider).blockers(projection, _consumer);
             }
         }
 

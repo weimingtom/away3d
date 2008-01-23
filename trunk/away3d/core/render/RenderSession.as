@@ -12,13 +12,41 @@ package away3d.core.render
     /** Object holding information for one rendering frame */
     public class RenderSession
     {
-        public var view:View3D;
-        public var container:Sprite;
-        public var time:int;
+        protected var _view:View3D;
+        protected var _container:Sprite;
+        protected var _lightarray:LightArray;
+        
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	clip = _view.clip;
+        	time = getTimer();
+        }
+        
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        
+        public function set container(val:Sprite):void
+        {
+        	_container = val;
+        	graphics = _container.graphics;
+        }
+        
+        public function set lightarray(val:LightArray):void
+        {
+        	_lightarray = val;
+        }
+        
+        public function get lightarray():LightArray
+        {
+        	return _lightarray;
+        }
         
         public var graphics:Graphics;
-        public var lightarray:LightArray;
         public var clip:Clipping;
+        public var time:int;
         
         internal var a:Number;
         internal var b:Number;
@@ -112,10 +140,10 @@ package away3d.core.render
         public function addDisplayObject(child:DisplayObject):void
         {
         	//add to container
-            container.addChild(child);
+            _container.addChild(child);
             child.visible = true;
             //create new canvas for remaining triangles if required
-            canvasStore = view.canvasStore
+            canvasStore = _view.canvasStore
             if (canvasStore.length) {
             	newCanvas = canvasStore.pop();
             } else {
@@ -124,19 +152,13 @@ package away3d.core.render
             //update graphics reference
             graphics = newCanvas.graphics;
             //store new canvas
-            view.canvasActive.push(newCanvas);
+            _view.canvasActive.push(newCanvas);
             //add new canvas to base canvas
-            container.addChild(newCanvas);
+            _container.addChild(newCanvas);
         }
         
-        public function RenderSession(view:View3D, container:Sprite, lightarray:LightArray)
+        public function RenderSession()
         {
-            this.view = view;
-            this.clip = view.clip;
-            this.container = container;
-            this.graphics = container.graphics;
-            this.lightarray = lightarray;
-            this.time = getTimer();
         }
     }
 }

@@ -6,7 +6,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Wire circle */ 
     public class WireCircle extends WireMesh
@@ -37,7 +36,8 @@
 			{
                 addSegment(new Segment(vertices[i], vertices[(i+1) % segments]));
 			}
-				Stats.instance.register("WireCircle", 0, "primitive");
+			type = "WireCircle";
+        	url = "primitive";
         }
 
     }

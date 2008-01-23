@@ -1,12 +1,12 @@
 ﻿package away3d.objects
 {
     import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
-    import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.math.*;
+    import away3d.core.mesh.*;
+    import away3d.core.scene.*;
+    import away3d.core.stats.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Cone */ 
     public class Cone extends Mesh
@@ -84,8 +84,9 @@
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
-				
-				Stats.instance.register("Cone",faces.length,"primitive");
+            
+            type = "Cone";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

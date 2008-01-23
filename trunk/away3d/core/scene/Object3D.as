@@ -25,10 +25,10 @@ package away3d.core.scene
         private var _rotationZ:Number;
     
         private var _sceneTransformDirty:Boolean;
-        private var _sceneTransform:Matrix3D;
+        private var _sceneTransform:Matrix3D = new Matrix3D();
         
-        public var inverseSceneTransform:Matrix3D;
-        public var viewTransform:Matrix3D;
+        public var inverseSceneTransform:Matrix3D = new Matrix3D();
+        public var viewTransform:Matrix3D = new Matrix3D();
         public var session:RenderSession;
         
         private var _scene:Scene3D;
@@ -257,10 +257,12 @@ package away3d.core.scene
 
             notifyTransformChange();
         }
-    
+		
+		internal var rot:Number3D;
+		
         private function updateRotation():void
         {
-            var rot:Number3D = Matrix3D.matrix2euler(_transform);
+            rot = _transform.matrix2euler();
             _rotationX = rot.x * toRADIANS;
             _rotationY = rot.y * toRADIANS;
             _rotationZ = rot.z * toRADIANS;
@@ -283,9 +285,17 @@ package away3d.core.scene
             
         }
         
+        internal var _position:Number3D = new Number3D();
+        
         public function get position():Number3D
         {
-            return new Number3D(_transform.tx, _transform.ty, _transform.tz);
+        	if (_transformDirty) 
+                updateTransform();
+            
+        	_position.x = _transform.tx;
+        	_position.y = _transform.ty;
+        	_position.z = _transform.tz;
+            return _position;
         }
 
         public function get transform():Matrix3D
@@ -308,15 +318,18 @@ package away3d.core.scene
             _sceneTransformDirty = true;
             notifyTransformChange();
         }
-
+		
+		internal var q:Quaternion = new Quaternion();
+		internal var m:Matrix3D = new Matrix3D();
+		
         private function updateTransform():void
         {
             if (!_transformDirty) 
                 return;
 
-            var q:Quaternion = Matrix3D.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
-            var m:Matrix3D = Matrix3D.quaternion2matrix(q.x, q.y, q.z, q.w);
-
+            q.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
+            m.quaternion2matrix(q.x, q.y, q.z, q.w);
+			
             m.tx = _transform.tx;
             m.ty = _transform.ty;
             m.tz = _transform.tz;
@@ -330,7 +343,7 @@ package away3d.core.scene
         public function get sceneTransform():Matrix3D
         {
             if (_scene == null)
-                Debug.error("Can't access sceneTransform transform of an object not belonging to the scene");
+                return transform;
 
             if (_transformDirty) 
                 updateTransform();
@@ -346,8 +359,8 @@ package away3d.core.scene
             if (!_sceneTransformDirty) 
                 return;
 
-            _sceneTransform = Matrix3D.multiply(_parent.sceneTransform, transform);
-            inverseSceneTransform = Matrix3D.inverse(_sceneTransform);
+            _sceneTransform.multiply(_parent.sceneTransform, transform);
+            inverseSceneTransform.inverse(_sceneTransform);
             _sceneTransformDirty = false;
         }
     
@@ -487,7 +500,12 @@ package away3d.core.scene
                 else
                 	c.blendMode = BlendMode.NORMAL;
                 consumer.primitive(new DrawDisplayObject(this, c, new ScreenVertex(0, 0, Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty)), session));
-                this.session = new RenderSession(v, c, session.lightarray);
+                if (!ownSession)
+                	ownSession = new RenderSession();
+                ownSession.view = v;
+                ownSession.container = c;
+                ownSession.lightarray = session.lightarray;
+                this.session = ownSession;
             }
             else
             {
@@ -538,7 +556,7 @@ package away3d.core.scene
 
         public function translate(axis:Number3D, distance:Number):void
         {
-            var vector:Number3D = axis.rotate(transform);
+            vector.rotate(axis, transform);
     
             x += distance * vector.x;
             y += distance * vector.y;
@@ -559,34 +577,40 @@ package away3d.core.scene
         {
             rotate(Number3D.FORWARD, angle);
         }
-
+		
+		internal var vector:Number3D = new Number3D();
+		
         public function rotate(axis:Number3D, angle:Number):void
         {
-            var vector:Number3D = axis.rotate(transform);
+            vector.rotate(axis, transform);
     
-            var m:Matrix3D = Matrix3D.rotationMatrix(vector.x, vector.y, vector.z, angle * toRADIANS);
-    
-            _transform.copy3x3(Matrix3D.multiply3x3(m, transform));
+            m.rotationMatrix(vector.x, vector.y, vector.z, angle * toRADIANS);
+    		m.tx = _transform.tx;
+    		m.ty = _transform.ty;
+    		m.tz = _transform.tz;
+    		_transform.multiply3x3(m, transform);
     
             _rotationDirty = true;
             _sceneTransformDirty = true;
         }
 
-    
+    	internal var xAxis:Number3D = new Number3D();
+    	internal var yAxis:Number3D = new Number3D();
+    	internal var zAxis:Number3D = new Number3D();
         // Make the object look at a specific position.
         // @param target Position to look at.
         // @param upAxis The vertical axis of the universe. Normally the positive Y axis.
         public function lookAt(target:Number3D, upAxis:Number3D = null):void
         {
-            var zAxis:Number3D = Number3D.sub(target, position);
+            zAxis.sub(target, position);
             zAxis.normalize();
     
             if (zAxis.modulo > 0.1)
             {
-                var xAxis:Number3D = Number3D.cross(zAxis, upAxis || Number3D.UP);
+                xAxis.cross(zAxis, upAxis || Number3D.UP);
                 xAxis.normalize();
     
-                var yAxis:Number3D = Number3D.cross(zAxis, xAxis);
+                yAxis.cross(zAxis, xAxis);
                 yAxis.normalize();
     
                 _transform.sxx = xAxis.x;

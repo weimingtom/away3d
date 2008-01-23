@@ -28,6 +28,9 @@ package away3d.core.render
         
         private var primitive:DrawPrimitive;
         
+        internal var inv:Matrix3D = new Matrix3D();
+        internal var persp:Number;
+        
         public function FindHit(view:View3D, primitives:Array, x:Number, y:Number)
         {
             this.view = view;
@@ -72,8 +75,8 @@ package away3d.core.render
                         uv = null;
                     }
                     screenZ = z;
-                    var persp:Number = view.camera.zoom / (1 + screenZ / view.camera.focus);
-                    var inv:Matrix3D = Matrix3D.inverse(view.camera.view);
+                    persp = view.camera.zoom / (1 + screenZ / view.camera.focus);
+                    inv.inverse(view.camera.view);
 
                     sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;

@@ -83,7 +83,8 @@
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
 
-				Stats.instance.register("Sphere",faces.length,"primitive");
+			type = "Sphere";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

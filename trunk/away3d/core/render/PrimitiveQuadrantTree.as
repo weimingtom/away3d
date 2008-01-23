@@ -14,20 +14,27 @@ package away3d.core.render
 		public var quadrantStore:Array;
 		public var quadrantActive:Array;
 		
-        private var clip:Clipping;
-
-        public function PrimitiveQuadrantTree(clip:Clipping, quadrantStore:Array, quadrantActive:Array)
+        private var _clip:Clipping;
+		private var _rect:RectangleClipping;
+		
+		public function set clip(val:Clipping)
+		{
+			_clip = val;
+			_rect = _clip.asRectangleClipping();
+			if (!root)
+				root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, (_rect.maxX - _rect.minX)/2, (_rect.maxY - _rect.minY)/2, 0);
+			else
+				root.reset((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, (_rect.maxX - _rect.minX)/2, (_rect.maxY - _rect.minY)/2);
+			
+		}
+		
+        public function PrimitiveQuadrantTree()
         {
-            this.clip = clip;
-            this.quadrantStore = quadrantStore;
-            this.quadrantActive = quadrantActive;
-            var rect:RectangleClipping = clip.asRectangleClipping();
-            root = createNode((rect.minX + rect.maxX)/2, (rect.minY + rect.maxY)/2, (rect.maxX - rect.minX)/2, (rect.maxY - rect.minY)/2, 0);
         }
 
         public function primitive(pri:DrawPrimitive):void
         {
-            if (clip.check(pri))
+            if (_clip.check(pri))
             {
                 root.push(pri);
             }
@@ -99,19 +106,19 @@ package away3d.core.render
 
             if (minX < node.xdiv)
             {
-                if (node.lefttop != null && minY < node.ydiv)
+                if (node.lefttopFlag && minY < node.ydiv)
 	                getList(node.lefttop);
 	            
-                if (node.leftbottom != null && maxY > node.ydiv)
+                if (node.leftbottomFlag && maxY > node.ydiv)
                 	getList(node.leftbottom);
             }
             
             if (maxX > node.xdiv)
             {
-                if (node.righttop != null && minY < node.ydiv)
+                if (node.righttopFlag && minY < node.ydiv)
                 	getList(node.righttop);
                 
-                if (node.rightbottom != null && maxY > node.ydiv)
+                if (node.rightbottomFlag && maxY > node.ydiv)
                 	getList(node.rightbottom);
                 
             }
@@ -152,27 +159,5 @@ package away3d.core.render
         {
             root.render(-Infinity);
         }
-        
-        internal var node:PrimitiveQuadrantTreeNode;
-        
-        public function createNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:Number, parent:PrimitiveQuadrantTreeNode = null):PrimitiveQuadrantTreeNode
-		{
-			
-			if (quadrantStore.length) {
-            	quadrantActive.push(node = quadrantStore.pop());
-            	node.xdiv = xdiv;
-            	node.ydiv = ydiv;
-            	node.halfwidth = width/2;
-            	node.halfheight = height/2;
-            	node.level = level;
-            	node.clear();
-            	node.parent = parent;
-            	node.create = createNode;
-   			} else {
-            	quadrantActive.push(node = new PrimitiveQuadrantTreeNode(xdiv, ydiv, width, height, level, parent));
-            	node.create = createNode;
-            }
-            return node;
-		}
     }
 }

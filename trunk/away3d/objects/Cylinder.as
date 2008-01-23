@@ -83,7 +83,9 @@
                     if (j > 1)                
                         addFace(new Face(a,c,d, null, uva,uvc,uvd));
                 }
-        Stats.instance.register("Cylinder",faces.length,"primitive");
+        	
+        	type = "Cylinder";
+        	url = "primitive";
 		}
 
         public function vertex(i:int, j:int):Vertex

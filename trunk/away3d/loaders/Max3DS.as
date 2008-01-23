@@ -105,6 +105,8 @@ package away3d.loaders
             // NOTE: We actually support loading files that have no texturing!
             for each (var face:Object in faces)
                 mesh.addFace(new Face(vertices[face.c], vertices[face.b], vertices[face.a], null, uvs[face.c], uvs[face.b], uvs[face.a]));
+                
+            mesh.type = ".3ds";
         }
     }
 }

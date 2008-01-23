@@ -32,7 +32,6 @@ package away3d.core.mesh
         private var _normal:Number3D;
 		
 		public var parent:Mesh;
-		public var bitmapRect:Rectangle;
 		
         public override function get vertices():Array
         {
@@ -124,8 +123,6 @@ package away3d.core.mesh
                 return;
 
             _material = value;
-
-            _texturemapping = null;
 			
             notifyMaterialChange();
         }
@@ -147,7 +144,6 @@ package away3d.core.mesh
 
         public function get uv0():UV
         {
-            _texturemapping = null;
 
             return _uv0;
         }
@@ -166,9 +162,7 @@ package away3d.core.mesh
             if (_uv0 != null)
                 if ((_uv0 != _uv1) && (_uv0 != _uv2))
                     _uv0.addOnChange(onUVChange);
-
-            _texturemapping = null;
-
+			
             notifyMappingChange();
         }
 
@@ -191,9 +185,7 @@ package away3d.core.mesh
             if (_uv1 != null)
                 if ((_uv1 != _uv0) && (_uv1 != _uv2))
                     _uv1.addOnChange(onUVChange);
-
-            _texturemapping = null;
-
+			
             notifyMappingChange();
         }
 
@@ -216,26 +208,29 @@ package away3d.core.mesh
             if (_uv2 != null)
                 if ((_uv2 != _uv1) && (_uv2 != _uv0))
                     _uv2.addOnChange(onUVChange);
-
-            _texturemapping = null;
-
+			
             notifyMappingChange();
         }
-
+		
+		internal var a:Number;
+		internal var b:Number;
+		internal var c:Number;
+		internal var s:Number;
+		
         public function get area():Number
         {
             // not quick enough
-            var a:Number = Number3D.distance(v0.position, v1.position);
-            var b:Number = Number3D.distance(v1.position, v2.position);
-            var c:Number = Number3D.distance(v2.position, v0.position);
-            var s:Number = (a + b + c) / 2;
+            a = v0.position.distance(v1.position);
+            b = v1.position.distance(v2.position);
+            c = v2.position.distance(v0.position);
+            s = (a + b + c) / 2;
             return Math.sqrt(s*(s - a)*(s - b)*(s - c));
         }
-
+        
         public function get normal():Number3D
         {
-            if (_normal == null)
-            {
+            if (!_normal) {
+            	_normal = new Number3D();
                 var d1x:Number = _v1.x - _v0.x;
                 var d1y:Number = _v1.y - _v0.y;
                 var d1z:Number = _v1.z - _v0.z;
@@ -250,7 +245,9 @@ package away3d.core.mesh
 
                 var pdd:Number = Math.sqrt(pa*pa + pb*pb + pc*pc);
 
-                _normal = new Number3D(pa / pdd, pb / pdd, pc / pdd);
+                _normal.x = pa / pdd;
+                _normal.y = pb / pdd;
+                _normal.z = pc / pdd;
             }
             return _normal;
         }
@@ -468,92 +465,13 @@ package away3d.core.mesh
             this._v2 = v1;
             this._uv1 = uv2;
             this._uv2 = uv1;
-
-            _texturemapping = null;
-
+			
             notifyVertexChange();
             notifyMappingChange();
         }
-
-        arcane var _texturemapping:Matrix;
-        arcane var _mappingmaterial:IUVMaterial;
-		
-		internal var uv_u0:Number;
-        internal var uv_u1:Number;
-        internal var uv_u2:Number;
-        internal var uv_v0:Number;
-        internal var uv_v1:Number;
-        internal var uv_v2:Number;
-        internal var width:Number;
-        internal var height:Number;
         
-        /*
-        arcane function mapping(uvm:IUVMaterial):Matrix
-        {
-            if (uvm == null)
-                return null;
-
-            if (_texturemapping != null)
-                if (_mappingmaterial == uvm)
-                    return _texturemapping;
-
-            _mappingmaterial = uvm;
-
-            width = uvm.width;
-            height = uvm.height;
-
-            if (uv0 == null)
-            {
-                _texturemapping = new Matrix();
-                return _texturemapping;
-            }
-            if (uv1 == null)
-            {
-                _texturemapping = new Matrix();
-                return _texturemapping;
-            }
-            if (uv2 == null)
-            {
-                _texturemapping = new Matrix();
-                return _texturemapping;
-            }
-
-            uv_u0 = width * uv0._u;
-            uv_u1 = width * uv1._u;
-            uv_u2 = width * uv2._u;
-            uv_v0 = height * (1 - uv0._v);
-            uv_v1 = height * (1 - uv1._v);
-            uv_v2 = height * (1 - uv2._v);
-      
-            // Fix perpendicular projections
-            if ((uv_u0 == uv_u1 && uv_v0 == uv_v1) || (uv_u0 == uv_u2 && uv_v0 == uv_v2))
-            {
-                uv_u0 -= (uv_u0 > 0.05) ? 0.05 : -0.05;
-                uv_v0 -= (uv_v0 > 0.07) ? 0.07 : -0.07;
-            }
-    
-            if (uv_u2 == uv_u1 && uv_v2 == uv_v1)
-            {
-                uv_u2 -= (uv_u2 > 0.05) ? 0.04 : -0.04;
-                uv_v2 -= (uv_v2 > 0.06) ? 0.06 : -0.06;
-            }
-            
-			if (uvm is Dot3BitmapMaterial || uvm is PhongBitmapMaterial)
-			{
-				bitmapRect = new Rectangle(int(width*minU), int(height*(1 - maxV)), int(width*(maxU-minU)+2), int(height*(maxV-minV)+2));
-            	if (bitmapRect.width == 0)
-            		bitmapRect.width = 1;
-            	if (bitmapRect.height == 0)
-            		bitmapRect.height = 1;
-            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0 - bitmapRect.x, uv_v0 - bitmapRect.y);			
-			} else {
-			
-            	_texturemapping = new Matrix(uv_u1 - uv_u0, uv_v1 - uv_v0, uv_u2 - uv_u0, uv_v2 - uv_v0, uv_u0, uv_v0);
-			}
-            _texturemapping.invert();
-            return _texturemapping;
-        }
-		*/
+        arcane var _mappingmaterial:IUVMaterial;
+		arcane var _bitmapRect:Rectangle;
 		
         arcane function front(projection:Projection):Number
         {
@@ -593,7 +511,6 @@ package away3d.core.mesh
 
         private function onUVChange(event:Event):void
         {
-            _texturemapping = null;
             notifyMappingChange();
         }
 
@@ -608,6 +525,8 @@ package away3d.core.mesh
         private var mappingchanged:FaceEvent;
         protected function notifyMappingChange():void
         {
+        	_dt.texturemapping = null;
+			
             if (!hasEventListener("mappingchanged"))
                 return;
 
@@ -628,6 +547,8 @@ package away3d.core.mesh
         private var materialchanged:FaceEvent;
         protected function notifyMaterialChange():void
         {
+        	_dt.texturemapping = null;
+        	
             if (!hasEventListener("materialchanged"))
                 return;
 

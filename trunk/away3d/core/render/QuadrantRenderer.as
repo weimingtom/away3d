@@ -2,11 +2,14 @@ package away3d.core.render
 {
     import away3d.core.*;
     import away3d.core.draw.*;
+    import away3d.core.material.IUVMaterialContainer;
+    import away3d.core.mesh.Mesh;
     import away3d.core.scene.*;
     import away3d.core.stats.*;
     
     import flash.display.*;
     import flash.geom.*;
+    import flash.utils.Dictionary;
 
     /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
     public class QuadrantRenderer implements IRenderer
@@ -26,23 +29,21 @@ package away3d.core.render
         protected var container:Sprite;
         protected var clip:Clipping;
         
-        protected var projtraverser:ProjectionTraverser;
+        protected var projtraverser:ProjectionTraverser = new ProjectionTraverser();
         
-        protected var pritree:PrimitiveQuadrantTree;
-        protected var lightarray:LightArray;
-        protected var pritraverser:PrimitiveTraverser;
+        protected var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree();
+        protected var lightarray:LightArray = new LightArray();
+        protected var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
         protected var primitives:Array;
+        protected var materials:Dictionary;
         
         protected var qdrntfilter:IPrimitiveQuadrantFilter;
         
-        protected var session:RenderSession;
+        protected var session:RenderSession = new RenderSession();
         
         protected var primitive:DrawPrimitive;
-        
-        protected var statsEvent:StatsEvent;
-        
-        private var quadrantStore:Array = new Array();
-		private var quadrantActive:Array = new Array();
+        protected var triangle:DrawTriangle;
+        protected var object:Object;
 		
         public function render(view:View3D):Array
         {
@@ -52,28 +53,51 @@ package away3d.core.render
             clip = view.clip;
             
             // resolve projection
-			projtraverser = new ProjectionTraverser(view);
+			projtraverser.view = view;
 			scene.traverse(projtraverser);
             
-            quadrantStore = quadrantStore.concat(quadrantActive);
-        	quadrantActive = new Array();
-            pritree = new PrimitiveQuadrantTree(clip, quadrantStore, quadrantActive);
-            lightarray = new LightArray();
-            session = new RenderSession(view, container, lightarray);
-            pritraverser = new PrimitiveTraverser(pritree, lightarray, view, session);
+            // clear lights
+            lightarray.clear();
+            
+            //setup session
+            session.view = view;
+            session.container = container;
+            session.lightarray = lightarray;
+            
+            //setup primitives consumer
+            pritree.clip = clip;
+            
+            //traverse primitives
+            pritraverser.consumer = pritree;
+            pritraverser.session = session;
             scene.traverse(pritraverser);			
 			primitives = pritree.list();
-
+			
+			//apply filters
             for each (qdrntfilter in qdrntfilters)
                 qdrntfilter.filter(pritree, scene, camera, container, clip);
-
+			
+			//update materials
+			materials = new Dictionary();
+			for each (primitive in primitives)
+				if(primitive is DrawTriangle) {
+					triangle = primitive as DrawTriangle;
+					if (triangle.material is IUVMaterialContainer)
+						materials[triangle.source] = triangle.material;
+				}
+			
+			for (object in materials)
+				materials[object].renderMaterial(object as Mesh);
+			
+			//render all primitives
             pritree.render();
             
+			for (object in materials)
+				materials[object].resetMaterial(object as Mesh);
+				
             //dispatch stats
-            statsEvent = new StatsEvent(StatsEvent.RENDER);
-			statsEvent.totalfaces = primitives.length;
-			statsEvent.camera = camera;
-			view.dispatchEvent(statsEvent);
+            if (view.statsOpen)
+            	view.statsPanel.updateStats(primitives.length, camera);
 			
 			return primitives;
         }

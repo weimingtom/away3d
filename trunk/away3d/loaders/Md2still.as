@@ -116,6 +116,8 @@ package away3d.loaders
             //      This part is a little funky.
             data.position = offset_frames;
             readFrames(data, vertices, num_frames);
+            
+            mesh.type = ".Md2";
         }
         
         private function readFrames(data:ByteArray, vertices:Array, num_frames:int):void

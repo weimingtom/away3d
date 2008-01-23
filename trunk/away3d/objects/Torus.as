@@ -6,7 +6,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Torus */ 
     public class Torus extends Mesh
@@ -63,7 +62,8 @@
                     addFace(new Face(d, c, b, null, uvd, uvc, uvb));
                 }
 				
-			Stats.instance.register("Torus",faces.length,"primitive");
+			type = "Torus";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

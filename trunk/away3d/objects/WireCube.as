@@ -5,7 +5,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
 
     /** Wire cube */ 
     public class WireCube extends WireMesh
@@ -53,7 +52,8 @@
             addSegment(new Segment(v111, v110));
             addSegment(new Segment(v100, v110));
 			
-			Stats.instance.register("WireCube",0,"primitive");
+			type = "WireCube";
+        	url = "primitive";
         }
 
     }

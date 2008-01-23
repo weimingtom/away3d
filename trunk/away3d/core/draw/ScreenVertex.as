@@ -44,26 +44,34 @@ package away3d.core.draw
             return new Vertex(x * persp, y * persp, z);
         }
 
-        public static function distanceSqr(a:ScreenVertex, b:ScreenVertex):Number
+        public function distanceSqr(b:ScreenVertex):Number
         {
-            return (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y);
+            return (x - b.x)*(x - b.x) + (y - b.y)*(y - b.y);
         }
 
-        public static function distance(a:ScreenVertex, b:ScreenVertex):Number
+        public function distance(b:ScreenVertex):Number
         {
-            return Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+            return Math.sqrt((x - b.x)*(x - b.x) + (y - b.y)*(y - b.y));
         }
-
-        public static function distortSqr(a:ScreenVertex, b:ScreenVertex, focus:Number):Number
+		
+		internal var faz:Number;
+		internal var fbz:Number;
+		internal var ifmz2:Number;
+		internal var mx2:Number;
+		internal var my2:Number;
+		internal var dx:Number;
+		internal var dy:Number;
+		
+        public function distortSqr(b:ScreenVertex, focus:Number):Number
         {
-            var faz:Number = focus + a.z;
-            var fbz:Number = focus + b.z;
-            var ifmz2:Number = 2 / (faz + fbz);
-            var mx2:Number = (a.x*faz + b.x*fbz)*ifmz2;
-            var my2:Number = (a.y*faz + b.y*fbz)*ifmz2;
+            faz = focus + z;
+            fbz = focus + z;
+            ifmz2 = 2 / (faz + fbz);
+            mx2 = (x*faz + b.x*fbz)*ifmz2;
+            my2 = (y*faz + b.y*fbz)*ifmz2;
 
-            var dx:Number = a.x + b.x - mx2;
-            var dy:Number = a.y + b.y - my2;
+            dx = x + b.x - mx2;
+            dy = y + b.y - my2;
 
             return 50*(dx*dx + dy+dy); // (distort*10)^2
         }

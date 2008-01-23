@@ -55,7 +55,8 @@
 
             mouseEnabled = false;
 			
-			Stats.instance.register("Skybox",faces.length,"primitive");
+			type = "Skybox";
+        	url = "primitive";
         }
     }
     

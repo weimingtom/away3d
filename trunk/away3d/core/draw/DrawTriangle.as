@@ -37,7 +37,6 @@ package away3d.core.draw
         public var bitmapDisplacementX:BitmapData;
         public var bitmapDisplacementY:BitmapData;
         
-        public var bitmapRect:Rectangle;
         public var normalRect:Rectangle;
         
         public var invtexturemapping:Matrix;
@@ -66,30 +65,30 @@ package away3d.core.draw
 
         public final function maxEdgeSqr():Number
         {
-            return Math.max(Math.max(ScreenVertex.distanceSqr(v0, v1),
-                                        ScreenVertex.distanceSqr(v1, v2)),
-                                        ScreenVertex.distanceSqr(v2, v0));
+            return Math.max(Math.max(v0.distanceSqr(v1),
+                                        v1.distanceSqr(v2)),
+                                        v2.distanceSqr(v0));
         }
 
         public final function minEdgeSqr():Number
         {
-            return Math.min(Math.min(ScreenVertex.distanceSqr(v0, v1),
-                                        ScreenVertex.distanceSqr(v1, v2)),
-                                        ScreenVertex.distanceSqr(v2, v0));
+            return Math.min(Math.min(v0.distanceSqr(v1),
+                                        v1.distanceSqr(v2)),
+                                        v2.distanceSqr(v0));
         }
 
         public final function maxDistortSqr(focus:Number):Number
         {
-            return Math.max(Math.max(ScreenVertex.distortSqr(v0, v1, focus),
-                                        ScreenVertex.distortSqr(v1, v2, focus)),
-                                        ScreenVertex.distortSqr(v2, v0, focus));
+            return Math.max(Math.max(v0.distortSqr(v1, focus),
+                                        v1.distortSqr(v2, focus)),
+                                        v2.distortSqr(v0, focus));
         }
 
         public final function minDistortSqr(focus:Number):Number
         {
-            return Math.min(Math.min(ScreenVertex.distortSqr(v0, v1, focus),
-                                        ScreenVertex.distortSqr(v1, v2, focus)),
-                                        ScreenVertex.distortSqr(v2, v0, focus));
+            return Math.min(Math.min(v0.distortSqr(v1, focus),
+                                        v1.distortSqr(v2, focus)),
+                                        v2.distortSqr(v0, focus));
         }
         
 		internal var d01:Number;
@@ -101,9 +100,9 @@ package away3d.core.draw
                 
         public final function acuteAngled():Boolean
         {
-            d01 = ScreenVertex.distanceSqr(v0, v1);
-            d12 = ScreenVertex.distanceSqr(v1, v2);
-            d20 = ScreenVertex.distanceSqr(v2, v0);
+            d01 = v0.distanceSqr(v1);
+            d12 = v1.distanceSqr(v2);
+            d20 = v2.distanceSqr(v0);
             dd01 = d01 * d01;
             dd12 = d12 * d12;
             dd20 = d20 * d20;
@@ -114,10 +113,6 @@ package away3d.core.draw
         internal var materialWidth:Number;
         internal var materialHeight:Number;
         
-        internal var n0:Number3D;
-        internal var n1:Number3D;
-        internal var n2:Number3D;
-        
         internal var _u0:Number;
         internal var _u1:Number;
         internal var _u2:Number;
@@ -125,69 +120,61 @@ package away3d.core.draw
         internal var _v1:Number;
         internal var _v2:Number;
         
-        internal var transformMaterial:IUVTransformMaterial;
         internal var t:Matrix;
         
         public final function transformUV(material:IUVMaterial):Matrix
         {
-        	if (material is IUVTransformMaterial && (transformMaterial = (material as IUVTransformMaterial)).projectionVector) {
-        		if (backface) {
-		    		n0 = new Number3D(face.v0.x, face.v0.y, face.v0.z);
-		    		n2 = new Number3D(face.v1.x, face.v1.y, face.v1.z);        			
-		    		n1 = new Number3D(face.v2.x, face.v2.y, face.v2.z);
-        		} else {
-		    		n0 = new Number3D(face.v0.x, face.v0.y, face.v0.z);
-		    		n1 = new Number3D(face.v1.x, face.v1.y, face.v1.z);
-		    		n2 = new Number3D(face.v2.x, face.v2.y, face.v2.z);
-        		}
-        		_u0 = Number3D.dot(n0, transformMaterial.N);
-	            _u1 = Number3D.dot(n1, transformMaterial.N);
-	            _u2 = Number3D.dot(n2, transformMaterial.N);
-	            _v0 = -Number3D.dot(n0, transformMaterial.M);
-	            _v1 = -Number3D.dot(n1, transformMaterial.M);
-	            _v2 = -Number3D.dot(n2, transformMaterial.M);
-	            
-        	} else {	
-	            materialWidth = material.width,
-	            materialHeight = material.height;
-	            
-	            if (uv0 == null)
-	                return new Matrix();
-	            if (uv1 == null)
-	                return new Matrix();
-	            if (uv2 == null)
-	                return new Matrix();
-	
-	            _u0 = materialWidth * uv0._u,
-	            _u1 = materialWidth * uv1._u,
-	            _u2 = materialWidth * uv2._u,
-	            _v0 = materialHeight * (1 - uv0._v),
-	            _v1 = materialHeight * (1 - uv1._v),
-	            _v2 = materialHeight * (1 - uv2._v);
-        	}
+            materialWidth = material.width,
+            materialHeight = material.height;
+            
+            if (uv0 == null || uv1 == null || uv2 == null)
+                return null;
+
+            _u0 = materialWidth * uv0._u;
+            _u1 = materialWidth * uv1._u;
+            _u2 = materialWidth * uv2._u;
+            _v0 = materialHeight * (1 - uv0._v);
+            _v1 = materialHeight * (1 - uv1._v);
+            _v2 = materialHeight * (1 - uv2._v);
       
             // Fix perpendicular projections
             if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
             {
-                _u0 -= (_u0 > 0.05) ? 0.05 : -0.05;
-                _v0 -= (_v0 > 0.07) ? 0.07 : -0.07;
+            	if (_u0 > 0.05)
+                	_u0 -= 0.05;
+                else
+                	_u0 += 0.05;
+                	
+                if (_v0 > 0.07)           
+                	_v0 -= 0.07;
+                else
+                	_v0 += 0.07;
             }
     
             if (_u2 == _u1 && _v2 == _v1)
             {
-                _u2 -= (_u2 > 0.05) ? 0.04 : -0.04;
-                _v2 -= (_v2 > 0.06) ? 0.06 : -0.06;
+            	if (_u2 > 0.04)
+                	_u2 -= 0.04;
+                else
+                	_u2 += 0.04;
+                	
+                if (_v2 > 0.06)           
+                	_v2 -= 0.06;
+                else
+                	_v2 += 0.06;
             }
             
             if (material is IUVMaterialContainer)
             {
-            	bitmapRect = new Rectangle(int(materialWidth*face.minU), int(materialHeight*(1 - face.maxV)), int(materialWidth*(face.maxU-face.minU)+2), int(materialHeight*(face.maxV-face.minV)+2));
-            	return new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0 - bitmapRect.x, _v0 - bitmapRect.y);
+            	invtexturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0 - face._bitmapRect.x, _v0 - face._bitmapRect.y);
+            	texturemapping = invtexturemapping.clone();
+            	texturemapping.invert();
+            	return texturemapping;
             }
             
-            t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
-            t.invert();
-            return t;
+            texturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
+            texturemapping.invert();
+            return texturemapping;
         }
         
         internal var focus:Number;
@@ -342,27 +329,27 @@ package away3d.core.draw
 
         public function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
         {
-            if (ScreenVertex.distanceSqr(v0, v12) < ScreenVertex.distanceSqr(v01, v2))
+            if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
             {
                 return [
-                    create(material, projection,  v0, v01, v12,  uv0, uv01, uv12),
-                    create(material, projection, v01,  v1, v12, uv01,  uv1, uv12),
-                    create(material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
+                    create(face, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
+                    create(face, material, projection, v01,  v1, v12, uv01,  uv1, uv12),
+                    create(face, material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
             }
             else
             {
                 return [
-                    create(material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
-                    create(material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
-                    create(material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
+                    create(face, material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
+                    create(face, material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
+                    create(face, material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
             }
         }
         
         public final function bisect(focus:Number):Array
         {
-            var d01:Number = ScreenVertex.distanceSqr(v0, v1),
-                d12:Number = ScreenVertex.distanceSqr(v1, v2),
-                d20:Number = ScreenVertex.distanceSqr(v2, v0);
+            d01 = v0.distanceSqr(v1);
+            d12 = v1.distanceSqr(v2);
+            d20 = v2.distanceSqr(v0);
 
             if ((d12 >= d01) && (d12 >= d20))
                 return bisect12(focus);
@@ -375,9 +362,9 @@ package away3d.core.draw
 
         public final function distortbisect(focus:Number):Array
         {
-            var d01:Number = ScreenVertex.distortSqr(v0, v1, focus),
-                d12:Number = ScreenVertex.distortSqr(v1, v2, focus),
-                d20:Number = ScreenVertex.distortSqr(v2, v0, focus);
+            d01 = v0.distortSqr(v1, focus),
+            d12 = v1.distortSqr(v2, focus),
+            d20 = v2.distortSqr(v0, focus);
 
             if ((d12 >= d01) && (d12 >= d20))
                 return bisect12(focus);
@@ -393,8 +380,8 @@ package away3d.core.draw
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
                 uv01:UV = UV.median(uv0, uv1);
             return [
-                create(material, projection, v2, v0, v01, uv2, uv0, uv01),
-                create(material, projection, v01, v1, v2, uv01, uv1, uv2) 
+                create(face, material, projection, v2, v0, v01, uv2, uv0, uv01),
+                create(face, material, projection, v01, v1, v2, uv01, uv1, uv2) 
             ];
         }
 
@@ -403,8 +390,8 @@ package away3d.core.draw
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
                 uv12:UV = UV.median(uv1, uv2);
             return [
-                create(material, projection, v0, v1, v12, uv0, uv1, uv12),
-                create(material, projection, v12, v2, v0, uv12, uv2, uv0) 
+                create(face, material, projection, v0, v1, v12, uv0, uv1, uv12),
+                create(face, material, projection, v12, v2, v0, uv12, uv2, uv0) 
             ];
         }
 
@@ -413,8 +400,8 @@ package away3d.core.draw
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
                 uv20:UV = UV.median(uv2, uv0);
             return [
-                create(material, projection, v1, v2, v20, uv1, uv2, uv20),
-                create(material, projection, v20, v0, v1, uv20, uv0, uv1) 
+                create(face, material, projection, v1, v2, v20, uv1, uv2, uv20),
+                create(face, material, projection, v20, v0, v1, uv20, uv0, uv1) 
             ];                                                
         }
         
@@ -438,10 +425,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(material, projection, v0, v01, v20, uv0, uv01, uv20),
-                create(material, projection, v1, v12, v01, uv1, uv12, uv01),
-                create(material, projection, v2, v20, v12, uv2, uv20, uv12),
-                create(material, projection, v01, v12, v20, uv01, uv12, uv20)
+                create(face, material, projection, v0, v01, v20, uv0, uv01, uv20),
+                create(face, material, projection, v1, v12, v01, uv1, uv12, uv01),
+                create(face, material, projection, v2, v20, v12, uv2, uv20, uv12),
+                create(face, material, projection, v01, v12, v20, uv01, uv12, uv20)
             ];
         }
 

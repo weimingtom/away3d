@@ -843,6 +843,9 @@ package away3d.objects
             f(157,10,8,217,259,258);
             f(157,139,1,217,219,260);
             f(10,157,1,261,217,260);
+            
+            type = "SeaTurtle";
+        	url = "primitive";
         }
     }
 }

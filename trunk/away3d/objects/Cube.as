@@ -1,10 +1,10 @@
 ﻿package away3d.objects
 {
     import away3d.core.*;
-    import away3d.core.mesh.*;
     import away3d.core.material.*;
+    import away3d.core.mesh.*;
+    import away3d.core.stats.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Cube */ 
     public class Cube extends Mesh
@@ -14,13 +14,19 @@
             super(init);
             
             init = Init.parse(init);
-
+			
+			
             var size:Number  = init.getNumber("size", 100, {min:0});
             var width:Number  = init.getNumber("width",  size, {min:0});
             var height:Number = init.getNumber("height", size, {min:0});
             var depth:Number  = init.getNumber("depth",  size, {min:0});
-            //var segments:Number  = init.getNumber("segments", 1, {min:1});
             var faces:Init  = init.getInit("faces");
+            
+            buildCube(width, height, depth, faces);
+        }
+        
+        public function buildCube(width:Number, height:Number, depth:Number, faces:Init):void
+        {
             var left:ITriangleMaterial   = faces.getMaterial("left");
             var right:ITriangleMaterial  = faces.getMaterial("right");
             var bottom:ITriangleMaterial = faces.getMaterial("bottom");
@@ -60,7 +66,9 @@
             //back face
             addFace(new Face(v001, v011, v101, back, uvd, uva, uvc));
             addFace(new Face(v101, v011, v111, back, uvc, uva, uvb));
+            
+            type = "Cube";
+        	url = "primitive";
         }
-    }
-    
+    } 
 }

@@ -6,7 +6,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Wire sphere */ 
     public class WireSphere extends WireMesh
@@ -68,7 +67,8 @@
                         addSegment(new Segment(a, b));
                 }
 				
-			Stats.instance.register("WireSphere",0,"primitive");
+			type = "WireSphere";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

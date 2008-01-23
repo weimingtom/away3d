@@ -34,7 +34,8 @@
 
             material = Cast.material(sprite);
 			
-			Stats.instance.register("LogoCube",1,"primitive");
+			type = "LogoCube";
+        	url = "primitive";
         }
     }
     

@@ -38,6 +38,10 @@ package away3d.core.scene
         public var camera:Camera3D;
         /** Enables/Disables stats panel */
         public var stats:Boolean;
+        /** Determines whether stats panel is currently open */
+        public var statsOpen:Boolean;
+        /** Sprite instance for stats panel */
+        public var statsPanel:Stats;
         /** Clipping area for the view */
         public var clip:Clipping;
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
@@ -98,8 +102,8 @@ package away3d.core.scene
 		/** Create and registers new container for the stats panel */
 		public function createStatsMenu(event:Event):void
 		{
-			var framerate:Number = stage.frameRate;
-			Stats.instance.generateMenu(this, stage, framerate); 
+			statsPanel = new Stats(this, stage.frameRate); 
+			statsOpen = false;
 		}
 		
         internal var i:int;
@@ -235,22 +239,6 @@ package away3d.core.scene
                 tar = tar.parent;
             }       
         }
-
-        /*
-        public function findHit(x:Number, y:Number):Object3D
-        {
-            var callback:OldFindHitCallback = new OldFindHitCallback(x, y, 0);
-            renderCamera(camera, callback);
-            return callback;
-        }
-
-        public function findNearest(x:Number, y:Number):Object3D
-        {
-            var callback:OldFindHitCallback = new OldFindHitCallback(x, y);
-            renderCamera(camera, callback);
-            return callback;
-        }
-        */
 
         public function addOnMouseMove(listener:Function):void
         {

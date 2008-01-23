@@ -6,7 +6,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Wire cone */ 
     public class WireCone extends WireMesh
@@ -76,7 +75,8 @@
                         addSegment(new Segment(a, b));
                 }
 			
-			Stats.instance.register("WireCone",0,"primitive");
+			type = "WireCone";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex
