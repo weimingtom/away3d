@@ -16,8 +16,6 @@ package away3d.core.render
     	private var _sessions:Array;
         private var _lights:ILightConsumer;
 		
-		private var projection:Projection;
-		
 		public function set consumer(val:IPrimitiveConsumer):void
 		{
 			_consumer = val;
@@ -55,8 +53,7 @@ package away3d.core.render
         {
             if (node is IPrimitiveProvider)
             {
-                projection = new Projection(node.viewTransform, _focus, _zoom);
-                (node as IPrimitiveProvider).primitives(projection, _consumer, _session);
+                (node as IPrimitiveProvider).primitives(_consumer, _session);
                 _session = node.session;
             }
 

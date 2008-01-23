@@ -21,8 +21,13 @@ package away3d.core.material
         internal var _bitmap:BitmapData;
         internal var _transform:Matrix;
         internal var _projectionVector:Number3D;
+        
         internal var _N:Number3D = new Number3D();
         internal var _M:Number3D = new Number3D();
+        
+        internal var UP:Number3D = new Number3D(0, 1, 0);
+        internal var RIGHT:Number3D = new Number3D(1, 0, 0);
+        
         internal var _zeroPoint:Point = new Point(0, 0);
         internal var _bitmapRect:Rectangle;
         
@@ -68,8 +73,8 @@ package away3d.core.material
         {
         	_projectionVector = val;
         	if (_projectionVector) {
-        		_N.cross(_projectionVector, new Number3D(0,1,0));
-	            if (!_N.modulo) _N = new Number3D(1,0,0);
+        		_N.cross(_projectionVector, UP);
+	            if (!_N.modulo) _N = RIGHT;
 	            _M.cross(_N, _projectionVector);
 	            _N.cross(_M, _projectionVector);
 	            _N.normalize();

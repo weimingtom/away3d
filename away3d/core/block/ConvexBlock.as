@@ -30,20 +30,20 @@ package away3d.core.block
             debug = init.getBoolean("debug", false);
         }
     
-        public function blockers(projection:Projection, consumer:IBlockerConsumer):void
+        public function blockers(consumer:IBlockerConsumer):void
         {
-            consumer.blocker(blocker(projection));
+            consumer.blocker(blocker());
         }
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
+        	super.primitives(consumer, session);
         	
             if (debug)
-                consumer.primitive(blocker(projection));
+                consumer.primitive(blocker());
         }
 
-        public function blocker(projection:Projection):Blocker
+        public function blocker():Blocker
         {
             if (vertices.length < 3)
                 return null;

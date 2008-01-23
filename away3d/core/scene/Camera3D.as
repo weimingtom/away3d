@@ -37,7 +37,9 @@ package away3d.core.scene
         	_view.inverse(_view);
         	return _view;
         }
-    
+    	
+    	internal var screenProjection:Projection = new Projection();
+    	
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
             use namespace arcane;
@@ -45,7 +47,10 @@ package away3d.core.scene
             if (vertex == null)
                 vertex = new Vertex(0,0,0);
 			object.viewTransform.multiply(view, object.sceneTransform);
-            return vertex.project(new Projection(object.viewTransform, focus, zoom));
+			screenProjection.view = object.viewTransform;
+			screenProjection.focus = focus;
+			screenProjection.zoom = zoom;
+            return vertex.project(screenProjection);
         }
     
         private var _flipY:Matrix3D = new Matrix3D();

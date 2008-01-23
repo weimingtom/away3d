@@ -13,8 +13,6 @@ package away3d.core.render
     	private var _view:View3D;
         private var _consumer:IBlockerConsumer;
 		
-		private var projection:Projection;
-		
 		public function set view(val:View3D):void
 		{
 			_view = val;
@@ -42,8 +40,7 @@ package away3d.core.render
         {
             if (node is IBlockerProvider)
             {
-                projection = new Projection(node.viewTransform, _view.camera.focus, _view.camera.zoom);
-                (node as IBlockerProvider).blockers(projection, _consumer);
+                (node as IBlockerProvider).blockers(_consumer);
             }
         }
 

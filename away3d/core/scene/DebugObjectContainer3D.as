@@ -27,12 +27,12 @@ package away3d.core.scene
         private var _debugboundingbox:WireCube;
         private var _debugboundingsphere:WireSphere;
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(consumer:IPrimitiveConsumer, session:RenderSession):void
         {
             if (children.length == 0)
                 return;
 			
-			super.primitives(projection, consumer, session);
+			super.primitives(consumer, session);
 			
             if (debugbb)
             {
@@ -62,13 +62,13 @@ package away3d.core.scene
                 _debugboundingbox.v101.z = maxZ;
                 _debugboundingbox.v110.z = minZ;
                 _debugboundingbox.v111.z = maxZ;
-                _debugboundingbox.primitives(projection, consumer, session);
+                _debugboundingbox.primitives(consumer, session);
             }
 
             if (debugbs)
             {
                 _debugboundingsphere = new WireSphere({material:"#cyan", radius:radius, segmentsW:16, segmentsH:12});
-                _debugboundingsphere.primitives(projection, consumer, session);
+                _debugboundingsphere.primitives(consumer, session);
             }
         }
     }

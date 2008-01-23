@@ -44,6 +44,8 @@ package away3d.core.scene
         public var statsPanel:Stats;
         /** Clipping area for the view */
         public var clip:Clipping;
+        /** Default clipping area for the view */
+        private var defaultclip:Clipping = new Clipping();
         /** Renderer that is used for rendering <br> @see away3d.core.render.Renderer */
         public var renderer:IRenderer;
 		
@@ -72,7 +74,8 @@ package away3d.core.scene
         {
             init = Init.parse(init);
 			
-			stats = init.getBoolean("stats", true)
+			stats = init.getBoolean("stats", true);
+			clip = init.getObject("clip", Clipping);
             scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
             camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
             renderer = init.getObject("renderer") || new BasicRenderer();
@@ -94,7 +97,10 @@ package away3d.core.scene
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
             
-             if (stats){
+            if (!clip)
+            	clip = defaultclip;
+            
+            if (stats){
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);
 			}
 		}
@@ -135,8 +141,9 @@ package away3d.core.scene
             clear();
 
             var oldclip:Clipping = clip;
-
-            clip = clip || Clipping.screen(this);
+			
+			if (clip == defaultclip)
+            	clip = defaultclip.screen(this);
 
             primitives = renderer.render(this);
 

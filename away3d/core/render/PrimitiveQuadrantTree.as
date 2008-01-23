@@ -17,7 +17,7 @@ package away3d.core.render
         private var _clip:Clipping;
 		private var _rect:RectangleClipping;
 		
-		public function set clip(val:Clipping)
+		public function set clip(val:Clipping):void
 		{
 			_clip = val;
 			_rect = _clip.asRectangleClipping();

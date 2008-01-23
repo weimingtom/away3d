@@ -1,12 +1,14 @@
 package away3d.core.render
 {
     import away3d.core.draw.*;
-    import flash.geom.*;
+    
     import flash.display.*;
+    import flash.geom.*;
 
     /** Rendering clipping, base class for no clipping */
     public class Clipping
     {
+    	
         public function Clipping()
         {
         }
@@ -21,20 +23,38 @@ package away3d.core.render
             return true;
         }
 
+    	internal var rectangleClipping:RectangleClipping;
+    	
         public function asRectangleClipping():RectangleClipping
         {
-            return new RectangleClipping(-1000000, -1000000, 1000000, 1000000);
+        	if (!rectangleClipping)
+        		rectangleClipping = new RectangleClipping();
+        	rectangleClipping.minX = -1000000;
+        	rectangleClipping.minY = -1000000;
+        	rectangleClipping.maxX = 1000000;
+        	rectangleClipping.maxY = 1000000;
+            return rectangleClipping;
         }
-
-        public static function screen(container:Sprite):Clipping
+        
+    	internal var zeroPoint:Point = new Point(0, 0);
+		internal var globalPoint:Point;
+		
+        public function screen(container:Sprite):Clipping
         {
             if (container.stage.align == StageAlign.TOP_LEFT)
             {
-                var lt:Point = container.globalToLocal(new Point(0, 0));
-                return new RectangleClipping(lt.x, lt.y, lt.x+container.stage.stageWidth, lt.y+container.stage.stageHeight);
+            	if (!rectangleClipping)
+        			rectangleClipping = new RectangleClipping();
+        		
+                globalPoint = container.globalToLocal(zeroPoint);
+                
+                rectangleClipping.maxX = (rectangleClipping.minX = globalPoint.x) + container.stage.stageWidth;
+                rectangleClipping.maxY = (rectangleClipping.minY = globalPoint.y) + container.stage.stageHeight;
+                
+                return rectangleClipping;
             }
             else
-                return new Clipping(); // no clipping
+                return this; // no clipping
         }
     }
 }

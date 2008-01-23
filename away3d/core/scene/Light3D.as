@@ -69,9 +69,9 @@ package away3d.core.scene
             consumer.pointLight(transform, this, color, ambient, diffuse, specular);
         }
 
-        override public function primitives(projection:Projection, consumer:IPrimitiveConsumer, session:RenderSession):void
+        override public function primitives(consumer:IPrimitiveConsumer, session:RenderSession):void
         {
-        	super.primitives(projection, consumer, session);
+        	super.primitives(consumer, session);
         	
             use namespace arcane;
 
