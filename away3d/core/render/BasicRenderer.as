@@ -29,24 +29,25 @@ package away3d.core.render
         protected var container:Sprite;
         protected var clip:Clipping;
         
-        protected var projtraverser:ProjectionTraverser;
+        protected var projtraverser:ProjectionTraverser = new ProjectionTraverser();
         
-        protected var blockerarray:BlockerArray;
-        protected var blocktraverser:BlockerTraverser;
+        protected var blockerarray:BlockerArray = new BlockerArray();
+        protected var blocktraverser:BlockerTraverser = new BlockerTraverser();
         protected var blockers:Array;
         
-        public var priarray:PrimitiveArray;
-        protected var lightarray:LightArray;
-        protected var pritraverser:PrimitiveTraverser;
+        protected var priarray:PrimitiveArray = new PrimitiveArray();
+        protected var lightarray:LightArray = new LightArray();
+        protected var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
         protected var primitives:Array;
+        protected var materials:Dictionary;
         
         protected var filter:IPrimitiveFilter;
         
-        protected var session:RenderSession;
+        protected var session:RenderSession = new RenderSession();
         
         protected var primitive:DrawPrimitive;
-        
-        protected var statsEvent:StatsEvent;
+        protected var triangle:DrawTriangle;
+        protected var object:Object;
         
         public function render(view:View3D):Array
         {
@@ -57,21 +58,31 @@ package away3d.core.render
             clip = view.clip;
             
             // resolve projection
-            projtraverser = new ProjectionTraverser(view);
+            projtraverser.view = view;
             scene.traverse(projtraverser);
                     
             // get blockers for occlusion culling
-            blockerarray = new BlockerArray(clip);
-            blocktraverser = new BlockerTraverser(blockerarray, view);
+            blockerarray.clip = clip;
+            blocktraverser.consumer = blockerarray
+            blocktraverser.view = view;
             scene.traverse(blocktraverser);
             blockers = blockerarray.list();
-
             
-            // get lights and drawing primitives
-            priarray = new PrimitiveArray(clip, blockers);
-            lightarray = new LightArray();
-            session = new RenderSession(view, container, lightarray);
-            pritraverser = new PrimitiveTraverser(priarray, lightarray, view, session);
+            // clear lights
+            lightarray.clear();
+            
+            //setup session
+            session.view = view;
+            session.container = container;
+            session.lightarray = lightarray;
+			
+			//setup primitives consumer
+            priarray.clip = clip;
+            priarray.blockers = blockers;
+            
+            //traverse primitives
+            pritraverser.consumer = priarray;
+            pritraverser.session = session;
             scene.traverse(pritraverser);
             primitives = priarray.list();
             
@@ -79,16 +90,29 @@ package away3d.core.render
             for each (filter in filters)
                 primitives = filter.filter(primitives, scene, camera, container, clip);
 
-
-            // render all
+			//update object-based materials
+			materials = new Dictionary();
+			for each (primitive in primitives)
+				if(primitive is DrawTriangle) {
+					triangle = primitive as DrawTriangle;
+					if (triangle.material is IUVMaterialContainer)
+						materials[triangle.source] = triangle.material;
+				}
+			
+			for (object in materials)
+				materials[object].renderMaterial(object as Mesh);
+			
+            // render all primitives
             for each (primitive in primitives)
                 primitive.render();
-            
+			
+			//reset materials
+			for (object in materials)
+				materials[object].resetMaterial(object as Mesh);
+			
             //dispatch stats
-            statsEvent = new StatsEvent(StatsEvent.RENDER);
-            statsEvent.totalfaces = primitives.length;
-            statsEvent.camera = camera;
-            view.dispatchEvent(statsEvent);
+            if (view.statsOpen)
+            	view.statsPanel.updateStats(primitives.length, camera);
             
             return primitives;
         }

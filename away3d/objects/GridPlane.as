@@ -33,7 +33,8 @@
             for (var j:int = 0; j <= segmentsH; j++)
                 addSegment(new Segment(new Vertex(-0.5*width, 0, (j/segmentsH - 0.5)*height), new Vertex(0.5*width, 0, (j/segmentsH - 0.5)*height)));
        
-	   		Stats.instance.register("GridPlane",segmentsW+segmentsH,"primitive");
+	   		type = "GridPlane";
+        	url = "primitive";
 		}
     }
 }

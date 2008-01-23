@@ -3,6 +3,8 @@ package away3d.core.material
     import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
+    import away3d.core.mesh.Face;
+    import away3d.core.mesh.Mesh;
     import away3d.core.render.*;
     import away3d.core.scene.*;
     import away3d.core.utils.*;
@@ -14,14 +16,18 @@ package away3d.core.material
     /** Basic bitmap texture material */
     public class BitmapMaterial implements ITriangleMaterial, IUVTransformMaterial
     {
+    	use namespace arcane;
+    	
         internal var _bitmap:BitmapData;
         internal var _transform:Matrix;
         internal var _projectionVector:Number3D;
-        internal var _N:Number3D;
-        internal var _M:Number3D;
+        internal var _N:Number3D = new Number3D();
+        internal var _M:Number3D = new Number3D();
+        internal var _zeroPoint:Point = new Point(0, 0);
+        internal var _bitmapRect:Rectangle;
         
         internal var _transformDirty:Boolean;
-        public var _bitmapDictionary:Dictionary = new Dictionary();
+        public var _bitmapDictionary:Dictionary = new Dictionary(true);
         public var smooth:Boolean;
         public var debug:Boolean;
         public var repeat:Boolean;
@@ -50,7 +56,6 @@ package away3d.core.material
         public function set transform(val:Matrix):void
         {
         	_transform = val;
-        	_transformDirty = true;
         	clearBitmapDictionary()
         }
         
@@ -63,14 +68,13 @@ package away3d.core.material
         {
         	_projectionVector = val;
         	if (_projectionVector) {
-        		_N = Number3D.cross(_projectionVector, new Number3D(0,1,0));
+        		_N.cross(_projectionVector, new Number3D(0,1,0));
 	            if (!_N.modulo) _N = new Number3D(1,0,0);
-	            _M = Number3D.cross(_N, _projectionVector);
-	            _N = Number3D.cross(_M, _projectionVector);
+	            _M.cross(_N, _projectionVector);
+	            _N.cross(_M, _projectionVector);
 	            _N.normalize();
 	            _M.normalize();
         	}
-        	_transformDirty = true;
         	clearBitmapDictionary();
         }
         
@@ -79,24 +83,14 @@ package away3d.core.material
         	return _bitmapDictionary
         }
         
-        internal var bitmapData:BitmapData;
+        internal var bitmapDictionaryVO:BitmapDictionaryVO;
         
         public function clearBitmapDictionary():void
         {
-        	for each (bitmapData in _bitmapDictionary)
-        		bitmapData.dispose();
-        	
-        	_bitmapDictionary = new Dictionary();
-        }
-        
-        public function get N():Number3D
-        {
-        	return _N;
-        }
-        
-        public function get M():Number3D
-        {
-        	return _M;
+        	_transformDirty = true;
+        	for each (bitmapDictionaryVO in _bitmapDictionary)
+        		if (!bitmapDictionaryVO.dirty)
+        			bitmapDictionaryVO.clear();
         }
              
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
@@ -115,6 +109,58 @@ package away3d.core.material
             precision = precision * precision * 1.4;
             
             createVertexArray();
+        }
+        
+        internal var face:Face;
+        internal var w:Number;
+        internal var h:Number;
+        
+        public function renderMaterial(source:Mesh, bitmapRect:Rectangle, bitmap:BitmapData):void
+        {
+        	/*
+    		if (_transform) {
+				mapping = _transform.clone();
+			} else {
+				mapping = new Matrix();
+			}
+        	
+        	if (!_bitmapDictionary[source])
+        		_bitmapDictionary[source] = bitmap.clone();
+        	
+        	if (_projectionVector) {
+        		w = bitmap.width;
+        		h = bitmap.height;
+        		for each (face in source.faces) {
+        			if (face._dt.texturemapping && !_bitmapDictionary[face]) {
+        				_bitmapDictionary[face] = _bitmapDictionary[source];
+	        			mapping.concat(face._dt.transformUV(this));
+						mapping.concat(face._dt.invtexturemapping);
+		        		graphics = shape.graphics;
+						graphics.clear();
+						graphics.beginBitmapFill(_bitmap, mapping, repeat, smooth);
+						graphics.moveTo(face._uv0._u*w, (1 - face._uv0._v)*h);
+			            graphics.lineTo(face._uv1._u*w, (1 - face._uv1._v)*h);
+			            graphics.lineTo(face._uv2._u*w, (1 - face._uv2._v)*h);
+			            graphics.endFill();
+			            _bitmapDictionary[source].draw(shape);
+			        }
+        		}
+        	} else {
+				mapping.scale(bitmapRect.width/width, bitmapRect.height/height)
+				
+				if (mapping.a == 1 && mapping.d == 1 && mapping.b == 0 && mapping.c == 0) {
+					_bitmapDictionary[source].copyPixels(_bitmap, bitmapRect, _zeroPoint);
+				}else {
+					
+					graphics = shape.graphics;
+					graphics.clear();
+					graphics.beginBitmapFill(_bitmap, mapping, repeat, smooth);
+					graphics.drawRect(0, 0, bitmapRect.width, bitmapRect.height);
+		            graphics.endFill();
+					_bitmapDictionary[source].draw(shape);
+					
+				}
+        	}*/
         }
         
         internal var mapping:Matrix;
@@ -147,14 +193,154 @@ package away3d.core.material
         	//check local transform or if texturemapping is null
         	if (_transformDirty || !tri.texturemapping) {
         		_transformDirty = false;
-        		tri.texturemapping = tri.transformUV(this);
+        		//use projectUV if projection vector detected
+        		if (projectionVector)
+        			tri.texturemapping = projectUV(tri);
+        		else
+        			tri.transformUV(this);
         		if (_transform) {
-	        		var mapping:Matrix = _transform.clone();
+	        		mapping = _transform.clone();
 	        		mapping.concat(tri.texturemapping);
 	        		return tri.texturemapping = mapping;
 	        	}
         	}
         	return tri.texturemapping;
+		}
+        
+        internal var _u0:Number;
+        internal var _u1:Number;
+        internal var _u2:Number;
+        internal var _v0:Number;
+        internal var _v1:Number;
+        internal var _v2:Number;
+        
+        internal var v0x:Number;
+        internal var v0y:Number;
+        internal var v0z:Number;
+        internal var v1x:Number;
+        internal var v1y:Number;
+        internal var v1z:Number;
+        internal var v2x:Number;
+        internal var v2y:Number;
+        internal var v2z:Number;
+        
+        internal var t:Matrix;
+        
+		public final function projectUV(tri:DrawTriangle):Matrix
+        {
+        	face = tri.face;
+        	
+    		if (tri.backface) {
+	        	v0x = face.v0.x;
+	        	v0y = face.v0.y;
+	        	v0z = face.v0.z;
+	        	v2x = face.v1.x;
+	        	v2y = face.v1.y;
+	        	v2z = face.v1.z;
+	        	v1x = face.v2.x;
+	        	v1y = face.v2.y;
+	        	v1z = face.v2.z;
+	    	} else {
+	        	v0x = face.v0.x;
+	        	v0y = face.v0.y;
+	        	v0z = face.v0.z;
+	        	v1x = face.v1.x;
+	        	v1y = face.v1.y;
+	        	v1z = face.v1.z;
+	        	v2x = face.v2.x;
+	        	v2y = face.v2.y;
+	        	v2z = face.v2.z;
+    		}
+    		
+    		_u0 = v0x*_N.x + v0y*_N.y + v0z*_N.z;
+    		_u1 = v1x*_N.x + v1y*_N.y + v1z*_N.z;
+    		_u2 = v2x*_N.x + v2y*_N.y + v2z*_N.z;
+    		_v0 = v0x*_M.x + v0y*_M.y + v0z*_M.z;
+    		_v1 = v1x*_M.x + v1y*_M.y + v1z*_M.z;
+    		_v2 = v2x*_M.x + v2y*_M.y + v2z*_M.z;
+      
+            // Fix perpendicular projections
+            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
+            {
+            	if (_u0 > 0.05)
+                	_u0 -= 0.05;
+                else
+                	_u0 += 0.05;
+                	
+                if (_v0 > 0.07)           
+                	_v0 -= 0.07;
+                else
+                	_v0 += 0.07;
+            }
+    
+            if (_u2 == _u1 && _v2 == _v1)
+            {
+            	if (_u2 > 0.04)
+                	_u2 -= 0.04;
+                else
+                	_u2 += 0.04;
+                	
+                if (_v2 > 0.06)           
+                	_v2 -= 0.06;
+                else
+                	_v2 += 0.06;
+            }
+            
+            t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
+            t.invert();
+            return t;
+        }
+        
+		internal var shape:Shape = new Shape();
+		internal var graphics:Graphics;
+		internal var bitmapRect:Rectangle;
+		
+		public function renderFace(face:Face, bitmapRect:Rectangle):void
+		{
+			//retrieve the transform
+			if (_transform)
+				mapping = _transform.clone();
+			else
+				mapping = new Matrix();
+			
+			//update the transform based on scaling or projection vector
+			if (_projectionVector) {
+				mapping.concat(projectUV(face._dt));
+				mapping.concat(face._dt.invtexturemapping);
+				bitmapRect = face._bitmapRect;
+			} else {
+				mapping.scale(bitmapRect.width/width, bitmapRect.height/height);
+			}
+			
+			//update VO
+			bitmapDictionaryVO = _bitmapDictionary[face];
+			if (!bitmapDictionaryVO)
+				bitmapDictionaryVO = _bitmapDictionary[face] = new BitmapDictionaryVO(bitmapRect.width, bitmapRect.height);	
+			else
+				bitmapDictionaryVO.dirty = false;
+			
+			//create source VO for non-projected bitmaps
+			if (!_projectionVector)
+				_bitmapDictionary[face.parent] = bitmapDictionaryVO;
+			
+			//draw the bitmap
+			if (mapping.a == 1 && mapping.d == 1 && mapping.b == 0 && mapping.c == 0) {
+				//speedier version for non-transformed bitmap
+				bitmapDictionaryVO.bitmap.copyPixels(_bitmap, bitmapRect, _zeroPoint);
+			}else {
+				graphics = shape.graphics;
+				graphics.clear();
+				graphics.beginBitmapFill(_bitmap, mapping, repeat, smooth);
+				graphics.drawRect(0, 0, bitmapRect.width, bitmapRect.height);
+	            graphics.endFill();
+				bitmapDictionaryVO.bitmap.draw(shape);
+				
+			}
+		}
+		
+		public function transformProjection():void
+		{
+			
 		}
 		
 		public function shadeTriangle(tri:DrawTriangle):void

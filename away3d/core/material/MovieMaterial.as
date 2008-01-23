@@ -52,7 +52,7 @@ package away3d.core.material
             auto = init.getBoolean("auto", true);
             interactive = init.getBoolean("interactive", false);
 
-            _bitmap = new BitmapData(movie.width, movie.height, transparent);
+            _bitmap = new BitmapData(movie.width, movie.height, transparent, (transparent)? 0x00FFFFFF : 0xFF000000);
         }
         
         public override function renderTriangle(tri:DrawTriangle):void
@@ -85,7 +85,7 @@ package away3d.core.material
         
         public function update():void
         {
-            _bitmap.fillRect(_bitmap.rect, 0);
+            if(transparent ) _bitmap.fillRect(_bitmap.rect, 0x00FFFFFF);
             _bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
         }
 		

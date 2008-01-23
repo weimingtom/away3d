@@ -7,20 +7,34 @@ package away3d.core.render
     /** Traverser that gathers drawing primitives to render the scene */
     public class PrimitiveTraverser extends Traverser
     {
-    	protected var view:View3D;
-    	protected var session:RenderSession;
-    	protected var sessions:Array = new Array();
-        private var consumer:IPrimitiveConsumer;
-        private var lights:ILightConsumer;
+        private var _consumer:IPrimitiveConsumer;
+    	private var _session:RenderSession;
+    	
+    	private var _view:View3D;
+    	private var _focus:Number;
+    	private var _zoom:Number;
+    	private var _sessions:Array;
+        private var _lights:ILightConsumer;
 		
 		private var projection:Projection;
 		
-        public function PrimitiveTraverser(consumer:IPrimitiveConsumer, lights:ILightConsumer, view:View3D, session:RenderSession)
+		public function set consumer(val:IPrimitiveConsumer):void
+		{
+			_consumer = val;
+		}
+		
+		public function set session(val:RenderSession):void
+		{
+			_session = val;
+			_sessions = [];
+			_lights = _session.lightarray;
+			_view = _session.view;
+			_focus = _view.camera.focus;
+			_zoom = _view.camera.zoom;
+		}
+				
+        public function PrimitiveTraverser()
         {
-        	this.view = view;
-        	this.session = session;
-            this.consumer = consumer;
-            this.lights = lights;
         }
 		
 		public override function match(node:Object3D):Boolean
@@ -28,33 +42,33 @@ package away3d.core.render
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(view);
+                return (node as ILODObject).matchLOD(_view);
             return true;
         }
                 
         public override function enter(node:Object3D):void
         {
-        	sessions.push(session);
+        	_sessions.push(_session);
         }
         
         public override function apply(node:Object3D):void
         {
             if (node is IPrimitiveProvider)
             {
-                projection = new Projection(node.viewTransform, view.camera.focus, view.camera.zoom);
-                (node as IPrimitiveProvider).primitives(projection, consumer, session);
-                session = node.session;
+                projection = new Projection(node.viewTransform, _focus, _zoom);
+                (node as IPrimitiveProvider).primitives(projection, _consumer, _session);
+                _session = node.session;
             }
 
             if (node is ILightProvider)
             {
-                (node as ILightProvider).light(node.viewTransform, lights);
+                (node as ILightProvider).light(node.viewTransform, _lights);
             }
         }
         
         public override function leave(node:Object3D):void
         {
-        	session = sessions.pop();
+        	_session = _sessions.pop();
         }
 
     }

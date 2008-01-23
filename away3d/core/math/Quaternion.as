@@ -38,6 +38,34 @@ package away3d.core.math
 			
 	        return q;
 	    }
+	    
+	    private var fSinPitch      :Number;
+        private var fCosPitch      :Number;
+        private var fSinYaw        :Number;
+        private var fCosYaw        :Number;
+        private var fSinRoll       :Number;
+        private var fCosRoll       :Number;
+        private var fCosPitchCosYaw:Number;
+        private var fSinPitchSinYaw:Number;
+        
+        private var q:Quaternion;
+        
+        public function euler2quaternion(ax:Number, ay:Number, az:Number):void
+        {
+            fSinPitch       = Math.sin(ax * 0.5);
+            fCosPitch       = Math.cos(ax * 0.5);
+            fSinYaw         = Math.sin(ay * 0.5);
+            fCosYaw         = Math.cos(ay * 0.5);
+            fSinRoll        = Math.sin(az * 0.5);
+            fCosRoll        = Math.cos(az * 0.5);
+            fCosPitchCosYaw = fCosPitch * fCosYaw;
+            fSinPitchSinYaw = fSinPitch * fSinYaw;
+    
+            x = fSinRoll * fCosPitchCosYaw     - fCosRoll * fSinPitchSinYaw;
+            y = fCosRoll * fSinPitch * fCosYaw + fSinRoll * fCosPitch * fSinYaw;
+            z = fCosRoll * fCosPitch * fSinYaw - fSinRoll * fSinPitch * fCosYaw;
+            w = fCosRoll * fCosPitchCosYaw     + fSinRoll * fSinPitchSinYaw;
+        }
 	        
 	    public function get magnitude():Number
 	    {

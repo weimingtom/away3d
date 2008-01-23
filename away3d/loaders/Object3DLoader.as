@@ -1,22 +1,18 @@
 package away3d.loaders
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.mesh.*;
     import away3d.core.material.*;
-    import away3d.core.utils.*;
+    import away3d.core.mesh.*;
+    import away3d.core.scene.*;
     import away3d.core.stats.*;
-
-    import flash.display.MovieClip;
-    import flash.display.Graphics;
-    import flash.text.TextField;
-    import flash.net.URLRequest;
+    import away3d.core.utils.*;
+    
+    import flash.events.Event;
+    import flash.events.IOErrorEvent;
+    import flash.events.ProgressEvent;
     import flash.net.URLLoader;
     import flash.net.URLLoaderDataFormat;
-    import flash.events.EventDispatcher;
-    import flash.events.Event;
-    import flash.events.ProgressEvent;
-    import flash.events.IOErrorEvent;
+    import flash.net.URLRequest;
 
     public class Object3DLoader extends ObjectContainer3D
     {
@@ -66,15 +62,17 @@ package away3d.loaders
 
             if (parent != null)
             {
+            	result.name = name;
                 result.transform = transform;
                 result.parent = parent;
+            	name = null;
                 parent = null;
             }
-
+			
+			//register mesh url
             if (result is Mesh)
             {
-                var mesh:Mesh = result as Mesh;
-                Stats.instance.register(mesh.name || "mesh", mesh.faces.length, url);
+            	(result as Mesh).url = url;
             }
 
             if (result is ObjectContainer3D)

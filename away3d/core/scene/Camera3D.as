@@ -1,10 +1,10 @@
 package away3d.core.scene
 {
     import away3d.core.*;
-    import away3d.core.math.*;
     import away3d.core.draw.*;
-    import away3d.core.render.*;
+    import away3d.core.math.*;
     import away3d.core.mesh.*;
+    import away3d.core.render.*;
     import away3d.core.utils.*;
     
     /** Camera in 3D-space */
@@ -12,7 +12,9 @@ package away3d.core.scene
     {
         public var zoom:Number;
         public var focus:Number;
-    
+    	
+    	private var _view:Matrix3D = new Matrix3D();
+    	
         public function Camera3D(init:Object = null)
         {
             super(init);
@@ -22,14 +24,18 @@ package away3d.core.scene
             zoom = init.getNumber("zoom", 10);
             focus = init.getNumber("focus", 100);
             var lookat:Number3D = init.getPosition("lookat");
-
+			
+			_flipY.syy = -1;
+			
             if (lookat != null)
                 lookAt(lookat);
         }
     
         public function get view():Matrix3D
         {
-            return Matrix3D.inverse(Matrix3D.multiply(scene ? sceneTransform : transform, _flipY));
+        	_view.multiply(sceneTransform, _flipY);
+        	_view.inverse(_view);
+        	return _view;
         }
     
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
@@ -38,11 +44,11 @@ package away3d.core.scene
 
             if (vertex == null)
                 vertex = new Vertex(0,0,0);
-
-            return vertex.project(new Projection(Matrix3D.multiply(view, object.sceneTransform), focus, zoom));
+			object.viewTransform.multiply(view, object.sceneTransform);
+            return vertex.project(new Projection(object.viewTransform, focus, zoom));
         }
     
-        private static var _flipY:Matrix3D = Matrix3D.scaleMatrix(1, -1, 1);
+        private var _flipY:Matrix3D = new Matrix3D();
     
        /**
         * Rotate the camera in its vertical plane.

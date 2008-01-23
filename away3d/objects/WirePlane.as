@@ -5,7 +5,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Wire plane */ 
     public class WirePlane extends WireMesh
@@ -48,7 +47,8 @@
                 for (j = 0; j < segmentsH; j++)
                     addSegment(new Segment(grid[i][j], grid[i][j+1]));
 					
-			Stats.instance.register("WirePlane",0,"primitive");
+			type = "WirePlane";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

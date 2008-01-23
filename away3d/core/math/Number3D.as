@@ -34,60 +34,51 @@ package away3d.core.math
             return x*x + y*y + z*z;
         }
     
-        public static function scale(v:Number3D, s:Number):Number3D
+        public function scale(v:Number3D, s:Number):void
         {
-            return new Number3D
-            (
-                v.x * s,
-                v.y * s,
-                v.z * s
-            );
+            x = v.x * s;
+            y = v.y * s;
+            z = v.z * s;
         }  
         
-        public static function add(v:Number3D, w:Number3D):Number3D
+        public function add(v:Number3D, w:Number3D):void
         {
-            return new Number3D
-            (
-                v.x + w.x,
-                v.y + w.y,
-                v.z + w.z
-           );
+            x = v.x + w.x;
+            y = v.y + w.y;
+            z = v.z + w.z;
         }
     
-        public static function sub(v:Number3D, w:Number3D):Number3D
+        public function sub(v:Number3D, w:Number3D):void
         {
-            return new Number3D
-            (
-                v.x - w.x,
-                v.y - w.y,
-                v.z - w.z
-           );
+            x = v.x - w.x;
+            y = v.y - w.y;
+            z = v.z - w.z;
         }
     
-        public static function distance(v:Number3D, w:Number3D):Number
+        public function distance(w:Number3D):Number
         {
-            return Math.sqrt((v.x - w.x)*(v.x - w.x) + (v.y - w.y)*(v.y - w.y) + (v.z - w.z)*(v.z - w.z));
+            return Math.sqrt((x - w.x)*(x - w.x) + (y - w.y)*(y - w.y) + (z - w.z)*(z - w.z));
         }
     
-        public static function dot(v:Number3D, w:Number3D):Number
+        public function dot(w:Number3D):Number
         {
-            return (v.x * w.x + v.y * w.y + w.z * v.z);
+            return (x * w.x + y * w.y + z * w.z);
         }
     
-        public static function cross(v:Number3D, w:Number3D):Number3D
+        public function cross(v:Number3D, w:Number3D):void
         {
-            return new Number3D
-            (
-                (w.y * v.z) - (w.z * v.y),
-                (w.z * v.x) - (w.x * v.z),
-                (w.x * v.y) - (w.y * v.x)
-           );
+        	if (this == v || this == w)
+        		throw new Error("resultant cross product cannot be the same instance as an input");
+        	x = w.y * v.z - w.z * v.y;
+        	y = w.z * v.x - w.x * v.z;
+        	z = w.x * v.y - w.y * v.x;
         }
     
-        public static function getAngle(v:Number3D, w:Number3D = null):Number
+        public function getAngle(w:Number3D = null):Number
         {
-            if (w == null) w = new Number3D();
-            return Math.acos(Number3D.dot(v, w)/(v.modulo*w.modulo));
+            if (w == null)
+            	w = new Number3D();
+            return Math.acos(dot(w)/(modulo*w.modulo));
         }
         
         private var mod:Number;
@@ -104,14 +95,11 @@ package away3d.core.math
             }
         }
     
-        public function rotate(m:Matrix3D):Number3D
+        public function rotate(v:Number3D, m:Matrix3D):void
         {
-            return new Number3D
-            (
-                x * m.sxx + y * m.sxy + z * m.sxz,
-                x * m.syx + y * m.syy + z * m.syz,
-                x * m.szx + y * m.szy + z * m.szz
-            );
+            x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz;
+            y = v.x * m.syx + v.y * m.syy + v.z * m.syz;
+            z = v.x * m.szx + v.y * m.szy + v.z * m.szz;
         }
         
         // Relative directions.
@@ -122,12 +110,19 @@ package away3d.core.math
         public static var UP      :Number3D = new Number3D( 0,  1,  0);
         public static var DOWN    :Number3D = new Number3D( 0, -1,  0);
         
-        private static var dist:Number;
+        private var dist:Number;
+        private var num:Number3D;
         
-        public static function closestPointOnPlane(p:Number3D, k:Number3D, n:Number3D):Number3D
+        public function closestPointOnPlane(p:Number3D, k:Number3D, n:Number3D):Number3D
         {
-            dist = Number3D.dot(n, Number3D.sub(p, k));
-            return Number3D.sub(p, Number3D.scale(n, dist));
+        	if (!num)
+        		num = new Number3D();
+        	
+        	num.sub(p, k);
+            dist = n.dot(num);
+            num.scale(n, dist);
+            num.sub(p, num);
+            return num;
         }
     
         public function toString(): String

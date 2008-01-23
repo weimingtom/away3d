@@ -6,7 +6,6 @@
     import away3d.core.mesh.*;
     import away3d.core.material.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     /** Wire cylinder */ 
     public class WireCylinder extends WireMesh
@@ -75,7 +74,8 @@
                         addSegment(new Segment(a, b));
                 }
 				
-			Stats.instance.register("WireCylinder",0,"primitive");
+			type = "WireCylinder";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

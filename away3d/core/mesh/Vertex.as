@@ -38,7 +38,7 @@ package away3d.core.mesh
             if (value == -Infinity)
                 Debug.warning("x == -Infinity");
 
-            _x = value;
+            _x = _position.x = value;
 
             notifyChange();
         }
@@ -63,7 +63,7 @@ package away3d.core.mesh
             if (value == -Infinity)
                 Debug.warning("y == -Infinity");
 
-            _y = value;
+            _y = _position.y = value;
 
             notifyChange();
         }
@@ -88,7 +88,7 @@ package away3d.core.mesh
             if (value == -Infinity)
                 Debug.warning("z == -Infinity");
 
-            _z = value;
+            _z = _position.z = value;
 
             notifyChange();
         }
@@ -96,9 +96,9 @@ package away3d.core.mesh
         /** Create a new vertex */
         public function Vertex(x:Number = 0, y:Number = 0, z:Number = 0)
         {
-            _x = x;
-            _y = y;
-            _z = z;
+            _x = _position.x = x;
+            _y = _position.y = y;
+            _z = _position.z = z;
 
             //if (defaultExtraClass != null)
             //    extra = new defaultExtraClass(this);
@@ -116,17 +116,19 @@ package away3d.core.mesh
             setValue(_x * m.sxx + _y * m.sxy + _z * m.sxz + m.tx, _x * m.syx + _y * m.syy + _z * m.syz + m.ty, _x * m.szx + _y * m.szy + _z * m.szz + m.tz);
         }
         
+        private var _position:Number3D = new Number3D();
+        
         /** Vertex position */
         public function get position():Number3D
         {
-            return new Number3D(_x, _y, _z);
+            return _position;
         }
         
         public function set position(value:Number3D):void
         {
-            _x = value.x;
-            _y = value.y;
-            _z = value.z;
+            _x = _position.x = value.x;
+            _y = _position.y = value.y;
+            _z = _position.z = value.z;
 
             notifyChange();
         }
@@ -158,7 +160,7 @@ package away3d.core.mesh
 
             view = projection.view;
     
-            sz = x * view.szx + y * view.szy + z * view.szz + view.tz;
+            sz = _x * view.szx + _y * view.szy + _z * view.szz + view.tz;
     		/*
     		//modified
     		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
@@ -186,8 +188,8 @@ package away3d.core.mesh
 
          	persp = projection.zoom / (1 + sz / projection.focus);
 
-            projected.x = (x * view.sxx + y * view.sxy + z * view.sxz + view.tx) * persp;
-            projected.y = (x * view.syx + y * view.syy + z * view.syz + view.ty) * persp;
+            projected.x = (_x * view.sxx + _y * view.sxy + _z * view.sxz + view.tx) * persp;
+            projected.y = (_x * view.syx + _y * view.syy + _z * view.syz + view.ty) * persp;
             projected.z = sz;
             /*
             projected.x = wx * persp;
@@ -199,17 +201,17 @@ package away3d.core.mesh
         /** @private Apply perspective distortion */
         arcane function perspective(focus:Number):ScreenVertex
         {
-            persp = 1 / (1 + z / focus);
+            persp = 1 / (1 + _z / focus);
 
-            return new ScreenVertex(x * persp, y * persp, z);
+            return new ScreenVertex(_x * persp, _y * persp, z);
         }                     
 
         /** @private Set vertex coordinates */
         arcane function setValue(x:Number, y:Number, z:Number):void
         {
-            _x = x;
-            _y = y;
-            _z = z;
+            _x = _position.x = x;
+            _y = _position.y = y;
+            _z = _position.z = z;
             notifyChange();
         }
 

@@ -52,7 +52,8 @@
             for (i = 0; i < sections; i++)
                 addFace(new Face(center, vertices[i], vertices[(i+1) % sections], null, centeruv, uvs[i], uvs[i+1]));
 				
-			Stats.instance.register("RegularPolygon",faces.length,"primitive");
+			type = "RegularPolygon";
+        	url = "primitive";
         }
     }
 }

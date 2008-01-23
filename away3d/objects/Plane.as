@@ -74,7 +74,8 @@
                     addFace(new Face(d, c, b, null, uvd, uvc, uvb));
                 }
 				
-				Stats.instance.register("Plane",faces.length,"primitive");
+			type = "Plane";
+        	url = "primitive";
         }
 
         public function vertex(i:int, j:int):Vertex

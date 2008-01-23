@@ -70,10 +70,10 @@ package away3d.core.material
         {
         	_projectionVector = val;
         	if (_projectionVector) {
-        		_N = Number3D.cross(_projectionVector, new Number3D(0,1,0));
+        		_N.cross(_projectionVector, new Number3D(0,1,0));
 	            if (!_N.modulo) _N = new Number3D(1,0,0);
-	            _M = Number3D.cross(_N, _projectionVector);
-	            _N = Number3D.cross(_M, _projectionVector);
+	            _M.cross(_N, _projectionVector);
+	            _N.cross(_M, _projectionVector);
 	            _N.normalize();
 	            _M.normalize();
         	}

@@ -518,6 +518,10 @@ package away3d.core.mesh
             seg.calc();
             return seg;
         }
+                        
+        //stats variables
+       	public var url:String;
+       	public var type:String;
     }
 }
                                 

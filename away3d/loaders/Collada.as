@@ -1,12 +1,12 @@
 package away3d.loaders
 {
     import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.scene.*;
     import away3d.core.material.*;
+    import away3d.core.math.*;
     import away3d.core.mesh.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-    import away3d.core.stats.*;
+    
     import flash.utils.*;
 
     /** Collada scene loader */
@@ -18,7 +18,6 @@ package away3d.loaders
         private var material:ITriangleMaterial;
         private var scaling:Number;
         private var yUp:Boolean;
-        private var url:String = "";
     
         public function Collada(xml:XML, init:Object = null)
         {
@@ -46,7 +45,6 @@ package away3d.loaders
 
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            url = url;
             return Object3DLoader.load(url, parse, false, init);
         }
     
@@ -70,12 +68,13 @@ package away3d.loaders
             for each (var node:XML in scene.node)
                 parseNode(node, container);
         }
-    
+        
+    	internal var matrix:Matrix3D;
+    	internal var newnode:Object3D;
+    	internal var m:Matrix3D = new Matrix3D();
+    	
         private function parseNode(node:XML, parent:ObjectContainer3D):void
         {
-            var matrix:Matrix3D = Matrix3D.IDENTITY;
-    
-            var newnode:Object3D;
     
             if (String(node.instance_geometry) == "")
                 newnode = new ObjectContainer3D();
@@ -83,6 +82,7 @@ package away3d.loaders
                 newnode = new Mesh(null);
 
             newnode.name = node.@name;
+            matrix = newnode.transform;
             parent.addChild(newnode);
     
             var children:XMLList = node.children();
@@ -95,20 +95,21 @@ package away3d.loaders
                 switch (child.name().localName)
                 {
                     case "translate":
-                        matrix = Matrix3D.multiply(matrix, translateMatrix(getArray(child)));
+                        matrix.multiply(matrix, translateMatrix(getArray(child)));
                         break;
     
                     case "rotate":
-                        matrix = Matrix3D.multiply(matrix, rotateMatrix(getArray(child)));
+                        matrix.multiply(matrix, rotateMatrix(getArray(child)));
                         break;
     
                     case "scale":
-                        matrix = Matrix3D.multiply(matrix, scaleMatrix(getArray(child)));
+                        matrix.multiply(matrix, scaleMatrix(getArray(child)));
                         break;
     
                     // Baked transform matrix
                     case "matrix":
-                        matrix = Matrix3D.multiply(matrix, Matrix3D.fromArray(getArray(child)));
+                    	m.array2matrix(getArray(child));
+                        matrix.multiply(matrix, m);
                         break;
     
                     case "node":
@@ -135,8 +136,6 @@ package away3d.loaders
                         break;
                 }
             }
-    
-            newnode.transform = matrix; 
         }
     
         private function parseGeometry(geometry:XML, instance:Mesh, materials:Dictionary):void
@@ -244,7 +243,7 @@ package away3d.loaders
     
             mesh.visible = true;
             
-            Stats.instance.register(".Collada",mesh.faces.length, url);
+            mesh.type = ".Collada";
         }
     
         private function getMaterial(name:String, materials:Dictionary):ITriangleMaterial
@@ -320,31 +319,41 @@ package away3d.loaders
     
             return numbers;
         }
-    
+        
+    	internal var rotationMatrix:Matrix3D = new Matrix3D();
+    	
         private function rotateMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
-                return Matrix3D.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
+                rotationMatrix.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
             else
-                return Matrix3D.rotationMatrix(vector[0], vector[2], vector[1], -vector[3] * toRADIANS);
+                rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], -vector[3] * toRADIANS);
+            
+            return rotationMatrix;
         }
     
-    
+    	internal var translationMatrix:Matrix3D = new Matrix3D();
+    	
         private function translateMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
-                return Matrix3D.translationMatrix(-vector[0] * this.scaling, vector[1] * this.scaling, vector[2] * this.scaling);
+                translationMatrix.translationMatrix(-vector[0] * this.scaling, vector[1] * this.scaling, vector[2] * this.scaling);
             else
-                return Matrix3D.translationMatrix( vector[0] * this.scaling, vector[2] * this.scaling, vector[1] * this.scaling);
+                translationMatrix.translationMatrix( vector[0] * this.scaling, vector[2] * this.scaling, vector[1] * this.scaling);
+            
+            return translationMatrix;
         }
     
-    
+    	internal var scalingMatrix:Matrix3D = new Matrix3D();
+    	
         private function scaleMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
-                return Matrix3D.scaleMatrix(vector[0], vector[1], vector[2]);
+                scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
             else
-                return Matrix3D.scaleMatrix(vector[0], vector[2], vector[1]);
+                scalingMatrix.scaleMatrix(vector[0], vector[2], vector[1]);
+            
+            return scalingMatrix;
         }
     
         private function deserialize(input:XML, geo:XML):Array

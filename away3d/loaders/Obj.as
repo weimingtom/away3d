@@ -100,6 +100,8 @@ package away3d.loaders
                         break;
                 }
             }
+            
+            mesh.type = ".Obj";
         }
             
         private static function trysplit(source:String, by:String):Array
