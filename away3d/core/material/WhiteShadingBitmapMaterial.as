@@ -10,24 +10,19 @@ package away3d.core.material
     
     import flash.display.BitmapData;
     import flash.filters.ColorMatrixFilter;
-    import flash.geom.ColorTransform;
     import flash.geom.Matrix;
     import flash.geom.Point;
+    import flash.geom.Rectangle;
     import flash.utils.Dictionary;
 
     /** Bitmap material that takes average of color lightings as a white lighting */
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
-    	internal var _transform:Matrix;
-        internal var _projectionVector:Number3D;
-        internal var _N:Number3D;
-        internal var _M:Number3D;
-        
-        internal var transformDirty:Boolean;
         
         public var diffuse:BitmapData;
         public var smooth:Boolean;
         public var repeat:Boolean;
+        internal var _faceDictionary:Dictionary = new Dictionary(true);
         
         public var blackrender:Boolean;
         public var whiterender:Boolean;
@@ -50,44 +45,19 @@ package away3d.core.material
         {
         	return diffuse;
         }
-        public function get transform():Matrix
+        
+                public function get faceDictionary():Dictionary
         {
-        	return _transform;
+        	return _faceDictionary
         }
         
-        public function set transform(val:Matrix):void
-        {
-        	_transform = val;
-        	transformDirty = true;
-        }
+        internal var faceDictionaryVO:FaceDictionaryVO;
         
-        public function get projectionVector():Number3D
+        public function clearFaceDictionary():void
         {
-        	return _projectionVector;
-        }
-        
-        public function set projectionVector(val:Number3D):void
-        {
-        	_projectionVector = val;
-        	if (_projectionVector) {
-        		_N.cross(_projectionVector, new Number3D(0,1,0));
-	            if (!_N.modulo) _N = new Number3D(1,0,0);
-	            _M.cross(_N, _projectionVector);
-	            _N.cross(_M, _projectionVector);
-	            _N.normalize();
-	            _M.normalize();
-        	}
-        	transformDirty = true;
-        }
-        
-        public function get N():Number3D
-        {
-        	return _N;
-        }
-        
-        public function get M():Number3D
-        {
-        	return _M;
+        	for each (faceDictionaryVO in _faceDictionary)
+        		if (!faceDictionaryVO.dirty)
+        			faceDictionaryVO.clear();
         }
         
         public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object = null)
@@ -100,8 +70,6 @@ package away3d.core.material
 
             smooth = init.getBoolean("smooth", false);
             repeat = init.getBoolean("repeat", false);
-            transform = init.getObject("transform", Matrix);
-            projectionVector = init.getObject("projectionVector", Number3D);
         }
 
         private var cache:Dictionary = new Dictionary();
@@ -113,6 +81,11 @@ package away3d.core.material
             if (step < limit)
                 step *= 2;
         }
+		
+		public function renderMaterial(source:Mesh):void
+		{
+			
+		}
 		
 		internal var mapping:Matrix;
 		
@@ -156,23 +129,13 @@ package away3d.core.material
                     //bitmap.colorTransform(bitmap.rect, new ColorTransform(brightness, brightness, brightness));
                     cache[brightness] = bitmap;
                 }
-                session.renderTriangleBitmap(bitmap, getMapping(tri), v0, v1, v2, smooth, repeat);
+                session.renderTriangleBitmap(bitmap, tri.texturemapping || tri.transformUV(this), v0, v1, v2, smooth, repeat);
             }
         }
 		
-		public function getMapping(tri:DrawTriangle):Matrix
+		public function renderFace(face:Face, _bitmapRect:Rectangle):void
 		{
-        	//check local transform or if texturemapping is null
-        	if (transformDirty || !tri.texturemapping) {
-        		transformDirty = false;
-        		tri.transformUV(this);
-        		if (_transform) {
-	        		var mapping:Matrix = _transform.clone();
-	        		mapping.concat(tri.texturemapping);
-	        		return tri.texturemapping = mapping;
-	        	}
-        	}			
-        	return tri.texturemapping;
+			
 		}
 		
         public override function get visible():Boolean

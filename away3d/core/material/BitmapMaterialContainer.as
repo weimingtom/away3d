@@ -4,7 +4,7 @@ package away3d.core.material
 	import away3d.core.draw.DrawTriangle;
 	import away3d.core.mesh.Face;
 	import away3d.core.mesh.Mesh;
-	import away3d.core.utils.BitmapDictionaryVO;
+	import away3d.core.utils.FaceDictionaryVO;
 	import away3d.core.utils.Init;
 	
 	import flash.display.BitmapData;
@@ -13,106 +13,43 @@ package away3d.core.material
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
-	public class BitmapMaterialContainer implements ITriangleMaterial, IUVMaterialContainer
+	public class BitmapMaterialContainer extends BitmapMaterial implements ITriangleMaterial
 	{
 		use namespace arcane;
-        
-        public var smooth:Boolean;
-        public var debug:Boolean;
-        public var repeat:Boolean;
+		
 		public var materials:Array;
 		
-        internal var _width:Number;
-        internal var _height:Number;
-        internal var _bitmap:BitmapData;
-		internal var _zeroPoint:Point = new Point(0, 0);
+		internal var _width:Number;
+		internal var _height:Number;
 		internal var _zeroRect:Rectangle;
-		internal var _bitmapRect:Rectangle;
-		
-		public function get width():Number
-        {
-            return _width;
-        }
-
-        public function get height():Number
-        {
-            return _height;
-        }
-        
-        public function get bitmap():BitmapData
-        {
-        	return _bitmap;
-        }	
-		
-		public function addMaterial(material:IUVTransformMaterial):void
-		{
-			
-		}
+		internal var _bitmapRect:Rectangle;	
 		
 		public function BitmapMaterialContainer(width:int, height:int, init:Object = null)
 		{
+			super(new BitmapData(width, height, true, 0x00FFFFFF), init);
+			
 			_width = width;
 			_height = height;
-			_bitmap = new BitmapData(width, height, true, 0x00FFFFFF);
 			_bitmapRect = new Rectangle(0, 0, _width, _height);
+			
             init = Init.parse(init);
 			
 			materials = init.getArray("materials");
 		}
 		
 		internal var _transformDirty:Boolean;
-		internal var _transform:Matrix;
 		internal var face:Face;
 		internal var dt:DrawTriangle;
-		internal var material:IUVTransformMaterial;
-		internal var bitmapDictionary:Dictionary = new Dictionary(true);
+		internal var material:IUVMaterial;
 		
-        public function renderMaterial(source:Mesh):void
+        public override function renderMaterial(source:Mesh):void
         {
-        	//resolve material rendering if no uv's overlap
-        	/*
-        	if (!overlappingUVs) {
-	        	if (!bitmapDictionary[source])
-	        		bitmapDictionary[source] = _bitmap.clone();
-	        	
-	        	for each(material in materials) {
-	    			if (!material.bitmapDictionary[source])
-	    				_transformDirty = true;
-	    		}
-	    		for each (face in source.faces) {
-		    		dt = face._dt;
-	    			if (dt.material == this) {
-		    			if (!dt.texturemapping) {
-		    				_transformDirty = true;
-			    			face._bitmapRect = _bitmapRect;
-			        		dt.transformUV(this);
-			      		}
-			     	}
-	    		}
-	    		if (_transformDirty) {
-        			//update all materials
-        			_transformDirty = false;
-	        		bitmapDictionary[source].lock();
-	        		bitmapDictionary[source].fillRect(_bitmapRect, 0x00FFFFFF);
-		        	for each(material in materials) {
-		        		if (!material.bitmapDictionary[source] || material.projectionVector)
-		        			material.renderObject(source, _bitmapRect, _bitmap);
-		        		bitmapDictionary[source].copyPixels(material.bitmapDictionary[source], _bitmapRect, _zeroPoint, null, null, true);
-		        	}
-		        	bitmapDictionary[source].unlock();
-		    	}
-        	}*/
-        }
-        public function resetMaterial(source:Mesh):void
-        {
-        	
         }
         
-        internal var bitmapDictionaryVO:BitmapDictionaryVO;
-        internal var bitmapDictionaryFace:BitmapDictionaryVO;
-        internal var bitmapDictionarySource:BitmapDictionaryVO;
+        internal var bitmapDictionaryFace:FaceDictionaryVO;
+        internal var bitmapDictionarySource:FaceDictionaryVO;
         
-		public function renderTriangle(tri:DrawTriangle):void
+		public override function getMapping(tri:DrawTriangle):Matrix
         {
         	face = tri.face;
 			dt = face._dt;
@@ -128,22 +65,22 @@ package away3d.core.material
         		dt.transformUV(this);
         		
         		//reset bitmapData for container
-        		bitmapDictionaryVO = bitmapDictionary[face];
-        		if (bitmapDictionaryVO != null)
-        			bitmapDictionaryVO.reset(face._bitmapRect.width, face._bitmapRect.height);
+        		faceDictionaryVO = _faceDictionary[face];
+        		if (faceDictionaryVO != null)
+        			faceDictionaryVO.reset(face._bitmapRect.width, face._bitmapRect.height);
         		else
-        			bitmapDictionary[face] = new BitmapDictionaryVO(face._bitmapRect.width, face._bitmapRect.height);
+        			_faceDictionary[face] = new FaceDictionaryVO(face._bitmapRect.width, face._bitmapRect.height);
         		
         		//reset bitmapData for container materials
         		for each(material in materials) {
-        			bitmapDictionaryVO = material.bitmapDictionary[face];
-	        		if (bitmapDictionaryVO != null)
-	        			bitmapDictionaryVO.reset(face._bitmapRect.width, face._bitmapRect.height);
+        			faceDictionaryVO = material.faceDictionary[face];
+	        		if (faceDictionaryVO != null)
+	        			faceDictionaryVO.reset(face._bitmapRect.width, face._bitmapRect.height);
 	        	}
         	} else {
         		//check to see if any materials require updating
         		for each(material in materials)
-        			if (!material.bitmapDictionary[face] || material.bitmapDictionary[face].dirty)
+        			if (!material.faceDictionary[face] || material.faceDictionary[face].dirty)
         				_transformDirty = true;
         	}
         	
@@ -151,46 +88,39 @@ package away3d.core.material
         	if (!tri.texturemapping)
         	    tri.transformUV(this);
         	
+        	//check to see if materials need updating
         	if (_transformDirty) {
         		_transformDirty = false;
         		
         		//clear the bitmap VO
-        		bitmapDictionaryVO = bitmapDictionary[face];
+        		faceDictionaryVO = _faceDictionary[face];
 			    _zeroRect = new Rectangle(0, 0, face._bitmapRect.width, face._bitmapRect.height);
-			    bitmapDictionaryVO.bitmap.lock();
-        		bitmapDictionaryVO.clear();
+			    faceDictionaryVO.bitmap.lock();
+        		faceDictionaryVO.clear();
         		
         		for each (material in materials) {
 	        		//check if the material require updating
-	        		bitmapDictionaryFace = material.bitmapDictionary[face];
-	        		bitmapDictionarySource = material.bitmapDictionary[tri.source]
-        			if ((!bitmapDictionaryFace && !bitmapDictionarySource) || (bitmapDictionaryFace && bitmapDictionaryFace.dirty) || (bitmapDictionarySource && bitmapDictionarySource.dirty))
+	        		bitmapDictionaryFace = material.faceDictionary[face];
+	        		bitmapDictionarySource = material.faceDictionary[tri.source];
+	        		if (bitmapDictionarySource && !bitmapDictionarySource.dirty)
+	        			bitmapDictionaryFace = bitmapDictionarySource;
+        			else if (!bitmapDictionaryFace || (bitmapDictionaryFace && bitmapDictionaryFace.dirty) || (bitmapDictionarySource && bitmapDictionarySource.dirty))
         				material.renderFace(face, _bitmapRect);
         			
         			//update the bitmap VO
-        			if (material.bitmapDictionary[tri.source])
-        				bitmapDictionaryVO.bitmap.copyPixels(material.bitmapDictionary[tri.source].bitmap, face._bitmapRect, _zeroPoint, null, null, true);
-        			else
-        				bitmapDictionaryVO.bitmap.copyPixels(material.bitmapDictionary[face].bitmap, _zeroRect, _zeroPoint, null, null, true);
+        			bitmapDictionaryFace = material.faceDictionary[face];
+	        		bitmapDictionarySource = material.faceDictionary[tri.source];
+        			if (bitmapDictionarySource && bitmapDictionarySource.bitmap)
+        				faceDictionaryVO.bitmap.copyPixels(bitmapDictionarySource.bitmap, face._bitmapRect, _zeroPoint, null, null, true);
+        			else if (bitmapDictionaryFace.bitmap)
+        				faceDictionaryVO.bitmap.copyPixels(bitmapDictionaryFace.bitmap, _zeroRect, _zeroPoint, null, null, true);
         		}
-        		bitmapDictionaryVO.bitmap.unlock();
+        		faceDictionaryVO.bitmap.unlock();
         	}
         	
-        	//send triangle data to rendersession
-        	tri.source.session.renderTriangleBitmap(bitmapDictionaryVO.bitmap, tri.texturemapping, tri.v0, tri.v1, tri.v2, smooth, repeat);
-			
-            if (debug)
-                tri.source.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-        }
+        	_renderBitmap = faceDictionaryVO.bitmap;
         	
-		public function shadeTriangle(tri:DrawTriangle):void
-        {
-        	//tri.bitmapMaterial = getBitmapReflection(tri, source);
-        }
-        
-        public function get visible():Boolean
-        {
-            return true;
-        }        
+        	return tri.texturemapping;
+        }     
 	}
 }

@@ -12,7 +12,7 @@ package away3d.core.material
     import flash.utils.*;
 
     /** Bitmap texture material with adjustable transparency */
-    public class AlphaBitmapMaterial extends BitmapMaterial implements ITriangleMaterial, IUVMaterial
+    public class AlphaBitmapMaterial extends TransformBitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
 
         public function set bitmap(value:BitmapData):void

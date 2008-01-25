@@ -12,7 +12,7 @@ package away3d.core.material
     import flash.geom.Matrix;
 
     /** Material that can render a Sprite on object */
-    public class MovieMaterial extends BitmapMaterial implements ITriangleMaterial, IUVMaterial
+    public class MovieMaterial extends TransformBitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
         public var movie:Sprite;
         private var lastsession:int;
