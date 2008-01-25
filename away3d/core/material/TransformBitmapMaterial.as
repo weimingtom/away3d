@@ -349,7 +349,7 @@ package away3d.core.material
             return t;
         }
         
-		internal var bitmapRect:Rectangle;
+		internal var _bitmapRect:Rectangle;
 		
 		public override function renderFace(face:Face, containerRect:Rectangle):void
 		{
@@ -368,7 +368,7 @@ package away3d.core.material
 			if (_projectionVector) {
 				mapping.concat(projectUV(face._dt));
 				mapping.concat(face._dt.invtexturemapping);
-				bitmapRect = face._bitmapRect;
+				_bitmapRect = face._bitmapRect;
 				if (!faceDictionaryVO)
 					faceDictionaryVO = _faceDictionary[face] = new FaceDictionaryVO();
 				else
@@ -378,8 +378,8 @@ package away3d.core.material
 				if (!repeat && findSeparatingAxis(getFacePoints(face._dt.invtexturemapping), getMappingPoints(mapping)))
 					return;
 			} else {
-				bitmapRect = containerRect;
-				mapping.scale(bitmapRect.width/width, bitmapRect.height/height);
+				_bitmapRect = containerRect;
+				mapping.scale(_bitmapRect.width/width, _bitmapRect.height/height);
 				if (!faceDictionaryVO)
 					faceDictionaryVO = _faceDictionary[face.parent] = new FaceDictionaryVO();
 				else
@@ -392,17 +392,17 @@ package away3d.core.material
 			
 			//reset bitmap
 			if (!faceDictionaryVO.bitmap)
-				faceDictionaryVO.bitmap = new BitmapData(bitmapRect.width, bitmapRect.height, true, 0x00000000);
+				faceDictionaryVO.bitmap = new BitmapData(_bitmapRect.width, _bitmapRect.height, true, 0x00000000);
 			
 			//draw the bitmap
 			if (mapping.a == 1 && mapping.d == 1 && mapping.b == 0 && mapping.c == 0 && mapping.tx == 0 && mapping.ty == 0) {
 				//speedier version for non-transformed bitmap
-				faceDictionaryVO.bitmap.copyPixels(_bitmap, bitmapRect, _zeroPoint);
+				faceDictionaryVO.bitmap.copyPixels(_bitmap, _bitmapRect, _zeroPoint);
 			}else {
 				graphics = shape.graphics;
 				graphics.clear();
 				graphics.beginBitmapFill(_bitmap, mapping, repeat, smooth);
-				graphics.drawRect(0, 0, bitmapRect.width, bitmapRect.height);
+				graphics.drawRect(0, 0, _bitmapRect.width, _bitmapRect.height);
 	            graphics.endFill();
 				faceDictionaryVO.bitmap.draw(shape);
 				
