@@ -31,7 +31,8 @@ package
             Debug.warningsAsErrors = true;
 
             super("Away3D engine test", 5*5*5);
-            
+
+                        
             addSlide("Primitives", 
 "Basic primitives to start playing with", 
             new Scene3D(new Primitives), 
@@ -52,11 +53,16 @@ package
             new Scene3D(new Tiling), 
             Renderer.CORRECT_Z_ORDER);
             
-            addSlide("Texture Projecting", 
+            addSlide("Texture Layering", 
 "Projecting bitmap textures", 
             new Scene3D(new Projecting), 
             Renderer.CORRECT_Z_ORDER);
             
+            addSlide("Simple projection", 
+"Projecting textures on objects", 
+            new Scene3D(new FunnyCube), 
+            Renderer.CORRECT_Z_ORDER);
+                                    
             addSlide("Smooth texturing", 
 "Smooth bitmap texturing", 
             new Scene3D(new SmoothTexturing), 
@@ -122,6 +128,7 @@ package
             new Scene3D(new SimpleSkybox), 
             new BasicRenderer());
 */
+
             addSlide("Skybox",
 "Multiple panorama options",
             new Scene3D(new SmoothSkybox), 
@@ -151,11 +158,6 @@ package
 "Linear mesh morphing",
             new Scene3D(new Morphing), 
             Renderer.BASIC);
-
-            addSlide("Texture projection", 
-"Projecting textures on objects", 
-            new Scene3D(new FunnyCube), 
-            Renderer.CORRECT_Z_ORDER);
 
         }
     }
@@ -327,7 +329,14 @@ class Asset
     {
         return Cast.bitmap(SmileyImage);
     }
-    
+     
+	[Embed(source="images/smiley_white.jpg")]
+	public static var SmileyWhite:Class;
+	
+    public static function get smileyWhite():BitmapData
+    {
+        return Cast.bitmap(SmileyWhite);
+    }   
     [Embed(source="images/red.jpg")]
     public static var RedImage:Class;
 
@@ -691,7 +700,7 @@ class Tiling extends Primitives
     	t.rotate(Math.PI/4);
     	t.translate(100, 100);
     	t.scale(0.2, 0.2);
-        plane.material = new BitmapMaterial(Asset.yellow, {precision:1.6, transform:t, repeat:true});
+        plane.material = new TransformBitmapMaterial(Asset.yellow, {precision:1.6, transform:t, repeat:true});
         sphere.material = new BitmapMaterial(Asset.red, {precision:1.6});
         cube.material = new BitmapMaterial(Asset.blue, {precision:1.6});
         torus.material = new BitmapMaterial(Asset.green, {precision:1.6});
@@ -702,24 +711,40 @@ class Tiling extends Primitives
 
 class Projecting extends Primitives
 {
-	public var projectedMaterial:BitmapMaterial;
-	public var projectedTransform:Matrix;
-	public var projectionVector:Number3D;
+	public var projectedMaterial1:TransformBitmapMaterial;
+	public var projectedMaterial2:TransformBitmapMaterial;
+	public var projectedMaterial3:TransformBitmapMaterial;
+	public var projectedTransform1:Matrix;
+	public var projectedTransform2:Matrix;
+	public var projectedTransform3:Matrix;
+	public var projectionVector1:Number3D;
+	public var projectionVector2:Number3D;
+	public var projectionVector3:Number3D;
     public function Projecting()
     {
     	var t:Matrix = new Matrix();
     	t.rotate(Math.PI/4);
     	t.translate(100, 100);
     	t.scale(0.2, 0.2);
-        plane.material = new BitmapMaterial(Asset.yellow, {precision:1.6, transform:t, repeat:true});
-        projectedTransform = new Matrix();
-        projectedTransform.translate(-64, -64);
-        projectionVector = new Number3D(1, 1, 1);
-        projectedMaterial = new BitmapMaterial(Asset.smiley, {projectionVector:projectionVector, transform:projectedTransform});
+        plane.material = new TransformBitmapMaterial(Asset.yellow, {precision:1.6, transform:t, repeat:true});
+        projectedTransform1 = new Matrix();
+        projectedTransform1.translate(-64, -64);
+        projectedTransform2 = new Matrix();
+        projectedTransform2.translate(-64, -64);
+        projectedTransform3 = new Matrix();
+        projectedTransform3.translate(-64, -64);
+        projectionVector1 = new Number3D(1, 1, 1);
+        projectionVector2 = new Number3D(1, 1, 1);
+        projectionVector3 = new Number3D(1, 1, 1);
+        projectedMaterial1 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector1, transform:projectedTransform1});
+        projectedMaterial2 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector2, transform:projectedTransform2});
+        projectedMaterial3 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector3, transform:projectedTransform3});
         
         sphere.material = new BitmapMaterialContainer(400, 400, {materials:[
         				new BitmapMaterial(Asset.red),
-        				projectedMaterial
+        				projectedMaterial1,
+        				projectedMaterial2,
+        				projectedMaterial3
         				]});
         cube.material = new BitmapMaterial(Asset.blue, {precision:1.6});
         torus.material = new BitmapMaterial(Asset.green, {precision:1.6});
@@ -727,13 +752,30 @@ class Projecting extends Primitives
     
     public override function tick(time:int):void
     {
-    	projectedTransform = new Matrix();
-    	projectedTransform.translate(-64, -64);
-    	//projectedTransform.scale((Math.abs(Math.sin(time/2000))+1), (Math.abs(Math.cos(time/2000))+1));
-    	projectedTransform.rotate(time/1000);
-    	projectionVector = new Number3D(1*(Math.sin(time/500)), 1, 1*(Math.cos(time/500)));
-		projectedMaterial.transform = projectedTransform;
-		projectedMaterial.projectionVector = projectionVector;
+    	projectedTransform1 = new Matrix();
+    	projectedTransform1.translate(-64, -64);
+    	projectedTransform1.rotate(time/1000);
+    	projectedTransform2 = new Matrix();
+    	projectedTransform2.translate(-64, -64);
+    	projectedTransform2.rotate(time/500);
+    	projectedTransform3 = new Matrix();
+    	projectedTransform3.translate(-64, -64);
+    	projectedTransform3.rotate(time/250);
+    	projectionVector1.x = 1*(Math.sin(time/500));
+    	projectionVector1.y = 1;
+    	projectionVector1.z = 1*(Math.cos(time/500));
+    	projectionVector2.x = 2*(Math.cos(-time/500));
+    	projectionVector2.y = 2*(Math.sin(time/500));
+    	projectionVector2.z = 2;
+    	projectionVector3.x = 3;
+    	projectionVector3.y = 3*(Math.sin(-time/500));
+    	projectionVector3.z = 3*(Math.cos(-time/500));
+		projectedMaterial1.transform = projectedTransform1;
+		projectedMaterial1.projectionVector = projectionVector1;
+		projectedMaterial2.transform = projectedTransform2;
+		projectedMaterial2.projectionVector = projectionVector2;
+		projectedMaterial3.transform = projectedTransform3;
+		projectedMaterial3.projectionVector = projectionVector3;
     }
 }
 
@@ -925,20 +967,32 @@ class PerspectiveTexturing extends ObjectContainer3D
 class FunnyCube extends ObjectContainer3D
 {
     public var cube:Cube;
-    public var material:BitmapMaterial;
-                       
+    public var sphere:Sphere;
+    public var material:TransformBitmapMaterial;
+    public var mcontainer:BitmapMaterialContainer;
+    public var m:Matrix;
+    public function FunnyCube()
+    {
+        material = new TransformBitmapMaterial(Asset.target, {repeat:true, projectionVector:new Number3D(1, 1, 1)});
+        material.offsetX = -201;
+        material.offsetY = -201;
+    	mcontainer = new BitmapMaterialContainer(200, 200, {materials:[new BitmapMaterial(Asset.red), material], precision:2.5});
+        cube = new Cube({material:material, width:500, height:500, depth:500, bothsides:true});
+        //sphere = new Sphere({material:mcontainer, radius:250});
+        addChild(cube);
+    }
+    
     public override function tick(time:int):void
     {
-        if (cube != null)
-            removeChild(cube);
-
-        var m:Matrix = new Matrix();
-        m.translate(-250,-250);
+    	/*
+    	m = new Matrix();
+        m.translate(-201,-201);
         m.scale(2*(Math.abs(Math.sin(time/2000))+0.2), 2*(Math.abs(Math.cos(time/2000))+0.2));
-        material = new BitmapMaterial(Asset.target, {precision:2.5, transform:m, repeat:false, normal:new Number3D(1, 1, 1)});
-        cube = new Cube({material:material, width:500, height:500, depth:500, bothsides:true});
-
-        addChild(cube);
+        material.transform = m;
+        */
+        
+        material.scaleX = 2*(Math.abs(Math.sin(time/2000))+0.2);
+        material.scaleY = 2*(Math.abs(Math.cos(time/2000))+0.2);
     }
     
 }
