@@ -237,9 +237,8 @@ package away3d.core.math
     
         public function translationMatrix(u:Number, v:Number, w:Number):void
         {
-        	sxx = sxy = sxz = 0;
-        	syz = syy = syz = 0;
-        	szx = szy = szz = 0;
+        	sxx = syy = szz = 1;
+        	sxy = sxz = syz = syz = szx = szy = 0;
         	
             tx = u;
             ty = v;

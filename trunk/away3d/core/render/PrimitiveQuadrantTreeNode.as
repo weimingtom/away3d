@@ -124,8 +124,6 @@ package away3d.core.render
 			this.ydiv = ydiv;
 			halfwidth = width / 2;
             halfheight = height / 2;
-            
-			center = null;
 			
             lefttopFlag = false;
             leftbottomFlag = false;
@@ -170,7 +168,10 @@ package away3d.core.render
 
                 render_center_index++;
             }
-
+            
+            if (render_center_index == render_center_length)
+				center = null;
+			
             render_other(limit);
         }
 

@@ -164,7 +164,7 @@ package away3d.core.draw
                 	_v2 += 0.06;
             }
             
-            if (material is IUVMaterialContainer)
+            if (material is BitmapMaterialContainer)
             {
             	invtexturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0 - face._bitmapRect.x, _v0 - face._bitmapRect.y);
             	texturemapping = invtexturemapping.clone();

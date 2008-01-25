@@ -2,7 +2,6 @@ package away3d.core.render
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.material.IUVMaterialContainer;
     import away3d.core.mesh.Mesh;
     import away3d.core.scene.*;
     import away3d.core.stats.*;
@@ -76,7 +75,7 @@ package away3d.core.render
 			//apply filters
             for each (qdrntfilter in qdrntfilters)
                 qdrntfilter.filter(pritree, scene, camera, container, clip);
-			
+			/*
 			//update materials
 			materials = new Dictionary();
 			for each (primitive in primitives)
@@ -88,13 +87,13 @@ package away3d.core.render
 			
 			for (object in materials)
 				materials[object].renderMaterial(object as Mesh);
-			
+			*/
 			//render all primitives
             pritree.render();
-            
+            /*
 			for (object in materials)
 				materials[object].resetMaterial(object as Mesh);
-				
+			*/
             //dispatch stats
             if (view.statsOpen)
             	view.statsPanel.updateStats(primitives.length, camera);

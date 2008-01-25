@@ -91,6 +91,7 @@ package away3d.core.render
                 primitives = filter.filter(primitives, scene, camera, container, clip);
 
 			//update object-based materials
+			/*
 			materials = new Dictionary();
 			for each (primitive in primitives)
 				if(primitive is DrawTriangle) {
@@ -98,18 +99,18 @@ package away3d.core.render
 					if (triangle.material is IUVMaterialContainer)
 						materials[triangle.source] = triangle.material;
 				}
-			
 			for (object in materials)
 				materials[object].renderMaterial(object as Mesh);
+			*/
 			
             // render all primitives
             for each (primitive in primitives)
                 primitive.render();
-			
+			/*
 			//reset materials
 			for (object in materials)
 				materials[object].resetMaterial(object as Mesh);
-			
+			*/
             //dispatch stats
             if (view.statsOpen)
             	view.statsPanel.updateStats(primitives.length, camera);
