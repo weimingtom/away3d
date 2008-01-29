@@ -29,12 +29,12 @@ package away3d.core.material
         internal var _N:Number3D = new Number3D();
         internal var _M:Number3D = new Number3D();
         
-        internal var UP:Number3D = new Number3D(0, 1, 0);
+        internal var DOWN:Number3D = new Number3D(0, -1, 0);
         internal var RIGHT:Number3D = new Number3D(1, 0, 0);
         
         internal var transformDirty:Boolean;
         
-        
+        public var throughProjection:Boolean;
         
         public function get transform():Matrix
         {
@@ -84,7 +84,7 @@ package away3d.core.material
                 Debug.warning("scaleX == 0");
             
         	_scaleX = val;
-        	
+        	clearFaceDictionary();
         	transformDirty = true;
         }
         
@@ -109,6 +109,7 @@ package away3d.core.material
             
         	_scaleY = val;
         	
+        	clearFaceDictionary();
         	transformDirty = true;
         }
 		
@@ -130,6 +131,7 @@ package away3d.core.material
             
         	_offsetX = val;
         	
+        	clearFaceDictionary();
         	transformDirty = true;
         }
         
@@ -151,6 +153,7 @@ package away3d.core.material
             
         	_offsetY = val;
         	
+        	clearFaceDictionary();
         	transformDirty = true;
         }
         
@@ -172,6 +175,7 @@ package away3d.core.material
             
         	_rotation = val;
         	
+        	clearFaceDictionary();
         	transformDirty = true;
         }
                  
@@ -184,7 +188,7 @@ package away3d.core.material
         {
         	_projectionVector = val;
         	if (_projectionVector) {
-        		_N.cross(_projectionVector, UP);
+        		_N.cross(_projectionVector, DOWN);
 	            if (!_N.modulo) _N = RIGHT;
 	            _M.cross(_N, _projectionVector);
 	            _N.cross(_M, _projectionVector);
@@ -194,6 +198,12 @@ package away3d.core.material
         	clearFaceDictionary();
         }
         
+        public override function clearFaceDictionary():void
+        {
+        	if (!transformDirty)
+        		super.clearFaceDictionary();
+        }
+        	
         
         public function updateTransform():void
         {
@@ -202,12 +212,11 @@ package away3d.core.material
         		_transform = null;
         	} else {
 	        	_transform = new Matrix();
-	        	_transform.translate(_offsetX, _offsetY);
-	        	_transform.rotate(_rotation);
 	        	_transform.scale(_scaleX, _scaleY);
+	        	_transform.rotate(_rotation);
+	        	_transform.translate(_offsetX, _offsetY);
 	        }
 	        transformDirty = false;
-	        clearFaceDictionary();
         }
         
         public function TransformBitmapMaterial(bitmap:BitmapData, init:Object = null)
@@ -222,6 +231,7 @@ package away3d.core.material
             offsetY = init.getNumber("offsetY", _offsetY);
             rotation = init.getNumber("rotation", _rotation);
             projectionVector = init.getObject("projectionVector", Number3D);
+            throughProjection = init.getBoolean("throughProjection", false);
         }
         
         internal var face:Face;
@@ -389,6 +399,9 @@ package away3d.core.material
 				//if (!repeat && findSeparatingAxis(getContainerPoints(containerRect), getMappingPoints(mapping, containerRect)))
 				//	return;
 			}
+			
+			if (_projectionVector && !throughProjection && face.normal.dot(_projectionVector) < 0)
+				return;
 			
 			//reset bitmap
 			if (!faceDictionaryVO.bitmap)
