@@ -124,7 +124,7 @@ package away3d.core.material
 			faceDictionaryVO.dirty = false;
 			
 			//draw the bitmap
-			if (mapping.a == 1 && mapping.d == 1 && mapping.b == 0 && mapping.c == 0) {
+			if (mapping.a == 1 && mapping.d == 1) {
 				//speedier version for non-transformed bitmap
 				faceDictionaryVO.bitmap.copyPixels(_bitmap, bitmapRect, _zeroPoint);
 			}else {
