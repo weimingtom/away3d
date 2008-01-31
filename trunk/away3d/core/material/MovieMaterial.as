@@ -52,7 +52,7 @@ package away3d.core.material
             auto = init.getBoolean("auto", true);
             interactive = init.getBoolean("interactive", false);
 
-            _bitmap = new BitmapData(movie.width, movie.height, transparent, (transparent)? 0x00FFFFFF : 0xFF000000);
+            _bitmap = _renderBitmap = new BitmapData(movie.width, movie.height, transparent, (transparent)? 0x00FFFFFF : 0xFF000000);
         }
         
         public override function renderTriangle(tri:DrawTriangle):void
@@ -77,16 +77,13 @@ package away3d.core.material
                 	
             }
 			
-            session.renderTriangleBitmap(_bitmap, getMapping(tri), tri.v0, tri.v1, tri.v2, smooth, repeat);
-
-            if (debug)
-                session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+            super.renderTriangle(tri);
         }
         
         public function update():void
         {
-            if(transparent ) _bitmap.fillRect(_bitmap.rect, 0x00FFFFFF);
-            _bitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
+            if(transparent ) _renderBitmap.fillRect(_renderBitmap.rect, 0x00FFFFFF);
+            _renderBitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
         }
 		
 		public function onMouseOver(event:MouseEvent3D):void

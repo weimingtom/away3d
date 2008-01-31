@@ -88,12 +88,13 @@ package away3d.core.material
         	if (!tri.texturemapping)
         	    tri.transformUV(this);
         	
+        	faceDictionaryVO = _faceDictionary[face];
+        	
         	//check to see if materials need updating
         	if (_transformDirty) {
         		_transformDirty = false;
         		
         		//clear the bitmap VO
-        		faceDictionaryVO = _faceDictionary[face];
 			    _zeroRect = new Rectangle(0, 0, face._bitmapRect.width, face._bitmapRect.height);
 			    faceDictionaryVO.bitmap.lock();
         		faceDictionaryVO.clear();
