@@ -69,13 +69,13 @@ package away3d.loaders
                 parseNode(node, container);
         }
         
-    	internal var matrix:Matrix3D;
-    	internal var newnode:Object3D;
-    	internal var m:Matrix3D = new Matrix3D();
     	
         private function parseNode(node:XML, parent:ObjectContainer3D):void
         {
-    
+	    	var matrix:Matrix3D;
+	    	var newnode:Object3D;
+	    	var m:Matrix3D = new Matrix3D();
+	    	
             if (String(node.instance_geometry) == "")
                 newnode = new ObjectContainer3D();
             else                                                
