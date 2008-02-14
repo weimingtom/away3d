@@ -321,7 +321,7 @@ package away3d.core.scene
         }
 		
 		internal var q:Quaternion = new Quaternion();
-		internal var m:Matrix3D = new Matrix3D();
+
 		
         private function updateTransform():void
         {
@@ -329,14 +329,10 @@ package away3d.core.scene
                 return;
 
             q.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
-            m.quaternion2matrix(q.x, q.y, q.z, q.w);
+            _transform.quaternion2matrix(q.x, q.y, q.z, q.w);
 			
-            m.tx = _transform.tx;
-            m.ty = _transform.ty;
-            m.tz = _transform.tz;
             //m.scale(_scaleX, _scaleY, _scaleZ); // !! WRONG !!
-
-            _transform = m;
+			
             _transformDirty = false;
             _sceneTransformDirty = true;
         }
@@ -580,11 +576,11 @@ package away3d.core.scene
         }
 		
 		internal var vector:Number3D = new Number3D();
+		internal var m:Matrix3D = new Matrix3D();
 		
         public function rotate(axis:Number3D, angle:Number):void
         {
             vector.rotate(axis, transform);
-    
             m.rotationMatrix(vector.x, vector.y, vector.z, angle * toRADIANS);
     		m.tx = _transform.tx;
     		m.ty = _transform.ty;
