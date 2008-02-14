@@ -589,6 +589,8 @@ package away3d.core.scene
     
             _rotationDirty = true;
             _sceneTransformDirty = true;
+            
+            notifyTransformChange();
         }
 
     	internal var xAxis:Number3D = new Number3D();
@@ -625,6 +627,8 @@ package away3d.core.scene
                 _transformDirty = false;
                 _rotationDirty = true;
                 _sceneTransformDirty = true;
+                
+            	notifyTransformChange();
                 // TODO: Implement scale
             }
             else
