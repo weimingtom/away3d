@@ -18,7 +18,7 @@ package away3d.core.mesh
         use namespace arcane;
 
         private var _faces:Array = [];
-		
+		private var _material:ITriangleMaterial;
 		
         public function get faces():Array
         {
@@ -28,6 +28,24 @@ package away3d.core.mesh
         public override function get elements():Array
         {
             return _faces;
+        }
+        
+        public function get material():ITriangleMaterial
+        {
+        	return _material;
+        }
+        
+        public function set material(val:ITriangleMaterial):void
+        {
+        	if (_material == val)
+                return;
+                
+        	_material = val;
+        	
+        	//reset texturemapping (if applicable)
+        	if (_material is IUVMaterial)
+	        	for each (var face:Face in _faces)
+	        		face._dt.texturemapping = null;
         }
 
         private var _neighboursDirty:Boolean = true;
@@ -237,8 +255,7 @@ package away3d.core.mesh
                 */
             }
         }
-
-        public var material:ITriangleMaterial;
+		
         public var outline:ISegmentMaterial;
         public var back:ITriangleMaterial;
 

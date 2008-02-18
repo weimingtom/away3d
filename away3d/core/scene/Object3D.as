@@ -401,7 +401,12 @@ package away3d.core.scene
             if (this is Scene3D)
                 _scene = this as Scene3D;
         }
-    
+        
+        public function scale(scale:Number):void
+        {
+        	//overridden
+        }
+        
         public function get parent():ObjectContainer3D
         {
             return _parent;

@@ -45,14 +45,14 @@ package away3d.loaders
             parseMd2still(data);
         }
         
-        public static function parse(data:*, init:Object = null):Mesh
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
         {
             return new Md2still(Cast.bytearray(data), init).mesh;
         }
     
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.load(url, parse, true, init);
+            return Object3DLoader.loadGeometry(url, parse, true, init);
         }
     
         private function parseMd2still(data:ByteArray):void

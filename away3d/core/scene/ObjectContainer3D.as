@@ -207,15 +207,14 @@ package away3d.core.scene
                 addChild(child);
         }
 
-        public function scale(scale:Number):void
+        public override function scale(scale:Number):void
         {
             for each (child in children)
             {
                 child.x *= scale;
                 child.y *= scale;
                 child.z *= scale;
-                if (child is ObjectContainer3D)
-                    (child as ObjectContainer3D).scale(scale);
+                child.scale(scale);
             }
         }
     
