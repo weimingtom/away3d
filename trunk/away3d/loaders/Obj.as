@@ -41,14 +41,14 @@ package away3d.loaders
             parseObj(data);
         }
 
-        public static function parse(data:*, init:Object = null):Mesh
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
         {
             return new Obj(Cast.string(data), init).mesh;
         }
     
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.load(url, parse, false, init);
+            return Object3DLoader.loadGeometry(url, parse, false, init);
         }
     
         private function parseObj(data:String):void 

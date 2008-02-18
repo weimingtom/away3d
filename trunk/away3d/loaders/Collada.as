@@ -38,14 +38,14 @@ package away3d.loaders
             buildCollada();
         }
 
-        public static function parse(data:*, init:Object = null):ObjectContainer3D
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
             return new Collada(Cast.xml(data), init).container;
         }
 
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.load(url, parse, false, init);
+            return Object3DLoader.loadGeometry(url, parse, false, init);
         }
     
         protected function buildCollada():void

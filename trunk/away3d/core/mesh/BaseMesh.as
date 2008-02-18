@@ -230,7 +230,7 @@ package away3d.core.mesh
             pushfront = init.getBoolean("pushfront", false);
         }
     
-        public function scale(scale:Number):void
+        public override function scale(scale:Number):void
         {
             scaleXYZ(scale, scale, scale);
         }

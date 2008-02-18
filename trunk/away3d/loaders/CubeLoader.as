@@ -24,9 +24,9 @@ package away3d.loaders
         private var info:TextField;
         private var title:String;
 
-        public function CubeLoader(url:String, parse:Function, binary:Boolean, init:Object = null) 
+        public function CubeLoader(init:Object = null) 
         {
-            super(url, parse, binary, init);
+            super(init);
 
             side = new MovieClip();
             var graphics:Graphics = side.graphics;
