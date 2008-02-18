@@ -79,18 +79,23 @@ package away3d.loaders
                 parent = null;
             }
 			
-			//register mesh url
-            if (result is Mesh)
-            {
-            	(result as Mesh).url = url;
-            }
-
-            if (result is ObjectContainer3D)
-            {
-                // register collada
-            }
+			//register url with hierarchy
+			registerURL(result);
 
             notifySuccess();
+        }
+        
+        private var _child:Object3D;
+        
+        public function registerURL(object:Object3D):void
+        {
+        	if (object is ObjectContainer3D) {
+        		for each (_child in (object as ObjectContainer3D).children)
+        			registerURL(_child);
+        	} else if (object is Mesh) {
+        		(object as Mesh).url = url;
+        	}
+        	
         }
 
         public static function loadGeometry(url:String, parse:Function, binary:Boolean, init:Object):Object3DLoader

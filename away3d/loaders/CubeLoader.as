@@ -22,8 +22,9 @@ package away3d.loaders
     {
         private var side:MovieClip;
         private var info:TextField;
-        private var title:String;
-
+        private var geometryTitle:String;
+		private var textureTitle:String;
+		
         public function CubeLoader(init:Object = null) 
         {
             super(init);
@@ -38,7 +39,8 @@ package away3d.loaders
 
             init = Init.parse(init);
             var size:Number = init.getNumber("loadersize", 200);
-            title = init.getString("title", "Loading...");
+            geometryTitle = init.getString("geometrytitle", "Loading Geometry...");
+            textureTitle = init.getString("texturetitle", "Loading Texture...");
 
             addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
         }
@@ -46,7 +48,7 @@ package away3d.loaders
         protected override function onError(event:IOErrorEvent):void 
         {
             super.onError(event);
-            info.text = title + "\n" + event.text;
+            info.text = ((mode == LOADING_GEOMETRY)? geometryTitle : textureTitle) + "\n" + event.text;
             var graphics:Graphics = side.graphics;
             graphics.beginFill(0xFF0000);
             graphics.drawRect(0, 0, 100, 100);
@@ -55,7 +57,7 @@ package away3d.loaders
 
         protected override function onProgress(event:ProgressEvent):void 
         {
-            info.text = title + "\n" + event.bytesLoaded + " of\n" + event.bytesTotal + " bytes";
+            info.text = ((mode == LOADING_GEOMETRY)? geometryTitle : textureTitle) + "\n" + event.bytesLoaded + " of\n" + event.bytesTotal + " bytes";
             var graphics:Graphics = side.graphics;
             graphics.lineStyle(1, 0x808080);
             graphics.drawCircle(50, 50, 50*event.bytesLoaded/event.bytesTotal);
