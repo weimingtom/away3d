@@ -310,6 +310,8 @@ package away3d.loaders
 			chunk.bytesRead += _meshData.name.length + 1;
 		}
 		
+		private var _vertex:Vertex;
+		
 		private function readMeshVertices(chunk:Chunk3ds):void
 		{
 			var numVerts:int = _data.readUnsignedShort();
@@ -317,11 +319,11 @@ package away3d.loaders
 			
 			for (var i:int = 0; i < numVerts; i++)
 			{
-				var vertex:Vertex = new Vertex();
-				vertex.x = _data.readFloat();
-				vertex.y = _data.readFloat();
-				vertex.z = _data.readFloat();
-				_meshData.vertices.push(vertex);
+				_vertex = new Vertex();
+				_vertex.x = _data.readFloat();
+				_vertex.y = _data.readFloat();
+				_vertex.z = _data.readFloat();
+				_meshData.vertices.push(_vertex);
 				chunk.bytesRead += 12;
 			}
 		}
@@ -414,6 +416,10 @@ package away3d.loaders
 			}
 			return asciiz;
 		}
+		private var averageX:Number;
+		private var averageY:Number;
+		private var averageZ:Number;
+		private var numVertices:int;
 		
 		private var _meshMaterialData:MeshMaterialData;
 		private var _faceListIndex:int;
@@ -425,19 +431,36 @@ package away3d.loaders
 			
 			for each (_meshData in meshDataList)
 			{
+				//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
+				averageX = averageY = averageZ = 0;
+				numVertices = _meshData.vertices.length;
+				for each (_vertex in _meshData.vertices) {
+					averageX += _vertex.x;
+					averageY += _vertex.y;
+					averageZ += _vertex.z;
+				}
+				
+				averageX /= numVertices;
+				averageY /= numVertices;
+				averageZ /= numVertices;
+				
+				for each (_vertex in _meshData.vertices) {
+					_vertex.x -= averageX;
+					_vertex.y -= averageY;
+					_vertex.z -= averageZ;
+				}
+				
+				//set materialdata for each face
 				for each (_meshMaterialData in _meshData.materials) {
 					for each (_faceListIndex in _meshMaterialData.faceList) {
 						_faceData = _meshData.faces[_faceListIndex] as FaceData;
 						_faceData.materialData = materialLibrary[_meshMaterialData.name];
 					}
 				}
-				
-				var mesh:Mesh = new Mesh();
+				var mesh:Mesh = new Mesh({x:averageX, y:averageY, z:averageZ});
 				var material:ITriangleMaterial = new WireColorMaterial();
 				var face:Face;
 				var matData:MaterialData;
-				
-				mesh = new Mesh();
 				
 				for each(_faceData in _meshData.faces) {
 					_face = new Face(_meshData.vertices[_faceData.v0],
@@ -452,6 +475,7 @@ package away3d.loaders
 				}
 				
 				container.addChild(mesh);
+				mesh.type = ".3ds";
 			}
 		}
 		
