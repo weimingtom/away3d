@@ -376,7 +376,7 @@ package away3d.core.scene
             mouseEnabled = init.getBoolean("mouseEnabled", mouseEnabled);
             useHandCursor = init.getBoolean("useHandCursor", useHandCursor);
             filters = init.getArray("filters");
-                                           
+            
             x = init.getNumber("x", 0);
             y = init.getNumber("y", 0);
             z = init.getNumber("z", 0);
