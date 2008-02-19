@@ -21,8 +21,7 @@ package away3d.core.material
             _cache = new Dictionary();
             updateCurrent();
         }
-                   
-        private var _current:BitmapData;
+        
         private var _cache:Dictionary;
         private var _alpha:Number;
         private var _grades:int;
@@ -52,24 +51,21 @@ package away3d.core.material
 
         private function updateCurrent():void
         {
-            if (_alpha == 1)
-            {
-                _current = _bitmap;
+            if (_alpha == 1) {
+                _renderBitmap = _bitmap;
                 return;
             }
 
-            if (_alpha == 0)
-            {
-                _current = null;
+            if (_alpha == 0) {
+                _renderBitmap = null;
                 return;
             }
 
-            _current = _cache[_alpha];
-            if (_current == null)
-            {
-                _current = _bitmap.clone();
-                _current.colorTransform(_current.rect, new ColorTransform(1, 1, 1, _alpha));
-                _cache[_alpha] = _current;
+            _renderBitmap = _cache[_alpha];
+            if (_renderBitmap == null) {
+                _renderBitmap = _bitmap.clone();
+                _renderBitmap.colorTransform(_renderBitmap.rect, new ColorTransform(1, 1, 1, _alpha));
+                _cache[_alpha] = _renderBitmap;
             }
         }
         
@@ -77,27 +73,18 @@ package away3d.core.material
         {
             super(bitmap, init);
             
-            if (!bitmap.transparent)
-            {
+            if (!bitmap.transparent) {
                 _bitmap = new BitmapData(bitmap.width, bitmap.height, true);
                 _bitmap.draw(bitmap);
             }
 
-            _current = _bitmap;
+            _renderBitmap = _bitmap;
             _cache = new Dictionary();
             
             init = Init.parse(init);
             
             _grades = init.getInt("grades", 32, {min:2, max:256});
             alpha = init.getNumber("alpha", 1, {min:0, max:1});
-        }
-        
-        public override function renderTriangle(tri:DrawTriangle):void
-        {
-            tri.source.session.renderTriangleBitmap(_current, getMapping(tri), tri.v0, tri.v1, tri.v2, smooth, repeat);
-
-            if (debug)
-                tri.source.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
         
         public override function get visible():Boolean
