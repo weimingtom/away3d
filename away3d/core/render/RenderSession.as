@@ -105,7 +105,7 @@ package away3d.core.render
 
         public function renderTriangleLine(color:int, alpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
-            graphics.lineStyle(color, alpha, width);
+            graphics.lineStyle(width, color, alpha);
             graphics.moveTo(v0x = v0.x, v0y = v0.y);
             graphics.lineTo(v1.x, v1.y);
             graphics.lineTo(v2.x, v2.y);
