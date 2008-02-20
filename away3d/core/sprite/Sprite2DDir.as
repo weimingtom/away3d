@@ -18,6 +18,7 @@ package away3d.core.sprite
         private var center:Vertex = new Vertex();
 
         public var scaling:Number;
+        public var rotation:Number;
         public var smooth:Boolean;
         public var vertices:Array = [];
         public var bitmaps:Dictionary = new Dictionary();
@@ -30,6 +31,7 @@ package away3d.core.sprite
             init = Init.parse(init);
     
             scaling = init.getNumber("scaling", 1, {min:0});
+            rotation = init.getNumber("rotation", 0);
             smooth = init.getBoolean("smooth", false);
             deltaZ = init.getNumber("deltaZ", 0);
 
@@ -91,7 +93,7 @@ package away3d.core.sprite
                 
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
             sc.z += deltaZ;
-            consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, smooth));
+            consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, rotation, smooth));
         }
     }
 }

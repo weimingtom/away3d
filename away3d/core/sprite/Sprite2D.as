@@ -1,14 +1,14 @@
 package away3d.core.sprite
 {
     import away3d.core.*;
-    import away3d.core.scene.*;
-    import away3d.core.mesh.*;
-    import away3d.core.render.*;
     import away3d.core.draw.*;
     import away3d.core.material.*;
     import away3d.core.math.*;
+    import away3d.core.mesh.*;
+    import away3d.core.render.*;
+    import away3d.core.scene.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.BitmapData;
 
     /** Simple billboard sprite */
@@ -18,6 +18,7 @@ package away3d.core.sprite
 
         public var bitmap:BitmapData;
         public var scaling:Number;
+        public var rotation:Number;
         public var smooth:Boolean;
         public var deltaZ:Number;
     
@@ -28,6 +29,7 @@ package away3d.core.sprite
             init = Init.parse(init);
     
             scaling = init.getNumber("scaling", 1, {min:0});
+            rotation = init.getNumber("rotation", 0);
             bitmap = init.getBitmap("bitmap");
             smooth = init.getBoolean("smooth", false);
             deltaZ = init.getNumber("deltaZ", 0);
@@ -42,10 +44,10 @@ package away3d.core.sprite
             var sc:ScreenVertex = center.project(projection);
             if (!sc.visible)
                 return;
-                
+            
             var persp:Number = projection.zoom / (1 + sc.z / projection.focus);
             sc.z += deltaZ;
-            consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, smooth));
+            consumer.primitive(new DrawScaledBitmap(this, bitmap, sc, persp*scaling, rotation, smooth));
         }
     }
 }
