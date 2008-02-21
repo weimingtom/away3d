@@ -1,4 +1,4 @@
-package away3d.core.mesh
+﻿package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.draw.*;
@@ -749,22 +749,31 @@ package away3d.core.mesh
             return mesh;
         }
 
-        public function asAS3Class(classname:String = null, packagename:String = ""):String
+ public var indexes:Array;
+ 		public function asAS3Class(classname:String = null, packagename:String = "", round:Boolean = false, animated:Boolean = false):String
         {
-            classname = classname || name || "MyAway3DObject";
-            var source:String = "package "+packagename+"\n{\n\timport away3d.core.mesh.*;\n\n\tpublic class "+classname+" extends Mesh\n\t{\n";
-            source += "\t\tprivate var varr:Array = [];\n";
-            source += "\t\tprivate var uvarr:Array = [];\n\n";
-            source += "\t\tprivate function v(x:Number,y:Number,z:Number):void\n\t\t{\n";
-            source += "\t\t\tvarr.push(new Vertex(x,y,z));\n\t\t}\n\n";
+            classname = classname || name || "Away3DObject";
+			
+			var importextra:String  = (animated)? "\timport flash.utils.Dictionary;\n" : ""; 
+            var source:String = "package "+packagename+"\n{\n\timport away3d.core.mesh.*;\n\timport away3d.core.utils.*;\n"+importextra+"\n\tpublic class "+classname+" extends Mesh\n\t{\n";
+            source += "\t\tprivate var varr:Array = [];\n\t\tprivate var uvarr:Array = [];\n\t\tprivate var scaling:Number;\n";
+			
+			if(animated){
+				source += "\t\tprivate var fnarr:Array = [];\n\n";
+				source += "\n\t\tprivate function v():void\n\t\t{\n";
+				source += "\t\t\tfor(var i:int = 0;i<vcount;i++){\n\t\t\t\tvarr.push(new Vertex(0,0,0));\n\t\t\t}\n\t\t}\n\n";
+			} else{
+				source += "\n\t\tprivate function v(x:Number,y:Number,z:Number):void\n\t\t{\n";
+				source += "\t\t\tvarr.push(new Vertex(x*scaling, y*scaling, z*scaling));\n\t\t}\n\n";
+			}
             source += "\t\tprivate function uv(u:Number,v:Number):void\n\t\t{\n";
             source += "\t\t\tuvarr.push(new UV(u,v));\n\t\t}\n\n";
             source += "\t\tprivate function f(vn0:int, vn1:int, vn2:int, uvn0:int, uvn1:int, uvn2:int):void\n\t\t{\n";
             source += "\t\t\taddFace(new Face(varr[vn0],varr[vn1],varr[vn2], null, uvarr[uvn0],uvarr[uvn1],uvarr[uvn2]));\n\t\t}\n\n";
-            source += "\t\tpublic function "+classname+"(init:Object = null)\n\t\t{\n\t\t\tsuper(init);\n\t\t\tbuild();\n\t\t}\n\n";
+            source += "\t\tpublic function "+classname+"(init:Object = null)\n\t\t{\n\t\t\tsuper(init);\n\t\t\tinit = Init.parse(init);\n\t\t\tscaling = init.getNumber(\"scaling\", 1);\n\t\t\tbuild();\n\t\t\ttype = \".as\";\n\t\t}\n\n";
             source += "\t\tprivate function build():void\n\t\t{\n";
-            
-            var refvertices:Dictionary = new Dictionary();
+				
+			var refvertices:Dictionary = new Dictionary();
             var verticeslist:Array = [];
             var remembervertex:Function = function(vertex:Vertex):void
             {
@@ -798,19 +807,122 @@ package away3d.core.mesh
                 rememberuv(face._uv1);
                 rememberuv(face._uv2);
             }
+ 			
+			var uv:UV;
+			var v:Vertex;
+			var myPattern:RegExp;
+			var myPattern2:RegExp;
+			
+			if(animated){
+				myPattern = new RegExp("vcount","g");
+				source = source.replace(myPattern, verticeslist.length);
+				source += "\n\t\t\tv();\n\n";					
+					
+			} else{
+				for each (v in verticeslist)
+					source += (round)? "\t\t\tv("+v._x.toFixed(4)+","+v._y.toFixed(4)+","+v._z.toFixed(4)+");\n" : "\t\t\tv("+v._x+","+v._y+","+v._z+");\n";				
+			}
+			 
+			for each (uv in uvslist)
+				source += (round)? "\t\t\tuv("+uv._u.toFixed(4)+","+uv._v.toFixed(4)+");\n"  :  "\t\t\tuv("+uv._u+","+uv._v+");\n";
 
-            for each (var v:Vertex in verticeslist)
-                source += "\t\t\tv("+v._x+","+v._y+","+v._z+");\n";
+			if(round){
+				var tmp:String;
+				myPattern2 = new RegExp(".0000","g");
+			}
+			
+			var f:Face;	
+			if(animated){
+				var ind:Array;
+				var auv:Array = [];
+				for each (f in _faces)
+				
+					auv.push((round)? refuvs[f._uv0].toFixed(4)+","+refuvs[f._uv1].toFixed(4)+","+refuvs[f._uv2].toFixed(4) : refuvs[f._uv0]+","+refuvs[f._uv1]+","+refuvs[f._uv2]);
+				
+				for(var i:int = 0; i< indexes.length;i++){
+					ind = indexes[i];
+					source += "\t\t\tf("+ind[0]+","+ind[1]+","+ind[2]+","+auv[i]+");\n";
+				}
+				
+			} else{
+				for each (f in _faces)
+					source += "\t\t\tf("+refvertices[f._v0]+","+refvertices[f._v1]+","+refvertices[f._v2]+","+refuvs[f._uv0]+","+refuvs[f._uv1]+","+refuvs[f._uv2]+");\n";
+			}
 
-            for each (var uv:UV in uvslist)
-                source += "\t\t\tuv("+uv._u+","+uv._v+");\n";
-
-            for each (var f:Face in _faces)
-                source += "\t\t\tf("+refvertices[f._v0]+","+refvertices[f._v1]+","+refvertices[f._v2]+","+refuvs[f._uv0]+","+refuvs[f._uv1]+","+refuvs[f._uv2]+");\n"
-
-            source += "\t\t}\n\t}\n}";
+			if(round) source = source.replace(myPattern2,"");
+			
+			if(animated){
+				var afn:Array = new Array();
+				var avp:Array;
+				var tmpnames:Array = new Array();
+				i= 0;
+				var y:int = 0;
+				source += "\n\t\t\tframes = new Dictionary();\n";
+            	source += "\t\t\tframenames = new Dictionary();\n";
+				source += "\t\t\tvar oFrames:Object = new Object();\n";
+				
+				myPattern = new RegExp(" ","g");
+				
+				for (var framename:String in framenames){
+					tmpnames.push(framename);
+				}
+				
+				tmpnames.sort(); 
+				var fr:Frame;
+				for (i = 0;i<tmpnames.length;i++){
+					avp = new Array();
+					fr = frames[framenames[tmpnames[i]]];
+					if(tmpnames[i].indexOf(" ") != -1) tmpnames[i] = tmpnames[i].replace(myPattern,"");
+					afn.push("\""+tmpnames[i]+"\"");
+					source += "\n\t\t\toFrames."+tmpnames[i]+"=[";
+					for(y = 0; y<verticeslist.length ;y++){
+						if(round){
+							avp.push(fr.vertexpositions[y].x.toFixed(4));
+							avp.push(fr.vertexpositions[y].y.toFixed(4));
+							avp.push(fr.vertexpositions[y].z.toFixed(4));
+						} else{
+							avp.push(fr.vertexpositions[y].x);
+							avp.push(fr.vertexpositions[y].y);
+							avp.push(fr.vertexpositions[y].z);
+						}
+					}
+					if(round){
+						tmp = avp.toString();
+						tmp = tmp.replace(myPattern2,"");
+						source += tmp +"];\n";
+					} else{
+						source += avp.toString() +"];\n";
+					}
+				}
+				
+				source += "\n\t\t\tfnarr = ["+afn.toString()+"];\n";
+				source += "\n\t\t\tvar y:int;\n";
+				source += "\t\t\tvar z:int;\n";
+				source += "\t\t\tvar frame:Frame;\n";
+				source += "\t\t\tfor(var i:int = 0;i<fnarr.length; i++){\n";
+				source += "\t\t\t\ttrace(\"[ \"+fnarr[i]+\" ]\");\n";
+				source += "\t\t\t\tframe = new Frame();\n";
+				source += "\t\t\t\tframenames[fnarr[i]] = i;\n";
+				source += "\t\t\t\tframes[i] = frame;\n";
+				source += "\t\t\t\tz=0;\n";
+				source += "\t\t\t\tfor (y = 0; y < oFrames[fnarr[i]].length; y+=3){\n";
+				source += "\t\t\t\t\tvar vp:VertexPosition = new VertexPosition(varr[z]);\n";
+				source += "\t\t\t\t\tz++;\n";
+				source += "\t\t\t\t\tvp.x = oFrames[fnarr[i]][y]*scaling;\n";
+				source += "\t\t\t\t\tvp.y = oFrames[fnarr[i]][y+1]*scaling;\n";
+				source += "\t\t\t\t\tvp.z = oFrames[fnarr[i]][y+2]*scaling;\n";
+				source += "\t\t\t\t\tframe.vertexpositions.push(vp);\n";
+				source += "\t\t\t\t}\n";
+				source += "\t\t\t\tif (i == 0)\n";
+				source += "\t\t\t\t\tframe.adjust();\n";
+				source += "\t\t\t}\n";
+				
+			}
+			source += "\n\t\t}\n\t}\n}";
+			//here a setClipboard to avoid Flash slow trace window might be beter...
             return source;
         }
+
 
         public function asXML():XML
         {

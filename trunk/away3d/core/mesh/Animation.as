@@ -1,4 +1,4 @@
-package away3d.core.mesh
+﻿package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.material.*;
@@ -8,8 +8,9 @@ package away3d.core.mesh
     import flash.geom.Matrix;
     import flash.events.Event;
     import flash.utils.*;
-
-    public class Animation implements IAnimation
+	import flash.events.EventDispatcher;
+	
+    public class Animation extends EventDispatcher implements IAnimation
     {
         private var _frame:Number = 0;
         private var _fps:Number = 24;
@@ -17,6 +18,7 @@ package away3d.core.mesh
         private var _smooth:Boolean = false;
         private var _delay:Number = 0;
         private var _sequence:Array = [];
+		private var _latest:Number = 0;
 
         public function Animation()
         {
@@ -65,10 +67,10 @@ package away3d.core.mesh
         {
             _time = getTimer();
             _running = true;
-
+			_latest = 0;
             _frame = 0;
         }
-
+		
         public function update(mesh:BaseMesh):void
         {
             if (!_running)
@@ -88,6 +90,7 @@ package away3d.core.mesh
             {
                 while (_frame > _sequence.length-1+_delay)
                     _frame -= _sequence.length-1+_delay;
+					
             }
             else
             {
@@ -97,7 +100,7 @@ package away3d.core.mesh
                     _running = false;
                 }
             }
-
+			
             var rf:Number = _frame;
 
             if (!_smooth)
@@ -112,6 +115,7 @@ package away3d.core.mesh
             if (rf == Math.round(rf))
             {
                 mesh.frames[_sequence[int(rf)].frame].adjust(1);
+				
             }
             else
             {
@@ -119,13 +123,33 @@ package away3d.core.mesh
                 var hf:Number = Math.ceil(rf);
                 mesh.frames[_sequence[int(lf)].frame].adjust(1);
                 mesh.frames[_sequence[int(hf)].frame].adjust(rf-lf);
+				
+				if(_loop){
+					if(_latest == 0 || _latest+1 == _sequence[int(lf)].frame || _latest == _sequence[int(lf)].frame){
+						_latest = _sequence[int(lf)].frame;
+					} else{
+						dispatchEvent(new Event("CYCLE"));
+						_latest = 0;
+					}
+				}
             }
         }
 
         public function stop():void
         {
-            _running = false;    
+            _running = false;
+			_latest = 0;
         }
-
+		
+		public function get run():Boolean
+		{
+			return _running;
+		}
+		
+		public function set delay(value:int):void
+		{
+			_delay = value;
+		}
+		
     }
 }

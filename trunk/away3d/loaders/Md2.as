@@ -1,4 +1,4 @@
-package away3d.loaders
+﻿package away3d.loaders
 {
     import away3d.core.*;
     import away3d.core.math.*;
@@ -101,6 +101,9 @@ package away3d.loaders
 
             // Faces
             data.position = offset_tris;
+			// export requirement
+			mesh.indexes = new Array();
+			
             for (i = 0; i < num_tris; i++)
             {
                 var a:int = data.readUnsignedShort();
@@ -109,6 +112,8 @@ package away3d.loaders
                 var ta:int = data.readUnsignedShort();
                 var tb:int = data.readUnsignedShort();
                 var tc:int = data.readUnsignedShort();
+				
+				mesh.indexes.push([a,b,c,ta,tb,tc]);
                 
                 mesh.addFace(new Face(vertices[a], vertices[b], vertices[c], null, uvs[ta], uvs[tb], uvs[tc]));
             }
