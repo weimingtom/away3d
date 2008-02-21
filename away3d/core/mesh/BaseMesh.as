@@ -1,4 +1,4 @@
-package away3d.core.mesh
+﻿package away3d.core.mesh
 {
     import away3d.core.*;
     import away3d.core.draw.*;
@@ -10,6 +10,8 @@ package away3d.core.mesh
     import away3d.objects.*;
     
     import flash.utils.*;
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
     
     /** Base mesh constisting of elements */
     public class BaseMesh extends Object3D
@@ -444,9 +446,8 @@ package away3d.core.mesh
             throw new Error("Not implemented");
         }
 
-        public var frames:Dictionary;
+   public var frames:Dictionary;
         public var framenames:Dictionary;
-
         private var _frame:int;
 
         public function get frame():int
@@ -463,7 +464,101 @@ package away3d.core.mesh
 
             frames[_frame].adjust(1);
         }
-
+		
+		private var _playsequence:Object;
+		
+		public function gotoAndPlay(value:int):void
+		{
+			frame = value;
+ 
+			if(!animation.run){
+				animation.start();
+			}
+		}
+		public function gotoAndStop(value:int):void
+		{
+			frame = value;
+			
+			if(animation.run){
+				animation.stop();
+			}
+		}
+		
+		public function setPlaySequences(aPlaylist:Array, loopLast:Boolean = false):void
+		{
+			if(aPlaylist.length == 0)
+				return;
+			
+			play(aPlaylist.shift());
+			
+			if(!animation.hasEventListener("CYCLE")){
+				_playsequence = new Object();
+				_playsequence.playlist = aPlaylist; 
+				_playsequence.loopLast = loopLast;
+				loop = true;
+				animation.addEventListener("CYCLE", updatePlaySequence);
+			}
+		}
+		
+		private function updatePlaySequence(e:Event):void
+		{
+			if(_playsequence.playlist.length == 0){
+				animation.removeEventListener("CYCLE", updatePlaySequence);
+				if (sequencedone == null)
+                	sequencedone = new Event("SEQUENCE_DONE");
+				
+				dispatchEvent(sequencedone);
+			}
+			play(_playsequence.playlist.shift());
+			
+			if(cycle != null)
+				dispatchEvent(cycle);
+			
+		}
+		
+		private var sequencedone:Event;
+		private var cycle:Event;
+		
+		public function onSequenseDone(listener:Function):void
+        {
+            addEventListener("SEQUENCE_DONE", listener, false, 0, false);
+        }
+		
+		public function removeOnSequenceDone(listener:Function):void
+        {
+            removeEventListener("SEQUENCE_DONE", listener, false);
+        }
+		
+		
+		public function onCycleDone(listener:Function):void
+        {
+			cycle = new Event("CYCLE_DONE");
+            addEventListener("CYCLE_DONE", listener, false, 0, false);
+        }
+		
+		public function removeOnCycleDone(listener:Function):void
+        {
+			cycle = null;
+            removeEventListener("CYCLE_DONE", listener, false);
+        }
+		
+		public function set fps(value:int):void
+		{
+			animation.fps = (value>=1)? value : 1;
+		}
+		public function set loop(loop:Boolean):void
+		{
+			animation.loop = loop;
+		}
+		public function set smooth(smooth:Boolean):void
+		{
+			animation.smooth = smooth;
+		}
+		public function get running():Boolean
+		{
+			return animation.run;
+		}
+		
         public override function tick(time:int):void
         {
             if ((animation != null) && (frames != null))
@@ -471,29 +566,56 @@ package away3d.core.mesh
         }
 
         public var animation:Animation;
+		
+		public function scaleAnimation(val:Number):void
+		{
+			var tmpnames:Array = new Array();
+			var i:int = 0;
+			var y:int = 0;
+			for (var framename:String in framenames){
+				tmpnames.push(framename);
+			}				
+			var fr:Frame;
+			for (i = 0;i<tmpnames.length;i++){
+				fr = frames[framenames[tmpnames[i]]];
+				for(y = 0; y<fr.vertexpositions.length ;y++){
+					fr.vertexpositions[y].x *= val;
+					fr.vertexpositions[y].y *= val;
+					fr.vertexpositions[y].z *= val;
+				}
+			}				
+		}
+		
         public function play(init:Object = null):void
         {
             init = Init.parse(init);
-            
             var fps:Number = init.getNumber("fps", 24);
             var prefix:String = init.getString("prefix", null);
             var smooth:Boolean = init.getBoolean("smooth", false);
             var loop:Boolean = init.getBoolean("loop", false);
-
-            animation = new Animation();
+			
+			 
+			if(!animation){
+            	animation = new Animation();
+				 
+			} else{
+				animation.sequence = new Array();
+			}
+			
             animation.fps = fps;
             animation.smooth = smooth;
             animation.loop = loop;
-
+			
+			
             if (prefix != null)
             {
                 for (var framename:String in framenames)
                     if (framename.indexOf(prefix) == 0)
                         animation.sequence.push(new AnimationFrame(framenames[framename], ""+parseInt(framename.substring(prefix.length))));
-                        
-                animation.sequence.sortOn("sort", Array.NUMERIC);
+					
+				animation.sequence.sortOn("sort", Array.NUMERIC ); 
             }
-
+			frames[_frame].adjust(1);
             animation.start();
         }
         
