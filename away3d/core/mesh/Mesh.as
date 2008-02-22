@@ -495,14 +495,15 @@
 
         public function movePivot(dx:Number, dy:Number, dz:Number):void
         {
+        	//if (_transformDirty)
+        	//	updateTransform();
             var nd:Boolean = _neighboursDirty;
             _neighboursDirty = true;
+            var dV:Number3D = new Number3D(dx, dy, dz);
+            dV.rotate(dV.clone(), _transform);
+            
             for each (var vertex:Vertex in vertices)
-            {
-                vertex.x += dx;
-                vertex.y += dy;
-                vertex.z += dz;
-            }
+                vertex.position.add(vertex.position, dV);
             x -= dx;
             y -= dy;
             z -= dz;

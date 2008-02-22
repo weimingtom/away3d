@@ -1,5 +1,6 @@
 package away3d.loaders
 {
+	import away3d.core.*;
 	import away3d.core.material.*;
 	import away3d.core.mesh.*;
 	import away3d.core.scene.Object3D;
@@ -15,6 +16,8 @@ package away3d.loaders
 	/* 3DS file parser */
 	public class Max3DS
 	{
+		use namespace arcane;
+		
 		public var container:ObjectContainer3D;
 		public var materialLibrary:MaterialLibrary = new MaterialLibrary();
 		public var meshDataList:Array = [];
@@ -210,7 +213,6 @@ package away3d.loaders
 		private function readMaterialName(chunk:Chunk3ds):void
 		{
 			_materialData = materialLibrary.addMaterial(readASCIIZString(_data));
-			trace("materialName = ", _materialData.name);
 			
 			chunk.bytesRead = chunk.length;
 		}
@@ -310,8 +312,6 @@ package away3d.loaders
 			chunk.bytesRead += _meshData.name.length + 1;
 		}
 		
-		private var _vertex:Vertex;
-		
 		private function readMeshVertices(chunk:Chunk3ds):void
 		{
 			var numVerts:int = _data.readUnsignedShort();
@@ -319,11 +319,7 @@ package away3d.loaders
 			
 			for (var i:int = 0; i < numVerts; i++)
 			{
-				_vertex = new Vertex();
-				_vertex.x = _data.readFloat();
-				_vertex.y = _data.readFloat();
-				_vertex.z = _data.readFloat();
-				_meshData.vertices.push(_vertex);
+				_meshData.vertices.push(new Vertex(_data.readFloat(), _data.readFloat(), _data.readFloat()));
 				chunk.bytesRead += 12;
 			}
 		}
@@ -359,7 +355,6 @@ package away3d.loaders
 			var meshMaterial:MeshMaterialData = new MeshMaterialData();
 			meshMaterial.name = readASCIIZString(_data);
 			chunk.bytesRead += meshMaterial.name.length +1;
-			trace("meshMaterialName = ", meshMaterial.name);
 			
 			var numFaces:int = _data.readUnsignedShort();
 			chunk.bytesRead += 2;
@@ -425,7 +420,8 @@ package away3d.loaders
 		private var _faceListIndex:int;
 		
 		private var _face:Face;
-		
+		private var _vertex:Vertex;
+				
 		private function buildMeshes():void
 		{
 			
@@ -435,9 +431,9 @@ package away3d.loaders
 				averageX = averageY = averageZ = 0;
 				numVertices = _meshData.vertices.length;
 				for each (_vertex in _meshData.vertices) {
-					averageX += _vertex.x;
-					averageY += _vertex.y;
-					averageZ += _vertex.z;
+					averageX += _vertex._x;
+					averageY += _vertex._y;
+					averageZ += _vertex._z;
 				}
 				
 				averageX /= numVertices;
@@ -445,9 +441,9 @@ package away3d.loaders
 				averageZ /= numVertices;
 				
 				for each (_vertex in _meshData.vertices) {
-					_vertex.x -= averageX;
-					_vertex.y -= averageY;
-					_vertex.z -= averageZ;
+					_vertex._x -= averageX;
+					_vertex._y -= averageY;
+					_vertex._z -= averageZ;
 				}
 				
 				//set materialdata for each face
@@ -458,7 +454,6 @@ package away3d.loaders
 					}
 				}
 				var mesh:Mesh = new Mesh({x:averageX, y:averageY, z:averageZ});
-				var material:ITriangleMaterial = new WireColorMaterial();
 				var face:Face;
 				var matData:MaterialData;
 				
@@ -491,7 +486,6 @@ package away3d.loaders
 				{
 					case MaterialData.TEXTURE_MATERIAL:
 						materialLibrary.loadRequired = true;
-						_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
 						break;
 					case MaterialData.SHADING_MATERIAL:
 						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});

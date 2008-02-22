@@ -36,7 +36,8 @@ package away3d.loaders
     	
     	public function texturesLoaded(loadQueue:TextureLoadQueue):void
     	{
-    		trace("textures loaded");
+    		loadRequired = false;
+    		
 			var images:Array = loadQueue.images;
 			
 			for each (_materialData in this)

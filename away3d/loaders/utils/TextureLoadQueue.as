@@ -1,12 +1,12 @@
 package away3d.loaders.utils
 {
-	import flash.net.URLRequest;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
-	import flash.events.EventDispatcher;
+	import flash.net.URLRequest;
 	
 	
 	
@@ -82,6 +82,11 @@ package away3d.loaders.utils
 		
 		public function addItem(loader:TextureLoader, request:URLRequest):void
 		{
+			//check to stop duplicated loading
+			for each (var _item:LoaderAndRequest in _queue) {
+				if (_item.request.url == request.url)
+					return;
+			}
 			_queue.push(new LoaderAndRequest(loader, request));
 		}
 		
@@ -102,35 +107,34 @@ package away3d.loaders.utils
 		private function onItemComplete(e:Event):void
 		{
 			cleanUpOldItem(currentLoader);
-			if(_currentItemIndex == numItems-1){
+			_currentItemIndex++;
+			loadNext();
+		}
+		
+		
+		private function loadNext():void
+		{
+			if(_currentItemIndex >= numItems){
 				dispatchEvent(new Event(Event.COMPLETE));
 			}else{
 				var evt:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS);
 				evt.bytesTotal = 100;
 				evt.bytesLoaded = percentLoaded;
 				dispatchEvent(evt);
-				_currentItemIndex++;
-				loadNext();
-			}
-		}
-		
-		
-		private function loadNext():void
-		{
-			
-			if(currentLoader.contentLoaderInfo.bytesLoaded > 0 && currentLoader.contentLoaderInfo.bytesLoaded == currentLoader.contentLoaderInfo.bytesTotal){
+				if(currentLoader.contentLoaderInfo.bytesLoaded > 0 && currentLoader.contentLoaderInfo.bytesLoaded == currentLoader.contentLoaderInfo.bytesTotal){
+					
+				}else{
 				
-			}else{
-			
-				// make it lowest priority so we handle it after the loader handles the event itself. That means that when we
-				// re-dispatch the event, the loaders have already processed their data and are ready for use
-				currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete, false, int.MIN_VALUE, true);
-				
-				currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false, 0, true);
-				currentLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false, 0, true);
-				currentLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, redispatchEvent, false, 0, true);
-				currentLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false, 0, true);
-				currentLoader.load(currentURLRequest);
+					// make it lowest priority so we handle it after the loader handles the event itself. That means that when we
+					// re-dispatch the event, the loaders have already processed their data and are ready for use
+					currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete, false, int.MIN_VALUE, true);
+					
+					currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false, 0, true);
+					currentLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false, 0, true);
+					currentLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, redispatchEvent, false, 0, true);
+					currentLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false, 0, true);
+					currentLoader.load(currentURLRequest);
+				}
 			}
 		}
 		

@@ -6,13 +6,24 @@ package away3d.loaders
     import away3d.core.mesh.*;
     import away3d.core.scene.*;
     import away3d.core.utils.*;
+    import away3d.loaders.data.ContainerData;
+    import away3d.loaders.data.FaceData;
+    import away3d.loaders.data.MaterialData;
+    import away3d.loaders.data.MeshData;
+    import away3d.loaders.data.MeshMaterialData;
+    import away3d.loaders.data.ObjectData;
     
     import flash.utils.*;
 
     /** Collada scene loader */
     public class Collada
     {
-        private var container:ObjectContainer3D;
+    	use namespace arcane;
+    	
+        public var container:ObjectContainer3D;
+    	public var materialLibrary:MaterialLibrary = new MaterialLibrary();
+        public var containerData:ContainerData;
+        
         private var collada:XML;
         private var library:Dictionary;
         private var material:ITriangleMaterial;
@@ -24,37 +35,72 @@ package away3d.loaders
             collada = xml;
 
             init = Init.parse(init);
-
-            scaling = init.getNumber("scaling", 1) * 100;
+			materialLibrary.texturePath = init.getString("texturePath", "");
+			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
+            scaling = init.getNumber("scaling", 1)*100;
             material = init.getMaterial("material");
             var materials:Object = init.getObject("materials") || {};
 
-            library = new Dictionary();
-            for (var name:String in materials)
-                library[name] = Cast.material(materials[name]);
-    
+            for (var name:String in materials) {
+                _materialData = materialLibrary.addMaterial(name);
+                _materialData.material = Cast.material(materials[name]);
+                
+                //determine material type
+                if (_materialData.material is BitmapMaterial)
+                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                else if (_materialData.material is ShadingColorMaterial)
+                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                else if (_materialData.material is WireframeMaterial)
+                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
+   			}
+    		
+			//parse the collada file
+            parseCollada();
+            
+            //build materials
+			buildMaterials();
+			
+			//build the containers
             container = new ObjectContainer3D(init);
-
-            buildCollada();
+			buildContainer(containerData, container);
         }
 
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
-            return new Collada(Cast.xml(data), init).container;
+            var parser:Collada = new Collada(Cast.xml(data), init);
+        	if (loader)
+        		loader.materialLibrary = parser.materialLibrary;
+            return parser.container;
         }
-
+		
+		public static function loadTextures(data:*, init:Object = null):Object3DLoader
+		{
+			var parser:Collada = new Collada(Cast.xml(data), init);
+			return Object3DLoader.loadTextures(parser.container, parser.materialLibrary, init);
+		}
+		
         public static function load(url:String, init:Object = null):Object3DLoader
         {
             return Object3DLoader.loadGeometry(url, parse, false, init);
         }
     
-        protected function buildCollada():void
+        protected function parseCollada():void
         {
             default xml namespace = collada.namespace();
     
             // Get up axis
             yUp = (collada.asset.up_axis == "Y_UP");
-    
+    		
+    		if (yUp) {
+    			VALUE_X = "X";
+    			VALUE_Y = "Y";
+    			VALUE_Z = "Z";
+        	} else {
+                VALUE_X = "X";
+                VALUE_Y = "Z";
+                VALUE_Z = "Y";
+        	}
+                    
             // Parse first scene
             var sceneId:String = getId(collada.scene.instance_visual_scene.@url);
     
@@ -62,28 +108,30 @@ package away3d.loaders
     
             parseScene(scene);
         }
-    
+    	
         private function parseScene(scene:XML):void
         {
+        	containerData = new ContainerData();
             for each (var node:XML in scene.node)
-                parseNode(node, container);
+                parseNode(node, containerData);
         }
-        
     	
-        private function parseNode(node:XML, parent:ObjectContainer3D):void
+    	private var _meshData:MeshData;
+        private var _materialData:MaterialData;
+        
+        private function parseNode(node:XML, parent:ContainerData):void
         {
-	    	var matrix:Matrix3D;
-	    	var newnode:Object3D;
-	    	var m:Matrix3D = new Matrix3D();
+	    	var _transform:Matrix3D;
+	    	var _objectData:ObjectData;
 	    	
             if (String(node.instance_geometry) == "")
-                newnode = new ObjectContainer3D();
+                _objectData = new ContainerData();
             else                                                
-                newnode = new Mesh(null);
+                _objectData = new MeshData();
 
-            newnode.name = node.@name;
-            matrix = newnode.transform;
-            parent.addChild(newnode);
+            _objectData.name = node.@name;
+            _transform = _objectData.transform;
+            parent.children.push(_objectData);
     
             var children:XMLList = node.children();
             var totalChildren:int = children.length();
@@ -95,57 +143,60 @@ package away3d.loaders
                 switch (child.name().localName)
                 {
                     case "translate":
-                        matrix.multiply(matrix, translateMatrix(getArray(child)));
+                        _transform.multiply(_transform, translateMatrix(getArray(child)));
                         break;
     
                     case "rotate":
-                        matrix.multiply(matrix, rotateMatrix(getArray(child)));
+                        _transform.multiply(_transform, rotateMatrix(getArray(child)));
                         break;
     
                     case "scale":
-                        matrix.multiply(matrix, scaleMatrix(getArray(child)));
+                        _transform.multiply(_transform, scaleMatrix(getArray(child)));
                         break;
     
                     // Baked transform matrix
                     case "matrix":
+                    	var m:Matrix3D = new Matrix3D();
                     	m.array2matrix(getArray(child));
-                        matrix.multiply(matrix, m);
+                        _transform.multiply(_transform, m);
                         break;
     
                     case "node":
-                        if (newnode is ObjectContainer3D)
-                            parseNode(child, newnode as ObjectContainer3D);
+                        if (_objectData is ContainerData && String(child).indexOf("ForegroundColor") == -1)
+                            parseNode(child, _objectData as ContainerData);
                         break;
     
                     case "instance_geometry":
-                        for each (var geometry:XML in child)
-                        {                       
-                            if (String(geometry) == "")
-                                continue;
-
-                            var materials:Dictionary = new Dictionary();
-                            for each (var instance_material:XML in child..instance_material)
-                            {
-                                var symbol:String = instance_material.@symbol;
-                                materials[symbol] = instance_material.@target.split("#")[1];
-                            }
-                                 
-                            var geo:XML = collada.library_geometries.geometry.(@id == getId(geometry.@url))[0];
-                            parseGeometry(geo, newnode as Mesh, materials);
-                        }
+                    	if(String(child).indexOf("lines") == -1) {
+							
+	                        if (String(child) != "") {
+								//add materials to materialLibrary
+	                            for each (var instance_material:XML in child..instance_material) {
+	                            	var name:String = instance_material.@symbol;
+		                           	_materialData = materialLibrary.addMaterial(name);
+		                            if(name == "FrontColorNoCulling") {
+		                            	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
+		                            } else {
+		                            	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+			                            _materialData.textureFileName = getTextureFileName(instance_material.@target.split("#")[1]);
+		                            }
+	                            }
+	                            var geo:XML = collada.library_geometries.geometry.(@id == getId(child.@url))[0];
+	                            parseGeometry(geo, _objectData as MeshData);
+	                        }
+	                    }
                         break;
                 }
             }
         }
-    
-        private function parseGeometry(geometry:XML, instance:Mesh, materials:Dictionary):void
+        
+        private var _meshMaterialData:MeshMaterialData;
+        
+        private function parseGeometry(geometry:XML, _meshData:MeshData):void
         {
             // Semantics
-            var semantics:Object = new Object();
-            semantics.name = geometry.@id;
-    
-            var faces:Array = semantics.triangles = new Array();
-    
+            _meshData.name = geometry.@id;
+    		
             // Triangles
             for each (var triangles:XML in geometry.mesh.triangles)
             {
@@ -154,159 +205,163 @@ package away3d.loaders
     
                 for each(var input:XML in triangles.input)
                 {
-                    semantics[input.@semantic] = deserialize(input, geometry);
+                	var semantic:String = input.@semantic;
+                	switch(semantic)
+                	{
+                		case "VERTEX":
+                			deserialize(input, geometry, Vertex, _meshData.vertices);
+                			break;
+                		case "TEXCOORD":
+                			deserialize(input, geometry, UV, _meshData.uvs);
+                			break;
+                		default:
+                	}
                     field.push(input.@semantic);
                 }
-    
+    			
                 var data     :Array  = triangles.p.split(' ');
                 var len      :Number = triangles.@count;
                 var material :String = triangles.@material;
-    
+                
+    			_meshMaterialData = new MeshMaterialData();
+    			_meshMaterialData.name = material;
+    			_meshData.materials.push(_meshMaterialData);
+    			
                 for (var j:Number = 0; j < len; j++)
                 {
-                    var t:Object = new Object();
+                    var _faceData:FaceData = new FaceData();
     
                     for (var v:Number = 0; v < 3; v++)
                     {
-                        var fld:String;
-                        for (var k:Number = 0; fld = field[k]; k++)
+                        for each (var fld:String in field)
                         {
-                            if (!t[fld]) 
-                                t[fld] = new Array();
-    
-                            t[fld].push(Number(data.shift()));
+                        	switch(fld)
+                        	{
+                        		case "VERTEX":
+                        			_faceData["v" + v] = data.shift();
+                        			break;
+                        		case "TEXCOORD":
+                        			_faceData["uv" + v] = data.shift();
+                        			break;
+                        		default:
+                        			data.shift();
+                        	}
                         }
-    
-                        t["material"] = material;
                     }
-                    faces.push(t);
+                    _meshMaterialData.faceList.push(_meshData.faces.length);
+                    _meshData.faces.push(_faceData);
                 }
             }
-    
-            buildObject(semantics, instance, materials);
-        }
-    
-        private function buildObject(semantics:Object, mesh:Mesh, materials:Dictionary):void
-        {
-            // Vertices
-            var vertices:Array = [];
-    
-            var semVertices:Array = semantics.VERTEX;
-            var len:Number = semVertices.length;
-    
-            var i:int;
-            for (i = 0; i < len; i++)
-            {
-                // Swap z & y for Max (to make Y up and Z depth)
-                var vert:Object = semVertices[i];
-                var x:Number = Number(vert.X) * scaling;
-                var y:Number = Number(vert.Y) * scaling;
-                var z:Number = Number(vert.Z) * scaling;
-    
-                if (this.yUp)
-                    vertices.push(new Vertex(-x, y, z));
-                else
-                    vertices.push(new Vertex( x, z, y));
-            }
-    
-            // Faces
-            var semFaces:Array = semantics.triangles;
-            len = semFaces.length;
-    
-            for (i = 0; i < len; i++)
-            {
-                // Triangle
-                var tri:Array = semFaces[i].VERTEX;
-                var a:Vertex = vertices[tri[0]];
-                var b:Vertex = vertices[tri[1]];
-                var c:Vertex = vertices[tri[2]];
-    
-                var tex:Array = semantics.TEXCOORD;
-                var uv:Array = semFaces[i].TEXCOORD;
-    
-                var uva:UV = null;
-                var uvb:UV = null;
-                var uvc:UV = null;
-    
-                if (uv && tex)
-                {
-                    uva = new UV(tex[uv[0]].S, tex[uv[0]].T);
-                    uvb = new UV(tex[uv[1]].S, tex[uv[1]].T);
-                    uvc = new UV(tex[uv[2]].S, tex[uv[2]].T);
-                }
-
-                var face:Face = new Face(a, b, c, getMaterial(semFaces[i].material, materials), uva, uvb, uvc);
-                mesh.addFace(face);
-            }
-    
-            mesh.material = new WireColorMaterial(0xFF00FF);
-    
-            mesh.visible = true;
-            
-            mesh.type = ".Collada";
-        }
-    
-        private function getMaterial(name:String, materials:Dictionary):ITriangleMaterial
-        {
-            if (name == null)
-                return material;
-
-            if (library[name] != null)
-                return library[name];
-
-            name = materials[name];
-
-            if (name == null)
-                return material;
-
-            if (library[name] != null)
-                return library[name];
-
-            var matxml:XML = collada.library_materials.material.(@id == name)[0];
-
-            if (matxml == null)
-                return material;
-
-            var effectId:String = getId(matxml.instance_effect.@url);
-            var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
-
-            if (effect..texture.length() == 0) 
-                return material;
-
-            var textureId:String = effect..texture[0].@texture;
-            var sampler:XML =  effect..newparam.(@sid == textureId)[0];
-
-            // Blender
-            var imageId:String = textureId;
-
-            // Not Blender
-            if (sampler)
-            {
-                var sourceId:String = sampler..source[0];
-                var source:XML =  effect..newparam.(@sid == sourceId)[0];
-
-                imageId = source..init_from[0];
-            }
-
-            var image:XML = collada.library_images.image.(@id == imageId)[0];
-
-            var filename:String = image.init_from;
-
-            if (filename.indexOf("/") != -1)
-                filename = filename.substring(filename.lastIndexOf("/")+1);
-
-            filename = filename.replace(/\-/g, "");
-
-            try
-            {
-                return Cast.material(filename);
-            }
-            catch (error:CastError)
-            {
-            }
-            return material;
         }
         
+        private function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
+		{
+			for each (var _objectData:ObjectData in containerData.children) {
+				if (_objectData is ContainerData) {
+					var objectContainer:ObjectContainer3D = new ObjectContainer3D({name:_objectData.name});
+					objectContainer.transform = _objectData.transform;
+					parent.addChild(objectContainer);
+					buildContainer(_objectData as ContainerData, objectContainer);
+				} else if (_objectData is MeshData) {
+					buildMesh(_objectData as MeshData, parent);
+				}
+			}
+		}
+        
+    	private var averageX:Number;
+		private var averageY:Number;
+		private var averageZ:Number;
+		private var numVertices:int;
+		
+    	private var _faceListIndex:int;
+    	private var _faceData:FaceData;
+    	
+    	private var _face:Face;
+    	private var _vertex:Vertex;
+    	
+        private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
+		{
+			//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
+			averageX = averageY = averageZ = 0;
+			numVertices = _meshData.vertices.length;
+			for each (_vertex in _meshData.vertices) {
+				averageX += _vertex._x;
+				averageY += _vertex._y;
+				averageZ += _vertex._z;
+			}
+			
+			averageX /= numVertices;
+			averageY /= numVertices;
+			averageZ /= numVertices;
+			
+			for each (_vertex in _meshData.vertices) {
+				_vertex._x -= averageX;
+				_vertex._y -= averageY;
+				_vertex._z -= averageZ;
+			}
+			
+			var averageV:Number3D = new Number3D(averageX, averageY, averageZ);
+			averageV.rotate(averageV.clone(), _meshData.transform)
+			
+			_meshData.transform.tx += averageV.x;
+			_meshData.transform.ty += averageV.y;
+			_meshData.transform.tz += averageV.z;
+			
+			//set materialdata for each face
+			for each (_meshMaterialData in _meshData.materials) {
+				for each (_faceListIndex in _meshMaterialData.faceList) {
+					_faceData = _meshData.faces[_faceListIndex] as FaceData;
+					_faceData.materialData = materialLibrary[_meshMaterialData.name];
+				}
+			}
+			
+			var mesh:Mesh = new Mesh({name:_meshData.name});
+			mesh.transform = _meshData.transform;
+			//mesh.movePivot(averageX, averageY, averageZ);
+			var face:Face;
+			var matData:MaterialData;
+			for each(_faceData in _meshData.faces) {
+			//trace(_meshData.uvs[_faceData.uv0]);
+				_face = new Face(_meshData.vertices[_faceData.v0],
+											_meshData.vertices[_faceData.v1],
+											_meshData.vertices[_faceData.v2],
+											_faceData.materialData.material,
+											_meshData.uvs[_faceData.uv0],
+											_meshData.uvs[_faceData.uv1],
+											_meshData.uvs[_faceData.uv2]);
+				mesh.addFace(_face);
+				_faceData.materialData.faces.push(_face);
+			}
+			
+			mesh.type = ".Collada";
+			
+			parent.addChild(mesh);
+		}
+        
+        private function buildMaterials():void
+		{
+			for each (_materialData in materialLibrary)
+			{
+				//overridden by materials passed in contructor
+				if (_materialData.material)
+					continue;
+				
+				switch (_materialData.materialType)
+				{
+					case MaterialData.TEXTURE_MATERIAL:
+						materialLibrary.loadRequired = true;
+						//_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
+						break;
+					case MaterialData.SHADING_MATERIAL:
+						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
+						break;
+					case MaterialData.WIREFRAME_MATERIAL:
+						_materialData.material = new WireColorMaterial();
+						break;
+				}
+			}
+		}
+		
         private function getArray(spaced:String):Array
         {
             var strings:Array = spaced.split(" ");
@@ -319,7 +374,49 @@ package away3d.loaders
     
             return numbers;
         }
-        
+		
+		// Retrieves the filename of a material
+		private function getTextureFileName( name:String ):String
+		{
+			var filename :String = null;
+	
+			var material:XML = collada.library_materials.material.(@id == name)[0];
+	
+			if( material )
+			{
+				var effectId:String = getId( material.instance_effect.@url );
+				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+	
+				if (effect..texture.length() == 0) return null;
+	
+				var textureId:String = effect..texture[0].@texture;
+	
+				var sampler:XML =  effect..newparam.(@sid == textureId)[0];
+	
+				// Blender
+				var imageId:String = textureId;
+	
+				// Not Blender
+				if( sampler )
+				{
+					var sourceId:String = sampler..source[0];
+					var source:XML =  effect..newparam.(@sid == sourceId)[0];
+	
+					imageId = source..init_from[0];
+				}
+	
+				var image:XML = collada.library_images.image.(@id == imageId)[0];
+	
+				filename = image.init_from;
+	
+				if (filename.substr(0, 2) == "./")
+				{
+					filename = filename.substr( 2 );
+				}
+			}
+			return filename;
+		}
+		
     	internal var rotationMatrix:Matrix3D = new Matrix3D();
     	
         private function rotateMatrix(vector:Array):Matrix3D
@@ -337,9 +434,9 @@ package away3d.loaders
         private function translateMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
-                translationMatrix.translationMatrix(-vector[0] * this.scaling, vector[1] * this.scaling, vector[2] * this.scaling);
+                translationMatrix.translationMatrix(-vector[0] * scaling, vector[1] * scaling, vector[2] * scaling);
             else
-                translationMatrix.translationMatrix( vector[0] * this.scaling, vector[2] * this.scaling, vector[1] * this.scaling);
+                translationMatrix.translationMatrix( vector[0] * scaling, vector[2] * scaling, vector[1] * scaling);
             
             return translationMatrix;
         }
@@ -356,9 +453,8 @@ package away3d.loaders
             return scalingMatrix;
         }
     
-        private function deserialize(input:XML, geo:XML):Array
+        private function deserialize(input:XML, geo:XML, Element:Class, output:Array):Array
         {
-            var output:Array = new Array();
             var id:String = input.@source.split("#")[1];
     
             // Source?
@@ -371,33 +467,68 @@ package away3d.loaders
                 var floXML:XMLList = collada..float_array.(@id == floId);
                 var floStr:String  = floXML.toString();
                 var floats:Array   = floStr.split(" ");
-    
+    			var float:Number;
                 // Build params array
                 var params:Array = new Array();
-    
+				var param:String;
+				
                 for each (var par:XML in acc.param)
                     params.push(par.@name);
     
                 // Build output array
                 var count:int = acc.@count;
                 var stride:int = acc.@stride;
-    
-                for (var i:int = 0; i < count; i++)
+    			var len:int = floats.length;
+    			var i:int = 0;
+                while (i < len)
                 {
-                    var element:Object = new Object();
-    
-                    for (var j:int = 0; j < stride; j++)
-                        element[params[j]] = floats.shift();
-    
-                    output.push(element);
-                }
+    				var element:ValueObject = new Element();
+	            	if (element is Vertex) {
+	            		var vertex:Vertex = element as Vertex;
+	                    for each (param in params) {
+	                    	float = floats[i];
+	                    	switch (param) {
+	                    		case VALUE_X:
+	                    			if (yUp)
+	                    				vertex._x = -float*scaling;
+	                    			else 
+	                    				vertex._x = float*scaling;
+	                    			break;
+	                    		case VALUE_Y:
+	                    			vertex._y = float*scaling;
+	                    			break;
+	                    		case VALUE_Z:
+	                    			vertex._z = float*scaling;
+	                    			break;
+	                    		default:
+	                    	}
+	                    	i++;
+	                    }
+		            } else if (element is UV) {
+		            	var uv:UV = element as UV;
+	                    for each (param in params) {
+	                    	float = floats[i];
+	                    	switch (param) {
+	                    		case VALUE_U:
+	                    			uv._u = float;
+	                    			break;
+	                    		case VALUE_V:
+	                    			uv._v = float;
+	                    			break;
+	                    		default:
+	                    	}
+	                    	i++;
+	                    }
+		            }
+	                output.push(element);
+	            }
             }
             else
             {
                 // Store indexes if no source
                 var recursive :XMLList = geo..vertices.(@id == id)["input"];
     
-                output = deserialize(recursive[0], geo);
+                output = deserialize(recursive[0], geo, Element, output);
             }
     
             return output;
@@ -411,5 +542,12 @@ package away3d.loaders
 
         private static var toDEGREES:Number = 180 / Math.PI;
         private static var toRADIANS:Number = Math.PI / 180;
+        
+        private var VALUE_X:String;
+        private var VALUE_Y:String;
+        private var VALUE_Z:String;
+        
+        private var VALUE_U:String = "S";
+        private var VALUE_V:String = "T";
     }
 }
