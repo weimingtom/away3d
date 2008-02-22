@@ -16,7 +16,7 @@ package away3d.loaders.data
 		public var diffuseColor:int;
 		public var specularColor:int;
 		public var textureFileName:String;
-		public var textureBitmap:BitmapData = new BitmapData(1, 1);
+		public var textureBitmap:BitmapData;
 		
 		public var material:ITriangleMaterial;
 		

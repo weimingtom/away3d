@@ -69,13 +69,12 @@ package away3d.loaders
         	
             init.addForCheck();
 			
+        	result.name = name;
+            result.transform = transform;
 
             if (parent != null)
             {
-            	result.name = name;
-                result.transform = transform;
                 result.parent = parent;
-            	name = null;
                 parent = null;
             }
 			
@@ -127,11 +126,11 @@ package away3d.loaders
         public static function loadTextures(result:Object3D, materialLibrary:MaterialLibrary, init:Object):Object3DLoader
         {
         	init = Init.parse(init);
+        	
             var loaderClass:Class = init.getObject("loader") || CubeLoader;
             var loader:Object3DLoader = new loaderClass();
             
-            if (materialLibrary && materialLibrary.loadRequired)
-            	loader.startLoadingTextures(result, materialLibrary);
+            loader.startLoadingTextures(result, materialLibrary);
             
             return loader;
         }
@@ -141,7 +140,6 @@ package away3d.loaders
         
         public function startLoadingTextures(result:Object3D, materialLibrary:MaterialLibrary):void
         {
-        		
         	mode = LOADING_TEXTURES;
         	
         	this.result = result;
@@ -152,7 +150,7 @@ package away3d.loaders
 			
 			for each (_materialData in materialLibrary)
 			{
-				if (_materialData.materialType == MaterialData.TEXTURE_MATERIAL)
+				if (_materialData.materialType == MaterialData.TEXTURE_MATERIAL && !_materialData.material)
 				{
 					var req:URLRequest = new URLRequest(materialLibrary.texturePath + _materialData.textureFileName);
 					var loader:TextureLoader = new TextureLoader();

@@ -38,7 +38,7 @@ package away3d.core.mesh
             if (value == -Infinity)
                 Debug.warning("x == -Infinity");
 
-            _x = _position.x = value;
+            _x = value;
 
             notifyChange();
         }
@@ -63,7 +63,7 @@ package away3d.core.mesh
             if (value == -Infinity)
                 Debug.warning("y == -Infinity");
 
-            _y = _position.y = value;
+            _y = value;
 
             notifyChange();
         }
@@ -88,7 +88,7 @@ package away3d.core.mesh
             if (value == -Infinity)
                 Debug.warning("z == -Infinity");
 
-            _z = _position.z = value;
+            _z = value;
 
             notifyChange();
         }
@@ -121,6 +121,9 @@ package away3d.core.mesh
         /** Vertex position */
         public function get position():Number3D
         {
+        	_position.x = _x;
+        	_position.y = _y;
+        	_position.z = _z;
             return _position;
         }
         
