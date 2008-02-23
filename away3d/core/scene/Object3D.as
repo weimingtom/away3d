@@ -10,13 +10,14 @@ package away3d.core.scene
     import away3d.core.utils.*;
     
     import flash.display.*;
+    import flash.utils.Dictionary;
     
     public class Object3D extends LazyEventDispatcher implements IClonable
     {
         use namespace arcane;
 
-        private var _transformDirty:Boolean;
-        private var _transform:Matrix3D = new Matrix3D();
+        arcane var _transformDirty:Boolean;
+        arcane var _transform:Matrix3D = new Matrix3D();
 
         private var _rotationDirty:Boolean;
 
@@ -42,8 +43,8 @@ package away3d.core.scene
         // An optional object name.
         public var name:String;
         
-        //an optional canvas array for the object in each view
-        public var canvas:Array = new Array();
+        //an optional canvas dictionary for the object in each view
+        public var canvas:Dictionary = new Dictionary();
     
         //an optional filters array that can be applied to the canvas
         public var filters:Array;
