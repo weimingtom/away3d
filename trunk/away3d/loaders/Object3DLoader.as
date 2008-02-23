@@ -6,6 +6,7 @@ package away3d.loaders
     import away3d.core.scene.*;
     import away3d.core.stats.*;
     import away3d.core.utils.*;
+    import away3d.loaders.data.ContainerData;
     import away3d.loaders.data.MaterialData;
     import away3d.loaders.utils.TextureLoadQueue;
     import away3d.loaders.utils.TextureLoader;
@@ -26,6 +27,7 @@ package away3d.loaders
 		public const LOADING_TEXTURES:String = "loading_textures";
         public var result:Object3D;
         public var materialLibrary:MaterialLibrary;
+        public var containerData:ContainerData;
         public var texturePath:String;
         public var parse:Function;
         public var url:String;
