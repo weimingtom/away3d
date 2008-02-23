@@ -24,16 +24,14 @@ package away3d.loaders
     	public var materialLibrary:MaterialLibrary = new MaterialLibrary();
         public var containerData:ContainerData;
         
-        private var collada:XML;
-        private var library:Dictionary;
-        private var material:ITriangleMaterial;
-        private var scaling:Number;
-        private var yUp:Boolean;
+        protected var collada:XML;
+        protected var material:ITriangleMaterial;
+        protected var scaling:Number;
+        protected var yUp:Boolean;
     
         public function Collada(xml:XML, init:Object = null)
         {
             collada = xml;
-
             init = Init.parse(init);
 			materialLibrary.texturePath = init.getString("texturePath", "");
 			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
@@ -65,11 +63,14 @@ package away3d.loaders
 			buildContainer(containerData, container);
         }
 
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
+        public static function parse(data:*, init:Object = null, object:Object = null):ObjectContainer3D
         {
             var parser:Collada = new Collada(Cast.xml(data), init);
-        	if (loader)
-        		loader.materialLibrary = parser.materialLibrary;
+        	if (object) {
+        		object.materialLibrary = parser.materialLibrary;
+        		object.containerData = parser.containerData;
+        		object.collada = parser.collada;
+        	}
             return parser.container;
         }
 		
@@ -109,17 +110,17 @@ package away3d.loaders
             parseScene(scene);
         }
     	
-        private function parseScene(scene:XML):void
+        protected function parseScene(scene:XML):void
         {
         	containerData = new ContainerData();
             for each (var node:XML in scene.node)
                 parseNode(node, containerData);
         }
     	
-    	private var _meshData:MeshData;
-        private var _materialData:MaterialData;
+    	protected var _meshData:MeshData;
+        protected var _materialData:MaterialData;
         
-        private function parseNode(node:XML, parent:ContainerData):void
+        protected function parseNode(node:XML, parent:ContainerData):void
         {
 	    	var _transform:Matrix3D;
 	    	var _objectData:ObjectData;
@@ -145,27 +146,31 @@ package away3d.loaders
                     case "translate":
                         _transform.multiply(_transform, translateMatrix(getArray(child)));
                         break;
-    
+    					
                     case "rotate":
                         _transform.multiply(_transform, rotateMatrix(getArray(child)));
                         break;
-    
+    					
                     case "scale":
                         _transform.multiply(_transform, scaleMatrix(getArray(child)));
                         break;
-    
+    					
                     // Baked transform matrix
                     case "matrix":
                     	var m:Matrix3D = new Matrix3D();
                     	m.array2matrix(getArray(child));
-                        _transform.multiply(_transform, m);
+                        _transform.multiply(_transform, m)
                         break;
-    
+    					
                     case "node":
                         if (_objectData is ContainerData && String(child).indexOf("ForegroundColor") == -1)
                             parseNode(child, _objectData as ContainerData);
                         break;
-    
+                        
+    				case "instance_node":
+    					parseNode(collada.library_nodes.node.(@id == getId(child.@url))[0], _objectData as ContainerData);
+    					break;
+    					
                     case "instance_geometry":
                     	if(String(child).indexOf("lines") == -1) {
 							
@@ -173,10 +178,8 @@ package away3d.loaders
 								//add materials to materialLibrary
 	                            for each (var instance_material:XML in child..instance_material) {
 	                            	var name:String = instance_material.@symbol;
-		                           	_materialData = materialLibrary.addMaterial(name);
-		                            if(name == "FrontColorNoCulling") {
-		                            	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
-		                            } else {
+		                            if(name != "FrontColorNoCulling") {
+			                           	_materialData = materialLibrary.addMaterial(name);
 		                            	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
 			                            _materialData.textureFileName = getTextureFileName(instance_material.@target.split("#")[1]);
 		                            }
@@ -190,9 +193,9 @@ package away3d.loaders
             }
         }
         
-        private var _meshMaterialData:MeshMaterialData;
+        protected var _meshMaterialData:MeshMaterialData;
         
-        private function parseGeometry(geometry:XML, _meshData:MeshData):void
+        protected function parseGeometry(geometry:XML, _meshData:MeshData):void
         {
             // Semantics
             _meshData.name = geometry.@id;
@@ -223,9 +226,11 @@ package away3d.loaders
                 var len      :Number = triangles.@count;
                 var material :String = triangles.@material;
                 
-    			_meshMaterialData = new MeshMaterialData();
-    			_meshMaterialData.name = material;
-    			_meshData.materials.push(_meshMaterialData);
+                if(material != "FrontColorNoCulling") {
+	    			_meshMaterialData = new MeshMaterialData();
+    				_meshMaterialData.name = material;
+    				_meshData.materials.push(_meshMaterialData);
+                }
     			
                 for (var j:Number = 0; j < len; j++)
                 {
@@ -254,7 +259,7 @@ package away3d.loaders
             }
         }
         
-        private function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
+        protected function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
 				if (_objectData is ContainerData) {
@@ -268,18 +273,18 @@ package away3d.loaders
 			}
 		}
         
-    	private var averageX:Number;
-		private var averageY:Number;
-		private var averageZ:Number;
-		private var numVertices:int;
+    	protected var averageX:Number;
+		protected var averageY:Number;
+		protected var averageZ:Number;
+		protected var numVertices:int;
 		
-    	private var _faceListIndex:int;
-    	private var _faceData:FaceData;
+    	protected var _faceListIndex:int;
+    	protected var _faceData:FaceData;
     	
-    	private var _face:Face;
-    	private var _vertex:Vertex;
+    	protected var _face:Face;
+    	protected var _vertex:Vertex;
     	
-        private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
+        protected function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
 		{
 			//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
 			averageX = averageY = averageZ = 0;
@@ -338,10 +343,14 @@ package away3d.loaders
 			parent.addChild(mesh);
 		}
         
-        private function buildMaterials():void
+        protected function buildMaterials():void
 		{
 			for each (_materialData in materialLibrary)
 			{
+				//overridden by the material property in constructor
+				if (material)
+					_materialData.material = material;
+				
 				//overridden by materials passed in contructor
 				if (_materialData.material)
 					continue;
@@ -362,7 +371,7 @@ package away3d.loaders
 			}
 		}
 		
-        private function getArray(spaced:String):Array
+        protected function getArray(spaced:String):Array
         {
             var strings:Array = spaced.split(" ");
             var numbers:Array = new Array();
@@ -370,13 +379,14 @@ package away3d.loaders
             var totalStrings:Number = strings.length;
     
             for (var i:Number = 0; i < totalStrings; i++)
-                numbers[i] = Number(strings[i]);
+            	if (strings[i] != "")
+                	numbers.push(Number(strings[i]));
     
             return numbers;
         }
 		
 		// Retrieves the filename of a material
-		private function getTextureFileName( name:String ):String
+		protected function getTextureFileName( name:String ):String
 		{
 			var filename :String = null;
 	
@@ -419,7 +429,7 @@ package away3d.loaders
 		
     	internal var rotationMatrix:Matrix3D = new Matrix3D();
     	
-        private function rotateMatrix(vector:Array):Matrix3D
+        protected function rotateMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
                 rotationMatrix.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
@@ -431,7 +441,7 @@ package away3d.loaders
     
     	internal var translationMatrix:Matrix3D = new Matrix3D();
     	
-        private function translateMatrix(vector:Array):Matrix3D
+        protected function translateMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
                 translationMatrix.translationMatrix(-vector[0] * scaling, vector[1] * scaling, vector[2] * scaling);
@@ -443,7 +453,7 @@ package away3d.loaders
     
     	internal var scalingMatrix:Matrix3D = new Matrix3D();
     	
-        private function scaleMatrix(vector:Array):Matrix3D
+        protected function scaleMatrix(vector:Array):Matrix3D
         {
             if (this.yUp)
                 scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
@@ -453,7 +463,7 @@ package away3d.loaders
             return scalingMatrix;
         }
     
-        private function deserialize(input:XML, geo:XML, Element:Class, output:Array):Array
+        protected function deserialize(input:XML, geo:XML, Element:Class, output:Array):Array
         {
             var id:String = input.@source.split("#")[1];
     
@@ -535,19 +545,19 @@ package away3d.loaders
         }
     
     
-        private function getId(url:String):String
+        protected function getId(url:String):String
         {
             return url.split("#")[1];
         }
 
-        private static var toDEGREES:Number = 180 / Math.PI;
-        private static var toRADIANS:Number = Math.PI / 180;
+        protected static var toDEGREES:Number = 180 / Math.PI;
+        protected static var toRADIANS:Number = Math.PI / 180;
         
-        private var VALUE_X:String;
-        private var VALUE_Y:String;
-        private var VALUE_Z:String;
+        protected var VALUE_X:String;
+        protected var VALUE_Y:String;
+        protected var VALUE_Z:String;
         
-        private var VALUE_U:String = "S";
-        private var VALUE_V:String = "T";
+        protected var VALUE_U:String = "S";
+        protected var VALUE_V:String = "T";
     }
 }
