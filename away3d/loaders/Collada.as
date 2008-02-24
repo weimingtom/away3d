@@ -69,7 +69,6 @@ package away3d.loaders
         	if (object) {
         		object.materialLibrary = parser.materialLibrary;
         		object.containerData = parser.containerData;
-        		object.collada = parser.collada;
         	}
             return parser.container;
         }
