@@ -434,10 +434,8 @@
         private function onElementVertexValueChange(event:MeshElementEvent):void
         {
             var element:IMeshElement = event.element;
-
             forgetElementRadius(element);
             rememberElementRadius(element);
-
             launchNotifies();
         }
 
@@ -446,39 +444,40 @@
             throw new Error("Not implemented");
         }
 
-   public var frames:Dictionary;
+   		public var frames:Dictionary;
         public var framenames:Dictionary;
         private var _frame:int;
 
         public function get frame():int
         {
-            return _frame;
+            return animation.frame;
         }
 
         public function set frame(value:int):void
         {
-            if (_frame == value)
+            if (animation.frame == value)
                 return;
-
-            _frame = value;
-
-            frames[_frame].adjust(1);
+			_frame = value;
+            animation.frame = value;
+            frames[value].adjust(1);
         }
 		
 		private var _playsequence:Object;
 		
 		public function gotoAndPlay(value:int):void
 		{
-			frame = value;
- 
+			animation.frame = value;
+			_frame = value;
+			
 			if(!animation.run){
 				animation.start();
 			}
 		}
+		
 		public function gotoAndStop(value:int):void
 		{
-			frame = value;
-			
+			animation.frame = value;
+			_frame = value;
 			if(animation.run){
 				animation.stop();
 			}
@@ -528,7 +527,6 @@
         {
             removeEventListener("SEQUENCE_DONE", listener, false);
         }
-		
 		
 		public function onCycleDone(listener:Function):void
         {
@@ -594,10 +592,8 @@
             var smooth:Boolean = init.getBoolean("smooth", false);
             var loop:Boolean = init.getBoolean("loop", false);
 			
-			 
 			if(!animation){
-            	animation = new Animation();
-				 
+            	animation = new Animation(); 
 			} else{
 				animation.sequence = new Array();
 			}
@@ -606,17 +602,23 @@
             animation.smooth = smooth;
             animation.loop = loop;
 			
-			
-            if (prefix != null)
-            {
-                for (var framename:String in framenames)
-                    if (framename.indexOf(prefix) == 0)
+            if (prefix != null){
+				var bvalidprefix:Boolean;
+                for (var framename:String in framenames){
+                    if (framename.indexOf(prefix) == 0){
+						bvalidprefix = true;
                         animation.sequence.push(new AnimationFrame(framenames[framename], ""+parseInt(framename.substring(prefix.length))));
-					
-				animation.sequence.sortOn("sort", Array.NUMERIC ); 
-            }
-			frames[_frame].adjust(1);
-            animation.start();
+					}
+				}
+				
+				if(bvalidprefix){
+					animation.sequence.sortOn("sort", Array.NUMERIC );            
+					frames[_frame].adjust(1);
+					animation.start();
+				} else{
+					trace("--------- \n--> unable to play animation: unvalid prefix ["+prefix+"]\n--------- ");
+				}
+			}
         }
         
         internal var seg:DrawSegment;
