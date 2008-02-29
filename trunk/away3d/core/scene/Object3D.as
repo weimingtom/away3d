@@ -554,6 +554,8 @@ package away3d.core.scene
             _transform.ty = target.y;
             _transform.tz = target.z;
             
+            _sceneTransformDirty = true;
+            
             notifyTransformChange();
         }
 

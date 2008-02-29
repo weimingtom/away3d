@@ -32,8 +32,7 @@ package away3d.loaders
 		* If the textures are stored in a specific path, that path can be
 		* specified through the constructor.
 		*/
-		public var texturePath:String;
-		public var autoLoadTextures:Boolean;
+		protected var centerMeshes:Boolean;
 		
 		public function Max3DS(data:ByteArray, init:Object = null)
 		{
@@ -43,6 +42,8 @@ package away3d.loaders
 			init = Init.parse(init);
 			materialLibrary.texturePath = init.getString("texturePath", "");
 			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
+			centerMeshes = init.getBoolean("centerMeshes", true);
+			
 			var materials:Object = init.getObject("materials") || {};
 			
 			for (var name:String in materials) {
@@ -427,24 +428,6 @@ package away3d.loaders
 			
 			for each (_meshData in meshDataList)
 			{
-				//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
-				averageX = averageY = averageZ = 0;
-				numVertices = _meshData.vertices.length;
-				for each (_vertex in _meshData.vertices) {
-					averageX += _vertex._x;
-					averageY += _vertex._y;
-					averageZ += _vertex._z;
-				}
-				
-				averageX /= numVertices;
-				averageY /= numVertices;
-				averageZ /= numVertices;
-				
-				for each (_vertex in _meshData.vertices) {
-					_vertex._x -= averageX;
-					_vertex._y -= averageY;
-					_vertex._z -= averageZ;
-				}
 				
 				//set materialdata for each face
 				for each (_meshMaterialData in _meshData.materials) {
@@ -453,7 +436,11 @@ package away3d.loaders
 						_faceData.materialData = materialLibrary[_meshMaterialData.name];
 					}
 				}
-				var mesh:Mesh = new Mesh({x:averageX, y:averageY, z:averageZ});
+				
+				//create Mesh object
+				var mesh:Mesh = new Mesh();
+				
+				
 				var face:Face;
 				var matData:MaterialData;
 				
@@ -467,6 +454,19 @@ package away3d.loaders
 												_meshData.uvs[_faceData.v2]);
 					mesh.addFace(_face);
 					_faceData.materialData.faces.push(_face);
+				}
+				
+				if (centerMeshes) {
+					//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
+					averageX = averageY = averageZ = 0;
+					numVertices = _meshData.vertices.length;
+					for each (_vertex in _meshData.vertices) {
+						averageX += _vertex._x;
+						averageY += _vertex._y;
+						averageZ += _vertex._z;
+					}
+					
+					mesh.movePivot(averageX/numVertices, averageY/numVertices, averageZ/numVertices);
 				}
 				
 				container.addChild(mesh);
