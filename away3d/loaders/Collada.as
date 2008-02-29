@@ -176,22 +176,28 @@ package away3d.loaders
                     case "instance_geometry":
                     	if(String(child).indexOf("lines") == -1) {
 							
-	                        if (String(child) != "") {
+	                        //if (String(child) != "") {
 								//add materials to materialLibrary
-	                            for each (var instance_material:XML in child..instance_material) {
-	                            	var name:String = instance_material.@symbol;
-		                            //if(name != "FrontColorNoCulling") {
-			                           	_materialData = materialLibrary.addMaterial(name);
-		                            	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-			                            _materialData.textureFileName = getTextureFileName(instance_material.@target.split("#")[1]);
-		                            //}
-	                            }
+	                            for each (var instance_material:XML in child..instance_material)
+	                            	setMaterial(instance_material.@symbol, getId(instance_material.@target));
+	                            
 	                            var geo:XML = collada.library_geometries.geometry.(@id == getId(child.@url))[0];
 	                            parseGeometry(geo, _objectData as MeshData);
-	                        }
+	                        //}
 	                    }
                         break;
                 }
+            }
+        }
+        
+        protected function setMaterial(name:String, target:String):void
+        {
+           	_materialData = materialLibrary.addMaterial(name);
+            if(name == "FrontColorNoCulling") {
+            	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+            } else {
+            	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                _materialData.textureFileName = getTextureFileName(target);
             }
         }
         
@@ -231,6 +237,9 @@ package away3d.loaders
                 _meshMaterialData = new MeshMaterialData();
     			_meshMaterialData.name = material;
 				_meshData.materials.push(_meshMaterialData);
+				
+				if (!materialLibrary[material])
+					setMaterial(material, material);
 				
                 for (var j:Number = 0; j < len; j++)
                 {
@@ -316,6 +325,8 @@ package away3d.loaders
 			var face:Face;
 			var matData:MaterialData;
 			for each(_faceData in _meshData.faces) {
+				if (!_faceData.materialData)
+					continue;
 				_face = new Face(_meshData.vertices[_faceData.v0],
 											_meshData.vertices[_faceData.v1],
 											_meshData.vertices[_faceData.v2],
@@ -375,6 +386,7 @@ package away3d.loaders
 		
         protected function getArray(spaced:String):Array
         {
+        	spaced = spaced.split("\r\n").join(" ");
             var strings:Array = spaced.split(" ");
             var numbers:Array = new Array();
     
@@ -478,7 +490,7 @@ package away3d.loaders
                 var floId:String  = acc.@source.split("#")[1];
                 var floXML:XMLList = collada..float_array.(@id == floId);
                 var floStr:String  = floXML.toString();
-                var floats:Array   = floStr.split(" ");
+                var floats:Array   = getArray(floStr);
     			var float:Number;
                 // Build params array
                 var params:Array = new Array();
