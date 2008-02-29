@@ -10,7 +10,6 @@ package away3d.core.scene
         use namespace arcane;
 
         private var _children:Array = new Array();
-		private var child:Object3D;
 		
         public function get children():Array
         {
@@ -27,7 +26,7 @@ package away3d.core.scene
             {
                 _radiusChild = null;
                 var mr:Number = 0;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var r:Number = child.parentradius;
                     if (r > mr)
@@ -52,7 +51,7 @@ package away3d.core.scene
             {
                 _maxXChild = null;
                 var extrval:Number = -Infinity;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var val:Number = child.parentmaxX;
                     if (val > extrval)
@@ -77,7 +76,7 @@ package away3d.core.scene
             {
                 _minXChild = null;
                 var extrval:Number = Infinity;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var val:Number = child.parentminX;
                     if (val < extrval)
@@ -102,7 +101,7 @@ package away3d.core.scene
             {
                 var extrval:Number = -Infinity;
                 _maxYChild = null;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var val:Number = child.parentmaxY;
                     if (val > extrval)
@@ -127,7 +126,7 @@ package away3d.core.scene
             {
                 var extrval:Number = Infinity;
                 _minYChild = null;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var val:Number = child.parentminY;
                     if (val < extrval)
@@ -152,7 +151,7 @@ package away3d.core.scene
             {
                 var extrval:Number = -Infinity;
                 _maxZChild = null;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var val:Number = child.parentmaxZ;
                     if (val > extrval)
@@ -177,7 +176,7 @@ package away3d.core.scene
             {
                 var extrval:Number = Infinity;
                 _minZChild = null;
-                for each (child in _children)
+                for each (var child:Object3D in _children)
                 {
                     var val:Number = child.parentminZ;
                     if (val < extrval)
@@ -203,13 +202,13 @@ package away3d.core.scene
 
             super(init);
 
-            for each (child in childarray)
+            for each (var child:Object3D in childarray)
                 addChild(child);
         }
 
         public override function scale(scale:Number):void
         {
-            for each (child in children)
+            for each (var child:Object3D in children)
             {
                 child.x *= scale;
                 child.y *= scale;
@@ -220,14 +219,14 @@ package away3d.core.scene
     
         public function addChildren(...childarray):void
         {
-            for each (child in childarray)
+            for each (var child:Object3D in childarray)
                 addChild(child);
         }
 
         public function movePivot(dx:Number, dy:Number, dz:Number):void
         {
         	
-            for each (child in _children)
+            for each (var child:Object3D in _children)
             {
                 child.x -= dx;
                 child.y -= dy;
@@ -305,7 +304,7 @@ package away3d.core.scene
 
         private function onChildChange(event:Object3DEvent):void
         {
-            child = event.object;
+            var child:Object3D = event.object;
 
             forgetChild(child);
             rememberChild(child);
@@ -421,7 +420,7 @@ package away3d.core.scene
 
         public function getChildByName(name:String):Object3D
         {
-            for each (child in children)
+            for each (var child:Object3D in children)
                 if (child.name == name)
                     return child;
 
@@ -439,7 +438,7 @@ package away3d.core.scene
             {
                 traverser.enter(this);
                 traverser.apply(this);
-                for each (child in children)
+                for each (var child:Object3D in children)
                     child.traverse(traverser);
                 traverser.leave(this);
             }
@@ -450,7 +449,7 @@ package away3d.core.scene
             var container:ObjectContainer3D = object || new ObjectContainer3D();
             super.clone(container);
 
-            for each (child in children)
+            for each (var child:Object3D in children)
                 container.addChild(child.clone());
                 
             return container;
