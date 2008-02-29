@@ -26,6 +26,7 @@ package away3d.loaders
         
         protected var collada:XML;
         protected var material:ITriangleMaterial;
+        protected var centerMeshes:Boolean;
         protected var scaling:Number;
         protected var yUp:Boolean;
     
@@ -37,6 +38,8 @@ package away3d.loaders
 			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
             scaling = init.getNumber("scaling", 1)*100;
             material = init.getMaterial("material");
+            centerMeshes = init.getBoolean("centerMeshes", true);
+            
             var materials:Object = init.getObject("materials") || {};
 
             for (var name:String in materials) {
@@ -177,11 +180,11 @@ package away3d.loaders
 								//add materials to materialLibrary
 	                            for each (var instance_material:XML in child..instance_material) {
 	                            	var name:String = instance_material.@symbol;
-		                            if(name != "FrontColorNoCulling") {
+		                            //if(name != "FrontColorNoCulling") {
 			                           	_materialData = materialLibrary.addMaterial(name);
 		                            	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
 			                            _materialData.textureFileName = getTextureFileName(instance_material.@target.split("#")[1]);
-		                            }
+		                            //}
 	                            }
 	                            var geo:XML = collada.library_geometries.geometry.(@id == getId(child.@url))[0];
 	                            parseGeometry(geo, _objectData as MeshData);
@@ -195,7 +198,7 @@ package away3d.loaders
         protected var _meshMaterialData:MeshMaterialData;
         
         protected function parseGeometry(geometry:XML, _meshData:MeshData):void
-        {
+        {	
             // Semantics
             _meshData.name = geometry.@id;
     		
@@ -204,7 +207,7 @@ package away3d.loaders
             {
                 // Input
                 var field:Array = new Array();
-    
+                
                 for each(var input:XML in triangles.input)
                 {
                 	var semantic:String = input.@semantic;
@@ -225,12 +228,10 @@ package away3d.loaders
                 var len      :Number = triangles.@count;
                 var material :String = triangles.@material;
                 
-                if(material != "FrontColorNoCulling") {
-	    			_meshMaterialData = new MeshMaterialData();
-    				_meshMaterialData.name = material;
-    				_meshData.materials.push(_meshMaterialData);
-                }
-    			
+                _meshMaterialData = new MeshMaterialData();
+    			_meshMaterialData.name = material;
+				_meshData.materials.push(_meshMaterialData);
+				
                 for (var j:Number = 0; j < len; j++)
                 {
                     var _faceData:FaceData = new FaceData();
@@ -258,14 +259,29 @@ package away3d.loaders
             }
         }
         
+        protected var numChildren:int;
+        
         protected function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
 				if (_objectData is ContainerData) {
+					var _containerData:ContainerData = _objectData as ContainerData;
 					var objectContainer:ObjectContainer3D = new ObjectContainer3D({name:_objectData.name});
 					objectContainer.transform = _objectData.transform;
+					buildContainer(_containerData, objectContainer);
+					if (centerMeshes) {
+						//determine center and offset all children (useful for subsequent max/min/radius calculations)
+						averageX = averageY = averageZ = 0;
+						numChildren = _containerData.children.length;
+						for each (var _child:Object3D in objectContainer.children) {
+							averageX += _child.x;
+							averageY += _child.y;
+							averageZ += _child.z;
+						}
+						
+						objectContainer.movePivot(averageX/numChildren, averageY/numChildren, averageZ/numChildren);
+					}
 					parent.addChild(objectContainer);
-					buildContainer(_objectData as ContainerData, objectContainer);
 				} else if (_objectData is MeshData) {
 					buildMesh(_objectData as MeshData, parent);
 				}
@@ -285,31 +301,6 @@ package away3d.loaders
     	
         protected function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
 		{
-			//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
-			averageX = averageY = averageZ = 0;
-			numVertices = _meshData.vertices.length;
-			for each (_vertex in _meshData.vertices) {
-				averageX += _vertex._x;
-				averageY += _vertex._y;
-				averageZ += _vertex._z;
-			}
-			
-			averageX /= numVertices;
-			averageY /= numVertices;
-			averageZ /= numVertices;
-			
-			for each (_vertex in _meshData.vertices) {
-				_vertex._x -= averageX;
-				_vertex._y -= averageY;
-				_vertex._z -= averageZ;
-			}
-			
-			var averageV:Number3D = new Number3D(averageX, averageY, averageZ);
-			averageV.rotate(averageV.clone(), _meshData.transform)
-			
-			_meshData.transform.tx += averageV.x;
-			_meshData.transform.ty += averageV.y;
-			_meshData.transform.tz += averageV.z;
 			
 			//set materialdata for each face
 			for each (_meshMaterialData in _meshData.materials) {
@@ -321,11 +312,10 @@ package away3d.loaders
 			
 			var mesh:Mesh = new Mesh({name:_meshData.name});
 			mesh.transform = _meshData.transform;
-			//mesh.movePivot(averageX, averageY, averageZ);
+			
 			var face:Face;
 			var matData:MaterialData;
 			for each(_faceData in _meshData.faces) {
-			//trace(_meshData.uvs[_faceData.uv0]);
 				_face = new Face(_meshData.vertices[_faceData.v0],
 											_meshData.vertices[_faceData.v1],
 											_meshData.vertices[_faceData.v2],
@@ -335,6 +325,19 @@ package away3d.loaders
 											_meshData.uvs[_faceData.uv2]);
 				mesh.addFace(_face);
 				_faceData.materialData.faces.push(_face);
+			}
+						
+			if (centerMeshes) {
+				//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
+				averageX = averageY = averageZ = 0;
+				numVertices = _meshData.vertices.length;
+				for each (_vertex in _meshData.vertices) {
+					averageX += _vertex._x;
+					averageY += _vertex._y;
+					averageZ += _vertex._z;
+				}
+				
+				mesh.movePivot(averageX/numVertices, averageY/numVertices, averageZ/numVertices);
 			}
 			
 			mesh.type = ".Collada";
@@ -430,7 +433,7 @@ package away3d.loaders
     	
         protected function rotateMatrix(vector:Array):Matrix3D
         {
-            if (this.yUp)
+            if (yUp)
                 rotationMatrix.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
             else
                 rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], -vector[3] * toRADIANS);
@@ -442,7 +445,7 @@ package away3d.loaders
     	
         protected function translateMatrix(vector:Array):Matrix3D
         {
-            if (this.yUp)
+            if (yUp)
                 translationMatrix.translationMatrix(-vector[0] * scaling, vector[1] * scaling, vector[2] * scaling);
             else
                 translationMatrix.translationMatrix( vector[0] * scaling, vector[2] * scaling, vector[1] * scaling);
@@ -454,7 +457,7 @@ package away3d.loaders
     	
         protected function scaleMatrix(vector:Array):Matrix3D
         {
-            if (this.yUp)
+            if (yUp)
                 scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
             else
                 scalingMatrix.scaleMatrix(vector[0], vector[2], vector[1]);

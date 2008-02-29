@@ -499,14 +499,17 @@
         	//	updateTransform();
             var nd:Boolean = _neighboursDirty;
             _neighboursDirty = true;
+            for each (var vertex:Vertex in vertices)
+            {
+                vertex.x -= dx;
+                vertex.y -= dy;
+                vertex.z -= dz;
+            }
+            
             var dV:Number3D = new Number3D(dx, dy, dz);
             dV.rotate(dV.clone(), _transform);
-            
-            for each (var vertex:Vertex in vertices)
-                vertex.position.add(vertex.position, dV);
-            x -= dx;
-            y -= dy;
-            z -= dz;
+            dV.add(dV, position);
+            moveTo(dV);
             _neighboursDirty = nd;
         }
 
