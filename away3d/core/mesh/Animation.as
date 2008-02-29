@@ -151,5 +151,15 @@
 			_delay = value;
 		}
 		
+		public function get frame():Number
+		{
+			return _frame;
+		}
+		
+		public function set frame(f:Number):void
+		{
+			_frame = f;
+		}
+		
     }
 }
