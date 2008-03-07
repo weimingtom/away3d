@@ -46,7 +46,7 @@ package away3d.loaders
 				{
 					if (texturePath + _materialData.textureFileName == _image.filename)
 					{
-						_materialData.textureBitmap = new BitmapData(_image.width, _image.height);
+						_materialData.textureBitmap = new BitmapData(_image.width, _image.height, true);
 						_materialData.textureBitmap.draw(_image);
 						_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
 						for each(_face in _materialData.faces)
