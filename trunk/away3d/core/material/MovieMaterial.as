@@ -73,6 +73,10 @@ package away3d.core.material
                 		tri.source.addOnMouseOut(onMouseOut);
 	                }
                 	
+                } else if (session.view.interactiveLayer.contains(movie)) {
+                	session.view.interactiveLayer.removeChild(movie);
+                	tri.source.removeOnMouseOver(onMouseOver);
+                	tri.source.removeOnMouseOut(onMouseOut);
                 }
                 	
             }
