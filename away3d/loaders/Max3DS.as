@@ -33,6 +33,7 @@ package away3d.loaders
 		* specified through the constructor.
 		*/
 		protected var centerMeshes:Boolean;
+		protected var material:ITriangleMaterial;
 		
 		public function Max3DS(data:ByteArray, init:Object = null)
 		{
@@ -42,6 +43,7 @@ package away3d.loaders
 			init = Init.parse(init);
 			materialLibrary.texturePath = init.getString("texturePath", "");
 			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
+			material = init.getMaterial("material");
 			centerMeshes = init.getBoolean("centerMeshes", true);
 			
 			var materials:Object = init.getObject("materials") || {};
@@ -233,8 +235,10 @@ package away3d.loaders
 				case COLOR_F:
 				// TODO: write implentation code
 					trace("COLOR_F not implemented yet");
+					skipChunk(chunk);
 					break;
 				default:
+					skipChunk(chunk);
 					trace("unknown ambient color format");
 			}
 			
@@ -478,6 +482,10 @@ package away3d.loaders
 		{
 			for each (_materialData in materialLibrary)
 			{
+				//overridden by the material property in constructor
+				if (material)
+					_materialData.material = material;
+				
 				//overridden by materials passed in contructor
 				if (_materialData.material)
 					continue;
