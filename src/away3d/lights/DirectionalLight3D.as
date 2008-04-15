@@ -48,6 +48,8 @@ package away3d.lights
 		
 		public function set ambient(val:Number):void
 		{
+			if (val < 0)
+				val  = 0;
 			_ambient = val;
             _ambientDirty = true;
 		}
@@ -59,6 +61,8 @@ package away3d.lights
 				
 		public function set diffuse(val:Number):void
 		{
+			if (val < 0)
+				val  = 0;
 			_diffuse = val;
             _diffuseDirty = true;
 		}
@@ -70,6 +74,8 @@ package away3d.lights
 		
 		public function set specular(val:Number):void
 		{
+			if (val < 0)
+				val  = 0;
 			_specular = val;
             _specularDirty = true;
 		}
@@ -100,7 +106,7 @@ package away3d.lights
             
             color = init.getColor("color", 0xFFFFFF);
             ambient = init.getNumber("ambient", 0.5, {min:0, max:1});
-            diffuse = init.getNumber("diffuse", 0.5, {min:0, max:1});
+            diffuse = init.getNumber("diffuse", 0.5, {min:0, max:10});
             specular = init.getNumber("specular", 1, {min:0, max:1});
             brightness = init.getNumber("brightness", 1);
             debug = init.getBoolean("debug", false);

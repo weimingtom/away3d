@@ -54,7 +54,13 @@ package away3d.core.light
     		var pointArray:Array = new Array();
     		var i:int = 15;
     		while (i--) {
-    			colArray.push((i*diffuse*red/14 << 16) + (i*diffuse*green/14 << 8) + i*diffuse*blue/14);
+    			var r:Number = (i*diffuse/14);
+    			if (r > 1) r = 1;
+    			var g:Number = (i*diffuse/14);
+    			if (g > 1) g = 1;
+    			var b:Number = (i*diffuse/14);
+    			if (b > 1) b = 1;
+    			colArray.push((r*red << 16) | (g*green << 8) | b*blue);
     			alphaArray.push(1);
     			pointArray.push(int(30+225*2*Math.acos(i/14)/Math.PI));
     		}
@@ -78,7 +84,13 @@ package away3d.core.light
     		var pointArray:Array = new Array();
     		var i:int = 15;
     		while (i--) {
-    			colArray.push((i*diffuse*red/14 << 16) + (i*diffuse*green/14 << 8) + i*diffuse*blue/14 + (ambient*red << 16) + (ambient*green << 8) + ambient*blue);
+    			var r:Number = (i*diffuse/14 + ambient);
+    			if (r > 1) r = 1;
+    			var g:Number = (i*diffuse/14 + ambient);
+    			if (g > 1) g = 1;
+    			var b:Number = (i*diffuse/14 + ambient);
+    			if (b > 1) b = 1;
+    			colArray.push((r*red << 16) | (g*green << 8) | b*blue);
     			alphaArray.push(1);
     			pointArray.push(int(30+225*2*Math.acos(i/14)/Math.PI));
     		}
