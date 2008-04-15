@@ -1,18 +1,20 @@
 package 
 {
     import away3d.cameras.*;
+    import away3d.containers.*;
     import away3d.core.*;
+    import away3d.core.base.*;
     import away3d.core.block.*;
     import away3d.core.draw.*;
-    import away3d.core.material.*;
     import away3d.core.math.*;
-    import away3d.core.mesh.*;
     import away3d.core.render.*;
-    import away3d.core.scene.*;
-    import away3d.core.sprite.*;
+    import away3d.core.traverse.*;
     import away3d.core.utils.*;
+    import away3d.lights.*;
     import away3d.loaders.*;
-    import away3d.objects.*;
+    import away3d.materials.*;
+    import away3d.primitives.*;
+    import away3d.sprites.*;
     import away3d.test.*;
     
     import flash.display.*;
@@ -26,138 +28,139 @@ package
     [SWF(backgroundColor="#222266", frameRate="60")]
     public class EngineTest extends BaseDemo
     {
+    	public var session:SpriteRenderSession = new SpriteRenderSession();
+    	//public var session:BitmapRenderSession = new BitmapRenderSession(800, 600, true, 0);
+    	
         public function EngineTest()
         {
             Debug.warningsAsErrors = true;
 
             super("Away3D engine test", 5*5*5);
-
                         
             addSlide("Primitives", 
 "Basic primitives to start playing with", 
             new Scene3D(new Primitives), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Transforms", 
 "Affine transforms for object and groups",
             new Scene3D(new Transforms), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Texturing", 
 "Bitmap texturing", 
             new Scene3D(new Texturing), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
             
             addSlide("Texture Tiling", 
 "Tiling bitmap textures", 
             new Scene3D(new Tiling), 
-            Renderer.CORRECT_Z_ORDER);
-            
-            addSlide("Texture Layering", 
-"Projecting bitmap textures", 
-            new Scene3D(new Projecting), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
             
             addSlide("Simple projection", 
 "Projecting textures on objects", 
             new Scene3D(new FunnyCube), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
+            
+            addSlide("Texture Layering", 
+"Projecting bitmap textures", 
+            new Scene3D(new Projecting), 
+            Renderer.CORRECT_Z_ORDER, session);
                                     
             addSlide("Smooth texturing", 
 "Smooth bitmap texturing", 
             new Scene3D(new SmoothTexturing), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Wire primitives", 
 "First class support for segments", 
             new Scene3D(new WirePrimitives), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Movie texturing", 
 "Any Sprite or MovieClip can be used as a material", 
             new Scene3D(new MovieTexturing), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("MovieClipSprite", 
 "Insert a DisplayObject directly inline with z-sorted triangles", 
             new Scene3D(new MovieSprite), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
             
             addSlide("ownCanvas and filters", 
 "render objects in separate sprites. Can apply filters at an object level", 
             new Scene3D(new CanvasSprite), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
                                
             addSlide("Occlusion culling", 
 "Unnecessary triangles elimination",
             new Scene3D(new Blockers), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
             
             addSlide("Mouse events", 
 "Click on the objects to change their color", 
             new Scene3D(new MouseEvents), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Drawing", 
 "Click on the plane to start drawing", 
             new Scene3D(new Drawing), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Meshes", 
 "", 
             new Scene3D(new AseMesh), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
 
             addSlide("Sprites", 
 "Directional sprites support", 
             new Scene3D(new Sprites), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Level of details", 
 "Reducing triangle count for distant objects", 
             new Scene3D(new LODs), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
 
             addSlide("Perspective texturing", 
 "Correct perspective transform for textures",
             new Scene3D(new PerspectiveTexturing), 
-            Renderer.BASIC);
-/*
-            addSlide("Skybox", 
-"",
-            new Scene3D(new SimpleSkybox), 
-            new BasicRenderer());
-*/
+            Renderer.BASIC, session);
 
             addSlide("Skybox",
 "Multiple panorama options",
             new Scene3D(new SmoothSkybox), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
 
             addSlide("Z ordering", 
 "Correct z-ordering for triangles",
             new Scene3D(new ZOrdering), 
-            Renderer.CORRECT_Z_ORDER);
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Intersecting objects", 
 "Ability to render intersecting objects",
             new Scene3D(new IntersectingObjects, new IntersectingObjects2), 
-            Renderer.INTERSECTING_OBJECTS);
+            Renderer.INTERSECTING_OBJECTS, session);
 
             addSlide("Color lighting", 
 "Phong model color lighting",
             new Scene3D(new ColorLighting), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
 
             addSlide("White lighting", 
 "White lighting for bitmap textures",
             new Scene3D(new WhiteLighting), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
+            
+            addSlide("Phong", 
+"Phong shading for directional lights", 
+            new Scene3D(new PhongShading), 
+            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Mesh morphing", 
 "Linear mesh morphing",
             new Scene3D(new Morphing), 
-            Renderer.BASIC);
+            Renderer.BASIC, session);
 
         }
     }
@@ -172,21 +175,27 @@ import flash.geom.*;
 import mx.core.BitmapAsset;
 
 import away3d.cameras.*;
-import away3d.objects.*;
+import away3d.containers.*;
+import away3d.primitives.*;
+import away3d.lights.*;
 import away3d.loaders.*;
 import away3d.test.*;
 import away3d.core.*;
+import away3d.core.base.*;
 import away3d.core.block.*;
 import away3d.core.draw.*;
-import away3d.core.material.*;
 import away3d.core.math.*;
-import away3d.core.mesh.*;
 import away3d.core.render.*;
-import away3d.core.scene.*;
-import away3d.core.sprite.*;
+import away3d.core.traverse.*;
 import away3d.core.utils.*;
+import away3d.materials.*;
+import away3d.sprites.*;
+
+import away3d.events.*;
+
 import flash.filters.GlowFilter;
 import flash.filters.BlurFilter;
+import away3d.materials.shaders.*;
 
 class Asset
 {
@@ -199,9 +208,6 @@ class Asset
 
     [Embed(source="images/square.dae",mimeType="application/octet-stream")]
     public static var SquareModel:Class;
-
-    //[Embed(source="images/temple.dae",mimeType="application/octet-stream")]
-    public static var TempleModel:Class;
     
     [Embed(source="images/seaturtle.ase",mimeType="application/octet-stream")]
     public static var SeaTurtleModel:Class;
@@ -329,14 +335,7 @@ class Asset
     {
         return Cast.bitmap(SmileyImage);
     }
-     
-	[Embed(source="images/smiley_white.jpg")]
-	public static var SmileyWhite:Class;
-	
-    public static function get smileyWhite():BitmapData
-    {
-        return Cast.bitmap(SmileyWhite);
-    }   
+    
     [Embed(source="images/red.jpg")]
     public static var RedImage:Class;
 
@@ -490,7 +489,13 @@ class LostSoul extends Sprite2DDir
         add( 0.7, 0, 0.7, Asset.flipX(Asset.getLostSoul("leftback")));
         add( 1  , 0, 0  , Asset.flipX(Asset.getLostSoul("left")));
         add( 0.7, 0,-0.7, Asset.flipX(Asset.getLostSoul("leftfront")));
-    }       
+        addOnMouseDown(onMouseDown);
+    }
+    
+    public function onMouseDown(event:MouseEvent3D):void
+    {
+    	trace("MOUSE DOWN");
+    }
             
     public override function tick(time:int):void
     {
@@ -642,6 +647,33 @@ class CanvasSprite extends ObjectContainer3D
     }
 }
 
+class PhongShading extends ObjectContainer3D
+{
+    protected var sphere:Sphere;
+    protected var plane:Plane;
+    protected var cube:Cube;
+    protected var torus:Torus;
+	protected var light:DirectionalLight3D;
+	
+    public function PhongShading()
+    {
+		light = new DirectionalLight3D({x:0, y:1, z:1, color:0xFFFFFF, ambient:0.1, diffuse:0.7});
+        plane = new Plane({material:new BitmapMaterial(Asset.yellow, {precision:2.5}), y:-20, width:1000, height:1000, pushback:true});
+        sphere = new Sphere({ownCanvas:true, material:new PhongBitmapMaterial(Asset.green), x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:10});
+        cube = new Cube({ownCanvas:true, material:new PhongBitmapMaterial(Asset.blue), x: 300, y:160, z: -80, width:200, height:200, depth:200});
+        torus = new Torus({ownCanvas:true, pushfront:true, material:new PhongBitmapMaterial(Asset.red), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:12, segmentsT:10});
+        super(sphere, plane, torus, cube, light);
+    }
+    
+    public override function tick(time:int):void
+    {
+    	cube.rotationY += 2;
+    	light.x = Math.cos(time/2000);
+    	light.z = Math.sin(time/2000);
+    }
+    
+}
+
 class Primitives extends ObjectContainer3D
 {
     protected var sphere:Sphere;
@@ -651,7 +683,7 @@ class Primitives extends ObjectContainer3D
                        
     public function Primitives()
     {
-        plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000, bothsides:true});
+        plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000});
         sphere = new Sphere({material:new WireColorMaterial(0xFF0000), x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
         cube = new Cube({material:new WireColorMaterial(0x0000FF), x: 300, y:160, z: -80, width:200, height:200, depth:200});
         torus = new Torus({pushfront:true, outline:new WireframeMaterial(0xFFFFFF, {width:5}), material:new WireColorMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
@@ -736,11 +768,11 @@ class Projecting extends Primitives
         projectionVector1 = new Number3D(1, 1, 1);
         projectionVector2 = new Number3D(1, 1, 1);
         projectionVector3 = new Number3D(1, 1, 1);
-        projectedMaterial1 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector1, transform:projectedTransform1});
-        projectedMaterial2 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector2, transform:projectedTransform2});
-        projectedMaterial3 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector3, transform:projectedTransform3});
+        projectedMaterial1 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector1, transform:projectedTransform1, throughProjection:true});
+        projectedMaterial2 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector2, transform:projectedTransform2, throughProjection:true});
+        projectedMaterial3 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector3, transform:projectedTransform3, throughProjection:true});
         
-        sphere.material = new BitmapMaterialContainer(400, 400, {materials:[
+        sphere.material = new BitmapMaterialContainer(400, 400, {cache:false, materials:[
         				new BitmapMaterial(Asset.red),
         				projectedMaterial1,
         				projectedMaterial2,
@@ -1115,9 +1147,9 @@ class ColorLighting extends ObjectContainer3D
     private var plane:Plane;
     private var sphere:Sphere;
     private var texture:ShadingColorMaterial;
-    private var light1:Light3D;
-    private var light2:Light3D;
-    private var light3:Light3D;
+    private var light1:PointLight3D;
+    private var light2:PointLight3D;
+    private var light3:PointLight3D;
     private var lights:ObjectContainer3D;
 
     public function ColorLighting()
@@ -1125,9 +1157,9 @@ class ColorLighting extends ObjectContainer3D
         texture = new ShadingColorMaterial({ambient:0xFFFFFF, diffuse:0xFFFFFF, specular:0xFFFFFF, alpha:20});
         plane = new Plane({material:texture, y:-100, width:1000, height:1000, segments:16});
         sphere = new Sphere({material:texture, y:800, radius:200, segmentsW:12, segmentsH:9});
-        light1 = new Light3D({color:0xFF0000, ambient:0.5, diffuse:0.5, specular:1});
-        light2 = new Light3D({color:0x808000, ambient:0.5, diffuse:0.5, specular:1});
-        light3 = new Light3D({color:0x0000FF, ambient:0.5, diffuse:0.5, specular:1});
+        light1 = new PointLight3D({color:0xFF0000, ambient:0.5, diffuse:0.5, specular:1, brightness:1000});
+        light2 = new PointLight3D({color:0x808000, ambient:0.5, diffuse:0.5, specular:1, brightness:1000});
+        light3 = new PointLight3D({color:0x0000FF, ambient:0.5, diffuse:0.5, specular:1, brightness:1000});
         super(plane, light1, light2, light3);
     }
     
@@ -1159,8 +1191,8 @@ class ColorLighting extends ObjectContainer3D
 class WhiteLighting extends ObjectContainer3D
 {
     private var sphere:Sphere;
-    private var light1:Light3D;
-    private var light2:Light3D;
+    private var light1:PointLight3D;
+    private var light2:PointLight3D;
     private var texture:WhiteShadingBitmapMaterial;
     private var light1c:ObjectContainer3D;
     private var light2c:ObjectContainer3D;
@@ -1184,11 +1216,11 @@ class WhiteLighting extends ObjectContainer3D
             v.y += Math.random()*2-1;
         }
 
-        light1 = new Light3D({color:0x555555, ambient:1, diffuse:1, specular:1});
+        light1 = new PointLight3D({color:0x555555, ambient:1, diffuse:1, specular:1, brightness:1000});
         light1.x = 3500/2;
         light1.y = 3500/2;
         light1.z = 3500/2;
-        light2 = new Light3D({color:0xAAAAAA, ambient:1, diffuse:1, specular:1});
+        light2 = new PointLight3D({color:0xAAAAAA, ambient:1, diffuse:1, specular:1, brightness:1000});
         light2.x = -3000/2;
         light2.y = 3000/2;
         light2.z = 3000/2;

@@ -7,20 +7,21 @@ package
 
     import mx.core.BitmapAsset;
     
+    import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
     import away3d.test.*;
     import away3d.core.*;
-    import away3d.core.material.*;
-    import away3d.core.render.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
     import away3d.core.draw.*;
+    import away3d.core.render.*;
+    import away3d.materials.*;
+    import away3d.loaders.*;
+    import away3d.primitives.*;
     
-    [SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
+    [SWF(backgroundColor="#222266", frameRate="60")]
     public class Skybox6Test extends BaseDemo
     {
+    	public var session:SpriteRenderSession = new SpriteRenderSession();
+    	
         public function Skybox6Test()
         {
             super("Peter Kapelyan's skyboxes");
@@ -29,36 +30,33 @@ package
             camera.targettiltangle = -10;
             camera.targetpanangle = -80;
 
-            DrawTriangle.test();
-            DrawSegment.test();
-
             addSlide("Skybox #1", 
 "Skybox textures by Peter Kapelyan\n"+
 "One image is mapped on inner faces of cube.\n"+
 "All skyboxes use precise bitmap texture with 4 pixel precision without smoothing.\n"+
 "<b>[CTRL]</b> to hide gui\n",
             new Scene3D(new PreciseSkybox(1, 4, false)), 
-            new BasicRenderer());
+            Renderer.BASIC, session);
 
             addSlide("Skybox #2", 
 "",
             new Scene3D(new PreciseSkybox(2, 4, false)), 
-            new BasicRenderer());
+            Renderer.BASIC, session);
 
             addSlide("Skybox #4", 
 "Some faces are one pixel short.",
             new Scene3D(new PreciseSkybox(4, 4, false)), 
-            new BasicRenderer());
+            Renderer.BASIC, session);
 
             addSlide("Skybox #5", 
 "Back face seems to be overblurred comparing to other side faces.",
             new Scene3D(new PreciseSkybox(5, 4, false)), 
-            new BasicRenderer());
+            Renderer.BASIC, session);
 
             addSlide("Skybox #3", 
 "Some inconsistency in bottom face.",
             new Scene3D(new PreciseSkybox(3, 4, false)), 
-            new BasicRenderer());
+            Renderer.BASIC, session);
 
         }
     }
@@ -72,15 +70,15 @@ package
 
     import mx.core.BitmapAsset;
     
+    import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
+    import away3d.test.*;
     import away3d.core.*;
-    import away3d.core.render.*;
-    import away3d.core.proto.*;
-    import away3d.core.geom.*;
     import away3d.core.draw.*;
-    import away3d.core.material.*;
+    import away3d.core.render.*;
+    import away3d.materials.*;
+    import away3d.loaders.*;
+    import away3d.primitives.*;
 
 class Asset
 {
@@ -133,7 +131,7 @@ class PreciseSkybox extends ObjectContainer3D
                        
     public function PreciseSkybox(n:int, precision:Number, smooth:Boolean = false)
     {
-        skybox = new Skybox6(new PreciseBitmapMaterial(Asset.skyboxes[n-1], {precision:precision, smooth:smooth}));
+        skybox = new Skybox6(new BitmapMaterial(Asset.skyboxes[n-1], {precision:precision, smooth:smooth}));
 
         super(null, skybox);
     }
