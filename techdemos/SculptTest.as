@@ -7,20 +7,22 @@ package
 
     import mx.core.BitmapAsset;
     
+    import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
-    import away3d.test.*;
     import away3d.core.*;
-    import away3d.core.material.*;
-    import away3d.core.render.*;
-    import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.base.*
     import away3d.core.draw.*;
+    import away3d.core.render.*;
+    import away3d.loaders.*;
+    import away3d.materials.*;
+    import away3d.primitives.*
+    import away3d.test.*;
     
     [SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
     public class SculptTest extends BaseDemo
     {
+    	public var session:SpriteRenderSession = new SpriteRenderSession();
+    	
         public function SculptTest()
         {
             super("Sculpt demo");
@@ -30,8 +32,7 @@ package
             addSlide("Sculpting", 
 "",
             new Scene3D(new Sculpt(6)), 
-            //new BasicRenderer());
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER, session);
 
         }
     }
@@ -45,16 +46,16 @@ package
 
     import mx.core.BitmapAsset;
     
+    import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
     import away3d.core.*;
-    import away3d.core.render.*;
-    import away3d.core.scene.*;
-    import away3d.core.geom.*;
+    import away3d.core.base.*
     import away3d.core.draw.*;
-    import away3d.core.mesh.*;
-    import away3d.core.material.*;
+    import away3d.core.render.*;
+    import away3d.loaders.*;
+    import away3d.materials.*;
+    import away3d.primitives.*
+    import away3d.events.*;
 
 class Asset
 {
@@ -62,17 +63,17 @@ class Asset
 
 class Sculpt extends ObjectContainer3D
 {
-    public var light1:Light3D;
-    public var light2:Light3D;
-    public var light3:Light3D;
-    public var light4:Light3D;
+    public var light1:PointLight3D;
+    public var light2:PointLight3D;
+    public var light3:PointLight3D;
+    public var light4:PointLight3D;
                        
     public function Sculpt(n:int = 1)
     {
-        light1 = new Light3D(0xFFFFFF, 1, 1, 0, {x:900, z:900, y:900});
-        light2 = new Light3D(0x555500, 1, 1, 0, {x:-900, z:900, y:900});
-        light3 = new Light3D(0x999999, 1, 1, 0, {x:900, z:-900, y:900});
-        light4 = new Light3D(0xFFFFFF, 1, 1, 0, {x:-900, z:-900, y:900});
+        light1 = new PointLight3D(0xFFFFFF, 1, 1, 0, {x:900, z:900, y:900});
+        light2 = new PointLight3D(0x555500, 1, 1, 0, {x:-900, z:900, y:900});
+        light3 = new PointLight3D(0x999999, 1, 1, 0, {x:900, z:-900, y:900});
+        light4 = new PointLight3D(0xFFFFFF, 1, 1, 0, {x:-900, z:-900, y:900});
 
         super(light1, light4);
 

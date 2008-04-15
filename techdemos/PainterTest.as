@@ -1,26 +1,29 @@
 package
 {
+    import away3d.cameras.*;
+    import away3d.containers.*;
+    import away3d.core.*;
+    import away3d.core.base.*;
+    import away3d.core.draw.*;
+    import away3d.core.filter.*;
+    import away3d.core.render.*;
+    import away3d.loaders.*;
+    import away3d.materials.*;
+    import away3d.primitives.*;
+    import away3d.test.*;
+    
     import flash.display.*;
     import flash.events.*;
     import flash.text.*;
     import flash.utils.*;
-
-    import mx.core.BitmapAsset;
     
-    import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
-    import away3d.test.*;
-    import away3d.core.*;
-    import away3d.core.material.*;
-    import away3d.core.render.*;
-    import away3d.core.scene.*;
-    import away3d.core.mesh.*;
-    import away3d.core.draw.*;
+    import mx.core.BitmapAsset;
     
     [SWF(backgroundColor="#222266", frameRate="60")]
     public class PainterTest extends BaseDemo
     {
+    	public var session:SpriteRenderSession = new SpriteRenderSession();
+    	
         public function PainterTest()
         {
             super("Painter demo");
@@ -29,7 +32,7 @@ package
             addSlide("Drawing", 
 "", 
             new Scene3D(new Drawing), 
-            new QuadrantRenderer(new AnotherRivalFilter));
+            Renderer.CORRECT_Z_ORDER, session);
 
         }
     }
@@ -43,15 +46,17 @@ package
 
     import mx.core.BitmapAsset;
     
+    import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.objects.*;
-    import away3d.loaders.*;
     import away3d.core.*;
     import away3d.core.render.*;
-    import away3d.core.scene.*;
-    import away3d.core.mesh.*;
+    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.draw.*;
-    import away3d.core.material.*;
+    import away3d.events.*;
+    import away3d.loaders.*;
+    import away3d.materials.*;
+    import away3d.primitives.*
 
 class Asset
 {

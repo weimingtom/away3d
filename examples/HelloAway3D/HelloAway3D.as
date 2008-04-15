@@ -4,9 +4,9 @@ package
     import flash.events.*;
     import flash.utils.*;
     
-    import away3d.objects.*;
-    import away3d.core.material.*;
-    import away3d.core.proto.*;
+    import away3d.containers.*;
+    import away3d.primitives.*;
+    import away3d.materials.*;
     
     [SWF(backgroundColor="#222266", frameRate="60", width="600", height="400")]
     public class HelloAway3D extends Sprite
