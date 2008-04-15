@@ -110,8 +110,8 @@ package away3d.materials
 		
 		public function onMouseMove(event:MouseEvent3D):void
 		{
-			movie.x = event.screenX - event.uv.u*movie.width;
-			movie.y = event.screenY - (1 - event.uv.v)*movie.height;
+			movie.x = event.screenX - event.uv.u*_renderBitmap.width;
+			movie.y = event.screenY - (1 - event.uv.v)*_renderBitmap.height;
 		}
  		
  		public function resetInteractiveLayer():void
