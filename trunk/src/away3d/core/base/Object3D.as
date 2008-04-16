@@ -364,6 +364,7 @@ package away3d.core.base
 
             _sceneTransform.multiply(_parent.sceneTransform, transform);
             inverseSceneTransform.inverse(_sceneTransform);
+            
             _sceneTransformDirty = false;
             notifySceneTransformChange();
         }
@@ -695,11 +696,11 @@ package away3d.core.base
         
 		public function addOnSceneTransformChange(listener:Function):void
         {
-            addEventListener("transformchanged", listener, false, 0, true);
+            addEventListener("scenetransformchanged", listener, false, 0, true);
         }
         public function removeOnSceneTransformChange(listener:Function):void
         {
-            removeEventListener("transformchanged", listener, false);
+            removeEventListener("scenetransformchanged", listener, false);
         }
         
 		private var scenetransformchanged:Object3DEvent;
