@@ -235,7 +235,7 @@ package away3d.core.render
         	if (_layerDirty)
         		createLayer();
         	
-            graphics.lineStyle(color, alpha, width);
+            graphics.lineStyle(width, color, alpha);
             graphics.moveTo(v0x = v0.x, v0y = v0.y);
             graphics.lineTo(v1.x, v1.y);
             graphics.lineTo(v2.x, v2.y);
