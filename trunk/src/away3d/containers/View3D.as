@@ -3,7 +3,6 @@ package away3d.containers
 	import away3d.cameras.*;
 	import away3d.core.*;
 	import away3d.core.base.*;
-	import away3d.core.draw.*;
 	import away3d.core.render.*;
 	import away3d.core.stats.Stats;
 	import away3d.core.utils.*;
@@ -20,6 +19,8 @@ package away3d.containers
 	
 	public class View3D extends Sprite
 	{
+		use namespace arcane;
+		
 		internal var _session:AbstractRenderSession;
 		internal var _renderer:IRenderer;
 		
@@ -97,16 +98,16 @@ package away3d.containers
         		
 		public function View3D(init:Object = null)
 		{
-			init = Init.parse(init);
+			var ini:Init = Init.parse(init) as Init;
 			
-            var stats:Boolean = init.getBoolean("stats", true);
-            scene = init.getObjectOrInit("scene", Scene3D) || new Scene3D();
-            camera = init.getObjectOrInit("camera", Camera3D) || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
-			_renderer = init.getObject("renderer") || new BasicRenderer();
-			session = init.getObject("session") || new SpriteRenderSession();
-			clip = init.getObject("clip", Clipping);
-			x = init.getNumber("x", 0);
-			y = init.getNumber("y", 0);
+            var stats:Boolean = ini.getBoolean("stats", true);
+            scene = ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
+            camera = ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
+			_renderer = ini.getObject("renderer") as IRenderer || new BasicRenderer();
+			session = ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
+			clip = ini.getObject("clip", Clipping) as Clipping;
+			x = ini.getNumber("x", 0);
+			y = ini.getNumber("y", 0);
 			
             interactiveLayer.blendMode = BlendMode.ALPHA;
             

@@ -378,25 +378,25 @@ package away3d.core.base
         {
             init = Init.parse(init);
 
-            name = init.getString("name", name);
-            ownCanvas = init.getBoolean("ownCanvas", ownCanvas);
-            ownSession = init.getObject("ownSession", AbstractRenderSession);
-            visible = init.getBoolean("visible", visible);
-            mouseEnabled = init.getBoolean("mouseEnabled", mouseEnabled);
-            useHandCursor = init.getBoolean("useHandCursor", useHandCursor);
-            filters = init.getArray("filters");
+            name = (init as Init).getString("name", name);
+            ownCanvas = (init as Init).getBoolean("ownCanvas", ownCanvas);
+            ownSession = (init as Init).getObject("ownSession", AbstractRenderSession) as AbstractRenderSession;
+            visible = (init as Init).getBoolean("visible", visible);
+            mouseEnabled = (init as Init).getBoolean("mouseEnabled", mouseEnabled);
+            useHandCursor = (init as Init).getBoolean("useHandCursor", useHandCursor);
+            filters = (init as Init).getArray("filters");
             
-            x = init.getNumber("x", 0);
-            y = init.getNumber("y", 0);
-            z = init.getNumber("z", 0);
+            x = (init as Init).getNumber("x", 0);
+            y = (init as Init).getNumber("y", 0);
+            z = (init as Init).getNumber("z", 0);
             
-            rotationX = init.getNumber("rotationX", 0);
-            rotationY = init.getNumber("rotationY", 0);
-            rotationZ = init.getNumber("rotationZ", 0);
+            rotationX = (init as Init).getNumber("rotationX", 0);
+            rotationY = (init as Init).getNumber("rotationY", 0);
+            rotationZ = (init as Init).getNumber("rotationZ", 0);
 
-            extra = init.getObject("extra");
+            extra = (init as Init).getObject("extra");
 
-            parent = init.getObject3D("parent") as ObjectContainer3D;
+            parent = (init as Init).getObject3D("parent") as ObjectContainer3D;
 			
 			if (ownSession)
 				ownCanvas = true;
@@ -660,14 +660,14 @@ package away3d.core.base
 
         public function clone(object:* = null):*
         {
-            object = object || new Object3D();
-            object.transform = transform;
-            object.name = name;
-            object.visible = visible;
-            object.mouseEnabled = mouseEnabled;
-            object.useHandCursor = useHandCursor;
-            object.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
-            return object;
+            var object3D:Object3D = object || new Object3D();
+            object3D.transform = transform;
+            object3D.name = name;
+            object3D.visible = visible;
+            object3D.mouseEnabled = mouseEnabled;
+            object3D.useHandCursor = useHandCursor;
+            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
+            return object3D;
         }
 
         public function addOnTransformChange(listener:Function):void

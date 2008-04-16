@@ -52,14 +52,14 @@ package away3d.cameras
             super(init);
 
             init = Init.parse(init);
-            zoom = init.getNumber("zoom", 10);
-            focus = init.getNumber("focus", 100);
+            zoom = (init as Init).getNumber("zoom", 10);
+            focus = (init as Init).getNumber("focus", 100);
             usedof = (init as Init).getBoolean("dof", false);
             if(usedof)
             {
-	            aperture = init.getNumber("aperture", 22);
-	            maxblur = init.getNumber("maxblur", 150);
-    	        doflevels = init.getNumber("doflevels", 16);            	
+	            aperture = (init as Init).getNumber("aperture", 22);
+	            maxblur = (init as Init).getNumber("maxblur", 150);
+    	        doflevels = (init as Init).getNumber("doflevels", 16);            	
 				enableDof();            	
             }
             else
@@ -67,7 +67,7 @@ package away3d.cameras
             	disableDof();
             }
             
-            var lookat:Number3D = init.getPosition("lookat");
+            var lookat:Number3D = (init as Init).getPosition("lookat");
 			
 			_flipY.syy = -1;
 			
@@ -81,7 +81,7 @@ package away3d.cameras
           	DofCache.aperture = aperture;
         	DofCache.maxblur = maxblur;
         	DofCache.focus = focus;
-        	DofCache.resetDof(true)
+        	DofCache.resetDof(true);
         }
         
         public function disableDof():void
@@ -138,7 +138,7 @@ package away3d.cameras
 
         public override function clone(object:* = null):*
         {
-            var camera:Camera3D = camera || new Camera3D();
+            var camera:Camera3D = object || new Camera3D();
             super.clone(camera);
             camera.zoom = zoom;
             camera.focus = focus;

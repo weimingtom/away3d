@@ -1,8 +1,6 @@
 package away3d.cameras
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.utils.*;
 
     /** Camera that hovers around an object */
@@ -26,7 +24,7 @@ package away3d.cameras
     
             init = Init.parse(init);
 
-            distance = init.getNumber("distance", 800);
+            distance = (init as Init).getNumber("distance", 800);
 
             update();
         }

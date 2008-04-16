@@ -1,8 +1,7 @@
 package away3d.cameras
 {
 	import away3d.containers.*;
-    import away3d.core.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.math.*;
     import away3d.core.utils.*;
 
@@ -18,7 +17,7 @@ package away3d.cameras
     
             init = Init.parse(init);
 
-            target = init.getObject3D("target") || new Object3D();
+            target = (init as Init).getObject3D("target") || new Object3D();
         }
 
         public override function get view():Matrix3D

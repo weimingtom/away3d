@@ -1,6 +1,5 @@
 package away3d.containers
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.math.*;
     import away3d.core.utils.*;
@@ -16,8 +15,8 @@ package away3d.containers
             super(init);
 
             init = Init.parse(init);
-            maxp = init.getNumber("maxp", Infinity);
-            minp = init.getNumber("minp", 0);
+            maxp = (init as Init).getNumber("maxp", Infinity);
+            minp = (init as Init).getNumber("minp", 0);
 
             for each (var child:Object3D in childarray)
                 addChild(child);

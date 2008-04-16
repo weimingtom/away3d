@@ -1,11 +1,7 @@
 package away3d.containers
 {
-    import away3d.core.*;
-    import away3d.core.draw.*;
-    import away3d.materials.*;
     import away3d.core.math.*;
     import away3d.core.base.*;
-    import away3d.core.render.*;
     import away3d.core.traverse.*;
     import away3d.core.utils.*;
     
@@ -26,9 +22,9 @@ package away3d.containers
                     init = null;
                 }
 
-            init = Init.parse(init);
+            var ini:Init = Init.parse(init);
 
-            var ph:Object = init.getObject("physics");
+            var ph:Object = ini.getObject("physics");
             if (ph is IPhysicsScene)
                 physics = ph as IPhysicsScene;
             if (ph is Boolean)
