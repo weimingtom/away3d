@@ -2,14 +2,9 @@ package away3d.core.block
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.materials.*;
-    import away3d.core.math.*;
     import away3d.core.base.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
     import away3d.core.utils.*;
-    
-    import flash.geom.*;
     
     /** Convex object blocking all drawing primitives under it */
     public class ConvexBlock extends Object3D implements IBlockerProvider, IPrimitiveProvider
@@ -27,7 +22,7 @@ package away3d.core.block
 
             init = Init.parse(init);
 
-            debug = init.getBoolean("debug", false);
+            debug = (init as Init).getBoolean("debug", false);
         }
     
         public function blockers(consumer:IBlockerConsumer):void

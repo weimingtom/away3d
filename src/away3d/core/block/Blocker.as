@@ -1,10 +1,6 @@
 package away3d.core.block
 {
-    import away3d.core.*;
-    import away3d.core.render.*;
-    import away3d.core.base.*
     import away3d.core.draw.*;
-    import away3d.core.render.*;
 
     /** Abstract primitive that can block other primitives from drawing */
     public class Blocker extends DrawPrimitive

@@ -1,13 +1,8 @@
-package away3d.core.utils
-{
-    import away3d.core.base.*
-    import away3d.core.base.*;
+package away3d.core.utils {
+	
     import away3d.materials.*;
-    import away3d.loaders.*;
 
-    import flash.display.BitmapData;
-    import flash.display.Sprite;
-    import flash.display.MovieClip;
+    import flash.display.*;
     import flash.utils.*;
     //import mx.core.BitmapAsset;
 
@@ -223,7 +218,7 @@ package away3d.core.utils
                 if (colornames[data] != null)
                     return colornames[data];
             
-                if ((data.length == 6) && hexstring(data))
+                if (((data as String).length == 6) && hexstring(data))
                     return parseInt("0x"+data);
             }
 
@@ -254,7 +249,7 @@ package away3d.core.utils
                 {
                     data = new data;
                 }
-                catch (error:ArgumentError)
+                catch (bitmaperror:ArgumentError)
                 {
                     data = new data(0,0);
                 }
@@ -262,9 +257,10 @@ package away3d.core.utils
 
             if (data is BitmapData)
                 return data;
-
-            if (data.hasOwnProperty("bitmapData")) // if (data is BitmapAsset)
-                return data.bitmapData;
+			
+			if (data is Bitmap)
+            	if ((data as Bitmap).hasOwnProperty("bitmapData")) // if (data is BitmapAsset)
+                	return (data as Bitmap).bitmapData;
 
             if (data is Sprite)
             {
@@ -316,7 +312,7 @@ package away3d.core.utils
                 {
                     data = new data;
                 }
-                catch (error:ArgumentError)
+                catch (materialerror:ArgumentError)
                 {
                     data = new data(0,0);
                 }
@@ -341,9 +337,9 @@ package away3d.core.utils
 
                 var hash:Array;
 
-                if (data.indexOf("#") != -1)
+                if ((data as String).indexOf("#") != -1)
                 {
-                    hash = data.split("#");
+                    hash = (data as String).split("#");
                     if (hash[1] == "")
                         return new WireColorMaterial(color(hash[0]));
 
@@ -364,9 +360,9 @@ package away3d.core.utils
                     }
                 }
                 else
-                if (data.indexOf("@") != -1)
+                if ((data as String).indexOf("@") != -1)
                 {
-                    hash = data.split("@");
+                    hash = (data as String).split("@");
                     if (hash[1] == "")
                         return new ShadingColorMaterial({color:color(hash[0])});
                 }
@@ -386,13 +382,12 @@ package away3d.core.utils
 
             if (data is Object)
             {
-                data = Init.parse(data);
-                var bitmap:BitmapData = data.getBitmap("bitmap");
-                var color:uint = data.getColor("color", 0xFFFFFFFF);
-                var alpha:Number = data.getNumber("alpha", 1, {min:0, max:1});
-                var lighting:Boolean = data.getBoolean("lighting", false);
-                var static:Boolean = data.getBoolean("static", false);
-                var wire:WireframeMaterial = wirematerial(data.getObject("wire")) as WireframeMaterial;
+                var ini:Init = Init.parse(data);
+                var bitmap:BitmapData = ini.getBitmap("bitmap");
+                var color:uint = ini.getColor("color", 0xFFFFFFFF);
+                var alpha:Number = ini.getNumber("alpha", 1, {min:0, max:1});
+                var lighting:Boolean = ini.getBoolean("lighting", false);
+                var wire:WireframeMaterial = wirematerial(ini.getObject("wire")) as WireframeMaterial;
 
                 if ((bitmap != null) && (color != 0xFFFFFFFF))
                     throw new CastError("Can't create material with color and bitmap: "+data);
@@ -402,8 +397,8 @@ package away3d.core.utils
                     if (wire != null)
                         Debug.warning("Bitmap materials do not support wire");
                         
-                    var smooth:Number = data.getNumber("smooth", false);
-                    var precision:Number = data.getNumber("precision", Infinity);
+                    var smooth:Boolean = ini.getBoolean("smooth", false);
+                    var precision:Number = ini.getNumber("precision", 0);
                     if (precision < Infinity)
                     {
                         if (lighting)
@@ -436,7 +431,7 @@ package away3d.core.utils
                         if (wire != null)
                             Debug.warning("Can't create shading material with wire");
 
-                        return new ShadingColorMaterial({color:color, alpha:alpha, static:static});
+                        return new ShadingColorMaterial({color:color, alpha:alpha});
                     }
 
                     if (wire == null)
@@ -471,22 +466,22 @@ package away3d.core.utils
                 if (data == "transparent")
                     return new TransparentMaterial();
 
-                if (data.indexOf("#") == 0)
-                    data = data.substring(1);
+                if ((data as String).indexOf("#") == 0)
+                    data = (data as String).substring(1);
 
-                if (data.indexOf("|") == -1)
+                if ((data as String).indexOf("|") == -1)
                     return new WireframeMaterial(color(data));
 
-                var line:Array = data.split("|");
+                var line:Array = (data as String).split("|");
                 return new WireframeMaterial(color(line[0]), {width:parseFloat(line[1])});
             }
 
             if (data is Object)
             {
-                data = Init.parse(data);
-                var color:uint = data.getColor("color", 0);
-                var alpha:Number = data.getNumber("alpha", 1, {min:0, max:1});
-                var width:Number = data.getNumber("width", 1, {min:0});
+                var dat:Init = Init.parse(data);
+                var color:uint = dat.getColor("color", 0);
+                var alpha:Number = dat.getNumber("alpha", 1, {min:0, max:1});
+                var width:Number = dat.getNumber("width", 1, {min:0});
 
                 return new WireframeMaterial(color, {alpha:alpha, width:width});
             }

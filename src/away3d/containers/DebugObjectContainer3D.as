@@ -1,10 +1,9 @@
 package away3d.containers
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
-    import away3d.primitives.*
+    import away3d.primitives.*;
 
     public class DebugObjectContainer3D extends ObjectContainer3D implements IPrimitiveProvider
     {

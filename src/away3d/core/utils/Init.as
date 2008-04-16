@@ -2,7 +2,7 @@ package away3d.core.utils
 {
     import away3d.core.*;
     import away3d.core.math.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.materials.*;
 
     import flash.display.BitmapData;
@@ -191,7 +191,7 @@ package away3d.core.utils
 
             if (value is Object3D)
             {
-                var o:Object = value as Object3D;
+                var o:Object3D = value as Object3D;
                 return o.scene ? o.scenePosition : o.position;
             }
 
@@ -299,7 +299,7 @@ package away3d.core.utils
             if (init == null)
                 return;
 
-            init.dontCheckUnused = true;
+            init["dontCheckUnused"] = true;
         }
 
         arcane function addForCheck():void
@@ -307,7 +307,7 @@ package away3d.core.utils
             if (init == null)
                 return;
 
-            init.dontCheckUnused = false;
+            init["dontCheckUnused"] = false;
             inits.push(init);
         }
 
@@ -321,7 +321,7 @@ package away3d.core.utils
             for each (var init:Object in list)
             {
                 if (init.hasOwnProperty("dontCheckUnused"))
-                    if (init.dontCheckUnused)
+                    if (init["dontCheckUnused"])
                         continue;
                         
                 var s:String = null;
