@@ -106,7 +106,7 @@ package away3d.materials.shaders
         	}
 			
 			if (debug)
-                _source.session.renderTriangleLine(2, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
         
 		internal var _diffuseTransform:Matrix3D;

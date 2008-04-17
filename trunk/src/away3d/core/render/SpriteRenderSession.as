@@ -189,7 +189,7 @@ package away3d.core.render
             graphics.endFill();
         }
         
-        public override function renderTriangleLine(color:int, alpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
+        public override function renderTriangleLine(width:Number, color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
         	if (_layerDirty)
         		createLayer();
@@ -201,7 +201,7 @@ package away3d.core.render
             graphics.lineTo(v0x, v0y);
         }
         
-        public override function renderTriangleLineFill(color:int, alpha:Number, wirecolor:int, wirealpha:Number, width:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
+        public override function renderTriangleLineFill(width:Number, color:int, alpha:Number, wirecolor:int, wirealpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
         {
         	if (_layerDirty)
         		createLayer();
