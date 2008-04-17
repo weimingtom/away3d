@@ -42,7 +42,7 @@ package away3d.materials
             if (alpha <= 0)
                 return;
 
-            tri.source.session.renderTriangleLine(color, alpha, width, tri.v0, tri.v1, tri.v2);
+            tri.source.session.renderTriangleLine(width, color, alpha, tri.v0, tri.v1, tri.v2);
         }
         
         public function get visible():Boolean
