@@ -399,15 +399,15 @@ package away3d.core.utils {
                         
                     var smooth:Boolean = ini.getBoolean("smooth", false);
                     var precision:Number = ini.getNumber("precision", 0);
-                    if (precision < Infinity)
+                    if (precision)
                     {
                         if (lighting)
-                            Debug.warning("Can't create precise bitmap material with lighting (yet)");
+                            return new WhiteShadingBitmapMaterial(bitmap, {smooth:smooth, precision:precision});
 
                         if (alpha < 1)
                             Debug.warning("Can't create precise bitmap material with alpha (yet)");
 
-                        return new BitmapMaterial(bitmap, {smooth:smooth});
+                        return new BitmapMaterial(bitmap, {smooth:smooth, precision:precision});
                     }
                         
                     if (lighting)
