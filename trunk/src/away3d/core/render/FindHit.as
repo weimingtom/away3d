@@ -1,12 +1,12 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
-    import away3d.core.*;
-    import away3d.core.base.*;
-    import away3d.core.draw.*;
-    import away3d.materials.*;
-    import away3d.core.math.*;
-    import away3d.events.*;
+	import away3d.core.*;
+	import away3d.core.base.*;
+	import away3d.core.draw.*;
+	import away3d.core.math.*;
+	import away3d.events.*;
+	import away3d.materials.*;
 
     /** Class that finds object that is rendered on certain screen coordinates. Used for mouse click event. */
     public class FindHit
@@ -67,7 +67,7 @@ package away3d.core.render
                         if (tri.material is IUVMaterial) {
                             var testmaterial:IUVMaterial = (tri.material as IUVMaterial);
                             //return if material pixel is transparent
-                            if (!(testmaterial.bitmap.getPixel32(testuv.u*testmaterial.width, (1 - testuv.v)*testmaterial.height) >> 24))
+                            if (!(tri.material is BitmapMaterialContainer) && !(testmaterial.bitmap.getPixel32(testuv.u*testmaterial.width, (1 - testuv.v)*testmaterial.height) >> 24))
                                 return;
                             uv = testuv;
                         }
