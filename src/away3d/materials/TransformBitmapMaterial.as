@@ -260,14 +260,16 @@ package away3d.materials
         		_faceVO = _faceDictionary[face] = new FaceVO();
         	
         	//check to see if rendering can be skipped
-        	if (_faceVO.invalidated) {
+        	if (_faceVO.invalidated || (!projectionVector && !tri.texturemapping)) {
         		_faceVO.invalidated = false;
         		
         		//use projectUV if projection vector detected
         		if (projectionVector)
         			_faceVO.mapping = projectUV(tri);
-        		else
+        		else if (!tri.texturemapping)
         			_faceVO.mapping = tri.transformUV(this);
+        		else
+        			_faceVO.mapping = tri.texturemapping;
         		
         		//apply transform matrix if one exists
         		if (_transform) {
