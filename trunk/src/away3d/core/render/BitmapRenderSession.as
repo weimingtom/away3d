@@ -86,6 +86,19 @@ package away3d.core.render
             
             _layerDirty = true;
         }
+                   
+        public override function addLayerObject(child:Sprite):void
+        {
+            //add child to layers
+            layers.push(child);
+            
+            child.visible = true;
+            
+            //add child to children
+            children[child] = child;
+            
+            newLayer = child;
+        }
         
         private function createLayer():void
         {
@@ -133,6 +146,7 @@ package away3d.core.render
             
             //remove all children
             children = new Dictionary(true);
+            newLayer = null;
             
             //remove all layers
             layers = [];

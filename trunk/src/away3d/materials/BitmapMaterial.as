@@ -58,6 +58,7 @@ package away3d.materials
         
         public function updateMaterial(source:Object3D, view:View3D):void
         {
+        	_graphics = null;
         	clearShapeDictionary();
         }
         
@@ -128,9 +129,12 @@ package away3d.materials
         public function renderTriangle(tri:DrawTriangle):void
         {
         	_mapping = getMapping(tri);
+			session = tri.source.session;
+        	
+        	if (!_graphics && tri.source.ownCanvas && session.newLayer)
+        		_graphics = session.newLayer.graphics;
         	
 			if (precision) {
-				session = tri.source.session;
             	focus = tri.projection.focus;
             	
             	map.a = _mapping.a;
@@ -142,11 +146,11 @@ package away3d.materials
 	            
 	            renderRec(tri.v0, tri.v1, tri.v2, 0);
 			} else {
-				tri.source.session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
+				session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
 			}
 			
             if (debug)
-                tri.source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
 		
 		public function getMapping(tri:DrawTriangle):Matrix

@@ -48,6 +48,19 @@ package away3d.core.render
             _layerDirty = true;
         }
         
+           
+        public override function addLayerObject(child:Sprite):void
+        {
+            //add to container
+            _container.addChild(child);
+            child.visible = true;
+            
+            //add child to children
+            children[child] = child;
+            
+            newLayer = child;
+        }
+        
         private function createLayer():void
         {
             //create new canvas for remaining triangles
@@ -92,6 +105,7 @@ package away3d.core.render
 				_container.removeChild(_container.getChildAt(i));
 			
             children = new Dictionary(true);
+            newLayer = null;
             
  			graphics = _container.graphics;	
         }	          

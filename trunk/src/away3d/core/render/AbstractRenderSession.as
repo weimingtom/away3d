@@ -22,7 +22,7 @@ package away3d.core.render
         public var time:int;
         internal var session:AbstractRenderSession;
        	public var sessions:Dictionary = new Dictionary(true);  
-       	
+       	public var newLayer:Sprite;
        			
 		/** Array for storing old displayobjects to the canvas */
 		internal var doStore:Array = new Array();
@@ -95,6 +95,11 @@ package away3d.core.render
         {
         	throw new Error("Not implemented");
         }        
+                    
+        public function addLayerObject(child:Sprite):void
+        {
+            throw new Error("Not implemented");
+        }
         
         public function renderBitmap(bitmap:BitmapData, v0:ScreenVertex, smooth:Boolean = false):void
         {
