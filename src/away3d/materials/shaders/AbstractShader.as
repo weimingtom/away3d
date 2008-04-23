@@ -92,10 +92,11 @@ package away3d.materials.shaders
         
         public function getShape(layer:Sprite):Shape
         {
-        	if (_source.ownCanvas) {
+        	_session = _source.session;
+        	if (_session != _session.view.session) {
         		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_source]))
-	    			layer.addChild(_shape = _shapeDictionary[_source] = new Shape());
+	    		if (!(_shape = _shapeDictionary[_session]))
+	    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
         	} else {
 	        	//check to see if face shape exists
 	    		if (!(_shape = _shapeDictionary[_face]))
@@ -106,12 +107,13 @@ package away3d.materials.shaders
         
         public function getLightingShape(layer:Sprite, light:AbstractLightSource):Shape
         {
-        	if (_source.ownCanvas) {
-    			if (!_shapeDictionary[_source])
-    				_shapeDictionary[_source] = new Dictionary(true);
+        	_session = _source.session;
+        	if (_session != _session.view.session) {
+    			if (!_shapeDictionary[_session])
+    				_shapeDictionary[_session] = new Dictionary(true);
         		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_source][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_source][light] = new Shape());
+	    		if (!(_shape = _shapeDictionary[_session][light]))
+	    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
         	} else {
         		if (!_shapeDictionary[_face])
     				_shapeDictionary[_face] = new Dictionary(true);
@@ -126,6 +128,7 @@ package away3d.materials.shaders
 		internal var _graphics:Graphics;
 		internal var _bitmapRect:Rectangle;
 		internal var _source:Mesh;
+		internal var _session:AbstractRenderSession;
 		internal var _view:View3D;
 		internal var _face:Face;
 		internal var _lights:LightArray;

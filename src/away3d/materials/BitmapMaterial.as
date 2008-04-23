@@ -107,7 +107,8 @@ package away3d.materials
         	if (!blendMode || blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
-	        	if (tri.source.ownCanvas) {
+        		session = tri.source.session;
+	        	if (session != session.view.session) {
 	        		//check to see if source shape exists
 		    		if (!(_shape = _shapeDictionary[tri.source]))
 		    			layer.addChild(_shape = _shapeDictionary[tri.source] = new Shape());
@@ -131,7 +132,7 @@ package away3d.materials
         	_mapping = getMapping(tri);
 			session = tri.source.session;
         	
-        	if (!_graphics && tri.source.ownCanvas && session.newLayer)
+        	if (!_graphics && session != session.view.session && session.newLayer)
         		_graphics = session.newLayer.graphics;
         	
 			if (precision) {

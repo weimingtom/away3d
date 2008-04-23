@@ -4,6 +4,7 @@ package away3d.materials
 	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
+	import away3d.core.render.AbstractRenderSession;
 	import away3d.core.utils.*;
 	
 	import flash.display.*;
@@ -21,6 +22,7 @@ package away3d.materials
 		internal var _spriteDictionary:Dictionary = new Dictionary(true);
         internal var _sprite:Sprite;
         internal var _source:Object3D;
+        internal var _session:AbstractRenderSession;
         
 		public function CompositeMaterial(init:Object = null)
 		{	
@@ -51,22 +53,23 @@ package away3d.materials
 		public function renderTriangle(tri:DrawTriangle):void
         {
         	_source = tri.source;
+        	_session = _source.session;
         	
-        	if (_source.ownCanvas) {
+        	if (_session != _session.view.session) {
         		//check to see if source sprite exists
-	    		if (!(_sprite = _spriteDictionary[_source]))
-	    			_sprite = _spriteDictionary[_source] = new Sprite();
+	    		if (!(_sprite = _spriteDictionary[_session]))
+	    			_sprite = _spriteDictionary[_session] = new Sprite();
         	} else {
 	        	//check to see if face sprite exists
 	    		if (!(_sprite = _spriteDictionary[tri.face]))
 	    			_sprite = _spriteDictionary[tri.face] = new Sprite();
         	}
 	    	
-	    	if (!_source.session.children[_sprite]) {
-	    		if (_source.ownCanvas)
-        			_source.session.addLayerObject(_sprite);
+	    	if (!_session.children[_sprite]) {
+	    		if (_session != _session.view.session)
+        			_session.addLayerObject(_sprite);
         		else
-        			_source.session.addDisplayObject(_sprite);
+        			_session.addDisplayObject(_sprite);
         		
         		if (blendMode)
         			_sprite.blendMode = blendMode;
@@ -86,11 +89,12 @@ package away3d.materials
         		_sprite = layer;
         	} else {
         		_source = tri.source;
+        		_session = _source.session;
         		
-	        	if (_source.ownCanvas) {
+	        	if (_session != _session.view.session) {
 	        		//check to see if source sprite exists
-		    		if (!(_sprite = _spriteDictionary[_source]))
-		    			layer.addChild(_sprite = _spriteDictionary[_source] = new Sprite());
+		    		if (!(_sprite = _spriteDictionary[_session]))
+		    			layer.addChild(_sprite = _spriteDictionary[_session] = new Sprite());
 	        	} else {
 		        	//check to see if face sprite exists
 		    		if (!(_sprite = _spriteDictionary[tri.face]))
