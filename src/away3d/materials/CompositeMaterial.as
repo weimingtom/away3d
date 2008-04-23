@@ -63,7 +63,11 @@ package away3d.materials
         	}
 	    	
 	    	if (!_source.session.children[_sprite]) {
-        		_source.session.addDisplayObject(_sprite);
+	    		if (_source.ownCanvas)
+        			_source.session.addLayerObject(_sprite);
+        		else
+        			_source.session.addDisplayObject(_sprite);
+        		
         		if (blendMode)
         			_sprite.blendMode = blendMode;
         		if (colorTransform)

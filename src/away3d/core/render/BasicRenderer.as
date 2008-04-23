@@ -102,12 +102,14 @@ package away3d.core.render
                 primitives = filter.filter(primitives, scene, camera, clip);
 
 			//update materials
-			materials = new Dictionary();
+			materials = new Dictionary(true);
 			for each (primitive in primitives)
 				if(primitive is DrawTriangle) {
 					triangle = primitive as DrawTriangle;
-					if (triangle.material is IUpdatingMaterial && !materials[triangle.source]) {
-						(materials[triangle.source] = triangle.material as IUpdatingMaterial).updateMaterial(triangle.source, view);
+					if (!materials[triangle.source])
+						materials[triangle.source] = new Dictionary(true);
+					if (triangle.material is IUpdatingMaterial && !materials[triangle.source][triangle.material]) {
+						(materials[triangle.source][triangle.material] = triangle.material as IUpdatingMaterial).updateMaterial(triangle.source, view);
 					}
 				}
 			
