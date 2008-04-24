@@ -82,7 +82,7 @@ package away3d.materials.shaders
 		
 		internal var _mapping:Matrix = new Matrix();
 		
-        public function renderLayer(tri:DrawTriangle, layer:Sprite):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	_source = tri.source as Mesh;
 			_view = _source.session.view;

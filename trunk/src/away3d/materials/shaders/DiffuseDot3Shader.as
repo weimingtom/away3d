@@ -82,9 +82,9 @@ package away3d.materials.shaders
         	}
         }
 		
-        public override function renderLayer(tri:DrawTriangle, layer:Sprite):void
+        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
-        	super.renderLayer(tri, layer);
+        	super.renderLayer(tri, layer, level);
         	
         	for each (directional in _lights.directionals)
         	{
