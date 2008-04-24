@@ -262,11 +262,11 @@ package away3d.core.utils {
             	if ((data as Bitmap).hasOwnProperty("bitmapData")) // if (data is BitmapAsset)
                 	return (data as Bitmap).bitmapData;
 
-            if (data is Sprite)
+            if (data is DisplayObject)
             {
-                var sprite:Sprite = data as Sprite;
-                var bmd:BitmapData = new BitmapData(sprite.width, sprite.height, true, 0x00FFFFFF);
-                bmd.draw(sprite, null, null, null, bmd.rect, true);
+                var ds:DisplayObject = data as DisplayObject;
+                var bmd:BitmapData = new BitmapData(ds.width, ds.height, true, 0x00FFFFFF);
+                bmd.draw(ds, ds.transform.matrix, null, null, bmd.rect, true);
                 return bmd;
             }
 

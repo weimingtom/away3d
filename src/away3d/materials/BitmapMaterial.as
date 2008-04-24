@@ -102,7 +102,7 @@ package away3d.materials
             createVertexArray();
         }
         
-        public function renderLayer(tri:DrawTriangle, layer:Sprite):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	if (!blendMode || blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
@@ -110,8 +110,8 @@ package away3d.materials
         		session = tri.source.session;
 	        	if (session != session.view.session) {
 	        		//check to see if source shape exists
-		    		if (!(_shape = _shapeDictionary[tri.source]))
-		    			layer.addChild(_shape = _shapeDictionary[tri.source] = new Shape());
+		    		if (!(_shape = _shapeDictionary[session]))
+		    			layer.addChild(_shape = _shapeDictionary[session] = new Shape());
 	        	} else {
 		        	//check to see if face shape exists
 		    		if (!(_shape = _shapeDictionary[tri.face]))

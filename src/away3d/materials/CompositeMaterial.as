@@ -54,11 +54,12 @@ package away3d.materials
         {
         	_source = tri.source;
         	_session = _source.session;
+    		var level:int = 0;
         	
         	if (_session != _session.view.session) {
-        		//check to see if source sprite exists
-	    		if (!(_sprite = _spriteDictionary[_session]))
-	    			_sprite = _spriteDictionary[_session] = new Sprite();
+        		//check to see if session sprite exists
+	    		if (!(_sprite = _session.spriteLayers[level]))
+	    			_sprite = _session.spriteLayers[level] = new Sprite();
         	} else {
 	        	//check to see if face sprite exists
 	    		if (!(_sprite = _spriteDictionary[tri.face]))
@@ -79,11 +80,11 @@ package away3d.materials
         	
     		//call renderLayer on each material
     		for each (material in materials)
-        		material.renderLayer(tri, _sprite);
+        		material.renderLayer(tri, _sprite, level++);
         }
         
         
-        public function renderLayer(tri:DrawTriangle, layer:Sprite):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	if (!colorTransform && (!blendMode || blendMode == BlendMode.NORMAL)) {
         		_sprite = layer;
@@ -92,9 +93,9 @@ package away3d.materials
         		_session = _source.session;
         		
 	        	if (_session != _session.view.session) {
-	        		//check to see if source sprite exists
-		    		if (!(_sprite = _spriteDictionary[_session]))
-		    			layer.addChild(_sprite = _spriteDictionary[_session] = new Sprite());
+	        		//check to see if session sprite exists
+		    		if (!(_sprite = _session.spriteLayers[level]))
+		    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
 	        	} else {
 		        	//check to see if face sprite exists
 		    		if (!(_sprite = _spriteDictionary[tri.face]))
@@ -108,7 +109,7 @@ package away3d.materials
     		
 	    	//call renderLayer on each material
     		for each (material in materials)
-        		material.renderLayer(tri, _sprite);
+        		material.renderLayer(tri, _sprite, level++);
         }
         
         public function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO

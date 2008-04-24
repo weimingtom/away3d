@@ -13,6 +13,6 @@ package away3d.materials
     public interface ILayerMaterial extends IMaterial
     {
         function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO;
-        function renderLayer(tri:DrawTriangle, layer:Sprite):void;
+        function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void;
     }
 }

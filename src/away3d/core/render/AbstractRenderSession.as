@@ -21,7 +21,8 @@ package away3d.core.render
         
         public var time:int;
         internal var session:AbstractRenderSession;
-       	public var sessions:Dictionary = new Dictionary(true);  
+       	public var sessions:Dictionary = new Dictionary(true);
+       	public var spriteLayers:Array = new Array();
        	public var newLayer:Sprite;
        			
 		/** Array for storing old displayobjects to the canvas */
@@ -87,6 +88,9 @@ package away3d.core.render
         
         public function clear():void
         {
+        	for each (var sprite:Sprite in spriteLayers)
+        		sprite.graphics.clear();
+        	
         	for each(session in sessions)
        			session.clear();
         }

@@ -125,7 +125,7 @@ package away3d.materials
         	return tri.texturemapping;
         }
                 
-        public override function renderLayer(tri:DrawTriangle, layer:Sprite):void
+        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	throw new Error("Not implemented");
         }
