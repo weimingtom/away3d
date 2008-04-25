@@ -86,10 +86,23 @@ package away3d.core.render
         	return _lightarray;
         }
         
+        internal var ds:DisplayObject;
+        
         public function clear():void
         {
-        	for each (var sprite:Sprite in spriteLayers)
+        	
+        	for each (var sprite:Sprite in spriteLayers) {
         		sprite.graphics.clear();
+        		if (sprite.numChildren) {
+        			var i:int = sprite.numChildren;
+        			while (i--) {
+        				ds = sprite.getChildAt(i);
+        				if (ds is Shape)
+        					(ds as Shape).graphics.clear();
+        			}
+        				
+        		}
+        	}
         	
         	for each(session in sessions)
        			session.clear();
@@ -154,6 +167,7 @@ package away3d.core.render
         */ 
         public function flush():void
         {
+        	
        		for each(session in sessions)
        			session.flush();
         }
