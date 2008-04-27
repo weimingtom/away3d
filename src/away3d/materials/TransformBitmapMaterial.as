@@ -243,9 +243,20 @@ package away3d.materials
         internal var face:Face;
         internal var w:Number;
         internal var h:Number;
+        internal var normalR:Number3D = new Number3D();
         
         public override function renderTriangle(tri:DrawTriangle):void
         {
+        	if (_projectionVector && !throughProjection) {
+        		
+        		if (globalProjection) {
+        			normalR.rotate(tri.face.normal, tri.source.sceneTransform);
+        			if (normalR.dot(_projectionVector) < 0)
+        				return;
+        		} else if (tri.face.normal.dot(_projectionVector) < 0)
+        			return;
+        	}
+        	
         	if (transformDirty)
         		updateTransform();
         	
@@ -260,8 +271,9 @@ package away3d.materials
         		_faceVO = _faceDictionary[face] = new FaceVO();
         	
         	//check to see if rendering can be skipped
-        	if (_faceVO.invalidated || !tri.texturemapping) {
+        	if (_faceVO.invalidated || !tri.texturemapping || _faceVO.backface != tri.backface) {
         		_faceVO.invalidated = false;
+        		_faceVO.backface = tri.backface;
         		
         		//use projectUV if projection vector detected
         		if (projectionVector)

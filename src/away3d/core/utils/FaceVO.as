@@ -21,6 +21,7 @@ package away3d.core.utils
 		public var cleared:Boolean = true;
 		public var updated:Boolean = false;
 		public var invalidated:Boolean = true;
+		public var backface:Boolean = false;
 		public var resized:Boolean;
 		
 		public function FaceVO(source:Object3D= null, view:View3D = null)
