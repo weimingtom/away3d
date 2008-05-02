@@ -1,18 +1,16 @@
 package away3d.materials
 {
     import away3d.core.*;
+    import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
-    import away3d.core.base.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
     import away3d.core.utils.*;
     
     import flash.display.BitmapData;
     import flash.filters.ColorMatrixFilter;
     import flash.geom.Matrix;
     import flash.geom.Point;
-    import flash.geom.Rectangle;
     import flash.utils.Dictionary;
 
     /** Bitmap material that takes average of color lightings as a white lighting */
@@ -62,9 +60,14 @@ package away3d.materials
 
             smooth = init.getBoolean("smooth", false);
             repeat = init.getBoolean("repeat", false);
+            
+            if (!CacheStore.whiteShadingCache[diffuse])
+            	CacheStore.whiteShadingCache[diffuse] = new Dictionary(true);
+            	
+            cache = CacheStore.whiteShadingCache[diffuse];
         }
 
-        private var cache:Dictionary = new Dictionary();
+        private var cache:Dictionary;
 
         private var step:int = 1;
 
@@ -85,7 +88,7 @@ package away3d.materials
 		
         public override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / 3;
+            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / (255*3);
 			
             if (!(mapping = tri.texturemapping))
             	mapping = tri.transformUV(this);
@@ -111,7 +114,7 @@ package away3d.materials
                 if (step < 64)
                     if (Math.random() < 0.01)
                         doubleStepTo(64);
-                var brightness:Number = ladder(br)/255;
+                var brightness:Number = ladder(br);
                 var bitmap:BitmapData = cache[brightness];
                 if (bitmap == null)
                 {

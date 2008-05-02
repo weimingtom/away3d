@@ -133,7 +133,6 @@ package away3d.core.light
         }
 		
         internal var quaternion:Quaternion = new Quaternion();
-        internal var viewTransform:Matrix3D = new Matrix3D();
         internal var invTransform:Matrix3D = new Matrix3D();
     	internal var transform:Matrix3D = new Matrix3D();
     	internal var nx:Number;
@@ -155,8 +154,10 @@ package away3d.core.light
         
         public function setDiffuseTransform(source:Object3D):void
         {
-        	viewTransform.multiply3x3(transform, source._sceneTransform);
-        	diffuseTransform[source] = viewTransform.clone();
+        	if (!diffuseTransform[source])
+        		diffuseTransform[source] = new Matrix3D();
+        	
+        	diffuseTransform[source].multiply3x3(transform, source._sceneTransform);
         }
         
         internal var cameraTransform:Matrix3D;
@@ -178,8 +179,10 @@ package away3d.core.light
         	mod = Math.sqrt(nx*nx + ny*ny);
         	halfTransform.rotationMatrix(-ny/mod, nx/mod, 0, Math.acos(-halfVector.z));
 			
-        	viewTransform.multiply3x3(halfTransform, source._sceneTransform);
-        	specularTransform[source][view] = viewTransform.clone();
+			if (!specularTransform[source][view])
+				specularTransform[source][view] = new Matrix3D();
+				
+        	specularTransform[source][view].multiply3x3(halfTransform, source._sceneTransform);
         }
         
         internal var _red:Number;
