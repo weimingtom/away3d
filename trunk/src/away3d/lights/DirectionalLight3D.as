@@ -39,6 +39,9 @@ package away3d.lights
             _green = (_color & 0xFF00) >> 8;
             _blue  = (_color & 0xFF);
             _colorDirty = true;
+            _ambientDirty = true;
+            _diffuseDirty = true;
+            _specularDirty = true;
 		}
 		
 		public function get color():int
