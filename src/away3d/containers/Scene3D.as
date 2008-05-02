@@ -1,5 +1,6 @@
 package away3d.containers
 {
+	import away3d.core.*;
     import away3d.core.math.*;
     import away3d.core.base.*;
     import away3d.core.traverse.*;
@@ -10,6 +11,8 @@ package away3d.containers
     /** Scene that gets rendered */
     public class Scene3D extends ObjectContainer3D
     {
+    	use namespace arcane;
+    	
         public var physics:IPhysicsScene;
 		public var tickTraverser:TickTraverser = new TickTraverser();
 		
@@ -60,6 +63,12 @@ package away3d.containers
 
         public override function get sceneTransform():Matrix3D
         {
+        	if (_transformDirty)
+        		 _sceneTransformDirty = true;
+        	if (_sceneTransformDirty) {
+        		_sceneTransformDirty = false;
+        		notifySceneTransformChange();
+        	}
             return transform;
         }
 

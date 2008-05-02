@@ -26,7 +26,7 @@ package away3d.core.base
         private var _rotationY:Number;
         private var _rotationZ:Number;
     	
-        public var _sceneTransformDirty:Boolean;
+        arcane var _sceneTransformDirty:Boolean;
         private var _localTransformDirty:Boolean;
         arcane var _sceneTransform:Matrix3D = new Matrix3D();
         
@@ -335,6 +335,7 @@ package away3d.core.base
         {
         	sceneTransformed = false;
         	
+        	//for camera transforms
             if (_scene == null) {
             	if (_transformDirty)
             		 _sceneTransformDirty = true;
