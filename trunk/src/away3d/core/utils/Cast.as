@@ -1,8 +1,9 @@
 package away3d.core.utils {
 	
     import away3d.materials.*;
-
+    
     import flash.display.*;
+    import flash.geom.Matrix;
     import flash.utils.*;
     //import mx.core.BitmapAsset;
 
@@ -266,7 +267,10 @@ package away3d.core.utils {
             {
                 var ds:DisplayObject = data as DisplayObject;
                 var bmd:BitmapData = new BitmapData(ds.width, ds.height, true, 0x00FFFFFF);
-                bmd.draw(ds, ds.transform.matrix, null, null, bmd.rect, true);
+                var mat:Matrix = ds.transform.matrix.clone();
+                mat.tx = 0;
+                mat.ty = 0;
+                bmd.draw(ds, mat, ds.transform.colorTransform, ds.blendMode, bmd.rect, true);
                 return bmd;
             }
 
