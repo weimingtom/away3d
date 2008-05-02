@@ -89,12 +89,12 @@ package away3d.cameras
         	DofCache.resetDof(false);
         }
         
-        public var invView:Matrix3D;
+        public var invView:Matrix3D = new Matrix3D();
         
         public function get view():Matrix3D
         {
         	_view.multiply(sceneTransform, _flipY);
-        	invView = _view.clone();
+        	invView.clone(_view);
         	_view.inverse(invView);
         	return _view;
         }

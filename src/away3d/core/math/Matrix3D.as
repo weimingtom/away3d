@@ -151,13 +151,11 @@ package away3d.core.math
     
     	private var m:Matrix3D;
     	
-        public function clone():Matrix3D
+        public function clone(m:Matrix3D):Matrix3D
         {
-            m = new Matrix3D();
-
-            m.sxx = sxx;   m.sxy = sxy;   m.sxz = sxz;   m.tx = tx;
-            m.syx = syx;   m.syy = syy;   m.syz = syz;   m.ty = ty;
-            m.szx = szx;   m.szy = szy;   m.szz = szz;   m.tz = tz;
+            sxx = m.sxx;   sxy = m.sxy;   sxz = m.sxz;   tx = m.tx;
+            syx = m.syx;   syy = m.syy;   syz = m.syz;   ty = m.ty;
+            szx = m.szx;   szy = m.szy;   szz = m.szz;   tz = m.tz;
                             
             return m;
         }

@@ -305,7 +305,7 @@ package away3d.core.base
             if (value == _transform)
                 return;
 
-            _transform = value.clone();
+            _transform.clone(value);
 
             _transformDirty = false;
             _rotationDirty = true;
