@@ -23,12 +23,12 @@ package away3d.materials
         
         public override function get width():Number
         {
-            return movie.width;
+            return _renderBitmap.width;
         }
 
         public override function get height():Number
         {
-            return movie.height;
+            return _renderBitmap.height;
         }
         
         public function get scale():Number2D

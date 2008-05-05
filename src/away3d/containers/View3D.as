@@ -183,27 +183,27 @@ package away3d.containers
         protected function onMouseDown(e:MouseEvent):void
         {
             mousedown = true;
-            fireMouseEvent(MouseEvent3D.MOUSE_DOWN, e.localX, e.localY, e.ctrlKey, e.shiftKey);
+            fireMouseEvent(MouseEvent3D.MOUSE_DOWN, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
 
         private function onMouseUp(e:MouseEvent):void
         {
             mousedown = false;
-            fireMouseEvent(MouseEvent3D.MOUSE_UP, e.localX, e.localY, e.ctrlKey, e.shiftKey);
+            fireMouseEvent(MouseEvent3D.MOUSE_UP, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
 
         private function onMouseOut(e:MouseEvent):void
         {
         	if (e.eventPhase != EventPhase.AT_TARGET)
         		return;
-        	fireMouseEvent(MouseEvent3D.MOUSE_OUT, e.localX, e.localY, e.ctrlKey, e.shiftKey);
+        	fireMouseEvent(MouseEvent3D.MOUSE_OUT, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
         private function onMouseOver(e:MouseEvent):void
         {
         	if (e.eventPhase != EventPhase.AT_TARGET)
         		return;
-            fireMouseEvent(MouseEvent3D.MOUSE_OVER, e.localX, e.localY, e.ctrlKey, e.shiftKey);
+            fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
 
         private var _lastmove_mouseX:Number;
@@ -250,12 +250,13 @@ package away3d.containers
                 }
                 if (target != null && mouseObject == null) {
                     event = findhit.getMouseEvent(MouseEvent3D.MOUSE_OVER);
-                    event.object = mouseObject = target;
+                    event.object = target;
                     event.material = mouseMaterial = targetMaterial;
                     dispatchMouseEvent(event);
                     bubbleMouseEvent(event);
-                    buttonMode = mouseObject.useHandCursor;
+                    buttonMode = target.useHandCursor;
                 }
+                mouseObject = target;
             }
             
         }
