@@ -11,10 +11,11 @@ package away3d.materials.shaders
 	import away3d.materials.*;
 	
 	import flash.display.*;
+	import flash.events.*;
 	import flash.geom.*;
 	import flash.utils.*;	
 
-    public class AbstractShader implements IUpdatingMaterial, ILayerMaterial
+    public class AbstractShader extends EventDispatcher implements IUpdatingMaterial, ILayerMaterial
     {
 		use namespace arcane;
 		

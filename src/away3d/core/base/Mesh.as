@@ -39,15 +39,29 @@
         {
         	if (_material == val)
                 return;
-                
+            
+            if (_material != null && _material is IUVMaterial)
+            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+            
         	_material = val;
+        	
+        	if (_material != null && _material is IUVMaterial)
+            	(_material as IUVMaterial).addOnResize(onMaterialResize);
         	
         	//reset texturemapping (if applicable)
         	if (_material is IUVMaterial || _material is ILayerMaterial)
 	        	for each (var face:Face in _faces)
-	        		face._dt.texturemapping = null;
+	        		if (face._material == null)
+	        			face._dt.texturemapping = null;
         }
-
+		
+		private function onMaterialResize(event:MaterialEvent):void
+		{
+			for each (var face:Face in _faces)
+        		if (face._material == null)
+        			face._dt.texturemapping = null;
+		}
+		
         private var _neighboursDirty:Boolean = true;
         private var _neighbour01:Dictionary; 
         private var _neighbour12:Dictionary; 

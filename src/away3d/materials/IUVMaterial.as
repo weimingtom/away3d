@@ -17,5 +17,7 @@ package away3d.materials
         function get width():Number;
         function get height():Number;
         function get bitmap():BitmapData;
+        function addOnResize(listener:Function):void;
+        function removeOnResize(listener:Function):void;
     }
 }

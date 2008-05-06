@@ -122,12 +122,23 @@ package away3d.core.base
         {
             if (value == _material)
                 return;
-
-            _material = value;
 			
+			if (_material != null && _material is IUVMaterial)
+            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+            
+            _material = value;
+            
+			if (_material != null && _material is IUVMaterial)
+            	(_material as IUVMaterial).addOnResize(onMaterialResize);
+            
             notifyMaterialChange();
         }
-
+		
+		private function onMaterialResize(event:MaterialEvent):void
+		{
+			_dt.texturemapping = null;
+		}
+		
         public function get back():ITriangleMaterial
         {
             return _back;
@@ -540,10 +551,12 @@ package away3d.core.base
         {
             addEventListener("materialchanged", listener, false, 0, true);
         }
+        
         public function removeOnMaterialChange(listener:Function):void
         {
             removeEventListener("materialchanged", listener, false);
         }
+        
         private var materialchanged:FaceEvent;
         protected function notifyMaterialChange():void
         {

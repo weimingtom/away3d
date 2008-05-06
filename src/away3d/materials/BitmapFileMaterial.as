@@ -1,9 +1,11 @@
 package away3d.materials
 {
 	
+	import away3d.events.*;
+	
+	import flash.display.*;
 	import flash.events.Event;
-    import flash.display.*;
-    import flash.geom.*;
+	import flash.geom.*;
 	import flash.net.URLRequest;
 
     /** File bitmap texture material */
@@ -20,11 +22,17 @@ package away3d.materials
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 			loader.load(new URLRequest(url));
         }
+        
+		private var materialresize:MaterialEvent;
 		
-		private function onComplete(e:Event):void 
+		private function onComplete(e:Event):void
 		{
 			_renderBitmap = _bitmap = Bitmap(loader.content).bitmapData;
-			transform = new Matrix(1,0,0,1)
+			
+			if (materialresize == null)
+				materialresize = new MaterialEvent("materialresize", this);
+			
+			dispatchEvent(materialresize);
 		}
 
     }

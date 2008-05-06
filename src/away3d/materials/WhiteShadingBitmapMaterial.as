@@ -140,5 +140,15 @@ package away3d.materials
                 v = 0xFF;
             return Math.exp(Math.round(Math.log(v)*step)/step);
         }
+        
+        public function addOnResize(listener:Function):void
+        {
+        	addEventListener("materialresize", listener, false, 0, true);
+        }
+        
+        public function removeOnResize(listener:Function):void
+        {
+        	removeEventListener("materialresize", listener, false);
+        }
     }
 }
