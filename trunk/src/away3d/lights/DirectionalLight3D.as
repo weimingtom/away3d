@@ -7,7 +7,6 @@ package away3d.lights
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-    import away3d.events.Object3DEvent;
     import away3d.materials.*;
     
     import flash.display.*;

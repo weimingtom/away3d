@@ -9,11 +9,12 @@ package away3d.materials
     import away3d.core.utils.*;
     
     import flash.display.*;
+    import flash.events.*;
     import flash.geom.*;
     import flash.utils.Dictionary;
 
     /** Basic bitmap texture material */
-    public class BitmapMaterial implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IUpdatingMaterial
+    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IUpdatingMaterial
     {
     	use namespace arcane;
     	
@@ -469,6 +470,16 @@ package away3d.materials
         public function get visible():Boolean
         {
             return true;
+        }
+        
+        public function addOnResize(listener:Function):void
+        {
+        	addEventListener("materialresize", listener, false, 0, true);
+        }
+        
+        public function removeOnResize(listener:Function):void
+        {
+        	removeEventListener("materialresize", listener, false);
         }
  
     }

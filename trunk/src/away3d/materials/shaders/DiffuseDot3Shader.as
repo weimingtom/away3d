@@ -183,5 +183,15 @@ package away3d.materials.shaders
 				}
 	    	}
         }
+        
+        public function addOnResize(listener:Function):void
+        {
+        	addEventListener("materialresize", listener, false, 0, true);
+        }
+        
+        public function removeOnResize(listener:Function):void
+        {
+        	removeEventListener("materialresize", listener, false);
+        }
     }
 }

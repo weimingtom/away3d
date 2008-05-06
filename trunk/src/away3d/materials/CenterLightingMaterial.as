@@ -10,9 +10,10 @@ package away3d.materials
     import away3d.core.utils.*;
     
     import flash.display.*;
+    import flash.events.*;
 
     /** Abstract class for materials that calculate lighting for the face's center */
-    public class CenterLightingMaterial implements ITriangleMaterial, IUpdatingMaterial
+    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial, IUpdatingMaterial
     {
         public var ambient_brightness:Number = 1;
         public var diffuse_brightness:Number = 1;
