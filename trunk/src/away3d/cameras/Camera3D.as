@@ -8,6 +8,8 @@ package away3d.cameras
     import away3d.core.utils.*;
     import away3d.sprites.dof.DofCache;
     
+    import flash.utils.getTimer;
+    
     /** Camera in 3D-space */
     public class Camera3D extends Object3D
     {
@@ -111,6 +113,7 @@ package away3d.cameras
 			screenProjection.view = object.viewTransform;
 			screenProjection.focus = focus;
 			screenProjection.zoom = zoom;
+			screenProjection.time = getTimer();
             return vertex.project(screenProjection);
         }
     
