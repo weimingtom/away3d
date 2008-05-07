@@ -1,10 +1,10 @@
 package away3d.materials
 {
     import away3d.core.*;
+    import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
     import away3d.core.utils.*;
     import away3d.events.*;
     
@@ -110,8 +110,12 @@ package away3d.materials
 		
 		public function onMouseMove(event:MouseEvent3D):void
 		{
-			movie.x = event.screenX - event.uv.u*_renderBitmap.width;
-			movie.y = event.screenY - (1 - event.uv.v)*_renderBitmap.height;
+			x = event.uv.u*_renderBitmap.width;
+			y = (1 - event.uv.v)*_renderBitmap.height;
+			t = _transform.clone();
+			t.invert();
+			movie.x = event.screenX - x*t.a - y*t.c - t.tx;
+			movie.y = event.screenY - x*t.b - y*t.d - t.ty;
 		}
  		
  		public function resetInteractiveLayer():void

@@ -44,7 +44,12 @@ package away3d.materials
         	return diffuse;
         }
         
-                public function get faceDictionary():Dictionary
+        public function getPixel32(u:Number, v:Number):uint
+        {
+        	return diffuse.getPixel32(u*diffuse.width, (1 - v)*diffuse.height);
+        }
+        
+        public function get faceDictionary():Dictionary
         {
         	return _faceDictionary
         }

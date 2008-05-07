@@ -41,6 +41,11 @@ package away3d.materials.shaders
         	return _bitmap;
         }
         
+        public function getPixel32(u:Number, v:Number):uint
+        {
+        	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
+        }
+        
         public function DiffuseDot3Shader(bitmap:BitmapData, init:Object = null)
         {
             super(init);

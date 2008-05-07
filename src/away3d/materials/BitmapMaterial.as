@@ -55,6 +55,11 @@ package away3d.materials
         	return _bitmap;
         }
         
+        public function getPixel32(u:Number, v:Number):uint
+        {
+        	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
+        }
+        
         internal var _faceVO:FaceVO;
         
         public function updateMaterial(source:Object3D, view:View3D):void
