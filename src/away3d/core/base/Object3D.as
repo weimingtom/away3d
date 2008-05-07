@@ -389,6 +389,7 @@ package away3d.core.base
             mouseEnabled = (init as Init).getBoolean("mouseEnabled", mouseEnabled);
             useHandCursor = (init as Init).getBoolean("useHandCursor", useHandCursor);
             filters = (init as Init).getArray("filters");
+            alpha = (init as Init).getNumber("alpha", 1);
             
             x = (init as Init).getNumber("x", 0);
             y = (init as Init).getNumber("y", 0);
