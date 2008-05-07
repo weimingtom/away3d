@@ -51,7 +51,10 @@ package away3d.core.base
             
         //an optional filters array that can be applied to the canvas
         public var filters:Array;
-    
+    	    
+        //an optional alpha property that can be applied to the canvas
+        public var alpha:Number;
+        
         //an optional blendMode that can be applied to the canvas
         public var blendMode:String;
         
@@ -511,6 +514,7 @@ package away3d.core.base
                 
                 ownSession.view = v;
                 ownSession.container.filters = filters;
+                ownSession.container.alpha = alpha;
                 
                 if (blendMode != null)
                 	ownSession.container.blendMode = blendMode;
