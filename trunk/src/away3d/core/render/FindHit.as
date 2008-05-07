@@ -67,7 +67,7 @@ package away3d.core.render
                         if (tri.material is IUVMaterial) {
                             var testmaterial:IUVMaterial = (tri.material as IUVMaterial);
                             //return if material pixel is transparent
-                            if (!(tri.material is BitmapMaterialContainer) && !(testmaterial.bitmap.getPixel32(testuv.u*testmaterial.width, (1 - testuv.v)*testmaterial.height) >> 24))
+                            if (!(tri.material is BitmapMaterialContainer) && !(testmaterial.getPixel32(testuv.u, testuv.v) >> 24))
                                 return;
                             uv = testuv;
                         }
