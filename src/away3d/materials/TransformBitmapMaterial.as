@@ -205,9 +205,12 @@ package away3d.materials
         {
         	x = u*_bitmap.width;
 			y = (1 - v)*_bitmap.height;
-			t = _transform.clone();
-			t.invert();
-        	return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
+			if (_transform) {
+				t = _transform.clone();
+				t.invert();
+        		return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
+   			}
+        	return _bitmap.getPixel32(x, y);
         }
         
         public override function updateMaterial(source:Object3D, view:View3D):void
