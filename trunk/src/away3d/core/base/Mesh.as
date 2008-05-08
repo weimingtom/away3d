@@ -572,7 +572,6 @@
 
         internal var _debugboundingbox:WireCube;
 		internal var tri:DrawTriangle;
-        internal var transparent:ITriangleMaterial;
         internal var backmat:ITriangleMaterial;
         internal var backface:Boolean;
         internal var uvmaterial:Boolean;
@@ -622,7 +621,6 @@
                     _debugboundingbox.primitives(consumer, session);
             }
             
-            transparent = TransparentMaterial.INSTANCE;
             backmat = back || material;
 			
             for each (var face:Face in _faces)

@@ -5,6 +5,5 @@ package away3d.core.utils
 	public class CacheStore
 	{
 		public static var whiteShadingCache:Dictionary = new Dictionary(true);
-
 	}
 }

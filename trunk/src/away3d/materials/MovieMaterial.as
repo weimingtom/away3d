@@ -9,7 +9,9 @@ package away3d.materials
     import away3d.events.*;
     
     import flash.display.BitmapData;
+    import flash.display.BlendMode;
     import flash.display.Sprite;
+    import flash.geom.ColorTransform;
     import flash.geom.Matrix;
 
     /** Material that can render a Sprite on object */
@@ -40,11 +42,14 @@ package away3d.materials
         {
             return new Number3D(0, 0, 0);
         }
-
+		
+		internal override function updateRenderBitmap():void
+        {
+        	
+        }
+        
         public function MovieMaterial(movie:Sprite, init:Object = null)
         {
-        	super(_bitmap, init);
-        	
             this.movie = movie;
 
             init = Init.parse(init);
@@ -53,7 +58,9 @@ package away3d.materials
             auto = init.getBoolean("auto", true);
             interactive = init.getBoolean("interactive", false);
 
-            _bitmap = _renderBitmap = new BitmapData(movie.width, movie.height, transparent, (transparent)? 0x00FFFFFF : 0xFF000000);
+            _bitmap = new BitmapData(movie.width, movie.height, transparent, 0);
+            
+        	super(_bitmap, init);
         }
         
         public override function renderTriangle(tri:DrawTriangle):void
@@ -85,10 +92,24 @@ package away3d.materials
             super.renderTriangle(tri);
         }
         
+        internal var colTransform:ColorTransform;
+        internal var bMode:String;
+        
         public function update():void
         {
-            if(transparent ) _renderBitmap.fillRect(_renderBitmap.rect, 0x00FFFFFF);
-            _renderBitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), movie.transform.colorTransform);
+            if (transparent) _renderBitmap.fillRect(_renderBitmap.rect, 0);
+            
+            if (_alpha != 1 || _color != 0xFFFFFF)
+            	colTransform = _colorTransform;
+            else
+            	colTransform = movie.transform.colorTransform;
+            	
+            if (_blendMode != BlendMode.NORMAL)
+            	bMode = _blendMode;
+            else
+            	bMode = movie.blendMode;
+            
+            _renderBitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), colTransform, bMode, _renderBitmap.rect);
         }
 		
 		public function onMouseOver(event:MouseEvent3D):void
