@@ -24,14 +24,14 @@ package away3d.materials
         internal var _rotation:Number = 0;
         
         internal var _projectionVector:Number3D;
-        
+        internal var _projectionDirty:Boolean;
         internal var _N:Number3D = new Number3D();
         internal var _M:Number3D = new Number3D();
         
         internal var DOWN:Number3D = new Number3D(0, -1, 0);
         internal var RIGHT:Number3D = new Number3D(1, 0, 0);
         
-        internal var transformDirty:Boolean;
+        internal var _transformDirty:Boolean;
         
         public var throughProjection:Boolean;
         public var globalProjection:Boolean;
@@ -84,8 +84,8 @@ package away3d.materials
                 Debug.warning("scaleX == 0");
             
         	_scaleX = val;
-        	clearFaceDictionary();
-        	transformDirty = true;
+        	
+        	_transformDirty = true;
         }
         
         public function get scaleY():Number
@@ -109,8 +109,7 @@ package away3d.materials
             
         	_scaleY = val;
         	
-        	clearFaceDictionary();
-        	transformDirty = true;
+        	_transformDirty = true;
         }
 		
         public function get offsetX():Number
@@ -131,8 +130,7 @@ package away3d.materials
             
         	_offsetX = val;
         	
-        	clearFaceDictionary();
-        	transformDirty = true;
+        	_transformDirty = true;
         }
         
         public function get offsetY():Number
@@ -153,8 +151,7 @@ package away3d.materials
             
         	_offsetY = val;
         	
-        	clearFaceDictionary();
-        	transformDirty = true;
+        	_transformDirty = true;
         }
         
         public function get rotation():Number
@@ -175,8 +172,7 @@ package away3d.materials
             
         	_rotation = val;
         	
-        	clearFaceDictionary();
-        	transformDirty = true;
+        	_transformDirty = true;
         }
                  
         public function get projectionVector():Number3D
@@ -195,7 +191,7 @@ package away3d.materials
 	            _N.normalize();
 	            _M.normalize();
         	}
-        	clearFaceDictionary();
+        	_projectionDirty = true;
         }
 		
 		internal var x:Number;
@@ -215,13 +211,20 @@ package away3d.materials
         
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
-        	super.updateMaterial(source, view);
-        }
-        
-        public override function clearFaceDictionary():void
-        {
-        	if (!transformDirty)
-        		super.clearFaceDictionary();
+        	_graphics = null;
+        	clearShapeDictionary();
+        	
+        	if (_transformDirty || _projectionDirty || _colorTransformDirty || _blendModeDirty)
+        		clearFaceDictionary();
+        	
+        	if (_colorTransformDirty)
+        		setColorTransform();
+        	
+        	if (_transformDirty)
+        		updateTransform();
+        		
+        	_projectionDirty = false;
+        	_blendModeDirty = false;
         }
         	
         
@@ -236,7 +239,7 @@ package away3d.materials
 	        	_transform.rotate(_rotation);
 	        	_transform.translate(_offsetX, _offsetY);
 	        }
-	        transformDirty = false;
+	        _transformDirty = false;
         }
         
         public function TransformBitmapMaterial(bitmap:BitmapData, init:Object = null)
@@ -251,7 +254,7 @@ package away3d.materials
             offsetY = init.getNumber("offsetY", _offsetY);
             rotation = init.getNumber("rotation", _rotation);
             projectionVector = init.getObject("projectionVector", Number3D);
-            throughProjection = init.getBoolean("throughProjection", false);
+            throughProjection = init.getBoolean("throughProjection", true);
             globalProjection = init.getBoolean("globalProjection", false);
         }
         
@@ -271,9 +274,6 @@ package away3d.materials
         		} else if (tri.face.normal.dot(_projectionVector) < 0)
         			return;
         	}
-        	
-        	if (transformDirty)
-        		updateTransform();
         	
 			super.renderTriangle(tri);
         }
@@ -409,10 +409,7 @@ package away3d.materials
 		internal var _invtexturemapping:Matrix;
 		
 		public override function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
-		{
-			if (transformDirty)
-        		updateTransform();
-        	
+		{	
 			//retrieve the transform
 			if (_transform)
 				_mapping = _transform.clone();
@@ -474,7 +471,7 @@ package away3d.materials
 						_graphics.beginBitmapFill(_bitmap, _mapping, repeat, smooth);
 						_graphics.drawRect(0, 0, _bitmapRect.width, _bitmapRect.height);
 			            _graphics.endFill();
-						_faceVO.bitmap.draw(_s, null, null, null, _faceVO.bitmap.rect);
+						_faceVO.bitmap.draw(_s, null, _colorTransform, _blendMode, _faceVO.bitmap.rect);
 					}
 				} else {
 					

@@ -16,7 +16,6 @@ package away3d.materials
 		
 		public var materials:Array;
 		public var transparent:Boolean;
-		public var colorTransform:ColorTransform;
 		
 		internal var _cache:Boolean;
 		internal var _width:Number;
@@ -45,6 +44,11 @@ package away3d.materials
 				_cacheDictionary = new Dictionary(true);
 		}
 		
+		internal override function updateRenderBitmap():void
+        {
+        	update();
+        }
+        
 		public function BitmapMaterialContainer(width:int, height:int, init:Object = null)
 		{
 			super(new BitmapData(width, height, true, 0x00FFFFFF), init);
@@ -71,6 +75,11 @@ package away3d.materials
 		
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
+        	if (_colorTransformDirty)
+        		setColorTransform();
+        	
+        	_blendModeDirty = false;
+        	
         	for each (material in materials)
         		if (material is IUpdatingMaterial)
         			(material as IUpdatingMaterial).updateMaterial(source, view);
@@ -173,10 +182,10 @@ package away3d.materials
 				_sourceVO = _faceVO;
 	        	
 	        	//draw into faceBitmap
-	        	if (_blendMode == BlendMode.NORMAL)
+	        	if (_blendMode == BlendMode.NORMAL && !_colorTransform)
 	        		_faceVO.bitmap.copyPixels(_containerVO.bitmap, _containerVO.bitmap.rect, _zeroPoint, null, null, true);
 	        	else
-					_faceVO.bitmap.draw(_containerVO.bitmap, null, colorTransform, _blendMode);
+					_faceVO.bitmap.draw(_containerVO.bitmap, null, _colorTransform, _blendMode);
 	  		}
 	  		
 	  		_containerVO.updated = false;

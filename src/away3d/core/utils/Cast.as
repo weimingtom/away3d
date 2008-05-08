@@ -336,9 +336,6 @@ package away3d.core.utils {
                 if (data == "")
                     return null;
 
-                if (data == "transparent")
-                    return new TransparentMaterial();
-
                 var hash:Array;
 
                 if ((data as String).indexOf("#") != -1)
@@ -419,11 +416,8 @@ package away3d.core.utils {
                         if (alpha < 1)
                             Debug.warning("Can't create bitmap material with lighting and alpha (yet)");
 
-                        return new WhiteShadingBitmapMaterial(bitmap, {smooth:smooth});
+                        return new WhiteShadingBitmapMaterial(bitmap, {smooth:smooth, alpha:alpha});
                     }
-
-                    if (alpha < 1)
-                        return new AlphaBitmapMaterial(bitmap, {smooth:smooth, alpha:alpha});
 
                     return new BitmapMaterial(bitmap, {smooth:smooth});
                 }
@@ -466,9 +460,6 @@ package away3d.core.utils {
             {
                 if (data == "")
                     return null;
-
-                if (data == "transparent")
-                    return new TransparentMaterial();
 
                 if ((data as String).indexOf("#") == 0)
                     data = (data as String).substring(1);

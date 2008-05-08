@@ -17,12 +17,74 @@ package away3d.materials
 		
 		public var materials:Array;
 		public var blendMode:String;
-		public var colorTransform:ColorTransform;
 		
+		internal var _colorTransform:ColorTransform = new ColorTransform();
+    	internal var _colorTransformDirty:Boolean;
+		internal var _color:uint;
+		internal var _red:Number;
+		internal var _green:Number;
+		internal var _blue:Number;
+        internal var _alpha:Number;
+        
 		internal var _spriteDictionary:Dictionary = new Dictionary(true);
         internal var _sprite:Sprite;
         internal var _source:Object3D;
         internal var _session:AbstractRenderSession;
+        
+        public function set color(val:uint):void
+		{
+			if (_color == val)
+				return;
+			
+			_color = val;
+            _red = ((_color & 0xFF0000) >> 16)/255;
+            _green = ((_color & 0x00FF00) >> 8)/255;
+            _blue = (_color & 0x0000FF)/255;
+            
+            _colorTransformDirty = true;
+		}
+		
+		public function get color():uint
+		{
+			return _color;
+		}
+		
+		public function set alpha(value:Number):void
+        {
+            if (value > 1)
+                value = 1;
+
+            if (value < 0)
+                value = 0;
+
+            if (_alpha == value)
+                return;
+
+            _alpha = value;
+
+            _colorTransformDirty = true;
+        }
+		
+        public function get alpha():Number
+        {
+            return _alpha;
+        }
+        
+        internal function setColorTransform():void
+        {
+        	_colorTransformDirty = false;
+        	
+            if (_alpha == 1 && _color == 0xFFFFFF) {
+                _colorTransform = null;
+                return;
+            } else if (!_colorTransform)
+            	_colorTransform = new ColorTransform();
+			
+			_colorTransform.redMultiplier = _red;
+			_colorTransform.greenMultiplier = _green;
+			_colorTransform.blueMultiplier = _blue;
+			_colorTransform.alphaMultiplier = _alpha;
+        }
         
 		public function CompositeMaterial(init:Object = null)
 		{	
@@ -31,6 +93,8 @@ package away3d.materials
 			if (!materials)
 				materials = init.getArray("materials");
 			blendMode = init.getString("blendMode", BlendMode.NORMAL);
+			alpha = init.getNumber("alpha", 1, {min:0, max:1});
+            color = init.getNumber("color", 0xFFFFFF, {min:0, max:0xFFFFFF});
 		}
 		
 		internal var material:ILayerMaterial;
@@ -38,6 +102,9 @@ package away3d.materials
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	clearSpriteDictionary();
+        	
+        	if (_colorTransformDirty)
+        		setColorTransform();
         	
         	for each (material in materials)
         		if (material is IUpdatingMaterial)
@@ -74,8 +141,8 @@ package away3d.materials
         		
         		if (blendMode)
         			_sprite.blendMode = blendMode;
-        		if (colorTransform)
-	    			_sprite.transform.colorTransform = colorTransform;
+        		if (_colorTransform)
+	    			_sprite.transform.colorTransform = _colorTransform;
       		}
         	
     		//call renderLayer on each material
@@ -86,7 +153,7 @@ package away3d.materials
         
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
-        	if (!colorTransform && (!blendMode || blendMode == BlendMode.NORMAL)) {
+        	if (!_colorTransform && (!blendMode || blendMode == BlendMode.NORMAL)) {
         		_sprite = layer;
         	} else {
         		_source = tri.source;
@@ -103,8 +170,8 @@ package away3d.materials
 	        	}
 	        	if (blendMode)
 	    			_sprite.blendMode = blendMode;
-	    		if (colorTransform)
-	    			_sprite.transform.colorTransform = colorTransform;
+	    		if (_colorTransform)
+	    			_sprite.transform.colorTransform = _colorTransform;
         	}
     		
 	    	//call renderLayer on each material

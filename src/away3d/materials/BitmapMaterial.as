@@ -20,15 +20,26 @@ package away3d.materials
     	
     	internal var _bitmap:BitmapData;
     	internal var _renderBitmap:BitmapData;
-        internal var _faceDictionary:Dictionary = new Dictionary(true);
+    	internal var _colorTransform:ColorTransform;
+    	internal var _colorTransformDirty:Boolean;
         internal var _blendMode:String;
+        internal var _blendModeDirty:Boolean;
+        internal var _color:uint;
+		internal var _red:Number;
+		internal var _green:Number;
+		internal var _blue:Number;
+        internal var _alpha:Number;
+        
+        internal var _faceDictionary:Dictionary = new Dictionary(true);
+        
     	internal var _zeroPoint:Point = new Point(0, 0);
         internal var _precision:Number;
         internal var _shapeDictionary:Dictionary = new Dictionary(true);
     	internal var _shape:Shape;
-        public var smooth:Boolean;
-        public var debug:Boolean;
-        public var repeat:Boolean;
+    	
+        public var smooth:Boolean = false;
+        public var debug:Boolean = false;
+        public var repeat:Boolean = false;
         
         public function set precision(val:Number):void
         {
@@ -60,12 +71,89 @@ package away3d.materials
         	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
         }
         
+        public function set color(val:uint):void
+		{
+			if (_color == val)
+				return;
+			
+			_color = val;
+            _red = ((_color & 0xFF0000) >> 16)/255;
+            _green = ((_color & 0x00FF00) >> 8)/255;
+            _blue = (_color & 0x0000FF)/255;
+            
+            _colorTransformDirty = true;
+		}
+		
+		public function get color():uint
+		{
+			return _color;
+		}
+        
+        public function set alpha(value:Number):void
+        {
+            if (value > 1)
+                value = 1;
+
+            if (value < 0)
+                value = 0;
+
+            if (_alpha == value)
+                return;
+
+            _alpha = value;
+
+            _colorTransformDirty = true;
+        }
+		
+        public function get alpha():Number
+        {
+            return _alpha;
+        }
+        
+        internal function setColorTransform():void
+        {
+        	_colorTransformDirty = false;
+        	
+            if (_alpha == 1 && _color == 0xFFFFFF) {
+                _renderBitmap = _bitmap;
+                _colorTransform = null;
+                return;
+            } else if (!_colorTransform)
+            	_colorTransform = new ColorTransform();
+			
+			_colorTransform.redMultiplier = _red;
+			_colorTransform.greenMultiplier = _green;
+			_colorTransform.blueMultiplier = _blue;
+			_colorTransform.alphaMultiplier = _alpha;
+
+            if (_alpha == 0) {
+                _renderBitmap = null;
+                return;
+            }
+			
+			updateRenderBitmap();
+        }
+        
+        internal function updateRenderBitmap():void
+        {
+        	_renderBitmap = _bitmap.clone();
+            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);
+        }
+        
         internal var _faceVO:FaceVO;
         
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	_graphics = null;
         	clearShapeDictionary();
+        	
+        	if (_colorTransformDirty || _blendModeDirty)
+        		clearFaceDictionary();
+        		
+        	if (_colorTransformDirty)
+        		setColorTransform();
+        		
+        	_blendModeDirty = false;
         }
         
         public function clearShapeDictionary():void
@@ -85,7 +173,11 @@ package away3d.materials
         
         public function set blendMode(val:String):void
         {
+        	if (_blendMode == val)
+        		return;
+        	
         	_blendMode = val;
+        	_blendModeDirty = true;
         }
         
         public function get blendMode():String
@@ -95,15 +187,23 @@ package away3d.materials
         
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
-            _renderBitmap = _bitmap = bitmap;
+        	if (!bitmap.transparent) {
+                _bitmap = new BitmapData(bitmap.width, bitmap.height, true);
+                _bitmap.draw(bitmap);
+            } else {
+            	_bitmap = bitmap;
+            }
             
             init = Init.parse(init);
 			
-            smooth = init.getBoolean("smooth", false);
-            debug = init.getBoolean("debug", false);
-            repeat = init.getBoolean("repeat", false);
+            smooth = init.getBoolean("smooth", smooth);
+            debug = init.getBoolean("debug", debug);
+            repeat = init.getBoolean("repeat", repeat);
             precision = init.getNumber("precision", 0);
             _blendMode = init.getString("blendMode", BlendMode.NORMAL);
+            alpha = init.getNumber("alpha", 1, {min:0, max:1});
+            color = init.getNumber("color", 0xFFFFFF, {min:0, max:0xFFFFFF});
+            
             
             createVertexArray();
         }
@@ -235,7 +335,7 @@ package away3d.materials
 					_graphics.beginBitmapFill(_bitmap, mapping, repeat, smooth);
 					_graphics.drawRect(0, 0, containerRect.width, containerRect.height);
 		            _graphics.endFill();
-					_sourceVO.bitmap.draw(_s, null, null, null, _sourceVO.bitmap.rect);
+					_sourceVO.bitmap.draw(_s, null, _colorTransform, _blendMode, _sourceVO.bitmap.rect);
 				}
 			}
 		}
@@ -474,7 +574,7 @@ package away3d.materials
         
         public function get visible():Boolean
         {
-            return true;
+            return _alpha > 0;
         }
         
         public function addOnResize(listener:Function):void
