@@ -11,7 +11,7 @@ package away3d.sprites.dof
 	 * Provides static pre-blurred bitmap images for depth of field-effect
 	 * when used together with billboarded sprites, such as particles.
 	 * 
-	 * @author Jalmari Raippalinna <jalmari.raippalinna@gmail.com>
+	 * @author Jalmari Raippalinna (jalmari.raippalinna@gmail.com)
 	 */
 	public class DofCache
 	{
