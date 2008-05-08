@@ -76,7 +76,6 @@ package away3d.materials
 			materials = new Array();
 			
 			_shininess = init.getNumber("shininess", 20);
-			color = init.getColor("color", 0xFFFFFF);
 			specular = init.getNumber("specular", 0.7, {min:0, max:1});
 			
 			super(init);
