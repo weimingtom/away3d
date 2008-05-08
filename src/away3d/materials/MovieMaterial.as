@@ -133,10 +133,16 @@ package away3d.materials
 		{
 			x = event.uv.u*_renderBitmap.width;
 			y = (1 - event.uv.v)*_renderBitmap.height;
-			t = _transform.clone();
-			t.invert();
-			movie.x = event.screenX - x*t.a - y*t.c - t.tx;
-			movie.y = event.screenY - x*t.b - y*t.d - t.ty;
+			
+			if (_transform) {
+				t = _transform.clone();
+				t.invert();
+				movie.x = event.screenX - x*t.a - y*t.c - t.tx;
+				movie.y = event.screenY - x*t.b - y*t.d - t.ty;
+			} else {
+				movie.x = event.screenX - x;
+				movie.y = event.screenY - y;
+			}
 		}
  		
  		public function resetInteractiveLayer():void
