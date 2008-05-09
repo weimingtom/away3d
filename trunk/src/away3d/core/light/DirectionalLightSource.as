@@ -112,7 +112,7 @@ package away3d.core.light
     		var colArray:Array = new Array();
     		var alphaArray:Array = new Array();
     		var pointArray:Array = new Array();
-    		var i:int = 14;
+    		var i:int = 15;
     		while (i--) {
     			colArray.push((i*specular*red/14 << 16) + (i*specular*green/14 << 8) + i*specular*blue/14);
     			alphaArray.push(1);

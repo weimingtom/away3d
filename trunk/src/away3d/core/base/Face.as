@@ -2,11 +2,11 @@ package away3d.core.base
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.materials.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.events.*;
+    import away3d.materials.*;
     
     import flash.events.Event;
     import flash.geom.*;
@@ -527,34 +527,34 @@ package away3d.core.base
 
         public function addOnMappingChange(listener:Function):void
         {
-            addEventListener("mappingchanged", listener, false, 0, true);
+            addEventListener(FaceEvent.MAPPING_CHANGED, listener, false, 0, true);
         }
         public function removeOnMappingChange(listener:Function):void
         {
-            removeEventListener("mappingchanged", listener, false);
+            removeEventListener(FaceEvent.MAPPING_CHANGED, listener, false);
         }
         private var mappingchanged:FaceEvent;
         protected function notifyMappingChange():void
         {
         	_dt.texturemapping = null;
 			
-            if (!hasEventListener("mappingchanged"))
+            if (!hasEventListener(FaceEvent.MAPPING_CHANGED))
                 return;
 
             if (mappingchanged == null)
-                mappingchanged = new FaceEvent("mappingchanged", this);
+                mappingchanged = new FaceEvent(FaceEvent.MAPPING_CHANGED, this);
                 
             dispatchEvent(mappingchanged);
         }
 
         public function addOnMaterialChange(listener:Function):void
         {
-            addEventListener("materialchanged", listener, false, 0, true);
+            addEventListener(FaceEvent.MATERIAL_CHANGED, listener, false, 0, true);
         }
         
         public function removeOnMaterialChange(listener:Function):void
         {
-            removeEventListener("materialchanged", listener, false);
+            removeEventListener(FaceEvent.MATERIAL_CHANGED, listener, false);
         }
         
         private var materialchanged:FaceEvent;
@@ -562,11 +562,11 @@ package away3d.core.base
         {
         	_dt.texturemapping = null;
         	
-            if (!hasEventListener("materialchanged"))
+            if (!hasEventListener(FaceEvent.MATERIAL_CHANGED))
                 return;
 
             if (materialchanged == null)
-                materialchanged = new FaceEvent("materialchanged", this);
+                materialchanged = new FaceEvent(FaceEvent.MATERIAL_CHANGED, this);
                 
             dispatchEvent(materialchanged);
         }

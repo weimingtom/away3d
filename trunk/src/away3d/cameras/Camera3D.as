@@ -28,7 +28,7 @@ package away3d.cameras
 		
 		public function get aperture():Number
 		{
-			return _aperture;			
+			return _aperture;
 		}
 		
 		public function set focus(value:Number):void
