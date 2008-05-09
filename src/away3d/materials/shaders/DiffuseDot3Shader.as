@@ -7,7 +7,8 @@ package away3d.materials.shaders
 	import away3d.core.math.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	import away3d.materials.IUVMaterial;
+	import away3d.events.*;
+	import away3d.materials.*;
 	
 	import flash.display.*;
 	import flash.filters.*;
@@ -191,12 +192,12 @@ package away3d.materials.shaders
         
         public function addOnResize(listener:Function):void
         {
-        	addEventListener("materialresize", listener, false, 0, true);
+        	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
         }
         
         public function removeOnResize(listener:Function):void
         {
-        	removeEventListener("materialresize", listener, false);
+        	removeEventListener(MaterialEvent.RESIZED, listener, false);
         }
     }
 }

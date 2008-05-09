@@ -678,11 +678,11 @@ package away3d.core.base
 
         public function addOnTransformChange(listener:Function):void
         {
-            addEventListener("transformchanged", listener, false, 0, true);
+            addEventListener(Object3DEvent.TRANSFORM_CHANGED, listener, false, 0, true);
         }
         public function removeOnTransformChange(listener:Function):void
         {
-            removeEventListener("transformchanged", listener, false);
+            removeEventListener(Object3DEvent.TRANSFORM_CHANGED, listener, false);
         }
         
         private var transformchanged:Object3DEvent;
@@ -691,22 +691,22 @@ package away3d.core.base
         {
         	_localTransformDirty = false;
         	
-            if (!hasEventListener("transformchanged"))
+            if (!hasEventListener(Object3DEvent.TRANSFORM_CHANGED))
                 return;
 
             if (transformchanged == null)
-                transformchanged = new Object3DEvent("transformchanged", this);
+                transformchanged = new Object3DEvent(Object3DEvent.TRANSFORM_CHANGED, this);
                 
             dispatchEvent(transformchanged);
         }
         
 		public function addOnSceneTransformChange(listener:Function):void
         {
-            addEventListener("scenetransformchanged", listener, false, 0, true);
+            addEventListener(Object3DEvent.SCENETRANSFORM_CHANGED, listener, false, 0, true);
         }
         public function removeOnSceneTransformChange(listener:Function):void
         {
-            removeEventListener("scenetransformchanged", listener, false);
+            removeEventListener(Object3DEvent.SCENETRANSFORM_CHANGED, listener, false);
         }
         
 		private var scenetransformchanged:Object3DEvent;
@@ -716,73 +716,73 @@ package away3d.core.base
         	_sceneTransformDirty = false;
         	sceneTransformed = true;
         	
-            if (!hasEventListener("scenetransformchanged"))
+            if (!hasEventListener(Object3DEvent.SCENETRANSFORM_CHANGED))
                 return;
 
             if (scenetransformchanged == null)
-                scenetransformchanged = new Object3DEvent("scenetransformchanged", this);
+                scenetransformchanged = new Object3DEvent(Object3DEvent.SCENETRANSFORM_CHANGED, this);
                 
             dispatchEvent(scenetransformchanged);
         }
         
         public function addOnSceneChange(listener:Function):void
         {
-            addEventListener("scenechanged", listener, false, 0, true);
+            addEventListener(Object3DEvent.SCENE_CHANGED, listener, false, 0, true);
         }
         public function removeOnSceneChange(listener:Function):void
         {
-            removeEventListener("scenechanged", listener, false);
+            removeEventListener(Object3DEvent.SCENE_CHANGED, listener, false);
         }
         
         private var scenechanged:Object3DEvent;
         
         protected function notifySceneChange():void
         {
-            if (!hasEventListener("scenechanged"))
+            if (!hasEventListener(Object3DEvent.SCENE_CHANGED))
                 return;
 
             if (scenechanged == null)
-                scenechanged = new Object3DEvent("scenechanged", this);
+                scenechanged = new Object3DEvent(Object3DEvent.SCENE_CHANGED, this);
                 
             dispatchEvent(scenechanged);
         }
 
         public function addOnRadiusChange(listener:Function):void
         {
-            addEventListener("radiuschanged", listener, false, 0, true);
+            addEventListener(Object3DEvent.RADIUS_CHANGED, listener, false, 0, true);
         }
         public function removeOnRadiusChange(listener:Function):void
         {
-            removeEventListener("radiuschanged", listener, false);
+            removeEventListener(Object3DEvent.RADIUS_CHANGED, listener, false);
         }
         private var radiuschanged:Object3DEvent;
         protected function notifyRadiusChange():void
         {
-            if (!hasEventListener("radiuschanged"))
+            if (!hasEventListener(Object3DEvent.RADIUS_CHANGED))
                 return;
                 
             if (radiuschanged == null)
-                radiuschanged = new Object3DEvent("radiuschanged", this);
+                radiuschanged = new Object3DEvent(Object3DEvent.RADIUS_CHANGED, this);
                 
             dispatchEvent(radiuschanged);
         }
 
         public function addOnDimensionsChange(listener:Function):void
         {
-            addEventListener("dimensionschanged", listener, false, 0, true);
+            addEventListener(Object3DEvent.DIMENSIONS_CHANGED, listener, false, 0, true);
         }
         public function removeOnDimensionsChange(listener:Function):void
         {
-            removeEventListener("dimensionschanged", listener, false);
+            removeEventListener(Object3DEvent.DIMENSIONS_CHANGED, listener, false);
         }
         private var dimensionschanged:Object3DEvent;
         protected function notifyDimensionsChange():void
         {
-            if (!hasEventListener("dimensionschanged"))
+            if (!hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
                 return;
                 
             if (dimensionschanged == null)
-                dimensionschanged = new Object3DEvent("dimensionschanged", this);
+                dimensionschanged = new Object3DEvent(Object3DEvent.DIMENSIONS_CHANGED, this);
                 
             dispatchEvent(dimensionschanged);
         }

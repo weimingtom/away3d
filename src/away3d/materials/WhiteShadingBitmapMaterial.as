@@ -6,6 +6,7 @@ package away3d.materials
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.events.*;
     
     import flash.display.BitmapData;
     import flash.filters.ColorMatrixFilter;
@@ -148,12 +149,12 @@ package away3d.materials
         
         public function addOnResize(listener:Function):void
         {
-        	addEventListener("materialresize", listener, false, 0, true);
+        	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
         }
         
         public function removeOnResize(listener:Function):void
         {
-        	removeEventListener("materialresize", listener, false);
+        	removeEventListener(MaterialEvent.RESIZED, listener, false);
         }
     }
 }

@@ -13,6 +13,8 @@ package away3d.events
     
     public class MaterialEvent extends Event
     {
+    	static public var RESIZED:String = "materialresize";
+    	
         public var material:IMaterial;
 
         public function MaterialEvent(type:String, material:IMaterial)

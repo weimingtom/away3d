@@ -19,6 +19,7 @@ package away3d.materials
 		public var blendMode:String;
 		
 		internal var _colorTransform:ColorTransform = new ColorTransform();
+		internal var _defaultColorTransform:ColorTransform = new ColorTransform();
     	internal var _colorTransformDirty:Boolean;
 		internal var _color:uint;
 		internal var _red:Number;
@@ -139,21 +140,24 @@ package away3d.materials
         		else
         			_session.addDisplayObject(_sprite);
         		
-        		if (blendMode)
-        			_sprite.blendMode = blendMode;
+	    		_sprite.filters = [];
+        		_sprite.blendMode = blendMode;
+        		
         		if (_colorTransform)
 	    			_sprite.transform.colorTransform = _colorTransform;
+	    		else
+	    			_sprite.transform.colorTransform = _defaultColorTransform;
       		}
         	
     		//call renderLayer on each material
     		for each (material in materials)
-        		material.renderLayer(tri, _sprite, level++);
+        		material.renderLayer(tri, _sprite, ++level);
         }
         
         
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
-        	if (!_colorTransform && (!blendMode || blendMode == BlendMode.NORMAL)) {
+        	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
         		_sprite = layer;
         	} else {
         		_source = tri.source;
@@ -168,10 +172,14 @@ package away3d.materials
 		    		if (!(_sprite = _spriteDictionary[tri.face]))
 		    			layer.addChild(_sprite = _spriteDictionary[tri.face] = new Sprite());
 	        	}
-	        	if (blendMode)
-	    			_sprite.blendMode = blendMode;
+	        	
+	        	_sprite.filters = [];
+	        	_sprite.blendMode = blendMode;
+	        	
 	    		if (_colorTransform)
 	    			_sprite.transform.colorTransform = _colorTransform;
+	    		else
+	    			_sprite.transform.colorTransform = _defaultColorTransform;
         	}
     		
 	    	//call renderLayer on each material

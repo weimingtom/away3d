@@ -13,6 +13,8 @@ package away3d.events
     
     public class SegmentEvent extends Event
     {
+    	static public var MATERIAL_CHANGED:String = "materialchanged";
+    	
         public var segment:Segment;
 
         public function SegmentEvent(type:String, segment:Segment)

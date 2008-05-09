@@ -7,6 +7,7 @@ package away3d.materials
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.events.MaterialEvent;
     
     import flash.display.*;
     import flash.events.*;
@@ -21,6 +22,7 @@ package away3d.materials
     	internal var _bitmap:BitmapData;
     	internal var _renderBitmap:BitmapData;
     	internal var _colorTransform:ColorTransform;
+    	internal var _defaultColorTransform:ColorTransform = new ColorTransform();
     	internal var _colorTransformDirty:Boolean;
         internal var _blendMode:String;
         internal var _blendModeDirty:Boolean;
@@ -210,7 +212,7 @@ package away3d.materials
         
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
-        	if (!blendMode || blendMode == BlendMode.NORMAL) {
+        	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
         		session = tri.source.session;
@@ -224,6 +226,12 @@ package away3d.materials
 		    			layer.addChild(_shape = _shapeDictionary[tri.face] = new Shape());
 	        	}
 	    		_shape.blendMode = _blendMode;
+	    		
+	    		if (_colorTransform)
+	    			_shape.transform.colorTransform = _colorTransform;
+	    		else
+	    			_shape.transform.colorTransform = _defaultColorTransform;
+	    		
 	    		_graphics = _shape.graphics;
         	}
     		
@@ -579,12 +587,12 @@ package away3d.materials
         
         public function addOnResize(listener:Function):void
         {
-        	addEventListener("materialresize", listener, false, 0, true);
+        	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
         }
         
         public function removeOnResize(listener:Function):void
         {
-        	removeEventListener("materialresize", listener, false);
+        	removeEventListener(MaterialEvent.RESIZED, listener, false);
         }
  
     }

@@ -30,7 +30,7 @@ package away3d.materials
 			_renderBitmap = _bitmap = Bitmap(loader.content).bitmapData;
 			
 			if (materialresize == null)
-				materialresize = new MaterialEvent("materialresize", this);
+				materialresize = new MaterialEvent(MaterialEvent.RESIZED, this);
 			
 			dispatchEvent(materialresize);
 		}

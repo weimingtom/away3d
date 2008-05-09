@@ -2,10 +2,10 @@ package away3d.core.base
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.materials.*;
     import away3d.core.math.*;
     import away3d.core.utils.*;
     import away3d.events.*;
+    import away3d.materials.*;
     
     import flash.events.Event;
 
@@ -167,20 +167,20 @@ package away3d.core.base
 
         public function addOnMaterialChange(listener:Function):void
         {
-            addEventListener("materialchanged", listener, false, 0, true);
+            addEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false, 0, true);
         }
         public function removeOnMaterialChange(listener:Function):void
         {
-            removeEventListener("materialchanged", listener, false);
+            removeEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false);
         }
         private var materialchanged:SegmentEvent;
         protected function notifyMaterialChange():void
         {
-            if (!hasEventListener("materialchanged"))
+            if (!hasEventListener(SegmentEvent.MATERIAL_CHANGED))
                 return;
 
             if (materialchanged == null)
-                materialchanged = new SegmentEvent("materialchanged", this);
+                materialchanged = new SegmentEvent(SegmentEvent.MATERIAL_CHANGED, this);
                 
             dispatchEvent(materialchanged);
         }
