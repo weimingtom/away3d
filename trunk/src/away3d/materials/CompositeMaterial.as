@@ -95,7 +95,7 @@ package away3d.materials
 				materials = init.getArray("materials");
 			blendMode = init.getString("blendMode", BlendMode.NORMAL);
 			alpha = init.getNumber("alpha", 1, {min:0, max:1});
-            color = init.getNumber("color", 0xFFFFFF, {min:0, max:0xFFFFFF});
+            color = init.getColor("color", 0xFFFFFF);
 		}
 		
 		internal var material:ILayerMaterial;
