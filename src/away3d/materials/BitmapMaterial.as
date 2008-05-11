@@ -212,7 +212,7 @@ package away3d.materials
         
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
-        	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
+        	if (blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
         		session = tri.source.session;
@@ -226,11 +226,6 @@ package away3d.materials
 		    			layer.addChild(_shape = _shapeDictionary[tri.face] = new Shape());
 	        	}
 	    		_shape.blendMode = _blendMode;
-	    		
-	    		if (_colorTransform)
-	    			_shape.transform.colorTransform = _colorTransform;
-	    		else
-	    			_shape.transform.colorTransform = _defaultColorTransform;
 	    		
 	    		_graphics = _shape.graphics;
         	}
