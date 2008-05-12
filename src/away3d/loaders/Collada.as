@@ -38,7 +38,7 @@ package away3d.loaders
 			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
             scaling = init.getNumber("scaling", 1)*100;
             material = init.getMaterial("material");
-            centerMeshes = init.getBoolean("centerMeshes", true);
+            centerMeshes = init.getBoolean("centerMeshes", false);
             
             var materials:Object = init.getObject("materials") || {};
 

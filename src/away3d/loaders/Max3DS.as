@@ -45,7 +45,7 @@ package away3d.loaders
 			materialLibrary.texturePath = init.getString("texturePath", "");
 			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
 			material = init.getMaterial("material");
-			centerMeshes = init.getBoolean("centerMeshes", true);
+			centerMeshes = init.getBoolean("centerMeshes", false);
 			
 			var materials:Object = init.getObject("materials") || {};
 			
