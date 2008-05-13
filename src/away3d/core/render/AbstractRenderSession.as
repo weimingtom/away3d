@@ -15,6 +15,7 @@ package away3d.core.render
 	{
 		protected var _view:View3D;
 		protected var _containers:Dictionary = new Dictionary(true);
+		protected var _shape:Shape;
         protected var _lightarray:LightArray;
         protected var _renderSource:Object3D;
         protected var _layerDirty:Boolean;
@@ -60,7 +61,7 @@ package away3d.core.render
         protected var d2:Number;
 		protected var m:Matrix = new Matrix();
 		
-		public function get container():DisplayObject
+		public function getContainer(view:View3D):DisplayObject
 		{
 			throw new Error("Not implemented");
 		}                
@@ -87,6 +88,9 @@ package away3d.core.render
         }
         
         internal var ds:DisplayObject;
+                
+        internal var i:int;
+        internal var cont:Shape;
         
         public function clear():void
         {
@@ -104,6 +108,14 @@ package away3d.core.render
         		}
         	}
         	
+        	//clear child canvases
+            i = doActive.length;
+            while (i--) {
+            	cont = doActive.pop();
+            	cont.graphics.clear();
+            	doStore.push(cont);
+            }
+            
         	for each(session in sessions)
        			session.clear();
         }

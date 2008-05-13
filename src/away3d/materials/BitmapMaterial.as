@@ -22,7 +22,6 @@ package away3d.materials
     	internal var _bitmap:BitmapData;
     	internal var _renderBitmap:BitmapData;
     	internal var _colorTransform:ColorTransform;
-    	internal var _defaultColorTransform:ColorTransform = new ColorTransform();
     	internal var _colorTransformDirty:Boolean;
         internal var _blendMode:String;
         internal var _blendModeDirty:Boolean;
@@ -138,8 +137,18 @@ package away3d.materials
         
         internal function updateRenderBitmap():void
         {
-        	_renderBitmap = _bitmap.clone();
-            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);
+        	if (!bitmap.transparent && _alpha != 1) {
+                _bitmap = new BitmapData(bitmap.width, bitmap.height, true);
+                _bitmap.draw(bitmap);
+            } else {
+            	_bitmap = bitmap;
+            }
+        	if (_colorTransform) {
+	        	_renderBitmap = _bitmap.clone();
+	            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);
+	        } else {
+	        	_renderBitmap = _bitmap;
+	        }
         }
         
         internal var _faceVO:FaceVO;
@@ -189,12 +198,7 @@ package away3d.materials
         
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
-        	if (!bitmap.transparent) {
-                _bitmap = new BitmapData(bitmap.width, bitmap.height, true);
-                _bitmap.draw(bitmap);
-            } else {
-            	_bitmap = bitmap;
-            }
+        	_bitmap = bitmap;
             
             init = Init.parse(init);
 			

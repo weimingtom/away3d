@@ -22,19 +22,17 @@ package away3d.core.render
         {	
         	super.view = val;
         	
-        	if (!_containers[_view])
-        		_containers[_view] = new Sprite();
-        	
-        	_container = _containers[_view];
+        	_container = getContainer(_view) as Sprite;
         	graphics = _container.graphics;
         }
         
-		public override function get container():DisplayObject
+		public override function getContainer(view:View3D):DisplayObject
 		{
-			return _container;
+			if (!_containers[view])
+        		return _containers[view] = new Sprite();
+        	
+			return _containers[view];
 		}
-	    
-	    private var newCanvas:Sprite;
 	       
         public override function addDisplayObject(child:DisplayObject):void
         {
@@ -65,23 +63,22 @@ package away3d.core.render
         {
             //create new canvas for remaining triangles
             if (doStore.length) {
-            	newCanvas = doStore.pop();
+            	_shape = doStore.pop();
             } else {
-            	newCanvas = new Sprite();
+            	_shape = new Shape();
             }
+            
             //update graphics reference
-            graphics = newCanvas.graphics;
+            graphics = _shape.graphics;
+            
             //store new canvas
-            doActive.push(newCanvas);
+            doActive.push(_shape);
+            
             //add new canvas to base canvas
-            _container.addChild(newCanvas);
+            _container.addChild(_shape);
        		
 			_layerDirty = false;
         }
-        
-        
-        internal var i:int;
-        internal var cont:Sprite;
         
         /** Clear rendering area */
         public override function clear():void
@@ -90,14 +87,6 @@ package away3d.core.render
         	
         	//clear base canvas
             _container.graphics.clear();
-            
-            //clear child canvases
-            i = doActive.length;
-            while (i--) {
-            	cont = doActive[i];
-            	cont.graphics.clear();
-            	doStore.push(doActive.pop());
-            }
             
             //remove all children
             i = _container.numChildren;

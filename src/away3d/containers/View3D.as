@@ -77,7 +77,6 @@ package away3d.containers
         public function set session(val:AbstractRenderSession):void
         {
         	_session = val;
-        	_session.view = this;
         	_renderer.renderSession = _session;
         	
         	//clear children
@@ -86,7 +85,7 @@ package away3d.containers
         	
         	//add children
         	addChild(background);
-            addChild(_session.container);
+            addChild(_session.getContainer(this));
             addChild(interactiveLayer);
             addChild(hud);
         }
@@ -118,6 +117,7 @@ package away3d.containers
 
             if (!clip)
             	clip = defaultclip;
+
             			
             if (stats){
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);
@@ -133,7 +133,7 @@ package away3d.containers
 		public function getBitmapData():BitmapData
 		{
 			if (_session is BitmapRenderSession)
-				return (_session.container as Bitmap).bitmapData;
+				return (_session as BitmapRenderSession).getBitmapData(this);
 			else
 				throw new Error("incorrect session object - require BitmapRenderSession");	
 		}
@@ -141,14 +141,19 @@ package away3d.containers
          /** Render frame */
         public function render():void
         {
+            var oldclip:Clipping = clip;
+            
+            //if clip set to default, determine screen clipping
+			if (clip == defaultclip)
+            	clip = defaultclip.screen(this);            
+        	
+        	//setup view in session
+        	_session.view = this;
         	
             clear();
             
-            var oldclip:Clipping = clip;
-			
-			if (clip == defaultclip)
-            	clip = defaultclip.screen(this);            
             primitives = _renderer.render(this);
+            
 			clip = oldclip;
 			
 			flush();

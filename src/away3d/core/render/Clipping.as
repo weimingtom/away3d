@@ -45,20 +45,91 @@ package away3d.core.render
 		
         public function screen(container:Sprite):Clipping
         {
-            if (container.stage.align == StageAlign.TOP_LEFT)
-            {
-            	if (!rectangleClipping)
-        			rectangleClipping = new RectangleClipping();
-        		
-                globalPoint = container.globalToLocal(zeroPoint);
-                
-                rectangleClipping.maxX = (rectangleClipping.minX = globalPoint.x) + container.stage.stageWidth;
-                rectangleClipping.maxY = (rectangleClipping.minY = globalPoint.y) + container.stage.stageHeight;
-                
-                return rectangleClipping;
-            }
-            else
-                return this; // no clipping
+        	if (!rectangleClipping)
+    			rectangleClipping = new RectangleClipping();
+        	
+        	switch(container.stage.align)
+        	{
+        		case StageAlign.TOP_LEFT:
+	            	zeroPoint.x = 0;
+	            	zeroPoint.y = 0;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.maxX = (rectangleClipping.minX = globalPoint.x) + container.stage.stageWidth;
+	                rectangleClipping.maxY = (rectangleClipping.minY = globalPoint.y) + container.stage.stageHeight;
+	                break;
+	            case StageAlign.TOP_RIGHT:
+	            	zeroPoint.x = container.stage.stageWidth;
+	            	zeroPoint.y = 0;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.minX = (rectangleClipping.maxX = globalPoint.x) - container.stage.stageWidth;
+	                rectangleClipping.maxY = (rectangleClipping.minY = globalPoint.y) + container.stage.stageHeight;
+	                break;
+	            case StageAlign.BOTTOM_LEFT:
+	            	zeroPoint.x = 0;
+	            	zeroPoint.y = container.stage.stageHeight;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.maxX = (rectangleClipping.minX = globalPoint.x) + container.stage.stageWidth;
+	                rectangleClipping.minY = (rectangleClipping.maxY = globalPoint.y) - container.stage.stageHeight;
+	                break;
+	            case StageAlign.BOTTOM_RIGHT:
+	            	zeroPoint.x = container.stage.stageWidth;
+	            	zeroPoint.y = container.stage.stageHeight;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.minX = (rectangleClipping.maxX = globalPoint.x) - container.stage.stageWidth;
+	                rectangleClipping.minY = (rectangleClipping.maxY = globalPoint.y) - container.stage.stageHeight;
+	                break;
+	            case StageAlign.TOP:
+	            	zeroPoint.x = container.stage.stageWidth/2;
+	            	zeroPoint.y = 0;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.minX = globalPoint.x - container.stage.stageWidth/2;
+	                rectangleClipping.maxX = globalPoint.x + container.stage.stageWidth/2;
+	                rectangleClipping.maxY = (rectangleClipping.minY = globalPoint.y) + container.stage.stageHeight;
+	                break;
+	            case StageAlign.BOTTOM:
+	            	zeroPoint.x = container.stage.stageWidth/2;
+	            	zeroPoint.y = container.stage.stageHeight;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.minX = globalPoint.x - container.stage.stageWidth/2;
+	                rectangleClipping.maxX = globalPoint.x + container.stage.stageWidth/2;
+	                rectangleClipping.minY = (rectangleClipping.maxY = globalPoint.y) - container.stage.stageHeight;
+	                break;
+	            case StageAlign.LEFT:
+	            	zeroPoint.x = 0;
+	            	zeroPoint.y = container.stage.stageHeight/2;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.maxX = (rectangleClipping.minX = globalPoint.x) + container.stage.stageWidth;
+	                rectangleClipping.minY = globalPoint.y - container.stage.stageHeight/2;
+	                rectangleClipping.maxY = globalPoint.y + container.stage.stageHeight/2;
+	                break;
+	            case StageAlign.RIGHT:
+	            	zeroPoint.x = container.stage.stageWidth;
+	            	zeroPoint.y = container.stage.stageHeight/2;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	                
+	                rectangleClipping.minX = (rectangleClipping.maxX = globalPoint.x) - container.stage.stageWidth;
+	                rectangleClipping.minY = globalPoint.y - container.stage.stageHeight/2;
+	                rectangleClipping.maxY = globalPoint.y + container.stage.stageHeight/2;
+	                break;
+	            default:
+	            	zeroPoint.x = container.stage.stageWidth/2;
+	            	zeroPoint.y = container.stage.stageHeight/2;
+	                globalPoint = container.globalToLocal(zeroPoint);
+	            	
+	                rectangleClipping.minX = globalPoint.x - container.stage.stageWidth/2;
+	                rectangleClipping.maxX = globalPoint.x + container.stage.stageWidth/2;
+	                rectangleClipping.minY = globalPoint.y - container.stage.stageHeight/2;
+	                rectangleClipping.maxY = globalPoint.y + container.stage.stageHeight/2;
+        	}
+            
+            return rectangleClipping;
         }
     }
 }
