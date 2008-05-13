@@ -82,9 +82,6 @@ package away3d.core.render
             
             // clear lights
             lightarray.clear();
-            
-            //setup session
-            _session.view = view;
             _session.lightarray = lightarray;
 			
 			//setup primitives consumer

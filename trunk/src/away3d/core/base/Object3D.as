@@ -502,7 +502,7 @@ package away3d.core.base
         }
         
         internal var v:View3D;
-        internal var c:Sprite;
+        internal var c:DisplayObject;
         
         public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
@@ -510,21 +510,22 @@ package away3d.core.base
             v = session.view;
             if (ownCanvas) {
                 if (!ownSession)
-                	ownSession = session.clone();
+                	ownSession = new SpriteRenderSession();
                 session.registerChildSession(ownSession);
                 
                 ownSession.view = v;
-                ownSession.container.filters = filters;
-                ownSession.container.alpha = alpha;
+                c = ownSession.getContainer(v);
+                c.filters = filters;
+                c.alpha = alpha;
                 
                 if (blendMode != null)
-                	ownSession.container.blendMode = blendMode;
+                	c.blendMode = blendMode;
                 else
-                	ownSession.container.blendMode = BlendMode.NORMAL;
+                	c.blendMode = BlendMode.NORMAL;
                 ownSession.lightarray = session.lightarray;
                 this.session = ownSession;
              	
-                consumer.primitive(new DrawDisplayObject(this, ownSession.container, new ScreenVertex(ownSession.container.x, ownSession.container.y, Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty)), session));
+                consumer.primitive(new DrawDisplayObject(this, c, new ScreenVertex(c.x, c.y, Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty)), session));
             }
             else
             {                
