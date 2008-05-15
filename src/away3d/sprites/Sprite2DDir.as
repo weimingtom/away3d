@@ -29,16 +29,14 @@ package away3d.sprites
         public function Sprite2DDir(init:Object = null)
         {
             super(init);
-
-            init = Init.parse(init);
     
-            scaling = init.getNumber("scaling", 1, {min:0});
-            rotation = init.getNumber("rotation", 0);
-            smooth = init.getBoolean("smooth", false);
-            deltaZ = init.getNumber("deltaZ", 0);
+            scaling = ini.getNumber("scaling", 1, {min:0});
+            rotation = ini.getNumber("rotation", 0);
+            smooth = ini.getBoolean("smooth", false);
+            deltaZ = ini.getNumber("deltaZ", 0);
 
-            var btmps:Array = init.getArray("bitmaps");
-            for each (var btmp:Object in btmps)
+            var btmps:Array = ini.getArray("bitmaps");
+            for each (var btmp:Init in btmps)
             {
                 btmp = Init.parse(btmp);
                 var x:Number = btmp.getNumber("x", 0);

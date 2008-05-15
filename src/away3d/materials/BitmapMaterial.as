@@ -137,14 +137,13 @@ package away3d.materials
         
         internal function updateRenderBitmap():void
         {
-        	if (!bitmap.transparent && _alpha != 1) {
-                _bitmap = new BitmapData(bitmap.width, bitmap.height, true);
-                _bitmap.draw(bitmap);
-            } else {
-            	_bitmap = bitmap;
-            }
         	if (_colorTransform) {
-	        	_renderBitmap = _bitmap.clone();
+	        	if (!_bitmap.transparent && _alpha != 1) {
+	                _renderBitmap = new BitmapData(_bitmap.width, _bitmap.height, true);
+	                _renderBitmap.draw(_bitmap);
+	            } else {
+	        		_renderBitmap = _bitmap.clone();
+	            }
 	            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);
 	        } else {
 	        	_renderBitmap = _bitmap;

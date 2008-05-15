@@ -21,12 +21,10 @@
         public function WireCube(init:Object = null)
         {
             super(init);
-            
-            init = Init.parse(init);
 
-            var width:Number  = init.getNumber("width", 100, {min:0});
-            var height:Number = init.getNumber("height", 100, {min:0});
-            var depth:Number  = init.getNumber("depth", 100, {min:0});
+            var width:Number  = ini.getNumber("width", 100, {min:0});
+            var height:Number = ini.getNumber("height", 100, {min:0});
+            var depth:Number  = ini.getNumber("depth", 100, {min:0});
 
             v000 = new Vertex(-width/2, -height/2, -depth/2); 
             v001 = new Vertex(-width/2, -height/2, +depth/2); 

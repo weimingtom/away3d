@@ -103,15 +103,13 @@ package away3d.lights
         public function DirectionalLight3D(init:Object = null)
         {
             super(init);
-
-            init = Init.parse(init);
             
-            color = init.getColor("color", 0xFFFFFF);
-            ambient = init.getNumber("ambient", 0.5, {min:0, max:1});
-            diffuse = init.getNumber("diffuse", 0.5, {min:0, max:10});
-            specular = init.getNumber("specular", 1, {min:0, max:1});
-            brightness = init.getNumber("brightness", 1);
-            debug = init.getBoolean("debug", false);
+            color = ini.getColor("color", 0xFFFFFF);
+            ambient = ini.getNumber("ambient", 0.5, {min:0, max:1});
+            diffuse = ini.getNumber("diffuse", 0.5, {min:0, max:10});
+            specular = ini.getNumber("specular", 1, {min:0, max:1});
+            brightness = ini.getNumber("brightness", 1);
+            debug = ini.getBoolean("debug", false);
             _ls.light = this;
             addOnTransformChange(_ls.updateDirection);
         }

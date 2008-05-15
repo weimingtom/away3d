@@ -1,24 +1,35 @@
 package away3d.core.base
 {
     import away3d.core.*;
-    import away3d.materials.*;
     import away3d.core.math.*;
-    
-    import flash.geom.Matrix;
-    import flash.events.Event;
-
-    public class Frame
+    import away3d.materials.*;
+	
+	/**
+	 * Holds vertexposition information about a single animation frame.
+	 */
+    public class Frame implements IFrame
     {
+    	private var _vertexposition:VertexPosition;
+    	
+    	/**
+    	 * An array of vertex position objects.
+    	 */
         public var vertexpositions:Array = [];
-
+    	
+		/**
+		 * Creates a new <code>Frame</code> object.
+		 */
         public function Frame()
         {
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function adjust(k:Number = 1):void
         {
-            for each (var vertexposition:VertexPosition in vertexpositions)
-                vertexposition.adjust(k);
+            for each (_vertexposition in vertexpositions)
+                _vertexposition.adjust(k);
         }
     }
 }

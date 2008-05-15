@@ -49,11 +49,9 @@
         public function Triangle(init:Object = null)
         {
             super(init);
-    
-            init = Init.parse(init);
 
-            var edge:Number = init.getNumber("edge", 100, {min:0}) / 2;
-			var yUp:Boolean = init.getBoolean("yUp", true);
+            var edge:Number = ini.getNumber("edge", 100, {min:0}) / 2;
+			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
         }
     	private function buildTriangle(edge:Number, yUp:Boolean):void

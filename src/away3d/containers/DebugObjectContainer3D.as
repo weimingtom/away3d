@@ -4,12 +4,35 @@ package away3d.containers
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.primitives.*;
-
+    
+    /**
+    * Extension of <code>ObjectContainer3D</code> used in debugging a scene.
+    * 
+    * Gives the option for displaying a bounding box and bounding sphere of the contained object tree.
+    * 
+    * @see	away3d.containers.ObjectContainer3D
+    */
     public class DebugObjectContainer3D extends ObjectContainer3D implements IPrimitiveProvider
     {
-        public var debugbb:Boolean = false;
-        public var debugbs:Boolean = false;
+        private var _debugboundingbox:WireCube;
+        private var _debugboundingsphere:WireSphere;
 
+        /**
+        * defines whether a bounding box for the child 3d objects is displayed
+        */
+        public var debugbb:Boolean = false;
+        
+        /**
+        * defines whether a bounding sphere for the child 3d objects is displayed
+        */
+        public var debugbs:Boolean = false;
+    	
+	    /**
+	    * Creates a new <code>DebugObjectContainer3D</code> object
+	    * 
+	    * @param	init			[optional]	An initialisation object for specifying default instance properties
+	    * @param	...childarray				An array of children to be added on instatiation
+	    */
         public function DebugObjectContainer3D(init:Object = null, ...childarray)
         {
             if (init != null)
@@ -24,10 +47,10 @@ package away3d.containers
             for each (var child:Object3D in childarray)
                 addChild(child);
         }
-
-        private var _debugboundingbox:WireCube;
-        private var _debugboundingsphere:WireSphere;
-
+        
+		/**
+		 * @inheritDoc
+		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
             if (children.length == 0)

@@ -2,34 +2,112 @@ package away3d.cameras
 {
     import away3d.core.base.*;
     import away3d.core.utils.*;
-
-    /** Camera that hovers around an object */
+	
+    /**
+    * Extended camera used to hover round a specified target object
+    * 
+    * @see	away3d.containers.View3D
+    */
     public class HoverCamera3D extends TargetCamera3D
     {
+        static private var toRADIANS:Number = Math.PI / 180;
+        
+    	/**
+    	 * Fractional difference in distance between the horizontal camera orientation and vertical camera orientation
+    	 * 
+    	 * @see	distance
+    	 */
         public var yfactor:Number = 2;
 
-        /** Distance the camera keeps to the target */
+        /**
+        * Distance between the camera and the specified target
+        */
         public var distance:Number = 400;
+        
+        /**
+        * Rotation of the camera in degrees around the y axis
+        */
         public var panangle:Number = 0;
+        
+        /**
+        * Elevation angle of the camera in degrees
+        */
         public var tiltangle:Number = 90;
+        
+        /**
+        * Target value for the <code>panangle</code>
+        * 
+        * @see	panangle
+        */
         public var targetpanangle:Number = 0;
+        
+        /**
+        * Target value for the <code>tiltangle</code>
+        * 
+        * @see	tiltangle
+        */
         public var targettiltangle:Number = 90;
+                
+        /**
+        * Minimum bounds for the <code>tiltangle</code>
+        * 
+        * @see	tiltangle
+        */
         public var mintiltangle:Number = 0;
+                
+        /**
+        * Maximum bounds for the <code>tiltangle</code>
+        * 
+        * @see	tiltangle
+        */
         public var maxtiltangle:Number = 90;
+        
+        /**
+        * Fractional step taken each time the <code>hover()</code> method is called.
+        * 
+        * Affects the speed at which the <code>tiltangle</code> and <code>panangle</code> resolve to their targets.
+        * 
+        * @see	tiltangle
+        * @see	panangle
+        */
         public var steps:Number = 8;
-
+    	
+	    /**
+	    * Creates a new <code>HoverCamera3D</code> object
+	    * 
+	    * @param	init	[optional]	An initialisation object for specifying default instance properties
+	    */
         public function HoverCamera3D(init:Object = null)
         {
             super(init);
-    
-            init = Init.parse(init);
 
-            distance = (init as Init).getNumber("distance", 800);
-
+            yfactor = ini.getNumber("yfactor", yfactor);
+			distance = ini.getNumber("distance", distance);
+			panangle = ini.getNumber("panangle", panangle);
+			tiltangle = ini.getNumber("tiltangle", tiltangle);
+			targetpanangle = ini.getNumber("targetpanangle", targetpanangle);
+			targettiltangle = ini.getNumber("targettiltangle", targettiltangle);
+			mintiltangle = ini.getNumber("mintiltangle", mintiltangle);
+			maxtiltangle = ini.getNumber("maxtiltangle", maxtiltangle);
+			steps = ini.getNumber("steps", steps);
+			
             update();
         }
-
-        /** Hover camera around the object @return <code>true</code> if camera changed position */
+        
+        /**
+        * Updates the <code>tiltangle</code> and <code>panangle</code> values, then calls <code>update()</code>.
+        * 
+        * Values are calculated using the defined <code>targettiltangle</code>, <code>targetpanangle</code> and <code>steps</code> variables.
+        * 
+        * @return		True if the camera position was updated, otherwise false.
+        * 
+        * @see	tiltangle
+        * @see	panangle
+        * @see	targettiltangle
+        * @see	targetpanangle
+        * @see	steps
+        * @see	update()
+        */
         public function hover():Boolean
         {
             if ((targettiltangle == tiltangle) && (targetpanangle == panangle))
@@ -44,11 +122,22 @@ package away3d.cameras
                 tiltangle = targettiltangle;
                 panangle = targetpanangle;
             }
-
+			
             return update();
         }
 
-        /** Update camera position @return <code>true</code> if camera changed position */
+        /**
+        * Updates the camera position.
+        * 
+        * Position is calculated using the current values of <code>tiltangle</code>, <code>panangle</code>, <code>distance</code> and <code>yfactor</code>.
+        * 
+        * @return		True if the camera position was updated, otherwise false.
+        * 
+        * @see	tiltangle
+        * @see	panangle
+        * @see	distance
+        * @see	yfactor
+        */
         public function update():Boolean
         {
             var gx:Number = distance * Math.sin(panangle * toRADIANS) * Math.cos(tiltangle * toRADIANS);
@@ -64,8 +153,5 @@ package away3d.cameras
 			
             return true;
         }
-
-        static private var toRADIANS:Number = Math.PI / 180;
     }
-
-}   
+}

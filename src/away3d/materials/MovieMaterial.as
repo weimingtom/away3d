@@ -17,6 +17,8 @@ package away3d.materials
     /** Material that can render a Sprite on object */
     public class MovieMaterial extends TransformBitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
+    	use namespace arcane;
+    	
         public var movie:Sprite;
         private var lastsession:int;
         public var transparent:Boolean;
@@ -74,15 +76,15 @@ package away3d.materials
                 	update();
                 if (interactive) {
                 	//check to see if interactiveLayer is initialised
-	                if (!session.view.interactiveLayer.contains(movie)) {
-                		session.view.interactiveLayer.addChild(movie);
+	                if (!session.view._interactiveLayer.contains(movie)) {
+                		session.view._interactiveLayer.addChild(movie);
                 		resetInteractiveLayer();
                 		tri.source.addOnMouseOver(onMouseOver);
                 		tri.source.addOnMouseOut(onMouseOut);
 	                }
                 	
-                } else if (session.view.interactiveLayer.contains(movie)) {
-                	session.view.interactiveLayer.removeChild(movie);
+                } else if (session.view._interactiveLayer.contains(movie)) {
+                	session.view._interactiveLayer.removeChild(movie);
                 	tri.source.removeOnMouseOver(onMouseOver);
                 	tri.source.removeOnMouseOut(onMouseOut);
                 }

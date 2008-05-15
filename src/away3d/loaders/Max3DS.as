@@ -2,14 +2,11 @@ package away3d.loaders
 {
 	import away3d.containers.*;
 	import away3d.core.*;
-	import away3d.materials.*;
 	import away3d.core.base.*;
-	import away3d.core.base.*
-	import away3d.core.base.*
-	import away3d.core.utils.Cast;
-	import away3d.core.utils.Init;
+	import away3d.core.utils.*;
 	import away3d.loaders.data.*;
 	import away3d.loaders.utils.*;
+	import away3d.materials.*;
 	
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
@@ -18,6 +15,8 @@ package away3d.loaders
 	public class Max3DS
 	{
 		use namespace arcane;
+		
+		private var ini:Init;
 		
 		public var container:ObjectContainer3D;
 		public var materialLibrary:MaterialLibrary = new MaterialLibrary();
@@ -41,13 +40,13 @@ package away3d.loaders
 			_data = data;
 			_data.endian = Endian.LITTLE_ENDIAN;
 			
-			init = Init.parse(init);
-			materialLibrary.texturePath = init.getString("texturePath", "");
-			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
-			material = init.getMaterial("material");
-			centerMeshes = init.getBoolean("centerMeshes", false);
+			ini = Init.parse(init);
+			materialLibrary.texturePath = ini.getString("texturePath", "");
+			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
+			material = ini.getMaterial("material");
+			centerMeshes = ini.getBoolean("centerMeshes", false);
 			
-			var materials:Object = init.getObject("materials") || {};
+			var materials:Object = ini.getObject("materials") || {};
 			
 			for (var name:String in materials) {
                 _materialData = materialLibrary.addMaterial(name);
@@ -62,7 +61,7 @@ package away3d.loaders
                 	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
    			}
             
-			container = new ObjectContainer3D(init);
+			container = new ObjectContainer3D(ini);
 			
 			//first chunk is always the primary, so we simply read it and parse it
 			var chunk:Chunk3ds = new Chunk3ds();

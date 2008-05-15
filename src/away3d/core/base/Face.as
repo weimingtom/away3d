@@ -11,39 +11,144 @@ package away3d.core.base
     import flash.events.Event;
     import flash.geom.*;
     import flash.utils.*;
-
-    /** Mesh's triangle face */
+    
+	 /**
+	 * Dispatched when the uv mapping of the face changes.
+	 * 
+	 * @eventType away3d.events.FaceEvent
+	 */
+	[Event(name="mappingchanged",type="away3d.events.FaceEvent")]
+    
+	 /**
+	 * Dispatched when the material of the face changes.
+	 * 
+	 * @eventType away3d.events.FaceEvent
+	 */
+	[Event(name="materialchanged",type="away3d.events.FaceEvent")]
+	
+    /**
+    * A triangle element used in the mesh object
+    * 
+    * @see away3d.core.base.Mesh
+    */
     public class Face extends BaseMeshElement
     {
         use namespace arcane;
-
-        public var extra:Object;
-
-        //public static var defaultExtraClass:Class;
-
+		/** @private */
         arcane var _v0:Vertex;
+		/** @private */
         arcane var _v1:Vertex;
+		/** @private */
         arcane var _v2:Vertex;
+		/** @private */
         arcane var _uv0:UV;
+		/** @private */
         arcane var _uv1:UV;
+		/** @private */
         arcane var _uv2:UV;
+		/** @private */
         arcane var _material:ITriangleMaterial;
+		/** @private */
         arcane var _back:ITriangleMaterial;
+		/** @private */
         arcane var _dt:DrawTriangle = new DrawTriangle();
+		/** @private */
+		arcane var bitmapRect:Rectangle;
+		/** @private */
+        arcane function front(projection:Projection):Number
+        {
+            var sv0:ScreenVertex = _v0.project(projection);
+            var sv1:ScreenVertex = _v1.project(projection);
+            var sv2:ScreenVertex = _v2.project(projection);
+                
+            return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
+        }
+		/** @private */
+        arcane function notifyMaterialChange():void
+        {
+        	_dt.texturemapping = null;
+        	
+            if (!hasEventListener(FaceEvent.MATERIAL_CHANGED))
+                return;
+
+            if (_materialchanged == null)
+                _materialchanged = new FaceEvent(FaceEvent.MATERIAL_CHANGED, this);
+                
+            dispatchEvent(_materialchanged);
+        }
+		/** @private */
+        arcane function notifyMappingChange():void
+        {
+        	_dt.texturemapping = null;
+			
+            if (!hasEventListener(FaceEvent.MAPPING_CHANGED))
+                return;
+
+            if (_mappingchanged == null)
+                _mappingchanged = new FaceEvent(FaceEvent.MAPPING_CHANGED, this);
+                
+            dispatchEvent(_mappingchanged);
+        }
+        
         private var _normal:Number3D;
+		private var _a:Number;
+		private var _b:Number;
+		private var _c:Number;
+		private var _s:Number;
+		private var _mappingchanged:FaceEvent;
+		private var _materialchanged:FaceEvent;
 		
+		private function onMaterialResize(event:MaterialEvent):void
+		{
+			_dt.texturemapping = null;
+		}
+		
+        private function onVertexChange(event:Event):void
+        {
+            _normal = null;
+            notifyVertexChange();
+        }
+
+        private function onVertexValueChange(event:Event):void
+        {
+            _normal = null;
+            notifyVertexValueChange();
+        }
+
+        private function onUVChange(event:Event):void
+        {
+            notifyMappingChange();
+        }
+        
+    	/**
+    	 * An optional untyped object that can contain used-defined properties.
+    	 */
+        public var extra:Object;
+        
+    	/**
+    	 * Defines the parent 3d object of the face.
+    	 */
 		public var parent:Mesh;
 		
+		/**
+		 * Returns an array of vertex objects that are used by the face.
+		 */
         public override function get vertices():Array
         {
             return [_v0, _v1, _v2];
         }
 		
+		/**
+		 * Returns an array of uv objects that are used by the face.
+		 */
 		public function get uvs():Array
         {
             return [_uv0, _uv1, _uv2];
         }
-        
+		
+		/**
+		 * Defines the v0 vertex of the face.
+		 */
         public function get v0():Vertex
         {
             return _v0;
@@ -66,7 +171,10 @@ package away3d.core.base
 
             notifyVertexChange();
         }
-
+		
+		/**
+		 * Defines the v10 vertex of the face.
+		 */
         public function get v1():Vertex
         {
             return _v1;
@@ -89,7 +197,10 @@ package away3d.core.base
 
             notifyVertexChange();
         }
-
+		
+		/**
+		 * Defines the v2 vertex of the face.
+		 */
         public function get v2():Vertex
         {
             return _v2;
@@ -112,7 +223,10 @@ package away3d.core.base
 
             notifyVertexChange();
         }
-
+		
+		/**
+		 * Defines the material of the face.
+		 */
         public function get material():ITriangleMaterial
         {
             return _material;
@@ -134,11 +248,10 @@ package away3d.core.base
             notifyMaterialChange();
         }
 		
-		private function onMaterialResize(event:MaterialEvent):void
-		{
-			_dt.texturemapping = null;
-		}
-		
+		/**
+		 * Defines the optional back material of the face.
+		 * Displays when the face is pointing away from the camera.
+		 */
         public function get back():ITriangleMaterial
         {
             return _back;
@@ -153,7 +266,10 @@ package away3d.core.base
 
             // notifyBackChange(); TODO
         }
-
+		
+		/**
+		 * Defines the uv0 coordinate of the face.
+		 */
         public function get uv0():UV
         {
 
@@ -177,7 +293,10 @@ package away3d.core.base
 			
             notifyMappingChange();
         }
-
+		
+		/**
+		 * Defines the uv1 coordinate of the face.
+		 */
         public function get uv1():UV
         {
             return _uv1;
@@ -200,7 +319,10 @@ package away3d.core.base
 			
             notifyMappingChange();
         }
-
+		
+		/**
+		 * Defines the uv2 coordinate of the face.
+		 */
         public function get uv2():UV
         {
             return _uv2;
@@ -224,21 +346,22 @@ package away3d.core.base
             notifyMappingChange();
         }
 		
-		internal var a:Number;
-		internal var b:Number;
-		internal var c:Number;
-		internal var s:Number;
-		
+		/**
+		 * Returns the calculated 2 dimensional area of the face.
+		 */
         public function get area():Number
         {
             // not quick enough
-            a = v0.position.distance(v1.position);
-            b = v1.position.distance(v2.position);
-            c = v2.position.distance(v0.position);
-            s = (a + b + c) / 2;
-            return Math.sqrt(s*(s - a)*(s - b)*(s - c));
+            _a = v0.position.distance(v1.position);
+            _b = v1.position.distance(v2.position);
+            _c = v2.position.distance(v0.position);
+            _s = (_a + _b + _c) / 2;
+            return Math.sqrt(_s*(_s - _a)*(_s - _b)*(_s - _c));
         }
-        
+		
+		/**
+		 * Returns the normal vector of the face.
+		 */
         public function get normal():Number3D
         {
             if (!_normal) {
@@ -264,6 +387,9 @@ package away3d.core.base
             return _normal;
         }
 		
+		/**
+		 * Returns the squared bounding radius of the face.
+		 */
         public override function get radius2():Number
         {
             var rv0:Number = _v0._x*_v0._x + _v0._y*_v0._y + _v0._z*_v0._z;
@@ -285,7 +411,12 @@ package away3d.core.base
                     return rv2;
             }
         }
-
+        
+    	/**
+    	 * Returns the maximum u value of the face
+    	 * 
+    	 * @see	away3d.core.base.UV#u
+    	 */
         public function get maxU():Number
         {
             if (_uv0._u > _uv1._u)
@@ -304,6 +435,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the minimum u value of the face
+    	 * 
+    	 * @see away3d.core.base.UV#u
+    	 */
         public function get minU():Number
         {
             if (_uv0._u < _uv1._u)
@@ -322,6 +458,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the maximum v value of the face
+    	 * 
+    	 * @see away3d.core.base.UV#v
+    	 */
         public function get maxV():Number
         {
             if (_uv0._v > _uv1._v)
@@ -340,6 +481,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the minimum v value of the face
+    	 * 
+    	 * @see	away3d.core.base.UV#v
+    	 */
         public function get minV():Number
         {
             if (_uv0._v < _uv1._v)
@@ -358,6 +504,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the maximum x value of the face
+    	 * 
+    	 * @see		away3d.core.base.Vertex#x
+    	 */
         public override function get maxX():Number
         {
             if (_v0._x > _v1._x)
@@ -376,6 +527,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the minimum x value of the face
+    	 * 
+    	 * @see		away3d.core.base.Vertex#x
+    	 */
         public override function get minX():Number
         {
             if (_v0._x < _v1._x)
@@ -394,6 +550,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the maximum y value of the face
+    	 * 
+    	 * @see		away3d.core.base.Vertex#y
+    	 */
         public override function get maxY():Number
         {
             if (_v0._y > _v1._y)
@@ -412,6 +573,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the minimum y value of the face
+    	 * 
+    	 * @see		away3d.core.base.Vertex#y
+    	 */
         public override function get minY():Number
         {
             if (_v0._y < _v1._y)
@@ -430,6 +596,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the maximum zx value of the face
+    	 * 
+    	 * @see		away3d.core.base.Vertex#z
+    	 */
         public override function get maxZ():Number
         {
             if (_v0._z > _v1._z)
@@ -448,6 +619,11 @@ package away3d.core.base
             }
         }
         
+    	/**
+    	 * Returns the minimum z value of the face
+    	 * 
+    	 * @see		away3d.core.base.Vertex#z
+    	 */
         public override function get minZ():Number
         {
             if (_v0._z < _v1._z)
@@ -465,7 +641,37 @@ package away3d.core.base
                     return _v2._z;
             }
         }
-
+		
+		/**
+		 * Creates a new <code>Face</code> object.
+		 *
+		 * @param	v0						The first vertex object of the triangle
+		 * @param	v1						The second vertex object of the triangle
+		 * @param	v2						The third vertex object of the triangle
+		 * @param	material				The material used by the triangle to render
+		 * @param	uv0			[optional]	The first uv object of the triangle
+		 * @param	uv1			[optional]	The second uv object of the triangle
+		 * @param	uv2			[optional]	The third uv object of the triangle
+		 * 
+		 * @see	away3d.core.base.Vertex
+		 * @see	away3d.materials.ITriangleMaterial
+		 * @see	away3d.core.base.UV
+		 */
+        public function Face(v0:Vertex, v1:Vertex, v2:Vertex, material:ITriangleMaterial = null, uv0:UV = null, uv1:UV = null, uv2:UV = null)
+        {
+            this.v0 = v0;
+            this.v1 = v1;
+            this.v2 = v2;
+            this.material = material;
+            this.uv0 = uv0;
+            this.uv1 = uv1;
+            this.uv2 = uv2;
+            _dt.face = this;
+        }
+		
+		/**
+		 * Inverts the geometry of the face object by swapping the <code>v1</code>, <code>v2</code> and <code>uv1</code>, <code>uv2</code> points.
+		 */
         public function invert():void
         {
             var v1:Vertex = this._v1;
@@ -481,94 +687,45 @@ package away3d.core.base
             notifyVertexChange();
             notifyMappingChange();
         }
-        
-		arcane var bitmapRect:Rectangle;
 		
-        arcane function front(projection:Projection):Number
-        {
-            var sv0:ScreenVertex = _v0.project(projection);
-            var sv1:ScreenVertex = _v1.project(projection);
-            var sv2:ScreenVertex = _v2.project(projection);
-                
-            return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
-        }
-
-        public function Face(v0:Vertex, v1:Vertex, v2:Vertex, material:ITriangleMaterial = null, uv0:UV = null, uv1:UV = null, uv2:UV = null)
-        {
-            this.v0 = v0;
-            this.v1 = v1;
-            this.v2 = v2;
-            this.material = material;
-            this.uv0 = uv0;
-            this.uv1 = uv1;
-            this.uv2 = uv2;
-            _dt.face = this;
-            
-            //if (defaultExtraClass != null)
-            //    extra = new defaultExtraClass(this);
-        }
-
-        private function onVertexChange(event:Event):void
-        {
-            _normal = null;
-            notifyVertexChange();
-        }
-
-        private function onVertexValueChange(event:Event):void
-        {
-            _normal = null;
-            notifyVertexValueChange();
-        }
-
-        private function onUVChange(event:Event):void
-        {
-            notifyMappingChange();
-        }
-
+		/**
+		 * Default method for adding a mappingchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
         public function addOnMappingChange(listener:Function):void
         {
             addEventListener(FaceEvent.MAPPING_CHANGED, listener, false, 0, true);
         }
+		
+		/**
+		 * Default method for removing a mappingchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
         public function removeOnMappingChange(listener:Function):void
         {
             removeEventListener(FaceEvent.MAPPING_CHANGED, listener, false);
         }
-        private var mappingchanged:FaceEvent;
-        protected function notifyMappingChange():void
-        {
-        	_dt.texturemapping = null;
-			
-            if (!hasEventListener(FaceEvent.MAPPING_CHANGED))
-                return;
-
-            if (mappingchanged == null)
-                mappingchanged = new FaceEvent(FaceEvent.MAPPING_CHANGED, this);
-                
-            dispatchEvent(mappingchanged);
-        }
-
+		
+		/**
+		 * Default method for adding a materialchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
         public function addOnMaterialChange(listener:Function):void
         {
             addEventListener(FaceEvent.MATERIAL_CHANGED, listener, false, 0, true);
         }
-        
+		
+		/**
+		 * Default method for removing a materialchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
         public function removeOnMaterialChange(listener:Function):void
         {
             removeEventListener(FaceEvent.MATERIAL_CHANGED, listener, false);
-        }
-        
-        private var materialchanged:FaceEvent;
-        protected function notifyMaterialChange():void
-        {
-        	_dt.texturemapping = null;
-        	
-            if (!hasEventListener(FaceEvent.MATERIAL_CHANGED))
-                return;
-
-            if (materialchanged == null)
-                materialchanged = new FaceEvent(FaceEvent.MATERIAL_CHANGED, this);
-                
-            dispatchEvent(materialchanged);
         }
 
     }

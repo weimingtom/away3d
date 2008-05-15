@@ -1,31 +1,76 @@
 package away3d.core.base
 {
     import away3d.core.*;
-    import away3d.materials.*;
     import away3d.core.math.*;
-    import away3d.core.base.*
     import away3d.core.utils.*;
     import away3d.events.*;
+    import away3d.materials.*;
     
-    import flash.geom.Matrix;
-    import flash.events.Event;
-
-    public class BaseMeshElement extends LazyEventDispatcher implements IMeshElement
+    import flash.events.EventDispatcher;
+	
+	/**
+	 * Basic 3d element object
+     * Not intended for direct use - use <code>Segment</code> or <code>Face</code>.
+	 */
+    public class BaseMeshElement extends EventDispatcher implements IMeshElement
     {
         use namespace arcane;
-
+		/** @private */
         arcane var _visible:Boolean = true;
+		/** @private */
+        arcane function notifyVertexChange():void
+        {
+            if (!hasEventListener(MeshElementEvent.VERTEX_CHANGED))
+                return;
 
+            if (_vertexchanged == null)
+                _vertexchanged = new MeshElementEvent(MeshElementEvent.VERTEX_CHANGED, this);
+                
+            dispatchEvent(_vertexchanged);
+        }
+		/** @private */
+        arcane function notifyVertexValueChange():void
+        {
+            if (!hasEventListener(MeshElementEvent.VERTEXVALUE_CHANGED))
+                return;
+
+            if (_vertexvaluechanged == null)
+                _vertexvaluechanged = new MeshElementEvent(MeshElementEvent.VERTEXVALUE_CHANGED, this);
+                
+            dispatchEvent(_vertexvaluechanged);
+        }
+		/** @private */
+        arcane function notifyVisibleChange():void
+        {
+            if (!hasEventListener(MeshElementEvent.VISIBLE_CHANGED))
+                return;
+
+            if (_visiblechanged == null)
+                _visiblechanged = new MeshElementEvent(MeshElementEvent.VISIBLE_CHANGED, this);
+                
+            dispatchEvent(_visiblechanged);
+        }
+		
+		private var _vertexchanged:MeshElementEvent;
+		private var _vertexvaluechanged:MeshElementEvent;
+		private var _visiblechanged:MeshElementEvent;
+		
+		/**
+		 * Returns an array of vertex objects that make up the 3d element.
+		 */
         public function get vertices():Array
         {
             throw new Error("Not implemented");
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function get visible():Boolean
         {
             return _visible;
         }
-
+		
         public function set visible(value:Boolean):void
         {
             if (value == _visible)
@@ -35,7 +80,10 @@ package away3d.core.base
 
             notifyVisibleChange();
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function get radius2():Number
         {
             var maxr:Number = 0;
@@ -47,96 +95,103 @@ package away3d.core.base
             }
             return maxr;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function get maxX():Number
         {
             return Math.sqrt(radius2);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function get minX():Number
         {
             return -Math.sqrt(radius2);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function get maxY():Number
         {
             return Math.sqrt(radius2);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function get minY():Number
         {
             return -Math.sqrt(radius2);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function get maxZ():Number
         {
             return Math.sqrt(radius2);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function get minZ():Number
         {
             return -Math.sqrt(radius2);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function addOnVertexChange(listener:Function):void
         {
-            addEventListener("vertexchanged", listener, false, 0, true);
+            addEventListener(MeshElementEvent.VERTEX_CHANGED, listener, false, 0, true);
         }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function removeOnVertexChange(listener:Function):void
         {
-            removeEventListener("vertexchanged", listener, false);
+            removeEventListener(MeshElementEvent.VERTEX_CHANGED, listener, false);
         }
-        private var vertexchanged:MeshElementEvent;
-        protected function notifyVertexChange():void
-        {
-            if (!hasEventListener("vertexchanged"))
-                return;
-
-            if (vertexchanged == null)
-                vertexchanged = new MeshElementEvent("vertexchanged", this);
-                
-            dispatchEvent(vertexchanged);
-        }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function addOnVertexValueChange(listener:Function):void
         {
-            addEventListener("vertexvaluechanged", listener, false, 0, true);
+            addEventListener(MeshElementEvent.VERTEXVALUE_CHANGED, listener, false, 0, true);
         }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function removeOnVertexValueChange(listener:Function):void
         {
-            removeEventListener("vertexvaluechanged", listener, false);
+            removeEventListener(MeshElementEvent.VERTEXVALUE_CHANGED, listener, false);
         }
-        private var vertexvaluechanged:MeshElementEvent;
-        protected function notifyVertexValueChange():void
-        {
-            if (!hasEventListener("vertexvaluechanged"))
-                return;
-
-            if (vertexvaluechanged == null)
-                vertexvaluechanged = new MeshElementEvent("vertexvaluechanged", this);
-                
-            dispatchEvent(vertexvaluechanged);
-        }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function addOnVisibleChange(listener:Function):void
         {
-            addEventListener("visiblechanged", listener, false, 0, true);
+            addEventListener(MeshElementEvent.VISIBLE_CHANGED, listener, false, 0, true);
         }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function removeOnVisibleChange(listener:Function):void
         {
-            removeEventListener("visiblechanged", listener, false);
+            removeEventListener(MeshElementEvent.VISIBLE_CHANGED, listener, false);
         }
-        private var visiblechanged:MeshElementEvent;
-        protected function notifyVisibleChange():void
-        {
-            if (!hasEventListener("visiblechanged"))
-                return;
 
-            if (visiblechanged == null)
-                visiblechanged = new MeshElementEvent("visiblechanged", this);
-                
-            dispatchEvent(visiblechanged);
-        }
 
     }
 }

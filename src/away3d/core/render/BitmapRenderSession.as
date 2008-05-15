@@ -75,7 +75,7 @@ package away3d.core.render
         	
 			return _container.bitmapData;
 		}
-					
+		
         public override function addDisplayObject(child:DisplayObject):void
         {
             //add child to layers

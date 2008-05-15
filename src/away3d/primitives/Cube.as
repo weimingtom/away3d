@@ -13,14 +13,11 @@
         {
             super(init);
             
-            init = Init.parse(init);
-			
-			
-            var size:Number  = init.getNumber("size", 100, {min:0});
-            var width:Number  = init.getNumber("width",  size, {min:0});
-            var height:Number = init.getNumber("height", size, {min:0});
-            var depth:Number  = init.getNumber("depth",  size, {min:0});
-            var faces:Init  = init.getInit("faces");
+            var size:Number  = ini.getNumber("size", 100, {min:0});
+            var width:Number  = ini.getNumber("width",  size, {min:0});
+            var height:Number = ini.getNumber("height", size, {min:0});
+            var depth:Number  = ini.getNumber("depth",  size, {min:0});
+            var faces:Init  = ini.getInit("faces");
             
             buildCube(width, height, depth, faces);
         }

@@ -10,37 +10,64 @@ package away3d.core.base
     
     import flash.utils.Dictionary;
     
-    /** Mesh constisting of segments and segments */
+    /**
+    * 3d object containing segment elements 
+    */
     public class WireMesh extends BaseMesh implements IPrimitiveProvider
     {
         use namespace arcane;
-
+        
         private var _segments:Array = [];
-
+        
+        private function clear():void
+        {
+            for each (var segment:Segment in _segments.concat([]))
+                removeSegment(segment);
+        }
+		
+		/**
+		 * Returns an array of the segments contained in the wiremesh object.
+		 */
         public function get segments():Array
         {
             return _segments;
         }
-
+		
+		/**
+		 * Returns an array of the elements contained in the wiremesh object.
+		 */
         public override function get elements():Array
         {
             return _segments;
         }
-
+		/**
+		 * Defines the material used to render the segments in the wiremesh object.
+		 * Individual material settings on segments will override this setting.
+		 * 
+		 * @see away3d.core.base.Segment#material
+		 */
         public var material:ISegmentMaterial;
-
+    	
+		/**
+		 * Creates a new <code>WireMesh</code> object.
+		 *
+		 * @param	init			[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function WireMesh(init:Object = null)
         {
             super(init);
-
-            init = Init.parse(init);
-
-            material = init.getSegmentMaterial("material");
+            
+            material = ini.getSegmentMaterial("material");
 
             if (material == null)
                 material = new WireframeMaterial();
         }
-
+		
+		/**
+		 * Adds a segment object to the wiremesh object.
+		 * 
+		 * @param	segment	The segment object to be added.
+		 */
         public function addSegment(segment:Segment):void
         {
             addElement(segment);
@@ -50,7 +77,12 @@ package away3d.core.base
             segment._ds.source = segment.parent = this;
             segment._ds.create = createDrawSegment;
         }
-
+		
+		/**
+		 * Removes a segment object to the wiremesh object.
+		 * 
+		 * @param	segment	The segment object to be removed.
+		 */
         public function removeSegment(segment:Segment):void
         {
             var index:int = _segments.indexOf(segment);
@@ -61,13 +93,10 @@ package away3d.core.base
 
             _segments.splice(index, 1);
         }
-
-        private function clear():void
-        {
-            for each (var segment:Segment in _segments.concat([]))
-                removeSegment(segment);
-        }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
         	super.primitives(consumer, session);

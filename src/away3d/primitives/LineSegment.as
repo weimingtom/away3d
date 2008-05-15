@@ -35,10 +35,8 @@
         public function LineSegment(init:Object = null)
         {
             super(init);
-    
-            init = Init.parse(init);
 
-            var edge:Number = init.getNumber("edge", 100, {min:0}) / 2;
+            var edge:Number = ini.getNumber("edge", 100, {min:0}) / 2;
             _segment = new Segment(new Vertex(-edge, 0, 0), new Vertex(edge, 0, 0));
             addSegment(_segment);
 			
