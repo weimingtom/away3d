@@ -12,13 +12,11 @@
         public function WireSphere(init:Object = null)
         {
             super(init);
-    
-            init = Init.parse(init);
 
-            var segmentsW:int = init.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = init.getInt("segmentsH", 6, {min:2})
-            var radius:Number = init.getNumber("radius", 100, {min:0});
-			var yUp:Boolean = init.getBoolean("yUp", true);
+            var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
+            var segmentsH:int = ini.getInt("segmentsH", 6, {min:2})
+            var radius:Number = ini.getNumber("radius", 100, {min:0});
+			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildWireSphere(radius, segmentsW, segmentsH, yUp);
         }

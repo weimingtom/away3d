@@ -14,6 +14,7 @@ package away3d.loaders
     */
     public class Md2still
     {
+    	private var ini:Init;
         private var ident:int;
         private var version:int;
         private var skinwidth:int;
@@ -36,11 +37,11 @@ package away3d.loaders
 
         public function Md2still(data:ByteArray, init:Object = null)
         {
-            init = Init.parse(init);
+            ini = Init.parse(init);
 
-            scaling = init.getNumber("scaling", 1) * 100;
+            scaling = ini.getNumber("scaling", 1) * 100;
 
-            mesh = new Mesh(init);
+            mesh = new Mesh(ini);
 
             parseMd2still(data);
         }

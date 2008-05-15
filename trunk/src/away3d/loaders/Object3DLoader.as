@@ -33,7 +33,6 @@ package away3d.loaders
         public var url:String;
 
         private var urlloader:URLLoader;
-        private var init:Init;
 
         public function get handle():Object3D
         {
@@ -42,8 +41,8 @@ package away3d.loaders
 
         public function Object3DLoader(init:Object = null) 
         {
-            this.init = Init.parse(init);
-            this.init.removeFromCheck();
+            ini = Init.parse(init);
+            ini.removeFromCheck();
         }
 
         protected function onError(event:IOErrorEvent):void 
@@ -58,7 +57,7 @@ package away3d.loaders
         private function onComplete(event:Event):void 
         {
         	if (mode == LOADING_GEOMETRY)
-            	result = parse(urlloader.data, init, this);
+            	result = parse(urlloader.data, ini, this);
             
             if (materialLibrary) {
 	        	if (mode == LOADING_GEOMETRY && materialLibrary.autoLoadTextures && materialLibrary.loadRequired) {
@@ -69,7 +68,7 @@ package away3d.loaders
 	        	}
             }
         	
-            init.addForCheck();
+            ini.addForCheck();
 			
         	result.name = name;
             result.transform = transform;

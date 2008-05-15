@@ -11,15 +11,13 @@
         public function WirePlane(init:Object = null)
         {
             super(init);
-            
-            init = Init.parse(init);
 
-            var width:Number = init.getNumber("width", 100, {min:0});
-            var height:Number = init.getNumber("height", 100, {min:0});
-            var segments:int = init.getInt("segments", 1, {min:1});
-            var segmentsW:int = init.getInt("segmentsW", segments, {min:1});
-            var segmentsH:int = init.getInt("segmentsH", segments, {min:1});
-    		var yUp:Boolean = init.getBoolean("yUp", true);
+            var width:Number = ini.getNumber("width", 100, {min:0});
+            var height:Number = ini.getNumber("height", 100, {min:0});
+            var segments:int = ini.getInt("segments", 1, {min:1});
+            var segmentsW:int = ini.getInt("segmentsW", segments, {min:1});
+            var segmentsH:int = ini.getInt("segmentsH", segments, {min:1});
+    		var yUp:Boolean = ini.getBoolean("yUp", true);
     		
             buildWirePlane(width, height, segmentsW, segmentsH, yUp);
         }

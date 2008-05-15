@@ -8,7 +8,7 @@ package away3d.core.utils
     import flash.utils.Dictionary;
     import flash.events.Event;
     
-    public class ValueObject extends LazyEventDispatcher
+    public class ValueObject extends EventDispatcher
     {
         public function addOnChange(listener:Function):void
         {

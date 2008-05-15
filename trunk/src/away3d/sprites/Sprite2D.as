@@ -27,14 +27,12 @@ package away3d.sprites
         public function Sprite2D(init:Object = null)
         {
             super(init);
-
-            init = Init.parse(init);
     
-            scaling = init.getNumber("scaling", 1, {min:0});
-            rotation = init.getNumber("rotation", 0);
-            bitmap = init.getBitmap("bitmap");
-            smooth = init.getBoolean("smooth", false);
-            deltaZ = init.getNumber("deltaZ", 0);
+            scaling = ini.getNumber("scaling", 1, {min:0});
+            rotation = ini.getNumber("rotation", 0);
+            bitmap = ini.getBitmap("bitmap");
+            smooth = ini.getBoolean("smooth", false);
+            deltaZ = ini.getNumber("deltaZ", 0);
             primitive = new DrawScaledBitmap(this, smooth, bitmap);
             primitive.rotation = rotation;
         }

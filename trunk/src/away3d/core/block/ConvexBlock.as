@@ -20,9 +20,7 @@ package away3d.core.block
 
             this.vertices = vertices;
 
-            init = Init.parse(init);
-
-            debug = (init as Init).getBoolean("debug", false);
+            debug = ini.getBoolean("debug", false);
         }
     
         public function blockers(consumer:IBlockerConsumer):void

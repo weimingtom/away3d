@@ -8,24 +8,39 @@ package away3d.containers
     
     import flash.utils.getTimer;
     
-    /** Scene that gets rendered */
+    /**
+    * The root container of all 3d objects in a single scene
+    */
     public class Scene3D extends ObjectContainer3D
     {
     	use namespace arcane;
     	
+    	/**
+    	 * Interface for physics (not implemented)
+    	 */
         public var physics:IPhysicsScene;
+        
+		/**
+		 * Traverser object for all custom <code>tick()</code> methods
+		 * 
+		 * @see away3d.core.base.Object3D#tick()
+		 */
 		public var tickTraverser:TickTraverser = new TickTraverser();
-		
+    	
+		/**
+		 * Creates a new <code>Scene3D</code> object
+		 * 
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties
+		 * @param	...objects				An array of 3d objects to be added as children on instatiation
+		 */
         public function Scene3D(init:Object = null, ...objects)
         {
-            if (init != null)
-                if (init is Object3D)                          
-                {
-                    addChild(init as Object3D);
-                    init = null;
-                }
-
-            var ini:Init = Init.parse(init);
+            if (init != null && init is Object3D) {
+                addChild(init as Object3D);
+                init = null;
+            }
+            
+            ini = Init.parse(init);
 
             var ph:Object = ini.getObject("physics");
             if (ph is IPhysicsScene)
@@ -39,7 +54,13 @@ package away3d.containers
             for each (var object:Object3D in objects)
                 addChild(object);
         }
-
+		
+		/**
+		 * Called from <code>View3D.render()</code> in order to fire all tick methods
+		 * 
+		 * @see	away3d.core.base.Object3D#tick()
+		 * @see	away3d.containers.View3D
+		 */
         public function updateTime(time:int = -1):void
         {
         	//set current time
@@ -54,13 +75,21 @@ package away3d.containers
             if (physics != null)
                 physics.updateTime(time);
         }
-
+        
+		/**
+		 * Cannot parent a <code>Scene3D</code> object
+		 * 
+		 * @throws	Error	Scene can't be parented
+		 */
         public override function set parent(value:ObjectContainer3D):void
         {
             if (value != null)
                 throw new Error("Scene can't be parented");
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function get sceneTransform():Matrix3D
         {
         	if (_transformDirty)

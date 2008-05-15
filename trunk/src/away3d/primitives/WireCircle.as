@@ -12,12 +12,10 @@
         public function WireCircle(init:Object = null)
         {
             super(init);
-            
-            init = Init.parse(init);
 
-            var radius:Number = init.getNumber("radius", 100, {min:0});
-            var segments:int = init.getInt("segments", 8, {min:3});
-			var yUp:Boolean = init.getBoolean("yUp", true);
+            var radius:Number = ini.getNumber("radius", 100, {min:0});
+            var segments:int = ini.getInt("segments", 8, {min:3});
+			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildCircle(radius, segments, yUp);
         }

@@ -23,16 +23,14 @@ package away3d.sprites.dof
         
         private var primitive:DrawScaledBitmap;
     
-        public function DofSprite2D(initObj:Object = null)
+        public function DofSprite2D(init:Object = null)
         {
-            super(initObj);
-
-            var init:Init = Init.parse(initObj);
+            super(init);
     
-            scaling = init.getNumber("scaling", 1, {min:0});
-            bitmap = init.getBitmap("bitmap");
-            smooth = init.getBoolean("smooth", false);
-            deltaZ = init.getNumber("deltaZ", 0);
+            scaling = ini.getNumber("scaling", 1, {min:0});
+            bitmap = ini.getBitmap("bitmap");
+            smooth = ini.getBoolean("smooth", false);
+            deltaZ = ini.getNumber("deltaZ", 0);
             dofcache = DofCache.getDofCache(bitmap);
             primitive = new DrawScaledBitmap(this, true);
             primitive.rotation = 0;

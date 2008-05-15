@@ -7,17 +7,36 @@ package away3d.core.base
     
     import flash.geom.Matrix;
     import flash.events.Event;
-
+	
+	/**
+	 * Vertex position value object.
+	 */
     public class VertexPosition
     {
         use namespace arcane;
         
+    	/**
+    	 * Defines the x coordinate.
+    	 */
         public var x:Number;
+        
+    	/**
+    	 * Defines the y coordinate.
+    	 */
         public var y:Number;
+        
+    	/**
+    	 * Defines the z coordinate.
+    	 */
         public var z:Number;
 
         public var vertex:Vertex;
-
+    	
+		/**
+		 * Creates a new <code>VertexPosition</code> object.
+		 *
+		 * @param	vertex	The vertex object used to define the default x, y and z values.
+		 */
         public function VertexPosition(vertex:Vertex)
         {
             this.vertex = vertex;
@@ -25,7 +44,12 @@ package away3d.core.base
             this.y = 0;
             this.z = 0;
         }
-
+        
+		/**
+		 * Adjusts the position of the vertex object incrementally.
+		 * 
+		 * @param	k	The fraction by which to adjust the vertex values.
+		 */
         public function adjust(k:Number = 1):void
         {
             vertex._x = vertex._x * (1 - k) + x * k;

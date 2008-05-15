@@ -191,7 +191,7 @@ package away3d.test
 
             this.onResize(null);
 
-            Debug.active = false;
+            Debug.active = true;
        }
 
         protected function addSlide(title:String, text:String, scene:Scene3D, renderer:IRenderer, session:AbstractRenderSession):void

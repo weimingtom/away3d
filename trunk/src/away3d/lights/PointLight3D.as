@@ -53,16 +53,14 @@ package away3d.lights
         public function PointLight3D(init:Object = null)
         {
             super(init);
-
-            init = Init.parse(init);
             
-			_bitmap = init.getBitmap("bitmap");
-            color = init.getColor("color", 0xFFFFFF);
-            ambient = init.getNumber("ambient", 1);
-            diffuse = init.getNumber("diffuse", 1);
-            specular = init.getNumber("specular", 1);
-            brightness = init.getNumber("brightness", 1);
-            debug = init.getBoolean("debug", false);
+			_bitmap = ini.getBitmap("bitmap");
+            color = ini.getColor("color", 0xFFFFFF);
+            ambient = ini.getNumber("ambient", 1);
+            diffuse = ini.getNumber("diffuse", 1);
+            specular = ini.getNumber("specular", 1);
+            brightness = ini.getNumber("brightness", 1);
+            debug = ini.getBoolean("debug", false);
         }
 
         public function light(consumer:ILightConsumer):void

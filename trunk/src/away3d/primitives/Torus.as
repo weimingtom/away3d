@@ -12,14 +12,12 @@
         public function Torus(init:Object = null)
         {
             super(init);
-            
-            init = Init.parse(init);
 
-            var radius:Number = init.getNumber("radius", 100, {min:0});
-            var tube:Number = init.getNumber("tube", 40, {min:0, max:radius});
-            var segmentsR:int = init.getInt("segmentsR", 8, {min:3});
-            var segmentsT:int = init.getInt("segmentsT", 6, {min:3})
-			var yUp:Boolean = init.getBoolean("yUp", true);
+            var radius:Number = ini.getNumber("radius", 100, {min:0});
+            var tube:Number = ini.getNumber("tube", 40, {min:0, max:radius});
+            var segmentsR:int = ini.getInt("segmentsR", 8, {min:3});
+            var segmentsT:int = ini.getInt("segmentsT", 6, {min:3})
+			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildTorus(radius, tube, segmentsR, segmentsT, yUp);
         }

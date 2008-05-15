@@ -56,12 +56,10 @@ package away3d.lights
         public function AmbientLight3D(init:Object = null)
         {
             super(init);
-
-            init = Init.parse(init);
             
-            color = init.getColor("color", 0xFFFFFF);
-            ambient = init.getNumber("ambient", 0.5, {min:0, max:1});
-            debug = init.getBoolean("debug", false);
+            color = ini.getColor("color", 0xFFFFFF);
+            ambient = ini.getNumber("ambient", 0.5, {min:0, max:1});
+            debug = ini.getBoolean("debug", false);
             _ls.light = this;
         }
 

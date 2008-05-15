@@ -36,11 +36,10 @@ package away3d.loaders
             info = new TextField();
             info.wordWrap = true;
             side.addChild(info);
-
-            init = Init.parse(init);
-            var size:Number = init.getNumber("loadersize", 200);
-            geometryTitle = init.getString("geometrytitle", "Loading Geometry...");
-            textureTitle = init.getString("texturetitle", "Loading Texture...");
+            
+            var size:Number = ini.getNumber("loadersize", 200);
+            geometryTitle = ini.getString("geometrytitle", "Loading Geometry...");
+            textureTitle = ini.getString("texturetitle", "Loading Texture...");
 
             addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
         }

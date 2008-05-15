@@ -27,16 +27,18 @@ package away3d.loaders
 
     public class Obj 
     {
+    	private var ini:Init;
+    	
         private var mesh:Mesh;
         private var scaling:Number;
 
         public function Obj(data:String, init:Object = null)
         {
-            init = Init.parse(init);
+            ini = Init.parse(init);
 
-            scaling = init.getNumber("scaling", 1) * 10;
+            scaling = ini.getNumber("scaling", 1) * 10;
 
-            mesh = new Mesh(init);
+            mesh = new Mesh(ini);
 
             parseObj(data);
         }

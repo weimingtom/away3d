@@ -13,14 +13,12 @@
         public function WireCone(init:Object = null)
         {
             super(init);
-            
-            init = Init.parse(init);
 
-            var radius:Number = init.getNumber("radius", 100, {min:0});
-            var height:Number = init.getNumber("height", 200, {min:0});
-            var segmentsW:int = init.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = init.getInt("segmentsH", 1, {min:1})
-			var yUp:Boolean = init.getBoolean("yUp", true);
+            var radius:Number = ini.getNumber("radius", 100, {min:0});
+            var height:Number = ini.getNumber("height", 200, {min:0});
+            var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
+            var segmentsH:int = ini.getInt("segmentsH", 1, {min:1})
+			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildWireCone(radius, height, segmentsW, segmentsH, yUp);
         }

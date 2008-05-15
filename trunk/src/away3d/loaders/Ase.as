@@ -1,26 +1,24 @@
 package away3d.loaders
 {
     import away3d.core.*;
-    import away3d.core.base.*
-    import away3d.materials.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
-	
-    import flash.display.BitmapData;
+    import away3d.materials.*;
 
     /** Ase file format loader */
     public class Ase
     {
         private var mesh:Mesh;
         private var scaling:Number;
-
+		private var ini:Init;
+		
         public function Ase(data:String, init:Object = null)
         {
-            init = Init.parse(init);
+            ini = Init.parse(init);
 
-            scaling = init.getNumber("scaling", 1) * 100;
+            scaling = ini.getNumber("scaling", 1) * 100;
 
-            mesh = new Mesh(init);
+            mesh = new Mesh(ini);
 
             parseAse(data);
         }

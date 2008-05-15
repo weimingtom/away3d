@@ -20,6 +20,8 @@ package away3d.loaders
     {
     	use namespace arcane;
     	
+    	private var ini:Init;
+    	
         public var container:ObjectContainer3D;
     	public var materialLibrary:MaterialLibrary = new MaterialLibrary();
         public var containerData:ContainerData;
@@ -33,14 +35,15 @@ package away3d.loaders
         public function Collada(xml:XML, init:Object = null)
         {
             collada = xml;
-            init = Init.parse(init);
-			materialLibrary.texturePath = init.getString("texturePath", "");
-			materialLibrary.autoLoadTextures = init.getBoolean("autoLoadTextures", true);
-            scaling = init.getNumber("scaling", 1)*100;
-            material = init.getMaterial("material");
-            centerMeshes = init.getBoolean("centerMeshes", false);
+            ini = Init.parse(init);
             
-            var materials:Object = init.getObject("materials") || {};
+			materialLibrary.texturePath = ini.getString("texturePath", "");
+			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
+            scaling = ini.getNumber("scaling", 1)*100;
+            material = ini.getMaterial("material");
+            centerMeshes = ini.getBoolean("centerMeshes", false);
+            
+            var materials:Object = ini.getObject("materials") || {};
 
             for (var name:String in materials) {
                 _materialData = materialLibrary.addMaterial(name);
@@ -62,7 +65,7 @@ package away3d.loaders
 			buildMaterials();
 			
 			//build the containers
-            container = new ObjectContainer3D(init);
+            container = new ObjectContainer3D(ini);
 			buildContainer(containerData, container);
         }
 
