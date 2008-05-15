@@ -1,18 +1,10 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*
     import away3d.core.base.*;
-    import away3d.materials.*;
-    import away3d.core.utils.*;
     
     /** Triangle */ 
     public class Triangle extends Mesh
     {
-        private var _a:Vertex;
-        private var _b:Vertex;
-        private var _c:Vertex;
         private var _face:Face;
 
         public function get a():Vertex
@@ -53,6 +45,7 @@
             var edge:Number = ini.getNumber("edge", 100, {min:0}) / 2;
 			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
+			buildTriangle(edge, yUp);
         }
     	private function buildTriangle(edge:Number, yUp:Boolean):void
         {

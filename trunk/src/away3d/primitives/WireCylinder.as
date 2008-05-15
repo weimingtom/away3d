@@ -1,10 +1,6 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.utils.*;
-    import away3d.materials.*;
     
     /** Wire cylinder */ 
     public class WireCylinder extends WireMesh
@@ -16,7 +12,7 @@
             var radius:Number = ini.getNumber("radius", 100, {min:0});
             var height:Number = ini.getNumber("height", 200, {min:0});
             var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = ini.getInt("segmentsH", 1, {min:1})
+            var segmentsH:int = ini.getInt("segmentsH", 1, {min:1});
 			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildWireCylinder(radius, height, segmentsW, segmentsH, yUp);

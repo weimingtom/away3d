@@ -1,12 +1,7 @@
 package away3d.loaders
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*
     import away3d.core.base.*;
-    import away3d.materials.*;
     import away3d.core.utils.*;
-    import away3d.core.stats.*;
     import flash.utils.*;
 
    /**
@@ -61,7 +56,6 @@ package away3d.loaders
             data.endian = Endian.LITTLE_ENDIAN;
 
             var vertices:Array = [];
-            var faces:Array = [];
             var uvs:Array = [];
             
             ident = data.readInt();

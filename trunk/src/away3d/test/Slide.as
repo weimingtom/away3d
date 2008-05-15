@@ -1,14 +1,7 @@
 package away3d.test
 {
     import away3d.containers.*;
-    import away3d.core.base.*;
     import away3d.core.render.*;
-    
-    import flash.display.*;
-    import flash.events.*;
-    import flash.geom.*;
-    import flash.text.*;
-    import flash.utils.*;
     
     /** Slide of the demo */ 
     public class Slide

@@ -148,8 +148,6 @@ package away3d.core.math
     
             return this;
         }
-    
-    	private var m:Matrix3D;
     	
         public function clone(m:Matrix3D):Matrix3D
         {
@@ -289,7 +287,7 @@ package away3d.core.math
             szx = d * (m121 * m132 - m131 * m122),
             szy = -d* (m111 * m132 - m131 * m112),
             szz = d * (m111 * m122 - m121 * m112),
-            tz = -d* (m111 * (m122*m134 - m132*m124) - m121 * (m112*m134 - m132*m114) + m131 * (m112*m124 - m122*m114))
+            tz = -d* (m111 * (m122*m134 - m132*m124) - m121 * (m112*m134 - m132*m114) + m131 * (m112*m124 - m122*m114));
         }
         
         private var x:Number;
@@ -342,6 +340,6 @@ package away3d.core.math
         }
     
         private static const toDEGREES:Number = 180 / Math.PI;
-        private static const toRADIANS:Number = Math.PI / 180;
+        //private static const toRADIANS:Number = Math.PI / 180;
     }
 }

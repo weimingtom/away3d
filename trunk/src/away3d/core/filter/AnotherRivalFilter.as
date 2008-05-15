@@ -1,13 +1,9 @@
 package away3d.core.filter
 {
-    import flash.display.*;
     import flash.utils.*;
 
     import away3d.cameras.*;
     import away3d.containers.*;
-    import away3d.primitives.*
-    import away3d.core.*;
-    import away3d.core.base.*
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
@@ -24,7 +20,7 @@ package away3d.core.filter
         internal var check:int;
     
         internal var primitives:Array;
-        internal var pri:DrawPrimitive;
+        private var pri:DrawPrimitive;
         internal var turn:int;
         internal var leftover:Array;
         

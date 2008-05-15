@@ -1,13 +1,5 @@
 package away3d.core.base
-{
-    import away3d.core.*;
-    import away3d.materials.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*;
-    
-    import flash.geom.Matrix;
-    import flash.events.Event;
-	
+{	
     /**
     * Interface for objects that store the vertex values for a single frame of animation
     */

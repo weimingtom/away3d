@@ -4,7 +4,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.utils.*;
 	
 	public class Dot3BitmapMaterial extends CompositeMaterial
 	{
@@ -47,18 +46,18 @@ package away3d.materials
 		
 		public function Dot3BitmapMaterial(bitmap:BitmapData, init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
-			_shininess = init.getNumber("shininess", 20);
-			_specular = init.getNumber("specular", 0.7);
-			_normalMap = init.getBitmap("normalMap");
+			_shininess = ini.getNumber("shininess", 20);
+			_specular = ini.getNumber("specular", 0.7);
+			_normalMap = ini.getBitmap("normalMap");
 			
 			if (!_normalMap)
 				_normalMap = bitmap.clone();
 			
 			//create new materials
 			bitmapMaterial = new BitmapMaterial(bitmap, init);
-			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY})
+			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
 			phongShader.materials.push(ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
 			phongShader.materials.push(diffuseDot3Shader = new DiffuseDot3Shader(_normalMap, {blendMode:BlendMode.ADD}));
 			
@@ -68,7 +67,7 @@ package away3d.materials
 			materials.push(phongShader);
 			//materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
 			
-			super(init);
+			super(ini);
 		}
 		
 	}

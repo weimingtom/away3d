@@ -1,15 +1,9 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
-    import away3d.materials.*;
-    import away3d.core.base.*
     import away3d.core.base.*;
     import away3d.core.render.*;
                                
-    import flash.display.Graphics;
     import flash.display.BitmapData;
-    import flash.geom.Matrix;
-    import flash.geom.Point;
 
     /** Unscaled bitmap drawing primitive */
     public class DrawBitmap extends DrawPrimitive
@@ -52,6 +46,7 @@ package away3d.core.draw
         	source.session.renderBitmap(bitmap,v);
         }
         
+        //TODO: correct function for contains in DrawBitmap
         public override function contains(x:Number, y:Number):Boolean
         {   
             return true;

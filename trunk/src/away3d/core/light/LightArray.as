@@ -1,11 +1,5 @@
 package away3d.core.light
 {
-    import away3d.core.*;
-    import away3d.core.base.*;
-    import away3d.core.draw.*;
-    import away3d.core.math.*;
-    
-    import flash.geom.*;
 
     /** Array of light sources */
     public class LightArray implements ILightConsumer

@@ -4,8 +4,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.geom.ColorTransform;
-	import flash.utils.*;
 	
 	public class PhongColorMaterial extends CompositeMaterial
 	{
@@ -32,7 +30,7 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
-			_specular = val
+			_specular = val;
 			if (_specular) {
 				specularPhongShader.shininess = _shininess;
 				specularPhongShader.specular = _specular;
@@ -64,7 +62,7 @@ package away3d.materials
 		
 		public function PhongColorMaterial(init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
 			//create new materials
 			phongShader = new CompositeMaterial();
@@ -75,10 +73,10 @@ package away3d.materials
 			//add to materials array
 			materials = new Array();
 			
-			_shininess = init.getNumber("shininess", 20);
-			specular = init.getNumber("specular", 0.7, {min:0, max:1});
+			_shininess = ini.getNumber("shininess", 20);
+			specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
-			super(init);
+			super(ini);
 		}
 		
 	}

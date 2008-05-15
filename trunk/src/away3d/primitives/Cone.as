@@ -1,11 +1,7 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.stats.*;
     import away3d.core.utils.*;
-    import away3d.materials.*;
     
     /** Cone */ 
     public class Cone extends Mesh
@@ -17,7 +13,7 @@
             var radius:Number = ini.getNumber("radius", 100, {min:0});
             var height:Number = ini.getNumber("height", 200, {min:0});
             var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = ini.getInt("segmentsH", 1, {min:1})
+            var segmentsH:int = ini.getInt("segmentsH", 1, {min:1});
 			var openEnded:Boolean = ini.getBoolean("openEnded", false);
 			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
@@ -56,7 +52,7 @@
                 for (i = 0; i < segmentsW; i++) 
                 { 
                     var verangle:Number = 2 * i / segmentsW * Math.PI;
-                    var ringradius:Number = radius * (segmentsH-j)/(segmentsH-1)
+                    var ringradius:Number = radius * (segmentsH-j)/(segmentsH-1);
                     var x:Number = ringradius * Math.sin(verangle);
                     var y:Number = ringradius * Math.cos(verangle);
                     
@@ -80,8 +76,8 @@
                     var c:Vertex = grid[j-1][(i-1+segmentsW) % segmentsW];
                     var d:Vertex = grid[j-1][i];
 					
-					var i2:int = i
-					if (i == 0) i2 = segmentsW
+					var i2:int = i;
+					if (i == 0) i2 = segmentsW;
 					
                     var vab:Number = j / (segmentsH + 1);
                     var vcd:Number = (j-1) / (segmentsH + 1);

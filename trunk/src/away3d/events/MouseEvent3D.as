@@ -4,7 +4,6 @@ package away3d.events
     import away3d.core.draw.*;
     import away3d.materials.*;
     import away3d.core.base.*;
-    import away3d.core.render.*;
     
     import flash.events.Event;
     

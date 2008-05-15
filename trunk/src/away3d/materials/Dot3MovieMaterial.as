@@ -5,7 +5,6 @@ package away3d.materials
 	
 	import flash.display.*;
 	import flash.geom.Matrix;
-	import flash.utils.*;
 	
 	public class Dot3MovieMaterial extends CompositeMaterial
 	{
@@ -48,11 +47,11 @@ package away3d.materials
 		
 		public function Dot3MovieMaterial(movie:Sprite, init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
-			_shininess = init.getNumber("shininess", 20);
-			_specular = init.getNumber("specular", 0.7);
-			_normalMap = init.getBitmap("normalMap");
+			_shininess = ini.getNumber("shininess", 20);
+			_specular = ini.getNumber("specular", 0.7);
+			_normalMap = ini.getBitmap("normalMap");
 			
 			if (!_normalMap) {
 				_normalMap = new BitmapData(movie.width, movie.height, true, 0);
@@ -63,7 +62,7 @@ package away3d.materials
 			}
 			//create new materials
 			movieMaterial = new MovieMaterial(movie, init);
-			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY})
+			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
 			phongShader.materials.push(ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
 			phongShader.materials.push(diffuseDot3Shader = new DiffuseDot3Shader(_normalMap, {blendMode:BlendMode.ADD}));
 			
@@ -73,7 +72,7 @@ package away3d.materials
 			materials.push(phongShader);
 			//materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
 			
-			super(init);
+			super(ini);
 		}
 		
 	}

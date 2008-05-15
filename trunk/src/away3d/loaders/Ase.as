@@ -1,9 +1,7 @@
 package away3d.loaders
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
-    import away3d.materials.*;
 
     /** Ase file format loader */
     public class Ase
@@ -90,7 +88,7 @@ package away3d.loaders
                             var drc:Array = mfl.split( ':' ); // separate here
     
                             var con:String;
-                            con = drc[2]
+                            con = drc[2];
                             var a:Vertex = vertices[parseInt(con.substr(0, con.lastIndexOf(' ')))];
     
                             con = drc[3];

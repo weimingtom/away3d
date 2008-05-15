@@ -2,8 +2,6 @@ package away3d.core.render
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.*;
-	import away3d.core.base.*;
 	import away3d.core.block.*;
 	import away3d.core.draw.*;
 	import away3d.core.filter.*;
@@ -12,9 +10,6 @@ package away3d.core.render
 	import away3d.core.traverse.*;
 	import away3d.materials.*;
 	
-	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.*;
 	import flash.utils.*;
     
     /** Basic renderer implementation */
@@ -55,7 +50,7 @@ package away3d.core.render
 
         public function get renderSession():AbstractRenderSession
         {
-        	return this._session
+        	return this._session;
         }
         
         protected var primitive:DrawPrimitive;
@@ -75,7 +70,7 @@ package away3d.core.render
                     
             // get blockers for occlusion culling
             blockerarray.clip = clip;
-            blocktraverser.consumer = blockerarray
+            blocktraverser.consumer = blockerarray;
             blocktraverser.view = view;
             scene.traverse(blocktraverser);
             blockers = blockerarray.list();

@@ -1,10 +1,7 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.render.*;
 
-    import flash.geom.*;
 
     /** Volume block containing drawing primitives */
     public class PrimitiveVolumeBlock

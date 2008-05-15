@@ -1,11 +1,7 @@
 package away3d.core.utils
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
     
     import flash.events.EventDispatcher;
-    import flash.display.Sprite;
-    import flash.utils.Dictionary;
     import flash.events.Event;
     
     public class ValueObject extends EventDispatcher

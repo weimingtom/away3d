@@ -1,15 +1,10 @@
 package away3d.lights
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
-    import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-    import away3d.materials.*;
-    
-    import flash.display.*;
 	
     /** Light source */ 
     public class DirectionalLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
@@ -129,13 +124,13 @@ package away3d.lights
         	
         	//update ambient
             if (_ambientDirty || _brightnessDirty) {
-        		_ambientDirty = false
+        		_ambientDirty = false;
 	        	_ls.updateAmbientBitmap(ambient);
         	}
             
         	//update diffuse
         	if (_diffuseDirty || _brightnessDirty) {
-        		_diffuseDirty = false
+        		_diffuseDirty = false;
 	        	_ls.updateDiffuseBitmap(diffuse);
         	}
         	

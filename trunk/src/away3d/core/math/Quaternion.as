@@ -52,8 +52,6 @@ package away3d.core.math
         private var fCosPitchCosYaw:Number;
         private var fSinPitchSinYaw:Number;
         
-        private var q:Quaternion;
-        
         public function euler2quaternion(ax:Number, ay:Number, az:Number):void
         {
             fSinPitch       = Math.sin(ax * 0.5);

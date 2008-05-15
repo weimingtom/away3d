@@ -1,10 +1,6 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.utils.*;
-    import away3d.materials.*;
     
     /** Wire sphere */ 
     public class WireSphere extends WireMesh
@@ -14,7 +10,7 @@
             super(init);
 
             var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = ini.getInt("segmentsH", 6, {min:2})
+            var segmentsH:int = ini.getInt("segmentsH", 6, {min:2});
             var radius:Number = ini.getNumber("radius", 100, {min:0});
 			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
@@ -42,8 +38,7 @@
                 var ringradius:Number = radius * Math.sin(horangle);
 
                 grid[j] = new Array(segmentsW);
-
-                var vertex:Vertex;
+				
                 for (i = 0; i < segmentsW; i++) 
                 { 
                     var verangle:Number = 2 * i / segmentsW * Math.PI;

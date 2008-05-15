@@ -1,12 +1,7 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
     import away3d.core.base.*;
-    import away3d.core.render.*;
-
-    import flash.display.Graphics;
 
     public class DrawGroup extends DrawPrimitive implements IPrimitiveConsumer
     {

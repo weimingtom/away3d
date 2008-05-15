@@ -1,11 +1,6 @@
 package away3d.core.render
 {
-    import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.filter.*;
-    
-    import flash.display.*;
-    import flash.geom.*;
 
     /** A static class for an easy access to the most useful renderers */
     public class Renderer

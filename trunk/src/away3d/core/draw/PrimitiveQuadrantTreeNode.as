@@ -1,11 +1,8 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     
-    import flash.display.*;
-    import flash.geom.*;
 
     /** Quadrant tree node */
     public final class PrimitiveQuadrantTreeNode
@@ -32,7 +29,6 @@ package away3d.core.draw
         public var level:int;
         public var parent:PrimitiveQuadrantTreeNode;
         public var maxlevel:int = 4;
-		private var i:int;
 		
 		public var create:Function;
 		

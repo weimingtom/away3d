@@ -1,7 +1,6 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -25,12 +24,14 @@ package away3d.materials
         public var draw_fall_k:Number = 1;
         public var draw_reflect:Boolean = false;
         public var draw_reflect_k:Number = 1;
-
+		
+		protected var ini:Init;
+		
         public function CenterLightingMaterial(init:Object = null)
         {
-            init = Init.parse(init);
+            ini = Init.parse(init);
 
-            ak = init.getNumber("ak", 20);
+            ak = ini.getNumber("ak", 20);
         }
 		
 		internal var point:PointLightSource;

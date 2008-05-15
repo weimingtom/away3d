@@ -12,8 +12,6 @@ package away3d.loaders
     import away3d.loaders.data.MeshData;
     import away3d.loaders.data.MeshMaterialData;
     import away3d.loaders.data.ObjectData;
-    
-    import flash.utils.*;
 
     /** Collada scene loader */
     public class Collada
@@ -159,7 +157,7 @@ package away3d.loaders
                     case "matrix":
                     	var m:Matrix3D = new Matrix3D();
                     	m.array2matrix(getArray(child));
-                        _transform.multiply(_transform, m)
+                        _transform.multiply(_transform, m);
                         break;
     					
                     case "node":
@@ -324,8 +322,6 @@ package away3d.loaders
 			var mesh:Mesh = new Mesh({name:_meshData.name});
 			mesh.transform = _meshData.transform;
 			
-			var face:Face;
-			var matData:MaterialData;
 			for each(_faceData in _meshData.faces) {
 				if (!_faceData.materialData)
 					continue;

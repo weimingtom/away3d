@@ -1,10 +1,7 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.materials.*;
     import away3d.core.utils.*;
-	import away3d.core.stats.*;
     
     import flash.display.*;
 

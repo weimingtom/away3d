@@ -1,11 +1,10 @@
 package away3d.core.traverse
 {
 	import away3d.containers.*;
-    import away3d.core.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.light.*;
     import away3d.core.draw.*;
-    import away3d.core.render.*
+    import away3d.core.render.*;
     
 
     /** Traverser that gathers drawing primitives to render the scene */

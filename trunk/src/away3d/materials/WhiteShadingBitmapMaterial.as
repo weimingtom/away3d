@@ -1,9 +1,7 @@
 package away3d.materials
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
-    import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.events.*;
@@ -52,7 +50,7 @@ package away3d.materials
         
         public function get faceDictionary():Dictionary
         {
-        	return _faceDictionary
+        	return _faceDictionary;
         }
         
         
@@ -61,11 +59,9 @@ package away3d.materials
             super(init);
 
             this.diffuse = diffuse;
-
-            init = Init.parse(init);
-
-            smooth = init.getBoolean("smooth", false);
-            repeat = init.getBoolean("repeat", false);
+			
+            smooth = ini.getBoolean("smooth", false);
+            repeat = ini.getBoolean("repeat", false);
             
             if (!CacheStore.whiteShadingCache[diffuse])
             	CacheStore.whiteShadingCache[diffuse] = new Dictionary(true);

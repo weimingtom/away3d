@@ -46,7 +46,8 @@ package away3d.core.block
             var v:ScreenVertex;
             var s:String = "";
             var p:String = "";
-            for each (var vr:* /*Vertex*/ in vertices)
+            
+            for each (var vr:Vertex in vertices)
             {
                 s += vr.toString() + "\n";
 

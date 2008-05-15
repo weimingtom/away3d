@@ -40,12 +40,15 @@ package away3d.materials.shaders
 		internal var eTri2x:Number;
 		internal var eTri2y:Number;
         
+        protected var ini:Init;
+        
         public function AbstractShader(init:Object = null)
         {
-            init = Init.parse(init);
-            smooth = init.getBoolean("smooth", false);
-            debug = init.getBoolean("debug", false);
-            blendMode = init.getString("blendMode", BlendMode.NORMAL);
+            ini = Init.parse(init);
+            
+            smooth = ini.getBoolean("smooth", false);
+            debug = ini.getBoolean("debug", false);
+            blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             
         }
 		
@@ -88,7 +91,7 @@ package away3d.materials.shaders
         	_source = tri.source as Mesh;
 			_view = _source.session.view;
 			_face = tri.face;
-			_lights = tri.source.session.lightarray
+			_lights = tri.source.session.lightarray;
         }
         
         public function getShape(layer:Sprite):Shape

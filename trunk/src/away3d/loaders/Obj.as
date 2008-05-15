@@ -11,19 +11,8 @@
 
 package away3d.loaders
 {
-    import away3d.core.*;
-    import away3d.core.base.*
-    import away3d.core.base.*;
-    import away3d.materials.*;
+	import away3d.core.base.*;
     import away3d.core.utils.*;
-    import away3d.core.stats.*;
-    
-    import flash.net.URLRequest;
-    import flash.net.URLLoader;
-    import flash.events.EventDispatcher;
-    import flash.events.Event;
-    import flash.events.ProgressEvent;
-    import flash.events.IOErrorEvent;
 
     public class Obj 
     {

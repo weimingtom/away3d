@@ -1,6 +1,5 @@
 package away3d.lights
 {
-    import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.materials.*;
     import away3d.core.math.*;

@@ -1,10 +1,6 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.utils.*;
-    import away3d.materials.*;
     
     /** Wire torus */ 
     public class WireTorus extends WireMesh
@@ -16,7 +12,7 @@
             var radius:Number = ini.getNumber("radius", 100, {min:0});
             var tube:Number = ini.getNumber("tube", 40, {min:0, max:radius});
             var segmentsR:int = ini.getInt("segmentsR", 8, {min:3});
-            var segmentsT:int = ini.getInt("segmentsT", 6, {min:3})
+            var segmentsT:int = ini.getInt("segmentsT", 6, {min:3});
 			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildTorus(radius, tube, segmentsR, segmentsT, yUp);
