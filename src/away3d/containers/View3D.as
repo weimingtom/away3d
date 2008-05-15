@@ -9,7 +9,6 @@ package away3d.containers
 	import away3d.events.*;
 	import away3d.materials.*;
 	
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.BlendMode;
 	import flash.display.Sprite;
@@ -311,10 +310,9 @@ package away3d.containers
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			
-            if (!clip) {
+            if (!clip)
             	clip = _defaultclip;
-            	clip
-            }
+            
             if (stats)
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);			
 		}

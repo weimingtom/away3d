@@ -1,6 +1,5 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
 
     /** Line in 2D space */
     public class Line2D

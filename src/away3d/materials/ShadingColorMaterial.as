@@ -1,15 +1,9 @@
 package away3d.materials
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-
-    import flash.display.BitmapData;
-    import flash.geom.Matrix;
 
     /** Solid color material that takes lighting into considiration */
     public class ShadingColorMaterial extends CenterLightingMaterial
@@ -24,14 +18,12 @@ package away3d.materials
         {
             super(init);
 			
-            init = Init.parse(init);
-			
-            var color:int = init.getColor("color", 0xFFFFFF);
-            ambient = init.getColor("ambient", color);
-            diffuse = init.getColor("diffuse", color);
-            specular = init.getColor("specular", color);
-            alpha = init.getNumber("alpha", 1);
-            cache = init.getBoolean("cache", false);
+            var color:int = ini.getColor("color", 0xFFFFFF);
+            ambient = ini.getColor("ambient", color);
+            diffuse = ini.getColor("diffuse", color);
+            specular = ini.getColor("specular", color);
+            alpha = ini.getNumber("alpha", 1);
+            cache = ini.getBoolean("cache", false);
         }
 		
 		internal var fr:int;

@@ -1,9 +1,6 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.stats.*;
     import away3d.core.utils.*;
     import away3d.materials.*;
     

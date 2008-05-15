@@ -54,15 +54,15 @@ package away3d.materials
         {
             this.movie = movie;
 
-            init = Init.parse(init);
+            ini = Init.parse(init);
 
-            transparent = init.getBoolean("transparent", true);
-            auto = init.getBoolean("auto", true);
-            interactive = init.getBoolean("interactive", false);
+            transparent = ini.getBoolean("transparent", true);
+            auto = ini.getBoolean("auto", true);
+            interactive = ini.getBoolean("interactive", false);
 
             _bitmap = new BitmapData(movie.width, movie.height, transparent, 0);
             
-        	super(_bitmap, init);
+        	super(_bitmap, ini);
         }
         
         public override function renderTriangle(tri:DrawTriangle):void

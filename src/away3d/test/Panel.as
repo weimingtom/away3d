@@ -1,7 +1,6 @@
 package away3d.test
 {
     import flash.display.*;
-    import flash.geom.*;
 
     /** Simple rounded rectagnle panel */ 
     public class Panel extends Shape

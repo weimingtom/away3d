@@ -1,7 +1,6 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
-	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;

@@ -1,9 +1,7 @@
 package away3d.core.traverse
 {
 	import away3d.containers.*;
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
     
@@ -40,7 +38,7 @@ package away3d.core.traverse
             node.viewTransform.multiply(_cameraview, node.sceneTransform);
             
             //update projection object
-            _projection = node.projection
+            _projection = node.projection;
             _projection.view = node.viewTransform;
             _projection.focus = _view.camera.focus;
             _projection.zoom = _view.camera.zoom;

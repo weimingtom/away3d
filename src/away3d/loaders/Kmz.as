@@ -1,13 +1,10 @@
 package away3d.loaders
 {
     import away3d.containers.*;
-    import away3d.core.*;
     import away3d.materials.*;
     import away3d.core.base.*;
-    import away3d.core.base.*
     import away3d.core.utils.*;
     import away3d.loaders.data.ContainerData;
-    import away3d.loaders.data.FaceData;
     import away3d.loaders.data.MaterialData;
     
     import flash.display.Bitmap;

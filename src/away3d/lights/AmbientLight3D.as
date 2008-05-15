@@ -1,16 +1,10 @@
 package away3d.lights
 {
-    import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.materials.*;
-    import away3d.core.math.*;
     import away3d.core.base.*;
     import away3d.core.light.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-    
-    import flash.display.*;
-    import flash.geom.Matrix;
 	
     /** Light source */ 
     public class AmbientLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
@@ -75,7 +69,7 @@ package away3d.lights
         	
         	//update ambient
             if (_ambientDirty) {
-        		_ambientDirty = false
+        		_ambientDirty = false;
 	        	_ls.updateAmbientBitmap(_ambient);
         	}
         	

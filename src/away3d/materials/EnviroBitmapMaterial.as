@@ -4,7 +4,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.utils.*;
 	
 	public class EnviroBitmapMaterial extends CompositeMaterial
 	{
@@ -17,7 +16,7 @@ package away3d.materials
 		
 		public function set reflectiveness(val:Number):void
 		{
-			_reflectiveness = val
+			_reflectiveness = val;
 			enviroShader.reflectiveness = val;
 		}
 		
@@ -28,11 +27,11 @@ package away3d.materials
 		
 		public function EnviroBitmapMaterial(bitmap:BitmapData, init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
-			_enviroMap = init.getBitmap("enviroMap");
-			_mode = init.getString("mode", "linear");
-			_reflectiveness = init.getNumber("reflectiveness", 0.5, {min:0, max:1});
+			_enviroMap = ini.getBitmap("enviroMap");
+			_mode = ini.getString("mode", "linear");
+			_reflectiveness = ini.getNumber("reflectiveness", 0.5, {min:0, max:1});
 			
 			//create new materials
 			bitmapMaterial = new BitmapMaterial(bitmap, init);
@@ -43,7 +42,7 @@ package away3d.materials
 			materials.push(bitmapMaterial);
 			materials.push(enviroShader);
 			
-			super(init);
+			super(ini);
 		}
 		
 	}

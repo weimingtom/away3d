@@ -1,10 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.View3D;
-	import away3d.core.*;
-	import away3d.core.base.*;
 	import away3d.core.draw.*;
-	import away3d.materials.*;
 	
 	import flash.display.*;
 	import flash.geom.Matrix;
@@ -23,8 +20,6 @@ package away3d.core.render
 		private var _cy:Number;
 		
 		private var _base:BitmapData;
-		
-		private var _shapeDirty:Boolean;
 		
 		private var mStore:Array = new Array();
 		private var mActive:Array = new Array();

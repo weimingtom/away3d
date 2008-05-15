@@ -5,7 +5,6 @@ package away3d.sprites.dof
 	import flash.geom.Point;
 	import flash.filters.BlurFilter;
 	import flash.utils.Dictionary;
-	import flash.utils.getQualifiedClassName;
 	
 	/**
 	 * Provides static pre-blurred bitmap images for depth of field-effect

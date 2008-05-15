@@ -2,8 +2,7 @@ package away3d.core.render
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-    import away3d.core.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.filter.*;
@@ -11,8 +10,6 @@ package away3d.core.render
     import away3d.core.traverse.*;
     import away3d.core.stats.*;
     
-    import flash.display.*;
-    import flash.geom.*;
     import flash.utils.Dictionary;
     
 
@@ -53,7 +50,7 @@ package away3d.core.render
 
         public function get renderSession():AbstractRenderSession
         {
-        	return this._session
+        	return this._session;
         }
                 
         protected var primitive:DrawPrimitive;

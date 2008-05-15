@@ -1,9 +1,5 @@
 package away3d.core.base
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.materials.*;
-	
 	/**
 	 * Holds vertexposition information about a single animation frame.
 	 */
@@ -28,8 +24,9 @@ package away3d.core.base
 		 */
         public function adjust(k:Number = 1):void
         {
-            for each (_vertexposition in vertexpositions)
+            for each (_vertexposition in vertexpositions) {
                 _vertexposition.adjust(k);
+            }
         }
     }
 }

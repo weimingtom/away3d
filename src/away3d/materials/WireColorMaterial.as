@@ -1,8 +1,6 @@
 package away3d.materials
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
@@ -19,7 +17,9 @@ package away3d.materials
         public var width:Number;
         public var wirecolor:int;
         public var wirealpha:Number;
-
+		
+		protected var ini:Init;
+		
         public function WireColorMaterial(color:* = null, init:Object = null)
         {
             if (color == null)
@@ -27,11 +27,12 @@ package away3d.materials
 
             this.color = Cast.trycolor(color);
 
-            init = Init.parse(init);
-            alpha = init.getNumber("alpha", 1, {min:0, max:1});
-            wirecolor = init.getColor("wirecolor", 0x000000);
-            width = init.getNumber("width", 1, {min:0});
-            wirealpha = init.getNumber("wirealpha", 1, {min:0, max:1});
+            ini = Init.parse(init);
+            
+            alpha = ini.getNumber("alpha", 1, {min:0, max:1});
+            wirecolor = ini.getColor("wirecolor", 0x000000);
+            width = ini.getNumber("width", 1, {min:0});
+            wirealpha = ini.getNumber("wirealpha", 1, {min:0, max:1});
         }
 		
 		internal var graphics:Graphics;

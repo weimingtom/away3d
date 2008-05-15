@@ -2,7 +2,6 @@ package away3d.core.base
 {
     import away3d.core.*;
     import away3d.core.draw.*;
-    import away3d.core.math.*;
     import away3d.core.utils.*;
     import away3d.events.*;
     import away3d.materials.*;
@@ -46,12 +45,15 @@ package away3d.core.base
         }
         
         private var _materialchanged:SegmentEvent;
-
+		
+		//TODO: simplify vertex changed events
+		/*
         private function onVertexChange(event:Event):void
         {
             notifyVertexChange();
         }
-
+		*/
+		
         private function onVertexValueChange(event:Event):void
         {
             notifyVertexValueChange();

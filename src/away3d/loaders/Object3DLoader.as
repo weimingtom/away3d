@@ -1,10 +1,8 @@
 package away3d.loaders
 {
     import away3d.core.*;
-    import away3d.materials.*;
     import away3d.containers.*;
     import away3d.core.base.*;
-    import away3d.core.stats.*;
     import away3d.core.utils.*;
     import away3d.loaders.data.ContainerData;
     import away3d.loaders.data.MaterialData;
@@ -100,9 +98,9 @@ package away3d.loaders
 
         public static function loadGeometry(url:String, parse:Function, binary:Boolean, init:Object):Object3DLoader
         {
-            init = Init.parse(init);
-            var loaderClass:Class = init.getObject("loader") || CubeLoader;
-            var loader:Object3DLoader = new loaderClass(init);
+            var ini:Init = Init.parse(init);
+            var loaderClass:Class = ini.getObject("loader") as Class || CubeLoader;
+            var loader:Object3DLoader = new loaderClass(ini);
             
             loader.startLoadingGeometry(url, parse, binary);
             
@@ -126,10 +124,9 @@ package away3d.loaders
 
         public static function loadTextures(result:Object3D, materialLibrary:MaterialLibrary, init:Object):Object3DLoader
         {
-        	init = Init.parse(init);
-        	
-            var loaderClass:Class = init.getObject("loader") || CubeLoader;
-            var loader:Object3DLoader = new loaderClass();
+        	var ini:Init = Init.parse(init);
+            var loaderClass:Class = ini.getObject("loader") as Class || CubeLoader;
+            var loader:Object3DLoader = new loaderClass(ini);
             
             loader.startLoadingTextures(result, materialLibrary);
             

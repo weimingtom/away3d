@@ -2,15 +2,11 @@ package away3d.test
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.*;
-	import away3d.core.base.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	import away3d.primitives.*;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.*;
 	import flash.text.*;
 	import flash.ui.Keyboard;
 	import flash.utils.*;
@@ -45,9 +41,7 @@ package away3d.test
         private var dirty:Boolean = true;
 
         private var lastrender:int = 0;
-
-        private var aparam:Number = 11.6;
-        private var bparam:Number = -3;
+		
         private var stageWidth:Number = 1;
         private var stageHeight:Number = 1;
 
@@ -369,7 +363,7 @@ package away3d.test
 
         private function onMouseWheel(event:MouseEvent):void
         {
-            adjustzoom(event.delta)
+            adjustzoom(event.delta);
         }
 
         private function adjustzoom(delta:int):void

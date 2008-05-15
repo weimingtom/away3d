@@ -10,7 +10,6 @@ package away3d.core.base
     
     import flash.events.Event;
     import flash.geom.*;
-    import flash.utils.*;
     
 	 /**
 	 * Dispatched when the uv mapping of the face changes.
@@ -103,12 +102,15 @@ package away3d.core.base
 			_dt.texturemapping = null;
 		}
 		
+		//TODO: simplify vertex changed events
+		/*
         private function onVertexChange(event:Event):void
         {
             _normal = null;
             notifyVertexChange();
         }
-
+		*/
+		 
         private function onVertexValueChange(event:Event):void
         {
             _normal = null;

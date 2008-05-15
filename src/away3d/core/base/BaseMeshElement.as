@@ -1,10 +1,7 @@
 package away3d.core.base
 {
     import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.utils.*;
     import away3d.events.*;
-    import away3d.materials.*;
     
     import flash.events.EventDispatcher;
 	

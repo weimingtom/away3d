@@ -1,13 +1,5 @@
 package away3d.core.base
 {
-    import away3d.core.*;
-    import away3d.materials.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*;
-    
-    import flash.geom.Matrix;
-    import flash.events.Event;
-	
     /**
     * Interface for objects that define a 3d element of a mesh
     */

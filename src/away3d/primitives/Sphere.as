@@ -1,11 +1,7 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.stats.*;
     import away3d.core.utils.*;
-    import away3d.materials.*;
 	 
     
     /** Sphere */ 
@@ -17,7 +13,7 @@
 
             var radius:Number = ini.getNumber("radius", 100, {min:0});
             var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = ini.getInt("segmentsH", 6, {min:2})
+            var segmentsH:int = ini.getInt("segmentsH", 6, {min:2});
 			var yUp:Boolean = ini.getBoolean("yUp", true);
 			
             buildSphere(radius, segmentsW, segmentsH, yUp);
@@ -70,8 +66,8 @@
                     var c:Vertex = grid[j-1][(i-1+segmentsW) % segmentsW];
                     var d:Vertex = grid[j-1][i];
 					
-					var i2:int = i
-					if (i == 0) i2 = segmentsW
+					var i2:int = i;
+					if (i == 0) i2 = segmentsW;
 					
                     var vab:Number = j / segmentsH;
                     var vcd:Number = (j-1) / segmentsH;

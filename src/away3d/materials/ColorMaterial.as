@@ -1,13 +1,9 @@
 package away3d.materials
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
-    import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-    
-    import flash.display.*;
 
     /** Material for solid color drawing with face's border outlining */
     public class ColorMaterial implements ITriangleMaterial, IFogMaterial
@@ -25,7 +21,9 @@ package away3d.materials
         {
         	return _alpha;
         }
-
+		
+		protected var ini:Init;
+		
         public function ColorMaterial(color:* = null, init:Object = null)
         {
             if (color == null)
@@ -33,8 +31,9 @@ package away3d.materials
 
             this.color = Cast.trycolor(color);
 
-            init = Init.parse(init);
-            _alpha = init.getNumber("alpha", 1, {min:0, max:1});
+            ini = Init.parse(init);
+            
+            _alpha = ini.getNumber("alpha", 1, {min:0, max:1});
         }
 		
         public function renderTriangle(tri:DrawTriangle):void

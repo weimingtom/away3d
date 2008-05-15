@@ -87,15 +87,17 @@ package away3d.materials
 			_colorTransform.alphaMultiplier = _alpha;
         }
         
+        protected var ini:Init;
+        
 		public function CompositeMaterial(init:Object = null)
 		{	
-            init = Init.parse(init);
+            ini = Init.parse(init);
 			
 			if (!materials)
-				materials = init.getArray("materials");
-			blendMode = init.getString("blendMode", BlendMode.NORMAL);
-			alpha = init.getNumber("alpha", 1, {min:0, max:1});
-            color = init.getColor("color", 0xFFFFFF);
+				materials = ini.getArray("materials");
+			blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+			alpha = ini.getNumber("alpha", 1, {min:0, max:1});
+            color = ini.getColor("color", 0xFFFFFF);
 		}
 		
 		internal var material:ILayerMaterial;

@@ -1,8 +1,6 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
     import away3d.core.block.*;
-    import away3d.core.base.*
     import away3d.core.render.*;
 
     /** Array for storing drawing primitives */

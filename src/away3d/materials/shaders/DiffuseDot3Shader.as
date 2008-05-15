@@ -25,7 +25,7 @@ package away3d.materials.shaders
         
         public var tangentSpace:Boolean;
         
-        private var _colorMatrixFilter:ColorMatrixFilter = new ColorMatrixFilter();
+        //private var _colorMatrixFilter:ColorMatrixFilter = new ColorMatrixFilter();
         
         public function get width():Number
         {
@@ -52,10 +52,8 @@ package away3d.materials.shaders
             super(init);
             
 			_bitmap = bitmap;
-			
-            init = Init.parse(init);
             
-            tangentSpace = init.getBoolean("tangentSpace", false);
+            tangentSpace = ini.getBoolean("tangentSpace", false);
         }
 		
 		public override function updateMaterial(source:Object3D, view:View3D):void

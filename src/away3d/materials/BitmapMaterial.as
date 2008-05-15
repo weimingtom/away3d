@@ -4,7 +4,6 @@ package away3d.materials
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
-    import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.events.MaterialEvent;
@@ -195,19 +194,21 @@ package away3d.materials
         	return _blendMode;
         }
         
+        protected var ini:Init;
+        
         public function BitmapMaterial(bitmap:BitmapData, init:Object = null)
         {
         	_bitmap = bitmap;
             
-            init = Init.parse(init);
+            ini = Init.parse(init);
 			
-            smooth = init.getBoolean("smooth", smooth);
-            debug = init.getBoolean("debug", debug);
-            repeat = init.getBoolean("repeat", repeat);
-            precision = init.getNumber("precision", 0);
-            _blendMode = init.getString("blendMode", BlendMode.NORMAL);
-            alpha = init.getNumber("alpha", 1, {min:0, max:1});
-            color = init.getColor("color", 0xFFFFFF);
+            smooth = ini.getBoolean("smooth", smooth);
+            debug = ini.getBoolean("debug", debug);
+            repeat = ini.getBoolean("repeat", repeat);
+            precision = ini.getNumber("precision", 0);
+            _blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+            alpha = ini.getNumber("alpha", 1, {min:0, max:1});
+            color = ini.getColor("color", 0xFFFFFF);
             
             
             createVertexArray();

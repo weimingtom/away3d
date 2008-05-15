@@ -1,12 +1,8 @@
 package away3d.core.traverse
 {
-	import away3d.containers.*
-    import away3d.core.*;
+	import away3d.containers.*;
     import away3d.core.block.*;
-    import away3d.core.draw.*;
-    import away3d.core.base.*
-    
-    import flash.geom.*;
+    import away3d.core.base.*;
     
 
     /** Traverser that gathers blockers for occlusion culling */

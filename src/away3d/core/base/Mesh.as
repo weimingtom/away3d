@@ -9,7 +9,6 @@
     import away3d.materials.*;
     import away3d.primitives.*;
     
-    import flash.display.*;
     import flash.utils.Dictionary;
     
     /**
@@ -78,11 +77,11 @@
             if (!_neighboursDirty)
             {
                 _neighboursDirty = true;
+                findNeighbours();
+                /*
                 var sn01:Dictionary = _neighbour01;
                 var sn12:Dictionary = _neighbour12;
                 var sn20:Dictionary = _neighbour20;
-                findNeighbours();
-                /*
                 for each (var f:Face in faces)
                 {
                     if (sn01[f] != _neighbour01[f])
@@ -163,20 +162,20 @@
             for each (var face:Face in faces)
             {
                 var v0:Vertex = face.v0;
-                if (_vertfaces[face.v0] == null)
-                    _vertfaces[face.v0] = [face];
+                if (_vertfaces[v0] == null)
+                    _vertfaces[v0] = [face];
                 else
-                    _vertfaces[face.v0].push(face);
+                    _vertfaces[v0].push(face);
                 var v1:Vertex = face.v1;
-                if (_vertfaces[face.v1] == null)
-                    _vertfaces[face.v1] = [face];
+                if (_vertfaces[v1] == null)
+                    _vertfaces[v1] = [face];
                 else
-                    _vertfaces[face.v1].push(face);
+                    _vertfaces[v1].push(face);
                 var v2:Vertex = face.v2;
-                if (_vertfaces[face.v2] == null)
-                    _vertfaces[face.v2] = [face];
+                if (_vertfaces[v2] == null)
+                    _vertfaces[v2] = [face];
                 else
-                    _vertfaces[face.v2].push(face);
+                    _vertfaces[v2].push(face);
             }
             
             _vertfacesDirty = false;
@@ -201,8 +200,7 @@
 	            	for each (var fV:Vertex in f.vertices)
 	            		if (fV != v)
 	            			_fVectors.push(new Number3D(fV.x - v.x, fV.y - v.y, fV.z - v.z, true));
-	            	 
-	            	_fVectors
+	            	
 	            	_fAngle = Math.acos((_fVectors[0] as Number3D).dot(_fVectors[1] as Number3D));
             		nX += _fNormal.x*_fAngle;
             		nY += _fNormal.y*_fAngle;
@@ -222,11 +220,13 @@
                 return;
             
             _scenevertnormals = new Dictionary();
+            //TODO: refresh scene normals
+            /*
             for each (var v:Vertex in vertices)
             {
             	
             }
-            
+            */
             _scenevertnormalsDirty = false;
 		}
 
@@ -427,12 +427,15 @@
 
             _vertfacesDirty = true;
         }
-
+        
+        //TODO: create effective dispose mechanism for meshs
+		/*
         private function clear():void
         {
             for each (var face:Face in _faces.concat([]))
                 removeFace(face);
         }
+        */
         
         /**
         * Defines a segment material to be used for outlining the 3d object.
@@ -844,7 +847,7 @@
                     clonedvertices[vertex] = result;
                 }
                 return result;
-            }
+            };
 
             var cloneduvs:Dictionary = new Dictionary();
             var cloneuv:Function = function(uv:UV):UV
@@ -859,7 +862,7 @@
                     cloneduvs[uv] = result;
                 }
                 return result;
-            }
+            };
             
             for each (var face:Face in _faces)
                 mesh.addFace(new Face(clonevertex(face._v0), clonevertex(face._v1), clonevertex(face._v2), face.material, cloneuv(face._uv0), cloneuv(face._uv1), cloneuv(face._uv2)));
@@ -911,7 +914,7 @@
                     refvertices[vertex] = verticeslist.length;
                     verticeslist.push(vertex);
                 }
-            }
+            };
 
             var refuvs:Dictionary = new Dictionary();
             var uvslist:Array = [];
@@ -925,7 +928,7 @@
                     refuvs[uv] = uvslist.length;
                     uvslist.push(uv);
                 }
-            }
+            };
 
             for each (var face:Face in _faces)
             {
@@ -1070,7 +1073,7 @@
                     refvertices[vertex] = verticeslist.length;
                     verticeslist.push(vertex);
                 }
-            }
+            };
 
             var refuvs:Dictionary = new Dictionary();
             var uvslist:Array = [];
@@ -1084,7 +1087,7 @@
                     refuvs[uv] = uvslist.length;
                     uvslist.push(uv);
                 }
-            }
+            };
 
             for each (var face:Face in _faces)
             {

@@ -1,9 +1,5 @@
 package away3d.core.utils
 {
-    import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*
-    import away3d.core.draw.*;
 
     /** Static helper class for color manipulations */
     public class Color 
@@ -62,9 +58,6 @@ package away3d.core.utils
             var p:Number = v * (1 - s);
             var q:Number = v * (1 - f*s);
             var t:Number = v * (1 - (1 - f)*s);
-            var r:Number;
-            var g:Number;
-            var b:Number;
             switch (hi)
             {
                 case 0: return fromFloats(v, t, p); break;

@@ -1,9 +1,7 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
 
     /** Abstract class for all drawing primitives */
     public class DrawPrimitive
@@ -36,12 +34,12 @@ package away3d.core.draw
 
         public function contains(x:Number, y:Number):Boolean
         {   
-            return false;
+            throw new Error("Not implemented");
         }
 
         public function quarter(focus:Number):Array
         {
-            return null;
+            throw new Error("Not implemented");
         }
 
         public function getZ(x:Number, y:Number):Number

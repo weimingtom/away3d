@@ -5,7 +5,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.filters.*;
 	import flash.geom.*;
 
 	public class EnviroColorMaterial extends EnviroShader implements ITriangleMaterial
@@ -47,9 +46,7 @@ package away3d.materials
 		{
 			super(enviroMap, init);
 			
-			init = Init.parse(init);
-			
-			color = init.getColor("color", 0xFFFFFF);
+			color = ini.getColor("color", 0xFFFFFF);
 		}
 		
 		public function renderTriangle(tri:DrawTriangle):void

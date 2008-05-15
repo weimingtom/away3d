@@ -4,8 +4,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.geom.ColorTransform;
-	import flash.utils.*;
 	
 	public class PhongColorMaterialCache extends BitmapMaterialContainer
 	{
@@ -32,14 +30,14 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
-			_specular = val
+			_specular = val;
 			if (_specular) {
 				if (specularPhongShader)
         			specularPhongShader.specular = val;
         		else
         			materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
    			} else if (specularPhongShader) {
-            	materials.pop()     	
+            	materials.pop();
    			}
 		}
 		
@@ -56,10 +54,10 @@ package away3d.materials
 		
 		public function PhongColorMaterialCache(init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
 			//create new materials
-			phongShader = new BitmapMaterialContainer(bitmap.width, bitmap.height, {transparent:false})
+			phongShader = new BitmapMaterialContainer(bitmap.width, bitmap.height, {transparent:false});
 			phongShader.materials.push(ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
 			phongShader.materials.push(diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			specularPhongShader = new SpecularPhongShader({blendMode:BlendMode.ADD});
@@ -68,10 +66,10 @@ package away3d.materials
 			materials = new Array();
 			materials.push(phongShader);
 			
-			_shininess = init.getNumber("shininess", 20);
-			specular = init.getNumber("specular", 0.7, {min:0, max:1});
+			_shininess = ini.getNumber("shininess", 20);
+			specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
-			super(bitmap.width, bitmap.height, init);
+			super(bitmap.width, bitmap.height, ini);
 		}
 		
 	}

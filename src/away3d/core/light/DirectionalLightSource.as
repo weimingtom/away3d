@@ -3,9 +3,8 @@ package away3d.core.light
 	import away3d.containers.*;
 	import away3d.core.*;
 	import away3d.core.base.*;
-	import away3d.core.draw.*;
 	import away3d.core.math.*;
-	import away3d.events.Object3DEvent;
+	import away3d.events.*;
 	import away3d.lights.*;
 	
 	import flash.display.*;

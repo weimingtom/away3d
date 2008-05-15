@@ -1,9 +1,6 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.utils.*;
-    import away3d.materials.*;
     
     /** Wire plane */ 
     public class WirePlane extends WireMesh

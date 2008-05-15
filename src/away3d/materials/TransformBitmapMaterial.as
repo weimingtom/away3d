@@ -5,7 +5,6 @@ package away3d.materials
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
-    import away3d.core.render.*;
     import away3d.core.utils.*;
     
     import flash.display.*;
@@ -246,16 +245,15 @@ package away3d.materials
         {
             super(bitmap, init);
             
-            init = Init.parse(init);
-            transform = init.getObject("transform", Matrix);
-            scaleX = init.getNumber("scaleX", _scaleX);
-            scaleY = init.getNumber("scaleY", _scaleY);
-            offsetX = init.getNumber("offsetX", _offsetX);
-            offsetY = init.getNumber("offsetY", _offsetY);
-            rotation = init.getNumber("rotation", _rotation);
-            projectionVector = init.getObject("projectionVector", Number3D);
-            throughProjection = init.getBoolean("throughProjection", true);
-            globalProjection = init.getBoolean("globalProjection", false);
+            transform = ini.getObject("transform", Matrix) as Matrix;
+            scaleX = ini.getNumber("scaleX", _scaleX);
+            scaleY = ini.getNumber("scaleY", _scaleY);
+            offsetX = ini.getNumber("offsetX", _offsetX);
+            offsetY = ini.getNumber("offsetY", _offsetY);
+            rotation = ini.getNumber("rotation", _rotation);
+            projectionVector = ini.getObject("projectionVector", Number3D) as Number3D;
+            throughProjection = ini.getBoolean("throughProjection", true);
+            globalProjection = ini.getBoolean("globalProjection", false);
         }
         
         internal var face:Face;
@@ -451,7 +449,7 @@ package away3d.materials
 				if (_projectionVector) {
 					
 					//calulate mapping
-					_invtexturemapping = face._dt.invtexturemapping
+					_invtexturemapping = face._dt.invtexturemapping;
 					_mapping.concat(projectUV(face._dt));
 					_mapping.concat(_invtexturemapping);
 					

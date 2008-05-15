@@ -5,7 +5,6 @@ package away3d.materials
 	
 	import flash.display.*;
 	import flash.events.Event;
-	import flash.geom.*;
 	import flash.net.URLRequest;
 
     /** File bitmap texture material */

@@ -4,7 +4,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.utils.*;
 	
 	public class Dot3BitmapMaterialCache extends BitmapMaterialContainer
 	{
@@ -47,11 +46,11 @@ package away3d.materials
 		
 		public function Dot3BitmapMaterialCache(bitmap:BitmapData, init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
-			_shininess = init.getNumber("shininess", 20);
-			_specular = init.getNumber("specular", 0.7);
-			_normalMap = init.getBitmap("normalMap");
+			_shininess = ini.getNumber("shininess", 20);
+			_specular = ini.getNumber("specular", 0.7);
+			_normalMap = ini.getBitmap("normalMap");
 			
 			if (!_normalMap)
 				_normalMap = bitmap.clone();
@@ -67,7 +66,7 @@ package away3d.materials
 			materials.push(bitmapMaterial);
 			materials.push(phongShader);
 			//materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
-			super(bitmap.width, bitmap.height, init);
+			super(bitmap.width, bitmap.height, ini);
 		}
 		
 	}

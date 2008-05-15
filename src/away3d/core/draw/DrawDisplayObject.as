@@ -1,10 +1,7 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
-    import away3d.materials.*;
     import away3d.core.base.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
     
     import flash.display.DisplayObject;
 
@@ -45,7 +42,8 @@ package away3d.core.draw
             displayobject.y = v.y;// - displayobject.height/2;
             session.addDisplayObject(displayobject);
         }
-
+		
+		//TODO: correct function for contains in DrawDisplayObject
         public override function contains(x:Number, y:Number):Boolean
         {   
             return true;

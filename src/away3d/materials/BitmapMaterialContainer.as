@@ -57,13 +57,11 @@ package away3d.materials
 			_height = height;
 			_bitmapRect = new Rectangle(0, 0, _width, _height);
 			
-            init = Init.parse(init);
-			
 			if (!materials)
-				materials = init.getArray("materials");
+				materials = ini.getArray("materials");
 			
-			transparent = init.getBoolean("transparent", true);
-			cache = init.getBoolean("cache", true);
+			transparent = ini.getBoolean("transparent", true);
+			cache = ini.getBoolean("cache", true);
 		}
 		
 		internal var _faceWidth:int;

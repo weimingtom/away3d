@@ -7,7 +7,6 @@ package away3d.core.filter
     import away3d.core.draw.*;
     import away3d.core.render.*;
     
-    import flash.display.*;
     import flash.utils.*;
 
     /** Filter that splits all intersecting triangles and line segments. */

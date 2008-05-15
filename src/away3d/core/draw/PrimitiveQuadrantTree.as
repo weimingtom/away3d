@@ -1,11 +1,7 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.render.*;
-    
-    import flash.display.*;
-    import flash.geom.*;
 
     /** Quadrant tree for storing drawing primitives */
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer

@@ -1,7 +1,5 @@
 package away3d.loaders.data
 {
-	import flash.geom.Matrix;
-	
 	public class MeshData extends ObjectData
 	{
 		public var vertices:Array = [];

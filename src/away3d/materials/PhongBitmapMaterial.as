@@ -4,7 +4,6 @@ package away3d.materials
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
-	import flash.utils.*;
 	
 	public class PhongBitmapMaterial extends CompositeMaterial
 	{
@@ -31,7 +30,7 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
-			_specular = val
+			_specular = val;
 			if (_specular) {
 				if (specularPhongShader)
         			specularPhongShader.specular = val;
@@ -48,11 +47,11 @@ package away3d.materials
 		
 		public function PhongBitmapMaterial(bitmap:BitmapData, init:Object=null)
 		{
-			init = Init.parse(init);
+			ini = Init.parse(init);
 			
 			//create new materials
 			bitmapMaterial = new BitmapMaterial(bitmap, init);
-			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY})
+			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
 			phongShader.materials.push(ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
 			phongShader.materials.push(diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			
@@ -61,10 +60,10 @@ package away3d.materials
 			materials.push(bitmapMaterial);
 			materials.push(phongShader);
 			
-			_shininess = init.getNumber("shininess", 20);
-			specular = init.getNumber("specular", 0.7, {min:0, max:1});
+			_shininess = ini.getNumber("shininess", 20);
+			specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
-			super(init);
+			super(ini);
 		}
 		
 	}

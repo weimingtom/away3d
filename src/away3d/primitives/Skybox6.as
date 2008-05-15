@@ -1,11 +1,7 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
-    import away3d.core.base.*
     import away3d.core.base.*;
     import away3d.materials.*;
-    import away3d.core.utils.*;
-	import away3d.core.stats.*;
 
     /** Skybox that is initialized with one solid image */ 
     public class Skybox6 extends Mesh
@@ -66,11 +62,6 @@
             var uvdownb:UV = new UV(3/3, 0/2);
             var uvdownc:UV = new UV(3/3, 1/2-vdelta);
             var uvdownd:UV = new UV(2/3+udelta, 1/2-vdelta);
-                                                            
-            var uva:UV = new UV(0, 0);
-            var uvb:UV = new UV(1, 0);
-            var uvc:UV = new UV(1, 1);
-            var uvd:UV = new UV(0, 1);
 
             addFace(new Face(v011, v001, v101, null, uvrightd, uvrighta, uvrightb));
             addFace(new Face(v011, v101, v111, null, uvrightd, uvrightb, uvrightc));

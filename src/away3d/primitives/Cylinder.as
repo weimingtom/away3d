@@ -1,11 +1,7 @@
 ﻿package away3d.primitives
 {
-    import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.math.*;
-    import away3d.core.stats.*;
     import away3d.core.utils.*;
-    import away3d.materials.*;
     
     /** Cylinder */ 
     public class Cylinder extends Mesh
@@ -83,8 +79,8 @@
                     var c:Vertex = grid[j-1][(i-1+segmentsW) % segmentsW];
                     var d:Vertex = grid[j-1][i];
 					
-					var i2:int = i
-					if (i == 0) i2 = segmentsW
+					var i2:int = i;
+					if (i == 0) i2 = segmentsW;
 					
                     var vab:Number = j / segmentsH;
                     var vcd:Number = (j-1) / segmentsH;

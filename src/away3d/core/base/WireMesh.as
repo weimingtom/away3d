@@ -3,12 +3,9 @@ package away3d.core.base
     import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.materials.*;
-    import away3d.core.math.*;
     import away3d.core.render.*;
-    import away3d.core.base.*
+    import away3d.core.base.*;
     import away3d.core.utils.*;
-    
-    import flash.utils.Dictionary;
     
     /**
     * 3d object containing segment elements 
@@ -19,11 +16,14 @@ package away3d.core.base
         
         private var _segments:Array = [];
         
+        //TODO: create effective dispose mechanismfor wiremeshes
+        /*        
         private function clear():void
         {
             for each (var segment:Segment in _segments.concat([]))
                 removeSegment(segment);
         }
+		*/
 		
 		/**
 		 * Returns an array of the segments contained in the wiremesh object.

@@ -5,7 +5,6 @@ package away3d.loaders
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 	import away3d.loaders.data.*;
-	import away3d.loaders.utils.*;
 	import away3d.materials.*;
 	
 	import flash.utils.ByteArray;
@@ -393,7 +392,7 @@ package away3d.loaders
 		 */		
 		private function readASCIIZString(data:ByteArray):String
 		{
-			var readLength:int = 0; // length of string to read
+			//var readLength:int = 0; // length of string to read
 			var l:int = data.length - data.position;
 			var tempByteArray:ByteArray = new ByteArray();
 			
@@ -443,10 +442,6 @@ package away3d.loaders
 				
 				//create Mesh object
 				var mesh:Mesh = new Mesh();
-				
-				
-				var face:Face;
-				var matData:MaterialData;
 				
 				for each(_faceData in _meshData.faces) {
 					_face = new Face(_meshData.vertices[_faceData.v0],
