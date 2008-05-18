@@ -11,49 +11,53 @@ package away3d.lights
     import flash.display.*;
     import flash.geom.Matrix;
 	
-    /** Light source */ 
+    /**
+    * Lightsource that colors all shaded materials proportional to the dot product of the distance vector with the normal vector.
+    * The scalar value of the distance is used to calulate intensity using the inverse square law of attenuation.
+    */
     public class PointLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
     {
-    	internal var _bitmap:BitmapData;
-        public var color:int;
-        public var ambient:Number;
-        public var diffuse:Number;
-        public var specular:Number;
-        public var brightness:Number;
+		private var _ls:PointLight = new PointLight();
+        
+        /**
+        * Toggles debug mode: light source is visualised in the scene.
+        */
         public var debug:Boolean;
 		
-		public var _ls:PointLightSource = new PointLightSource();
+		/**
+		 * Defines the color of the lightsource.
+		 */
+        public var color:int;
 		
-		public function get width():Number
-        {
-            return _bitmap.width;
-        }
-
-        public function get height():Number
-        {
-            return _bitmap.height;
-        }
-        
-        public function get bitmap():BitmapData
-        {
-        	if (_bitmap == null) {
-        		_bitmap = new BitmapData(256, 256, false, 0x000000);
-        		var shape:Shape = new Shape();
-        		var matrix:Matrix = new Matrix();
-        		matrix.createGradientBox(256, 256, 0, 0, 0);
-        		shape.graphics.beginGradientFill(GradientType.RADIAL, [0xFFFFFF, 0x000000], [1, 1], [0, 255], matrix);
-        		shape.graphics.drawCircle(127, 127, 127);
-        		_bitmap.draw(shape);
-        		
-        	}
-        	return _bitmap;
-        }
-        
+		/**
+		 * Defines a coefficient for the ambient light intensity.
+		 */
+        public var ambient:Number;
+		
+		/**
+		 * Defines a coefficient for the diffuse light intensity.
+		 */
+        public var diffuse:Number;
+		
+		/**
+		 * Defines a coefficient for the specular light intensity.
+		 */
+        public var specular:Number;
+		
+		/**
+		 * Defines a coefficient for the overall light intensity.
+		 */
+        public var brightness:Number;
+		
+		/**
+		 * Creates a new <code>PointLight3D</code> object.
+		 * 
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function PointLight3D(init:Object = null)
         {
             super(init);
             
-			_bitmap = ini.getBitmap("bitmap");
             color = ini.getColor("color", 0xFFFFFF);
             ambient = ini.getNumber("ambient", 1);
             diffuse = ini.getNumber("diffuse", 1);
@@ -61,7 +65,10 @@ package away3d.lights
             brightness = ini.getNumber("brightness", 1);
             debug = ini.getBoolean("debug", false);
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function light(consumer:ILightConsumer):void
         {
             _ls.x = viewTransform.tx;
@@ -76,7 +83,10 @@ package away3d.lights
             _ls.specular = specular*brightness;
             consumer.pointLight(_ls);
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
         	super.primitives(consumer, session);
@@ -100,7 +110,13 @@ package away3d.lights
             consumer.primitive(tri);
 
         }
-
+		
+		/**
+		 * Duplicates the light object's properties to another <code>PointLight3D</code> object
+		 * 
+		 * @param	object	[optional]	The new object instance into which all properties are copied
+		 * @return						The new object instance with duplicated properties applied
+		 */
         public override function clone(object:* = null):*
         {
             var light:PointLight3D = object || new PointLight3D();

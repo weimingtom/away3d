@@ -413,12 +413,12 @@ package away3d.materials
 		}
 		
     	/**
-    	 * Determines if texture bitmap is smoothed (bilinearly filtered) when drawn to screen
+    	 * Determines if texture bitmap is smoothed (bilinearly filtered) when drawn to screen.
     	 */
         public var smooth:Boolean = false;
         
         /**
-        * Determines if faces with the texture applied are drawn with outlines
+        * Toggles debug mode: textured triangles are drawn with white outlines, precision correction triangles are drawn with blue outlines.
         */
         public var debug:Boolean = false;
         

@@ -2,7 +2,9 @@ package away3d.test
 {
     import flash.display.*;
 
-    /** Simple rounded rectangle button */ 
+    /**
+    * Simple rounded rectangle button
+    */ 
     public class Button extends SimpleButton
     {
         public var selected:Boolean = false;

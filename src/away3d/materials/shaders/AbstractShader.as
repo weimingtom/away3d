@@ -71,9 +71,9 @@ package away3d.materials.shaders
         /** @private */
         arcane var _dict:Dictionary;
         /** @private */
-		arcane var ambient:AmbientLightSource;
+		arcane var ambient:AmbientLight;
         /** @private */
-		arcane var directional:DirectionalLightSource;
+		arcane var directional:DirectionalLight;
         /** @private */
 		arcane var _faceVO:FaceVO;
         /** @private */
@@ -169,7 +169,7 @@ package away3d.materials.shaders
 		 * @param	light	The light primitive.
 		 * @return			The resolved shape object to use for drawing.
 		 */
-        protected function getLightingShape(layer:Sprite, light:AbstractLightSource):Shape
+        protected function getLightingShape(layer:Sprite, light:LightPrimitive):Shape
         {
         	_session = _source.session;
         	if (_session != _session.view.session) {

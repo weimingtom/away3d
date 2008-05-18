@@ -3,7 +3,7 @@ package away3d.core.light
 	import away3d.lights.*;
 
     /** Point light source */
-    public class PointLightSource extends AbstractLightSource
+    public class PointLight extends LightPrimitive
     {
         public var x:Number;
         public var y:Number;

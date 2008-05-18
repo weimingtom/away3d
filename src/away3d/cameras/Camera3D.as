@@ -6,7 +6,6 @@ package away3d.cameras
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-    import away3d.sprites.dof.DofCache;
     
     import flash.utils.getTimer;
     

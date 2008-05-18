@@ -11,7 +11,9 @@ package away3d.test
 	import flash.ui.Keyboard;
 	import flash.utils.*;
 
-    /** Base class for Away3D demos */ 
+    /**
+    * Base class for Away3D demos 
+    */ 
     public class BaseDemo extends Sprite
     {
         protected var camera:HoverCamera3D;
