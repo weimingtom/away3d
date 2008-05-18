@@ -1,5 +1,6 @@
 package away3d.materials
 {
+	import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -12,83 +13,35 @@ package away3d.materials
     import flash.geom.Point;
     import flash.utils.Dictionary;
 
-    /** Bitmap material that takes average of color lightings as a white lighting */
+    /**
+    * Bitmap material with flat white lighting
+    */
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
+        use namespace arcane;
         
-        public var diffuse:BitmapData;
-        public var smooth:Boolean;
-        public var repeat:Boolean;
-        internal var _faceDictionary:Dictionary = new Dictionary(true);
-        
-        public var blackrender:Boolean;
-        public var whiterender:Boolean;
-        public var whitek:Number = 0.2;
-		
+        private var _bitmap:BitmapData;
+        private var blackrender:Boolean;
+        private var whiterender:Boolean;
+        private var whitek:Number = 0.2;
 		private var bitmapPoint:Point = new Point(0, 0);
 		private var colorTransform:ColorMatrixFilter = new ColorMatrixFilter();
-		
-        public function get width():Number
-        {
-            return diffuse.width;
-        }
-
-        public function get height():Number
-        {
-            return diffuse.height;
-        }
-        
-        public function get bitmap():BitmapData
-        {
-        	return diffuse;
-        }
-        
-        public function getPixel32(u:Number, v:Number):uint
-        {
-        	return diffuse.getPixel32(u*diffuse.width, (1 - v)*diffuse.height);
-        }
-        
-        public function get faceDictionary():Dictionary
-        {
-        	return _faceDictionary;
-        }
-        
-        
-        public function WhiteShadingBitmapMaterial(diffuse:BitmapData, init:Object = null)
-        {
-            super(init);
-
-            this.diffuse = diffuse;
-			
-            smooth = ini.getBoolean("smooth", false);
-            repeat = ini.getBoolean("repeat", false);
-            
-            if (!CacheStore.whiteShadingCache[diffuse])
-            	CacheStore.whiteShadingCache[diffuse] = new Dictionary(true);
-            	
-            cache = CacheStore.whiteShadingCache[diffuse];
-        }
-
         private var cache:Dictionary;
-
         private var step:int = 1;
-
-        public function doubleStepTo(limit:int):void
+		private var mapping:Matrix;
+		private var br:Number;
+         
+        private function ladder(v:Number):Number
         {
-            if (step < limit)
-                step *= 2;
+            if (v < 1/0xFF)
+                return 0;
+            if (v > 0xFF)
+                v = 0xFF;
+            return Math.exp(Math.round(Math.log(v)*step)/step);
         }
 		
-		public function renderMaterial(source:Mesh):void
-		{
-			
-		}
-		
-		internal var mapping:Matrix;
-		
-		internal var br:Number;
-		
-        public override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        /** @private */
+        protected override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / (255*3);
 			
@@ -100,15 +53,15 @@ package away3d.materials
             v2 = tri.v2;
             
                 //trace(br);
-            if ((br < 1) && (blackrender || ((step < 16) && (!diffuse.transparent))))
+            if ((br < 1) && (blackrender || ((step < 16) && (!_bitmap.transparent))))
             {
-                session.renderTriangleBitmap(diffuse, mapping, v0, v1, v2, smooth, repeat);
+                session.renderTriangleBitmap(_bitmap, mapping, v0, v1, v2, smooth, repeat);
                 session.renderTriangleColor(0x000000, 1 - br, v0, v1, v2);
             }
             else
             if ((br > 1) && (whiterender))
             {
-                session.renderTriangleBitmap(diffuse, mapping, v0, v1, v2, smooth, repeat);
+                session.renderTriangleBitmap(_bitmap, mapping, v0, v1, v2, smooth, repeat);
                 session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, v0, v1, v2);
             }
             else
@@ -120,34 +73,104 @@ package away3d.materials
                 var bitmap:BitmapData = cache[brightness];
                 if (bitmap == null)
                 {
-                	bitmap = new BitmapData(diffuse.width, diffuse.height, true, 0x00000000);
+                	bitmap = new BitmapData(_bitmap.width, _bitmap.height, true, 0x00000000);
                 	colorTransform.matrix = [brightness, 0, 0, 0, 0, 0, brightness, 0, 0, 0, 0, 0, brightness, 0, 0, 0, 0, 0, 1, 0];
-                	bitmap.applyFilter(diffuse, bitmap.rect, bitmapPoint, colorTransform);
+                	bitmap.applyFilter(_bitmap, bitmap.rect, bitmapPoint, colorTransform);
                     cache[brightness] = bitmap;
                 }
                 session.renderTriangleBitmap(bitmap, mapping, v0, v1, v2, smooth, repeat);
             }
         }
+        
+    	/**
+    	 * Determines if texture bitmap is smoothed (bilinearly filtered) when drawn to screen
+    	 */
+        public var smooth:Boolean;
+        
+        /**
+        * Determines if texture bitmap will tile in uv-space
+        */
+        public var repeat:Boolean;
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get width():Number
+        {
+            return _bitmap.width;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get height():Number
+        {
+            return _bitmap.height;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get bitmap():BitmapData
+        {
+        	return _bitmap;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function getPixel32(u:Number, v:Number):uint
+        {
+        	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
+        }
+    	
+		/**
+		 * Creates a new <code>WhiteShadingBitmapMaterial</code> object.
+		 * 
+		 * @param	bitmap				The bitmapData object to be used as the material's texture.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
+        public function WhiteShadingBitmapMaterial(bitmap:BitmapData, init:Object = null)
+        {
+            _bitmap = bitmap;
+            
+            super(init);
+
+			
+            smooth = ini.getBoolean("smooth", false);
+            repeat = ini.getBoolean("repeat", false);
+            
+            if (!CacheStore.whiteShadingCache[_bitmap])
+            	CacheStore.whiteShadingCache[_bitmap] = new Dictionary(true);
+            	
+            cache = CacheStore.whiteShadingCache[_bitmap];
+        }
 		
+        public function doubleStepTo(limit:int):void
+        {
+            if (step < limit)
+                step *= 2;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function get visible():Boolean
         {
             return true;
         }
- 
-        protected function ladder(v:Number):Number
-        {
-            if (v < 1/0xFF)
-                return 0;
-            if (v > 0xFF)
-                v = 0xFF;
-            return Math.exp(Math.round(Math.log(v)*step)/step);
-        }
         
+		/**
+		 * @inheritDoc
+		 */
         public function addOnResize(listener:Function):void
         {
         	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function removeOnResize(listener:Function):void
         {
         	removeEventListener(MaterialEvent.RESIZED, listener, false);

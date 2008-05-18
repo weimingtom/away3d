@@ -1,14 +1,19 @@
 package away3d.loaders
 {
+    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
     import flash.utils.*;
 
-   /**
+    /**
+    * File loader for the Md2 file format (non-animated version).
+    * 
     * @author Philippe Ajoux (philippe.ajoux@gmail.com)
     */
     public class Md2still
     {
+		use namespace arcane;
+    	
     	private var ini:Init;
         private var ident:int;
         private var version:int;
@@ -29,27 +34,6 @@ package away3d.loaders
         private var offset_end:int;
         private var mesh:Mesh;
         private var scaling:Number;
-
-        public function Md2still(data:ByteArray, init:Object = null)
-        {
-            ini = Init.parse(init);
-
-            scaling = ini.getNumber("scaling", 1) * 100;
-
-            mesh = new Mesh(ini);
-
-            parseMd2still(data);
-        }
-        
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
-        {
-            return new Md2still(Cast.bytearray(data), init).mesh;
-        }
-    
-        public static function load(url:String, init:Object = null):Object3DLoader
-        {
-            return Object3DLoader.loadGeometry(url, parse, true, init);
-        }
     
         private function parseMd2still(data:ByteArray):void
         {
@@ -147,5 +131,50 @@ package away3d.loaders
             }
         }
         
+		/**
+		 * Creates a new <code>Md2Still</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * 
+		 * @param	data				The binary data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @see away3d.loaders.Md2Still#parse()
+		 * @see away3d.loaders.Md2Still#load()
+		 */
+        public function Md2still(data:ByteArray, init:Object = null)
+        {
+            ini = Init.parse(init);
+
+            scaling = ini.getNumber("scaling", 1) * 100;
+
+            mesh = new Mesh(ini);
+
+            parseMd2still(data);
+        }
+
+		/**
+		 * Creates a 3d mesh object from the raw xml data of an md2 file.
+		 * 
+		 * @param	data				The binary data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * @param	loader	[optional]	Not intended for direct use.
+		 * 
+		 * @return						A 3d mesh object representation of the md2 file.
+		 */
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
+        {
+            return new Md2still(Cast.bytearray(data), init).mesh;
+        }
+    	
+    	/**
+    	 * Loads and parses an md2 file into a 3d mesh object.
+    	 * 
+    	 * @param	url					The url location of the file to load.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
+    	 */
+        public static function load(url:String, init:Object = null):Object3DLoader
+        {
+            return Object3DLoader.loadGeometry(url, parse, true, init);
+        }
     }
 }

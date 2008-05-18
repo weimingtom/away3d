@@ -6,25 +6,37 @@ package away3d.materials
 	import flash.display.*;
 	import flash.geom.Matrix;
 	
+	/**
+	 * Animated movie material with DOT3 shading.
+	 */
 	public class Dot3MovieMaterial extends CompositeMaterial
 	{
-		internal var _shininess:Number;
-		internal var _specular:Number;
-		internal var _normalMap:BitmapData;
+		private var _shininess:Number;
+		private var _specular:Number;
+		private var _movieMaterial:MovieMaterial;
+		private var _phongShader:CompositeMaterial;
+		private var _ambientShader:AmbientShader;
+		private var _diffuseDot3Shader:DiffuseDot3Shader;
+		private var _specularPhongShader:SpecularPhongShader;
 		
-		public var movieMaterial:MovieMaterial;
-		public var phongShader:CompositeMaterial;
-		public var ambientShader:AmbientShader;
-		public var diffuseDot3Shader:DiffuseDot3Shader;
-		public var specularPhongShader:SpecularPhongShader;
+		/**
+		 * The exponential dropoff value used for specular highlights.
+		 */
+		public function get shininess():Number
+		{
+			return _specular;
+		}
 		
 		public function set shininess(val:Number):void
 		{
 			_shininess = val;
-            specularPhongShader.shininess = val;
+            _specularPhongShader.shininess = val;
 		}
 		
-		public function get shininess():Number
+		/**
+		 * Coefficient for specular light level.
+		 */
+		public function get specular():Number
 		{
 			return _specular;
 		}
@@ -35,44 +47,48 @@ package away3d.materials
             //specularPhongShader.specular = val;
 		}
 		
-		public function get specular():Number
-		{
-			return _specular;
-		}
-		
+        /**
+        * Returns the bitmapData object being used as the material normal map.
+        */
 		public function get normalMap():BitmapData
 		{
-			return _normalMap;
+			return _diffuseDot3Shader.bitmap;
+		}
+        
+        /**
+        * Returns the bitmapData object being used as the material texture.
+        */
+		public function get bitmap():BitmapData
+		{
+			return _movieMaterial.bitmap;
 		}
 		
-		public function Dot3MovieMaterial(movie:Sprite, init:Object=null)
+		/**
+		 * Creates a new <code>Dot3MovieMaterial</code> object.
+		 * 
+		 * @param	movie				The movieclip to be used as the material's texture.
+		 * @param	normalMap			The bitmapData object to be used as the material's DOT3 map.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
+		public function Dot3MovieMaterial(movie:Sprite, normalMap:BitmapData, init:Object=null)
 		{
-			ini = Init.parse(init);
+			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.7);
-			_normalMap = ini.getBitmap("normalMap");
 			
-			if (!_normalMap) {
-				_normalMap = new BitmapData(movie.width, movie.height, true, 0);
-				var matrix:Matrix = new Matrix();
-				matrix.tx = -movie.getBounds(movie).left;
-				matrix.ty = -movie.getBounds(movie).top;
-				_normalMap.draw(movie, matrix);
-			}
 			//create new materials
-			movieMaterial = new MovieMaterial(movie, init);
-			phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
-			phongShader.materials.push(ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			phongShader.materials.push(diffuseDot3Shader = new DiffuseDot3Shader(_normalMap, {blendMode:BlendMode.ADD}));
+			_movieMaterial = new MovieMaterial(movie, ini);
+			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
+			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.materials.push(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
 			
 			//add to materials array
 			materials = new Array();
-			materials.push(movieMaterial);
-			materials.push(phongShader);
+			materials.push(_movieMaterial);
+			materials.push(_phongShader);
 			//materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
 			
-			super(ini);
 		}
 		
 	}

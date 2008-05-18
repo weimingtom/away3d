@@ -1,20 +1,41 @@
 package away3d.materials
 {
+	import away3d.core.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
 	import flash.geom.*;
-
+	
+	/**
+	 * Color material with environment shading.
+	 */
 	public class EnviroColorMaterial extends EnviroShader implements ITriangleMaterial
 	{
-		internal var _color:uint;
-		internal var _red:Number;
-		internal var _green:Number;
-		internal var _blue:Number;
-		internal var _colorMap:BitmapData;
+    	use namespace arcane;
 		
+		private var _color:uint;
+		private var _red:Number;
+		private var _green:Number;
+		private var _blue:Number;
+		private var _colorMap:BitmapData;
+		
+        private function setColorTranform():void
+        {
+            _colorTransform = new ColorTransform(_red*_reflectiveness, _green*_reflectiveness, _blue*_reflectiveness, 1, (1-_reflectiveness)*_red*255, (1-_reflectiveness)*_green*255, (1-_reflectiveness)*_blue*255, 0);
+            _colorMap = _bitmap.clone();
+            _colorMap.colorTransform(_colorMap.rect, _colorTransform);
+        }
+        
+        /**
+        * Defines the color of the material.
+        */
+        public function get color():uint
+        {
+            return _color;
+        }
+        
 		public function set color(val:uint):void
         {
             _color = val;
@@ -23,32 +44,33 @@ package away3d.materials
             _blue = (_color & 0x0000FF)/255;
             setColorTranform();
         }
-		
-        public function get color():uint
-        {
-            return _color;
-        }
         
+		/**
+		 * @inheritDoc
+		 */
         public override function set reflectiveness(val:Number):void
         {
             _reflectiveness = val;
             setColorTranform();
         }
-        
-        private function setColorTranform():void
-        {
-            _colorTransform = new ColorTransform(_red*_reflectiveness, _green*_reflectiveness, _blue*_reflectiveness, 1, (1-_reflectiveness)*_red*255, (1-_reflectiveness)*_green*255, (1-_reflectiveness)*_blue*255, 0);
-            _colorMap = _enviroMap.clone();
-            _colorMap.colorTransform(_colorMap.rect, _colorTransform);
-        }
-        
-		public function EnviroColorMaterial(enviroMap:BitmapData, init:Object)
-		{
-			super(enviroMap, init);
-			
-			color = ini.getColor("color", 0xFFFFFF);
-		}
 		
+		/**
+		 * Creates a new <code>EnviroColorMaterial</code> object.
+		 * 
+		 * @param	color				A string, hex value or colorname representing the color of the material.
+		 * @param	enviroMap			The bitmapData object to be used as the material's environment map.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
+		public function EnviroColorMaterial(color:*, enviroMap:BitmapData, init:Object = null)
+		{
+            this.color = Cast.trycolor(color);
+            
+			super(enviroMap, init);
+		}
+    	
+    	/**
+    	 * Sends the material data coupled with data from the DrawTriangle primitive to the render session.
+    	 */
 		public function renderTriangle(tri:DrawTriangle):void
 		{
 			tri.source.session.renderTriangleBitmap(_colorMap, getMapping(tri.face.parent, tri.face), tri.v0, tri.v1, tri.v2, smooth, false);

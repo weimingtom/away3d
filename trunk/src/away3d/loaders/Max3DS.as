@@ -5,93 +5,123 @@ package away3d.loaders
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 	import away3d.loaders.data.*;
+	import away3d.loaders.utils.*;
 	import away3d.materials.*;
 	
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
-	
-	/* 3DS file parser */
+
+    /**
+    * File loader for the 3DS file format.
+    */
 	public class Max3DS
 	{
 		use namespace arcane;
 		
 		private var ini:Init;
+		/** An array of bytes from the 3ds files. */
+		private var _data:ByteArray;
+		private var _materialData:MaterialData;
+		private var _meshData:MeshData;
+		private var _faceData:FaceData;
+		private var averageX:Number;
+		private var averageY:Number;
+		private var averageZ:Number;
+		private var numVertices:int;
+		private var _meshMaterialData:MeshMaterialData;
+		private var _faceListIndex:int;	
+		private var _face:Face;
+		private var _vertex:Vertex;
 		
+		//>----- Color Types --------------------------------------------------------
+		
+		private const AMBIENT:String = "ambient";
+		private const DIFFUSE:String = "diffuse";
+		private const SPECULAR:String = "specular";
+		
+		//>----- Main Chunks --------------------------------------------------------
+		
+		private const PRIMARY:int = 0x4D4D;
+		private const EDIT3DS:int = 0x3D3D;  // Start of our actual objects
+		private const KEYF3DS:int = 0xB000;  // Start of the keyframe information
+		
+		//>----- General Chunks -----------------------------------------------------
+		
+		private const VERSION:int = 0x0002;
+		private const MESH_VERSION:int = 0x3D3E;
+		private const KFVERSION:int = 0x0005;
+		private const COLOR_F:int = 0x0010;
+		private const COLOR_RGB:int = 0x0011;
+		private const LIN_COLOR_24:int = 0x0012;
+		private const LIN_COLOR_F:int = 0x0013;
+		private const INT_PERCENTAGE:int = 0x0030;
+		private const FLOAT_PERC:int = 0x0031;
+		private const MASTER_SCALE:int = 0x0100;
+		private const IMAGE_FILE:int = 0x1100;
+		private const AMBIENT_LIGHT:int = 0X2100;
+		
+		//>----- Object Chunks -----------------------------------------------------
+		
+		private const MESH:int = 0x4000;
+		private const MESH_OBJECT:int = 0x4100;
+		private const MESH_VERTICES:int = 0x4110;
+		private const VERTEX_FLAGS:int = 0x4111;
+		private const MESH_FACES:int = 0x4120;
+		private const MESH_MATER:int = 0x4130;
+		private const MESH_TEX_VERT:int = 0x4140;
+		private const MESH_XFMATRIX:int = 0x4160;
+		private const MESH_COLOR_IND:int = 0x4165;
+		private const MESH_TEX_INFO:int = 0x4170;
+		private const HEIRARCHY:int = 0x4F00;
+		
+		//>----- Material Chunks ---------------------------------------------------
+		
+		private const MATERIAL:int = 0xAFFF;
+		private const MAT_NAME:int = 0xA000;
+		private const MAT_AMBIENT:int = 0xA010;
+		private const MAT_DIFFUSE:int = 0xA020;
+		private const MAT_SPECULAR:int = 0xA030;
+		private const MAT_SHININESS:int = 0xA040;
+		private const MAT_FALLOFF:int = 0xA052;
+		private const MAT_EMISSIVE:int = 0xA080;
+		private const MAT_SHADER:int = 0xA100;
+		private const MAT_TEXMAP:int = 0xA200;
+		private const MAT_TEXFLNM:int = 0xA300;
+		private const OBJ_LIGHT:int = 0x4600;
+		private const OBJ_CAMERA:int = 0x4700;
+		
+		//>----- KeyFrames Chunks --------------------------------------------------
+		
+		private const ANIM_HEADER:int = 0xB00A;
+		private const ANIM_OBJ:int = 0xB002;
+		private const ANIM_NAME:int = 0xB010;
+		private const ANIM_POS:int = 0xB020;
+		private const ANIM_ROT:int = 0xB021;
+		private const ANIM_SCALE:int = 0xB022;
+		
+        /**
+        * 3d container object used for storing the parsed 3ds object.
+        */
 		public var container:ObjectContainer3D;
+        
+        /**
+        * Reference container for all materials used in the 3ds object.
+        */
 		public var materialLibrary:MaterialLibrary = new MaterialLibrary();
+    	
+    	/**
+    	 * Array of mesh data objects used for storing the parsed 3ds data structure.
+    	 */
 		public var meshDataList:Array = [];
 		
-		/**
-		* An array of bytes from the 3ds files.
-		*/
-		private var _data:ByteArray;
 		
 		/**
 		* In the 3ds file only the file names of texture files are given.
 		* If the textures are stored in a specific path, that path can be
 		* specified through the constructor.
 		*/
-		protected var centerMeshes:Boolean;
-		protected var material:ITriangleMaterial;
-		
-		public function Max3DS(data:ByteArray, init:Object = null)
-		{
-			_data = data;
-			_data.endian = Endian.LITTLE_ENDIAN;
-			
-			ini = Init.parse(init);
-			materialLibrary.texturePath = ini.getString("texturePath", "");
-			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
-			material = ini.getMaterial("material");
-			centerMeshes = ini.getBoolean("centerMeshes", false);
-			
-			var materials:Object = ini.getObject("materials") || {};
-			
-			for (var name:String in materials) {
-                _materialData = materialLibrary.addMaterial(name);
-                _materialData.material = Cast.material(materials[name]);
-                
-                //determine material type
-                if (_materialData.material is BitmapMaterial)
-                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-                else if (_materialData.material is ShadingColorMaterial)
-                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
-                else if (_materialData.material is WireframeMaterial)
-                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
-   			}
-            
-			container = new ObjectContainer3D(ini);
-			
-			//first chunk is always the primary, so we simply read it and parse it
-			var chunk:Chunk3ds = new Chunk3ds();
-			readChunk(chunk);
-			parse3DS(chunk);
-			
-			//build materials
-			buildMaterials();
-			
-			//build the meshes
-			buildMeshes();
-		}
-
-        public static function load(url:String, init:Object = null):Object3DLoader
-        {
-            return Object3DLoader.loadGeometry(url, parse, true, init);
-        }
-		
-		public static function loadTextures(data:*, init:Object = null):Object3DLoader
-		{
-			var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
-			return Object3DLoader.loadTextures(parser.container, parser.materialLibrary, init);
-		}
-		
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Object3D
-        {
-        	var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
-        	if (loader)
-        		loader.materialLibrary = parser.materialLibrary;
-            return parser.container;
-        }
+		private var centerMeshes:Boolean;
+		private var material:ITriangleMaterial;
 		
 		/**
 		 * Read id and length of 3ds chunk
@@ -176,8 +206,6 @@ package away3d.loaders
 				chunk.bytesRead += subChunk.length;
 			}
 		}
-		
-		private var _materialData:MaterialData;
 		
 		private function parseMaterial(chunk:Chunk3ds):void
 		{
@@ -277,8 +305,6 @@ package away3d.loaders
 			chunk.bytesRead = chunk.length;
 		}
 		
-		private var _meshData:MeshData;
-		
 		private function parseMesh(chunk:Chunk3ds):void
 		{
 			while (chunk.bytesRead < chunk.length)
@@ -327,8 +353,6 @@ package away3d.loaders
 				chunk.bytesRead += 12;
 			}
 		}
-		
-		private var _faceData:FaceData;
 		
 		private function readMeshFaces(chunk:Chunk3ds):void
 		{
@@ -415,17 +439,7 @@ package away3d.loaders
 			}
 			return asciiz;
 		}
-		private var averageX:Number;
-		private var averageY:Number;
-		private var averageZ:Number;
-		private var numVertices:int;
 		
-		private var _meshMaterialData:MeshMaterialData;
-		private var _faceListIndex:int;
-		
-		private var _face:Face;
-		private var _vertex:Vertex;
-				
 		private function buildMeshes():void
 		{
 			
@@ -499,72 +513,97 @@ package away3d.loaders
 				}
 			}
 		}
-		
-		//>----- Color Types --------------------------------------------------------
-		
-		public const AMBIENT:String = "ambient";
-		public const DIFFUSE:String = "diffuse";
-		public const SPECULAR:String = "specular";
-		
-		//>----- Main Chunks --------------------------------------------------------
-		
-		public const PRIMARY:int = 0x4D4D;
-		public const EDIT3DS:int = 0x3D3D;  // Start of our actual objects
-		public const KEYF3DS:int = 0xB000;  // Start of the keyframe information
-		
-		//>----- General Chunks -----------------------------------------------------
-		
-		public const VERSION:int = 0x0002;
-		public const MESH_VERSION:int = 0x3D3E;
-		public const KFVERSION:int = 0x0005;
-		public const COLOR_F:int = 0x0010;
-		public const COLOR_RGB:int = 0x0011;
-		public const LIN_COLOR_24:int = 0x0012;
-		public const LIN_COLOR_F:int = 0x0013;
-		public const INT_PERCENTAGE:int = 0x0030;
-		public const FLOAT_PERC:int = 0x0031;
-		public const MASTER_SCALE:int = 0x0100;
-		public const IMAGE_FILE:int = 0x1100;
-		public const AMBIENT_LIGHT:int = 0X2100;
-		
-		//>----- Object Chunks -----------------------------------------------------
-		
-		public const MESH:int = 0x4000;
-		public const MESH_OBJECT:int = 0x4100;
-		public const MESH_VERTICES:int = 0x4110;
-		public const VERTEX_FLAGS:int = 0x4111;
-		public const MESH_FACES:int = 0x4120;
-		public const MESH_MATER:int = 0x4130;
-		public const MESH_TEX_VERT:int = 0x4140;
-		public const MESH_XFMATRIX:int = 0x4160;
-		public const MESH_COLOR_IND:int = 0x4165;
-		public const MESH_TEX_INFO:int = 0x4170;
-		public const HEIRARCHY:int = 0x4F00;
-		
-		//>----- Material Chunks ---------------------------------------------------
-		
-		public const MATERIAL:int = 0xAFFF;
-		public const MAT_NAME:int = 0xA000;
-		public const MAT_AMBIENT:int = 0xA010;
-		public const MAT_DIFFUSE:int = 0xA020;
-		public const MAT_SPECULAR:int = 0xA030;
-		public const MAT_SHININESS:int = 0xA040;
-		public const MAT_FALLOFF:int = 0xA052;
-		public const MAT_EMISSIVE:int = 0xA080;
-		public const MAT_SHADER:int = 0xA100;
-		public const MAT_TEXMAP:int = 0xA200;
-		public const MAT_TEXFLNM:int = 0xA300;
-		public const OBJ_LIGHT:int = 0x4600;
-		public const OBJ_CAMERA:int = 0x4700;
-		
-		//>----- KeyFrames Chunks --------------------------------------------------
-		
-		public const ANIM_HEADER:int = 0xB00A;
-		public const ANIM_OBJ:int = 0xB002;
-		public const ANIM_NAME:int = 0xB010;
-		public const ANIM_POS:int = 0xB020;
-		public const ANIM_ROT:int = 0xB021;
-		public const ANIM_SCALE:int = 0xB022;
+        
+		/**
+		 * Creates a new <code>Max3DS</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * 
+		 * @param	data				The binary data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @see away3d.loaders.Max3DS#parse()
+		 * @see away3d.loaders.Max3DS#load()
+		 */
+		public function Max3DS(data:ByteArray, init:Object = null)
+		{
+			_data = data;
+			_data.endian = Endian.LITTLE_ENDIAN;
+			
+			ini = Init.parse(init);
+			materialLibrary.texturePath = ini.getString("texturePath", "");
+			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
+			material = ini.getMaterial("material");
+			centerMeshes = ini.getBoolean("centerMeshes", false);
+			
+			var materials:Object = ini.getObject("materials") || {};
+			
+			for (var name:String in materials) {
+                _materialData = materialLibrary.addMaterial(name);
+                _materialData.material = Cast.material(materials[name]);
+                
+                //determine material type
+                if (_materialData.material is BitmapMaterial)
+                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                else if (_materialData.material is ShadingColorMaterial)
+                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                else if (_materialData.material is WireframeMaterial)
+                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
+   			}
+            
+			container = new ObjectContainer3D(ini);
+			
+			//first chunk is always the primary, so we simply read it and parse it
+			var chunk:Chunk3ds = new Chunk3ds();
+			readChunk(chunk);
+			parse3DS(chunk);
+			
+			//build materials
+			buildMaterials();
+			
+			//build the meshes
+			buildMeshes();
+		}
+    	
+    	/**
+    	 * Loads and parses a 3ds file into a 3d container object.
+    	 * 
+    	 * @param	url					The url location of the file to load.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
+    	 */
+        public static function load(url:String, init:Object = null):Object3DLoader
+        {
+            return Object3DLoader.loadGeometry(url, parse, true, init);
+        }
+    	
+    	/**
+    	 * Loads and parses the textures for a 3ds file into a 3d container object.
+    	 * 
+    	 * @param	data				The binary data of a loaded file.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the textures are loading.
+    	 */
+		public static function loadTextures(data:*, init:Object = null):Object3DLoader
+		{
+			var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
+			return Object3DLoader.loadTextures(parser.container, parser.materialLibrary, init);
+		}
+
+		/**
+		 * Creates a 3d container object from the raw binary data of a 3ds file.
+		 * 
+		 * @param	data				The binary data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * @param	loader	[optional]	Not intended for direct use.
+		 * 
+		 * @return						A 3d container object representation of the 3ds file.
+		 */
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
+        {
+        	var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
+        	if (loader)
+        		loader.materialLibrary = parser.materialLibrary;
+            return parser.container;
+        }
 	}
 }
 
