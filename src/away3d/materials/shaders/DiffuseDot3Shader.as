@@ -15,38 +15,83 @@ package away3d.materials.shaders
 	import flash.geom.*;
 	import flash.utils.*;
 	
-    /** Basic phong texture material */
+	/**
+	 * Diffuse Dot3 shader class for directional lighting.
+	 * 
+	 * @see away3d.lights.DirectionalLight3D
+	 */
     public class DiffuseDot3Shader extends AbstractShader implements IUVMaterial
     {
     	use namespace arcane;
         
-        internal var _zeroPoint:Point = new Point(0, 0);
-        internal var _bitmap:BitmapData;
-        
+        private var _zeroPoint:Point = new Point(0, 0);
+        private var _bitmap:BitmapData;
+        private var _sourceDictionary:Dictionary = new Dictionary(true);
+        private var _sourceBitmap:BitmapData;
+        private var _normalDictionary:Dictionary = new Dictionary(true);
+        private var _normalBitmap:BitmapData;
+		private var _diffuseTransform:Matrix3D;
+		private var _szx:Number;
+		private var _szy:Number;
+		private var _szz:Number;
+		private var _normal0z:Number;
+		private var _normal1z:Number;
+		private var _normal2z:Number;
+		private var _normalFx:Number;
+		private var _normalFy:Number;
+		private var _normalFz:Number;
+		private var _red:Number;
+		private var _green:Number;
+		private var _blue:Number;
+		
+        //TODO: implement tangent space option
+        /**
+        * Determines if the DOT3 mapping is rendered in tangent space (true) or object space (false).
+        */
         public var tangentSpace:Boolean;
         
-        //private var _colorMatrixFilter:ColorMatrixFilter = new ColorMatrixFilter();
-        
+        /**
+        * Returns the width of the bitmapData being used as the shader DOT3 map.
+        */
         public function get width():Number
         {
             return _bitmap.width;
         }
-
+        
+        /**
+        * Returns the height of the bitmapData being used as the shader DOT3 map.
+        */
         public function get height():Number
         {
             return _bitmap.height;
         }
         
+        /**
+        * Returns the bitmapData object being used as the shader DOT3 map.
+        */
         public function get bitmap():BitmapData
         {
         	return _bitmap;
         }
         
+        /**
+        * Returns the argb value of the bitmapData pixel at the given u v coordinate.
+        * 
+        * @param	u	The u (horizontal) texture coordinate.
+        * @param	v	The v (verical) texture coordinate.
+        * @return		The argb pixel value.
+        */
         public function getPixel32(u:Number, v:Number):uint
         {
         	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
         }
-        
+		
+		/**
+		 * Creates a new <code>DiffuseDot3Shader</code> object.
+		 * 
+		 * @param	bitmap			The bitmapData object to be used as the material's DOT3 map.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function DiffuseDot3Shader(bitmap:BitmapData, init:Object = null)
         {
             super(init);
@@ -55,7 +100,10 @@ package away3d.materials.shaders
             
             tangentSpace = ini.getBoolean("tangentSpace", false);
         }
-		
+        
+		/**
+		 * @inheritDoc
+		 */
 		public override function updateMaterial(source:Object3D, view:View3D):void
         {
         	clearLightingShapeDictionary();
@@ -69,13 +117,10 @@ package away3d.materials.shaders
         	}
         }
         
-        internal var _sourceDictionary:Dictionary = new Dictionary(true);
-        internal var _sourceBitmap:BitmapData;
-        
-        internal var _normalDictionary:Dictionary = new Dictionary(true);
-        internal var _normalBitmap:BitmapData;
-        
-        public override function clearFaceDictionary(source:Object3D, view:View3D):void
+		/**
+		 * @inheritDoc
+		 */
+        protected override function clearFaceDictionary(source:Object3D, view:View3D):void
         {
         	for each (_faceVO in _faceDictionary) {
         		if (source == _faceVO.source) {
@@ -85,7 +130,10 @@ package away3d.materials.shaders
 	        	}
         	}
         }
-		
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	super.renderLayer(tri, layer, level);
@@ -113,25 +161,10 @@ package away3d.materials.shaders
                 _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
         
-		internal var _diffuseTransform:Matrix3D;
-		
-		internal var _szx:Number;
-		internal var _szy:Number;
-		internal var _szz:Number;
-		
-		internal var _normal0z:Number;
-		internal var _normal1z:Number;
-		internal var _normal2z:Number;
-		
-		internal var _normalFx:Number;
-		internal var _normalFy:Number;
-		internal var _normalFz:Number;
-		
-		internal var _red:Number;
-		internal var _green:Number;
-		internal var _blue:Number;
-		
-        public override function renderShader(face:Face):void
+		/**
+		 * @inheritDoc
+		 */
+        protected override function renderShader(face:Face):void
         {
 			//check to see if sourceDictionary exists
 			_sourceBitmap = _sourceDictionary[face];
@@ -188,11 +221,17 @@ package away3d.materials.shaders
 	    	}
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function addOnResize(listener:Function):void
         {
         	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public function removeOnResize(listener:Function):void
         {
         	removeEventListener(MaterialEvent.RESIZED, listener, false);

@@ -11,26 +11,68 @@ package away3d.materials
 	import flash.geom.*;
 	import flash.utils.*;
 	
+	/**
+	 * Container for layering multiple material objects.
+	 * Renders each material by drawing one triangle per meterial layer.
+	 * For static bitmap materials, use <code>BitmapMaterialContainer</code>.
+	 * 
+	 * @see away3d.materials.BitmapMaterialContainer
+	 */
 	public class CompositeMaterial implements ITriangleMaterial, IUpdatingMaterial, ILayerMaterial
 	{
 		use namespace arcane;
+        /** @private */
+		arcane var _color:uint = 0xFFFFFF;
+        /** @private */
+        arcane var _alpha:Number = 1;
+        /** @private */
+		arcane var _colorTransform:ColorTransform = new ColorTransform();
+        /** @private */
+    	arcane var _colorTransformDirty:Boolean;
+        /** @private */
+		arcane var _spriteDictionary:Dictionary = new Dictionary(true);
+        /** @private */
+        arcane var _sprite:Sprite;
+        /** @private */
+        arcane var _source:Object3D;
+        /** @private */
+        arcane var _session:AbstractRenderSession;
 		
-		public var materials:Array;
-		public var blendMode:String;
-		
-		internal var _colorTransform:ColorTransform = new ColorTransform();
-		internal var _defaultColorTransform:ColorTransform = new ColorTransform();
-    	internal var _colorTransformDirty:Boolean;
-		internal var _color:uint;
-		internal var _red:Number;
-		internal var _green:Number;
-		internal var _blue:Number;
-        internal var _alpha:Number;
+		private var _defaultColorTransform:ColorTransform = new ColorTransform();
+		private var _red:Number;
+		private var _green:Number;
+		private var _blue:Number;
+		private var material:ILayerMaterial;
         
-		internal var _spriteDictionary:Dictionary = new Dictionary(true);
-        internal var _sprite:Sprite;
-        internal var _source:Object3D;
-        internal var _session:AbstractRenderSession;
+        private function clearSpriteDictionary():void
+        {
+        	for each (_sprite in _spriteDictionary)
+	        	_sprite.graphics.clear();
+        }
+        
+        /**
+        * Instance of the Init object used to hold and parse default property values
+        * specified by the initialiser object in the 3d object constructor.
+        */
+        protected var ini:Init;
+        
+		/**
+		 * An array of bitmapmaterial objects to be overlayed sequentially.
+		 */
+		public var materials:Array;
+		
+        /**
+        * Defines a blendMode value for the layer container.
+        */
+		public var blendMode:String;
+        
+		/**
+		 * Defines a colored tint for the layer container.
+		 */
+		public function get color():uint
+		{
+			return _color;
+		}
         
         public function set color(val:uint):void
 		{
@@ -45,11 +87,14 @@ package away3d.materials
             _colorTransformDirty = true;
 		}
 		
-		public function get color():uint
-		{
-			return _color;
-		}
-		
+        /**
+        * Defines an alpha value for the layer container.
+        */
+        public function get alpha():Number
+        {
+            return _alpha;
+        }
+        
 		public function set alpha(value:Number):void
         {
             if (value > 1)
@@ -65,13 +110,14 @@ package away3d.materials
 
             _colorTransformDirty = true;
         }
-		
-        public function get alpha():Number
-        {
-            return _alpha;
-        }
         
-        internal function setColorTransform():void
+    	/**
+    	 * Updates the colortransform object applied to the texture from the <code>color</code> and <code>alpha</code> properties.
+    	 * 
+    	 * @see color
+    	 * @see alpha
+    	 */
+        protected function setColorTransform():void
         {
         	_colorTransformDirty = false;
         	
@@ -86,22 +132,25 @@ package away3d.materials
 			_colorTransform.blueMultiplier = _blue;
 			_colorTransform.alphaMultiplier = _alpha;
         }
-        
-        protected var ini:Init;
-        
+		
+		/**
+		 * Creates a new <code>CompositeMaterial</code> object.
+		 * 
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
 		public function CompositeMaterial(init:Object = null)
 		{	
             ini = Init.parse(init);
 			
-			if (!materials)
-				materials = ini.getArray("materials");
+			materials = ini.getArray("materials");
 			blendMode = ini.getString("blendMode", BlendMode.NORMAL);
-			alpha = ini.getNumber("alpha", 1, {min:0, max:1});
-            color = ini.getColor("color", 0xFFFFFF);
+			alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
+            color = ini.getColor("color", _color);
 		}
-		
-		internal var material:ILayerMaterial;
-		
+        
+		/**
+		 * @inheritDoc
+		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	clearSpriteDictionary();
@@ -114,12 +163,9 @@ package away3d.materials
         			(material as IUpdatingMaterial).updateMaterial(source, view);
         }
         
-        public function clearSpriteDictionary():void
-        {
-        	for each (_sprite in _spriteDictionary)
-	        	_sprite.graphics.clear();
-        }
-        
+		/**
+		 * @inheritDoc
+		 */
 		public function renderTriangle(tri:DrawTriangle):void
         {
         	_source = tri.source;
@@ -156,7 +202,9 @@ package away3d.materials
         		material.renderLayer(tri, _sprite, ++level);
         }
         
-        
+		/**
+		 * @inheritDoc
+		 */
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
@@ -189,11 +237,17 @@ package away3d.materials
         		material.renderLayer(tri, _sprite, level++);
         }
         
+		/**
+		 * @private
+		 */
         public function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{
 			throw new Error("Not implemented");
 		}
-		
+        
+		/**
+		 * @inheritDoc
+		 */
         public function get visible():Boolean
         {
             return true;

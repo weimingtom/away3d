@@ -1,22 +1,40 @@
-package away3d.loaders
+package away3d.loaders.utils
 {
     import away3d.materials.*;
     import away3d.core.base.*;
-    import away3d.loaders.data.MaterialData;
-    import away3d.loaders.utils.TextureLoadQueue;
-    import away3d.loaders.utils.TextureLoader;
+    import away3d.loaders.data.*;
     
     import flash.display.BitmapData;
     import flash.utils.Dictionary;
     
-    /** Set of the named materials */
+    /**
+    * Store for all materials associated with an externally loaded file.
+    */
     public dynamic class MaterialLibrary extends Dictionary
     {
-    	public var length:int = 0;
+    	private var _materialData:MaterialData;
+    	private var _image:TextureLoader;
+    	private var _face:Face;
+    	private var length:int = 0;
+    	
+    	/**
+    	 * The root directory path to the texture files.
+    	 */
     	public var texturePath:String;
+    	
+    	/**
+    	 * Determines whether textures should be loaded automatically.
+    	 */
     	public var autoLoadTextures:Boolean;
+    	
+    	/**
+    	 * Flag to determine if any of the contained textures require a file load.
+    	 */
     	public var loadRequired:Boolean;
     	
+    	/**
+    	 * Adds a material name reference to the library.
+    	 */
         public function addMaterial(name:String):MaterialData
         {
         	//return if material already exists
@@ -30,10 +48,11 @@ package away3d.loaders
             return materialData;
         }
     	
-    	private var _materialData:MaterialData;
-    	private var _image:TextureLoader;
-    	private var _face:Face;
-    	
+    	/**
+    	 * Called after all textures have been loaded from the <code>TextureLoader</code> class.
+    	 * 
+    	 * @see away3d.loaders.utils.TextureLoader
+    	 */
     	public function texturesLoaded(loadQueue:TextureLoadQueue):void
     	{
     		loadRequired = false;

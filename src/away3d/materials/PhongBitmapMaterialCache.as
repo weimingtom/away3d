@@ -5,65 +5,79 @@ package away3d.materials
 	
 	import flash.display.*;
 	
+	/**
+	 * Bitmap material with cached phong shading.
+	 */
 	public class PhongBitmapMaterialCache extends BitmapMaterialContainer
 	{
-		internal var _shininess:Number;
-		internal var _specular:Number;
+		private var _shininess:Number;
+		private var _specular:Number;
+		private var _bitmapMaterial:BitmapMaterial;
+		private var _phongShader:BitmapMaterialContainer;
+		private var _ambientShader:AmbientShader;
+		private var _diffusePhongShader:DiffusePhongShader;
+		private var _specularPhongShader:SpecularPhongShader;
 		
-		public var bitmapMaterial:BitmapMaterial;
-		public var phongShader:BitmapMaterialContainer;
-		public var ambientShader:AmbientShader;
-		public var diffusePhongShader:DiffusePhongShader;
-		public var specularPhongShader:SpecularPhongShader;
+		/**
+		 * The exponential dropoff value used for specular highlights.
+		 */
+		public function get shininess():Number
+		{
+			return _shininess;
+		}
 		
 		public function set shininess(val:Number):void
 		{
 			_shininess = val;
-			if (specularPhongShader)
-           		specularPhongShader.shininess = val;
+			if (_specularPhongShader)
+           		_specularPhongShader.shininess = val;
 		}
 		
-		public function get shininess():Number
+		/**
+		 * Coefficient for specular light level.
+		 */
+		public function get specular():Number
 		{
-			return _shininess;
+			return _specular;
 		}
 		
 		public function set specular(val:Number):void
 		{
 			_specular = val;
 			if (_specular) {
-				if (specularPhongShader)
-        			specularPhongShader.specular = val;
+				if (_specularPhongShader)
+        			_specularPhongShader.specular = val;
         		else
-        			materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
-   			} else if (specularPhongShader)
+        			materials.push(_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
+   			} else if (_specularPhongShader)
             	materials.pop();
 		}
 		
-		public function get specular():Number
-		{
-			return _specular;
-		}
-		
+		/**
+		 * Creates a new <code>PhongBitmapMaterial</code> object.
+		 * 
+		 * @param	bitmap				The bitmapData object to be used as the material's texture.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
 		public function PhongBitmapMaterialCache(bitmap:BitmapData, init:Object=null)
 		{
-			ini = Init.parse(init);
-			
-			//create new materials
-			bitmapMaterial = new BitmapMaterial(bitmap, init);
-			phongShader = new BitmapMaterialContainer(bitmap.width, bitmap.height, {blendMode:BlendMode.MULTIPLY, transparent:false});
-			phongShader.materials.push(ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			phongShader.materials.push(diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
-			
-			//add to materials array
-			materials = new Array();
-			materials.push(bitmapMaterial);
-			materials.push(phongShader);
+			super(bitmap.width, bitmap.height, init);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
-			super(bitmap.width, bitmap.height, ini);
+			//create new materials
+			_bitmapMaterial = new BitmapMaterial(bitmap);
+			_phongShader = new BitmapMaterialContainer(bitmap.width, bitmap.height, {blendMode:BlendMode.MULTIPLY, transparent:false});
+			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.materials.push(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+			
+			//add to materials array
+			materials = new Array();
+			materials.push(_bitmapMaterial);
+			materials.push(_phongShader);
+			
+			
 		}
 		
 	}

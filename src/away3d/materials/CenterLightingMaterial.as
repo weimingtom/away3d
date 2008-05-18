@@ -1,6 +1,7 @@
 package away3d.materials
 {
     import away3d.containers.*;
+    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -11,132 +12,150 @@ package away3d.materials
     import flash.display.*;
     import flash.events.*;
 
-    /** Abstract class for materials that calculate lighting for the face's center */
+    /**
+    * Abstract class for materials that calculate lighting for the face's center
+    * Not intended for direct use - use <code>ShadingColorMaterial</code> or <code>WhiteShadingBitmapMaterial</code>.
+    */
     public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial, IUpdatingMaterial
     {
-        public var ambient_brightness:Number = 1;
-        public var diffuse_brightness:Number = 1;
-        public var specular_brightness:Number = 1;
-        public var ak:Number = 20;
-        
-        public var draw_normal:Boolean = false;
-        public var draw_fall:Boolean = false;
-        public var draw_fall_k:Number = 1;
-        public var draw_reflect:Boolean = false;
-        public var draw_reflect_k:Number = 1;
+    	use namespace arcane;
+        /** @private */
+        arcane var v0:ScreenVertex;
+        /** @private */
+        arcane var v1:ScreenVertex;
+        /** @private */
+        arcane var v2:ScreenVertex;
+        /** @private */
+        arcane var session:AbstractRenderSession;
 		
+		private var point:PointLightSource;
+		private var directional:DirectionalLightSource;
+		private var global:AmbientLightSource;
+        private var projection:Projection;
+        private var focus:Number;
+        private var zoom:Number;
+        private var v0z:Number;
+        private var v0p:Number;
+        private var v0x:Number;
+        private var v0y:Number;
+        private var v1z:Number;
+        private var v1p:Number;
+        private var v1x:Number;
+        private var v1y:Number;
+        private var v2z:Number;
+        private var v2p:Number;
+        private var v2x:Number;
+        private var v2y:Number;
+        private var d1x:Number;
+        private var d1y:Number;
+        private var d1z:Number;
+        private var d2x:Number;
+        private var d2y:Number;
+        private var d2z:Number;
+        private var pa:Number;
+        private var pb:Number;
+        private var pc:Number;
+        private var pdd:Number;
+        private var c0x:Number;
+        private var c0y:Number;
+        private var c0z:Number;
+        private var kar:Number;
+        private var kag:Number;
+        private var kab:Number;
+        private var kdr:Number;
+        private var kdg:Number;
+        private var kdb:Number;
+        private var ksr:Number;
+        private var ksg:Number;
+        private var ksb:Number;
+        private var red:Number;
+        private var green:Number;
+        private var blue:Number;
+        private var dfx:Number;
+        private var dfy:Number;
+        private var dfz:Number;
+        private var df:Number;
+        private var nx:Number;
+        private var ny:Number;
+        private var nz:Number;
+        private var fade:Number;
+        private var amb:Number;
+        private var nf:Number;
+        private var diff:Number;
+        private var rfx:Number;
+        private var rfy:Number;
+        private var rfz:Number;
+        private var spec:Number;
+        private var graphics:Graphics;
+        private var cz:Number;
+        private var cx:Number;
+        private var cy:Number;
+        private var ncz:Number;
+        private var ncx:Number;
+        private var ncy:Number;
+        private var sum:Number;
+        private var ffz:Number;
+        private var ffx:Number;
+        private var ffy:Number;
+        private var fz:Number;
+        private var fx:Number;
+        private var fy:Number;
+        private var rz:Number;
+        private var rx:Number;
+        private var ry:Number;
+        private var draw_normal:Boolean = false;
+        private var draw_fall:Boolean = false;
+        private var draw_fall_k:Number = 1;
+        private var draw_reflect:Boolean = false;
+        private var draw_reflect_k:Number = 1;
+        private var _diffuseTransform:Matrix3D;
+        private var _source:Mesh;
+        
+        /**
+        * Instance of the Init object used to hold and parse default property values
+        * specified by the initialiser object in the 3d object constructor.
+        */
 		protected var ini:Init;
 		
+        /** @private */
+        protected function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        {
+            throw new Error("Not implemented");
+        }
+        
+        /**
+        * Coefficient for ambient light level
+        */
+        public var ambient_brightness:Number = 1;
+        
+        /**
+        * Coefficient for diffuse light level
+        */
+        public var diffuse_brightness:Number = 1;
+        
+        /**
+        * Coefficient for specular light level
+        */
+        public var specular_brightness:Number = 1;
+        
+        /**
+        * Coefficient for shininess level
+        */
+        public var ak:Number = 20;
+		
+		/**
+		 * @private
+		 */
         public function CenterLightingMaterial(init:Object = null)
         {
             ini = Init.parse(init);
 
             ak = ini.getNumber("ak", 20);
         }
-		
-		internal var point:PointLightSource;
-		internal var directional:DirectionalLightSource;
-		internal var global:AmbientLightSource;
-		
-        internal var v0:ScreenVertex;
-        internal var v1:ScreenVertex;
-        internal var v2:ScreenVertex;
-        internal var projection:Projection;
-        internal var focus:Number;
-        internal var zoom:Number;
         
-        internal var v0z:Number;
-        internal var v0p:Number;
-        internal var v0x:Number;
-        internal var v0y:Number;
-        
-        internal var v1z:Number;
-        internal var v1p:Number;
-        internal var v1x:Number;
-        internal var v1y:Number;
-        
-        internal var v2z:Number;
-        internal var v2p:Number;
-        internal var v2x:Number;
-        internal var v2y:Number;
-        
-        internal var d1x:Number;
-        internal var d1y:Number;
-        internal var d1z:Number;
-        
-        internal var d2x:Number;
-        internal var d2y:Number;
-        internal var d2z:Number;
-        
-        internal var pa:Number;
-        internal var pb:Number;
-        internal var pc:Number;
-        internal var pdd:Number;
-        
-        internal var c0x:Number;
-        internal var c0y:Number;
-        internal var c0z:Number;
-        
-        internal var kar:Number;
-        internal var kag:Number;
-        internal var kab:Number;
-        internal var kdr:Number;
-        internal var kdg:Number;
-        internal var kdb:Number;
-        internal var ksr:Number;
-        internal var ksg:Number;
-        internal var ksb:Number;
-        
-        internal var red:Number;
-        internal var green:Number;
-        internal var blue:Number;
-        
-        internal var dfx:Number;
-        internal var dfy:Number;
-        internal var dfz:Number;
-        internal var df:Number;
-        
-        internal var nx:Number;
-        internal var ny:Number;
-        internal var nz:Number;
-        
-        internal var fade:Number;
-        internal var amb:Number;
-        internal var nf:Number;
-        
-        internal var diff:Number;
-        internal var rfx:Number;
-        internal var rfy:Number;
-        internal var rfz:Number;
-        
-        internal var spec:Number;
-        
-        internal var graphics:Graphics;
-        
-        internal var cz:Number;
-        internal var cx:Number;
-        internal var cy:Number;
-        
-        internal var ncz:Number;
-        internal var ncx:Number;
-        internal var ncy:Number;
-        
-        internal var sum:Number;
-        
-        internal var ffz:Number;
-        internal var ffx:Number;
-        internal var ffy:Number;
-        
-        internal var fz:Number;
-        internal var fx:Number;
-        internal var fy:Number;
-        
-        internal var rz:Number;
-        internal var rx:Number;
-        internal var ry:Number;
-        
-        internal var session:AbstractRenderSession;
-        
+		/**
+		 * @inheritDoc
+		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	for each (directional in source.session.lightarray.directionals) {
@@ -146,9 +165,9 @@ package away3d.materials
         	}
         }
         
-        internal var _diffuseTransform:Matrix3D;
-        internal var _source:Mesh;
-        
+		/**
+		 * @inheritDoc
+		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
         	session = tri.source.session;
@@ -373,12 +392,10 @@ package away3d.materials
                     }
             }
         }
-
-        public function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
-        {
-            throw new Error("Not implemented");
-        }
         
+		/**
+		 * @private
+		 */
         public function get visible():Boolean
         {
             throw new Error("Not implemented");

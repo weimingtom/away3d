@@ -21,88 +21,13 @@ package away3d.loaders.utils
 	 */	
 	public class TextureLoadQueue extends EventDispatcher
 	{
-		
 		private var _queue:Array;
 		private var _currentItemIndex:int;
-		
-		
-		public function get numItems():int
-		{
-			return _queue.length;
-		}
-		
-		public function get currentItemIndex():int
-		{
-			return _currentItemIndex;
-		}
-		
-		public function get images():Array
-		{
-			var items:Array = [];
-			for each (var item:LoaderAndRequest in _queue)
-			{
-				items.push(item.loader);
-			}
-			return items;
-		}
-		
-		public function get currentLoader():TextureLoader
-		{
-			return (_queue[currentItemIndex] as LoaderAndRequest).loader;
-		}
-		
-		public function get currentURLRequest():URLRequest
-		{
-			return (_queue[currentItemIndex] as LoaderAndRequest).request;
-		}
-		
-		
-		/**
-		 * Progress of 0 means that nothing has loaded. Progress of 1 means that all the items are fully loaded
-		 * 
-		 */
-		public function get progress():Number
-		{
-			return calcProgress();
-		}
-		
-		public function get percentLoaded():Number
-		{
-			return progress * 100;
-		}
-		
-		
-		
-		public function TextureLoadQueue()
-		{
-			_queue = new Array();
-			
-		}
-		
-		
-		public function addItem(loader:TextureLoader, request:URLRequest):void
-		{
-			//check to stop duplicated loading
-			for each (var _item:LoaderAndRequest in _queue) {
-				if (_item.request.url == request.url)
-					return;
-			}
-			_queue.push(new LoaderAndRequest(loader, request));
-		}
-		
-		
-		public function start():void
-		{
-			_currentItemIndex = 0;
-			loadNext();
-		}
-		
 		
 		private function redispatchEvent(e:Event):void
 		{
 			dispatchEvent(e);
 		}
-		
 		
 		private function onItemComplete(e:Event):void
 		{
@@ -110,7 +35,6 @@ package away3d.loaders.utils
 			_currentItemIndex++;
 			loadNext();
 		}
-		
 		
 		private function loadNext():void
 		{
@@ -138,8 +62,6 @@ package away3d.loaders.utils
 			}
 		}
 		
-		
-		
 		private function calcProgress():Number
 		{
 			var baseAmount:Number = currentItemIndex / numItems;
@@ -156,7 +78,6 @@ package away3d.loaders.utils
 			}
 		}
 		
-		
 		private function cleanUpOldItem(item:TextureLoader):void
 		{
 			currentLoader.removeEventListener(Event.COMPLETE, onItemComplete, false);
@@ -166,6 +87,101 @@ package away3d.loaders.utils
 			currentLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false);	
 		}
 		
+		/**
+		 * Returns the number of items whating in the queue to be loaded.
+		 */
+		public function get numItems():int
+		{
+			return _queue.length;
+		}
+		/**
+		 * Returns the index of the current texture baing loaded
+		 */
+		public function get currentItemIndex():int
+		{
+			return _currentItemIndex;
+		}
+		
+		/**
+		 * Returns an array of loader objects containing the loaded images
+		 */
+		public function get images():Array
+		{
+			var items:Array = [];
+			for each (var item:LoaderAndRequest in _queue)
+			{
+				items.push(item.loader);
+			}
+			return items;
+		}
+		
+		/**
+		 * Returns the loader object for the current texture being loaded
+		 */
+		public function get currentLoader():TextureLoader
+		{
+			return (_queue[currentItemIndex] as LoaderAndRequest).loader;
+		}
+		
+		/**
+		 * Returns the url request object for the current texture being loaded
+		 */
+		public function get currentURLRequest():URLRequest
+		{
+			return (_queue[currentItemIndex] as LoaderAndRequest).request;
+		}
+		
+		
+		/**
+		 * Returns the overall progress of the loader queue.
+		 * Progress of 0 means that nothing has loaded. Progress of 1 means that all the items are fully loaded
+		 */
+		public function get progress():Number
+		{
+			return calcProgress();
+		}
+		
+		/**
+		 * Returns the overall progress of the loader queue as a percentage.
+		 */
+		public function get percentLoaded():Number
+		{
+			return progress * 100;
+		}
+		
+		/**
+		 * Creates a new <code>TextureLoadQueue</code> object.
+		 */
+		public function TextureLoadQueue()
+		{
+			_queue = new Array();
+			
+		}
+		
+		/**
+		 * Adds a new loader and request object to the load queue.
+		 * 
+		 * @param	loader		The laoder object to add to the queue.
+		 * @param	request		The url request object to add tp the queue.
+		 */
+		public function addItem(loader:TextureLoader, request:URLRequest):void
+		{
+			//check to stop duplicated loading
+			for each (var _item:LoaderAndRequest in _queue) {
+				if (_item.request.url == request.url)
+					return;
+			}
+			_queue.push(new LoaderAndRequest(loader, request));
+		}
+		
+		/**
+		 * Starts the load queue loading.
+		 */
+		public function start():void
+		{
+			_currentItemIndex = 0;
+			loadNext();
+		}
 	}
 }
 

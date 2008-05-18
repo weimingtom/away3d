@@ -1,36 +1,20 @@
 package away3d.loaders
 {
+	import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
 
-    /** Ase file format loader */
+    /**
+    * File loader for the ASE file format.
+    */
     public class Ase
     {
+		use namespace arcane;
+    	
         private var mesh:Mesh;
         private var scaling:Number;
 		private var ini:Init;
 		
-        public function Ase(data:String, init:Object = null)
-        {
-            ini = Init.parse(init);
-
-            scaling = ini.getNumber("scaling", 1) * 100;
-
-            mesh = new Mesh(ini);
-
-            parseAse(data);
-        }
-
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
-        {
-            return new Ase(Cast.string(data), init).mesh;
-        }
-    
-        public static function load(url:String, init:Object = null):Object3DLoader
-        {
-            return Object3DLoader.loadGeometry(url, parse, false, init);
-        }
-    
         private function parseAse(data:String):void
         {
             var lines:Array = data.split('\r\n');
@@ -144,6 +128,52 @@ package away3d.loaders
                 mesh.addFace(f);
             
             mesh.type = ".Ase";
+        }
+        
+		/**
+		 * Creates a new <code>Ase</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * 
+		 * @param	Data				The ascii data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @see away3d.loaders.Ase#parse()
+		 * @see away3d.loaders.Ase#load()
+		 */
+        public function Ase(data:String, init:Object = null)
+        {
+            ini = Init.parse(init);
+
+            scaling = ini.getNumber("scaling", 1) * 100;
+
+            mesh = new Mesh(ini);
+
+            parseAse(data);
+        }
+
+		/**
+		 * Creates a 3d mesh object from the raw ascii data of the ase file.
+		 * 
+		 * @param	data				The ascii data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * @param	loader	[optional]	Not intended for direct use.
+		 * 
+		 * @return						A 3d mesh object representation of the ase file.
+		 */
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
+        {
+            return new Ase(Cast.string(data), init).mesh;
+        }
+    	
+    	/**
+    	 * Loads and parses an ase file into a 3d mesh object.
+    	 * 
+    	 * @param	url					The url location of the file to load.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
+    	 */
+        public static function load(url:String, init:Object = null):Object3DLoader
+        {
+            return Object3DLoader.loadGeometry(url, parse, false, init);
         }
     }
 }

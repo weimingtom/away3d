@@ -1,5 +1,6 @@
 package away3d.materials
 {
+    import away3d.containers.View3D;
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
@@ -13,108 +14,22 @@ package away3d.materials
     import flash.display.Sprite;
     import flash.geom.ColorTransform;
     import flash.geom.Matrix;
-
-    /** Material that can render a Sprite on object */
+	
+	/**
+	 * Animated movie material.
+	 */
     public class MovieMaterial extends TransformBitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
     	use namespace arcane;
     	
-        public var movie:Sprite;
-        private var lastsession:int;
-        public var transparent:Boolean;
-        public var auto:Boolean;
-        public var interactive:Boolean;
-        
-        public override function get width():Number
-        {
-            return _renderBitmap.width;
-        }
-
-        public override function get height():Number
-        {
-            return _renderBitmap.height;
-        }
-        
-        public function get scale():Number2D
-        {
-            return new Number2D(0, 0);
-        }
-        
-        public function get normal():Number3D
-        {
-            return new Number3D(0, 0, 0);
-        }
+        private var _lastsession:int;
+        private var _colTransform:ColorTransform;
+        private var _bMode:String;
+		private var x:Number;
+		private var y:Number;
+		private var t:Matrix;
 		
-		internal override function updateRenderBitmap():void
-        {
-        	
-        }
-        
-        public function MovieMaterial(movie:Sprite, init:Object = null)
-        {
-            this.movie = movie;
-
-            ini = Init.parse(init);
-
-            transparent = ini.getBoolean("transparent", true);
-            auto = ini.getBoolean("auto", true);
-            interactive = ini.getBoolean("interactive", false);
-
-            _bitmap = new BitmapData(movie.width, movie.height, transparent, 0);
-            
-        	super(_bitmap, ini);
-        }
-        
-        public override function renderTriangle(tri:DrawTriangle):void
-        {
-        	session = tri.source.session;
-        	
-            if (lastsession != session.time)
-            {
-                lastsession = session.time;
-                if (auto)
-                	update();
-                if (interactive) {
-                	//check to see if interactiveLayer is initialised
-	                if (!session.view._interactiveLayer.contains(movie)) {
-                		session.view._interactiveLayer.addChild(movie);
-                		resetInteractiveLayer();
-                		tri.source.addOnMouseOver(onMouseOver);
-                		tri.source.addOnMouseOut(onMouseOut);
-	                }
-                	
-                } else if (session.view._interactiveLayer.contains(movie)) {
-                	session.view._interactiveLayer.removeChild(movie);
-                	tri.source.removeOnMouseOver(onMouseOver);
-                	tri.source.removeOnMouseOut(onMouseOut);
-                }
-                	
-            }
-			
-            super.renderTriangle(tri);
-        }
-        
-        internal var colTransform:ColorTransform;
-        internal var bMode:String;
-        
-        public function update():void
-        {
-            if (transparent) _renderBitmap.fillRect(_renderBitmap.rect, 0);
-            
-            if (_alpha != 1 || _color != 0xFFFFFF)
-            	colTransform = _colorTransform;
-            else
-            	colTransform = movie.transform.colorTransform;
-            	
-            if (_blendMode != BlendMode.NORMAL)
-            	bMode = _blendMode;
-            else
-            	bMode = movie.blendMode;
-            
-            _renderBitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), colTransform, bMode, _renderBitmap.rect);
-        }
-		
-		public function onMouseOver(event:MouseEvent3D):void
+		private function onMouseOver(event:MouseEvent3D):void
 		{
 			if (event.material == this) {
 				event.object.addOnMouseMove(onMouseMove);
@@ -122,7 +37,7 @@ package away3d.materials
 			}
 		}
 		
-		public function onMouseOut(event:MouseEvent3D):void
+		private function onMouseOut(event:MouseEvent3D):void
 		{
 			if (event.material == this) {
 				event.object.removeOnMouseMove(onMouseMove);
@@ -131,7 +46,7 @@ package away3d.materials
 			
 		}
 		
-		public function onMouseMove(event:MouseEvent3D):void
+		private function onMouseMove(event:MouseEvent3D):void
 		{
 			x = event.uv.u*_renderBitmap.width;
 			y = (1 - event.uv.v)*_renderBitmap.height;
@@ -147,11 +62,128 @@ package away3d.materials
 			}
 		}
  		
- 		public function resetInteractiveLayer():void
+ 		private function resetInteractiveLayer():void
  		{
  			movie.x = -10000;
  			movie.y = -10000;
  		}
  		
+        /** @private */
+		protected override function updateRenderBitmap():void
+        {
+        	
+        }
+        
+        /**
+        * Defines the movieclip used for rendering the material
+        */
+        public var movie:Sprite;
+        
+        /**
+        * Defines the transparent property of the texture bitmap created from the movie
+        * 
+        * @see movie
+        */
+        public var transparent:Boolean;
+        
+        /**
+        * Indicates whether the texture bitmap is updated on every frame
+        */
+        public var autoUpdate:Boolean;
+        public var interactive:Boolean;
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get width():Number
+        {
+            return _renderBitmap.width;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get height():Number
+        {
+            return _renderBitmap.height;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get scale():Number2D
+        {
+            return new Number2D(0, 0);
+        }
+        
+		/**
+		 * Creates a new <code>BitmapMaterial</code> object.
+		 * 
+		 * @param	movie				The sprite object to be used as the material's texture.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
+        public function MovieMaterial(movie:Sprite, init:Object = null)
+        {
+            this.movie = movie;
+
+            ini = Init.parse(init);
+
+            transparent = ini.getBoolean("transparent", true);
+            autoUpdate = ini.getBoolean("autoUpdate", true);
+            interactive = ini.getBoolean("interactive", false);
+
+            _bitmap = new BitmapData(movie.width, movie.height, transparent, 0);
+            
+        	super(_bitmap, ini);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function updateMaterial(source:Object3D, view:View3D):void
+        {
+        	super.updateMaterial(source, view);
+        	
+        	if (autoUpdate)
+                update();
+            
+            _session = source.session;
+            if (interactive) {
+            	//check to see if interactiveLayer is initialised
+                if (!_session.view._interactiveLayer.contains(movie)) {
+            		_session.view._interactiveLayer.addChild(movie);
+            		resetInteractiveLayer();
+            		source.addOnMouseOver(onMouseOver);
+            		source.addOnMouseOut(onMouseOut);
+                }
+            	
+            } else if (_session.view._interactiveLayer.contains(movie)) {
+            	_session.view._interactiveLayer.removeChild(movie);
+            	source.removeOnMouseOver(onMouseOver);
+            	source.removeOnMouseOut(onMouseOut);
+            }
+        }
+        
+		/**
+		 * Updates the texture bitmap with the current frame of the movieclip object
+		 * 
+		 * @see movie
+		 */
+        public function update():void
+        {
+            if (transparent) _renderBitmap.fillRect(_renderBitmap.rect, 0);
+            
+            if (_alpha != 1 || _color != 0xFFFFFF)
+            	_colTransform = _colorTransform;
+            else
+            	_colTransform = movie.transform.colorTransform;
+            	
+            if (_blendMode != BlendMode.NORMAL)
+            	_bMode = _blendMode;
+            else
+            	_bMode = movie.blendMode;
+            
+            _renderBitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), _colTransform, _bMode, _renderBitmap.rect);
+        }
     }
 }

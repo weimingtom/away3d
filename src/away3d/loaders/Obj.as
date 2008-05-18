@@ -1,46 +1,29 @@
-// note Only the geometry and mapping of one mesh is currently parsed. Group is not supported yet.
-
-// Class tested with the following 3D apps:
-// - Strata CX mac 5.0 ok
-// - Biturn ver 0.87b4 PC ok
-// - LightWave 3D OBJ Export v2.1 PC ok
-// - Max2Obj Version 4.0 PC --> ok, with no groups
-// - tags f,v,vt are being parsed
-
-// export from apps as polygon group or mesh as .obj file.
-
 package away3d.loaders
 {
+    import away3d.core.*;
 	import away3d.core.base.*;
     import away3d.core.utils.*;
-
+	
+    /**
+    * File loader for the OBJ file format.<br/>
+    * <br/>
+	* note: Only the geometry and mapping of one mesh is currently parsed. Group is not supported yet.<br/>
+	* Class tested with the following 3D apps:<br/>
+	* - Strata CX mac 5.0 ok<br/>
+	* - Biturn ver 0.87b4 PC ok<br/>
+	* - LightWave 3D OBJ Export v2.1 PC ok<br/>
+	* - Max2Obj Version 4.0 PC --> ok, with no groups<br/>
+	* - tags f,v,vt are being parsed<br/>
+	* <br/>
+	* export from apps as polygon group or mesh as .obj file.<br/>
+    */
     public class Obj 
     {
-    	private var ini:Init;
+		use namespace arcane;
     	
+    	private var ini:Init;
         private var mesh:Mesh;
         private var scaling:Number;
-
-        public function Obj(data:String, init:Object = null)
-        {
-            ini = Init.parse(init);
-
-            scaling = ini.getNumber("scaling", 1) * 10;
-
-            mesh = new Mesh(ini);
-
-            parseObj(data);
-        }
-
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
-        {
-            return new Obj(Cast.string(data), init).mesh;
-        }
-    
-        public static function load(url:String, init:Object = null):Object3DLoader
-        {
-            return Object3DLoader.loadGeometry(url, parse, false, init);
-        }
     
         private function parseObj(data:String):void 
         {
@@ -102,6 +85,52 @@ package away3d.loaders
             if (source.indexOf(by) == -1)
                 return [source];
             return source.split(by);
+        }
+        
+		/**
+		 * Creates a new <code>Obj</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * 
+		 * @param	data				The binary data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @see away3d.loaders.Obj#parse()
+		 * @see away3d.loaders.Obj#load()
+		 */
+        public function Obj(data:String, init:Object = null)
+        {
+            ini = Init.parse(init);
+
+            scaling = ini.getNumber("scaling", 1) * 10;
+
+            mesh = new Mesh(ini);
+
+            parseObj(data);
+        }
+
+		/**
+		 * Creates a 3d mesh object from the raw ascii data of a obj file.
+		 * 
+		 * @param	data				The ascii data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * @param	loader	[optional]	Not intended for direct use.
+		 * 
+		 * @return						A 3d mesh object representation of the obj file.
+		 */
+        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
+        {
+            return new Obj(Cast.string(data), init).mesh;
+        }
+    	
+    	/**
+    	 * Loads and parses a obj file into a 3d mesh object.
+    	 * 
+    	 * @param	url					The url location of the file to load.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
+    	 */
+        public static function load(url:String, init:Object = null):Object3DLoader
+        {
+            return Object3DLoader.loadGeometry(url, parse, false, init);
         }
     }
 }
