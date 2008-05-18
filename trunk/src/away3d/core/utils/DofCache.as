@@ -1,4 +1,4 @@
-package away3d.sprites.dof
+package away3d.core.utils
 {
 	import flash.display.BitmapData;
 	import flash.geom.Matrix;
@@ -9,15 +9,11 @@ package away3d.sprites.dof
 	/**
 	 * Provides static pre-blurred bitmap images for depth of field-effect
 	 * when used together with billboarded sprites, such as particles.
-	 * 
-	 * @author Jalmari Raippalinna (jalmari.raippalinna@gmail.com)
 	 */
 	public class DofCache
 	{
 		private var bitmaps:Array;
-		
 		private var levels:Number;
-		
 		private var maxBitmap:BitmapData;
 		private var minBitmap:BitmapData;
 

@@ -9,15 +9,16 @@ package away3d.sprites
     import flash.display.BitmapData;
 	
 	/**
-	 * Spherical billboard (always facing the camera) sprite object that uses a bitmapData object as it's texture.
-	 * Draws 2d images inline with z-sorted triangles in a scene.
+	 * Spherical billboard (always facing the camera) sprite object that uses a cached array of bitmapData objects as it's texture.
+	 * A depth of field blur image over a number of different perspecives is drawn and cached for later retrieval and display.
 	 */
-    public class Sprite2D extends Object3D implements IPrimitiveProvider
+	public class DofSprite2D extends Object3D implements IPrimitiveProvider
     {
         private var _center:Vertex = new Vertex();
 		private var _sc:ScreenVertex;
 		private var _persp:Number;
         private var _primitive:DrawScaledBitmap;
+        private var _dofcache:DofCache;
 		
 		/**
 		 * Defines the bitmapData object to use for the sprite texture.
@@ -45,23 +46,24 @@ package away3d.sprites
         public var deltaZ:Number;
     	
 		/**
-		 * Creates a new <code>Sprite2D</code> object.
+		 * Creates a new <code>DofSprite2D</code> object.
 		 * 
 		 * @param	bitmap				The bitmapData object to be used as the sprite's texture.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
-        public function Sprite2D(bitmap:BitmapData, init:Object = null)
+        public function DofSprite2D(bitmap:BitmapData, init:Object = null)
         {
         	this.bitmap = bitmap;
         	
             super(init);
     
             scaling = ini.getNumber("scaling", 1, {min:0});
-            rotation = ini.getNumber("rotation", 0);
+			rotation = ini.getNumber("rotation", 0);
             smooth = ini.getBoolean("smooth", false);
             deltaZ = ini.getNumber("deltaZ", 0);
             
-            _primitive = new DrawScaledBitmap(this, smooth, bitmap);
+            _dofcache = DofCache.getDofCache(bitmap);
+            _primitive = new DrawScaledBitmap(this, true);
         }
         
 		/**
@@ -70,19 +72,18 @@ package away3d.sprites
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
         	super.primitives(consumer, session);
-        	
 
             _sc = _center.project(projection);
             if (!_sc.visible)
                 return;
-
-            _persp = projection.zoom / (1 + _sc.z / projection.focus);
+                
+            _persp = projection.zoom / (1 + _sc.z / projection.focus);          
             _sc.z += deltaZ;
             _primitive.v = _sc;
             _primitive.scale = _persp*scaling;
             _primitive.rotation = rotation;
+            _primitive.bitmap = _dofcache.getBitmap(_sc.z);
             _primitive.calc();
-            
             consumer.primitive(_primitive);
         }
     }

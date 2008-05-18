@@ -2,7 +2,9 @@ package away3d.test
 {
     import flash.display.*;
 
-    /** Simple rounded rectagnle panel */ 
+    /**
+    * Simple rounded rectangle panel
+    */ 
     public class Panel extends Shape
     {
         public function Panel(x: int, y: int, width: int, height: int, alpha:Number = 0.3)

@@ -800,16 +800,10 @@ package away3d.core.base
                 traverser.leave(this);
             }
         }
-    	
-    	/**
-    	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
-    	 * 
-    	 * @param	consumer	The consumer instance
-    	 * @param	session		The render session of the 3d object
-    	 * 
-    	 * @see		away3d.core.traverse.PrimitiveTraverser
-    	 * @see		away3d.core.draw.DrawPrimitive
-    	 */
+        
+		/**
+		 * @inheritDoc
+		 */
         public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
             _v = session.view;

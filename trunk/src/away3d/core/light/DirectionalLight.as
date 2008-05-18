@@ -13,7 +13,7 @@ package away3d.core.light
 	import flash.utils.Dictionary;
 
     /** Point light source */
-    public class DirectionalLightSource extends AbstractLightSource
+    public class DirectionalLight extends LightPrimitive
     {
     	use namespace arcane;
     	

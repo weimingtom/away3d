@@ -9,19 +9,19 @@ package away3d.core.light
         public var points:Array;
 		public var numLights:int;
 		
-        public function ambientLight(ambient:AmbientLightSource):void
+        public function ambientLight(ambient:AmbientLight):void
         {
             ambients.push(ambient);
             numLights++;
         }
 
-        public function directionalLight(directional:DirectionalLightSource):void
+        public function directionalLight(directional:DirectionalLight):void
         {
             directionals.push(directional);
             numLights++;
         }
 		
-        public function pointLight(point:PointLightSource):void
+        public function pointLight(point:PointLight):void
         {
             points.push(point);
             numLights++;

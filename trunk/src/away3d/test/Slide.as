@@ -3,7 +3,9 @@ package away3d.test
     import away3d.containers.*;
     import away3d.core.render.*;
     
-    /** Slide of the demo */ 
+    /**
+    * Represents a single slide of the demo
+    */ 
     public class Slide
     {
         public var scene:Scene3D;

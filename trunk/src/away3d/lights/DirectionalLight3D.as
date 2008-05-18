@@ -6,25 +6,42 @@ package away3d.lights
     import away3d.core.render.*;
     import away3d.core.utils.*;
 	
-    /** Light source */ 
+    /**
+    * Lightsource that colors all shaded materials proportional to the dot product of the offset vector with the normal vector.
+    * The scalar value of distance does not affect the resulting light intensity, it is calulated as if the
+    * source is an infinite distance away with an infinite brightness.
+    */
     public class DirectionalLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
     {
-        internal var _color:int;
-        internal var _red:int;
-        internal var _green:int;
-        internal var _blue:int;
-        internal var _ambient:Number;
-        internal var _diffuse:Number;
-        internal var _specular:Number;
-        internal var _brightness:Number;
+        private var _color:int;
+        private var _red:int;
+        private var _green:int;
+        private var _blue:int;
+        private var _ambient:Number;
+        private var _diffuse:Number;
+        private var _specular:Number;
+        private var _brightness:Number;
     	
-    	internal var _colorDirty:Boolean;
-    	internal var _ambientDirty:Boolean;
-    	internal var _diffuseDirty:Boolean;
-    	internal var _specularDirty:Boolean;
-    	internal var _brightnessDirty:Boolean;
-    	
+    	private var _colorDirty:Boolean;
+    	private var _ambientDirty:Boolean;
+    	private var _diffuseDirty:Boolean;
+    	private var _specularDirty:Boolean;
+    	private var _brightnessDirty:Boolean;
+		private var _ls:DirectionalLight = new DirectionalLight();
+		
+        //TODO: add debug graphics for directional light
+        /**
+        * Toggles debug mode: light source is visualised in the scene.
+        */
         public var debug:Boolean;
+		
+		/**
+		 * Defines the color of the lightsource.
+		 */
+		public function get color():int
+		{
+			return _color;
+		}
 		
 		public function set color(val:int):void
 		{
@@ -38,11 +55,13 @@ package away3d.lights
             _specularDirty = true;
 		}
 		
-		public function get color():int
+		/**
+		 * Defines a coefficient for the ambient light intensity.
+		 */
+		public function get ambient():Number
 		{
-			return _color;
+			return _ambient;
 		}
-		
 		public function set ambient(val:Number):void
 		{
 			if (val < 0)
@@ -51,11 +70,14 @@ package away3d.lights
             _ambientDirty = true;
 		}
 		
-		public function get ambient():Number
+		/**
+		 * Defines a coefficient for the diffuse light intensity.
+		 */
+		public function get diffuse():Number
 		{
-			return _ambient;
+			return _diffuse;
 		}
-				
+		
 		public function set diffuse(val:Number):void
 		{
 			if (val < 0)
@@ -64,9 +86,12 @@ package away3d.lights
             _diffuseDirty = true;
 		}
 		
-		public function get diffuse():Number
+		/**
+		 * Defines a coefficient for the specular light intensity.
+		 */
+		public function get specular():Number
 		{
-			return _diffuse;
+			return _specular;
 		}
 		
 		public function set specular(val:Number):void
@@ -77,9 +102,13 @@ package away3d.lights
             _specularDirty = true;
 		}
 		
-		public function get specular():Number
+		//TODO: brightness on directional light needs implementing
+		/**
+		 * Defines a coefficient for the overall light intensity.
+		 */
+		public function get brightness():Number
 		{
-			return _specular;
+			return _brightness;
 		}
 		
 		public function set brightness(val:Number):void
@@ -88,13 +117,11 @@ package away3d.lights
             _brightnessDirty = true;
 		}
 		
-		public function get brightness():Number
-		{
-			return _brightness;
-		}
-		
-		public var _ls:DirectionalLightSource = new DirectionalLightSource();
-        
+		/**
+		 * Creates a new <code>DirectionalLight3D</code> object.
+		 * 
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function DirectionalLight3D(init:Object = null)
         {
             super(init);
@@ -108,7 +135,10 @@ package away3d.lights
             _ls.light = this;
             addOnTransformChange(_ls.updateDirection);
         }
-		
+        
+		/**
+		 * @inheritDoc
+		 */
         public function light(consumer:ILightConsumer):void
         {
             //update color
@@ -145,13 +175,22 @@ package away3d.lights
             _colorDirty = false;
             _brightnessDirty = false;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
         	super.primitives(consumer, session);
 
         }
-
+		
+		/**
+		 * Duplicates the light object's properties to another <code>DirectionalLight3D</code> object
+		 * 
+		 * @param	object	[optional]	The new object instance into which all properties are copied
+		 * @return						The new object instance with duplicated properties applied
+		 */
         public override function clone(object:* = null):*
         {
             var light:DirectionalLight3D = object || new DirectionalLight3D();

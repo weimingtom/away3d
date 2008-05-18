@@ -28,9 +28,9 @@ package away3d.materials
         /** @private */
         arcane var session:AbstractRenderSession;
 		
-		private var point:PointLightSource;
-		private var directional:DirectionalLightSource;
-		private var global:AmbientLightSource;
+		private var point:PointLight;
+		private var directional:DirectionalLight;
+		private var global:AmbientLight;
         private var projection:Projection;
         private var focus:Number;
         private var zoom:Number;

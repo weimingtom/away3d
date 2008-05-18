@@ -3,7 +3,7 @@ package away3d.core.light
 	import flash.display.*;
 
     /** Abstract light source */
-    public class AbstractLightSource
+    public class LightPrimitive
     {
  
         public var red:Number;

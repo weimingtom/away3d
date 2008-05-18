@@ -5,7 +5,7 @@ package away3d.core.light
 	import flash.display.*;
 
     /** Point light source */
-    public class AmbientLightSource extends AbstractLightSource
+    public class AmbientLight extends LightPrimitive
     {
         public var light:AmbientLight3D;
         
