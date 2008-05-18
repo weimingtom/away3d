@@ -7,8 +7,8 @@ package away3d.events
     
     public class LoaderEvent extends Event
     {
-    	static public var LOAD_SUCCESS:String = "loadsuccess";
-    	static public var LOAD_ERROR:String = "loaderror";
+    	public static const LOAD_SUCCESS:String = "loadsuccess";
+    	public static const LOAD_ERROR:String = "loaderror";
     	
         public var loader:Object3DLoader;
 
