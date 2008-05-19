@@ -175,7 +175,7 @@ package away3d.core.base
         }
 		
 		/**
-		 * Defines the v10 vertex of the face.
+		 * Defines the v1 vertex of the face.
 		 */
         public function get v1():Vertex
         {

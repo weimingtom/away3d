@@ -1,19 +1,40 @@
-package away3d.core.block
+package away3d.blockers
 {
     import away3d.core.*;
-    import away3d.core.draw.*;
     import away3d.core.base.*;
+    import away3d.core.block.*;
+    import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
-    /** Convex object blocking all drawing primitives under it */
+    /**
+    * Convex hull blocking all drawing primitives underneath.
+    */
     public class ConvexBlock extends Object3D implements IBlockerProvider, IPrimitiveProvider
     {
-        use namespace arcane;
-
-        public var debug:Boolean;
-        public var vertices:Array = [];
+    	private var _cb:ConvexBlocker = new ConvexBlocker();
     	
+        private function cross(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex):Number
+        {
+            return (b.x - a.x)*(c.y - a.y) - (c.x - a.x)*(b.y - a.y);
+        }
+        
+        /**
+        * Toggles debug mode: blocker is visualised in the scene.
+        */
+        public var debug:Boolean;
+        
+        /**
+        * Verticies to use for calculating the convex hull.
+        */
+        public var vertices:Array = [];
+		
+		/**
+		 * Creates a new <code>ConvexBlock</code> object.
+		 * 
+		 * @param	verticies				An Array of vertices to use for calculating the convex hull.
+		 * @param	init		[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function ConvexBlock(vertices:Array, init:Object = null)
         {
             super(init);
@@ -21,25 +42,17 @@ package away3d.core.block
             this.vertices = vertices;
 
             debug = ini.getBoolean("debug", false);
+            
+            _cb.source = this;
         }
-    
+        
+		/**
+		 * @inheritDoc
+		 */
         public function blockers(consumer:IBlockerConsumer):void
         {
-            consumer.blocker(blocker());
-        }
-
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
-        {
-        	super.primitives(consumer, session);
-        	
-            if (debug)
-                consumer.primitive(blocker());
-        }
-
-        public function blocker():Blocker
-        {
-            if (vertices.length < 3)
-                return null;
+        	if (vertices.length < 3)
+                return;
 
             var points:Array = [];
             var base:ScreenVertex = null;
@@ -71,6 +84,7 @@ package away3d.core.block
 
             for each (v in points)
                 v.num = (v.x - base.x) / (v.y - base.y);
+            
             base.num = -Infinity;
 
             points.sortOn("num", Array.NUMERIC);
@@ -94,14 +108,21 @@ package away3d.core.block
             if (o > 0)
                 result.pop();
 			
-			var blkr:ConvexBlocker = new ConvexBlocker(result);
-			blkr.source = this;
-            return blkr;
+			_cb.vertices = result;
+			_cb.calc();
+			
+            consumer.blocker(_cb);
         }
-
-        private static function cross(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex):Number
+        
+		/**
+		 * @inheritDoc
+		 */
+        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
-            return (b.x - a.x)*(c.y - a.y) - (c.x - a.x)*(b.y - a.y);
+        	super.primitives(consumer, session);
+        	
+            if (debug)
+                consumer.primitive(_cb);
         }
     }
 }

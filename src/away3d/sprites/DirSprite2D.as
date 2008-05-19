@@ -18,7 +18,7 @@ package away3d.sprites
         private var _center:Vertex = new Vertex();
 		private var _sc:ScreenVertex;
 		private var _persp:Number;
-        private var _primitive:DrawScaledBitmap;
+        private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _vertices:Array = [];
         private var _bitmaps:Dictionary = new Dictionary();
         
@@ -67,7 +67,7 @@ package away3d.sprites
                 add(x, y, z, b);
             }
             
-            _primitive = new DrawScaledBitmap(this, true);
+            _primitive.source = this;
         }
 		
 		/**
@@ -126,11 +126,14 @@ package away3d.sprites
                 
             _persp = projection.zoom / (1 + _sc.z / projection.focus);
             _sc.z += deltaZ;
-            _primitive.v = _sc;
+            
+            _primitive.screenvertex = _sc;
+            _primitive.smooth = smooth;
+            _primitive.bitmap = bitmap;
             _primitive.scale = _persp*scaling;
             _primitive.rotation = rotation;
-            _primitive.bitmap = bitmap;
             _primitive.calc();
+            
             consumer.primitive(_primitive);
         }
     }

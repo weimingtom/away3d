@@ -231,6 +231,8 @@ package away3d.core.base
 		private var _quaternion:Quaternion = new Quaternion();
 		private var _rot:Number3D;
         private var _position:Number3D = new Number3D();
+        private var _ddo:DrawDisplayObject = new DrawDisplayObject();
+        private var _sc:ScreenVertex = new ScreenVertex();
         private var _v:View3D;
         private var _c:DisplayObject;       		
 		private var _vector:Number3D = new Number3D();
@@ -824,7 +826,17 @@ package away3d.core.base
                 ownSession.lightarray = session.lightarray;
                 this.session = ownSession;
              	
-                consumer.primitive(new DrawDisplayObject(this, _c, new ScreenVertex(_c.x, _c.y, Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty)), session));
+             	_sc.x = _c.x;
+             	_sc.y = _c.y;
+             	_sc.z = Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
+             	
+             	_ddo.source = this;
+             	_ddo.screenvertex = _sc;
+             	_ddo.displayobject = _c;
+             	_ddo.session = session;
+             	_ddo.calc();
+             	
+                consumer.primitive(_ddo);
             }
             else
             {                
@@ -1016,9 +1028,9 @@ package away3d.core.base
         }
 		
 		/**
-		 * String representation of the 3d object
+		 * Used to trace the values of a 3d object.
 		 * 
-		 * @return A string containing the name, x, y and z values of the 3d object
+		 * @return A string representation of the 3d object.
 		 */
         public override function toString():String
         {

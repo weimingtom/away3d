@@ -189,10 +189,12 @@ package away3d.core.base
         
         /** An object that contains user defined properties. @default null */
         public var extra:Object;
-
-        //public static var defaultExtraClass:Class;
-
-        /** String representation */
+		
+		/**
+		 * Used to trace the values of a vertex object.
+		 * 
+		 * @return A string representation of the vertex object.
+		 */
         public override function toString(): String
         {
             return "new Vertex("+_x+", "+_y+", "+z+")";

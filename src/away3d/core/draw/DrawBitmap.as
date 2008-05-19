@@ -5,48 +5,52 @@ package away3d.core.draw
                                
     import flash.display.BitmapData;
 
-    /** Unscaled bitmap drawing primitive */
+    /**
+    * Unscaled bitmap drawing primitive
+    */
     public class DrawBitmap extends DrawPrimitive
     {
+    	/**
+    	 * The bitmapData object used as the bitmap primitive texture.
+    	 */
         public var bitmap:BitmapData;
 
-        public var v:ScreenVertex;
-
-        public var left:Number;
-        public var top:Number;
-        public var width:Number;
-        public var height:Number;
-
-        public function DrawBitmap(source:Object3D, bitmap:BitmapData, v:ScreenVertex)
+        public var screenvertex:ScreenVertex;
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function calc():void
         {
-            this.source = source;
-            this.bitmap = bitmap;
-            this.v = v;
-            calc();
-        }
-
-        public function calc():void
-        {
-            screenZ = v.z;
+            screenZ = screenvertex.z;
             minZ = screenZ;
             maxZ = screenZ;
-            minX = v.x - bitmap.width/2;
-            minY = v.y - bitmap.height/2;
-            maxX = v.x + bitmap.width/2;
-            maxY = v.y + bitmap.height/2;
+            minX = screenvertex.x - bitmap.width/2;
+            minY = screenvertex.y - bitmap.height/2;
+            maxX = screenvertex.x + bitmap.width/2;
+            maxY = screenvertex.y + bitmap.height/2;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function clear():void
         {
             bitmap = null;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function render():void
         {
-        	source.session.renderBitmap(bitmap,v);
+        	source.session.renderBitmap(bitmap,screenvertex);
         }
         
         //TODO: correct function for contains in DrawBitmap
+		/**
+		 * @inheritDoc
+		 */
         public override function contains(x:Number, y:Number):Boolean
         {   
             return true;

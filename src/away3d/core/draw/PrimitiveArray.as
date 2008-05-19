@@ -3,28 +3,35 @@ package away3d.core.draw
     import away3d.core.block.*;
     import away3d.core.render.*;
 
-    /** Array for storing drawing primitives */
+    /**
+    * Array for storing drawing primitives.
+    */
     public class PrimitiveArray implements IPrimitiveConsumer
     {
-        private var primitives:Array;
-		
+        private var _primitives:Array;
         private var _clip:Clipping;
         private var _blockers:Array;
 		
+		/**
+		 * Defines the clipping object to be used on the drawing primitives.
+		 */
 		public function set clip(val:Clipping):void
 		{
 			_clip = val;
-			primitives = [];
+			_primitives = [];
 		}
+		
+		/**
+		 * Defines the array of blocker primitives to be used on the drawing primitives.
+		 */
 		public function set blockers(val:Array):void
 		{
 			_blockers = val;
 		}
-		
-        public function PrimitiveArray()
-        {
-        }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function primitive(pri:DrawPrimitive):void
         {
             if (_clip.check(pri))
@@ -40,13 +47,18 @@ package away3d.core.draw
                         return;
                     i++;
                 }
-                primitives.push(pri);
+                _primitives.push(pri);
             }
         }
 		
+		/**
+		 * A list of primitives that have been clipped and blocked.
+		 * 
+		 * @return	An array containing the primitives to be rendered.
+		 */
         public function list():Array
         {
-            return primitives;
+            return _primitives;
         }
     }
 }

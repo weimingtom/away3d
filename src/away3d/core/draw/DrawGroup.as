@@ -2,15 +2,23 @@ package away3d.core.draw
 {
     import away3d.core.render.*;
     import away3d.core.base.*;
-
+	
+	/**
+	 * Group drawing primitive.
+	 */
     public class DrawGroup extends DrawPrimitive implements IPrimitiveConsumer
     {
-        public var primitives:Array = [];
-
-        public function DrawGroup(source:Object3D, projection:Projection)
+    	/**
+    	 * The primitives contained in the group.
+    	 */
+        public var primitives:Array;
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function clear():void
         {
-            this.source = source;
-            this.projection = projection;
+        	primitives = [];
             minZ = Infinity;
             maxZ = -Infinity;
             minX =  100000;
@@ -18,7 +26,12 @@ package away3d.core.draw
             minY =  100000;
             maxY = -100000;
         }
-
+		 
+    	/**
+    	 * Adds a drawing primitive to the primitive group
+    	 *
+		 * @param	pri		The drawing primitive to add.
+		 */
         public function primitive(pri:DrawPrimitive):void
         {
             primitives.push(pri);
@@ -41,13 +54,19 @@ package away3d.core.draw
             screenZ = (maxZ + minZ) / 2;
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public override function render():void
         {
             primitives.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
             for each (var pri:DrawPrimitive in primitives)
                 pri.render();
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function contains(x:Number, y:Number):Boolean
         {   
             for each (var pri:DrawPrimitive in primitives)
