@@ -100,9 +100,9 @@ package away3d.core.base
         }
 		
 		/**
-		 * String representation of the uv object.
+		 * Used to trace the values of a uv object.
 		 * 
-		 * @return A string containing the u and v values of the uv object.
+		 * @return A string representation of the uv object.
 		 */
         public override function toString():String
         {

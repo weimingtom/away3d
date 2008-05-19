@@ -35,7 +35,7 @@ package away3d.core.draw
             return "new ScreenVertex("+x+', '+y+', '+z+")";
         }
 		
-		internal var persp:Number;
+		private var persp:Number;
 		
         public function deperspective(focus:Number):Vertex
         {

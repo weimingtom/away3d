@@ -17,7 +17,7 @@ package away3d.sprites
         private var _center:Vertex = new Vertex();
 		private var _sc:ScreenVertex;
 		private var _persp:Number;
-        private var _primitive:DrawScaledBitmap;
+        private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _dofcache:DofCache;
 		
 		/**
@@ -63,7 +63,8 @@ package away3d.sprites
             deltaZ = ini.getNumber("deltaZ", 0);
             
             _dofcache = DofCache.getDofCache(bitmap);
-            _primitive = new DrawScaledBitmap(this, true);
+            
+            _primitive.source = this;
         }
         
 		/**
@@ -79,11 +80,14 @@ package away3d.sprites
                 
             _persp = projection.zoom / (1 + _sc.z / projection.focus);          
             _sc.z += deltaZ;
-            _primitive.v = _sc;
+            
+            _primitive.screenvertex = _sc;
+            _primitive.smooth = smooth;
+            _primitive.bitmap = bitmap;
             _primitive.scale = _persp*scaling;
             _primitive.rotation = rotation;
-            _primitive.bitmap = _dofcache.getBitmap(_sc.z);
             _primitive.calc();
+            
             consumer.primitive(_primitive);
         }
     }

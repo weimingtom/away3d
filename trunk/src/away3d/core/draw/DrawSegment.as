@@ -1,29 +1,93 @@
 package away3d.core.draw
 {
-    import away3d.materials.*;
+	import away3d.core.*;
     import away3d.core.render.*;
+    import away3d.materials.*;
 
-    /** Line segment drawing primitive */
+    /**
+    * Line segment drawing primitive
+    */
     public class DrawSegment extends DrawPrimitive
     {
+    	use namespace arcane;
+		/** @private */
+		arcane function onepointcut(v01:ScreenVertex):Array
+		{
+            return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
+    	}
+    	
+    	private var focus:Number;  
+        private var ax:Number;
+        private var ay:Number;
+        private var az:Number;
+        private var bx:Number;
+        private var by:Number;
+        private var bz:Number;
+        private var dx:Number;
+        private var dy:Number;
+        private var azf:Number;
+        private var bzf:Number;
+        private var faz:Number;
+        private var fbz:Number;
+        private var xfocus:Number;
+        private var yfocus:Number;
+        private var axf:Number;
+        private var bxf:Number;
+        private var ayf:Number;
+        private var byf:Number;
+        private var det:Number;
+        private var db:Number;
+        private var da:Number;
+        
+        private function distanceToCenter(x:Number, y:Number):Number
+        {   
+            var centerx:Number = (v0.x + v1.x) / 2;
+            var centery:Number = (v0.y + v1.y) / 2;
+
+            return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
+        }
+        
+		/**
+		 * The v0 screenvertex of the segment primitive.
+		 */
         public var v0:ScreenVertex;
-        public var v1:ScreenVertex;
-
-        public var length:Number;
-
-        public var material:ISegmentMaterial;
 		
+		/**
+		 * The v1 screenvertex of the segment primitive.
+		 */
+        public var v1:ScreenVertex;
+		
+				
+		/**
+		 * The screen length of the segment primitive.
+		 */
+        public var length:Number;
+		
+		/**
+		 * The material of the segment primitive.
+		 */
+        public var material:ISegmentMaterial;
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function clear():void
         {
             v0 = null;
             v1 = null;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function render():void
         {
             material.renderSegment(this);
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function contains(x:Number, y:Number):Boolean
         {   
             if (Math.abs(v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y)) > 0.001*1000*1000)
@@ -34,42 +98,10 @@ package away3d.core.draw
 
             return true;
         }
-		
-		public function  onepointcut(v01:ScreenVertex):Array
-		{
-            return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
-    	}
-    	
-    	internal var focus:Number;
-          
-        internal var ax:Number;
-        internal var ay:Number;
-        internal var az:Number;
-        internal var bx:Number;
-        internal var by:Number;
-        internal var bz:Number;
         
-        internal var dx:Number;
-        internal var dy:Number;
-
-        internal var azf:Number;
-        internal var bzf:Number;
-
-        internal var faz:Number;
-        internal var fbz:Number;
-
-        internal var xfocus:Number;
-        internal var yfocus:Number;
-
-        internal var axf:Number;
-        internal var bxf:Number;
-        internal var ayf:Number;
-        internal var byf:Number;
-
-        internal var det:Number;
-        internal var db:Number;
-        internal var da:Number;
-        
+		/**
+		 * @inheritDoc
+		 */
         public override function getZ(x:Number, y:Number):Number
         {
             if (projection == null)
@@ -113,7 +145,10 @@ package away3d.core.draw
 
             return (da*az + db*bz) / det;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function quarter(focus:Number):Array
         {
             if (length < 5)
@@ -123,16 +158,11 @@ package away3d.core.draw
 
             return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
         }
-
-        public function distanceToCenter(x:Number, y:Number):Number
-        {   
-            var centerx:Number = (v0.x + v1.x) / 2;
-            var centery:Number = (v0.y + v1.y) / 2;
-
-            return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
-        }
-
-        public function calc():void
+		
+		/**
+		 * @inheritDoc
+		 */
+        public override function calc():void
         {
         	if (v0.z < v1.z) {
         		minZ = v0.z;
@@ -161,7 +191,10 @@ package away3d.core.draw
             
             length = Math.sqrt((maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY));
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function toString():String
         {
             return "S{ screenZ = " + screenZ + ", minZ = " + minZ + ", maxZ = " + maxZ + " }";

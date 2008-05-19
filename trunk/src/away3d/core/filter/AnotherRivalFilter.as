@@ -161,8 +161,8 @@ package away3d.core.filter
 
         private function zconflictTB(q:DrawTriangle, r:DrawScaledBitmap):int
         {
-            if (q.contains(r.v.x, r.v.y))
-                return zcompare(q, r, r.v.x, r.v.y);
+            if (q.contains(r.screenvertex.x, r.screenvertex.y))
+                return zcompare(q, r, r.screenvertex.x, r.screenvertex.y);
             else
             if (q.contains(r.minX, r.minY))
                 return zcompare(q, r, r.minX, r.minY);

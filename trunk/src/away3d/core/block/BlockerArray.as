@@ -2,22 +2,32 @@ package away3d.core.block
 {
     import away3d.core.render.*;
 
-    /** Array for storing blockers */
+    /**
+    * Array for storing blocker objects
+    */
     public class BlockerArray implements IBlockerConsumer
     {
         private var _blockers:Array;
         private var _clip:Clipping;
+		private var blockers:Array;
+		
+		/**
+		 * Determines the viewport clipping to be used on blocker primitives.
+		 */
+		public function get clip():Clipping
+		{
+			return _clip;
+		}
 		
 		public function set clip(val:Clipping):void
 		{
 			_clip = val;
 			_blockers = [];
 		}
-		
-        public function BlockerArray()
-        {
-        }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public function blocker(pri:Blocker):void
         {
             if (_clip.check(pri))
@@ -26,14 +36,15 @@ package away3d.core.block
             }
         }
 		
-		internal var blockers:Array;
-		
+		/**
+		 * Returns a sorted list of blocker primitives for use in <code>BasicRender</code>
+		 * 
+		 * @see away3d.core.render.BasicRender
+		 */
         public function list():Array
         {
-            blockers = _blockers;
-            _blockers = null;
-            blockers.sortOn("screenZ", Array.NUMERIC);
-            return blockers;
+            _blockers.sortOn("screenZ", Array.NUMERIC);
+            return _blockers;
         }
 
     }

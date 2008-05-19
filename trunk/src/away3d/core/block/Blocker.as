@@ -2,20 +2,15 @@ package away3d.core.block
 {
     import away3d.core.draw.*;
 
-    /** Abstract primitive that can block other primitives from drawing */
+    /**
+    * Abstract primitive that can block other primitives from drawing
+    */
     public class Blocker extends DrawPrimitive
-    {
-        /*
-        public var screenZ:Number;
-        public var minX:int;
-        public var maxX:int;
-        public var minY:int;
-        public var maxY:int;
-
-        public function contains(x:Number, y:Number):Boolean
-        {   
-            return false;
-        }
+    {   
+        /**
+        * Return value signifies whether the given drawprimitive should be blocked. Called from the PrimitiveArray object on each blocker in the blockers array.
+        * 
+        * @see away3d.core.draw.PrimitiveArray
         */
         public function block(pri:DrawPrimitive):Boolean
         {

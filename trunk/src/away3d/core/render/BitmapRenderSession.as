@@ -1,6 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.View3D;
+	import away3d.core.*;
 	import away3d.core.draw.*;
 	
 	import flash.display.*;
@@ -9,6 +10,8 @@ package away3d.core.render
     
 	public class BitmapRenderSession extends AbstractRenderSession
 	{
+		use namespace arcane;
+		
 		private var _container:Bitmap;
 		private var _width:int;
 		private var _height:int;

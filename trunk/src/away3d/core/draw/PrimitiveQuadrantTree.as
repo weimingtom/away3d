@@ -3,7 +3,9 @@ package away3d.core.draw
     import away3d.core.base.*;
     import away3d.core.render.*;
 
-    /** Quadrant tree for storing drawing primitives */
+    /**
+    * Quadrant tree for storing drawing primitives
+    */
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
         public var root:PrimitiveQuadrantTreeNode;

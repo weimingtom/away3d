@@ -1,19 +1,30 @@
 package away3d.core.block
 {
-    import away3d.core.render.*;
     import away3d.core.draw.*;
+    import away3d.core.render.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.Graphics;
     import flash.utils.*;
 
-    /** Convex hull that blocks all them primitives containing completely inside */
+    /**
+    * Convex hull primitive that blocks all primitives behind and contained completely inside.
+    */
     public class ConvexBlocker extends Blocker
     {
-        public var boundlines:Array = [];
-
-        public function ConvexBlocker(vertices:Array)
-        {
+        private var _boundlines:Array;
+        
+		/**
+		 * Defines the vertices used to calulate the convex hull.
+		 */
+		public var vertices:Array;
+        
+		/**
+		 * @inheritDoc
+		 */
+		public override function calc():void
+		{	
+			_boundlines = [];
             screenZ = 0;
             maxX = -Infinity;
             maxY = -Infinity;
@@ -22,7 +33,7 @@ package away3d.core.block
             for (var i:int = 0; i < vertices.length; i++)
             {
                 var v:ScreenVertex = vertices[i];
-                boundlines.push(Line2D.from2points(v, vertices[(i+1) % vertices.length]));
+                _boundlines.push(Line2D.from2points(v, vertices[(i+1) % vertices.length]));
                 if (screenZ < v.z)
                     screenZ = v.z;
                 if (minX > v.x)
@@ -36,16 +47,22 @@ package away3d.core.block
             }
             maxZ = screenZ;
             minZ = screenZ;
-        }
-
+		}
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function contains(x:Number, y:Number):Boolean
         {   
-            for each (var boundline:Line2D in boundlines)
+            for each (var boundline:Line2D in _boundlines)
                 if (boundline.side(x, y) < 0)
                     return false;
             return true;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function block(pri:DrawPrimitive):Boolean
         {
             if (pri is DrawTriangle)
@@ -55,16 +72,19 @@ package away3d.core.block
             }
             return contains(pri.minX, pri.minY) && contains(pri.minX, pri.maxY) && contains(pri.maxX, pri.maxY) && contains(pri.maxX, pri.minY);
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function render():void
         {
             var graphics:Graphics = source.session.customGraphics;
             graphics.lineStyle(2, Color.fromHSV(0, 0, (Math.sin(getTimer()/1000)+1)/2));
-            for (var i:int = 0; i < boundlines.length; i++)
+            for (var i:int = 0; i < _boundlines.length; i++)
             {
-                var line:Line2D = boundlines[i];
-                var prev:Line2D = boundlines[(i-1+boundlines.length) % boundlines.length];
-                var next:Line2D = boundlines[(i+1+boundlines.length) % boundlines.length];
+                var line:Line2D = _boundlines[i];
+                var prev:Line2D = _boundlines[(i-1+_boundlines.length) % _boundlines.length];
+                var next:Line2D = _boundlines[(i+1+_boundlines.length) % _boundlines.length];
 
                 var a:ScreenVertex = Line2D.cross(prev, line);
                 var b:ScreenVertex = Line2D.cross(line, next);

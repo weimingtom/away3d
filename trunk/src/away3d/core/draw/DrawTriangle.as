@@ -10,89 +10,14 @@ package away3d.core.draw
     import flash.geom.Matrix;
     import flash.geom.Rectangle;
     
-    /** Triangle drawing primitive */
+    /**
+    * Triangle drawing primitive
+    */
     public class DrawTriangle extends DrawPrimitive
     {
         use namespace arcane;
-        
-        public var v0:ScreenVertex;
-        public var v1:ScreenVertex;
-        public var v2:ScreenVertex;
-        public var uv0:UV;
-        public var uv1:UV;
-        public var uv2:UV;
-        public var area:Number;
-
-        public var face:Face;
-        
-        public var backface:Boolean = false;
-        
-        public var material:ITriangleMaterial;
-        public var bitmapMaterial:BitmapData;
-        public var bitmapPhong:BitmapData;
-        public var bitmapNormal:BitmapData;
-        
-        public var bitmapReflection:BitmapData;
-        public var bitmapDisplacementX:BitmapData;
-        public var bitmapDisplacementY:BitmapData;
-        
-        public var normalRect:Rectangle;
-        
-        public var invtexturemapping:Matrix;
-        public var texturemapping:Matrix;
-        
-        public override function clear():void
-        {
-            v0 = null;
-            v1 = null;
-            v2 = null;
-            uv0 = null;
-            uv1 = null;
-            uv2 = null;
-            texturemapping = null;
-        }
-		
-        public override function render():void
-        {
-            material.renderTriangle(this);
-        }
-
-        public final function maxEdgeSqr():Number
-        {
-            return Math.max(Math.max(v0.distanceSqr(v1),
-                                        v1.distanceSqr(v2)),
-                                        v2.distanceSqr(v0));
-        }
-
-        public final function minEdgeSqr():Number
-        {
-            return Math.min(Math.min(v0.distanceSqr(v1),
-                                        v1.distanceSqr(v2)),
-                                        v2.distanceSqr(v0));
-        }
-
-        public final function maxDistortSqr(focus:Number):Number
-        {
-            return Math.max(Math.max(v0.distortSqr(v1, focus),
-                                        v1.distortSqr(v2, focus)),
-                                        v2.distortSqr(v0, focus));
-        }
-
-        public final function minDistortSqr(focus:Number):Number
-        {
-            return Math.min(Math.min(v0.distortSqr(v1, focus),
-                                        v1.distortSqr(v2, focus)),
-                                        v2.distortSqr(v0, focus));
-        }
-        
-		internal var d01:Number;
-        internal var d12:Number;
-        internal var d20:Number;
-        internal var dd01:Number;
-        internal var dd12:Number;
-        internal var dd20:Number;
-                
-        public final function acuteAngled():Boolean
+		/** @private */
+        arcane final function acuteAngled():Boolean
         {
             d01 = v0.distanceSqr(v1);
             d12 = v1.distanceSqr(v2);
@@ -103,19 +28,256 @@ package away3d.core.draw
             
             return (dd01 <= dd12 + dd20) && (dd12 <= dd20 + dd01) && (dd20 <= dd01 + dd12);
         }
+		/** @private */
+        arcane final function maxEdgeSqr():Number
+        {
+            return Math.max(Math.max(v0.distanceSqr(v1),
+                                        v1.distanceSqr(v2)),
+                                        v2.distanceSqr(v0));
+        }
+		/** @private */
+        arcane final function minEdgeSqr():Number
+        {
+            return Math.min(Math.min(v0.distanceSqr(v1),
+                                        v1.distanceSqr(v2)),
+                                        v2.distanceSqr(v0));
+        }
+		/** @private */
+        arcane final function maxDistortSqr(focus:Number):Number
+        {
+            return Math.max(Math.max(v0.distortSqr(v1, focus),
+                                        v1.distortSqr(v2, focus)),
+                                        v2.distortSqr(v0, focus));
+        }
+		/** @private */
+        arcane final function minDistortSqr(focus:Number):Number
+        {
+            return Math.min(Math.min(v0.distortSqr(v1, focus),
+                                        v1.distortSqr(v2, focus)),
+                                        v2.distortSqr(v0, focus));
+        }
+		/** @private */
+        arcane function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
+        {
+            if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
+            {
+                return [
+                    create(face, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
+                    create(face, material, projection, v01,  v1, v12, uv01,  uv1, uv12),
+                    create(face, material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
+            }
+            else
+            {
+                return [
+                    create(face, material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
+                    create(face, material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
+                    create(face, material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
+            }
+        }
+		/** @private */
+        arcane final function bisect(focus:Number):Array
+        {
+            d01 = v0.distanceSqr(v1);
+            d12 = v1.distanceSqr(v2);
+            d20 = v2.distanceSqr(v0);
+
+            if ((d12 >= d01) && (d12 >= d20))
+                return bisect12(focus);
+            else
+            if (d01 >= d20)
+                return bisect01(focus);
+            else
+                return bisect20(focus);
+        }
+		/** @private */
+        arcane final function distortbisect(focus:Number):Array
+        {
+            d01 = v0.distortSqr(v1, focus),
+            d12 = v1.distortSqr(v2, focus),
+            d20 = v2.distortSqr(v0, focus);
+
+            if ((d12 >= d01) && (d12 >= d20))
+                return bisect12(focus);
+            else
+            if (d01 >= d20)
+                return bisect01(focus);
+            else
+                return bisect20(focus);
+        }
         
-        internal var materialWidth:Number;
-        internal var materialHeight:Number;
+		private var d01:Number;
+        private var d12:Number;
+        private var d20:Number;
+        private var dd01:Number;
+        private var dd12:Number;
+        private var dd20:Number;
+        private var materialWidth:Number;
+        private var materialHeight:Number;
+        private var _u0:Number;
+        private var _u1:Number;
+        private var _u2:Number;
+        private var _v0:Number;
+        private var _v1:Number;
+        private var _v2:Number;
+        private var focus:Number;
+        private var ax:Number;
+        private var ay:Number;
+        private var az:Number;
+        private var bx:Number;
+        private var by:Number;
+        private var bz:Number;
+        private var cx:Number;
+        private var cy:Number;
+        private var cz:Number;
+        private var azf:Number;
+        private var bzf:Number;
+        private var czf:Number;
+        private var faz:Number;
+        private var fbz:Number;
+        private var fcz:Number;
+        private var axf:Number;
+        private var bxf:Number;
+        private var cxf:Number;
+        private var ayf:Number;
+        private var byf:Number;
+        private var cyf:Number;
+        private var det:Number;
+        private var da:Number;
+        private var db:Number;
+        private var dc:Number;
+		private var au:Number;
+        private var av:Number;
+        private var bu:Number;
+        private var bv:Number;
+        private var cu:Number;
+        private var cv:Number;
+        private var v01:ScreenVertex;
+        private var v12:ScreenVertex;
+        private var v20:ScreenVertex;
+        private var uv01:UV;
+        private var uv12:UV;
+        private var uv20:UV;
         
-        internal var _u0:Number;
-        internal var _u1:Number;
-        internal var _u2:Number;
-        internal var _v0:Number;
-        internal var _v1:Number;
-        internal var _v2:Number;
+        private function num(n:Number):Number
+        {
+            return int(n*1000)/1000;
+        }
         
-        internal var t:Matrix;
+        private final function bisect01(focus:Number):Array
+        {
+            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
+                uv01:UV = UV.median(uv0, uv1);
+            return [
+                create(face, material, projection, v2, v0, v01, uv2, uv0, uv01),
+                create(face, material, projection, v01, v1, v2, uv01, uv1, uv2) 
+            ];
+        }
+
+        private final function bisect12(focus:Number):Array
+        {
+            var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
+                uv12:UV = UV.median(uv1, uv2);
+            return [
+                create(face, material, projection, v0, v1, v12, uv0, uv1, uv12),
+                create(face, material, projection, v12, v2, v0, uv12, uv2, uv0) 
+            ];
+        }
+
+        private final function bisect20(focus:Number):Array
+        {
+            var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
+                uv20:UV = UV.median(uv2, uv0);
+            return [
+                create(face, material, projection, v1, v2, v20, uv1, uv2, uv20),
+                create(face, material, projection, v20, v0, v1, uv20, uv0, uv1) 
+            ];                                                
+        }
         
+		/**
+		 * The v0 screenvertex of the triangle primitive.
+		 */
+        public var v0:ScreenVertex;
+        
+		/**
+		 * The v1 screenvertex of the triangle primitive.
+		 */
+        public var v1:ScreenVertex;
+        
+		/**
+		 * The v2 screenvertex of the triangle primitive.
+		 */
+        public var v2:ScreenVertex;
+        
+		/**
+		 * The uv0 uv coordinate of the triangle primitive.
+		 */
+        public var uv0:UV;
+        
+		/**
+		 * The uv1 uv coordinate of the triangle primitive.
+		 */
+        public var uv1:UV;
+        
+		/**
+		 * The uv2 uv coordinate of the triangle primitive.
+		 */
+        public var uv2:UV;
+        
+		/**
+		 * The calulated area of the triangle primitive.
+		 */
+        public var area:Number;
+        
+    	/**
+    	 * A reference to the face object used by the triangle primitive.
+    	 */
+        public var face:Face;
+        
+    	/**
+    	 * Indicates whether the face of the triangle primitive is facing away from the camera.
+    	 */
+        public var backface:Boolean = false;
+        
+    	/**
+    	 * The bitmapData object used as the triangle primitive texture.
+    	 */
+        public var material:ITriangleMaterial;
+        
+    	/**
+    	 * The inverse texturemapping matrix of the triangle primitive texture.
+    	 */
+        public var invtexturemapping:Matrix;
+        
+    	/**
+    	 * The texturemapping matrix of the triangle primitive texture.
+    	 */
+        public var texturemapping:Matrix;
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function clear():void
+        {
+            v0 = null;
+            v1 = null;
+            v2 = null;
+            uv0 = null;
+            uv1 = null;
+            uv2 = null;
+            texturemapping = null;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function render():void
+        {
+            material.renderTriangle(this);
+        }
+        
+        /**
+        * Calculates from the uv coordinates the mapping matrix required to draw the triangle primitive.
+        */
         public final function transformUV(material:IUVMaterial):Matrix
         {
             materialWidth = material.width,
@@ -171,38 +333,9 @@ package away3d.core.draw
             return texturemapping;
         }
         
-        internal var focus:Number;
-        
-        internal var ax:Number;
-        internal var ay:Number;
-        internal var az:Number;
-        internal var bx:Number;
-        internal var by:Number;
-        internal var bz:Number;
-        internal var cx:Number;
-        internal var cy:Number;
-        internal var cz:Number;
-        
-        internal var azf:Number;
-        internal var bzf:Number;
-        internal var czf:Number;
-
-        internal var faz:Number;
-        internal var fbz:Number;
-        internal var fcz:Number;
-
-        internal var axf:Number;
-        internal var bxf:Number;
-        internal var cxf:Number;
-        internal var ayf:Number;
-        internal var byf:Number;
-        internal var cyf:Number;
-
-        internal var det:Number;
-        internal var da:Number;
-        internal var db:Number;
-        internal var dc:Number;
-                
+		/**
+		 * @inheritDoc
+		 */
         public override final function getZ(x:Number, y:Number):Number
         {
             if (projection == null)
@@ -252,13 +385,14 @@ package away3d.core.draw
             return (da*az + db*bz + dc*cz) / det;
         }
 		
-		internal var au:Number;
-        internal var av:Number;
-        internal var bu:Number;
-        internal var bv:Number;
-        internal var cu:Number;
-        internal var cv:Number;
-        
+		/**
+		 * Calulates the uv value of a precise point on the drawing primitive.
+		 * Used to determine the mouse position in interactive materials.
+		 * 
+		 * @param	x	The x position of the point to be tested.
+		 * @param	y	The y position of the point to be tested.
+		 * @return		The uv value.
+		 */
         public function getUV(x:Number, y:Number):UV
         {
             if (uv0 == null)
@@ -320,92 +454,10 @@ package away3d.core.draw
 
             return new UV((da*au + db*bu + dc*cu) / det, (da*av + db*bv + dc*cv) / det);
         }
-
-        public function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
-        {
-            if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
-            {
-                return [
-                    create(face, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
-                    create(face, material, projection, v01,  v1, v12, uv01,  uv1, uv12),
-                    create(face, material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
-            }
-            else
-            {
-                return [
-                    create(face, material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
-                    create(face, material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
-                    create(face, material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
-            }
-        }
         
-        public final function bisect(focus:Number):Array
-        {
-            d01 = v0.distanceSqr(v1);
-            d12 = v1.distanceSqr(v2);
-            d20 = v2.distanceSqr(v0);
-
-            if ((d12 >= d01) && (d12 >= d20))
-                return bisect12(focus);
-            else
-            if (d01 >= d20)
-                return bisect01(focus);
-            else
-                return bisect20(focus);
-        }
-
-        public final function distortbisect(focus:Number):Array
-        {
-            d01 = v0.distortSqr(v1, focus),
-            d12 = v1.distortSqr(v2, focus),
-            d20 = v2.distortSqr(v0, focus);
-
-            if ((d12 >= d01) && (d12 >= d20))
-                return bisect12(focus);
-            else
-            if (d01 >= d20)
-                return bisect01(focus);
-            else
-                return bisect20(focus);
-        }
-
-        private final function bisect01(focus:Number):Array
-        {
-            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
-                uv01:UV = UV.median(uv0, uv1);
-            return [
-                create(face, material, projection, v2, v0, v01, uv2, uv0, uv01),
-                create(face, material, projection, v01, v1, v2, uv01, uv1, uv2) 
-            ];
-        }
-
-        private final function bisect12(focus:Number):Array
-        {
-            var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
-                uv12:UV = UV.median(uv1, uv2);
-            return [
-                create(face, material, projection, v0, v1, v12, uv0, uv1, uv12),
-                create(face, material, projection, v12, v2, v0, uv12, uv2, uv0) 
-            ];
-        }
-
-        private final function bisect20(focus:Number):Array
-        {
-            var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
-                uv20:UV = UV.median(uv2, uv0);
-            return [
-                create(face, material, projection, v1, v2, v20, uv1, uv2, uv20),
-                create(face, material, projection, v20, v0, v1, uv20, uv0, uv1) 
-            ];                                                
-        }
-        
-        internal var v01:ScreenVertex;
-        internal var v12:ScreenVertex;
-        internal var v20:ScreenVertex;
-        internal var uv01:UV;
-        internal var uv12:UV;
-        internal var uv20:UV;
-        
+		/**
+		 * @inheritDoc
+		 */
         public override final function quarter(focus:Number):Array
         {
             if (area < 20)
@@ -425,7 +477,10 @@ package away3d.core.draw
                 create(face, material, projection, v01, v12, v20, uv01, uv12, uv20)
             ];
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override final function contains(x:Number, y:Number):Boolean
         {   
             if (v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y) < -0.001)
@@ -447,8 +502,11 @@ package away3d.core.draw
 
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
-
-        public function calc():void
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function calc():void
         {
         	if (v0.x > v1.x) {
                 if (v0.x > v2.x) maxX = v0.x;
@@ -502,7 +560,9 @@ package away3d.core.draw
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
         }
         
-        
+		/**
+		 * @inheritDoc
+		 */
         public override function toString():String
         {
             var color:String = "";
@@ -518,11 +578,5 @@ package away3d.core.draw
             }
             return "T{"+color+int(area)+" screenZ = " + num(screenZ) + ", minZ = " + num(minZ) + ", maxZ = " + num(maxZ) + " }";
         }
-
-        private static function num(n:Number):Number
-        {
-            return int(n*1000)/1000;
-        }
-
     }
 }
