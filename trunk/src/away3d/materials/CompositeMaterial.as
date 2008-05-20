@@ -22,9 +22,9 @@ package away3d.materials
 	{
 		use namespace arcane;
         /** @private */
-		arcane var _color:uint = 0xFFFFFF;
+		arcane var _color:uint;
         /** @private */
-        arcane var _alpha:Number = 1;
+        arcane var _alpha:Number;
         /** @private */
 		arcane var _colorTransform:ColorTransform = new ColorTransform();
         /** @private */
@@ -126,7 +126,7 @@ package away3d.materials
                 return;
             } else if (!_colorTransform)
             	_colorTransform = new ColorTransform();
-			
+            
 			_colorTransform.redMultiplier = _red;
 			_colorTransform.greenMultiplier = _green;
 			_colorTransform.blueMultiplier = _blue;
@@ -139,13 +139,15 @@ package away3d.materials
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
 		public function CompositeMaterial(init:Object = null)
-		{	
+		{
             ini = Init.parse(init);
-			
+            
 			materials = ini.getArray("materials");
 			blendMode = ini.getString("blendMode", BlendMode.NORMAL);
-			alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
-            color = ini.getColor("color", _color);
+			alpha = ini.getNumber("alpha", 1, {min:0, max:1});
+            color = ini.getColor("color", 0xFFFFFF);
+            
+            _colorTransformDirty = true;
 		}
         
 		/**

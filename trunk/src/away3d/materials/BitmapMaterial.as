@@ -556,7 +556,7 @@ package away3d.materials
             repeat = ini.getBoolean("repeat", repeat);
             precision = ini.getNumber("precision", 0);
             _blendMode = ini.getString("blendMode", BlendMode.NORMAL);
-            alpha = ini.getNumber("alpha", 1, {min:0, max:1});
+            alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
             color = ini.getColor("color", _color);
             
             _colorTransformDirty = true;
