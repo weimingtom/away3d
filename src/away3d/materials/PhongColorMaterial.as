@@ -35,6 +35,8 @@ package away3d.materials
 				_phongShader.color = _color;
 				_phongShader.alpha = _alpha;
 			} else {
+				_phongShader.color = 0xFFFFFF;
+				_phongShader.alpha = 1;
 				super.setColorTransform();
 			}
 		}
@@ -82,11 +84,11 @@ package away3d.materials
 		 * @param	color				A string, hex value or colorname representing the color of the material.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
-		public function PhongColorMaterial(color:*, init:Object=null)
+		public function PhongColorMaterial(color:*, init:Object = null)
 		{
-			this.color = Cast.trycolor(color);
-			
 			super(init);
+			
+			this.color = Cast.trycolor(color);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
