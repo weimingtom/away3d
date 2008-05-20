@@ -89,7 +89,8 @@ package away3d.core.base
             dispatchEvent(_mappingchanged);
         }
         
-        private var _normal:Number3D;
+        private var _normal:Number3D = new Number3D();
+        private var _normalDirty:Boolean = true;
 		private var _a:Number;
 		private var _b:Number;
 		private var _c:Number;
@@ -113,7 +114,7 @@ package away3d.core.base
 		 
         private function onVertexValueChange(event:Event):void
         {
-            _normal = null;
+            _normalDirty = true;
             notifyVertexValueChange();
         }
 
@@ -366,8 +367,8 @@ package away3d.core.base
 		 */
         public function get normal():Number3D
         {
-            if (!_normal) {
-            	_normal = new Number3D();
+            if (_normalDirty) {
+            	_normalDirty = false;
                 var d1x:Number = _v1.x - _v0.x;
                 var d1y:Number = _v1.y - _v0.y;
                 var d1z:Number = _v1.z - _v0.z;

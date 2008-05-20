@@ -59,6 +59,13 @@ package away3d.core.base
             var bk:Number = bw / d;
             return new Vertex(a._x*ak+b._x*bk, a._y*ak + b._y*bk, a._z*ak + b._z*bk);
         }
+
+        private var projected:ScreenVertex = new ScreenVertex();
+        private var projectionTime:int;
+		private var view:Matrix3D;
+		private var sz:Number;
+		private var persp:Number;
+        private var _position:Number3D = new Number3D();
         
     	/**
     	 * Defines the x coordinate of the vertex relative to the local coordinates of the parent mesh object.
@@ -164,12 +171,10 @@ package away3d.core.base
         {
             return new Vertex(_x, _y, _z);
         }
-    
-
         
-        private var _position:Number3D = new Number3D();
-        
-        /** Vertex position */
+        /**
+        * The vertex position vector
+        */
         public function get position():Number3D
         {
         	_position.x = _x;
@@ -187,7 +192,9 @@ package away3d.core.base
             notifyChange();
         }
         
-        /** An object that contains user defined properties. @default null */
+        /**
+        * An object that contains user defined properties. Defaults to  null.
+        */
         public var extra:Object;
 		
 		/**
@@ -199,14 +206,10 @@ package away3d.core.base
         {
             return "new Vertex("+_x+", "+_y+", "+z+")";
         }
-
-        private var projected:ScreenVertex = new ScreenVertex();
-        private var projectionTime:int;
-		private var view:Matrix3D;
-		private var sz:Number;
-		private var persp:Number;
 		
-        /** Project a point to the screen space */
+        /**
+        * Projects the vertex to the screen space of the view.
+        */
         public function project(projection:Projection):ScreenVertex
         {
         	//check if current projection has been already applied

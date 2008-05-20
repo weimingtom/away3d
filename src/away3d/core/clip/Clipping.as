@@ -1,48 +1,83 @@
-package away3d.core.render
+package away3d.core.clip
 {
     import away3d.core.draw.*;
     
     import flash.display.*;
     import flash.geom.*;
 
-    /** Rendering clipping, base class for no clipping */
+    /**
+    * Base clipping class for no clipping.
+    */
     public class Clipping
     {
+    	private var rectangleClipping:RectangleClipping;
+    	private var zeroPoint:Point = new Point(0, 0);
+		private var globalPoint:Point;
+		
+    	/**
+    	 * Minimum allowed x value for primitives
+    	 */
     	public var minX:Number = -1000000;
+    	
+    	/**
+    	 * Minimum allowed y value for primitives
+    	 */
         public var minY:Number = -1000000;
+    	
+    	/**
+    	 * Maximum allowed x value for primitives
+    	 */
         public var maxX:Number = 1000000;
+    	
+    	/**
+    	 * Maximum allowed y value for primitives
+    	 */
         public var maxY:Number = 1000000;
-        
-        public function Clipping()
-        {
-        }
-
+		
+		/**
+		 * Checks a drawing primitive for clipping.
+		 * 
+		 * @param	pri	The drawing primitive being checked.
+		 * @return		The clipping result - false for clipped, true for non-clipped.
+		 */
         public function check(pri:DrawPrimitive):Boolean
         {
             return true;
         }
-
+		
+		/**
+		 * Checks a bounding rectangle for clipping.
+		 * 
+		 * @param	minX	The x value for the left side of the rectangle.
+		 * @param	minY	The y value for the top side of the rectangle.
+		 * @param	maxX	The x value for the right side of the rectangle.
+		 * @param	maxY	The y value for the bottom side of the rectangle.
+		 * @return		The clipping result - false for clipped, true for non-clipped.
+		 */
         public function rect(minX:Number, minY:Number, maxX:Number, maxY:Number):Boolean
         {
             return true;
         }
-
-    	internal var rectangleClipping:RectangleClipping;
-    	
+		
+		/**
+		 * Returns a rectangle clipping object representing the bounding box of the clipping object.
+		 */
         public function asRectangleClipping():RectangleClipping
         {
         	if (!rectangleClipping)
         		rectangleClipping = new RectangleClipping();
+        	
         	rectangleClipping.minX = -1000000;
         	rectangleClipping.minY = -1000000;
         	rectangleClipping.maxX = 1000000;
         	rectangleClipping.maxY = 1000000;
+        	
             return rectangleClipping;
         }
-        
-    	internal var zeroPoint:Point = new Point(0, 0);
-		internal var globalPoint:Point;
-		
+
+		/**
+		 * Returns a rectangle clipping object initilised with the edges of the flash movie as the clipping bounds.
+		 */
         public function screen(container:Sprite):Clipping
         {
         	if (!rectangleClipping)

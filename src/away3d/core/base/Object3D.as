@@ -155,7 +155,7 @@ package away3d.core.base
             if (!hasEventListener(Object3DEvent.TRANSFORM_CHANGED))
                 return;
 
-            if (_transformchanged == null)
+            if (!_transformchanged)
                 _transformchanged = new Object3DEvent(Object3DEvent.TRANSFORM_CHANGED, this);
                 
             dispatchEvent(_transformchanged);
@@ -169,7 +169,7 @@ package away3d.core.base
             if (!hasEventListener(Object3DEvent.SCENETRANSFORM_CHANGED))
                 return;
 
-            if (_scenetransformchanged == null)
+            if (!_scenetransformchanged)
                 _scenetransformchanged = new Object3DEvent(Object3DEvent.SCENETRANSFORM_CHANGED, this);
                 
             dispatchEvent(_scenetransformchanged);
@@ -180,7 +180,7 @@ package away3d.core.base
             if (!hasEventListener(Object3DEvent.SCENE_CHANGED))
                 return;
 
-            if (_scenechanged == null)
+            if (!_scenechanged)
                 _scenechanged = new Object3DEvent(Object3DEvent.SCENE_CHANGED, this);
                 
             dispatchEvent(_scenechanged);
@@ -191,7 +191,7 @@ package away3d.core.base
             if (!hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
                 return;
                 
-            if (_dimensionschanged == null)
+            if (!_dimensionschanged)
                 _dimensionschanged = new Object3DEvent(Object3DEvent.DIMENSIONS_CHANGED, this);
                 
             dispatchEvent(_dimensionschanged);
@@ -202,7 +202,7 @@ package away3d.core.base
             if (!hasEventListener(Object3DEvent.RADIUS_CHANGED))
                 return;
                 
-            if (_radiuschanged == null)
+            if (!_radiuschanged)
                 _radiuschanged = new Object3DEvent(Object3DEvent.RADIUS_CHANGED, this);
                 
             dispatchEvent(_radiuschanged);
@@ -231,6 +231,7 @@ package away3d.core.base
 		private var _quaternion:Quaternion = new Quaternion();
 		private var _rot:Number3D;
         private var _position:Number3D = new Number3D();
+        private var _scenePosition:Number3D = new Number3D();
         private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _sc:ScreenVertex = new ScreenVertex();
         private var _v:View3D;
@@ -699,7 +700,10 @@ package away3d.core.base
     	 */
         public function get scenePosition():Number3D
         {
-            return new Number3D(sceneTransform.tx, sceneTransform.ty, sceneTransform.tz);
+        	_scenePosition.x = sceneTransform.tx;
+        	_scenePosition.y = sceneTransform.ty;
+        	_scenePosition.z = sceneTransform.tz;
+            return _scenePosition;
         }
 		
     	/**

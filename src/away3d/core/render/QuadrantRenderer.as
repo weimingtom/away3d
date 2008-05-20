@@ -3,6 +3,7 @@ package away3d.core.render
 	import away3d.cameras.*;
 	import away3d.containers.*;
     import away3d.core.base.*;
+    import away3d.core.clip.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.filter.*;
@@ -17,46 +18,51 @@ package away3d.core.render
     public class QuadrantRenderer implements IRenderer
     {
         private var qdrntfilters:Array;
-
-        public function QuadrantRenderer(...params)
-        {
-            qdrntfilters = [];
-
-            for each (var filter:IPrimitiveQuadrantFilter in params)
-                qdrntfilters.push(filter);
-            clip = new Clipping();
-        }
-		
-		protected var scene:Scene3D;
-        protected var camera:Camera3D;
-        protected var clip:Clipping;
+        private var qdrntfilter:IPrimitiveQuadrantFilter;
+		private var scene:Scene3D;
+        private var camera:Camera3D;
+        private var clip:Clipping;
+        private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
+        private var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree();
+        private var lightarray:LightArray = new LightArray();
+        private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
+        private var primitives:Array;
+        private var materials:Dictionary;
+        private var _session:AbstractRenderSession;
+        private var primitive:DrawPrimitive;
+        private var triangle:DrawTriangle;
+        private var object:Object3D;
         
-        protected var projtraverser:ProjectionTraverser = new ProjectionTraverser();
-        
-        protected var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree();
-        protected var lightarray:LightArray = new LightArray();
-        protected var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
-        protected var primitives:Array;
-        protected var materials:Dictionary;
-        
-        protected var qdrntfilter:IPrimitiveQuadrantFilter;
-        
-        protected var _session:AbstractRenderSession;
-
-        public function set renderSession(value:AbstractRenderSession):void
+		/**
+		 * @inheritDoc
+		 */
+        public function set session(value:AbstractRenderSession):void
         {
         	this._session = value;
         }
 
-        public function get renderSession():AbstractRenderSession
+        public function get session():AbstractRenderSession
         {
         	return this._session;
         }
-                
-        protected var primitive:DrawPrimitive;
-        protected var triangle:DrawTriangle;
-        protected var object:Object3D;
-		
+
+		/**
+		 * Creates a new <code>QuadrantRenderer</code> object.
+		 *
+		 * @param	filters	[optional]	An array of filters to use on projected drawing primitives before rendering them to screen.
+		 */
+        public function QuadrantRenderer(...filters)
+        {
+            qdrntfilters = [];
+
+            for each (var filter:IPrimitiveQuadrantFilter in filters)
+                qdrntfilters.push(filter);
+            clip = new Clipping();
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function render(view:View3D):Array
         {
             scene = view.scene;
@@ -111,21 +117,12 @@ package away3d.core.render
 			return primitives;
         }
         
-        public function getClip():Clipping
-        {
-        	return clip;
-        }
-               
-
-        public function desc():String
+		/**
+		 * @inheritDoc
+		 */
+        public function toString():String
         {
             return "Quadrant ["+qdrntfilters.join("+")+"]";
         }
-
-        public function stats():String
-        {
-            return "";
-        }
-
     }
 }

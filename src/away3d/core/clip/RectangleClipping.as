@@ -1,4 +1,4 @@
-package away3d.core.render
+package away3d.core.clip
 {
     import away3d.core.draw.*;
 
@@ -12,12 +12,18 @@ package away3d.core.render
             this.minY = minY;
             this.maxY = maxY;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function asRectangleClipping():RectangleClipping
         {
             return this;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function check(pri:DrawPrimitive):Boolean
         {
             if (pri.maxX < minX)
@@ -31,7 +37,10 @@ package away3d.core.render
 
             return true;
         }
-
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function rect(minX:Number, minY:Number, maxX:Number, maxY:Number):Boolean
         {
             if (this.maxX < minX)
@@ -45,7 +54,12 @@ package away3d.core.render
 
             return true;
         }
-        
+		
+		/**
+		 * Used to trace the values of a rectangle clipping object.
+		 * 
+		 * @return A string representation of the rectangle clipping object.
+		 */
         public function toString():String
         {
         	return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + "}";

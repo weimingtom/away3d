@@ -3,35 +3,116 @@ package away3d.core.draw
     import away3d.core.draw.*;
     import away3d.core.base.*;
     
-
-    /** Quadrant tree node */
+    /**
+    * Quadrant tree node
+    */
     public final class PrimitiveQuadrantTreeNode
     {
+        private var render_center_length:int = -1;
+        private var render_center_index:int = -1;
+        private var halfwidth:Number;
+        private var halfheight:Number;
+        private var level:int;
+        private var maxlevel:int = 4;
+        
+        private function render_other(limit:Number):void
+        {
+        	if (lefttopFlag)
+                lefttop.render(limit);
+            if (leftbottomFlag)
+                leftbottom.render(limit);
+            if (righttopFlag)
+                righttop.render(limit);
+            if (rightbottomFlag)
+                rightbottom.render(limit);
+        }
+        
+        /**
+        * Array of primitives that lie in the center of the quadrant.
+        */
         public var center:Array;
         
+        /**
+        * The quadrant tree node for the top left quadrant.
+        */
         public var lefttop:PrimitiveQuadrantTreeNode;
+        
+        /**
+        * The quadrant tree node for the bottom left quadrant.
+        */
         public var leftbottom:PrimitiveQuadrantTreeNode;
+        
+        /**
+        * The quadrant tree node for the top right quadrant.
+        */
         public var righttop:PrimitiveQuadrantTreeNode;
+        
+        /**
+        * The quadrant tree node for the bottom right quadrant.
+        */
         public var rightbottom:PrimitiveQuadrantTreeNode;
         
+        /**
+        * Determines if the bounds of the top left quadrant need re-calculating.
+        */
         public var lefttopFlag:Boolean;
+        
+        /**
+        * Determines if the bounds of the bottom left quadrant need re-calculating.
+        */
         public var leftbottomFlag:Boolean;
+        
+        /**
+        * Determines if the bounds of the top right quadrant need re-calculating.
+        */
         public var righttopFlag:Boolean;
+        
+        /**
+        * Determines if the bounds of the bottom right quadrant need re-calculating.
+        */
         public var rightbottomFlag:Boolean;
-        
-        public var onlysource:Object3D;
+                
+        /**
+        * Determines if the quadrant node contains only one source.
+        */
 		public var onlysourceFlag:Boolean = true;
-        
-        public var xdiv:Number;
-        public var ydiv:Number;
-        public var halfwidth:Number;
-        public var halfheight:Number;
-        public var level:int;
-        public var parent:PrimitiveQuadrantTreeNode;
-        public var maxlevel:int = 4;
 		
+		/**
+		 * hold the 3d object referenced when <code>onlysourceFlag</code> is true.
+		 */
+        public var onlysource:Object3D;
+        
+        /**
+        * The x coordinate of the quadrant division.
+        */
+        public var xdiv:Number;
+        
+        /**
+        * The x coordinate of the quadrant division.
+        */
+        public var ydiv:Number;
+		
+		/**
+		 * The quadrant parent.
+		 */
+        public var parent:PrimitiveQuadrantTreeNode;
+		
+        /**
+        * Placeholder function for creating new quadrant node from a cache of objects.
+        * Saves recreating objects and GC problems.
+        */
 		public var create:Function;
 		
+		/**
+		 * Creates a new <code>PrimitiveQuadrantTreeNode</code> object.
+		 *
+		 * @param	xdiv	The x coordinate for the division between left and right child quadrants.
+		 * @param	ydiv	The y coordinate for the division between top and bottom child quadrants.
+		 * @param	width	The width of the quadrant node.
+		 * @param	xdiv	The height of the quadrant node.
+		 * @param	level	The iteration number of the quadrant node.
+		 * @param	parent	The parent quadrant of the quadrant node.
+		 */
         public function PrimitiveQuadrantTreeNode(xdiv:Number, ydiv:Number, width:Number, height:Number, level:int, parent:PrimitiveQuadrantTreeNode = null)
         {
             this.level = level;
@@ -41,7 +122,10 @@ package away3d.core.draw
             halfheight = height / 2;
             this.parent = parent;
         }
-
+		
+		/**
+		 * Adds a primitive to the quadrant
+		 */
         public function push(pri:DrawPrimitive):void
         {
             if (onlysourceFlag) {
@@ -69,10 +153,10 @@ package away3d.core.draw
 	                {
 	                	if (leftbottom == null) {
 	                    	leftbottomFlag = true;
-	                        leftbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                        leftbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1, this);
 	                    } else if (!leftbottomFlag) {
 	                    	leftbottomFlag = true;
-	                    	leftbottom.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    	leftbottom.reset(xdiv - halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight);
 	                    }
 	                    leftbottom.push(pri);
 	                    return;
@@ -84,10 +168,10 @@ package away3d.core.draw
 	                {
 	                	if (righttop == null) {
 	                    	righttopFlag = true;
-	                        righttop = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                        righttop = new PrimitiveQuadrantTreeNode(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
 	                    } else if (!righttopFlag) {
 	                    	righttopFlag = true;
-	                    	righttop.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    	righttop.reset(xdiv + halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
 	                    }
 	                    righttop.push(pri);
 	                    return;
@@ -96,10 +180,10 @@ package away3d.core.draw
 	                {
 	                	if (rightbottom == null) {
 	                    	rightbottomFlag = true;
-	                        rightbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight, level+1, this);
+	                        rightbottom = new PrimitiveQuadrantTreeNode(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight, level+1, this);
 	                    } else if (!rightbottomFlag) {
 	                    	rightbottomFlag = true;
-	                    	rightbottom.reset(xdiv - halfwidth/2, ydiv - halfheight/2, halfwidth, halfheight);
+	                    	rightbottom.reset(xdiv + halfwidth/2, ydiv + halfheight/2, halfwidth, halfheight);
 	                    }
 	                    rightbottom.push(pri);
 	                    return;
@@ -114,6 +198,9 @@ package away3d.core.draw
             pri.quadrant = this;
         }
         
+        /**
+        * Clears the quadrant of all primitives and child nodes
+        */
 		public function reset(xdiv:Number, ydiv:Number, width:Number, height:Number):void
 		{
 			this.xdiv = xdiv;
@@ -133,9 +220,10 @@ package away3d.core.draw
             render_center_index = -1;
 		}
 		
-        public var render_center_length:int = -1;
-        public var render_center_index:int = -1;
-        
+		
+		/**
+		 * Sorts and renders the contents of the quadrant tree
+		 */
         public function render(limit:Number):void
         {
             if (render_center_length == -1)
@@ -169,18 +257,6 @@ package away3d.core.draw
 				center = null;
 			
             render_other(limit);
-        }
-
-        private function render_other(limit:Number):void
-        {
-        	if (lefttopFlag)
-                lefttop.render(limit);
-            if (leftbottomFlag)
-                leftbottom.render(limit);
-            if (righttopFlag)
-                righttop.render(limit);
-            if (rightbottomFlag)
-                rightbottom.render(limit);
         }
     }
 }

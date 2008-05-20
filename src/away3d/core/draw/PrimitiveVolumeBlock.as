@@ -1,57 +1,131 @@
 package away3d.core.draw
 {
-    import away3d.core.base.*;
-
-
-    /** Volume block containing drawing primitives */
-    public class PrimitiveVolumeBlock
+	import away3d.core.clip.*;
+    import away3d.core.render.*;
+    
+    import flash.utils.Dictionary;
+    
+    //TODO: properly implement a volume block renderer.
+    /**
+    * Volume block tree for storing drawing primitives
+    */
+    public class PrimitiveVolumeBlock implements IPrimitiveConsumer
     {
-        public var source:Object3D;
-        public var list:Array;
-
-        public var minZ:Number = +Infinity;
-        public var maxZ:Number = -Infinity;
-        public var minX:Number = +Infinity;
-        public var maxX:Number = -Infinity;
-        public var minY:Number = +Infinity;
-        public var maxY:Number = -Infinity;
+        private var _blocks:Dictionary = new Dictionary(true);
+        private var _block:PrimitiveVolumeBlockNode;
+        private var _root:PrimitiveVolumeBlockNode = new PrimitiveVolumeBlockNode(null);
+        private var _clip:Clipping;
+        private var _result:Array;
+		
+		/**
+		 * Defines the clipping object to be used on the drawing primitives.
+		 */
+		public function get clip():Clipping
+		{
+			return _clip;
+		}
+		
+		public function set clip(val:Clipping):void
+		{
+			_clip = val;
+		}
         
-
-        public function PrimitiveVolumeBlock(source:Object3D)
+		/**
+		 * @inheritDoc
+		 */
+        public function primitive(pri:DrawPrimitive):void
         {
-            this.source = source;
-            this.list = [];
+            if (_clip.check(pri))
+            {
+                if (pri.source == null) {
+                    _root.push(pri);
+                } else {
+                    _block = _blocks[pri.source];
+                    
+                    if (_block == null)
+                        _block = _blocks[pri.source] = new PrimitiveVolumeBlockNode(pri.source);
+                    
+                    _block.push(pri);
+                }
+            }
         }
-
-        public function push(pri:DrawPrimitive):void
-        {
-            if (minZ > pri.minZ)
-                minZ = pri.minZ;
-            if (maxZ < pri.maxZ)
-                maxZ = pri.maxZ;
-            if (minX > pri.minX)
-                minX = pri.minX;
-            if (maxX < pri.maxX)
-                maxX = pri.maxX;
-            if (minY > pri.minY)
-                minY = pri.minY;
-            if (maxY < pri.maxY)
-                maxY = pri.maxY;
-            list.push(pri);
-        }
-
+        
+        /**
+        * removes a drawing primitive from the volume block.
+        * 
+        * @param	pri	The drawing primitive to remove.
+        */
         public function remove(pri:DrawPrimitive):void
         {
-            var index:int = list.indexOf(pri);
-            if (index == -1)
-                throw new Error("Can't remove");
-            list.splice(index, 1);
+            if (pri.source == null) {
+                _root.remove(pri);
+            } else {
+                _block = list[pri.source];
+                if (_block == null)
+                    throw new Error("Can't remove");
+                _block.remove(pri);
+            }
+        }
+		
+		/**
+		 * A list of volume blocks contained in the scene.
+		 * 
+		 * @return	An array containing all volume blocks in the scene.
+		 */
+        public function blocks():Array
+        {   
+            _result = _root.list.length > 0 ? [_root] : [];
+            for each (_block in _blocks)
+                _result.push(_block);
+            return _result;
+        }
+		
+		/**
+		 * A list of primitives that have been clipped.
+		 * 
+		 * @return	An array containing the primitives to be rendered.
+		 */
+        public function list():Array
+        {   
+            _result = [];
+            for each (var rpri:DrawPrimitive in _root)
+                if (rpri.screenZ != Infinity)
+                    _result.push(rpri);
+            _root = null;
+            
+            for each (_block in _blocks)
+            {
+                var list:Array = _block.list;
+                for each (var pri:DrawPrimitive in list)
+                    if (pri.screenZ != Infinity)
+                        _result.push(pri);
+                _block.list = null;
+            }
+            return _result;
         }
 
-        public function toString():String
-        {
-            return "VolumeBlock " + list.length;
-        }
+        public function getTouching(target:PrimitiveVolumeBlockNode):Array
+        {   
+            _result = [];
+            for each (var block:PrimitiveVolumeBlockNode in blocks)
+            {
+                if (block.minZ > target.maxZ)
+                    continue;
+                if (block.maxZ < target.minZ)
+                    continue;
+                if (block.minX > target.maxX)
+                    continue;
+                if (block.maxX < target.minX)
+                    continue;
+                if (block.minY > target.maxY)
+                    continue;
+                if (block.maxY < target.minY)
+                    continue;
 
+                _result.push(block);
+            }
+            return _result;
+        }
+        
     }
 }

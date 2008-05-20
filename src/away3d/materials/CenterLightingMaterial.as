@@ -317,7 +317,7 @@ package away3d.materials
 
             if (draw_fall || draw_reflect || draw_normal)
             {
-                graphics = session.customGraphics,
+                graphics = session.graphics,
                 cz = c0z,
                 cx = c0x * zoom / (1 + cz / focus),
                 cy = c0y * zoom / (1 + cz / focus);

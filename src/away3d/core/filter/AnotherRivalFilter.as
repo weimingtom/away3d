@@ -4,124 +4,181 @@ package away3d.core.filter
 
     import away3d.cameras.*;
     import away3d.containers.*;
+    import away3d.core.clip.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
 
-    /** Filter for correct triangle z-sorting */
+    /**
+    * Corrects triangle z-sorting
+    */
     public class AnotherRivalFilter implements IPrimitiveQuadrantFilter
     {
-        public var maxdelay:int;
+        private var maxdelay:int;
+    	
+    	private var start:int;
+        private var check:int;
     
-        public function AnotherRivalFilter(maxdelay:int = 60000)
-        {
-            this.maxdelay = maxdelay;
-        }
-    	internal var start:int;
-        internal var check:int;
-    
-        internal var primitives:Array;
+        private var primitives:Array;
         private var pri:DrawPrimitive;
-        internal var turn:int;
-        internal var leftover:Array;
+        private var turn:int;
+        private var leftover:Array;
         
-        internal var maxZ:Number;
-        internal var minZ:Number;
-        internal var maxdeltaZ:Number;
+        private var maxZ:Number;
+        private var minZ:Number;
+        private var maxdeltaZ:Number;
         
-        internal var rivals:Array;
-        internal var rival:DrawPrimitive;
+        private var rivals:Array;
+        private var rival:DrawPrimitive;
         
-        internal var parts:Array;
-        internal var part:DrawPrimitive;
+        private var parts:Array;
+        private var part:DrawPrimitive;
         
-        public function filter(tree:PrimitiveQuadrantTree, scene:Scene3D, camera:Camera3D, clip:Clipping):void
-        {
-            start = getTimer();
-            check = 0;
-    
-            primitives = tree.list();
-            turn = 0;
-            
-            while (primitives.length > 0)
-            {
-                leftover = new Array();
-                for each (pri in primitives)
-                {
-                    check++;
-                    if (check == 10)
-                        if (getTimer() - start > maxdelay)
-                            return;
-                        else
-                            check = 0;
-					
-                    maxZ = pri.maxZ + 1000;
-                    minZ = pri.minZ - 1000;
-                    maxdeltaZ = 0;
-                    
-                    rivals = tree.get(pri);
-                    for each (rival in rivals)
-                    {
-                        if (rival == pri)
-                            continue;
-    
-                        switch (zconflict(pri, rival))
-                        {
-                            case ZOrderIrrelevant:
-                                break;
-                            case ZOrderDeeper:
-                            	if (minZ < rival.screenZ)
-                            		minZ = rival.screenZ;
-                                break;
-                            case ZOrderHigher:
-                            	if (maxZ > rival.screenZ)
-                            		maxZ = rival.screenZ;
-                                break;
-                        }
-                    }
-                    if (maxZ >= pri.screenZ && pri.screenZ >= minZ)
-                    {
-                        // screenZ still sits between the maxZ and minZ
-                    }
-                    else if (maxZ >= minZ)
-                    {
-                    	//screenZ has to be re-calculated for the new maxZ and minZ
-                        pri.screenZ = (maxZ + minZ) / 2;
-                    }
-                    else
-                    {
-                    	//there is no value for screenZ, triangle is flagged for tesselation
-                        if (turn % 3 == 2)
-                        {
-                            parts = pri.quarter(camera.focus);
-                            
-                            if (parts == null)
-                            	continue;
-                            
-                                tree.remove(pri);
-                                for each (part in parts)
-                                {
-                                    //part.screenZ = pri.screenZ;
-                                    leftover.push(part);
-                                    tree.push(part);
-                                }
-                        }
-                        else
-                            leftover.push(pri);
-                    }
-                }
-                primitives = leftover;
-                turn += 1;
-                if (turn == 20)
-                    break;
-            }
-        }
-    
         private var ZOrderDeeper:int = 1;
         private var ZOrderIrrelevant:int = 0;
         private var ZOrderHigher:int = -1;
         private var ZOrderSame:int = 0;
+		
+		private var q0x:Number;
+        private var q0y:Number;
+        private var q1x:Number;
+        private var q1y:Number;
+        private var q2x:Number;
+        private var q2y:Number;
     
-        public function zconflict(q:DrawPrimitive, w:DrawPrimitive):int
+        private var r0x:Number;
+        private var r0y:Number;
+        private var r1x:Number;
+        private var r1y:Number;
+    
+        private var ql01a:Number;
+        private var ql01b:Number;
+        private var ql01c:Number;
+        private var ql01s:Number;
+        private var ql01r0:Number;
+        private var ql01r1:Number;
+        
+        private var ql12a:Number;
+        private var ql12b:Number;
+        private var ql12c:Number;
+        private var ql12s:Number;
+        private var ql12r0:Number;
+        private var ql12r1:Number;
+        
+        private var ql20a:Number;
+        private var ql20b:Number;
+        private var ql20c:Number;
+        private var ql20s:Number;
+        private var ql20r0:Number;
+        private var ql20r1:Number;
+    
+        private var rla:Number;
+        private var rlb:Number;
+        private var rlc:Number;
+        private var rlq0:Number;
+        private var rlq1:Number;
+        private var rlq2:Number;
+        
+        private var q01r:Boolean;
+        private var q12r:Boolean;
+        private var q20r:Boolean;
+    
+        private var q01rx:Number;
+        private var q01ry:Number;
+        private var q12rx:Number;
+        private var q12ry:Number;
+        private var q20rx:Number;
+        private var q20ry:Number;
+        private var count:int;
+        private var cx:Number;
+        private var cy:Number;
+        
+        private var q01rd:Number;
+        private var q12rd:Number;
+        private var q20rd:Number;
+        
+        private var w0x:Number;
+        private var w0y:Number;
+        private var w1x:Number;
+        private var w1y:Number;
+        private var w2x:Number;
+        private var w2y:Number;
+    	
+        private var ql01w0:Number;
+        private var ql01w1:Number;
+        private var ql01w2:Number;
+        
+        private var ql12w0:Number;
+        private var ql12w1:Number;
+        private var ql12w2:Number;
+        
+        private var ql20w0:Number;
+        private var ql20w1:Number;
+        private var ql20w2:Number;
+        
+        private var wl01a:Number;
+        private var wl01b:Number;
+        private var wl01c:Number;
+        private var wl01s:Number;
+        private var wl01q0:Number;
+        private var wl01q1:Number;
+        private var wl01q2:Number;
+        
+        private var wl12a:Number;
+        private var wl12b:Number;
+        private var wl12c:Number;
+        private var wl12s:Number;
+        private var wl12q0:Number;
+        private var wl12q1:Number;
+        private var wl12q2:Number;
+        
+        private var wl20a:Number;
+        private var wl20b:Number;
+        private var wl20c:Number;
+        private var wl20s:Number;
+        private var wl20q0:Number;
+        private var wl20q1:Number;
+        private var wl20q2:Number;
+        
+        private var q01w01:Boolean;
+        private var q12w01:Boolean;
+        private var q20w01:Boolean;
+        private var q01w12:Boolean;
+        private var q12w12:Boolean;
+        private var q20w12:Boolean;
+        private var q01w20:Boolean;
+        private var q12w20:Boolean;
+        private var q20w20:Boolean;
+        
+        private var q01w01x:Number;
+        private var q01w01y:Number;
+        private var q12w01x:Number;
+        private var q12w01y:Number;
+        private var q20w01x:Number;
+        private var q20w01y:Number;
+        private var q01w12x:Number;
+        private var q01w12y:Number;
+        private var q12w12x:Number;
+        private var q12w12y:Number;
+        private var q20w12x:Number;
+        private var q20w12y:Number;
+        private var q01w20x:Number;
+        private var q01w20y:Number;
+        private var q12w20x:Number;
+        private var q12w20y:Number;
+        private var q20w20x:Number;
+        private var q20w20y:Number;
+        
+        private var q01w01d:Number;
+        private var q12w01d:Number;
+        private var q20w01d:Number;
+        private var q01w12d:Number;
+        private var q12w12d:Number;
+        private var q20w12d:Number;
+        private var q01w20d:Number;
+        private var q12w20d:Number;
+        private var q20w20d:Number;
+        
+        private function zconflict(q:DrawPrimitive, w:DrawPrimitive):int
         {
             if (q is DrawTriangle)
             { 
@@ -178,64 +235,6 @@ package away3d.core.filter
             else
                 return ZOrderIrrelevant;
         }
-		
-		internal var q0x:Number;
-        internal var q0y:Number;
-        internal var q1x:Number;
-        internal var q1y:Number;
-        internal var q2x:Number;
-        internal var q2y:Number;
-    
-        internal var r0x:Number;
-        internal var r0y:Number;
-        internal var r1x:Number;
-        internal var r1y:Number;
-    
-        internal var ql01a:Number;
-        internal var ql01b:Number;
-        internal var ql01c:Number;
-        internal var ql01s:Number;
-        internal var ql01r0:Number;
-        internal var ql01r1:Number;
-        
-        internal var ql12a:Number;
-        internal var ql12b:Number;
-        internal var ql12c:Number;
-        internal var ql12s:Number;
-        internal var ql12r0:Number;
-        internal var ql12r1:Number;
-        
-        internal var ql20a:Number;
-        internal var ql20b:Number;
-        internal var ql20c:Number;
-        internal var ql20s:Number;
-        internal var ql20r0:Number;
-        internal var ql20r1:Number;
-    
-        internal var rla:Number;
-        internal var rlb:Number;
-        internal var rlc:Number;
-        internal var rlq0:Number;
-        internal var rlq1:Number;
-        internal var rlq2:Number;
-        
-        internal var q01r:Boolean;
-        internal var q12r:Boolean;
-        internal var q20r:Boolean;
-    
-        internal var q01rx:Number;
-        internal var q01ry:Number;
-        internal var q12rx:Number;
-        internal var q12ry:Number;
-        internal var q20rx:Number;
-        internal var q20ry:Number;
-        internal var count:int;
-        internal var cx:Number;
-        internal var cy:Number;
-        
-        internal var q01rd:Number;
-        internal var q12rd:Number;
-        internal var q20rd:Number;
         
         private function zconflictTS(q:DrawTriangle, r:DrawSegment):int
         {
@@ -367,87 +366,7 @@ package away3d.core.filter
             return zcompare(q, r, cx / count, cy / count);
         }
     
-        internal var w0x:Number;
-        internal var w0y:Number;
-        internal var w1x:Number;
-        internal var w1y:Number;
-        internal var w2x:Number;
-        internal var w2y:Number;
-    	
-        internal var ql01w0:Number;
-        internal var ql01w1:Number;
-        internal var ql01w2:Number;
-        
-        internal var ql12w0:Number;
-        internal var ql12w1:Number;
-        internal var ql12w2:Number;
-        
-        internal var ql20w0:Number;
-        internal var ql20w1:Number;
-        internal var ql20w2:Number;
-        
-        internal var wl01a:Number;
-        internal var wl01b:Number;
-        internal var wl01c:Number;
-        internal var wl01s:Number;
-        internal var wl01q0:Number;
-        internal var wl01q1:Number;
-        internal var wl01q2:Number;
-        
-        internal var wl12a:Number;
-        internal var wl12b:Number;
-        internal var wl12c:Number;
-        internal var wl12s:Number;
-        internal var wl12q0:Number;
-        internal var wl12q1:Number;
-        internal var wl12q2:Number;
-        
-        internal var wl20a:Number;
-        internal var wl20b:Number;
-        internal var wl20c:Number;
-        internal var wl20s:Number;
-        internal var wl20q0:Number;
-        internal var wl20q1:Number;
-        internal var wl20q2:Number;
-        
-        internal var q01w01:Boolean;
-        internal var q12w01:Boolean;
-        internal var q20w01:Boolean;
-        internal var q01w12:Boolean;
-        internal var q12w12:Boolean;
-        internal var q20w12:Boolean;
-        internal var q01w20:Boolean;
-        internal var q12w20:Boolean;
-        internal var q20w20:Boolean;
-        
-        internal var q01w01x:Number;
-        internal var q01w01y:Number;
-        internal var q12w01x:Number;
-        internal var q12w01y:Number;
-        internal var q20w01x:Number;
-        internal var q20w01y:Number;
-        internal var q01w12x:Number;
-        internal var q01w12y:Number;
-        internal var q12w12x:Number;
-        internal var q12w12y:Number;
-        internal var q20w12x:Number;
-        internal var q20w12y:Number;
-        internal var q01w20x:Number;
-        internal var q01w20y:Number;
-        internal var q12w20x:Number;
-        internal var q12w20y:Number;
-        internal var q20w20x:Number;
-        internal var q20w20y:Number;
-        
-        internal var q01w01d:Number;
-        internal var q12w01d:Number;
-        internal var q20w01d:Number;
-        internal var q01w12d:Number;
-        internal var q12w12d:Number;
-        internal var q20w12d:Number;
-        internal var q01w20d:Number;
-        internal var q12w20d:Number;
-        internal var q20w20d:Number;
+
         
         private function zconflictTT(q:DrawTriangle, w:DrawTriangle):int
         {
@@ -721,8 +640,8 @@ package away3d.core.filter
             return zcompare(q, w, cx / count, cy / count);
         }
     	
-    	internal var az:Number;
-    	internal var bz:Number;
+    	private var az:Number;
+    	private var bz:Number;
     	
         private function zcompare(a:DrawPrimitive, b:DrawPrimitive, x:Number, y:Number):int
         {
@@ -736,7 +655,107 @@ package away3d.core.filter
     
             return ZOrderSame;
         }
+        
+		/**
+		 * Creates a new <code>AnotherRivalFilter</code> object.
+		 *
+		 * @param	maxdelay	[optional]		The maximum time the filter can take to resolve z-depth before timing out.
+		 */
+        public function AnotherRivalFilter(maxdelay:int = 60000)
+        {
+            this.maxdelay = maxdelay;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function filter(tree:PrimitiveQuadrantTree, scene:Scene3D, camera:Camera3D, clip:Clipping):void
+        {
+            start = getTimer();
+            check = 0;
     
+            primitives = tree.list();
+            turn = 0;
+            
+            while (primitives.length > 0)
+            {
+                leftover = new Array();
+                for each (pri in primitives)
+                {
+                    check++;
+                    if (check == 10)
+                        if (getTimer() - start > maxdelay)
+                            return;
+                        else
+                            check = 0;
+					
+                    maxZ = pri.maxZ + 1000;
+                    minZ = pri.minZ - 1000;
+                    maxdeltaZ = 0;
+                    
+                    rivals = tree.get(pri);
+                    for each (rival in rivals)
+                    {
+                        if (rival == pri)
+                            continue;
+    
+                        switch (zconflict(pri, rival))
+                        {
+                            case ZOrderIrrelevant:
+                                break;
+                            case ZOrderDeeper:
+                            	if (minZ < rival.screenZ)
+                            		minZ = rival.screenZ;
+                                break;
+                            case ZOrderHigher:
+                            	if (maxZ > rival.screenZ)
+                            		maxZ = rival.screenZ;
+                                break;
+                        }
+                    }
+                    if (maxZ >= pri.screenZ && pri.screenZ >= minZ)
+                    {
+                        // screenZ still sits between the maxZ and minZ
+                    }
+                    else if (maxZ >= minZ)
+                    {
+                    	//screenZ has to be re-calculated for the new maxZ and minZ
+                        pri.screenZ = (maxZ + minZ) / 2;
+                    }
+                    else
+                    {
+                    	//there is no value for screenZ, triangle is flagged for tesselation
+                        if (turn % 3 == 2)
+                        {
+                            parts = pri.quarter(camera.focus);
+                            
+                            if (parts == null)
+                            	continue;
+                            
+                                tree.remove(pri);
+                                for each (part in parts)
+                                {
+                                    //part.screenZ = pri.screenZ;
+                                    leftover.push(part);
+                                    tree.primitive(part);
+                                }
+                        }
+                        else
+                            leftover.push(pri);
+                    }
+                }
+                primitives = leftover;
+                turn += 1;
+                if (turn == 20)
+                    break;
+            }
+        }
+        
+		/**
+		 * Used to trace the values of a filter.
+		 * 
+		 * @return A string representation of the filter object.
+		 */
         public function toString():String
         {
             return "AnotherRivalFilter" + ((maxdelay == 60000) ? "" : "("+maxdelay+"ms)");

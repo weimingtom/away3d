@@ -109,14 +109,6 @@ package away3d.materials
         }
         
 		/**
-		 * @inheritDoc
-		 */
-        public function get scale():Number2D
-        {
-            return new Number2D(0, 0);
-        }
-        
-		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
 		 * @param	movie				The sprite object to be used as the material's texture.

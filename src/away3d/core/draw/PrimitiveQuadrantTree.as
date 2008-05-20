@@ -1,6 +1,7 @@
 package away3d.core.draw
 {
     import away3d.core.base.*;
+    import away3d.core.clip.*;
     import away3d.core.render.*;
 
     /**
@@ -8,154 +9,164 @@ package away3d.core.draw
     */
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
-        public var root:PrimitiveQuadrantTreeNode;
-		public var quadrantStore:Array;
-		public var quadrantActive:Array;
-		
+        private var _root:PrimitiveQuadrantTreeNode;
         private var _clip:Clipping;
 		private var _rect:RectangleClipping;
+		private var _center:Array;
+		private var _result:Array;
+		private var _except:Object3D;
+		private var _minX:Number;
+		private var _minY:Number;
+		private var _maxX:Number;
+		private var _maxY:Number;
+		private var _child:DrawPrimitive;
+		private var _children:Array;
+		private var i:int;
 		
-		public function set clip(val:Clipping):void
-		{
-			_clip = val;
-			_rect = _clip.asRectangleClipping();
-			if (!root)
-				root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, (_rect.maxX - _rect.minX)/2, (_rect.maxY - _rect.minY)/2, 0);
-			else
-				root.reset((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, (_rect.maxX - _rect.minX)/2, (_rect.maxY - _rect.minY)/2);
-			
-		}
-		
-        public function PrimitiveQuadrantTree()
+		private function getList(node:PrimitiveQuadrantTreeNode):void
         {
-        }
-
-        public function primitive(pri:DrawPrimitive):void
-        {
-            if (_clip.check(pri))
-            {
-                root.push(pri);
-            }
-        }
-		
-        public function push(object:DrawPrimitive):void
-        {
-            root.push(object);
-        }
-
-        public function add(objects:Array):void
-        {
-            for each (var object:DrawPrimitive in objects)
-                root.push(object);
-        }
-		
-		internal var center:Array;
-		
-        public function remove(tri:DrawPrimitive):void
-        {
-        	center = tri.quadrant.center;
-        	center.splice(center.indexOf(tri), 1);
-        }
-
-        public function list():Array
-        {
-            result = [];
-                    
-			minX = -1000000;
-			minY = -1000000;
-			maxX = 1000000;
-			maxY = 1000000;
-			except = null;
-			
-            getList(root);
-            
-            return result;
-        }
-		
-		internal var result:Array;
-		internal var except:Object3D;
-		internal var minX:Number;
-		internal var minY:Number;
-		internal var maxX:Number;
-		internal var maxY:Number;
-		
-        public function get(pri:DrawPrimitive, ex:Object3D = null):Array
-        {
-        	result = [];
-                    
-			minX = pri.minX;
-			minY = pri.minY;
-			maxX = pri.maxX;
-			maxY = pri.maxY;
-			except = ex;
-			
-            getList(pri.quadrant);
-            getParent(pri.quadrant);
-            return result;
-        }
-		
-		internal var child:DrawPrimitive;
-		internal var children:Array;
-		internal var i:int;
-		public function getList(node:PrimitiveQuadrantTreeNode):void
-        {
-            if (node.onlysourceFlag && except == node.onlysource)
+            if (node.onlysourceFlag && _except == node.onlysource)
                 return;
 
-            if (minX < node.xdiv)
+            if (_minX < node.xdiv)
             {
-                if (node.lefttopFlag && minY < node.ydiv)
+                if (node.lefttopFlag && _minY < node.ydiv)
 	                getList(node.lefttop);
 	            
-                if (node.leftbottomFlag && maxY > node.ydiv)
+                if (node.leftbottomFlag && _maxY > node.ydiv)
                 	getList(node.leftbottom);
             }
             
-            if (maxX > node.xdiv)
+            if (_maxX > node.xdiv)
             {
-                if (node.righttopFlag && minY < node.ydiv)
+                if (node.righttopFlag && _minY < node.ydiv)
                 	getList(node.righttop);
                 
-                if (node.rightbottomFlag && maxY > node.ydiv)
+                if (node.rightbottomFlag && _maxY > node.ydiv)
                 	getList(node.rightbottom);
                 
             }
             
-            children = node.center;
-            if (children != null) {
-                i = children.length;
+            _children = node.center;
+            if (_children != null) {
+                i = _children.length;
                 while (i--)
                 {
-                	child = children[i];
-                    if ((except == null || child.source != except) && child.maxX > minX && child.minX < maxX && child.maxY > minY && child.minY < maxY)
-                        result.push(child);
+                	_child = _children[i];
+                    if ((_except == null || _child.source != _except) && _child.maxX > _minX && _child.minX < _maxX && _child.maxY > _minY && _child.minY < _maxY)
+                        _result.push(_child);
                 }
             }           
         }
         
-        public function getParent(node:PrimitiveQuadrantTreeNode = null):void
+        private function getParent(node:PrimitiveQuadrantTreeNode = null):void
         {
         	node = node.parent;
         	
-            if (node == null || (node.onlysourceFlag && except == node.onlysource))
+            if (node == null || (node.onlysourceFlag && _except == node.onlysource))
                 return;
 
-            children = node.center;
-            if (children != null) {
-                i = children.length;
+            _children = node.center;
+            if (_children != null) {
+                i = _children.length;
                 while (i--)
                 {
-                	child = children[i];
-                    if ((except == null || child.source != except) && child.maxX > minX && child.minX < maxX && child.maxY > minY && child.minY < maxY)
-                        result.push(child);
+                	_child = _children[i];
+                    if ((_except == null || _child.source != _except) && _child.maxX > _minX && _child.minX < _maxX && _child.maxY > _minY && _child.minY < _maxY)
+                        _result.push(_child);
                 }
             }
             getParent(node);
         }
         
+		/**
+		 * Defines the clipping object to be used on the drawing primitives.
+		 */
+		public function get clip():Clipping
+		{
+			return _clip;
+		}
+		
+		public function set clip(val:Clipping):void
+		{
+			_clip = val;
+			_rect = _clip.asRectangleClipping();
+			if (!_root)
+				_root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY, 0);
+			else
+				_root.reset((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY);	
+		}
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function primitive(pri:DrawPrimitive):void
+        {
+            if (_clip.check(pri))
+            {
+                _root.push(pri);
+            }
+        }
+        
+        /**
+        * removes a drawing primitive from the quadrant tree.
+        * 
+        * @param	pri	The drawing primitive to remove.
+        */
+        public function remove(pri:DrawPrimitive):void
+        {
+        	_center = pri.quadrant.center;
+        	_center.splice(_center.indexOf(pri), 1);
+        }
+		
+		/**
+		 * A list of primitives that have been clipped.
+		 * 
+		 * @return	An array containing the primitives to be rendered.
+		 */
+        public function list():Array
+        {
+            _result = [];
+                    
+			_minX = -1000000;
+			_minY = -1000000;
+			_maxX = 1000000;
+			_maxY = 1000000;
+			_except = null;
+			
+            getList(_root);
+            
+            return _result;
+        }
+		
+		/**
+		 * Returns an array containing all primiives overlapping the specifed primitive's quadrant.
+		 * 
+		 * @param	pri					The drawing primitive to check.
+		 * @param	ex		[optional]	Excludes primitives that are children of the 3d object.
+		 * @return						An array of drawing primitives.
+		 */
+        public function get(pri:DrawPrimitive, ex:Object3D = null):Array
+        {
+        	_result = [];
+                    
+			_minX = pri.minX;
+			_minY = pri.minY;
+			_maxX = pri.maxX;
+			_maxY = pri.maxY;
+			_except = ex;
+			
+            getList(pri.quadrant);
+            getParent(pri.quadrant);
+            return _result;
+        }
+        
+        /**
+        * Calls the render function on all primitives in the quadrant tree
+        */
         public function render():void
         {
-            root.render(-Infinity);
+            _root.render(-Infinity);
         }
     }
 }

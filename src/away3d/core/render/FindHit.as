@@ -7,41 +7,28 @@ package away3d.core.render
 	import away3d.events.*;
 	import away3d.materials.*;
 
-    /** Class that finds object that is rendered on certain screen coordinates. Used for mouse click event. */
+    /** 
+    * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
+    */
     public class FindHit
     {
-        protected var view:View3D;
-        public var screenX:Number;
-        public var screenY:Number;
-
-        public var screenZ:Number = Infinity;
-
-        public var element:Object;
-        public var drawpri:DrawPrimitive;
-        public var material:IUVMaterial;
-        public var object:Object3D;
-        public var uv:UV;
-
-        public var sceneX:Number;
-        public var sceneY:Number;
-        public var sceneZ:Number;
-        
+        private var view:View3D;
+        private var screenX:Number;
+        private var screenY:Number;
+        private var screenZ:Number = Infinity;
+        private var element:Object;
+        private var drawpri:DrawPrimitive;
+        private var material:IUVMaterial;
+        private var object:Object3D;
+        private var uv:UV;
+        private var sceneX:Number;
+        private var sceneY:Number;
+        private var sceneZ:Number;
         private var primitive:DrawPrimitive;
+        private var inv:Matrix3D = new Matrix3D();
+        private var persp:Number;
         
-        internal var inv:Matrix3D = new Matrix3D();
-        internal var persp:Number;
-        
-        public function FindHit(view:View3D, primitives:Array, x:Number, y:Number)
-        {
-            this.view = view;
-            screenX = x;
-            screenY = y;
-            
-            for each (primitive in primitives)
-                checkPrimitive(primitive);
-        }
-
-        public function checkPrimitive(pri:DrawPrimitive):void
+        private function checkPrimitive(pri:DrawPrimitive):void
         {
             if (!pri.source.mouseEnabled)
                 return;
@@ -89,7 +76,28 @@ package away3d.core.render
                 }
             }
         }
-
+        
+		/**
+		 * Creates a new <code>FindHit</code> object.
+		 * 
+		 * @param	view		The view to be used.
+		 * @param	primitives	The primitives that have been rendered in the last frame.
+		 * @param	x			The x coordinate of the point to test.
+		 * @param	y			The y coordinate of the point to test.
+		 */
+        public function FindHit(view:View3D, primitives:Array, x:Number, y:Number)
+        {
+            this.view = view;
+            screenX = x;
+            screenY = y;
+            
+            for each (primitive in primitives)
+                checkPrimitive(primitive);
+        }
+        
+        /**
+        * Returns a 3d mouse event object populated with the properties from the hit point.
+        */
         public function getMouseEvent(type:String):MouseEvent3D
         {
             var event:MouseEvent3D = new MouseEvent3D(type);

@@ -3,6 +3,7 @@ package away3d.core.render
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.block.*;
+	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.filter.*;
 	import away3d.core.light.*;
@@ -12,53 +13,60 @@ package away3d.core.render
 	
 	import flash.utils.*;
     
-    /** Basic renderer implementation */
+    /** 
+    * Default renderer for a view.
+    * Contains the main render loop for rendering a scene to a view,
+    * which resolves the projection, culls any drawing primitives that are occluded or outside the viewport,
+    * and then z-sorts and renders them to screen.
+    */
     public class BasicRenderer implements IRenderer
     {
-        protected var filters:Array;
-		
+        private var filters:Array;
+        private var filter:IPrimitiveFilter;
+        private var scene:Scene3D;
+        private var camera:Camera3D;
+        private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
+        private var blockerarray:BlockerArray = new BlockerArray();
+        private var blocktraverser:BlockerTraverser = new BlockerTraverser();
+        private var blockers:Array;
+        private var priarray:PrimitiveArray = new PrimitiveArray();
+        private var lightarray:LightArray = new LightArray();
+        private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
+        private var primitives:Array;
+        private var materials:Dictionary;
+        private var primitive:DrawPrimitive;
+        private var triangle:DrawTriangle;
+        private var object:Object;
+        private var clip:Clipping;
+        private var _session:AbstractRenderSession;
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get session():AbstractRenderSession
+        {
+        	return _session;
+        }
+        
+        public function set session(value:AbstractRenderSession):void
+        {
+        	_session = value;
+        }
+
+		/**
+		 * Creates a new <code>BasicRenderer</code> object.
+		 *
+		 * @param	filters	[optional]	An array of filters to use on projected drawing primitives before rendering them to screen.
+		 */
         public function BasicRenderer(...filters)
         {
             this.filters = filters;
             this.filters.push(new ZSortFilter());
         }
-
-        protected var scene:Scene3D;
-        protected var camera:Camera3D;
-       
-        protected var projtraverser:ProjectionTraverser = new ProjectionTraverser();
         
-        protected var blockerarray:BlockerArray = new BlockerArray();
-        protected var blocktraverser:BlockerTraverser = new BlockerTraverser();
-        protected var blockers:Array;
-        
-        protected var priarray:PrimitiveArray = new PrimitiveArray();
-        protected var lightarray:LightArray = new LightArray();
-        protected var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
-        protected var primitives:Array;
-        protected var materials:Dictionary;
-        
-        protected var filter:IPrimitiveFilter;
-    
-    	// TODO: Should be in AbstractRenderer perhaps?
-        protected var _session:AbstractRenderSession;
-	
-        public function set renderSession(value:AbstractRenderSession):void
-        {
-        	this._session = value;
-        }
-
-        public function get renderSession():AbstractRenderSession
-        {
-        	return this._session;
-        }
-        
-        protected var primitive:DrawPrimitive;
-        protected var triangle:DrawTriangle;
-        protected var object:Object;               
-        
-        private var clip:Clipping;
-        
+		/**
+		 * @inheritDoc
+		 */
         public function render(view:View3D):Array
         {
             scene = view.scene;
@@ -121,14 +129,12 @@ package away3d.core.render
             return primitives;
         }
         
-        public function desc():String
+		/**
+		 * @inheritDoc
+		 */
+        public function toString():String
         {
             return "Basic ["+filters.join("+")+"]";
-        }
-
-        public function stats():String
-        {
-            return "";
         }
     }
 }
