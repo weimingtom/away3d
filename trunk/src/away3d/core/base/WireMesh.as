@@ -16,7 +16,7 @@ package away3d.core.base
         
         private var _segments:Array = [];
         
-        //TODO: create effective dispose mechanismfor wiremeshes
+        //TODO: create effective dispose mechanism for wiremeshes
         /*        
         private function clear():void
         {

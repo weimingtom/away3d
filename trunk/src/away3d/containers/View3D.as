@@ -3,8 +3,9 @@ package away3d.containers
 	import away3d.cameras.*;
 	import away3d.core.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.*;
 	import away3d.core.render.*;
-	import away3d.core.stats.Stats;
+	import away3d.core.stats.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	import away3d.materials.*;
@@ -253,7 +254,7 @@ package away3d.containers
         public function set renderer(val:IRenderer):void
         {
         	_renderer = val;
-        	_renderer.renderSession = _session;
+        	_renderer.session = _session;
         }
         
         public function get renderer():IRenderer
@@ -267,7 +268,7 @@ package away3d.containers
         public function set session(val:AbstractRenderSession):void
         {
         	_session = val;
-        	_renderer.renderSession = _session;
+        	_renderer.session = _session;
         	
         	//clear children
         	while (numChildren)

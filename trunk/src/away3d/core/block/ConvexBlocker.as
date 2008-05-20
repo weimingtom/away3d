@@ -78,7 +78,7 @@ package away3d.core.block
 		 */
         public override function render():void
         {
-            var graphics:Graphics = source.session.customGraphics;
+            var graphics:Graphics = source.session.graphics;
             graphics.lineStyle(2, Color.fromHSV(0, 0, (Math.sin(getTimer()/1000)+1)/2));
             for (var i:int = 0; i < _boundlines.length; i++)
             {

@@ -282,7 +282,7 @@ package away3d.test
                 cpulabel.width = 4 * think;
             }
 
-            trilabel.text = slide.renderer.desc() + " " + slide.renderer.stats();
+            trilabel.text = slide.renderer.toString();
 
             dirty = false;
         }

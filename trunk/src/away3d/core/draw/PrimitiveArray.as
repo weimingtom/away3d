@@ -1,6 +1,7 @@
 package away3d.core.draw
 {
     import away3d.core.block.*;
+    import away3d.core.clip.*;
     import away3d.core.render.*;
 
     /**

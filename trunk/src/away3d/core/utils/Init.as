@@ -169,11 +169,6 @@ package away3d.core.utils
             return getObject(name, Object3D) as Object3D;
         }
 
-        public function getNumber2D(name:String):Number2D
-        {
-            return getObject(name, Number2D) as Number2D;
-        }
-
         public function getNumber3D(name:String):Number3D
         {
             return getObject(name, Number3D) as Number3D;

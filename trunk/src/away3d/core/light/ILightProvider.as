@@ -8,8 +8,7 @@ package away3d.core.light
     	/**
     	 * Called from the <code>PrimitiveTraverser</code> when passing <code>LightPrimitive</code> objects to the light consumer object
     	 * 
-    	 * @param	consumer	The consumer instance
-    	 * @param	session		The render session of the 3d object
+    	 * @param	consumer	The consumer instance.
     	 * 
     	 * @see		away3d.core.traverse.PrimitiveTraverser
     	 * @see		away3d.core.light.LightPrimitive

@@ -4,11 +4,21 @@ package away3d.core.light
 	
 	import flash.display.*;
 
-    /** Point light source */
+    /**
+    * Point light primitive
+    */
     public class AmbientLight extends LightPrimitive
     {
+    	/**
+    	 * A reference to the <code>AmbientLight</code> object used by the light primitive.
+    	 */
         public var light:AmbientLight3D;
         
+        /**
+        * Updates the bitmapData object used as the lightmap for ambient light shading.
+        * 
+        * @param	ambient		The coefficient for ambient light intensity.
+        */
         public function updateAmbientBitmap(ambient:Number):void
         {
         	this.ambient = ambient;

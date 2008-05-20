@@ -2,25 +2,52 @@ package away3d.core.draw
 {
     import away3d.core.base.*;
 
-    /** Vertex in the screen space */
+    /**
+    * representation of a 3d vertex resolved to the view.
+    */
     public final class ScreenVertex
     {
+		private var persp:Number;
+		private var faz:Number;
+		private var fbz:Number;
+		private var ifmz2:Number;
+		private var mx2:Number;
+		private var my2:Number;
+		private var dx:Number;
+		private var dy:Number;
+		
+    	/**
+    	 * The x position of the vertex in the view.
+    	 */
         public var x:Number;
+        
+    	/**
+    	 * The y position of the vertex in the view.
+    	 */
         public var y:Number;
+        
+    	/**
+    	 * The z position of the vertex in the view.
+    	 */
         public var z:Number;
-    	
-    	/** A property containing the view x position. */
-    	public var vx:Number;
-    	/** A property containing the view y position. */
-    	public var vy:Number;
-    	
-        /** An object that contains user defined properties. */
-//        public var extra:Object;
+        
+        /**
+        * A numbder containing user defined properties.
+        */
         public var num:Number;
-    
-        /** Indicates whether the vertex is visible after projection. */
+        
+        /**
+        * Indicates whether the vertex is visible after projection.
+        */
         public var visible:Boolean;
-    
+    	
+		/**
+		 * Creates a new <code>PrimitiveQuadrantTreeNode</code> object.
+		 *
+		 * @param	x	[optional]		The x position of the vertex in the view. Defaults to 0.
+		 * @param	y	[optional]		The y position of the vertex in the view. Defaults to 0.
+		 * @param	z	[optional]		The z position of the vertex in the view. Defaults to 0.
+		 */
         public function ScreenVertex(x:Number = 0, y:Number = 0, z:Number = 0)
         {
             this.x = x;
@@ -29,39 +56,59 @@ package away3d.core.draw
     
             this.visible = false;
         }
-
+		
+		/**
+		 * Used to trace the values of a vertex.
+		 * 
+		 * @return A string representation of the vertex object.
+		 */
         public function toString(): String
         {
             return "new ScreenVertex("+x+', '+y+', '+z+")";
         }
 		
-		private var persp:Number;
-		
+		/**
+		 * Converts a screen vertex back to a vertex object.
+		 * 
+		 * @param	focus	The focus value to use for deperspective calulations.
+		 * @return			The deperspectived vertex object.
+		 */
         public function deperspective(focus:Number):Vertex
         {
             persp = 1 + z / focus;
 
             return new Vertex(x * persp, y * persp, z);
         }
-
+		
+		/**
+		 * Calculates the squared distance between two screen vertex objects.
+		 * 
+		 * @param	b	The screen vertex object to use for the calcation.
+		 * @return		The squared scalar value of the vector between this and the given scren vertex.
+		 */
         public function distanceSqr(b:ScreenVertex):Number
         {
             return (x - b.x)*(x - b.x) + (y - b.y)*(y - b.y);
         }
-
+		
+		/**
+		 * Calculates the distance between two screen vertex objects.
+		 * 
+		 * @param	b	The second screen vertex object to use for the calcation.
+		 * @return		The scalar value of the vector between this and the given screen vertex.
+		 */
         public function distance(b:ScreenVertex):Number
         {
             return Math.sqrt((x - b.x)*(x - b.x) + (y - b.y)*(y - b.y));
         }
 		
-		internal var faz:Number;
-		internal var fbz:Number;
-		internal var ifmz2:Number;
-		internal var mx2:Number;
-		internal var my2:Number;
-		internal var dx:Number;
-		internal var dy:Number;
-		
+		/**
+		 * Calculates affine distortion present at the midpoint between two screen vertex objects.
+		 * 
+		 * @param	b		The second screen vertex object to use for the calcation.
+		 * @param	focus	The focus value used for the distortion calulations. 
+		 * @return			The scalar value of the vector between this and the given screen vertex.
+		 */
         public function distortSqr(b:ScreenVertex, focus:Number):Number
         {
             faz = focus + z;
@@ -75,7 +122,17 @@ package away3d.core.draw
 
             return 50*(dx*dx + dy+dy); // (distort*10)^2
         }
-
+		
+		/**
+		 * Returns a screen vertex with values given by a weighted mean calculation.
+		 * 
+		 * @param	a		The first screen vertex to use for the calculation.
+		 * @param	b		The second screen vertex to use for the calculation.
+		 * @param	aw		The first screen vertex weighting.
+		 * @param	bw		The second screen vertex weighting.
+		 * @param	focus	The focus value used for the weighting calulations.
+		 * @return			The resulting screen vertex.
+		 */
         public static function weighted(a:ScreenVertex, b:ScreenVertex, aw:Number, bw:Number, focus:Number):ScreenVertex
         {
             if ((bw == 0) && (aw == 0))
@@ -111,7 +168,15 @@ package away3d.core.draw
 
             return new ScreenVertex(x, y, (da*a.z + db*b.z) / det);
         }
-
+		
+		/**
+		 * Returns the median screen vertex between the two given screen vertex objects.
+		 * 
+		 * @param	a		The first screen vertex to use for the calculation.
+		 * @param	b		The second screen vertex to use for the calculation.
+		 * @param	focus	The focus value used for the median calulations.
+		 * @return			The resulting screen vertex.
+		 */
         public static function median(a:ScreenVertex, b:ScreenVertex, focus:Number):ScreenVertex
         {
             var mz:Number = (a.z + b.z) / 2;

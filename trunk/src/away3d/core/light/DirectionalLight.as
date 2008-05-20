@@ -12,36 +12,89 @@ package away3d.core.light
 	import flash.geom.*;
 	import flash.utils.Dictionary;
 
-    /** Point light source */
+    /**
+    * Directional light primitive.
+    */
     public class DirectionalLight extends LightPrimitive
     {
     	use namespace arcane;
     	
-        public var direction:Number3D;
+        private var _colorMatrix:ColorMatrixFilter = new ColorMatrixFilter();
+        private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
+    	private var _matrix:Matrix = new Matrix();
+    	private var _shape:Shape = new Shape();
+        private var quaternion:Quaternion = new Quaternion();
+        private var invTransform:Matrix3D = new Matrix3D();
+    	private var transform:Matrix3D = new Matrix3D();
+    	private var nx:Number;
+    	private var ny:Number;
+    	private var mod:Number;
+        private var cameraTransform:Matrix3D;
+        private var cameraDirection:Number3D = new Number3D();
+        private var halfVector:Number3D = new Number3D();
+        private var halfQuaternion:Quaternion = new Quaternion();
+        private var halfTransform:Matrix3D = new Matrix3D();
+        private var _red:Number;
+		private var _green:Number;
+		private var _blue:Number;
+        private var _szx:Number;
+        private var _szy:Number;
+        private var _szz:Number;
+		
+        private var direction:Number3D = new Number3D();
         
+        /**
+        * Transform dictionary for the diffuse lightmap used by shading materials.
+        */
         public var diffuseTransform:Dictionary;
+        
+        /**
+        * Transform dictionary for the specular lightmap used by shading materials.
+        */
         public var specularTransform:Dictionary;
+        
+        /**
+        * Color transform used in cached shading materials for combined ambient and diffuse color intensities.
+        */
         public var ambientDiffuseColorTransform:ColorTransform;
+        
+        /**
+        * Color transform used in cached shading materials for ambient intensities.
+        */
         public var diffuseColorTransform:ColorTransform;
         
+        /**
+        * Colormatrix transform used in DOT3 materials for resolving color in the normal map.
+        */
         public var colorMatrixTransform:Dictionary = new Dictionary(true);
+        
+        /**
+        * Colormatrix transform used in DOT3 materials for resolving normal values in the normal map.
+        */
         public var normalMatrixTransform:Dictionary = new Dictionary(true);
         
+    	/**
+    	 * A reference to the <code>DirectionalLight3D</code> object used by the light primitive.
+    	 */
         public var light:DirectionalLight3D;
-    	
-    	
-        internal var _colorMatrix:ColorMatrixFilter = new ColorMatrixFilter();
-        internal var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
-    	internal var _matrix:Matrix = new Matrix();
-    	internal var _shape:Shape = new Shape();
-		
+        
+        /**
+        * Updates the bitmapData object used as the lightmap for ambient light shading.
+        * 
+        * @param	ambient		The coefficient for ambient light intensity.
+        */
 		public function updateAmbientBitmap(ambient:Number):void
         {
         	this.ambient = ambient;
         	ambientBitmap = new BitmapData(256, 256, false, int(ambient*red << 16) | int(ambient*green << 8) | int(ambient*blue));
         	ambientBitmap.lock();
         }
-        	
+        
+        /**
+        * Updates the bitmapData object used as the lightmap for diffuse light shading.
+        * 
+        * @param	diffuse		The coefficient for diffuse light intensity.
+        */
         public function updateDiffuseBitmap(diffuse:Number):void
         {
         	this.diffuse = diffuse;
@@ -72,6 +125,12 @@ package away3d.core.light
         	diffuseColorTransform = new ColorTransform(diffuse*red/255, diffuse*green/255, diffuse*blue/255, 1, 0, 0, 0, 0);
         }
         
+        /**
+        * Updates the bitmapData object used as the lightmap for the combined ambient and diffue light shading.
+        * 
+        * @param	ambient		The coefficient for ambient light intensity.
+        * @param	diffuse		The coefficient for diffuse light intensity.
+        */
         public function updateAmbientDiffuseBitmap(ambient:Number, diffuse:Number):void
         {
         	this.diffuse = diffuse;
@@ -101,7 +160,12 @@ package away3d.core.light
         	//update colortransform
         	ambientDiffuseColorTransform = new ColorTransform(diffuse*red/255, diffuse*green/255, diffuse*blue/255, 1, ambient*red, ambient*green, ambient*blue, 0);
         }
-        		
+        
+        /**
+        * Updates the bitmapData object used as the lightmap for specular light shading.
+        * 
+        * @param	specular		The coefficient for specular light intensity.
+        */
         public function updateSpecularBitmap(specular:Number):void
         {
         	this.specular = specular;
@@ -122,7 +186,10 @@ package away3d.core.light
     		_shape.graphics.drawCircle(255, 255, 255);
     		specularBitmap.draw(_shape);
         }
-               
+        
+        /**
+        * Clears the transform and matrix dictionaries used in the shading materials.
+        */
         public function clearTransform():void
         {
         	diffuseTransform = new Dictionary(true);
@@ -131,17 +198,15 @@ package away3d.core.light
         	normalMatrixTransform = new Dictionary(true);
         }
 		
-        internal var quaternion:Quaternion = new Quaternion();
-        internal var invTransform:Matrix3D = new Matrix3D();
-    	internal var transform:Matrix3D = new Matrix3D();
-    	internal var nx:Number;
-    	internal var ny:Number;
-    	internal var mod:Number;
-    	
+    	/**
+    	 * Updates the direction vector of the directional light.
+    	 */
         public function updateDirection(e:Object3DEvent):void
         {
         	//update direction vector
-        	direction = new Number3D(light.x, light.y, light.z);
+        	direction.x = light.x;
+        	direction.y = light.y;
+        	direction.z = light.z;
         	direction.normalize();
         	
         	nx = direction.x;
@@ -151,6 +216,11 @@ package away3d.core.light
         	clearTransform();
         }
         
+        /**
+        * Updates the transform matrix for the diffuse lightmap.
+        * 
+        * @see diffuseTransform
+        */
         public function setDiffuseTransform(source:Object3D):void
         {
         	if (!diffuseTransform[source])
@@ -159,17 +229,18 @@ package away3d.core.light
         	diffuseTransform[source].multiply3x3(transform, source._sceneTransform);
         }
         
-        internal var cameraTransform:Matrix3D;
-        internal var cameraDirection:Number3D;
-        internal var halfVector:Number3D = new Number3D();
-        internal var halfQuaternion:Quaternion = new Quaternion();
-        internal var halfTransform:Matrix3D = new Matrix3D();
-        
+        /**
+        * Updates the transform matrix for the specular lightmap.
+        * 
+        * @see specularTransform
+        */
         public function setSpecularTransform(source:Object3D, view:View3D):void
         {
 			//find halfway matrix between camera and direction matricies
 			cameraTransform = view.camera.transform;
-			cameraDirection = new Number3D(-cameraTransform.sxz, -cameraTransform.syz, -cameraTransform.szz);
+			cameraDirection.x = -cameraTransform.sxz;
+			cameraDirection.y = -cameraTransform.syz;
+			cameraDirection.z = -cameraTransform.szz;
 			halfVector.add(cameraDirection, direction);
 			halfVector.normalize();
 			
@@ -184,10 +255,11 @@ package away3d.core.light
         	specularTransform[source][view].multiply3x3(halfTransform, source._sceneTransform);
         }
         
-        internal var _red:Number;
-		internal var _green:Number;
-		internal var _blue:Number;
-		
+        /**
+        * Updates the color transform matrix.
+        * 
+        * @see colorMatrixTransform
+        */
         public function setColorMatrixTransform(source:Object3D):void
         {
         	_red = red/127;
@@ -197,10 +269,11 @@ package away3d.core.light
         	colorMatrixTransform[source] = _colorMatrix.clone();
         }
         
-        internal var _szx:Number;
-        internal var _szy:Number;
-        internal var _szz:Number;
-                
+        /**
+        * Updates the normal transform matrix.
+        * 
+        * @see normalMatrixTransform
+        */
         public function setNormalMatrixTransform(source:Object3D):void
         {
         	_szx = diffuseTransform[source].szx;

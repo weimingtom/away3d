@@ -5,40 +5,48 @@ package away3d.core.traverse
     import away3d.core.base.*;
     
 
-    /** Traverser that gathers blockers for occlusion culling */
+    /**
+    * Traverser that gathers blocker primitives for occlusion culling.
+    */
     public class BlockerTraverser extends Traverser
     {
-    	private var _view:View3D;
-        private var _consumer:IBlockerConsumer;
+		/**
+		 * Defines the view being used.
+		 */
+    	public var view:View3D;
 		
-		public function set view(val:View3D):void
-		{
-			_view = val;
-		}
-		
-		public function set consumer(val:IBlockerConsumer):void
-		{
-			_consumer = val;
-		}
-		
+		/**
+		 * Defines the blocker consumer being used.
+		 */
+        public var consumer:IBlockerConsumer;
+		    	
+		/**
+		 * Creates a new <code>BlockerTraverser</code> object.
+		 */
         public function BlockerTraverser()
         {
         }
-		
+        
+		/**
+		 * @inheritDoc
+		 */
 		public override function match(node:Object3D):Boolean
         {
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(_view);
+                return (node as ILODObject).matchLOD(view);
             return true;
         }
         
+		/**
+		 * @inheritDoc
+		 */
         public override function apply(node:Object3D):void
         {
             if (node is IBlockerProvider)
             {
-                (node as IBlockerProvider).blockers(_consumer);
+                (node as IBlockerProvider).blockers(consumer);
             }
         }
 
