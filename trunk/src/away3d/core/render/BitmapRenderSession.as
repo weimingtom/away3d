@@ -87,8 +87,9 @@ package away3d.core.render
 			_container = getContainer(view) as Bitmap;
 			
 			if (!_container.bitmapData) {
-				_bitmapwidth = int((_width = _view.clip.maxX - _view.clip.minX)/_scale);
-	        	_bitmapheight = int((_height = _view.clip.maxY - _view.clip.minY)/_scale);
+				trace(_view);
+				_bitmapwidth = int((_width = view.clip.maxX - view.clip.minX)/_scale);
+	        	_bitmapheight = int((_height = view.clip.maxY - view.clip.minY)/_scale);
 	        	
 	        	return _container.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
 			}
