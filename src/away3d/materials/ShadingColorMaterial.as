@@ -33,7 +33,7 @@ package away3d.materials
         public var specular:int;
         
         /**
-        * Defines a alpha value for the texture.
+        * Defines an alpha value for the texture.
         */
         public var alpha:Number;
         
