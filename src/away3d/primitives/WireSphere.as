@@ -1,23 +1,20 @@
 ﻿package away3d.primitives
 {
+	import away3d.core.*;
     import away3d.core.base.*;
     
-    /** Wire sphere */ 
-    public class WireSphere extends WireMesh
+    /**
+    * Creates a 3d wire sphere primitive.
+    */ 
+    public class WireSphere extends AbstractWirePrimitive
     {
-        public function WireSphere(init:Object = null)
-        {
-            super(init);
-
-            var segmentsW:int = ini.getInt("segmentsW", 8, {min:3});
-            var segmentsH:int = ini.getInt("segmentsH", 6, {min:2});
-            var radius:Number = ini.getNumber("radius", 100, {min:0});
-			var yUp:Boolean = ini.getBoolean("yUp", true);
-			
-            buildWireSphere(radius, segmentsW, segmentsH, yUp);
-        }
-    
+    	use namespace arcane
+    	
         private var grid:Array;
+        private var _radius:Number;
+        private var _segmentsW:int;
+        private var _segmentsH:int;
+        private var _yUp:Boolean;
 
         private function buildWireSphere(radius:Number, segmentsW:int, segmentsH:int, yUp:Boolean):void
         {
@@ -26,7 +23,7 @@
 
             grid = new Array(segmentsH + 1);
             
-            var bottom:Vertex = yUp? new Vertex(0, -radius, 0) : new Vertex(0, 0, -radius);
+            var bottom:Vertex = yUp? createVertex(0, -radius, 0) : createVertex(0, 0, -radius);
             grid[0] = new Array(segmentsW);
             for (i = 0; i < segmentsW; i++) 
                 grid[0][i] = bottom;
@@ -46,13 +43,13 @@
                     var y:Number = ringradius * Math.cos(verangle);
                     
 					if (yUp)
-                    	grid[j][i] = new Vertex(y, z, x);
+                    	grid[j][i] = createVertex(y, z, x);
                     else
-                    	grid[j][i] = new Vertex(y, -x, z);
+                    	grid[j][i] = createVertex(y, -x, z);
                 }
             }
 			
-			var top:Vertex = yUp? new Vertex(0, radius, 0) : new Vertex(0, 0, radius);
+			var top:Vertex = yUp? createVertex(0, radius, 0) : createVertex(0, 0, radius);
             grid[segmentsH] = new Array(segmentsW);
             for (i = 0; i < segmentsW; i++) 
                 grid[segmentsH][i] = top;
@@ -65,19 +62,120 @@
                     var c:Vertex = grid[j-1][(i-1+segmentsW) % segmentsW];
                     var d:Vertex = grid[j-1][i];
 					
-                    addSegment(new Segment(a, d));
-                    addSegment(new Segment(b, c));
+                    addSegment(createSegment(a, d));
+                    addSegment(createSegment(b, c));
                     if (j < segmentsH)  
-                        addSegment(new Segment(a, b));
+                        addSegment(createSegment(a, b));
                 }
-				
+        }
+        
+    	/**
+    	 * Defines the radius of the wire sphere. Defaults to 100.
+    	 */
+    	public function get radius():Number
+    	{
+    		return _radius;
+    	}
+    	
+    	public function set radius(val:Number):void
+    	{
+    		if (_radius == val)
+    			return;
+    		
+    		_radius = val;
+    		_primitiveDirty = true;
+    	}
+    	
+    	/**
+    	 * Defines the number of horizontal segments that make up the wire sphere. Defaults to 8.
+    	 */
+    	public function get segmentsW():Number
+    	{
+    		return _segmentsW;
+    	}
+    	
+    	public function set segmentsW(val:Number):void
+    	{
+    		if (_segmentsW == val)
+    			return;
+    		
+    		_segmentsW = val;
+    		_primitiveDirty = true;
+    	}
+    	
+    	/**
+    	 * Defines the number of vertical segments that make up the wire sphere. Defaults to 1.
+    	 */
+    	public function get segmentsH():Number
+    	{
+    		return _segmentsH;
+    	}
+    	
+    	public function set segmentsH(val:Number):void
+    	{
+    		if (_segmentsH == val)
+    			return;
+    		
+    		_segmentsH = val;
+    		_primitiveDirty = true;
+    	}
+    	
+    	/**
+    	 * Defines whether the coordinates of the wire sphere points use a yUp orientation (true) or a zUp orientation (false). Defaults to true.
+    	 */
+    	public function get yUp():Boolean
+    	{
+    		return _yUp;
+    	}
+    	
+    	public function set yUp(val:Boolean):void
+    	{
+    		if (_yUp == val)
+    			return;
+    		
+    		_yUp = val;
+    		_primitiveDirty = true;
+    	}
+		
+		/**
+		 * Creates a new <code>WireSphere</code> object.
+		 *
+		 * @param	init			[optional]	An initialisation object for specifying default instance properties.
+		 */
+        public function WireSphere(init:Object = null)
+        {
+            super(init);
+
+            _radius = ini.getNumber("radius", 100, {min:0});
+            _segmentsW = ini.getInt("segmentsW", 8, {min:3});
+            _segmentsH = ini.getInt("segmentsH", 6, {min:2});
+			_yUp = ini.getBoolean("yUp", true);
+			
+            buildWireSphere(_radius, _segmentsW, _segmentsH, _yUp);
+            
 			type = "WireSphere";
         	url = "primitive";
         }
-
-        public function vertex(i:int, j:int):Vertex
+        
+		/**
+		 * @inheritDoc
+		 */
+    	public override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
+			buildWireSphere(_radius, _segmentsW, _segmentsH, _yUp);
+    	}
+        
+		/**
+		 * Returns the vertex object specified by the grid position of the mesh.
+		 * 
+		 * @param	w	The horizontal position on the primitive mesh.
+		 * @param	h	The vertical position on the primitive mesh.
+		 */
+        public function vertex(w:int, h:int):Vertex
         {
-            return grid[j][i];
+            return grid[h][w];
         }
     }
 }

@@ -4,10 +4,18 @@
     import away3d.core.utils.*;
     
     import flash.display.*;
-
-    /** LogoCube */ 
+    
+    /**
+    * Creates a 3d cube primitive with the Away3d logo.
+    */ 
     public class LogoCube extends Cube
     {
+		
+		/**
+		 * Creates a new <code>LogoCube</code> object.
+		 *
+		 * @param	init			[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function LogoCube(init:Object = null)
         {
             super(init);

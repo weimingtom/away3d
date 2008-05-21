@@ -1,7 +1,12 @@
 package away3d.primitives
 {
     import away3d.core.base.*;
-
+    
+    /**
+    * Creates a sea turtle model (exported using asAS3Class).
+    * 
+    * @see away3d.core.Mesh#asAS3Class()
+    */ 
     public class SeaTurtle extends Mesh
     {
         private var varr:Array = [];

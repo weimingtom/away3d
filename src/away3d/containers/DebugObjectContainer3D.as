@@ -6,7 +6,7 @@ package away3d.containers
     import away3d.primitives.*;
     
     /**
-    * Extension of <code>ObjectContainer3D</code> used in debugging a scene.
+    * Extension of <code>ObjectContainer3D</code> used in debugging.
     * 
     * Gives the option for displaying a bounding box and bounding sphere of the contained object tree.
     * 
@@ -91,7 +91,7 @@ package away3d.containers
 
             if (debugbs)
             {
-                _debugboundingsphere = new WireSphere({material:"#cyan", radius:radius, segmentsW:16, segmentsH:12});
+                _debugboundingsphere = new WireSphere({material:"#cyan", boundingRadius:boundingRadius, segmentsW:16, segmentsH:12});
                 _debugboundingsphere.primitives(consumer, session);
             }
         }

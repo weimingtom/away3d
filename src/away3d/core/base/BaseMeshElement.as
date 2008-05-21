@@ -4,6 +4,27 @@ package away3d.core.base
     import away3d.events.*;
     
     import flash.events.EventDispatcher;
+    
+	 /**
+	 * Dispatched when the vertex of a 3d element changes.
+	 * 
+	 * @eventType away3d.events.MeshElementEvent
+	 */
+	[Event(name="vertexchanged",type="away3d.events.MeshElementEvent")]
+    
+	 /**
+	 * Dispatched when the vertex value of a 3d element changes.
+	 * 
+	 * @eventType away3d.events.MeshElementEvent
+	 */
+	[Event(name="vertexvaluechanged",type="away3d.events.MeshElementEvent")]
+    
+	 /**
+	 * Dispatched when the visiblity of a 3d element changes.
+	 * 
+	 * @eventType away3d.events.MeshElementEvent
+	 */
+	[Event(name="visiblechanged",type="away3d.events.MeshElementEvent")]
 	
 	/**
 	 * Basic 3d element object

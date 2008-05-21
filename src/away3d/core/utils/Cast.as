@@ -225,7 +225,7 @@ package away3d.core.utils {
 
             return 0xFFFFFFFF;                                  
         }
-
+        
         public static function color(data:*):uint
         {
             var result:uint = trycolor(data);

@@ -15,10 +15,20 @@ package away3d.events
     	public static const RESIZED:String = "materialresize";
     	
     	/**
+    	 * Defines the value of the type property of a materialchanged event object.
+    	 */
+    	public static const CHANGED:String = "materialchanged";
+    	
+    	/**
     	 * A reference to the material object that is relevant to the event.
     	 */
         public var material:IMaterial;
 		
+    	/**
+    	 * A reference to a user defined extra object that is relevant to the event.
+    	 */
+        public var extra:Object;
+        
 		/**
 		 * Creates a new <code>MaterialEvent</code> object.
 		 * 

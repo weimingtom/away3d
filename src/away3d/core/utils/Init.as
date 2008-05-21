@@ -1,10 +1,11 @@
 package away3d.core.utils
 {
     import away3d.core.*;
-    import away3d.core.math.*;
     import away3d.core.base.*;
+    import away3d.core.math.*;
     import away3d.materials.*;
-
+    import away3d.primitives.data.*;
+    
     import flash.display.BitmapData;
 
     /** Convinient object initialization support */
@@ -226,7 +227,27 @@ package away3d.core.utils
         
             return result;
         }
+		
+        public function getCubeMaterials(name:String):CubeMaterialsData
+        {
+            if (init == null)
+                return null;
+        
+            if (!init.hasOwnProperty(name))
+                return null;
+        	
+        	var result:CubeMaterialsData;
+        	
+        	if (init[name] is CubeMaterialsData)
+        		result = init[name] as CubeMaterialsData;
+        	else if (init[name] is Object)
+        		result = new CubeMaterialsData(init[name]);
 
+            delete init[name];
+        
+            return result;
+        }
+        
         public function getColor(name:String, def:uint):uint
         {
             if (init == null)
