@@ -2,11 +2,16 @@
 {
     import away3d.core.base.*;
     
-    /** Segment */ 
+    /**
+    * Creates a 3d line segment.
+    */ 
     public class LineSegment extends WireMesh
     {
         private var _segment:Segment;
-
+		
+		/**
+		 * Defines the starting vertex.
+		 */
         public function get start():Vertex
         {
             return _segment.v0;
@@ -16,7 +21,10 @@
         {
             _segment.v0 = value;
         }
-
+		
+		/**
+		 * Defines the ending vertex.
+		 */
         public function get end():Vertex
         {
             return _segment.v1;
@@ -26,7 +34,12 @@
         {
             _segment.v1 = value;
         }
-
+		
+		/**
+		 * Creates a new <code>LineSegment</code> object.
+		 *
+		 * @param	init			[optional]	An initialisation object for specifying default instance properties.
+		 */
         public function LineSegment(init:Object = null)
         {
             super(init);

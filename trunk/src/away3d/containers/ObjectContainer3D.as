@@ -208,7 +208,7 @@ package away3d.containers
 		/**
 		 * @inheritDoc
 		 */
-        public override function get radius():Number
+        public override function get boundingRadius():Number
         {
             if (_radiusDirty)
             {

@@ -115,37 +115,37 @@ package away3d.core.base
             var x:Number = _transform.tx;
             var y:Number = _transform.ty;
             var z:Number = _transform.tz;
-            return Math.sqrt(x*x + y*y + z*z) + radius;
+            return Math.sqrt(x*x + y*y + z*z) + boundingRadius;
         }
         /** @private */
         arcane function get parentmaxX():Number
         {
-            return radius + _transform.tx;
+            return boundingRadius + _transform.tx;
         }
 		/** @private */
         arcane function get parentminX():Number
         {
-            return -radius + _transform.tx;
+            return -boundingRadius + _transform.tx;
         }
 		/** @private */
         arcane function get parentmaxY():Number
         {
-            return radius + _transform.ty;
+            return boundingRadius + _transform.ty;
         }
 		/** @private */
         arcane function get parentminY():Number
         {
-            return -radius + _transform.ty;
+            return -boundingRadius + _transform.ty;
         }
 		/** @private */
         arcane function get parentmaxZ():Number
         {
-            return radius + _transform.tz;
+            return boundingRadius + _transform.tz;
         }
 		/** @private */
         arcane function get parentminZ():Number
         {
-            return -radius + _transform.tz;
+            return -boundingRadius + _transform.tz;
         }
         /** @private */
         arcane function notifyTransformChange():void
@@ -384,7 +384,7 @@ package away3d.core.base
     	/**
     	 * Returns the bounding radius of the 3d object
     	 */
-        public function get radius():Number
+        public function get boundingRadius():Number
         {
             return 0;
         }
@@ -396,7 +396,7 @@ package away3d.core.base
     	 */
         public function get maxX():Number
         {
-            return radius;
+            return boundingRadius;
         }
         
     	/**
@@ -406,7 +406,7 @@ package away3d.core.base
     	 */
         public function get minX():Number
         {
-            return -radius;
+            return -boundingRadius;
         }
         
     	/**
@@ -416,7 +416,7 @@ package away3d.core.base
     	 */
         public function get maxY():Number
         {
-            return radius;
+            return boundingRadius;
         }
         
     	/**
@@ -426,7 +426,7 @@ package away3d.core.base
     	 */
         public function get minY():Number
         {
-            return -radius;
+            return -boundingRadius;
         }
         
     	/**
@@ -436,7 +436,7 @@ package away3d.core.base
     	 */
         public function get maxZ():Number
         {
-            return radius;
+            return boundingRadius;
         }
         
     	/**
@@ -446,7 +446,7 @@ package away3d.core.base
     	 */
         public function get minZ():Number
         {
-            return -radius;
+            return -boundingRadius;
         }
 		
     	/**
