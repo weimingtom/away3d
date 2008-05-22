@@ -3,9 +3,24 @@
     import away3d.core.base.*;
     import away3d.materials.*;
 
-    /** Skybox that is initialized with six images */ 
+    /**
+    * QTVR-style 360 panorama renderer that is initialized with six images.
+    * A skybox contains six sides that are arranged like the inside of a cube.
+    */ 
     public class Skybox extends Mesh
     {
+    	
+		/**
+		 * Creates a new <code>Skybox</code> object.
+		 *
+		 * @param	front		The material to use for the skybox front.
+		 * @param	left		The material to use for the skybox left.
+		 * @param	back		The material to use for the skybox back.
+		 * @param	right		The material to use for the skybox right.
+		 * @param	up			The material to use for the skybox up.
+		 * @param	down		The material to use for the skybox down.
+		 * 
+		 */
         public function Skybox(front:ITriangleMaterial, left:ITriangleMaterial, back:ITriangleMaterial, right:ITriangleMaterial, up:ITriangleMaterial, down:ITriangleMaterial)
         {
             super();
