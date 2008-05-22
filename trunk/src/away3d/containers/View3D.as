@@ -12,6 +12,7 @@ package away3d.containers
 	
 	import flash.display.BitmapData;
 	import flash.display.BlendMode;
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.EventPhase;
@@ -336,6 +337,20 @@ package away3d.containers
         	
         	_session.clear();
         }
+		
+        /**
+        * Returns the <code>DisplayObject</code> container of the rendered scene.
+        * 
+        * @return	The rendered view image.
+        * 
+        * @see session
+        * @see away3d.core.render.BitmapRenderSession
+        * @see away3d.core.render.SpriteRenderSession
+        */
+		public function getContainer():DisplayObject
+		{
+			return _session.getContainer(this);
+		}
 		
         /**
         * Returns the <code>bitmapData</code> of the rendered scene.

@@ -36,6 +36,11 @@ package
             Debug.warningsAsErrors = true;
 
             super("Away3D engine test", 5*5*5);
+            
+            addSlide("Phong", 
+"Phong shading for directional lights", 
+            new Scene3D(new PhongShading), 
+            Renderer.CORRECT_Z_ORDER, session);
                         
             addSlide("Primitives", 
 "Basic primitives to start playing with", 
@@ -151,11 +156,6 @@ package
 "White lighting for bitmap textures",
             new Scene3D(new WhiteLighting), 
             Renderer.BASIC, session);
-            
-            addSlide("Phong", 
-"Phong shading for directional lights", 
-            new Scene3D(new PhongShading), 
-            Renderer.CORRECT_Z_ORDER, session);
 
             addSlide("Mesh morphing", 
 "Linear mesh morphing",
@@ -195,7 +195,7 @@ import away3d.events.*;
 
 import flash.filters.GlowFilter;
 import flash.filters.BlurFilter;
-import away3d.materials.shaders.*;
+import away3d.blockers.*;
 
 class Asset
 {
@@ -471,7 +471,7 @@ class AseMesh extends ObjectContainer3D
     
 }
 
-class LostSoul extends Sprite2DDir
+class LostSoul extends DirSprite2D
 {
     public var role:String;
     public var nextthink:int;
@@ -657,7 +657,7 @@ class PhongShading extends ObjectContainer3D
 	
     public function PhongShading()
     {
-		light = new DirectionalLight3D({x:0, y:1, z:1, color:0xFFFFFF, ambient:0.1, diffuse:0.7});
+		light = new DirectionalLight3D({x:0, y:1, z:1, color:0xFFFFFF, ambient:0.6, diffuse:0.5});
         plane = new Plane({material:new BitmapMaterial(Asset.yellow, {precision:2.5}), y:-20, width:1000, height:1000, pushback:true});
         sphere = new Sphere({ownCanvas:true, material:new PhongBitmapMaterial(Asset.green), x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:10});
         cube = new Cube({ownCanvas:true, material:new PhongBitmapMaterial(Asset.blue), x: 300, y:160, z: -80, width:200, height:200, depth:200});
@@ -686,7 +686,7 @@ class Primitives extends ObjectContainer3D
         plane = new Plane({material:new WireColorMaterial(0xFFFF00), y:-20, width:1000, height:1000});
         sphere = new Sphere({material:new WireColorMaterial(0xFF0000), x: 300, y:160, z: 300, radius:150, segmentsW:12, segmentsH:9});
         cube = new Cube({material:new WireColorMaterial(0x0000FF), x: 300, y:160, z: -80, width:200, height:200, depth:200});
-        torus = new Torus({pushfront:true, outline:new WireframeMaterial(0xFFFFFF, {width:5}), material:new WireColorMaterial(0x00FF00), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
+        torus = new Torus({pushfront:true, outline:new WireframeMaterial(0xFFFFFF, {width:5}), material:new WireColorMaterial(0x00FF00, {alpha:0.5}), x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:8, segmentsT:6});
 
         super(sphere, plane, cube, torus);
     }
@@ -719,7 +719,7 @@ class Texturing extends Primitives
         plane.material = new BitmapMaterial(Asset.yellow, {precision:1.6});
         sphere.material = new BitmapMaterial(Asset.red, {precision:1.6});
         cube.material = new BitmapMaterial(Asset.blue, {precision:1.6});
-        torus.material = new BitmapMaterial(Asset.green, {precision:1.6});
+        torus.material = new BitmapMaterial(Asset.green, {precision:1.6, alpha:0.5});
     }
     
 }
@@ -768,7 +768,7 @@ class Projecting extends Primitives
         projectionVector1 = new Number3D(1, 1, 1);
         projectionVector2 = new Number3D(1, 1, 1);
         projectionVector3 = new Number3D(1, 1, 1);
-        projectedMaterial1 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector1, transform:projectedTransform1, throughProjection:true});
+        projectedMaterial1 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector1, transform:projectedTransform1, throughProjection:true, alpha:1, blendMode:BlendMode.ERASE});
         projectedMaterial2 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector2, transform:projectedTransform2, throughProjection:true});
         projectedMaterial3 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector3, transform:projectedTransform3, throughProjection:true});
         
@@ -1207,9 +1207,9 @@ class WhiteLighting extends ObjectContainer3D
 
         for each (var v:Vertex in sphere.vertices)
         {
-            var y:Number = v.y / sphere.radius;
+            var y:Number = v.y / sphere.boundingRadius;
             y = y + (y*y - 1)*0.2;
-            v.y = y * sphere.radius * 1.1;
+            v.y = y * sphere.boundingRadius * 1.1;
 
             v.x += Math.random()*4-2;
             v.z += Math.random()*4-2;

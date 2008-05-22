@@ -2,17 +2,19 @@ package away3d.core.render
 {
 	import away3d.containers.*;
 	import away3d.core.*;
+	import away3d.core.clip.Clipping;
 	import away3d.core.draw.*;
 	
 	import flash.display.*;
-	import flash.geom.Matrix;
-	import flash.utils.Dictionary;
+	import flash.geom.*;
+	import flash.utils.*;
     
 	public class SpriteRenderSession extends AbstractRenderSession
 	{
 		use namespace arcane;
 		
         private var _container:Sprite;
+        private var _clip:Clipping;
         
 		/**
 		 * @inheritDoc
@@ -27,6 +29,14 @@ package away3d.core.render
         	
         	_container = getContainer(_view) as Sprite;
         	graphics = _container.graphics;
+        	
+        	//clip the edges of the root container with  scrollRect
+        	if (this == view.session) {
+	        	_clip = _view.clip;
+	        	_container.scrollRect = new Rectangle(_clip.minX-1, _clip.minY-1, _clip.maxX - _clip.minX + 2, _clip.maxY - _clip.minY + 2);
+	        	_container.x = _clip.minX - 1;
+	        	_container.y = _clip.minY - 1;
+	        }
         }
 		
 		/**
