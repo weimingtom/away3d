@@ -4,7 +4,7 @@ package away3d.cameras
     import away3d.core.utils.*;
 	
     /**
-    * Extended camera used to hover round a specified target object
+    * Extended camera used to hover round a specified target object.
     * 
     * @see	away3d.containers.View3D
     */
@@ -13,69 +13,69 @@ package away3d.cameras
         static private var toRADIANS:Number = Math.PI / 180;
         
     	/**
-    	 * Fractional difference in distance between the horizontal camera orientation and vertical camera orientation
+    	 * Fractional difference in distance between the horizontal camera orientation and vertical camera orientation. Defaults to 2.
     	 * 
-    	 * @see	distance
+    	 * @see	#distance
     	 */
         public var yfactor:Number = 2;
 
         /**
-        * Distance between the camera and the specified target
+        * Distance between the camera and the specified target. Defaults to 800.
         */
-        public var distance:Number = 400;
+        public var distance:Number = 800;
         
         /**
-        * Rotation of the camera in degrees around the y axis
+        * Rotation of the camera in degrees around the y axis. Defaults to 0.
         */
         public var panangle:Number = 0;
         
         /**
-        * Elevation angle of the camera in degrees
+        * Elevation angle of the camera in degrees. Defaults to 90.
         */
         public var tiltangle:Number = 90;
         
         /**
-        * Target value for the <code>panangle</code>
+        * Target value for the <code>panangle</code>. Defaults to 0.
         * 
-        * @see	panangle
+        * @see	#panangle
         */
         public var targetpanangle:Number = 0;
         
         /**
-        * Target value for the <code>tiltangle</code>
+        * Target value for the <code>tiltangle</code>. Defaults to 90.
         * 
-        * @see	tiltangle
+        * @see	#tiltangle
         */
         public var targettiltangle:Number = 90;
                 
         /**
-        * Minimum bounds for the <code>tiltangle</code>
+        * Minimum bounds for the <code>tiltangle</code>. Defaults to 0.
         * 
-        * @see	tiltangle
+        * @see	#tiltangle
         */
         public var mintiltangle:Number = 0;
                 
         /**
-        * Maximum bounds for the <code>tiltangle</code>
+        * Maximum bounds for the <code>tiltangle</code>. Defaults to 90.
         * 
-        * @see	tiltangle
+        * @see	#tiltangle
         */
         public var maxtiltangle:Number = 90;
         
         /**
-        * Fractional step taken each time the <code>hover()</code> method is called.
+        * Fractional step taken each time the <code>hover()</code> method is called. Defaults to 8.
         * 
         * Affects the speed at which the <code>tiltangle</code> and <code>panangle</code> resolve to their targets.
         * 
-        * @see	tiltangle
-        * @see	panangle
+        * @see	#tiltangle
+        * @see	#panangle
         */
         public var steps:Number = 8;
     	
 	    /**
-	    * Creates a new <code>HoverCamera3D</code> object
+	    * Creates a new <code>HoverCamera3D</code> object.
 	    * 
-	    * @param	init	[optional]	An initialisation object for specifying default instance properties
+	    * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	    */
         public function HoverCamera3D(init:Object = null)
         {
@@ -101,12 +101,12 @@ package away3d.cameras
         * 
         * @return		True if the camera position was updated, otherwise false.
         * 
-        * @see	tiltangle
-        * @see	panangle
-        * @see	targettiltangle
-        * @see	targetpanangle
-        * @see	steps
-        * @see	update()
+        * @see	#tiltangle
+        * @see	#panangle
+        * @see	#targettiltangle
+        * @see	#targetpanangle
+        * @see	#steps
+        * @see	#update()
         */
         public function hover():Boolean
         {
@@ -133,10 +133,10 @@ package away3d.cameras
         * 
         * @return		True if the camera position was updated, otherwise false.
         * 
-        * @see	tiltangle
-        * @see	panangle
-        * @see	distance
-        * @see	yfactor
+        * @see	#tiltangle
+        * @see	#panangle
+        * @see	#distance
+        * @see	#yfactor
         */
         public function update():Boolean
         {

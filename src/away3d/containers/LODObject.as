@@ -38,6 +38,10 @@ package away3d.containers
         
 		/**
 		 * @inheritDoc
+		 * 
+    	 * @see	away3d.core.traverse.ProjectionTraverser
+    	 * @see	#maxp
+    	 * @see	#minp
 		 */
         public function matchLOD(view:View3D):Boolean
         {

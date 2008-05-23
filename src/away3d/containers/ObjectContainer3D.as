@@ -474,7 +474,7 @@ package away3d.containers
 		 * Returns a 3d object specified by name from the child array of the container
 		 * 
 		 * @param	name	The name of the 3d object to be returned
-		 * @return			The 3d object, or <code>null</code> if no such child object exists of the specified name
+		 * @return			The 3d object, or <code>null</code> if no such child object exists with the specified name
 		 */
         public function getChildByName(name:String):Object3D
         {
