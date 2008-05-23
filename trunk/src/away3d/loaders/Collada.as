@@ -44,13 +44,267 @@ package away3d.loaders
         private var VALUE_Z:String;
         private var VALUE_U:String = "S";
         private var VALUE_V:String = "T";
+        
+        private function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
+		{
+			for each (var _objectData:ObjectData in containerData.children) {
+				if (_objectData is ContainerData) {
+					var _containerData:ContainerData = _objectData as ContainerData;
+					var objectContainer:ObjectContainer3D = new ObjectContainer3D({name:_objectData.name});
+					objectContainer.transform = _objectData.transform;
+					buildContainer(_containerData, objectContainer);
+					if (centerMeshes) {
+						//determine center and offset all children (useful for subsequent max/min/radius calculations)
+						averageX = averageY = averageZ = 0;
+						numChildren = _containerData.children.length;
+						for each (var _child:Object3D in objectContainer.children) {
+							averageX += _child.x;
+							averageY += _child.y;
+							averageZ += _child.z;
+						}
+						
+						objectContainer.movePivot(averageX/numChildren, averageY/numChildren, averageZ/numChildren);
+					}
+					parent.addChild(objectContainer);
+				} else if (_objectData is MeshData) {
+					buildMesh(_objectData as MeshData, parent);
+				}
+			}
+		}
+    	
+        private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
+		{
+			
+			//set materialdata for each face
+			for each (_meshMaterialData in _meshData.materials) {
+				for each (_faceListIndex in _meshMaterialData.faceList) {
+					_faceData = _meshData.faces[_faceListIndex] as FaceData;
+					_faceData.materialData = materialLibrary[_meshMaterialData.name];
+				}
+			}
+			
+			var mesh:Mesh = new Mesh({name:_meshData.name});
+			mesh.transform = _meshData.transform;
+			
+			for each(_faceData in _meshData.faces) {
+				if (!_faceData.materialData)
+					continue;
+				_face = new Face(_meshData.vertices[_faceData.v0],
+											_meshData.vertices[_faceData.v1],
+											_meshData.vertices[_faceData.v2],
+											_faceData.materialData.material,
+											_meshData.uvs[_faceData.uv0],
+											_meshData.uvs[_faceData.uv1],
+											_meshData.uvs[_faceData.uv2]);
+				mesh.addFace(_face);
+				_faceData.materialData.faces.push(_face);
+			}
+			
+			if (centerMeshes) {
+				//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
+				averageX = averageY = averageZ = 0;
+				numVertices = _meshData.vertices.length;
+				for each (_vertex in _meshData.vertices) {
+					averageX += _vertex._x;
+					averageY += _vertex._y;
+					averageZ += _vertex._z;
+				}
+				
+				mesh.movePivot(averageX/numVertices, averageY/numVertices, averageZ/numVertices);
+			}
+			
+			mesh.type = ".Collada";
+			
+			parent.addChild(mesh);
+		}
+        
+        private function buildMaterials():void
+		{
+			for each (_materialData in materialLibrary)
+			{
+				//overridden by the material property in constructor
+				if (material)
+					_materialData.material = material;
+				
+				//overridden by materials passed in contructor
+				if (_materialData.material)
+					continue;
+				
+				switch (_materialData.materialType)
+				{
+					case MaterialData.TEXTURE_MATERIAL:
+						materialLibrary.loadRequired = true;
+						//_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
+						break;
+					case MaterialData.SHADING_MATERIAL:
+						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
+						break;
+					case MaterialData.WIREFRAME_MATERIAL:
+						_materialData.material = new WireColorMaterial();
+						break;
+				}
+			}
+		}
 		
+        private function getArray(spaced:String):Array
+        {
+        	spaced = spaced.split("\r\n").join(" ");
+            var strings:Array = spaced.split(" ");
+            var numbers:Array = new Array();
+    
+            var totalStrings:Number = strings.length;
+    
+            for (var i:Number = 0; i < totalStrings; i++)
+            	if (strings[i] != "")
+                	numbers.push(Number(strings[i]));
+    
+            return numbers;
+        }
 		
-		
+        private function rotateMatrix(vector:Array):Matrix3D
+        {
+            if (yUp)
+                rotationMatrix.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
+            else
+                rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], -vector[3] * toRADIANS);
+            
+            return rotationMatrix;
+        }
+        
+        private function translateMatrix(vector:Array):Matrix3D
+        {
+            if (yUp)
+                translationMatrix.translationMatrix(-vector[0] * scaling, vector[1] * scaling, vector[2] * scaling);
+            else
+                translationMatrix.translationMatrix( vector[0] * scaling, vector[2] * scaling, vector[1] * scaling);
+            
+            return translationMatrix;
+        }
+        
+        private function scaleMatrix(vector:Array):Matrix3D
+        {
+            if (yUp)
+                scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
+            else
+                scalingMatrix.scaleMatrix(vector[0], vector[2], vector[1]);
+            
+            return scalingMatrix;
+        }
+        
+        private function getId(url:String):String
+        {
+            return url.split("#")[1];
+        }
+        
+        /**
+        * 3d container object used for storing the parsed collada scene.
+        */
+        public var container:ObjectContainer3D;
+        
+        /**
+        * Reference container for all materials used in the collada scene.
+        */
+    	public var materialLibrary:MaterialLibrary = new MaterialLibrary();
+    	
+    	/**
+    	 * Container data object used for storing the parsed collada data structure.
+    	 */
+        public var containerData:ContainerData;
+        
+		/**
+		 * Creates a new <code>Collada</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * 
+		 * @param	xml				The xml data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @see away3d.loaders.Collada#parse()
+		 * @see away3d.loaders.Collada#load()
+		 */
+        public function Collada(xml:XML, init:Object = null)
+        {
+            collada = xml;
+            ini = Init.parse(init);
+            
+			materialLibrary.texturePath = ini.getString("texturePath", "");
+			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
+            scaling = ini.getNumber("scaling", 1)*100;
+            material = ini.getMaterial("material");
+            centerMeshes = ini.getBoolean("centerMeshes", false);
+            
+            var materials:Object = ini.getObject("materials") || {};
+
+            for (var name:String in materials) {
+                _materialData = materialLibrary.addMaterial(name);
+                _materialData.material = Cast.material(materials[name]);
+                
+                //determine material type
+                if (_materialData.material is BitmapMaterial)
+                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                else if (_materialData.material is ShadingColorMaterial)
+                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                else if (_materialData.material is WireframeMaterial)
+                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
+   			}
+    		
+			//parse the collada file
+            parseCollada();
+            
+            //build materials
+			buildMaterials();
+			
+			//build the containers
+            container = new ObjectContainer3D(ini);
+			buildContainer(containerData, container);
+        }
+        
+		/**
+		 * Creates a 3d container object from the raw xml data of a collada file.
+		 * 
+		 * @param	data				The xml data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * @param	loader	[optional]	Not intended for direct use.
+		 * 
+		 * @return						A 3d container object representation of the collada file.
+		 */
+        public static function parse(data:*, init:Object = null, loader:Object = null):ObjectContainer3D
+        {
+            var parser:Collada = new Collada(Cast.xml(data), init);
+        	if (loader) {
+        		loader.materialLibrary = parser.materialLibrary;
+        		loader.containerData = parser.containerData;
+        	}
+            return parser.container;
+        }
+    	
+    	/**
+    	 * Loads and parses the textures for a collada file into a 3d container object.
+    	 * 
+    	 * @param	data				The xml data of a loaded file.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the textures are loading.
+    	 */
+		public static function loadTextures(data:*, init:Object = null):Object3DLoader
+		{
+			var parser:Collada = new Collada(Cast.xml(data), init);
+			return Object3DLoader.loadTextures(parser.container, parser.materialLibrary, init);
+		}
+    	
+    	/**
+    	 * Loads and parses a collada file into a 3d container object.
+    	 * 
+    	 * @param	url					The url location of the file to load.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
+    	 */
+        public static function load(url:String, init:Object = null):Object3DLoader
+        {
+            return Object3DLoader.loadGeometry(url, parse, false, init);
+        }
+                
         private function parseCollada():void
         {
-            ns = collada.namespace();
-    		default xml namespace = ns;
+        	default xml namespace = collada.namespace();
+			
             // Get up axis
             yUp = (collada.asset.up_axis == "Y_UP");
     		
@@ -66,14 +320,15 @@ package away3d.loaders
                     
             // Parse first scene
             var sceneId:String = getId(collada.scene.instance_visual_scene.@url);
-    
+    		
             var scene:XML = collada.library_visual_scenes.visual_scene.(@id == sceneId)[0];
-    
+    		
             parseScene(scene);
         }
-    	
+        
         private function parseScene(scene:XML):void
         {
+        	trace(scene.node);
         	containerData = new ContainerData();
             for each (var node:XML in scene.node)
                 parseNode(node, containerData);
@@ -221,122 +476,6 @@ package away3d.loaders
                 }
             }
         }
-        
-        private function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
-		{
-			for each (var _objectData:ObjectData in containerData.children) {
-				if (_objectData is ContainerData) {
-					var _containerData:ContainerData = _objectData as ContainerData;
-					var objectContainer:ObjectContainer3D = new ObjectContainer3D({name:_objectData.name});
-					objectContainer.transform = _objectData.transform;
-					buildContainer(_containerData, objectContainer);
-					if (centerMeshes) {
-						//determine center and offset all children (useful for subsequent max/min/radius calculations)
-						averageX = averageY = averageZ = 0;
-						numChildren = _containerData.children.length;
-						for each (var _child:Object3D in objectContainer.children) {
-							averageX += _child.x;
-							averageY += _child.y;
-							averageZ += _child.z;
-						}
-						
-						objectContainer.movePivot(averageX/numChildren, averageY/numChildren, averageZ/numChildren);
-					}
-					parent.addChild(objectContainer);
-				} else if (_objectData is MeshData) {
-					buildMesh(_objectData as MeshData, parent);
-				}
-			}
-		}
-    	
-        private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
-		{
-			
-			//set materialdata for each face
-			for each (_meshMaterialData in _meshData.materials) {
-				for each (_faceListIndex in _meshMaterialData.faceList) {
-					_faceData = _meshData.faces[_faceListIndex] as FaceData;
-					_faceData.materialData = materialLibrary[_meshMaterialData.name];
-				}
-			}
-			
-			var mesh:Mesh = new Mesh({name:_meshData.name});
-			mesh.transform = _meshData.transform;
-			
-			for each(_faceData in _meshData.faces) {
-				if (!_faceData.materialData)
-					continue;
-				_face = new Face(_meshData.vertices[_faceData.v0],
-											_meshData.vertices[_faceData.v1],
-											_meshData.vertices[_faceData.v2],
-											_faceData.materialData.material,
-											_meshData.uvs[_faceData.uv0],
-											_meshData.uvs[_faceData.uv1],
-											_meshData.uvs[_faceData.uv2]);
-				mesh.addFace(_face);
-				_faceData.materialData.faces.push(_face);
-			}
-			
-			if (centerMeshes) {
-				//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
-				averageX = averageY = averageZ = 0;
-				numVertices = _meshData.vertices.length;
-				for each (_vertex in _meshData.vertices) {
-					averageX += _vertex._x;
-					averageY += _vertex._y;
-					averageZ += _vertex._z;
-				}
-				
-				mesh.movePivot(averageX/numVertices, averageY/numVertices, averageZ/numVertices);
-			}
-			
-			mesh.type = ".Collada";
-			
-			parent.addChild(mesh);
-		}
-        
-        private function buildMaterials():void
-		{
-			for each (_materialData in materialLibrary)
-			{
-				//overridden by the material property in constructor
-				if (material)
-					_materialData.material = material;
-				
-				//overridden by materials passed in contructor
-				if (_materialData.material)
-					continue;
-				
-				switch (_materialData.materialType)
-				{
-					case MaterialData.TEXTURE_MATERIAL:
-						materialLibrary.loadRequired = true;
-						//_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
-						break;
-					case MaterialData.SHADING_MATERIAL:
-						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
-						break;
-					case MaterialData.WIREFRAME_MATERIAL:
-						_materialData.material = new WireColorMaterial();
-						break;
-				}
-			}
-		}
-		
-        private function getArray(spaced:String):Array
-        {
-        	spaced = spaced.split("\r\n").join(" ");
-            var strings:Array = spaced.split(" ");
-            var numbers:Array = new Array();
-    
-            var totalStrings:Number = strings.length;
-    
-            for (var i:Number = 0; i < totalStrings; i++)
-            	if (strings[i] != "")
-                	numbers.push(Number(strings[i]));
-    
-            return numbers;
-        }
 		
 		// Retrieves the filename of a material
 		private function getTextureFileName( name:String ):String
@@ -380,36 +519,6 @@ package away3d.loaders
 			return filename;
 		}
 		
-        private function rotateMatrix(vector:Array):Matrix3D
-        {
-            if (yUp)
-                rotationMatrix.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
-            else
-                rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], -vector[3] * toRADIANS);
-            
-            return rotationMatrix;
-        }
-        
-        private function translateMatrix(vector:Array):Matrix3D
-        {
-            if (yUp)
-                translationMatrix.translationMatrix(-vector[0] * scaling, vector[1] * scaling, vector[2] * scaling);
-            else
-                translationMatrix.translationMatrix( vector[0] * scaling, vector[2] * scaling, vector[1] * scaling);
-            
-            return translationMatrix;
-        }
-        
-        private function scaleMatrix(vector:Array):Matrix3D
-        {
-            if (yUp)
-                scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
-            else
-                scalingMatrix.scaleMatrix(vector[0], vector[2], vector[1]);
-            
-            return scalingMatrix;
-        }
-    	
         private function deserialize(input:XML, geo:XML, Element:Class, output:Array):Array
         {
             var id:String = input.@source.split("#")[1];
@@ -489,116 +598,6 @@ package away3d.loaders
             }
     
             return output;
-        }
-        
-        private function getId(url:String):String
-        {
-            return url.split("#")[1];
-        }
-        
-        /**
-        * 3d container object used for storing the parsed collada scene.
-        */
-        public var container:ObjectContainer3D;
-        
-        /**
-        * Reference container for all materials used in the collada scene.
-        */
-    	public var materialLibrary:MaterialLibrary = new MaterialLibrary();
-    	
-    	/**
-    	 * Container data object used for storing the parsed collada data structure.
-    	 */
-        public var containerData:ContainerData;
-        
-		/**
-		 * Creates a new <code>Collada</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
-		 * 
-		 * @param	xml				The xml data of a loaded file.
-		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-		 * 
-		 * @see away3d.loaders.Collada#parse()
-		 * @see away3d.loaders.Collada#load()
-		 */
-        public function Collada(xml:XML, init:Object = null)
-        {
-            collada = xml;
-            ini = Init.parse(init);
-            
-			materialLibrary.texturePath = ini.getString("texturePath", "");
-			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
-            scaling = ini.getNumber("scaling", 1)*100;
-            material = ini.getMaterial("material");
-            centerMeshes = ini.getBoolean("centerMeshes", false);
-            
-            var materials:Object = ini.getObject("materials") || {};
-
-            for (var name:String in materials) {
-                _materialData = materialLibrary.addMaterial(name);
-                _materialData.material = Cast.material(materials[name]);
-                
-                //determine material type
-                if (_materialData.material is BitmapMaterial)
-                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-                else if (_materialData.material is ShadingColorMaterial)
-                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
-                else if (_materialData.material is WireframeMaterial)
-                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
-   			}
-    		
-			//parse the collada file
-            parseCollada();
-            
-            //build materials
-			buildMaterials();
-			
-			//build the containers
-            container = new ObjectContainer3D(ini);
-			buildContainer(containerData, container);
-        }
-
-		/**
-		 * Creates a 3d container object from the raw xml data of a collada file.
-		 * 
-		 * @param	data				The xml data of a loaded file.
-		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-		 * @param	loader	[optional]	Not intended for direct use.
-		 * 
-		 * @return						A 3d container object representation of the collada file.
-		 */
-        public static function parse(data:*, init:Object = null, loader:Object = null):ObjectContainer3D
-        {
-            var parser:Collada = new Collada(Cast.xml(data), init);
-        	if (loader) {
-        		loader.materialLibrary = parser.materialLibrary;
-        		loader.containerData = parser.containerData;
-        	}
-            return parser.container;
-        }
-    	
-    	/**
-    	 * Loads and parses the textures for a collada file into a 3d container object.
-    	 * 
-    	 * @param	data				The xml data of a loaded file.
-    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the textures are loading.
-    	 */
-		public static function loadTextures(data:*, init:Object = null):Object3DLoader
-		{
-			var parser:Collada = new Collada(Cast.xml(data), init);
-			return Object3DLoader.loadTextures(parser.container, parser.materialLibrary, init);
-		}
-    	
-    	/**
-    	 * Loads and parses a collada file into a 3d container object.
-    	 * 
-    	 * @param	url					The url location of the file to load.
-    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
-    	 */
-        public static function load(url:String, init:Object = null):Object3DLoader
-        {
-            return Object3DLoader.loadGeometry(url, parse, false, init);
         }
     }
 }
