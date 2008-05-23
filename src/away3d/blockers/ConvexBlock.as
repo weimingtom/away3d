@@ -48,6 +48,9 @@ package away3d.blockers
         
 		/**
 		 * @inheritDoc
+		 * 
+    	 * @see	away3d.core.traverse.BlockerTraverser
+    	 * @see	away3d.core.block.Blocker
 		 */
         public function blockers(consumer:IBlockerConsumer):void
         {
@@ -116,6 +119,9 @@ package away3d.blockers
         
 		/**
 		 * @inheritDoc
+    	 * 
+    	 * @see	away3d.core.traverse.PrimitiveTraverser
+    	 * @see	away3d.core.draw.DrawPrimitive
 		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {

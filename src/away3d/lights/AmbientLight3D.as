@@ -22,12 +22,12 @@ package away3d.lights
     	
         //TODO: add debug graphics for ambient light
         /**
-        * Toggles debug mode: light source is visualised in the scene.
+        * Toggles debug mode: light object is visualised in the scene.
         */
         public var debug:Boolean;
 		
 		/**
-		 * Defines the color of the lightsource.
+		 * Defines the color of the light object.
 		 */
 		public function get color():int
 		{

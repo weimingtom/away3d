@@ -250,22 +250,30 @@ package away3d.containers
         public var findhit:FindHit;
         
         /**
-        * Renderer object used to traverse the scenegraph and output the <code>DrawPrimitives</code> required to render the scene.
+        * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
         */
+        public function get renderer():IRenderer
+        {
+        	return _renderer;
+        }
+        
         public function set renderer(val:IRenderer):void
         {
         	_renderer = val;
         	_renderer.session = _session;
         }
         
-        public function get renderer():IRenderer
-        {
-        	return _renderer;
-        }
-        
         /**
-        * Renderer object used to draw the <code>DrawPrimitives</code> to screen.
+        * Session object used to draw all drawing primitives returned from the renderer to the view container.
+        * 
+        * @see #renderer
+        * @see #getContainer()
         */
+        public function get session():AbstractRenderSession
+        {
+        	return _session;
+        }
+    	
         public function set session(val:AbstractRenderSession):void
         {
         	_session = val;
@@ -282,11 +290,6 @@ package away3d.containers
             addChild(hud);
         }
         
-        public function get session():AbstractRenderSession
-        {
-        	return _session;
-        }
-    	
 		/**
 		 * Creates a new <code>View3D</code> object.
 		 * 
@@ -341,9 +344,9 @@ package away3d.containers
         /**
         * Returns the <code>DisplayObject</code> container of the rendered scene.
         * 
-        * @return	The rendered view image.
+        * @return	The <code>DisplayObject</code> containing the output from the render session of the view.
         * 
-        * @see session
+        * @see #session
         * @see away3d.core.render.BitmapRenderSession
         * @see away3d.core.render.SpriteRenderSession
         */
@@ -360,7 +363,7 @@ package away3d.containers
         * @throws	Error	incorrect session object - require BitmapRenderSession.
         * @return	The rendered view image.
         * 
-        * @see session
+        * @see #session
         * @see away3d.core.render.BitmapRenderSession
         */
 		public function getBitmapData():BitmapData
@@ -372,9 +375,9 @@ package away3d.containers
 		}
 				
         /**
-        * Renders a snapshot of the view to the <code>session.container</code> object
+        * Renders a snapshot of the view to the render session's view container.
         * 
-        * @see session
+        * @see #session
         */
         public function render():void
         {
@@ -392,7 +395,7 @@ package away3d.containers
 		/**
 		 * Completes the rendering of a view by flushing the session
 		 * 
-		 * @see session
+		 * @see #session
 		 */
         public function flush():void
         {
