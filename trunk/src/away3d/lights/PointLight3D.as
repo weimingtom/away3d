@@ -20,12 +20,12 @@ package away3d.lights
 		private var _ls:PointLight = new PointLight();
         
         /**
-        * Toggles debug mode: light source is visualised in the scene.
+        * Toggles debug mode: light object is visualised in the scene.
         */
         public var debug:Boolean;
 		
 		/**
-		 * Defines the color of the lightsource.
+		 * Defines the color of the light object.
 		 */
         public var color:int;
 		

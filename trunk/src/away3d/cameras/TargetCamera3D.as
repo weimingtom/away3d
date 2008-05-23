@@ -9,7 +9,7 @@ package away3d.cameras
     /**
     * Extended camera used to automatically look at a specified target object.
     * 
-    * @see		away3d.containers.View3D
+    * @see away3d.containers.View3D
     */
     public class TargetCamera3D extends Camera3D
     {

@@ -56,10 +56,11 @@ package away3d.containers
         }
 		
 		/**
-		 * Called from <code>View3D.render()</code> in order to fire all tick methods
+		 * Calling manually will update 3d objects that execute updates on their <code>tick()</code> methods.
+		 * Uses the <code>TickTraverser</code> to traverse all tick methods in the scene.
 		 * 
 		 * @see	away3d.core.base.Object3D#tick()
-		 * @see	away3d.containers.View3D
+		 * @see	away3d.core.traverse.TickTraverser
 		 */
         public function updateTime(time:int = -1):void
         {
