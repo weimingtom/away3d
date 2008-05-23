@@ -50,6 +50,9 @@ package away3d.containers
         
 		/**
 		 * @inheritDoc
+    	 * 
+    	 * @see	away3d.core.traverse.PrimitiveTraverser
+    	 * @see	away3d.core.draw.DrawPrimitive
 		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {

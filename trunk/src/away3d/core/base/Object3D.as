@@ -16,7 +16,7 @@ package away3d.core.base
 	 * Dispatched when the local transform matrix of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
-	 * @see		away3d.core.base.Object3D#transform
+	 * @see	#transform
 	 */
 	[Event(name="transformchanged",type="away3d.events.Object3DEvent")]
 	
@@ -24,7 +24,7 @@ package away3d.core.base
 	 * Dispatched when the scene transform matrix of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
-	 * @see		away3d.core.base.Object3D#sceneTransform
+	 * @see	#sceneTransform
 	 */
 	[Event(name="scenetransformchanged",type="away3d.events.Object3DEvent")]
 			
@@ -32,7 +32,7 @@ package away3d.core.base
 	 * Dispatched when the parent scene of the 3d object changes
 	 * 
 	 * @eventType away3d.events.Object3DEvent
-	 * @see		away3d.core.base.Object3D#scene
+	 * @see	#scene
 	 */
 	[Event(name="scenechanged",type="away3d.events.Object3DEvent")]
 			
@@ -40,7 +40,7 @@ package away3d.core.base
 	 * Dispatched when the bounding radius of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
-	 * @see		away3d.core.base.Object3D#radius
+	 * @see	#radius
 	 */
 	[Event(name="radiuschanged",type="away3d.events.Object3DEvent")]
 			
@@ -48,12 +48,12 @@ package away3d.core.base
 	 * Dispatched when the bounding dimensions of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
-	 * @see		away3d.core.base.Object3D#minX
-	 * @see		away3d.core.base.Object3D#maxX
-	 * @see		away3d.core.base.Object3D#minY
-	 * @see		away3d.core.base.Object3D#maxY
-	 * @see		away3d.core.base.Object3D#minZ
-	 * @see		away3d.core.base.Object3D#maxZ
+	 * @see	#minX
+	 * @see	#maxX
+	 * @see	#minY
+	 * @see	#maxY
+	 * @see	#minZ
+	 * @see	#maxZ
 	 */
 	[Event(name="dimensionschanged",type="away3d.events.Object3DEvent")]
     			
@@ -333,7 +333,7 @@ package away3d.core.base
     	 * 
     	 * Requires <code>ownCanvas</code> to be set to true.
     	 * 
-    	 * @see away3d.core.base.Object3D#ownCanvas
+    	 * @see #ownCanvas
     	 */
         public var filters:Array;
     	    
@@ -343,7 +343,7 @@ package away3d.core.base
     	 * 
     	 * Requires <code>ownCanvas</code> to be set to true.
     	 * 
-    	 * @see away3d.core.base.Object3D#ownCanvas
+    	 * @see #ownCanvas
     	 */
         public var alpha:Number;
         
@@ -352,7 +352,7 @@ package away3d.core.base
     	 * 
     	 * Requires <code>ownCanvas</code> to be set to true.
     	 * 
-    	 * @see away3d.core.base.Object3D#ownCanvas
+    	 * @see #ownCanvas
     	 */
         public var blendMode:String;
         
@@ -392,7 +392,7 @@ package away3d.core.base
     	/**
     	 * Returns the maximum x value of the 3d object
     	 * 
-    	 * @see	away3d.core.base.Object3D#x
+    	 * @see	#x
     	 */
         public function get maxX():Number
         {
@@ -402,7 +402,7 @@ package away3d.core.base
     	/**
     	 * Returns the minimum x value of the 3d object
     	 * 
-    	 * @see	away3d.core.base.Object3D#x
+    	 * @see	#x
     	 */
         public function get minX():Number
         {
@@ -412,7 +412,7 @@ package away3d.core.base
     	/**
     	 * Returns the maximum y value of the 3d object
     	 * 
-    	 * @see	away3d.core.base.Object3D#y
+    	 * @see	#y
     	 */
         public function get maxY():Number
         {
@@ -422,7 +422,7 @@ package away3d.core.base
     	/**
     	 * Returns the minimum y value of the 3d object
     	 * 
-    	 * @see	away3d.core.base.Object3D#y
+    	 * @see	#y
     	 */
         public function get minY():Number
         {
@@ -432,7 +432,7 @@ package away3d.core.base
     	/**
     	 * Returns the maximum z value of the 3d object
     	 * 
-    	 * @see	away3d.core.base.Object3D#z
+    	 * @see	#z
     	 */
         public function get maxZ():Number
         {
@@ -442,7 +442,7 @@ package away3d.core.base
     	/**
     	 * Returns the minimum z value of the 3d object
     	 * 
-    	 * @see	away3d.core.base.Object3D#z
+    	 * @see	#z
     	 */
         public function get minZ():Number
         {
@@ -773,7 +773,7 @@ package away3d.core.base
     	 * @param	obj		The 3d object to use for calulating the distance
     	 * @return			The scalar distance between objects
     	 * 
-    	 * @see		away3d.core.base.Object3D#position
+    	 * @see	#position
     	 */
         public function distanceTo(obj:Object3D):Number
         {
@@ -792,10 +792,10 @@ package away3d.core.base
     	 * 
     	 * @param	tranverser		The traverser object
     	 * 
-    	 * @see		away3d.core.traverse.BlockerTraverser
-    	 * @see		away3d.core.traverse.PrimitiveTraverser
-    	 * @see		away3d.core.traverse.ProjectionTraverser
-    	 * @see		away3d.core.traverse.TickTraverser
+    	 * @see	away3d.core.traverse.BlockerTraverser
+    	 * @see	away3d.core.traverse.PrimitiveTraverser
+    	 * @see	away3d.core.traverse.ProjectionTraverser
+    	 * @see	away3d.core.traverse.TickTraverser
     	 */
         public function traverse(traverser:Traverser):void
         {
@@ -806,10 +806,15 @@ package away3d.core.base
                 traverser.leave(this);
             }
         }
-        
-		/**
-		 * @inheritDoc
-		 */
+    	/**
+    	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
+    	 * 
+    	 * @param	consumer	The consumer instance
+    	 * @param	session		The render session of the 3d object
+    	 * 
+    	 * @see	away3d.core.traverse.PrimitiveTraverser
+    	 * @see	away3d.core.draw.DrawPrimitive
+    	 */
         public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
             _v = session.view;

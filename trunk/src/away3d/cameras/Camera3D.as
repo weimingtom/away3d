@@ -31,7 +31,7 @@ package away3d.cameras
 		/**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
-		 * @see	away3d.sprites.dof.DofSprite2D
+		 * @see	away3d.sprites.DofSprite2D
 		 */
 		public function get aperture():Number
 		{
@@ -47,7 +47,7 @@ package away3d.cameras
 		/**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
-		 * @see	away3d.sprites.dof.DofSprite2D
+		 * @see	away3d.sprites.DofSprite2D
 		 */
 		public function get dof():Boolean
 		{
@@ -79,14 +79,14 @@ package away3d.cameras
 		/**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
-		 * @see	away3d.sprites.dof.DofSprite2D
+		 * @see	away3d.sprites.DofSprite2D
 		 */
         public var maxblur:Number = 150;
         
         /**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
-		 * @see	away3d.sprites.dof.DofSprite2D
+		 * @see	away3d.sprites.DofSprite2D
 		 */
         public var doflevels:Number = 16;
     	
@@ -117,7 +117,7 @@ package away3d.cameras
         /**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
-		 * @see	away3d.sprites.dof.DofSprite2D
+		 * @see	away3d.sprites.DofSprite2D
 		 */
         public function enableDof():void
         {
@@ -131,7 +131,7 @@ package away3d.cameras
         /**
 		 * Used in <code>DofSprite2D</code>
 		 * 
-		 * @see	away3d.sprites.dof.DofSprite2D
+		 * @see	away3d.sprites.DofSprite2D
 		 */
         public function disableDof():void
         {
@@ -140,7 +140,6 @@ package away3d.cameras
         
 		/**
 		 * Returns the transformation matrix used to resolve the scene to the view.
-		 * 
 		 * Used in the <code>ProjectionTraverser</code> class
 		 * 
 		 * @see	away3d.core.traverse.ProjectionTraverser

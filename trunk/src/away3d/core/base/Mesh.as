@@ -660,6 +660,10 @@
         
 		/**
 		 * @inheritDoc
+		 * 
+    	 * @see	away3d.core.traverse.PrimitiveTraverser
+    	 * @see	away3d.core.draw.DrawTriangle
+    	 * @see	away3d.core.draw.DrawSegment
 		 */
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {

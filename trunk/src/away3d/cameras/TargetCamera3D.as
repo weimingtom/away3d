@@ -7,21 +7,21 @@ package away3d.cameras
 	
 	
     /**
-    * Extended camera used to automatically look at a specified target object
+    * Extended camera used to automatically look at a specified target object.
     * 
     * @see		away3d.containers.View3D
     */
     public class TargetCamera3D extends Camera3D
     {
         /**
-        * The 3d object targeted by the camera
+        * The 3d object targeted by the camera.
         */
         public var target:Object3D;
     	
 	    /**
-	    * Creates a new <code>TargetCamera3D</code> object
+	    * Creates a new <code>TargetCamera3D</code> object.
 	    * 
-	    * @param	init	[optional]	An initialisation object for specifying default instance properties
+	    * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	    */
         public function TargetCamera3D(init:Object = null)
         {
@@ -42,9 +42,9 @@ package away3d.cameras
         }
         
 		/**
-		 * Cannot parent a <code>TargetCamera3D</code> object
+		 * Cannot parent a <code>TargetCamera3D</code> object.
 		 * 
-		 * @throws	Error	TargetCamera can't be parented
+		 * @throws	Error	TargetCamera can't be parented.
 		 */
         public override function set parent(value:ObjectContainer3D):void
         {

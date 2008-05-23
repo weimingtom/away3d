@@ -1,12 +1,12 @@
 package away3d.containers
 {
 	import away3d.core.*;
-    import away3d.core.math.*;
-    import away3d.core.base.*;
-    import away3d.core.traverse.*;
-    import away3d.core.utils.*;
-    
-    import flash.utils.getTimer;
+	import away3d.core.base.*;
+	import away3d.core.math.*;
+	import away3d.core.traverse.*;
+	import away3d.core.utils.*;
+	
+	import flash.utils.getTimer;
     
     /**
     * The root container of all 3d objects in a single scene
@@ -81,6 +81,10 @@ package away3d.containers
 		 * 
 		 * @throws	Error	Scene can't be parented
 		 */
+		public override function get parent():ObjectContainer3D
+		{
+			return super.parent;
+		}
         public override function set parent(value:ObjectContainer3D):void
         {
             if (value != null)
