@@ -18,7 +18,6 @@ package away3d.loaders
 
     	private var ini:Init;
         private var collada:XML;
-        private var ns:Namespace;
         private var material:ITriangleMaterial;
         private var centerMeshes:Boolean;
         private var scaling:Number;
