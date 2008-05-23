@@ -5,12 +5,12 @@ package away3d.core.light
 	import flash.display.*;
 
     /**
-    * Point light primitive
+    * Ambient light primitive
     */
     public class AmbientLight extends LightPrimitive
     {
     	/**
-    	 * A reference to the <code>AmbientLight</code> object used by the light primitive.
+    	 * A reference to the <code>AmbientLight3D</code> object used by the light primitive.
     	 */
         public var light:AmbientLight3D;
         

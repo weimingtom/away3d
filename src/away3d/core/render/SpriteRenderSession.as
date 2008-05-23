@@ -8,7 +8,10 @@ package away3d.core.render
 	import flash.display.*;
 	import flash.geom.*;
 	import flash.utils.*;
-    
+	
+    /**
+    * Drawing session object that renders all drawing primitives into a <code>Sprite</code> container.
+    */
 	public class SpriteRenderSession extends AbstractRenderSession
 	{
 		use namespace arcane;

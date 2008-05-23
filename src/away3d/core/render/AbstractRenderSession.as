@@ -9,7 +9,11 @@ package away3d.core.render
 	import flash.display.*;
 	import flash.geom.*;
 	import flash.utils.*;
-   
+	
+    /**
+    * Abstract Drawing session object containing the method used for drawing the view to screen.
+    * Not intended for direct use - use <code>SpriteRenderSession</code> or <code>BitmapRenderSession</code>.
+    */
 	public class AbstractRenderSession
 	{
 		use namespace arcane;

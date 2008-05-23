@@ -3,7 +3,9 @@
 	import away3d.core.*;
     import away3d.core.base.*;
     
-    /** Wire torus */ 
+    /**
+    * Creates a 3d wire torus primitive.
+    */ 
     public class WireTorus extends AbstractWirePrimitive
     {
     	use namespace arcane

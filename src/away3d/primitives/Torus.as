@@ -4,7 +4,9 @@
     import away3d.core.base.*;
     import away3d.core.utils.*;
     
-    /** Torus */ 
+    /**
+    * Creates a 3d torus primitive.
+    */ 
     public class Torus extends AbstractPrimitive
     {
     	use namespace arcane
