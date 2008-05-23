@@ -36,16 +36,16 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public function set session(value:AbstractRenderSession):void
-        {
-        	this._session = value;
-        }
-
         public function get session():AbstractRenderSession
         {
         	return this._session;
         }
-
+        
+        public function set session(value:AbstractRenderSession):void
+        {
+        	this._session = value;
+        }
+		
 		/**
 		 * Creates a new <code>QuadrantRenderer</code> object.
 		 *

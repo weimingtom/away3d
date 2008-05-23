@@ -7,7 +7,10 @@ package away3d.core.render
 	import flash.display.*;
 	import flash.geom.Matrix;
 	import flash.utils.Dictionary;
-    
+	
+    /**
+    * Drawing session object that renders all drawing primitives into a <code>Bitmap</code> container.
+    */
 	public class BitmapRenderSession extends AbstractRenderSession
 	{
 		use namespace arcane;
