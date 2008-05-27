@@ -86,7 +86,7 @@ package away3d.sprites
             
             _primitive.screenvertex = _sc;
             _primitive.smooth = smooth;
-            _primitive.bitmap = bitmap;
+            _primitive.bitmap = _dofcache.getBitmap(_sc.z);
             _primitive.scale = _persp*scaling;
             _primitive.rotation = rotation;
             _primitive.calc();
