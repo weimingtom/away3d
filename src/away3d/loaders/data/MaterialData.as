@@ -24,7 +24,7 @@ package away3d.loaders.data
 		/**
 		 * String representing a color material.
 		 */
-		public static const COLOR_MATERIAL:String = "shadingMaterial";
+		public static const COLOR_MATERIAL:String = "colorMaterial";
 		
 		/**
 		 * String representing a wireframe material.
