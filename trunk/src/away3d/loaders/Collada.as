@@ -133,10 +133,12 @@ package away3d.loaders
 				{
 					case MaterialData.TEXTURE_MATERIAL:
 						materialLibrary.loadRequired = true;
-						//_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
 						break;
 					case MaterialData.SHADING_MATERIAL:
 						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
+						break;
+					case MaterialData.COLOR_MATERIAL:
+						_materialData.material = new ColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
 						break;
 					case MaterialData.WIREFRAME_MATERIAL:
 						_materialData.material = new WireColorMaterial();
@@ -241,6 +243,8 @@ package away3d.loaders
                 	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
                 else if (_materialData.material is ShadingColorMaterial)
                 	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                else if (_materialData.material is ColorMaterial)
+                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
                 else if (_materialData.material is WireframeMaterial)
                 	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
    			}
@@ -327,7 +331,6 @@ package away3d.loaders
         
         private function parseScene(scene:XML):void
         {
-        	trace(scene.node);
         	containerData = new ContainerData();
             for each (var node:XML in scene.node)
                 parseNode(node, containerData);
@@ -406,8 +409,13 @@ package away3d.loaders
             if(name == "FrontColorNoCulling") {
             	_materialData.materialType = MaterialData.SHADING_MATERIAL;
             } else {
-            	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
                 _materialData.textureFileName = getTextureFileName(target);
+                
+                if (_materialData.textureFileName) {
+            		_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                } else {
+                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
+                }
             }
         }
         
