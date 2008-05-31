@@ -62,7 +62,7 @@ package away3d.materials
 			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
-			specular = ini.getNumber("specular", 0.7, {min:0, max:1});
+			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
 			//create new materials
 			_movieMaterial = new MovieMaterial(movie, ini);
