@@ -62,10 +62,10 @@ package away3d.materials
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
 		public function EnviroColorMaterial(color:*, enviroMap:BitmapData, init:Object = null)
-		{
-            this.color = Cast.trycolor(color);
-            
+		{            
 			super(enviroMap, init);
+			
+            this.color = Cast.trycolor(color);
 		}
     	
     	/**
