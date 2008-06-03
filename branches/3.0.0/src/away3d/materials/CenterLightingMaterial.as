@@ -108,7 +108,7 @@ package away3d.materials
         private var draw_fall_k:Number = 1;
         private var draw_reflect:Boolean = false;
         private var draw_reflect_k:Number = 1;
-        private var _diffuseTransform:Matrix3D;
+        private var _diffuseTransform:MatrixAway3D;
         private var _source:Mesh;
         
         /**

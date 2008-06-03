@@ -18,9 +18,9 @@ package away3d.cameras
     {
         private var _aperture:Number = 22;
     	private var _dof:Boolean = false;
-        private var _flipY:Matrix3D = new Matrix3D();
+        private var _flipY:MatrixAway3D = new MatrixAway3D();
         private var _focus:Number;
-    	private var _view:Matrix3D = new Matrix3D();
+    	private var _view:MatrixAway3D = new MatrixAway3D();
         private var _screenProjection:Projection = new Projection();
 		    	
 		/**
@@ -144,7 +144,7 @@ package away3d.cameras
 		 * 
 		 * @see	away3d.core.traverse.ProjectionTraverser
 		 */
-        public function get view():Matrix3D
+        public function get view():MatrixAway3D
         {
         	viewTransform.multiply(sceneTransform, _flipY);
         	_view.inverse(viewTransform);

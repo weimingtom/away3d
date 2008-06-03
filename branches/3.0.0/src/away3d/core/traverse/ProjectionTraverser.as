@@ -14,7 +14,7 @@ package away3d.core.traverse
     {
 		private var _projection:Projection;
         private var _view:View3D;
-        private var _cameraview:Matrix3D;
+        private var _cameraview:MatrixAway3D;
 		
 		/**
 		 * Defines the view being used.

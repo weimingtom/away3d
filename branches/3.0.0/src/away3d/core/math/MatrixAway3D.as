@@ -3,7 +3,7 @@ package away3d.core.math
     /**
     * A 3D transformation 4x3 matrix
     */
-    public final class Matrix3D
+    public final class MatrixAway3D
     {
         private const toDEGREES:Number = 180 / Math.PI;
         private var _position:Number3D = new Number3D();
@@ -148,9 +148,9 @@ package away3d.core.math
         }
         
 		/**
-		 * Creates a new <code>Matrix3D</code> object.
+		 * Creates a new <code>MatrixAway3D</code> object.
 		 */
-        public function Matrix3D()
+        public function MatrixAway3D()
         {
             sxx = syy = szz = 1;
             sxy = sxz = tx = syx = syz = ty = szx = szy = tz = 0;
@@ -202,7 +202,7 @@ package away3d.core.math
         * @param	m1	The first 3d matrix in the multipication.
         * @oaram	m2	The second 3d matrix in the multipication.
         */
-        public function multiply3x3(m1:Matrix3D, m2:Matrix3D):void
+        public function multiply3x3(m1:MatrixAway3D, m2:MatrixAway3D):void
         {
             m111 = m1.sxx; m211 = m2.sxx;
             m121 = m1.syx; m221 = m2.syx;
@@ -237,7 +237,7 @@ package away3d.core.math
         * @param	m1	The first 3d matrix in the multipication.
         * @oaram	m2	The second 3d matrix in the multipication.
         */
-        public function multiply(m1:Matrix3D, m2:Matrix3D):void
+        public function multiply(m1:MatrixAway3D, m2:MatrixAway3D):void
         {
             m111 = m1.sxx; m211 = m2.sxx;
             m121 = m1.syx; m221 = m2.syx;
@@ -293,7 +293,7 @@ package away3d.core.math
 		 * 
 		 * @param	m	THe 3d matrix to copy from.
 		 */
-        public function copy3x3(m:Matrix3D):Matrix3D
+        public function copy3x3(m:MatrixAway3D):MatrixAway3D
         {
             sxx = m.sxx;   sxy = m.sxy;   sxz = m.sxz;
             syx = m.syx;   syy = m.syy;   syz = m.syz;
@@ -307,7 +307,7 @@ package away3d.core.math
 		 * 
 		 * @param	m	THe 3d matrix to copy from.
 		 */
-        public function clone(m:Matrix3D):Matrix3D
+        public function clone(m:MatrixAway3D):MatrixAway3D
         {
             sxx = m.sxx;   sxy = m.sxy;   sxz = m.sxz;   tx = m.tx;
             syx = m.syx;   syy = m.syy;   syz = m.syz;   ty = m.ty;
@@ -431,7 +431,7 @@ package away3d.core.math
         * 
         * @param	m	The 3d matrix object used for the inverse calulation.
         */
-        public function inverse(m:Matrix3D):void
+        public function inverse(m:MatrixAway3D):void
         {
             d = m.det;
             if (Math.abs(d) < 0.001) {

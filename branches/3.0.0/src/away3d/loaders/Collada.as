@@ -35,9 +35,9 @@ package away3d.loaders
     	private var _faceData:FaceData;
     	private var _face:Face;
     	private var _vertex:Vertex;
-		private var rotationMatrix:Matrix3D = new Matrix3D();
-    	private var scalingMatrix:Matrix3D = new Matrix3D();
-    	private var translationMatrix:Matrix3D = new Matrix3D();
+		private var rotationMatrix:MatrixAway3D = new MatrixAway3D();
+    	private var scalingMatrix:MatrixAway3D = new MatrixAway3D();
+    	private var translationMatrix:MatrixAway3D = new MatrixAway3D();
         private var VALUE_X:String;
         private var VALUE_Y:String;
         private var VALUE_Z:String;
@@ -160,7 +160,7 @@ package away3d.loaders
             return numbers;
         }
 		
-        private function rotateMatrix(vector:Array):Matrix3D
+        private function rotateMatrix(vector:Array):MatrixAway3D
         {
             if (yUp)
                 rotationMatrix.rotationMatrix(vector[0], vector[1], vector[2], -vector[3] * toRADIANS);
@@ -170,7 +170,7 @@ package away3d.loaders
             return rotationMatrix;
         }
         
-        private function translateMatrix(vector:Array):Matrix3D
+        private function translateMatrix(vector:Array):MatrixAway3D
         {
             if (yUp)
                 translationMatrix.translationMatrix(-vector[0] * scaling, vector[1] * scaling, vector[2] * scaling);
@@ -180,7 +180,7 @@ package away3d.loaders
             return translationMatrix;
         }
         
-        private function scaleMatrix(vector:Array):Matrix3D
+        private function scaleMatrix(vector:Array):MatrixAway3D
         {
             if (yUp)
                 scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
@@ -335,7 +335,7 @@ package away3d.loaders
     	
         private function parseNode(node:XML, parent:ContainerData):void
         {
-	    	var _transform:Matrix3D;
+	    	var _transform:MatrixAway3D;
 	    	var _objectData:ObjectData;
 	    	
             if (String(node.instance_geometry) == "")
@@ -365,7 +365,7 @@ package away3d.loaders
     					
                     // Baked transform matrix
                     case "matrix":
-                    	var m:Matrix3D = new Matrix3D();
+                    	var m:MatrixAway3D = new MatrixAway3D();
                     	m.array2matrix(getArray(child));
                         _transform.multiply(_transform, m);
                         break;
