@@ -178,7 +178,7 @@ package away3d.core.math
     	 * @param	The 3d number object to use in the calculation.
     	 * @param	The 3d matrix object representing the rotation.
     	 */
-        public function rotate(v:Number3D, m:Matrix3D):void
+        public function rotate(v:Number3D, m:MatrixAway3D):void
         {
             x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz;
             y = v.x * m.syx + v.y * m.syy + v.z * m.syz;
@@ -191,7 +191,7 @@ package away3d.core.math
     	 * @param	The 3d number object to use in the calculation.
     	 * @param	The 3d matrix object representing the tranformation.
     	 */
-        public function transform(v:Number3D, m:Matrix3D):void
+        public function transform(v:Number3D, m:MatrixAway3D):void
         {
             x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz + m.tx;
             y = v.x * m.syx + v.y * m.syy + v.z * m.syz + m.ty;

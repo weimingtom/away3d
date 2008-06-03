@@ -10,7 +10,7 @@ package away3d.core.render
     	/**
     	 * Defines the current view transform matrix that resolves the transformation tree.
     	 */
-        public var view:Matrix3D;
+        public var view:MatrixAway3D;
         
         /**
         * Defines the focus for the camera object being used by the view.

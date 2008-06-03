@@ -101,11 +101,11 @@ package away3d.core.base
 		/** @private */
         arcane var _transformDirty:Boolean;
         /** @private */
-        arcane var _transform:Matrix3D = new Matrix3D();
+        arcane var _transform:MatrixAway3D = new MatrixAway3D();
         /** @private */
         arcane var _sceneTransformDirty:Boolean;
         /** @private */
-        arcane var _sceneTransform:Matrix3D = new Matrix3D();
+        arcane var _sceneTransform:MatrixAway3D = new MatrixAway3D();
         /** @private */
         arcane function get parentradius():Number
         {
@@ -237,7 +237,7 @@ package away3d.core.base
         private var _v:View3D;
         private var _c:DisplayObject;       		
 		private var _vector:Number3D = new Number3D();
-		private var _m:Matrix3D = new Matrix3D();
+		private var _m:MatrixAway3D = new MatrixAway3D();
     	private var _xAxis:Number3D = new Number3D();
     	private var _yAxis:Number3D = new Number3D();
     	private var _zAxis:Number3D = new Number3D();        
@@ -305,8 +305,8 @@ package away3d.core.base
 		protected var ini:Init;
 		
         public var projection:Projection = new Projection();
-        public var inverseSceneTransform:Matrix3D = new Matrix3D();
-        public var viewTransform:Matrix3D = new Matrix3D();
+        public var inverseSceneTransform:MatrixAway3D = new MatrixAway3D();
+        public var viewTransform:MatrixAway3D = new MatrixAway3D();
     	public var sceneTransformed:Boolean;
     	
     	/**
@@ -605,7 +605,7 @@ package away3d.core.base
     	/**
     	 * Defines the transformation of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
-        public function get transform():Matrix3D
+        public function get transform():MatrixAway3D
         {
             if (_transformDirty) 
                 updateTransform();
@@ -613,7 +613,7 @@ package away3d.core.base
             return _transform;
         }
 
-        public function set transform(value:Matrix3D):void
+        public function set transform(value:MatrixAway3D):void
         {
             if (value == _transform)
                 return;
@@ -668,7 +668,7 @@ package away3d.core.base
     	/**
     	 * Returns the transformation of the 3d object, relative to the global coordinates of the <code>Scene3D</code>.
     	 */
-        public function get sceneTransform():Matrix3D
+        public function get sceneTransform():MatrixAway3D
         {
         	sceneTransformed = false;
         	
@@ -777,8 +777,8 @@ package away3d.core.base
     	 */
         public function distanceTo(obj:Object3D):Number
         {
-            var m1:Matrix3D = scene == null ? transform : sceneTransform;
-            var m2:Matrix3D = obj.scene == null ? obj.transform : obj.sceneTransform;
+            var m1:MatrixAway3D = scene == null ? transform : sceneTransform;
+            var m2:MatrixAway3D = obj.scene == null ? obj.transform : obj.sceneTransform;
 
             var dx:Number = m1.tx - m2.tx;
             var dy:Number = m1.ty - m2.ty;

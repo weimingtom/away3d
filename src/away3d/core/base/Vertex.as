@@ -20,7 +20,7 @@ package away3d.core.base
         /** @private */
         arcane var _z:Number;
         /** @private */
-        arcane function transform(m:Matrix3D):void
+        arcane function transform(m:MatrixAway3D):void
         {
             setValue(_x * m.sxx + _y * m.sxy + _z * m.sxz + m.tx, _x * m.syx + _y * m.syy + _z * m.syz + m.ty, _x * m.szx + _y * m.szy + _z * m.szz + m.tz);
         }
@@ -62,7 +62,7 @@ package away3d.core.base
 
         private var projected:ScreenVertex = new ScreenVertex();
         private var projectionTime:int;
-		private var view:Matrix3D;
+		private var view:MatrixAway3D;
 		private var sz:Number;
 		private var persp:Number;
         private var _position:Number3D = new Number3D();
