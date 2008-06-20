@@ -30,8 +30,12 @@ package away3d.core.render
         
         private function checkPrimitive(pri:DrawPrimitive):void
         {
+        	if (pri is DrawFog)
+        		return;
+        	
             if (!pri.source.mouseEnabled)
                 return;
+            
             if (pri.minX > screenX)
                 return;
             if (pri.maxX < screenX)
