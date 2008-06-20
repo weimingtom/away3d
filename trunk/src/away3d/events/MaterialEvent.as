@@ -10,6 +10,21 @@ package away3d.events
     public class MaterialEvent extends Event
     {
     	/**
+    	 * Defines the value of the type property of a materialloaderror event object.
+    	 */
+    	public static const LOAD_ERROR:String = "materialloaderror";
+    	
+    	/**
+    	 * Defines the value of the type property of a materialloadprogress event object.
+    	 */
+    	public static const LOAD_PROGRESS:String = "materialloadprogress";
+    	
+    	/**
+    	 * Defines the value of the type property of a materialloadsuccess event object.
+    	 */
+    	public static const LOAD_SUCCESS:String = "materialloadsuccess";
+    	
+    	/**
     	 * Defines the value of the type property of a materialresize event object.
     	 */
     	public static const RESIZED:String = "materialresize";
