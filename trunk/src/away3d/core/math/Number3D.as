@@ -8,6 +8,9 @@ package away3d.core.math
     	private var mod:Number;
         private var dist:Number;
         private var num:Number3D;
+        private var vx:Number;
+        private var vy:Number;
+        private var vz:Number;
         
         /**
         * The horizontal coordinate of the 3d number object.
@@ -180,9 +183,13 @@ package away3d.core.math
     	 */
         public function rotate(v:Number3D, m:Matrix3D):void
         {
-            x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz;
-            y = v.x * m.syx + v.y * m.syy + v.z * m.syz;
-            z = v.x * m.szx + v.y * m.szy + v.z * m.szz;
+        	vx = v.x;
+        	vy = v.y;
+        	vz = v.z;
+        	
+            x = vx * m.sxx + vy * m.sxy + vz * m.sxz;
+            y = vx * m.syx + vy * m.syy + vz * m.syz;
+            z = vx * m.szx + vy * m.szy + vz * m.szz;
         }
     	
     	/**
@@ -193,9 +200,13 @@ package away3d.core.math
     	 */
         public function transform(v:Number3D, m:Matrix3D):void
         {
-            x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz + m.tx;
-            y = v.x * m.syx + v.y * m.syy + v.z * m.syz + m.ty;
-            z = v.x * m.szx + v.y * m.szy + v.z * m.szz + m.tz;
+        	vx = v.x;
+        	vy = v.y;
+        	vz = v.z;
+        	
+            x = vx * m.sxx + vy * m.sxy + vz * m.sxz + m.tx;
+            y = vx * m.syx + vy * m.syy + vz * m.syz + m.ty;
+            z = vx * m.szx + vy * m.szy + vz * m.szz + m.tz;
         }
         
         /**
