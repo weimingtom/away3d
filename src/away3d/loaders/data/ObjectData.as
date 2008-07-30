@@ -16,5 +16,11 @@ package away3d.loaders.data
 		 * The 3d transformation matrix for the 3d object
 		 */
 		public var transform:Matrix3D = new Matrix3D();
+		
+		/**
+		 * Colada animation
+		 */
+		public var id:String;
+		public var scale:Number;
 	}
 }

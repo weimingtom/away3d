@@ -1,5 +1,7 @@
 package away3d.loaders.data
 {
+	import away3d.core.math.Matrix3D;
+	import away3d.core.math.Number3D;
 	/**
 	 * Data class for 3d object containers.
 	 */

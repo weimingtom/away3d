@@ -1,5 +1,7 @@
-package away3d.core.draw
+package away3d.core.geom
 {
+	import away3d.core.draw.*;
+	
 
     /** Line in 2D space */
     public class Line2D

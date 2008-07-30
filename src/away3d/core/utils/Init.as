@@ -11,7 +11,9 @@ package away3d.core.utils
     /** Convinient object initialization support */
     public class Init
     {
-        private var init:Object;
+    	use namespace arcane;
+		/** @private */
+        arcane var init:Object;
 
         public function Init(init:Object)
         {

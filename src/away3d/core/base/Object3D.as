@@ -8,11 +8,13 @@ package away3d.core.base
     import away3d.core.traverse.*;
     import away3d.core.utils.*;
     import away3d.events.*;
+    import away3d.loaders.utils.AnimationLibrary;
+    import away3d.loaders.utils.MaterialLibrary;
     
     import flash.display.*;
     import flash.events.EventDispatcher;
     
-	 /**
+	/**
 	 * Dispatched when the local transform matrix of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
@@ -20,7 +22,7 @@ package away3d.core.base
 	 */
 	[Event(name="transformchanged",type="away3d.events.Object3DEvent")]
 	
-	 /**
+	/**
 	 * Dispatched when the scene transform matrix of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
@@ -28,7 +30,7 @@ package away3d.core.base
 	 */
 	[Event(name="scenetransformchanged",type="away3d.events.Object3DEvent")]
 			
-	 /**
+	/**
 	 * Dispatched when the parent scene of the 3d object changes
 	 * 
 	 * @eventType away3d.events.Object3DEvent
@@ -36,7 +38,7 @@ package away3d.core.base
 	 */
 	[Event(name="scenechanged",type="away3d.events.Object3DEvent")]
 			
-	 /**
+	/**
 	 * Dispatched when the bounding radius of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
@@ -44,7 +46,7 @@ package away3d.core.base
 	 */
 	[Event(name="radiuschanged",type="away3d.events.Object3DEvent")]
 			
-	 /**
+	/**
 	 * Dispatched when the bounding dimensions of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
@@ -57,35 +59,35 @@ package away3d.core.base
 	 */
 	[Event(name="dimensionschanged",type="away3d.events.Object3DEvent")]
     			
-	 /**
+	/**
 	 * Dispatched when a user moves the cursor while it is over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
 	[Event(name="mouseMove3D",type="away3d.events.MouseEvent3D")]
     			
-	 /**
+	/**
 	 * Dispatched when a user presses the let hand mouse button while the cursor is over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
 	[Event(name="mouseDown3D",type="away3d.events.MouseEvent3D")]
     			
-	 /**
+	/**
 	 * Dispatched when a user releases the let hand mouse button while the cursor is over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
 	[Event(name="mouseUp3D",type="away3d.events.MouseEvent3D")]
     			
-	 /**
+	/**
 	 * Dispatched when a user moves the cursor over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
 	[Event(name="mouseOver3D",type="away3d.events.MouseEvent3D")]
     			
-	 /**
+	/**
 	 * Dispatched when a user moves the cursor away from the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
@@ -93,8 +95,8 @@ package away3d.core.base
 	[Event(name="mouseOut3D",type="away3d.events.MouseEvent3D")]
 	
     /**
-    * Base class for all 3d objects.
-    */
+     * Base class for all 3d objects.
+     */
     public class Object3D extends EventDispatcher implements IClonable
     {
         use namespace arcane;
@@ -106,6 +108,10 @@ package away3d.core.base
         arcane var _sceneTransformDirty:Boolean;
         /** @private */
         arcane var _sceneTransform:Matrix3D = new Matrix3D();
+        /** @private */
+        arcane var _localTransformDirty:Boolean;
+        /** @private */
+        arcane var _radiusDirty:Boolean = false;
         /** @private */
         arcane function get parentradius():Number
         {
@@ -222,14 +228,17 @@ package away3d.core.base
         private static var toRADIANS:Number = Math.PI / 180;
 		
         private var _rotationDirty:Boolean;
-        private var _rotationX:Number;
-        private var _rotationY:Number;
-        private var _rotationZ:Number;
-        private var _localTransformDirty:Boolean;
+        arcane var _rotationX:Number = 0;
+        arcane var _rotationY:Number = 0;
+        arcane var _rotationZ:Number = 0;
+        arcane var _scaleX:Number = 1;
+        arcane var _scaleY:Number = 1;
+        arcane var _scaleZ:Number = 1;
         private var _scene:Scene3D;
         private var _parent:ObjectContainer3D;
 		private var _quaternion:Quaternion = new Quaternion();
-		private var _rot:Number3D;
+		private var _rot:Number3D = new Number3D();
+		private var _sca:Number3D = new Number3D();
         private var _position:Number3D = new Number3D();
         private var _scenePosition:Number3D = new Number3D();
         private var _ddo:DrawDisplayObject = new DrawDisplayObject();
@@ -246,28 +255,12 @@ package away3d.core.base
         private var _scenechanged:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
         private var _radiuschanged:Object3DEvent;
-        
-        private function updateTransform():void
-        {
-            if (!_transformDirty) 
-                return;
-
-            _quaternion.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
-            _transform.quaternion2matrix(_quaternion);
-			
-            //m.scale(_scaleX, _scaleY, _scaleZ); // !! WRONG !!
-			
-            _transformDirty = false;
-            _sceneTransformDirty = true;
-            _localTransformDirty = true;
-        }
-
+		
         private function updateSceneTransform():void
         {
-            if (!_sceneTransformDirty) 
-                return;
-
             _sceneTransform.multiply(_parent.sceneTransform, transform);
+            
+            //calulate the inverse transform of the scene (used for lights and bones)
             inverseSceneTransform.inverse(_sceneTransform);
             
             _sceneTransformDirty = false;
@@ -276,10 +269,10 @@ package away3d.core.base
 		
         private function updateRotation():void
         {
-            _rot = _transform.matrix2euler();
-            _rotationX = _rot.x * toRADIANS;
-            _rotationY = _rot.y * toRADIANS;
-            _rotationZ = _rot.z * toRADIANS;
+            _rot.matrix2euler(_transform, _scaleX, _scaleY, _scaleZ);
+            _rotationX = _rot.x;
+            _rotationY = _rot.y;
+            _rotationZ = _rot.z;
     
             _rotationDirty = false;
         }
@@ -299,14 +292,40 @@ package away3d.core.base
         }
 		 
         /**
-        * Instance of the Init object used to hold and parse default property values
-        * specified by the initialiser object in the 3d object constructor.
-        */
+         * Instance of the Init object used to hold and parse default property values
+         * specified by the initialiser object in the 3d object constructor.
+         */
 		protected var ini:Init;
-		
+        
+        protected function updateTransform():void
+        {
+            _quaternion.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
+            _transform.quaternion2matrix(_quaternion);
+			
+            _transform.scale(_scaleX, _scaleY, _scaleZ);
+			
+            _transformDirty = false;
+            _sceneTransformDirty = true;
+            _localTransformDirty = true;
+        }
+        
         public var projection:Projection = new Projection();
+        
+    	/**
+    	 * Returns the invere of sceneTransform.
+    	 * 
+    	 * @see #sceneTransform
+    	 */
         public var inverseSceneTransform:Matrix3D = new Matrix3D();
+        
+        /**
+         * Placeholder for the calulated transformation of the view.
+         */
         public var viewTransform:Matrix3D = new Matrix3D();
+        
+        /**
+         * Defines whether the object has been transfromed in the scene in teh last frame
+         */
     	public var sceneTransformed:Boolean;
     	
     	/**
@@ -381,6 +400,22 @@ package away3d.core.base
     	 */
         public var ownSession:AbstractRenderSession;
         
+        /**
+        * Reference container for all materials used in the container. Populated in <code>Collada</code> and <code>Max3DS</code> importers.
+        * 
+        * @see away3d.loaders.Collada
+        * @see away3d.loaders.Max3DS
+        */
+    	public var materialLibrary:MaterialLibrary;
+
+        /**
+        * Reference container for all animations used in the container. Populated in <code>Collada</code> and <code>Max3DS</code> importers.
+        * 
+        * @see away3d.loaders.Collada
+        * @see away3d.loaders.Max3DS
+        */
+    	public var animationLibrary:AnimationLibrary;
+    	
     	/**
     	 * Returns the bounding radius of the 3d object
     	 */
@@ -532,13 +567,12 @@ package away3d.core.base
             if (_rotationDirty) 
                 updateRotation();
     
-            return -_rotationX * toDEGREES;
+            return -_rotationX*toDEGREES;
         }
     
         public function set rotationX(rot:Number):void
         {
-            _rotationX = -rot * toRADIANS;
-
+            _rotationX = -rot*toRADIANS;
             _transformDirty = true;
         }
 		
@@ -550,13 +584,12 @@ package away3d.core.base
             if (_rotationDirty) 
                 updateRotation();
     
-            return -_rotationY * toDEGREES;
+            return -_rotationY*toDEGREES;
         }
     
         public function set rotationY(rot:Number):void
         {
-            _rotationY = -rot * toRADIANS;
-
+            _rotationY = -rot*toRADIANS;
             _transformDirty = true;
         }
 		
@@ -568,16 +601,69 @@ package away3d.core.base
             if (_rotationDirty) 
                 updateRotation();
     
-            return -_rotationZ * toDEGREES;
+            return -_rotationZ*toDEGREES;
         }
     
         public function set rotationZ(rot:Number):void
         {
-            _rotationZ = -rot * toRADIANS;
-
+            _rotationZ = -rot*toRADIANS;
             _transformDirty = true;
         }
 		
+    	/**
+    	 * Defines the scale of the 3d object along the x-axis, relative to local coordinates.
+    	 */
+        public function get scaleX():Number
+        {
+            return _scaleX;
+        }
+    
+        public function set scaleX(scale:Number):void
+        {
+        	if (_scaleX == scale)
+        		return;
+        	
+            _scaleX = scale;
+            _transformDirty = true;
+            _radiusDirty = true;
+        }
+		
+    	/**
+    	 * Defines the scale of the 3d object along the y-axis, relative to local coordinates.
+    	 */
+        public function get scaleY():Number
+        {
+            return _scaleY;
+        }
+    
+        public function set scaleY(scale:Number):void
+        {
+        	if (_scaleY == scale)
+        		return;
+        	
+            _scaleY = scale;
+            _transformDirty = true;
+            _radiusDirty = true;
+        }
+		
+    	/**
+    	 * Defines the scale of the 3d object along the z-axis, relative to local coordinates.
+    	 */
+        public function get scaleZ():Number
+        {
+            return _scaleZ;
+        }
+    
+        public function set scaleZ(scale:Number):void
+        {
+        	if (_scaleZ == scale)
+        		return;
+        	
+            _scaleZ = scale;
+            _transformDirty = true;
+            _radiusDirty = true;
+        }
+        
     	/**
     	 * Defines the position of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
@@ -624,6 +710,15 @@ package away3d.core.base
             _rotationDirty = true;
             _sceneTransformDirty = true;
             _localTransformDirty = true;
+            
+            _sca.matrix2scale(_transform);
+        	
+    		if (_scaleX != _sca.x || _scaleY != _sca.y || _scaleZ != _sca.z) {
+    			_scaleX = _sca.x;
+    			_scaleY = _sca.y;
+    			_scaleZ = _sca.z;
+    			_radiusDirty = true;
+    		}
         }
 		
     	/**
@@ -764,7 +859,8 @@ package away3d.core.base
     	 */
         public function scale(scale:Number):void
         {
-        	//overridden
+        	_scaleX = _scaleY = _scaleZ = scale;
+        	_transformDirty = true;
         }
 		
     	/**
@@ -799,11 +895,14 @@ package away3d.core.base
     	 */
         public function traverse(traverser:Traverser):void
         {
+        	
             if (traverser.match(this))
             {
+            	
                 traverser.enter(this);
-                traverser.apply(this);
+				traverser.apply(this);
                 traverser.leave(this);
+               
             }
         }
     	/**
@@ -818,9 +917,11 @@ package away3d.core.base
         public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
             _v = session.view;
-            if (ownCanvas) {
+            if (ownCanvas) 
+            {
                 if (!ownSession)
                 	ownSession = new SpriteRenderSession();
+            
                 session.registerChildSession(ownSession);
                 
                 ownSession.view = _v;
@@ -854,70 +955,70 @@ package away3d.core.base
         }
         
         /**
-        * Moves the 3d object forwards along it's local z axis
-        * 
-        * @param	distance	The length of the movement
-        */
+         * Moves the 3d object forwards along it's local z axis
+         * 
+         * @param	distance	The length of the movement
+         */
         public function moveForward(distance:Number):void 
         { 
             translate(Number3D.FORWARD, distance); 
         }
         
         /**
-        * Moves the 3d object backwards along it's local z axis
-        * 
-        * @param	distance	The length of the movement
-        */
+         * Moves the 3d object backwards along it's local z axis
+         * 
+         * @param	distance	The length of the movement
+         */
         public function moveBackward(distance:Number):void 
         { 
             translate(Number3D.BACKWARD, distance); 
         }
         
         /**
-        * Moves the 3d object backwards along it's local x axis
-        * 
-        * @param	distance	The length of the movement
-        */
+         * Moves the 3d object backwards along it's local x axis
+         * 
+         * @param	distance	The length of the movement
+         */
         public function moveLeft(distance:Number):void 
         { 
             translate(Number3D.LEFT, distance); 
         }
         
         /**
-        * Moves the 3d object forwards along it's local x axis
-        * 
-        * @param	distance	The length of the movement
-        */
+         * Moves the 3d object forwards along it's local x axis
+         * 
+         * @param	distance	The length of the movement
+         */
         public function moveRight(distance:Number):void 
         { 
             translate(Number3D.RIGHT, distance); 
         }
         
         /**
-        * Moves the 3d object forwards along it's local y axis
-        * 
-        * @param	distance	The length of the movement
-        */
+         * Moves the 3d object forwards along it's local y axis
+         * 
+         * @param	distance	The length of the movement
+         */
         public function moveUp(distance:Number):void 
         { 
             translate(Number3D.UP, distance); 
         }
         
         /**
-        * Moves the 3d object backwards along it's local y axis
-        * 
-        * @param	distance	The length of the movement
-        */
+         * Moves the 3d object backwards along it's local y axis
+         * 
+         * @param	distance	The length of the movement
+         */
         public function moveDown(distance:Number):void 
         { 
             translate(Number3D.DOWN, distance); 
         }
         
         /**
-        * Moves the 3d object directly to a point in space
-        * 
-        * @param	target		A vector defining the new position of the 3d object
-        */
+         * Moves the 3d object directly to a point in space
+         * 
+         * @param	target		A vector defining the new position of the 3d object
+         */
         public function moveTo(target:Number3D):void
         {
             _transform.tx = target.x;
@@ -943,30 +1044,30 @@ package away3d.core.base
         }
         
         /**
-        * Rotates the 3d object around it's local x-axis
-        * 
-        * @param	angle		The amount of rotation in degrees
-        */
+         * Rotates the 3d object around it's local x-axis
+         * 
+         * @param	angle		The amount of rotation in degrees
+         */
         public function pitch(angle:Number):void
         {
             rotate(Number3D.RIGHT, angle);
         }
         
         /**
-        * Rotates the 3d object around it's local y-axis
-        * 
-        * @param	angle		The amount of rotation in degrees
-        */
+         * Rotates the 3d object around it's local y-axis
+         * 
+         * @param	angle		The amount of rotation in degrees
+         */
         public function yaw(angle:Number):void
         {
             rotate(Number3D.UP, angle);
         }
         
         /**
-        * Rotates the 3d object around it's local z-axis
-        * 
-        * @param	angle		The amount of rotation in degrees
-        */
+         * Rotates the 3d object around it's local z-axis
+         * 
+         * @param	angle		The amount of rotation in degrees
+         */
         public function roll(angle:Number):void
         {
             rotate(Number3D.FORWARD, angle);

@@ -5,12 +5,18 @@ package away3d.core.math
     */
     public final class Number3D
     {
+    	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
         private var num:Number3D;
         private var vx:Number;
         private var vy:Number;
         private var vz:Number;
+        private var nx:Number;
+        private var ny:Number;
+        private var nz:Number;
+        private var m1:Matrix3D;
+        private var m2:Matrix3D;
         
         /**
         * The horizontal coordinate of the 3d number object.
@@ -178,8 +184,8 @@ package away3d.core.math
     	/**
     	 * Fills the 3d number object with the result of a 3d matrix rotation performed on a 3d number.
     	 * 
-    	 * @param	The 3d number object to use in the calculation.
-    	 * @param	The 3d matrix object representing the rotation.
+    	 * @param	v	The 3d number object to use in the calculation.
+    	 * @param	m	The 3d matrix object representing the rotation.
     	 */
         public function rotate(v:Number3D, m:Matrix3D):void
         {
@@ -195,8 +201,8 @@ package away3d.core.math
     	/**
     	 * Fills the 3d number object with the result of a 3d matrix tranformation performed on a 3d number.
     	 * 
-    	 * @param	The 3d number object to use in the calculation.
-    	 * @param	The 3d matrix object representing the tranformation.
+    	 * @param	v	The 3d number object to use in the calculation.
+    	 * @param	m	The 3d matrix object representing the tranformation.
     	 */
         public function transform(v:Number3D, m:Matrix3D):void
         {
@@ -207,6 +213,112 @@ package away3d.core.math
             x = vx * m.sxx + vy * m.sxy + vz * m.sxz + m.tx;
             y = vx * m.syx + vy * m.syy + vz * m.syz + m.ty;
             z = vx * m.szx + vy * m.szy + vz * m.szz + m.tz;
+        }
+            	
+    	/**
+    	 * Fill the 3d number object with the euler angles represented by the 3x3 matrix rotation.
+    	 * 
+    	 * @param	m	The 3d matrix object to use in the calculation.
+    	 */
+        public function matrix2euler(m:Matrix3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
+        {
+    		/*
+            var d :Number = -Math.asin(Math.max(-1, Math.min(1, sxz))); // Calculate Y-axis angle
+            var c :Number =  Math.cos(d);
+    
+            angle.y = d * toDEGREES;
+    
+            var trX:Number, trY:Number;
+    
+            if (Math.abs(c) > 0.005)  // Gimball lock?
+            {
+                trX =  szz / c;  // No, so get X-axis angle
+                trY = -syz / c;
+    
+                angle.x = Math.atan2(trY, trX) * toDEGREES;
+    
+                trX =  sxx / c;  // Get Z-axis angle
+                trY = -sxy / c;
+    
+                angle.z = Math.atan2(trY, trX) * toDEGREES;
+            }
+            else  // Gimball lock has occurred
+            {
+                angle.x = 0;  // Set X-axis angle to zero
+    
+                trX = syy;  // And calculate Z-axis angle
+                trY = syx;
+    
+                angle.z = Math.atan2(trY, trX) * toDEGREES;
+            }
+
+            return angle;
+            */
+            if (!m1)
+            	m1 = new Matrix3D();
+            	
+            if (!m2)
+            	m2 = new Matrix3D();
+            	
+            if (scaleX)
+            	scaleX = 1/scaleX;
+            
+            if (scaleY)
+            	scaleY = 1/scaleY;
+            	
+            if (scaleZ)
+            	scaleZ = 1/scaleZ;
+            	
+            m1.clone(m);
+            
+            // Normalize the local x, y and z axes to remove scaling.
+            if (scaleX != 1 || scaleY != 1 || scaleZ != 1)
+            	m1.scale(scaleX, scaleY, scaleZ);
+	
+		    // Extract the first angle, rotationX
+			x = Math.atan2(m1.syz, m1.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
+			
+			// Remove the rotationX rotation from m1, so that the remaining
+			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
+			var c :Number   = Math.cos(-x);
+			var s :Number   = Math.sin(-x);
+			m2.sxx = m1.sxx;
+			m2.sxy = m1.sxy*c + m1.sxz*s;
+			m2.sxz = -m1.sxy*s + m1.sxz*c;
+			m2.syx = m1.syx;
+			m2.syy = m1.syy*c + m1.syz*s;
+			m2.syz = -m1.syy*s + m1.syz*c;
+			m2.szx = m1.szx;
+			m2.szy = m1.szy*c + m1.szz*s;
+			m2.szz = -m1.szy*s + m1.szz*c;
+	
+			// Extract the other two angles, rot.y and rot.z, from m2.
+			var cy:Number = Math.sqrt(m2.sxx*m2.sxx + m2.syx*m2.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
+			y = Math.atan2(-m2.szx, cy); // rot.y = Math<T>::atan2 (-N[0][2], cy);
+			z = Math.atan2(-m2.sxy, m2.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);
+	
+			// Fix angles
+			if(x == Math.PI) {
+				if(y > 0)
+					y -= Math.PI;
+				else
+					y += Math.PI;
+	
+				x = 0;
+				z += Math.PI;
+			}
+        }
+            	
+    	/**
+    	 * Fill the 3d number object with the scale values represented by the 3x3 matrix.
+    	 * 
+    	 * @param	m	The 3d matrix object to use in the calculation.
+    	 */
+        public function matrix2scale(m:Matrix3D):void
+        {
+            x = Math.sqrt(m.sxx*m.sxx + m.syx*m.syx + m.szx*m.szx);
+            y = Math.sqrt(m.sxy*m.sxy + m.syy*m.syy + m.szy*m.szy);
+            z = Math.sqrt(m.sxz*m.sxz + m.syz*m.syz + m.szz*m.szz);
         }
         
         /**
