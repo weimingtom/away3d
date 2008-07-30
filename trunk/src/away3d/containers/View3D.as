@@ -17,6 +17,7 @@ package away3d.containers
 	import flash.events.Event;
 	import flash.events.EventPhase;
 	import flash.events.MouseEvent;
+	import flash.utils.Dictionary;
 	
 	 /**
 	 * Dispatched when a user moves the cursor while it is over a 3d object
@@ -201,7 +202,7 @@ package away3d.containers
 		 * temporary store for rendered primitives.
 		 */
         public var primitives:Array;
-
+		
         /**
         * Forces mousemove events to fire even when cursor is static.
         */
@@ -230,6 +231,8 @@ package away3d.containers
         * @see render()
         */
         public var camera:Camera3D;
+        
+      
         
         /**
         * Clipping area used when rendering.
@@ -322,6 +325,7 @@ package away3d.containers
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);			
 		}
 		
+		
         /**
         * Clears previuosly rendered view from the session.
         * 
@@ -335,6 +339,7 @@ package away3d.containers
 			if (clip == _defaultclip)
             	clip = _defaultclip.screen(this);
         	
+        
         	//setup view in session
         	_session.view = this;
         	

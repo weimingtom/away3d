@@ -17,8 +17,9 @@ package away3d.loaders
 	public class Max3DS
 	{
 		use namespace arcane;
+		/** @private */
+		arcane var ini:Init;
 		
-		private var ini:Init;
 		/** An array of bytes from the 3ds files. */
 		private var _data:ByteArray;
 		private var _materialData:MaterialData;
@@ -455,7 +456,7 @@ package away3d.loaders
 				}
 				
 				//create Mesh object
-				var mesh:Mesh = new Mesh();
+				var mesh:Mesh = new Mesh({name:_meshData.name});
 				
 				for each(_faceData in _meshData.faces) {
 					_face = new Face(_meshData.vertices[_faceData.v0],
@@ -585,7 +586,7 @@ package away3d.loaders
 		public static function loadTextures(data:*, init:Object = null):Object3DLoader
 		{
 			var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
-			return Object3DLoader.loadTextures(parser.container, parser.materialLibrary, init);
+			return Object3DLoader.loadTextures(parser.container, parser.ini);
 		}
 
 		/**

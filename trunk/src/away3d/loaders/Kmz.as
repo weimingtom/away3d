@@ -37,13 +37,14 @@ package away3d.loaders
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
 					collada = new XML(data.toString());
 					container = Collada.parse(collada, init, this);
+					materialLibrary = container.materialLibrary;
 					materialLibrary.loadRequired = false;
 				} else if((entry.name.indexOf(".jpg")>-1 || entry.name.indexOf(".png")>-1) && entry.name.indexOf("images/")>-1) {
 					var _loader:Loader = new Loader();
 					_loader.name = "../" + entry;
 					_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadBitmapCompleteHandler);
 					_loader.loadBytes(data);
-				};	  
+				};
 			};
         }
         

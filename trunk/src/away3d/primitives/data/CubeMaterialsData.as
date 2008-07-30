@@ -35,10 +35,10 @@ package away3d.primitives.data
             if (!hasEventListener(MaterialEvent.CHANGED))
                 return;
                 
-            if (!_materialchanged)
-                _materialchanged = new MaterialEvent(MaterialEvent.CHANGED, material);
-            else
-            	_materialchanged.material = material;
+          //if (!_materialchanged)
+            _materialchanged = new MaterialEvent(MaterialEvent.CHANGED, material);
+            /*else
+            	_materialchanged.material = material; */
             
             _materialchanged.extra = faceString;
             

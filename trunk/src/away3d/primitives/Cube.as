@@ -1,4 +1,4 @@
-﻿package away3d.primitives
+package away3d.primitives
 {
 	import away3d.core.*;
 	import away3d.core.base.*;
@@ -26,6 +26,10 @@
     	private var _backFaces:Array = [];
     	private var _cubeFace:Face;
     	private var _cubeFaceArray:Array;
+    	private var _umin:Number;
+    	private var _umax:Number;
+    	private var _vmin:Number;
+    	private var _vmax:Number;
     	
     	private function onCubeMaterialChange(event:MaterialEvent):void
     	{
@@ -67,10 +71,10 @@
             var v110:Vertex = createVertex(+width/2, +height/2, -depth/2); 
             var v111:Vertex = createVertex(+width/2, +height/2, +depth/2); 
 
-            var uva:UV = createUV(1, 1);
-            var uvb:UV = createUV(0, 1);
-            var uvc:UV = createUV(0, 0);
-            var uvd:UV = createUV(1, 0);
+            var uva:UV = createUV(_umax, _vmax);
+            var uvb:UV = createUV(_umin, _vmax);
+            var uvc:UV = createUV(_umin, _vmin);
+            var uvd:UV = createUV(_umax, _vmin);
             
             //left face
             addFace(_leftFaces[0] = createFace(v000, v010, v001, _cubeMaterials.left, uvd, uva, uvc));
@@ -180,6 +184,10 @@
             _width  = ini.getNumber("width",  100, {min:0});
             _height = ini.getNumber("height", 100, {min:0});
             _depth  = ini.getNumber("depth",  100, {min:0});
+            _umin = ini.getNumber("umin", 0, {min:0, max:1});
+            _umax = ini.getNumber("umax", 1, {min:0, max:1});
+            _vmin = ini.getNumber("vmin", 0, {min:0, max:1});
+            _vmax = ini.getNumber("vmax", 1, {min:0, max:1});
             _cubeMaterials  = ini.getCubeMaterials("faces");
             
             if (!_cubeMaterials)
