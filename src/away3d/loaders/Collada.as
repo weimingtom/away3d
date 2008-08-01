@@ -718,6 +718,8 @@ package away3d.loaders
 			
 			var jointId:String = getId(skin.joints.input.(@semantic == "JOINT")[0].@source);
             var tmp:String = skin.source.(@id == jointId).Name_array.toString();
+			//Blender?
+			if (!tmp) tmp = skin.source.(@id == jointId).IDREF_array.toString();
             tmp = tmp.replace(/\n/g, " ");
             var nameArray:Array = tmp.split(" ");
             tmp = skin.bind_shape_matrix[0].toString();
