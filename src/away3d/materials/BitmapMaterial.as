@@ -124,6 +124,8 @@ package away3d.materials
         private var map:Matrix = new Matrix();
         private var triangle:DrawTriangle = new DrawTriangle(); 
         private var svArray:Array = new Array();
+        private var x:Number;
+		private var y:Number;
         private var faz:Number;
         private var fbz:Number;
         private var fcz:Number;
@@ -471,7 +473,14 @@ package away3d.materials
 		 */
         public function getPixel32(u:Number, v:Number):uint
         {
-        	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
+        	if (repeat) {
+        		x = u%1;
+        		y = (1 - v%1);
+        	} else {
+        		x = u;
+        		y = (1 - v);
+        	}
+        	return _bitmap.getPixel32(x*_bitmap.width, y*_bitmap.height);
         }
         
 		/**

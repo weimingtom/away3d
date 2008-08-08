@@ -31,9 +31,9 @@ package away3d.materials
         private var _transformDirty:Boolean;
         private var _throughProjection:Boolean;
         private var _globalProjection:Boolean;
-		private var x:Number;
-		private var y:Number;
         private var face:Face;
+        private var x:Number;
+		private var y:Number;
         private var w:Number;
         private var h:Number;
         private var normalR:Number3D = new Number3D();
@@ -508,14 +508,18 @@ package away3d.materials
 		 */
         public override function getPixel32(u:Number, v:Number):uint
         {
-        	x = u*_bitmap.width;
-			y = (1 - v)*_bitmap.height;
 			if (_transform) {
+	        	x = u*_bitmap.width;
+				y = (1 - v)*_bitmap.height;
+				
 				t = _transform.clone();
 				t.invert();
-        		return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
+				if (repeat)
+        			return _bitmap.getPixel32((x*t.a + y*t.c + t.tx)%_bitmap.width, (x*t.b + y*t.d + t.ty)%_bitmap.height);
+        		else
+        			return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
    			}
-        	return _bitmap.getPixel32(x, y);
+        	return super.getPixel32(u, v);
         }
         
 		/**
