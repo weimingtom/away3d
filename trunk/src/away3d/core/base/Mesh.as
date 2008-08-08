@@ -724,10 +724,10 @@
             }
             
             for each(_skinController in skinControllers)
-				_skinController.update();
+				_skinController.update(this);
 				
             for each(_skinVertex in skinVertices)
-				_skinVertex.update(this);
+				_skinVertex.update();
 			
             _backmat = back || material;
 			
