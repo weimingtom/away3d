@@ -22,7 +22,7 @@ package away3d.animators.skin
             baseVertex = vertex.clone();
         }
 
-        public function update(mesh:Mesh) : void
+        public function update() : void
         {
         	//reset values
             skinnedVertex.reset();
@@ -39,8 +39,6 @@ package away3d.animators.skin
 				_position.scale(_position, weights[_i]);
 				skinnedVertex.add(_position);
             }
-            
-            skinnedVertex.transform(mesh.parent.inverseSceneTransform);
         }
     }
 }
