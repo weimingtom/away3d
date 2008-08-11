@@ -43,17 +43,17 @@ package away3d.loaders.data
 		/**
 		 * Optional ambient color of the material.
 		 */
-		public var ambientColor:int;
+		public var ambientColor:uint;
 		
 		/**
 		 * Optional diffuse color of the material.
 		 */
-		public var diffuseColor:int;
+		public var diffuseColor:uint;
 		
 		/**
 		 * Optional specular color of the material.
 		 */
-		public var specularColor:int;
+		public var specularColor:uint;
 		
 		/**
 		 * Reference to the filename of the texture image.
