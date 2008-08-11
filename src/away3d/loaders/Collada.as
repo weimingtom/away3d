@@ -225,7 +225,7 @@ package away3d.loaders
 						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
 						break;
 					case MaterialData.COLOR_MATERIAL:
-						_materialData.material = new ColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
+						_materialData.material = new ColorMaterial(_materialData.diffuseColor);
 						break;
 					case MaterialData.WIREFRAME_MATERIAL:
 						_materialData.material = new WireColorMaterial();
@@ -561,7 +561,7 @@ package away3d.loaders
 						
                     case "node":
 						//parent.children.push(_objectData);
-                        if (String(child).indexOf("ForegroundColor") == -1)
+                        //if (String(child).indexOf("ForegroundColor") == -1)
                             parseNode(child, _objectData as ContainerData);
                         
                         break;
@@ -621,6 +621,7 @@ package away3d.loaders
             		_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
                 } else {
                 	_materialData.materialType = MaterialData.COLOR_MATERIAL;
+                	_materialData.diffuseColor = getTextureColor(target);
                 }
             }
         }
@@ -666,8 +667,8 @@ package away3d.loaders
     			_meshMaterialData.name = material;
 				_meshData.materials.push(_meshMaterialData);
 				
-				if (!materialLibrary[material])
-					parseMaterial(material, material);
+				//if (!materialLibrary[material])
+				//	parseMaterial(material, material);
 					
                 for (var j:Number = 0; j < len; j++)
                 {
@@ -1094,6 +1095,29 @@ package away3d.loaders
 			return filename;
 		}
 		
+		/**
+		 * Retrieves the color of a material
+		 */
+		private function getTextureColor( name:String ):uint
+		{
+			var color:uint;
+			var material:XML = collada.library_materials.material.(@id == name)[0];
+			if( material )
+			{
+				var effectId:String = getId( material.instance_effect.@url );
+				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+	
+				if (effect..diffuse.length() == 0) return color;
+	
+				var diffuse:XML =  effect..diffuse[0];
+				
+				var colorArray:Array = diffuse.color.split(" ");
+				var colorString:String = (colorArray[0]*255).toString(16) + (colorArray[1]*255).toString(16) + (colorArray[2]*255).toString(16);
+				color = parseInt(colorString, 16);
+			}
+			return color;
+		}
+				
 		/**
 		 * Converts a data string to an array of objects. Handles vertex and uv objects
 		 */

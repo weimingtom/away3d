@@ -8,8 +8,7 @@ package away3d.core.base
     import away3d.core.traverse.*;
     import away3d.core.utils.*;
     import away3d.events.*;
-    import away3d.loaders.utils.AnimationLibrary;
-    import away3d.loaders.utils.MaterialLibrary;
+    import away3d.loaders.utils.*;
     
     import flash.display.*;
     import flash.events.EventDispatcher;

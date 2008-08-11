@@ -223,7 +223,7 @@ package away3d.core.utils {
                     return parseInt("0x"+data);
             }
 
-            return 0xFFFFFFFF;                                  
+            return 0xFFFFFF;                                  
         }
         
         public static function color(data:*):uint
