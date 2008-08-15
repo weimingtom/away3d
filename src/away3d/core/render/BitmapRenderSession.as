@@ -45,14 +45,14 @@ package away3d.core.render
         	_container = getContainer(_view) as Bitmap;
         	_base = getBitmapData(_view);
         	
-        	_cx = _container.x = -_view.clip.minX;
-			_cy = _container.y = -_view.clip.minY;
+        	_cx = _container.x = _view.clip.minX;
+			_cy = _container.y = _view.clip.minY;
 			_container.scaleX = _scale;
 			_container.scaleY = _scale;
         	
         	_cm = new Matrix();
         	_cm.scale(1/_scale, 1/_scale);
-			_cm.translate(_view.clip.minX, _view.clip.minY);
+			_cm.translate(-_view.clip.minX, -_view.clip.minY);
 		}
 		
 		/**
