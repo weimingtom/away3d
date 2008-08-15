@@ -30,9 +30,11 @@ package away3d.loaders
         private var autoLoadTextures:Boolean;
         private var materialLibrary:MaterialLibrary;
         private var animationLibrary:AnimationLibrary;
+        private var geometryLibrary:GeometryLibrary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
     	private var _meshData:MeshData;
+    	private var _geometryData:GeometryData;
         private var _materialData:MaterialData;
         private var _animationData:AnimationData;
 		private var _meshMaterialData:MeshMaterialData;
@@ -135,69 +137,87 @@ package away3d.loaders
 		{
 			Debug.trace(" + Build Mesh : "+_meshData.name)
 			
-			//set materialdata for each face
-			for each (_meshMaterialData in _meshData.materials) {
-				for each (_faceListIndex in _meshMaterialData.faceList) {
-					_faceData = _meshData.faces[_faceListIndex] as FaceData;
-					_faceData.materialData = materialLibrary[_meshMaterialData.name];
+			var mesh:Mesh = new Mesh({name:_meshData.name});
+			mesh.transform = _meshData.transform;
+			mesh.bothsides = _meshData.geometry.bothsides;
+			
+			_geometryData = _meshData.geometry;
+			var geometry:Geometry = _geometryData.geometry;
+			
+			if (!geometry) {
+				geometry = _geometryData.geometry = new Geometry();
+				
+				
+				//set materialdata for each face
+				for each (_meshMaterialData in _geometryData.materials) {
+					for each (_faceListIndex in _meshMaterialData.faceList) {
+						_faceData = _geometryData.faces[_faceListIndex] as FaceData;
+						_faceData.materialData = materialLibrary[_meshMaterialData.name];
+					}
+				}
+				
+				
+				if (_geometryData.skinVertices.length) {
+					var bone:Bone;
+					var i:int;
+					var joints:Array;
+					var skinController:SkinController;
+					var rootBone:Bone;
+					
+					geometry.skinVertices = _geometryData.skinVertices;
+					geometry.skinControllers = _geometryData.skinControllers;
+					//mesh.bone = container.getChildByName(_meshData.bone) as Bone;
+					
+					for each (skinController in geometry.skinControllers) {
+						bone = container.getBoneByName(skinController.name);
+		                if (bone) {
+		                    skinController.joint = bone.joint;
+		                    
+		                    if (!(bone.parent.parent is Bone))
+		                    	rootBone = bone;
+		                } else
+		                	Debug.warning("no joint found for " + skinController.name);
+		                
+		                skinController.inverseTransform = rootBone.parent.inverseSceneTransform;
+			  		}
+				}
+				
+				//create faces form face and mesh data
+				var face:Face;
+				var matData:MaterialData;
+				for each(_faceData in _geometryData.faces) {
+					if (!_faceData.materialData)
+						continue;
+					_face = new Face(_geometryData.vertices[_faceData.v0],
+												_geometryData.vertices[_faceData.v1],
+												_geometryData.vertices[_faceData.v2],
+												_faceData.materialData.material,
+												_geometryData.uvs[_faceData.uv0],
+												_geometryData.uvs[_faceData.uv1],
+												_geometryData.uvs[_faceData.uv2]);
+					geometry.addFace(_face);
+					_faceData.materialData.faces.push(_face);
 				}
 			}
 			
-			var mesh:Mesh = new Mesh({name:_meshData.name});
-			mesh.transform = _meshData.transform;
-			mesh.bothsides = _meshData.bothsides;
-			
-			if (_meshData.skinVertices.length) {
-				var bone:Bone;
-				var i:int;
-				var joints:Array;
-				var skinController:SkinController;
-				
-				mesh.skinVertices = _meshData.skinVertices;
-				mesh.skinControllers = _meshData.skinControllers;
-				//mesh.bone = container.getChildByName(_meshData.bone) as Bone;
-				
-				for each (skinController in mesh.skinControllers) {
-					bone = container.getBoneByName(skinController.name);
-	                if (bone)
-	                    skinController.joint = bone.joint;
-		            else
-	                	Debug.warning("no joint found for " + skinController.name);
-		  		}
-			}
-			
-			//create faces form face and mesh data
-			var face:Face;
-			var matData:MaterialData;
-			for each(_faceData in _meshData.faces) {
-				if (!_faceData.materialData)
-					continue;
-				_face = new Face(_meshData.vertices[_faceData.v0],
-											_meshData.vertices[_faceData.v1],
-											_meshData.vertices[_faceData.v2],
-											_faceData.materialData.material,
-											_meshData.uvs[_faceData.uv0],
-											_meshData.uvs[_faceData.uv1],
-											_meshData.uvs[_faceData.uv2]);
-				mesh.addFace(_face);
-				_faceData.materialData.faces.push(_face);
-			}
-			
-			//center vertex points in mesh for better bounding radius calulations
-			var scaleX:Number = mesh.scaleX;
-			var scaleY:Number = mesh.scaleY;
-			var scaleZ:Number = mesh.scaleZ;
+			mesh.geometry = geometry;
 			
 			if (centerMeshes) {
+				//center vertex points in mesh for better bounding radius calulations
 				averageX = averageY = averageZ = 0;
-				numVertices = _meshData.vertices.length;
-				for each (_vertex in _meshData.vertices) {
+				numVertices = _geometryData.vertices.length;
+				for each (_vertex in _geometryData.vertices) {
 					averageX += _vertex._x;
 					averageY += _vertex._y;
 					averageZ += _vertex._z;
 				}
 				
-				mesh.movePivot(averageX/numVertices, averageY/numVertices, averageZ/numVertices);
+				averageX /= numVertices;
+				averageY /= numVertices;
+				averageZ /= numVertices;
+				
+				mesh.movePivot(averageX, averageY, averageZ);
+				mesh.moveTo(averageX, averageY, averageZ);
 			}
 			
 			mesh.type = ".Collada";
@@ -348,6 +368,7 @@ package away3d.loaders
 			
 			materialLibrary = container.materialLibrary = new MaterialLibrary();
 			animationLibrary = container.animationLibrary = new AnimationLibrary();
+			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 			materialLibrary.autoLoadTextures = autoLoadTextures;
 			materialLibrary.texturePath = texturePath;
 			
@@ -593,9 +614,6 @@ package away3d.loaders
 						for each (instance_material in child..instance_material)
 							parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 						
-						//detect skeleton
-						//(_objectData as MeshData).skeleton = getId(child.skeleton[0]);
-						
 						ctrlr = collada.library_controllers.controller.(@id == getId(child.@url))[0];
 						parseController(ctrlr, _objectData as MeshData);
 						
@@ -633,7 +651,18 @@ package away3d.loaders
 		 */
         private function parseGeometry(geometry:XML, _meshData:MeshData):void
         {
-			Debug.trace(" + Parse Geometry : "+ geometry.@id);
+        	var geoId:String = geometry.@id;
+        	var geometryData:GeometryData = geometryLibrary.getGeometry(geoId);
+        	
+        	if (geometryData) {
+        		_meshData.geometry = geometryData;
+        		return;
+        	}
+        	
+        	geometryData = geometryLibrary.addGeometry(geoId);
+        	_meshData.geometry = geometryData;
+        	
+			Debug.trace(" + Parse Geometry : "+ geoId);
             // Semantics
             //_meshData.name = geometry.@id;
 			
@@ -649,10 +678,10 @@ package away3d.loaders
                 	switch(semantic)
                 	{
                 		case "VERTEX":
-                			deserialize(input, geometry, Vertex, _meshData.vertices);
+                			deserialize(input, geometry, Vertex, geometryData.vertices);
                 			break;
                 		case "TEXCOORD":
-                			deserialize(input, geometry, UV, _meshData.uvs);
+                			deserialize(input, geometry, UV, geometryData.uvs);
                 			break;
                 		default:
                 	}
@@ -665,7 +694,7 @@ package away3d.loaders
 				Debug.trace(" + Parse MeshMaterialData");
                 _meshMaterialData = new MeshMaterialData();
     			_meshMaterialData.name = material;
-				_meshData.materials.push(_meshMaterialData);
+				geometryData.materials.push(_meshMaterialData);
 				
 				//if (!materialLibrary[material])
 				//	parseMaterial(material, material);
@@ -691,20 +720,20 @@ package away3d.loaders
                         	}
                         }
                     }
-                    _meshMaterialData.faceList.push(_meshData.faces.length);
-                    _meshData.faces.push(_faceData);
+                    _meshMaterialData.faceList.push(geometryData.faces.length);
+                    geometryData.faces.push(_faceData);
                 }
             }
 			// Double Side
 			if (String(geometry.extra.technique.double_sided) != "")
-            	_meshData.bothsides = (geometry.extra.technique.double_sided[0].toString() == "1");
+            	geometryData.bothsides = (geometry.extra.technique.double_sided[0].toString() == "1");
             else
-            	_meshData.bothsides = false;
+            	geometryData.bothsides = false;
         }
 		
 		private function parseController(ctrlr:XML, instance:MeshData) : void
         {
-			Debug.trace(" + Parse Controller : "+instance);
+			Debug.trace(" + Parse Controller : " + instance);
 			
             var skin:XML = ctrlr.skin[0];
             var geoId:String = getId(skin.@source);
@@ -715,6 +744,13 @@ package away3d.loaders
 			if (!geometry)
 				return;
 			
+			var geometryData:GeometryData = geometryLibrary.getGeometry(geoId);
+        	
+        	if (geometryData) {
+        		instance.geometry = geometryData;
+        		return;
+        	}
+        	
 			parseGeometry(geometry, instance);
 			
 			var jointId:String = getId(skin.joints.input.(@semantic == "JOINT")[0].@source);
@@ -748,7 +784,7 @@ package away3d.loaders
 				matrix.array2matrix(float_array.slice(i, i+16), yUp, scaling);
 				matrix.multiply(matrix, bind_shape);
 				
-                instance.skinControllers.push(skinController = new SkinController());
+                instance.geometry.skinControllers.push(skinController = new SkinController());
                 skinController.name = name;
                 skinController.bindMatrix = matrix;
                 
@@ -771,23 +807,21 @@ package away3d.loaders
             tmp = skin.vertex_weights.v.toString();
             v = tmp.split(" ");
 			
-            var vertex		:Vertex;
 			var skinVertex	:SkinVertex;
             var c			:int;
             var j			:int;
             var count		:int = 0;
 			
             i=0;
-            while (i < instance.vertices.length)
+            while (i < instance.geometry.vertices.length)
             {
-                vertex = instance.vertices[i];
                 c = int(vcount[i]);
-                skinVertex = new SkinVertex(instance.vertices[i]);
-                instance.skinVertices.push(skinVertex);
+                skinVertex = new SkinVertex(instance.geometry.vertices[i]);
+                instance.geometry.skinVertices.push(skinVertex);
                 j=0;
                 while (j < c)
                 {
-                    skinVertex.controllers.push(instance.skinControllers[int(v[count])]);
+                    skinVertex.controllers.push(instance.geometry.skinControllers[int(v[count])]);
                     count++;
                     skinVertex.weights.push(Number(weights[int(v[count])]));
                     count++;

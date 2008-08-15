@@ -9,7 +9,7 @@
     /**
     * Creates a 3d cone primitive.
     */ 
-    public class AbstractWirePrimitive extends WireMesh
+    public class AbstractWirePrimitive extends Mesh
     {
     	use namespace arcane;
 		/** @private */

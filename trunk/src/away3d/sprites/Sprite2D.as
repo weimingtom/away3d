@@ -15,7 +15,7 @@ package away3d.sprites
     public class Sprite2D extends Object3D implements IPrimitiveProvider
     {
         private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex;
+		private var _sc:ScreenVertex =  new ScreenVertex();
 		private var _persp:Number;
         private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
 		
@@ -75,7 +75,7 @@ package away3d.sprites
         	super.primitives(consumer, session);
         	
 
-            _sc = _center.project(projection);
+            _center.project(_sc, projection);
             if (!_sc.visible)
                 return;
 

@@ -11,13 +11,14 @@
 		public var joint:ObjectContainer3D;
         public var bindMatrix:Matrix3D;
         public var sceneTransform:Matrix3D = new Matrix3D();
+        public var inverseTransform:Matrix3D;
         
-        public function update(mesh:Mesh):void
+        public function update():void
         {
         	if (joint)
         		sceneTransform.multiply(joint.sceneTransform, bindMatrix);
         	
-        	sceneTransform.multiply(mesh.parent.inverseSceneTransform, sceneTransform);
+        	sceneTransform.multiply(inverseTransform, sceneTransform);
         }
         
     }

@@ -2,10 +2,10 @@ package away3d.sprites
 {
     import away3d.core.*;
     import away3d.core.base.*;
-    import away3d.core.render.*;
     import away3d.core.draw.*;
+    import away3d.core.render.*;
     import away3d.core.utils.*;
-
+    
     import flash.display.BitmapData;
     import flash.utils.Dictionary;
 	
@@ -16,11 +16,13 @@ package away3d.sprites
     public class DirSprite2D extends Object3D implements IPrimitiveProvider
     {
         private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex;
+		private var _sc:ScreenVertex = new ScreenVertex();
 		private var _persp:Number;
         private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _vertices:Array = [];
-        private var _bitmaps:Dictionary = new Dictionary();
+        private var _bitmaps:Dictionary = new Dictionary(true);
+        private var screenVertices:Dictionary = new Dictionary(true);
+        private var _screenVertex:ScreenVertex;
         
         /**
         * Defines the overall scaling of the sprite object
@@ -111,7 +113,12 @@ package away3d.sprites
             
             for each (var vertex:Vertex in _vertices)
             {
-                var z:Number = vertex.project(projection).z;
+            	if (!(_screenVertex = screenVertices[vertex]))
+					_screenVertex = screenVertices[vertex] = new ScreenVertex();
+				
+                vertex.project(_screenVertex, projection);
+                var z:Number = _screenVertex.z;
+                
                 if (z < minz)
                 {
                     minz = z;
@@ -122,7 +129,7 @@ package away3d.sprites
             if (bitmap == null)
                 return;
 
-            _sc = _center.project(projection);
+            _center.project(_sc, projection);
             
             if (!_sc.visible)
                 return;

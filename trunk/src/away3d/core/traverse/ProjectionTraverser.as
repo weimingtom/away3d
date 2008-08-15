@@ -14,6 +14,7 @@ package away3d.core.traverse
     {
 		private var _projection:Projection;
         private var _view:View3D;
+        private var _time:int;
         private var _cameraview:Matrix3D;
 		
 		/**
@@ -26,6 +27,7 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
+			_time = getTimer();
             _cameraview = _view.camera.view;
 			if (_view.statsOpen)
 				_view.statsPanel.clearObjects();
@@ -55,7 +57,7 @@ package away3d.core.traverse
             _projection.view = node.viewTransform;
             _projection.focus = _view.camera.focus;
             _projection.zoom = _view.camera.zoom;
-            _projection.time = getTimer();
+            _projection.time = _time;
             
             //check which LODObject is visible
             if (node is ILODObject)
@@ -68,8 +70,8 @@ package away3d.core.traverse
 		 */
         public override function enter(node:Object3D):void
         {
-        	if (_view.statsOpen && node is BaseMesh)
-        		_view.statsPanel.addObject(node as BaseMesh);
+        	if (_view.statsOpen && node is Mesh)
+        		_view.statsPanel.addObject(node as Mesh);
         }
     }
 }

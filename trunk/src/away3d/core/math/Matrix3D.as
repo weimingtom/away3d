@@ -443,27 +443,28 @@ package away3d.core.math
     	/**
     	 * Scales the 3d matrix by the given amount in each dimension
     	 * 
+		 * @param	m	The 3d matrix to scale from.
     	 * @param	x	The scale value along the x axis.
     	 * @param	y	The scale value along the y axis.
     	 * @param	z	The scale value along the z axis.
     	 */
-        public function scale(x:Number, y:Number, z:Number):void
+        public function scale(m1:Matrix3D, x:Number, y:Number, z:Number):void
         {
-            sxx *= x;
-            syx *= x;
-            szx *= x;
-            sxy *= y;
-            syy *= y;
-            szy *= y;
-            sxz *= z;
-            syz *= z;
-            szz *= z;
+            sxx = m1.sxx*x;
+            syx = m1.syx*x;
+            szx = m1.szx*x;
+            sxy = m1.sxy*y;
+            syy = m1.syy*y;
+            szy = m1.szy*y;
+            sxz = m1.sxz*z;
+            syz = m1.syz*z;
+            szz = m1.szz*z;
         }
 		
 		/**
 		 * Fill the 3d matrix with the 3x3 rotation matrix section of the given 3d matrix.
 		 * 
-		 * @param	m	THe 3d matrix to copy from.
+		 * @param	m	The 3d matrix to copy from.
 		 */
         public function copy3x3(m:Matrix3D):Matrix3D
         {
@@ -745,8 +746,28 @@ package away3d.core.math
             szy =     2 * (yz + xw);
             szz = 1 - 2 * (xx + yy);
         }
-        
        
+       /**
+        * normalizes the axis vectors of the given 3d matrix.
+        * 
+        * @param	m	The 3d matrix object used for the normalize calulation.
+        */
+        public function normalize(m1:Matrix3D):void
+        {
+        	d = Math.sqrt(sxx*sxx + sxy*sxy + sxz*sxz);
+			sxx /= d;
+			sxy /= d;
+			sxz /= d;
+			d = Math.sqrt(syx*syx + syy*syy + syz*syz);
+			syx /= d;
+			syy /= d;
+			syz /= d;
+        	d = Math.sqrt(szx*szx + szy*szy + szz*szz);
+			szx /= d;
+			szy /= d;
+			szz /= d;
+        }
+        
      	/**
         * Returns a Number3D representing the forward vector of this matrix.
         */

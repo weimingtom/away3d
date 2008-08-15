@@ -16,86 +16,15 @@
     /**
     * 3d object containing face and segment elements 
     */
-    public class Mesh extends BaseMesh implements IPrimitiveProvider
+    public class Mesh extends Object3D implements IPrimitiveProvider
     {
         use namespace arcane;
-		/** @private */
-        arcane function getFacesByVertex(vertex:Vertex):Array
-        {
-            if (_vertfacesDirty)
-                findVertFaces();
-
-            return _vertfaces[vertex];
-        }
-		/** @private */
-		arcane function getVertexNormal(vertex:Vertex):Number3D
-        {
-        	if (_vertfacesDirty)
-                findVertFaces();
-            
-            if (_vertnormalsDirty)
-                findVertNormals();
-            
-            return _vertnormals[vertex];
-        }
-		/** @private */
-		arcane function getSceneVertexNormal(vertex:Vertex):Number3D
-        {
-        	if (_vertfacesDirty)
-                findVertFaces();
-            
-            if (_vertnormalsDirty)
-                findVertNormals();
-                
-        	if (_scenevertnormalsDirty)
-                findSceneVertNormals();
-            
-            return _scenevertnormals[vertex];
-        }
-		/** @private */
-        arcane function neighbour01(face:Face):Face
-        {
-            if (_neighboursDirty)
-                findNeighbours();
-            return _neighbour01[face];
-        }
-		/** @private */
-        arcane function neighbour12(face:Face):Face
-        {
-            if (_neighboursDirty)
-                findNeighbours();
-            return _neighbour12[face];
-        }
-		/** @private */
-        arcane function neighbour20(face:Face):Face
-        {
-            if (_neighboursDirty)
-                findNeighbours();
-            return _neighbour20[face];
-        }
-		/** @private */
-        arcane function recalcNeighbours():void
-        {
-            if (!_neighboursDirty)
-            {
-                _neighboursDirty = true;
-                findNeighbours();
-                /*
-                var sn01:Dictionary = _neighbour01;
-                var sn12:Dictionary = _neighbour12;
-                var sn20:Dictionary = _neighbour20;
-                for each (var f:Face in faces)
-                {
-                    if (sn01[f] != _neighbour01[f])
-                        throw new Error("Got you!");
-                    if (sn12[f] != _neighbour12[f])
-                        throw new Error("Got you!");
-                    if (sn20[f] != _neighbour20[f])
-                        throw new Error("Got you!");
-                }
-                */
-            }
-        }
+        /** @private */
+        arcane var screenVertices:Dictionary = new Dictionary(true);
+        /** @private */
+        arcane var drawTriangles:Dictionary = new Dictionary(true);
+        /** @private */
+        arcane var drawSegments:Dictionary = new Dictionary(true);
 		/** @private */
 		arcane function createDrawTriangle(face:Face, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
 		{
@@ -120,317 +49,75 @@
             _tri.calc();
             return _tri;
 		}
-		
-        private var _faces:Array = [];
-		private var _material:ITriangleMaterial;
-        private var _neighboursDirty:Boolean = true;
-        private var _neighbour01:Dictionary;
-        private var _neighbour12:Dictionary;
-        private var _neighbour20:Dictionary;
-        private var _vertfacesDirty:Boolean = true;
-        private var _vertfaces:Dictionary;
-        private var _vertnormalsDirty:Boolean = true;
-		private var _vertnormals:Dictionary;
+		/** @private */
+        arcane function createDrawSegment(material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
+        {
+            if (_dsStore.length) {
+            	_dsActive.push(_seg = _dsStore.pop());
+            	_seg.create = createDrawSegment;
+        	} else {
+            	_dsActive.push(_seg = new DrawSegment());
+	            _seg.source = this;
+	            _seg.create = createDrawSegment;
+            }
+            _seg.material = material;
+            _seg.projection = projection;
+            _seg.v0 = v0;
+            _seg.v1 = v1;
+            _seg.calc();
+            return _seg;
+        }
+        
+		private var _geometry:Geometry = new Geometry();
+		private var _material:IMaterial;
+		private var _triangleMaterial:ITriangleMaterial;
+		private var _segmentMaterial:ISegmentMaterial;
 		private var _scenevertnormalsDirty:Boolean = true;
 		private var _scenevertnormals:Dictionary;
-        private var _fNormal:Number3D;
-        private var _fAngle:Number;
-        private var _fVectors:Array;
 		private var _n01:Face;
 		private var _n12:Face;
 		private var _n20:Face;
         private var _debugboundingbox:WireCube;
+        private var _screenVertex:ScreenVertex;
 		private var _tri:DrawTriangle;
+		private var _seg:DrawSegment;
         private var _backmat:ITriangleMaterial;
         private var _backface:Boolean;
         private var _uvmaterial:Boolean;
         private var _vt:ScreenVertex;
 		private var _dtStore:Array = new Array();
         private var _dtActive:Array = new Array();
-        private var _skinVertex:SkinVertex;
-        private var _skinController:SkinController;
+        private var _dsStore:Array = new Array();
+        private var _dsActive:Array = new Array();
         
 		private function onMaterialResize(event:MaterialEvent):void
 		{
-			for each (var face:Face in _faces)
+			for each (var face:Face in _geometry.faces)
         		if (face._material == null)
-        			face._dt.texturemapping = null;
+        			if (drawTriangles[face])
+						(drawTriangles[face] as DrawTriangle).texturemapping = null;
 		}
-		
-        private function findVertFaces():void
-        {
-            if (!_vertfacesDirty)
-                return;
-            
-            _vertfaces = new Dictionary();
-            for each (var face:Face in faces)
-            {
-                var v0:Vertex = face.v0;
-                if (_vertfaces[v0] == null)
-                    _vertfaces[v0] = [face];
-                else
-                    _vertfaces[v0].push(face);
-                var v1:Vertex = face.v1;
-                if (_vertfaces[v1] == null)
-                    _vertfaces[v1] = [face];
-                else
-                    _vertfaces[v1].push(face);
-                var v2:Vertex = face.v2;
-                if (_vertfaces[v2] == null)
-                    _vertfaces[v2] = [face];
-                else
-                    _vertfaces[v2].push(face);
-            }
-            
-            _vertfacesDirty = false;
-            _vertnormalsDirty = true;
-        }
         
-        private function findVertNormals():void
-        {
-        	if (!_vertnormalsDirty)
-                return;
-            
-            _vertnormals = new Dictionary();
-            for each (var v:Vertex in vertices)
-            {
-            	var vF:Array = _vertfaces[v];
-            	var nX:Number = 0;
-            	var nY:Number = 0;
-            	var nZ:Number = 0;
-            	for each (var f:Face in vF)
-            	{
-	            	_fNormal = f.normal;
-	            	_fVectors = new Array();
-	            	for each (var fV:Vertex in f.vertices)
-	            		if (fV != v)
-	            			_fVectors.push(new Number3D(fV.x - v.x, fV.y - v.y, fV.z - v.z, true));
-	            	
-	            	_fAngle = Math.acos((_fVectors[0] as Number3D).dot(_fVectors[1] as Number3D));
-            		nX += _fNormal.x*_fAngle;
-            		nY += _fNormal.y*_fAngle;
-            		nZ += _fNormal.z*_fAngle;
-            	}
-            	var vertNormal:Number3D = new Number3D(nX, nY, nZ);
-            	vertNormal.normalize();
-            	_vertnormals[v] = vertNormal;
-            }            
-            
-            _vertnormalsDirty = false;    
-        }
-		
-		private function findSceneVertNormals():void
+        private function onFaceMaterialChange(event:FaceEvent):void
 		{
-			if (!_scenevertnormalsDirty)
-                return;
-            
-            _scenevertnormals = new Dictionary();
-            //TODO: refresh scene normals
-            /*
-            for each (var v:Vertex in vertices)
-            {
-            	
-            }
-            */
-            _scenevertnormalsDirty = false;
+			if (drawTriangles[event.face])
+				(drawTriangles[event.face] as DrawTriangle).texturemapping = null;
 		}
-
-
-        private function findNeighbours():void
+        
+        private function onFaceMappingChange(event:FaceEvent):void
+		{
+			if (drawTriangles[event.face])
+				(drawTriangles[event.face] as DrawTriangle).texturemapping = null;
+		}
+		
+        private function onRadiusChange(event:GeometryEvent):void
         {
-            if (!_neighboursDirty)
-                return;
-
-            _neighbour01 = new Dictionary();
-            _neighbour12 = new Dictionary();
-            _neighbour20 = new Dictionary();
-            for each (var face:Face in _faces)
-            {
-                var skip:Boolean = true;
-                for each (var another:Face in _faces)
-                {
-                    if (skip)
-                    {
-                        if (face == another)
-                            skip = false;
-                        continue;
-                    }
-
-                    if ((face._v0 == another._v2) && (face._v1 == another._v1))
-                    {
-                        _neighbour01[face] = another;
-                        _neighbour12[another] = face;
-                    }
-
-                    if ((face._v0 == another._v0) && (face._v1 == another._v2))
-                    {
-                        _neighbour01[face] = another;
-                        _neighbour20[another] = face;
-                    }
-
-                    if ((face._v0 == another._v1) && (face._v1 == another._v0))
-                    {
-                        _neighbour01[face] = another;
-                        _neighbour01[another] = face;
-                    }
-                
-                    if ((face._v1 == another._v2) && (face._v2 == another._v1))
-                    {
-                        _neighbour12[face] = another;
-                        _neighbour12[another] = face;
-                    }
-
-                    if ((face._v1 == another._v0) && (face._v2 == another._v2))
-                    {
-                        _neighbour12[face] = another;
-                        _neighbour20[another] = face;
-                    }
-
-                    if ((face._v1 == another._v1) && (face._v2 == another._v0))
-                    {
-                        _neighbour12[face] = another;
-                        _neighbour01[another] = face;
-                    }
-                
-                    if ((face._v2 == another._v2) && (face._v0 == another._v1))
-                    {
-                        _neighbour20[face] = another;
-                        _neighbour12[another] = face;
-                    }
-
-                    if ((face._v2 == another._v0) && (face._v0 == another._v2))
-                    {
-                        _neighbour20[face] = another;
-                        _neighbour20[another] = face;
-                    }
-
-                    if ((face._v2 == another._v1) && (face._v0 == another._v0))
-                    {
-                        _neighbour20[face] = another;
-                        _neighbour01[another] = face;
-                    }
-                }
-            }
-
-            _neighboursDirty = false;
-        }
-
-        private function rememberFaceNeighbours(face:Face):void
-        {
-            if (_neighboursDirty)
-                return;
-            
-            for each (var another:Face in _faces)
-            {
-                if (face == another)
-                    continue;
-
-                if ((face._v0 == another._v2) && (face._v1 == another._v1))
-                {
-                    _neighbour01[face] = another;
-                    _neighbour12[another] = face;
-                }
-
-                if ((face._v0 == another._v0) && (face._v1 == another._v2))
-                {
-                    _neighbour01[face] = another;
-                    _neighbour20[another] = face;
-                }
-
-                if ((face._v0 == another._v1) && (face._v1 == another._v0))
-                {
-                    _neighbour01[face] = another;
-                    _neighbour01[another] = face;
-                }
-            
-                if ((face._v1 == another._v2) && (face._v2 == another._v1))
-                {
-                    _neighbour12[face] = another;
-                    _neighbour12[another] = face;
-                }
-
-                if ((face._v1 == another._v0) && (face._v2 == another._v2))
-                {
-                    _neighbour12[face] = another;
-                    _neighbour20[another] = face;
-                }
-
-                if ((face._v1 == another._v1) && (face._v2 == another._v0))
-                {
-                    _neighbour12[face] = another;
-                    _neighbour01[another] = face;
-                }
-            
-                if ((face._v2 == another._v2) && (face._v0 == another._v1))
-                {
-                    _neighbour20[face] = another;
-                    _neighbour12[another] = face;
-                }
-
-                if ((face._v2 == another._v0) && (face._v0 == another._v2))
-                {
-                    _neighbour20[face] = another;
-                    _neighbour20[another] = face;
-                }
-
-                if ((face._v2 == another._v1) && (face._v0 == another._v0))
-                {
-                    _neighbour20[face] = another;
-                    _neighbour01[another] = face;
-                }
-            }
+        	notifyRadiusChange();
         }
         
-        private function forgetFaceNeighbours(face:Face):void
+        private function onDimensionsChange(event:GeometryEvent):void
         {
-            if (_neighboursDirty)
-                return;
-            
-            _n01 = _neighbour01[face];
-            if (_n01 != null)
-            {
-                delete _neighbour01[face];
-                if (_neighbour01[_n01] == face)
-                    delete _neighbour01[_n01];
-                if (_neighbour12[_n01] == face)
-                    delete _neighbour12[_n01];
-                if (_neighbour20[_n01] == face)
-                    delete _neighbour20[_n01];
-            }
-            _n12 = _neighbour12[face];
-            if (_n12 != null)
-            {
-                delete _neighbour12[face];
-                if (_neighbour01[_n12] == face)
-                    delete _neighbour01[_n12];
-                if (_neighbour12[_n12] == face)
-                    delete _neighbour12[_n12];
-                if (_neighbour20[_n12] == face)
-                    delete _neighbour20[_n12];
-            }
-            _n20 = _neighbour20[face];
-            if (_n20 != null)
-            {
-                delete _neighbour20[face];
-                if (_neighbour01[_n20] == face)
-                    delete _neighbour01[_n20];
-                if (_neighbour12[_n20] == face)
-                    delete _neighbour12[_n20];
-                if (_neighbour20[_n20] == face)
-                    delete _neighbour20[_n20];
-            }
-        }
-
-        private function onFaceVertexChange(event:MeshElementEvent):void
-        {
-            if (!_neighboursDirty)
-            {
-                var face:Face = event.element as Face;
-                forgetFaceNeighbours(face);
-                rememberFaceNeighbours(face);
-            }
-
-            _vertfacesDirty = true;
+        	notifyDimensionsChange();
         }
         
         //TODO: create effective dispose mechanism for meshs
@@ -442,6 +129,44 @@
         }
         */
         
+		/**
+		 * Elements use their furthest point from the camera when z-sorting
+		 */
+        public var pushback:Boolean;
+		
+		/**
+		 * Elements use their nearest point to the camera when z-sorting
+		 */
+        public var pushfront:Boolean;
+        
+        /**
+        * A dictionary containing all frames of the mesh
+        */
+        public var frames:Dictionary;
+        
+        /**
+        * A dictionary containing all frame names of the mesh
+        */
+        public var framenames:Dictionary;
+        
+		/**
+		 * String defining the source of the mesh.
+		 * 
+		 * If the mesh has been created internally, the string is used to display the package name of the creating object.
+		 * Used to display information in the stats panel
+		 * 
+		 * @see away3d.core.stats.Stats
+		 */
+       	public var url:String;
+		
+		/**
+		 * String defining the type of class used to generate the mesh.
+		 * Used to display information in the stats panel
+		 * 
+		 * @see away3d.core.stats.Stats
+		 */
+       	public var type:String;
+       	
         /**
         * Defines a segment material to be used for outlining the 3d object.
         */
@@ -461,45 +186,73 @@
         * Indicates whether a debug bounding box should be rendered around the 3d object.
         */
         public var debugbb:Boolean;
-    	
-    	/**
-    	 * Array of vertices used in a skinmesh
-    	 */
-        public var skinVertices:Array;
         
-        /**
-        * Array of controller objects used to bind vertices with joints in a skinmesh
-        */
-        public var skinControllers:Array;
-        
+		/**
+		 * Returns an array of the vertices contained in the mesh object.
+		 */
+        public function get vertices():Array
+        {
+            return _geometry.vertices;
+        }
+                
 		/**
 		 * Returns an array of the faces contained in the mesh object.
 		 */
         public function get faces():Array
         {
-            return _faces;
+            return _geometry.faces;
         }
-		
+				
 		/**
-		 * Returns an array of the elements contained in the mesh object.
+		 * Returns an array of the segments contained in the mesh object.
 		 */
-        public override function get elements():Array
+        public function get segments():Array
         {
-            return _faces;
+            return _geometry.segments;
         }
-		
+		         
+        /**
+        * Defines the geometry object used for the mesh.
+        */
+        public function get geometry():Geometry
+        {
+        	return _geometry;
+        }
+        
+        public function set geometry(val:Geometry):void
+        {
+        	if (_geometry == val)
+                return;
+            
+            if (_geometry != null) {
+            	_geometry.removeOnMappingChange(onFaceMappingChange);
+            	_geometry.removeOnMaterialChange(onFaceMaterialChange);
+            	_geometry.removeOnRadiusChange(onRadiusChange);
+            	_geometry.removeOnDimensionsChange(onDimensionsChange);
+            }
+            
+        	_geometry = val;
+        	
+            if (_geometry != null) {
+            	_geometry.addOnMappingChange(onFaceMappingChange);
+            	_geometry.addOnMaterialChange(onFaceMaterialChange);
+            	_geometry.addOnRadiusChange(onRadiusChange);
+            	_geometry.addOnDimensionsChange(onDimensionsChange);
+            }
+        }
+            
 		/**
-		 * Defines the material used to render the faces in the mesh object.
-		 * Individual material settings on faces will override this setting.
+		 * Defines the material used to render the faces and segments in the geometry object.
+		 * Individual material settings on faces and segments will override this setting.
 		 * 
 		 * @see away3d.core.base.Face#material
 		 */
-        public function get material():ITriangleMaterial
+        public function get material():IMaterial
         {
         	return _material;
         }
         
-        public function set material(val:ITriangleMaterial):void
+        public function set material(val:IMaterial):void
         {
         	if (_material == val)
                 return;
@@ -514,11 +267,103 @@
         	
         	//reset texturemapping (if applicable)
         	if (_material is IUVMaterial || _material is ILayerMaterial)
-	        	for each (var face:Face in _faces)
+	        	for each (var face:Face in _geometry.faces)
 	        		if (face._material == null)
-	        			face._dt.texturemapping = null;
+	        			if (drawTriangles[face])
+							(drawTriangles[face] as DrawTriangle).texturemapping = null;
+	        			
+	        if (_material is ITriangleMaterial)
+	        	_triangleMaterial = _material as ITriangleMaterial;
+	        if (_material is ISegmentMaterial)
+	        	_segmentMaterial = _material as ISegmentMaterial;
+        }
+                
+		/**
+		 * @inheritDoc
+		 */
+        public override function get boundingRadius():Number
+        {
+            return _geometry.boundingRadius;
         }
         
+		/**
+		 * @inheritDoc
+		 */
+        public override function get maxX():Number
+        {
+            return _geometry.maxX;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get minX():Number
+        {
+            return _geometry.minX;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get maxY():Number
+        {
+            return _geometry.maxY;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get minY():Number
+        {
+            return _geometry.minY;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get maxZ():Number
+        {
+            return _geometry.maxZ;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get minZ():Number
+        {
+            return _geometry.minZ;
+        }
+        
+		/**
+		* Boundary width of the object
+		* 
+		*@return	The width of the mesh
+		*/
+		public function get meshWidth():Number
+		{
+			return Math.abs(_geometry.maxX - _geometry.minX);
+		}
+		
+		/**
+		* Boundary height of the object
+		* 
+		*@return	The height of the mesh
+		*/
+		public function get meshHeight():Number
+		{
+			return Math.abs(_geometry.maxY - _geometry.minY);
+		}
+		
+		/**
+		* Boundary depth of the object
+		* 
+		*@return	The depth of the mesh
+		*/
+		public function get meshDepth():Number
+		{
+			return  Math.abs(_geometry.maxZ - _geometry.minZ);
+		}
+		
 		/**
 		 * Creates a new <code>BaseMesh</code> object.
 		 *
@@ -532,6 +377,8 @@
             outline = ini.getSegmentMaterial("outline");
             back = ini.getMaterial("back");
             bothsides = ini.getBoolean("bothsides", false);
+            pushback = ini.getBoolean("pushback", false);
+            pushfront = ini.getBoolean("pushfront", false);
             debugbb = ini.getBoolean("debugbb", false);
 
             if ((material == null) && (outline == null))
@@ -545,16 +392,7 @@
 		 */
         public function addFace(face:Face):void
         {
-            addElement(face);
-
-            _faces.push(face);
-			
-			face._dt.source = face.parent = this;
-			face._dt.create = createDrawTriangle;
-			
-            face.addOnVertexChange(onFaceVertexChange);
-            rememberFaceNeighbours(face);
-            _vertfacesDirty = true;
+            _geometry.addFace(face);
         }
 		
 		/**
@@ -564,17 +402,7 @@
 		 */
         public function removeFace(face:Face):void
         {
-            var index:int = _faces.indexOf(face);
-            if (index == -1)
-                return;
-
-            removeElement(face);
-
-            _vertfacesDirty = true;
-            forgetFaceNeighbours(face);
-            face.removeOnVertexChange(onFaceVertexChange);
-
-            _faces.splice(index, 1);
+            _geometry.removeFace(face);
         }
 		
 		/**
@@ -584,93 +412,38 @@
 		 */
         public function invertFaces():void
         {
-            for each (var face:Face in _faces)
-                face.invert();
+            _geometry.invertFaces();
         }
 		
 		/**
-		 * Divides a face object into 4 equal sized face objects.
+		 * Adds a segment object to the mesh object.
+		 * 
+		 * @param	segment	The segment object to be added.
+		 */
+        public function addSegment(segment:Segment):void
+        {
+            _geometry.addSegment(segment);
+        }
+		
+		/**
+		 * Removes a segment object from the mesh object.
+		 * 
+		 * @param	segment	The segment object to be removed.
+		 */
+        public function removeSegment(segment:Segment):void
+        {
+            _geometry.removeSegment(segment);
+        }
+        
+		/**
+		 * Divides all face object into 4 equal sized face objects.
 		 * Used to segment a mesh in order to reduce affine persepective distortion.
 		 * 
 		 * @see away3d.primitives.SkyBox
 		 */
         public function quarterFaces():void
         {
-            var medians:Dictionary = new Dictionary();
-            for each (var face:Face in _faces.concat([]))
-            {
-                var v0:Vertex = face.v0;
-                var v1:Vertex = face.v1;
-                var v2:Vertex = face.v2;
-
-                if (medians[v0] == null)
-                    medians[v0] = new Dictionary();
-                if (medians[v1] == null)
-                    medians[v1] = new Dictionary();
-                if (medians[v2] == null)
-                    medians[v2] = new Dictionary();
-
-                var v01:Vertex = medians[v0][v1];
-                if (v01 == null)
-                {
-                   v01 = Vertex.median(v0, v1);
-                   medians[v0][v1] = v01;
-                   medians[v1][v0] = v01;
-                }
-                var v12:Vertex = medians[v1][v2];
-                if (v12 == null)
-                {
-                   v12 = Vertex.median(v1, v2);
-                   medians[v1][v2] = v12;
-                   medians[v2][v1] = v12;
-                }
-                var v20:Vertex = medians[v2][v0];
-                if (v20 == null)
-                {
-                   v20 = Vertex.median(v2, v0);
-                   medians[v2][v0] = v20;
-                   medians[v0][v2] = v20;
-                }
-                var uv0:UV = face.uv0;
-                var uv1:UV = face.uv1;
-                var uv2:UV = face.uv2;
-                var uv01:UV = UV.median(uv0, uv1);
-                var uv12:UV = UV.median(uv1, uv2);
-                var uv20:UV = UV.median(uv2, uv0);
-                var material:ITriangleMaterial = face.material;
-                removeFace(face);
-                addFace(new Face(v0, v01, v20, material, uv0, uv01, uv20));
-                addFace(new Face(v01, v1, v12, material, uv01, uv1, uv12));
-                addFace(new Face(v20, v12, v2, material, uv20, uv12, uv2));
-                addFace(new Face(v12, v20, v01, material, uv12, uv20, uv01));
-            }
-        }
-		
-		/**
-		 * Moves the origin point of the mesh without moving the contents.
-		 * 
-		 * @param	dx		The amount of movement along the local x axis.
-		 * @param	dy		The amount of movement along the local y axis.
-		 * @param	dz		The amount of movement along the local z axis.
-		 */
-        public function movePivot(dx:Number, dy:Number, dz:Number):void
-        {
-        	//if (_transformDirty)
-        	//	updateTransform();
-            var nd:Boolean = _neighboursDirty;
-            _neighboursDirty = true;
-            for each (var vertex:Vertex in vertices)
-            {
-                vertex.x -= dx;
-                vertex.y -= dy;
-                vertex.z -= dz;
-            }
-            
-            var dV:Number3D = new Number3D(dx/scaleX, dy/scaleY, dz/scaleZ);
-            dV.rotate(dV, _transform);
-            dV.add(dV, position);
-            moveTo(dV);
-            _neighboursDirty = nd;
+            _geometry.quarterFaces();
         }
         
 		/**
@@ -688,8 +461,7 @@
         	_dtActive = new Array();
         	
             if (outline != null)
-                if (_neighboursDirty)
-                    findNeighbours();
+                _geometry.findNeighbours();
 
             if (debugbb)
             {
@@ -719,26 +491,38 @@
                 _debugboundingbox.v101.z = maxZ;
                 _debugboundingbox.v110.z = minZ;
                 _debugboundingbox.v111.z = maxZ;
-                if (_faces.length > 0)
+                if (_geometry.faces.length > 0)
                     _debugboundingbox.primitives(consumer, session);
             }
             
-            for each(_skinController in skinControllers)
-				_skinController.update(this);
+            geometry.update(projection.time);
+			
+            _backmat = back || _triangleMaterial;
+			
+			for each (var vertex:Vertex in _geometry.vertices) {
 				
-            for each(_skinVertex in skinVertices)
-				_skinVertex.update();
+				if (!(_screenVertex = screenVertices[vertex]))
+					_screenVertex = screenVertices[vertex] = new ScreenVertex();
+				
+				vertex.project(_screenVertex, projection);
+			}
 			
-            _backmat = back || material;
-			
-            for each (var face:Face in _faces)
+            for each (var face:Face in _geometry.faces)
             {
                 if (!face._visible)
                     continue;
 				
 				//project each Vertex to a ScreenVertex
-				_tri = face._dt;
-                _tri.v0 = face._v0.project(projection);                _tri.v1 = face._v1.project(projection);                _tri.v2 = face._v2.project(projection);				
+				if (!(_tri = drawTriangles[face])) {
+					_tri = drawTriangles[face] = new DrawTriangle();
+					_tri.source = this;
+					_tri.create = createDrawTriangle;
+					_tri.face = face;
+				}
+				
+				_tri.v0 = screenVertices[face._v0];
+				_tri.v1 = screenVertices[face._v1];
+				_tri.v2 = screenVertices[face._v2];				
 				//check each ScreenVertex is visible
                 if (!_tri.v0.visible)
                     continue;
@@ -753,8 +537,8 @@
                 _tri.calc();
 				
 				//check _triangle is not behind the camera
-                if (_tri.maxZ < 0)
-                    continue;
+                //if (_tri.maxZ < 0)
+                //    continue;
 				
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.area < 0;
@@ -774,7 +558,7 @@
                     if (_backface)
                         _tri.material = _backmat;
                     else
-                        _tri.material = _material;
+                        _tri.material = _triangleMaterial;
 				
 				//do not draw material if visible is false
                 if (_tri.material != null)
@@ -824,15 +608,15 @@
                 
                 if (outline != null && !_backface)
                 {
-                    _n01 = _neighbour01[face];
+                    _n01 = _geometry.neighbour01(face);
                     if (_n01 == null || _n01.front(projection) <= 0)
                     	consumer.primitive(createDrawSegment(outline, projection, _tri.v0, _tri.v1));
 
-                    _n12 = _neighbour12[face];
+                    _n12 = _geometry.neighbour12(face);
                     if (_n12 == null || _n12.front(projection) <= 0)
                     	consumer.primitive(createDrawSegment(outline, projection, _tri.v1, _tri.v2));
 
-                    _n20 = _neighbour20[face];
+                    _n20 = _geometry.neighbour20(face);
                     if (_n20 == null || _n20.front(projection) <= 0)
                     	consumer.primitive(createDrawSegment(outline, projection, _tri.v2, _tri.v0));
 
@@ -841,6 +625,40 @@
                 }
                 _tri.projection = projection;
                 consumer.primitive(_tri);
+            }
+            
+            for each (var segment:Segment in geometry.segments)
+            {
+            	if (!(_seg = drawSegments[segment])) {
+					_seg = drawSegments[segment] = new DrawSegment();
+					_seg.create = createDrawSegment;
+					_seg.source = this;
+            	}
+            	
+            	_seg.v0 = screenVertices[segment._v0];
+				_seg.v1 = screenVertices[segment._v1];
+    
+                if (!_seg.v0.visible)
+                    continue;
+
+                if (!_seg.v1.visible)
+                    continue;
+
+                _seg.calc();
+
+                if (_seg.maxZ < 0)
+                    continue;
+
+                _seg.material = segment.material || _segmentMaterial;
+
+                if (_seg.material == null)
+                    continue;
+
+                if (!_seg.material.visible)
+                    continue;
+                
+                _seg.projection = projection;
+                consumer.primitive(_seg);
             }
         }
 		
@@ -857,40 +675,10 @@
             mesh.material = material;
             mesh.outline = outline;
             mesh.back = back;
-            mesh.bothsides = bothsides;
             mesh.debugbb = debugbb;
-
-            var clonedvertices:Dictionary = new Dictionary();
-            var clonevertex:Function = function(vertex:Vertex):Vertex
-            {
-                var result:Vertex = clonedvertices[vertex];
-                if (result == null)
-                {
-                    result = new Vertex(vertex._x, vertex._y, vertex._z);
-                    result.extra = (vertex.extra is IClonable) ? (vertex.extra as IClonable).clone() : vertex.extra;
-                    clonedvertices[vertex] = result;
-                }
-                return result;
-            };
-
-            var cloneduvs:Dictionary = new Dictionary();
-            var cloneuv:Function = function(uv:UV):UV
-            {
-                if (uv == null)
-                    return null;
-
-                var result:UV = cloneduvs[uv];
-                if (result == null)
-                {
-                    result = new UV(uv._u, uv._v);
-                    cloneduvs[uv] = result;
-                }
-                return result;
-            };
-            
-            for each (var face:Face in _faces)
-                mesh.addFace(new Face(clonevertex(face._v0), clonevertex(face._v1), clonevertex(face._v2), face.material, cloneuv(face._uv0), cloneuv(face._uv1), cloneuv(face._uv2)));
-
+			
+			mesh.geometry = geometry.clone();
+			
             return mesh;
         }
 		
@@ -954,7 +742,7 @@
                 }
             };
 
-            for each (var face:Face in _faces)
+            for each (var face:Face in _geometry.faces)
             {
                 remembervertex(face._v0);
                 remembervertex(face._v1);
@@ -991,7 +779,7 @@
 			if(animated){
 				var ind:Array;
 				var auv:Array = [];
-				for each (f in _faces)
+				for each (f in _geometry.faces)
 				
 					auv.push((round)? refuvs[f._uv0].toFixed(4)+","+refuvs[f._uv1].toFixed(4)+","+refuvs[f._uv2].toFixed(4) : refuvs[f._uv0]+","+refuvs[f._uv1]+","+refuvs[f._uv2]);
 				
@@ -1001,7 +789,7 @@
 				}
 				
 			} else{
-				for each (f in _faces)
+				for each (f in _geometry.faces)
 					source += "\t\t\tf("+refvertices[f._v0]+","+refvertices[f._v1]+","+refvertices[f._v2]+","+refuvs[f._uv0]+","+refuvs[f._uv1]+","+refuvs[f._uv2]+");\n";
 			}
 
@@ -1113,7 +901,7 @@
                 }
             };
 
-            for each (var face:Face in _faces)
+            for each (var face:Face in _geometry.faces)
             {
                 remembervertex(face._v0);
                 remembervertex(face._v1);
@@ -1137,7 +925,7 @@
                 uvn++;
             }
 
-            for each (var f:Face in _faces)
+            for each (var f:Face in _geometry.faces)
                 result.appendChild(<face v0={refvertices[f._v0]} v1={refvertices[f._v1]} v2={refvertices[f._v2]} uv0={refuvs[f._uv0]} uv1={refuvs[f._uv1]} uv2={refuvs[f._uv2]}/>);
 
             return result;
@@ -1155,10 +943,7 @@
  		 */
 		public function updateVertex(v:Vertex, x:Number, y:Number, z:Number, refreshNormals:Boolean = false):void
 		{
-			v.setValue(x,y,z);
-			
-			if(refreshNormals)
-				_vertnormalsDirty = true;
+			_geometry.updateVertex(v, x, y, z, refreshNormals);
 		}
 		
 		
@@ -1166,48 +951,9 @@
  		* Apply the world rotations to mesh local coordinates.
  		* Resets the world rotations to zero.
  		*/
-		
 		public function applyRotations():void
 		{
-			 
-			var x:Number;
-			var y:Number;
-			var z:Number;
-			var x1:Number;
-			var y1:Number;
-			var z1:Number;
-			
-			var rad:Number = Math.PI / 180;
-			var rotx:Number = rotationX * rad;
-			var roty:Number = rotationY * rad;
-			var rotz:Number = rotationZ * rad;
-			var sinx:Number = Math.sin(rotx);
-			var cosx:Number = Math.cos(rotx);
-			var siny:Number = Math.sin(roty);
-			var cosy:Number = Math.cos(roty);
-			var sinz:Number = Math.sin(rotz);
-			var cosz:Number = Math.cos(rotz);
-
-			for(var i:int;i<vertices.length;++i){
-				 
-				x = vertices[i].x;
-				y = vertices[i].y;
-				z = vertices[i].z;
-
-				y1 = y
-				y = y1*cosx+z*-sinx;
-				z = y1*sinx+z*cosx;
-				
-				x1 = x
-				x = x1*cosy+z*siny;
-				z = x1*-siny+z*cosy;
-			
-				x1 = x;
-				x = x1*cosz+y*-sinz;
-				y = x1*sinz+y*cosz;
- 
-				updateVertex(vertices[i], x, y, z, false);
-			}
+			_geometry.applyRotations(rotationX, rotationY, rotationZ);
 			
             rotationX = 0;
             rotationY = 0;

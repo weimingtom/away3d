@@ -650,15 +650,14 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-		public function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+		public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{
 			//draw the bitmap once
-			renderSource(face.parent, containerRect, new Matrix());
+			renderSource(tri.source, containerRect, new Matrix());
 			
 			//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO();
+			if (!(_faceVO = _faceDictionary[tri]))
+				_faceVO = _faceDictionary[tri] = new FaceVO();
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {
@@ -679,7 +678,7 @@ package away3d.materials
 				_faceVO.bitmap = parentFaceVO.bitmap.clone();
 				
 				//draw into faceBitmap
-				_faceVO.bitmap.copyPixels(_sourceVO.bitmap, face.bitmapRect, _zeroPoint, null, null, true);
+				_faceVO.bitmap.copyPixels(_sourceVO.bitmap, tri.face.bitmapRect, _zeroPoint, null, null, true);
 			}
 			
 			return _faceVO;

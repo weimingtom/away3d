@@ -585,7 +585,7 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-		public override function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+		public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{	
 			//retrieve the transform
 			if (_transform)
@@ -595,12 +595,11 @@ package away3d.materials
 			
 			//if not projected, draw the source bitmap once
 			if (!_projectionVector)
-				renderSource(face.parent, containerRect, _mapping);
+				renderSource(tri.source, containerRect, _mapping);
 			
 			//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO();
+			if (!(_faceVO = _faceDictionary[tri]))
+				_faceVO = _faceDictionary[tri] = new FaceVO();
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {
@@ -613,7 +612,7 @@ package away3d.materials
 				parentFaceVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = face.bitmapRect;
+				_bitmapRect = tri.face.bitmapRect;
 				
 				//reset booleans
 				if (_faceVO.invalidated)
@@ -628,12 +627,12 @@ package away3d.materials
 				if (_projectionVector) {
 					
 					//calulate mapping
-					_invtexturemapping = face._dt.invtexturemapping;
-					_mapping.concat(projectUV(face._dt));
+					_invtexturemapping = tri.invtexturemapping;
+					_mapping.concat(projectUV(tri));
 					_mapping.concat(_invtexturemapping);
 					
 					//check to see if the bitmap (non repeating) lies inside the drawtriangle area
-					if ((throughProjection || face.normal.dot(_projectionVector) >= 0) && (repeat || !findSeparatingAxis(getFacePoints(_invtexturemapping), getMappingPoints(_mapping)))) {
+					if ((throughProjection || tri.face.normal.dot(_projectionVector) >= 0) && (repeat || !findSeparatingAxis(getFacePoints(_invtexturemapping), getMappingPoints(_mapping)))) {
 						
 						//store a clone
 						if (_faceVO.cleared)

@@ -5,7 +5,7 @@
     /**
     * Creates a 3d line segment.
     */ 
-    public class LineSegment extends WireMesh
+    public class LineSegment extends Mesh
     {
         private var _segment:Segment;
 		
@@ -29,7 +29,7 @@
         {
             return _segment.v1;
         }
-
+		
         public function set end(value:Vertex):void
         {
             _segment.v1 = value;
@@ -43,7 +43,7 @@
         public function LineSegment(init:Object = null)
         {
             super(init);
-
+			
             var edge:Number = ini.getNumber("edge", 100, {min:0}) / 2;
             _segment = new Segment(new Vertex(-edge, 0, 0), new Vertex(edge, 0, 0));
             addSegment(_segment);

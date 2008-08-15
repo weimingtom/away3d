@@ -24,6 +24,7 @@ package away3d.loaders
 		private var _data:ByteArray;
 		private var _materialData:MaterialData;
 		private var _meshData:MeshData;
+		private var _geometryData:GeometryData;
 		private var _faceData:FaceData;
 		private var averageX:Number;
 		private var averageY:Number;
@@ -100,6 +101,9 @@ package away3d.loaders
 		private const ANIM_ROT:int = 0xB021;
 		private const ANIM_SCALE:int = 0xB022;
 		
+		private var texturePath:String;
+        private var autoLoadTextures:Boolean;
+        
         /**
         * 3d container object used for storing the parsed 3ds object.
         */
@@ -109,6 +113,10 @@ package away3d.loaders
         * Reference container for all materials used in the 3ds object.
         */
 		public var materialLibrary:MaterialLibrary = new MaterialLibrary();
+    	
+    	public var animationLibrary:AnimationLibrary;
+    	
+    	public var geometryLibrary:GeometryLibrary;
     	
     	/**
     	 * Array of mesh data objects used for storing the parsed 3ds data structure.
@@ -197,6 +205,7 @@ package away3d.loaders
 					case MESH:
 						_meshData = new MeshData();
 						readMeshName(subChunk);
+        				_meshData.geometry = geometryLibrary.addGeometry(_meshData.name);
 						parseMesh(subChunk);
 						meshDataList.push(_meshData);
 						break;
@@ -350,7 +359,7 @@ package away3d.loaders
 			
 			for (var i:int = 0; i < numVerts; i++)
 			{
-				_meshData.vertices.push(new Vertex(_data.readFloat(), _data.readFloat(), _data.readFloat()));
+				_meshData.geometry.vertices.push(new Vertex(_data.readFloat(), _data.readFloat(), _data.readFloat()));
 				chunk.bytesRead += 12;
 			}
 		}
@@ -369,7 +378,7 @@ package away3d.loaders
 				_faceData.visible = (_data.readUnsignedShort() as Boolean);
 				chunk.bytesRead += 8;
 				
-				_meshData.faces.push(_faceData);
+				_meshData.geometry.faces.push(_faceData);
 			}
 		}
 			
@@ -393,7 +402,7 @@ package away3d.loaders
 				chunk.bytesRead += 2;
 			}
 			
-			_meshData.materials.push(meshMaterial);
+			_meshData.geometry.materials.push(meshMaterial);
 		}
 		
 		private function readMeshTexVert(chunk:Chunk3ds):void
@@ -403,7 +412,7 @@ package away3d.loaders
 			
 			for (var i:int = 0; i < numUVs; i++)
 			{
-				_meshData.uvs.push(new UV(_data.readFloat(), _data.readFloat()));
+				_meshData.geometry.uvs.push(new UV(_data.readFloat(), _data.readFloat()));
 				chunk.bytesRead += 8;
 			}
 		}
@@ -446,45 +455,58 @@ package away3d.loaders
 			
 			for each (_meshData in meshDataList)
 			{
-				
-				//set materialdata for each face
-				for each (_meshMaterialData in _meshData.materials) {
-					for each (_faceListIndex in _meshMaterialData.faceList) {
-						_faceData = _meshData.faces[_faceListIndex] as FaceData;
-						_faceData.materialData = materialLibrary[_meshMaterialData.name];
-					}
-				}
-				
 				//create Mesh object
 				var mesh:Mesh = new Mesh({name:_meshData.name});
 				
-				for each(_faceData in _meshData.faces) {
-					_face = new Face(_meshData.vertices[_faceData.v0],
-												_meshData.vertices[_faceData.v1],
-												_meshData.vertices[_faceData.v2],
-												_faceData.materialData.material,
-												_meshData.uvs[_faceData.v0],
-												_meshData.uvs[_faceData.v1],
-												_meshData.uvs[_faceData.v2]);
-					mesh.addFace(_face);
-					_faceData.materialData.faces.push(_face);
+				_geometryData = _meshData.geometry;
+				var geometry:Geometry = _geometryData.geometry;
+				
+				if (!geometry) {
+					geometry = _geometryData.geometry = new Geometry();
+					
+					//set materialdata for each face
+					for each (_meshMaterialData in _geometryData.materials) {
+						for each (_faceListIndex in _meshMaterialData.faceList) {
+							_faceData = _geometryData.faces[_faceListIndex] as FaceData;
+							_faceData.materialData = materialLibrary[_meshMaterialData.name];
+						}
+					}
+					
+					for each(_faceData in _geometryData.faces) {
+						_face = new Face(_geometryData.vertices[_faceData.v0],
+													_geometryData.vertices[_faceData.v1],
+													_geometryData.vertices[_faceData.v2],
+													_faceData.materialData.material,
+													_geometryData.uvs[_faceData.v0],
+													_geometryData.uvs[_faceData.v1],
+													_geometryData.uvs[_faceData.v2]);
+						geometry.addFace(_face);
+						_faceData.materialData.faces.push(_face);
+					}
 				}
 				
+				mesh.geometry = geometry;
+				
 				if (centerMeshes) {
-					//determine center and offset all vertices (useful for subsequent max/min/radius calculations)
+					//center vertex points in mesh for better bounding radius calulations
 					averageX = averageY = averageZ = 0;
-					numVertices = _meshData.vertices.length;
-					for each (_vertex in _meshData.vertices) {
+					numVertices = _geometryData.vertices.length;
+					for each (_vertex in _geometryData.vertices) {
 						averageX += _vertex._x;
 						averageY += _vertex._y;
 						averageZ += _vertex._z;
 					}
 					
-					mesh.movePivot(averageX/numVertices, averageY/numVertices, averageZ/numVertices);
+					averageX /= numVertices;
+					averageY /= numVertices;
+					averageZ /= numVertices;
+					
+					mesh.movePivot(averageX, averageY, averageZ);
+					mesh.moveTo(averageX, averageY, averageZ);
 				}
 				
-				container.addChild(mesh);
 				mesh.type = ".3ds";
+				container.addChild(mesh);
 			}
 		}
 		
@@ -530,8 +552,8 @@ package away3d.loaders
 			_data.endian = Endian.LITTLE_ENDIAN;
 			
 			ini = Init.parse(init);
-			materialLibrary.texturePath = ini.getString("texturePath", "");
-			materialLibrary.autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
+			texturePath = ini.getString("texturePath", "");
+			autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
 			material = ini.getMaterial("material");
 			centerMeshes = ini.getBoolean("centerMeshes", false);
 			
@@ -551,6 +573,13 @@ package away3d.loaders
    			}
             
 			container = new ObjectContainer3D(ini);
+			container.name = "max3ds";
+			
+			materialLibrary = container.materialLibrary = new MaterialLibrary();
+			animationLibrary = container.animationLibrary = new AnimationLibrary();
+			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
+			materialLibrary.autoLoadTextures = autoLoadTextures;
+			materialLibrary.texturePath = texturePath;
 			
 			//first chunk is always the primary, so we simply read it and parse it
 			var chunk:Chunk3ds = new Chunk3ds();
@@ -573,6 +602,18 @@ package away3d.loaders
     	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
+        	//texturePath as model folder
+			if (url)
+			{
+				var _pathArray		:Array = url.split("/");
+				var _imageName		:String = _pathArray.pop();
+				var _texturePath	:String = (_pathArray.length>0)?_pathArray.join("/")+"/":_pathArray.join("/");
+				if (init){
+					init.texturePath = (init.texturePath)?init.texturePath:_texturePath;
+				}else {
+					init = { texturePath:_texturePath };
+				}
+			}
             return Object3DLoader.loadGeometry(url, parse, true, init);
         }
     	
@@ -601,8 +642,6 @@ package away3d.loaders
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
         	var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
-        	if (loader)
-        		loader.materialLibrary = parser.materialLibrary;
             return parser.container;
         }
 	}

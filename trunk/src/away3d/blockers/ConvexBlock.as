@@ -7,13 +7,17 @@ package away3d.blockers
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
+    import flash.utils.*;
+    
     /**
     * Convex hull blocking all drawing primitives underneath.
     */
     public class ConvexBlock extends Object3D implements IBlockerProvider, IPrimitiveProvider
     {
     	private var _cb:ConvexBlocker = new ConvexBlocker();
-    	
+        private var screenVertices:Dictionary = new Dictionary(true);
+        private var _screenVertex:ScreenVertex;
+        
         private function cross(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex):Number
         {
             return (b.x - a.x)*(c.y - a.y) - (c.x - a.x)*(b.y - a.y);
@@ -59,34 +63,36 @@ package away3d.blockers
 
             var points:Array = [];
             var base:ScreenVertex = null;
-            var v:ScreenVertex;
             var s:String = "";
             var p:String = "";
             
-            for each (var vr:Vertex in vertices)
+            for each (var vertex:Vertex in vertices)
             {
-                s += vr.toString() + "\n";
-
-                v = vr.project(projection);
+                s += vertex.toString() + "\n";
+				
+				if (!(_screenVertex = screenVertices[vertex]))
+					_screenVertex = screenVertices[vertex] = new ScreenVertex();
+				
+                vertex.project(_screenVertex, projection);
 
                 if (base == null)
-                    base = v;
+                    base = _screenVertex;
                 else
-                if (base.y > v.y)
-                    base = v;
+                if (base.y > _screenVertex.y)
+                    base = _screenVertex;
                 else
-                if (base.y == v.y)
-                    if (base.x > v.x)
-                        base = v;
+                if (base.y == _screenVertex.y)
+                    if (base.x > _screenVertex.x)
+                        base = _screenVertex;
 
-                points.push(v);
-                p += v.toString() + "\n";
+                points.push(_screenVertex);
+                p += _screenVertex.toString() + "\n";
             }
 
 //            throw new Error(s + p);
 
-            for each (v in points)
-                v.num = (v.x - base.x) / (v.y - base.y);
+            for each (_screenVertex in points)
+                _screenVertex.num = (_screenVertex.x - base.x) / (_screenVertex.y - base.y);
             
             base.num = -Infinity;
 

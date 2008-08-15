@@ -120,36 +120,53 @@ package away3d.core.base
             var x:Number = _transform.tx;
             var y:Number = _transform.ty;
             var z:Number = _transform.tz;
+            if (!_pivotZero) {
+				x -= (_pivotPoint.x*_transform.sxx + _pivotPoint.y*_transform.sxy + _pivotPoint.z*_transform.sxz);
+				y -= (_pivotPoint.x*_transform.syx + _pivotPoint.y*_transform.syy + _pivotPoint.z*_transform.syz);
+				z -= (_pivotPoint.x*_transform.szx + _pivotPoint.y*_transform.szy + _pivotPoint.z*_transform.szz);
+            }
             return Math.sqrt(x*x + y*y + z*z) + boundingRadius;
         }
         /** @private */
         arcane function get parentmaxX():Number
         {
+        	if (!_pivotZero)
+				return boundingRadius + _transform.tx - (_pivotPoint.x*_transform.sxx + _pivotPoint.y*_transform.sxy + _pivotPoint.z*_transform.sxz);
             return boundingRadius + _transform.tx;
         }
 		/** @private */
         arcane function get parentminX():Number
         {
+        	if (!_pivotZero)
+				return -boundingRadius + _transform.tx - (_pivotPoint.x*_transform.sxx + _pivotPoint.y*_transform.sxy + _pivotPoint.z*_transform.sxz)
             return -boundingRadius + _transform.tx;
         }
 		/** @private */
         arcane function get parentmaxY():Number
         {
+        	if (!_pivotZero)
+				return boundingRadius + _transform.ty - (_pivotPoint.x*_transform.syx + _pivotPoint.y*_transform.syy + _pivotPoint.z*_transform.syz);
             return boundingRadius + _transform.ty;
         }
 		/** @private */
         arcane function get parentminY():Number
         {
+        	if (!_pivotZero)
+				return -boundingRadius + _transform.ty - (_pivotPoint.x*_transform.syx + _pivotPoint.y*_transform.syy + _pivotPoint.z*_transform.syz);
             return -boundingRadius + _transform.ty;
         }
 		/** @private */
         arcane function get parentmaxZ():Number
         {
+        	if (!_pivotZero)
+				return boundingRadius + _transform.tz - (_pivotPoint.x*_transform.szx + _pivotPoint.y*_transform.szy + _pivotPoint.z*_transform.szz);
             return boundingRadius + _transform.tz;
         }
 		/** @private */
         arcane function get parentminZ():Number
         {
+        	if (!_pivotZero)
+				return -boundingRadius + _transform.tz - (_pivotPoint.x*_transform.szx + _pivotPoint.y*_transform.szy + _pivotPoint.z*_transform.szz);
             return -boundingRadius + _transform.tz;
         }
         /** @private */
@@ -239,6 +256,8 @@ package away3d.core.base
 		private var _rot:Number3D = new Number3D();
 		private var _sca:Number3D = new Number3D();
         private var _position:Number3D = new Number3D();
+        private var _pivotPoint:Number3D = new Number3D();
+        private var _pivotZero:Boolean;
         private var _scenePosition:Number3D = new Number3D();
         private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _sc:ScreenVertex = new ScreenVertex();
@@ -259,6 +278,12 @@ package away3d.core.base
         {
             _sceneTransform.multiply(_parent.sceneTransform, transform);
             
+            if (!_pivotZero) {
+				_sceneTransform.tx -= (_pivotPoint.x*_sceneTransform.sxx + _pivotPoint.y*_sceneTransform.sxy + _pivotPoint.z*_sceneTransform.sxz);
+				_sceneTransform.ty -= (_pivotPoint.x*_sceneTransform.syx + _pivotPoint.y*_sceneTransform.syy + _pivotPoint.z*_sceneTransform.syz);
+				_sceneTransform.tz -= (_pivotPoint.x*_sceneTransform.szx + _pivotPoint.y*_sceneTransform.szy + _pivotPoint.z*_sceneTransform.szz);
+            }
+            
             //calulate the inverse transform of the scene (used for lights and bones)
             inverseSceneTransform.inverse(_sceneTransform);
             
@@ -275,7 +300,7 @@ package away3d.core.base
     
             _rotationDirty = false;
         }
-
+		
         private function onParentSceneChange(event:Object3DEvent):void
         {
             if (_scene == _parent.scene)
@@ -284,12 +309,12 @@ package away3d.core.base
             _scene = _parent.scene;
             notifySceneChange();
         }
-
+		
         private function onParentTransformChange(event:Object3DEvent):void
         {
             _sceneTransformDirty = true;
         }
-		 
+		
         /**
          * Instance of the Init object used to hold and parse default property values
          * specified by the initialiser object in the 3d object constructor.
@@ -300,8 +325,8 @@ package away3d.core.base
         {
             _quaternion.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
             _transform.quaternion2matrix(_quaternion);
-			
-            _transform.scale(_scaleX, _scaleY, _scaleZ);
+            
+            _transform.scale(_transform, _scaleX, _scaleY, _scaleZ);
 			
             _transformDirty = false;
             _sceneTransformDirty = true;
@@ -414,7 +439,15 @@ package away3d.core.base
         * @see away3d.loaders.Max3DS
         */
     	public var animationLibrary:AnimationLibrary;
-    	
+
+        /**
+        * Reference container for all geometries used in the container. Populated in <code>Collada</code> and <code>Max3DS</code> importers.
+        * 
+        * @see away3d.loaders.Collada
+        * @see away3d.loaders.Max3DS
+        */
+    	public var geometryLibrary:GeometryLibrary;
+    	    	
     	/**
     	 * Returns the bounding radius of the 3d object
     	 */
@@ -676,16 +709,6 @@ package away3d.core.base
         	_position.z = _transform.tz;
             return _position;
         }
-
-        public function set position(value:Number3D):void
-        {
-            _transform.tx = value.x;
-            _transform.ty = value.y;
-            _transform.tz = value.z;
-
-            _sceneTransformDirty = true;
-			_localTransformDirty = true;
-        }
 		
     	/**
     	 * Defines the transformation of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
@@ -732,29 +755,29 @@ package away3d.core.base
         {
             if (value == _parent)
                 return;
-
+			
             var oldscene:Scene3D = scene;
-
+			
             if (_parent != null)
             {
                 _parent.removeOnSceneChange(onParentSceneChange);
                 _parent.internalRemoveChild(this);
             }
-
+			
             _parent = value;
-
+			
             if (_parent != null)
             {
                 _parent.internalAddChild(this);
                 _parent.addOnSceneChange(onParentSceneChange);
                 _parent.addOnSceneTransformChange(onParentTransformChange);
             }
-
+			
             _scene = _parent ? _parent.scene : null;
-
+			
             if (_scene != oldscene)
                 notifySceneChange();
-
+			
             _sceneTransformDirty = true;
             _localTransformDirty = true;
         }
@@ -861,7 +884,7 @@ package away3d.core.base
         	_scaleX = _scaleY = _scaleZ = scale;
         	_transformDirty = true;
         }
-		
+        
     	/**
     	 * Calulates the absolute distance between the local 3d object position and the position of the given 3d object
     	 * 
@@ -1016,17 +1039,37 @@ package away3d.core.base
         /**
          * Moves the 3d object directly to a point in space
          * 
-         * @param	target		A vector defining the new position of the 3d object
+		 * @param	dx		The amount of movement along the local x axis.
+		 * @param	dy		The amount of movement along the local y axis.
+		 * @param	dz		The amount of movement along the local z axis.
          */
-        public function moveTo(target:Number3D):void
+        public function moveTo(dx:Number, dy:Number, dz:Number):void
         {
-            _transform.tx = target.x;
-            _transform.ty = target.y;
-            _transform.tz = target.z;
+            _transform.tx = dx;
+            _transform.ty = dy;
+            _transform.tz = dz;
             
             _localTransformDirty = true;
+            _sceneTransformDirty = true;
         }
 		
+		/**
+		 * Moves the local point around which the object rotates.
+		 * 
+		 * @param	dx		The amount of movement along the local x axis.
+		 * @param	dy		The amount of movement along the local y axis.
+		 * @param	dz		The amount of movement along the local z axis.
+		 */
+        public function movePivot(dx:Number, dy:Number, dz:Number):void
+        {
+        	_pivotPoint.x = dx;
+        	_pivotPoint.y = dy;
+        	_pivotPoint.z = dz;
+        	
+        	_pivotZero = (!dx && !dy && !dz);
+        	_sceneTransformDirty = true;
+        }
+        
 		/**
 		 * Moves the 3d object along a vector by a defined length
 		 * 

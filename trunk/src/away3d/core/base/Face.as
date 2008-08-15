@@ -50,23 +50,24 @@ package away3d.core.base
 		/** @private */
         arcane var _back:ITriangleMaterial;
 		/** @private */
-        arcane var _dt:DrawTriangle = new DrawTriangle();
+        //arcane var _dt:DrawTriangle = new DrawTriangle();
 		/** @private */
 		arcane var bitmapRect:Rectangle;
 		/** @private */
         arcane function front(projection:Projection):Number
         {
-            var sv0:ScreenVertex = _v0.project(projection);
-            var sv1:ScreenVertex = _v1.project(projection);
-            var sv2:ScreenVertex = _v2.project(projection);
+            var sv0:ScreenVertex = new ScreenVertex();
+            _v0.project(sv0, projection);
+            var sv1:ScreenVertex = new ScreenVertex();;
+            _v1.project(sv1, projection);
+            var sv2:ScreenVertex = new ScreenVertex();
+            _v2.project(sv2, projection);
                 
             return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
         }
 		/** @private */
         arcane function notifyMaterialChange():void
         {
-        	_dt.texturemapping = null;
-        	
             if (!hasEventListener(FaceEvent.MATERIAL_CHANGED))
                 return;
 
@@ -78,8 +79,6 @@ package away3d.core.base
 		/** @private */
         arcane function notifyMappingChange():void
         {
-        	_dt.texturemapping = null;
-			
             if (!hasEventListener(FaceEvent.MAPPING_CHANGED))
                 return;
 
@@ -100,7 +99,7 @@ package away3d.core.base
 		
 		private function onMaterialResize(event:MaterialEvent):void
 		{
-			_dt.texturemapping = null;
+			notifyMappingChange();
 		}
 		
 		//TODO: simplify vertex changed events
@@ -131,7 +130,7 @@ package away3d.core.base
     	/**
     	 * Defines the parent 3d object of the face.
     	 */
-		public var parent:Mesh;
+		public var parent:Geometry;
 		
 		/**
 		 * Returns an array of vertex objects that are used by the face.
@@ -669,7 +668,6 @@ package away3d.core.base
             this.uv0 = uv0;
             this.uv1 = uv1;
             this.uv2 = uv2;
-            _dt.face = this;
         }
 		
 		/**

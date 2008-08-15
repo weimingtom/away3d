@@ -20,13 +20,11 @@ package away3d.cameras
     	private var _dof:Boolean = false;
         private var _flipY:Matrix3D = new Matrix3D();
         private var _focus:Number;
+        private var _zoom:Number;
+        private var _fov:Number;
     	private var _view:Matrix3D = new Matrix3D();
         private var _screenProjection:Projection = new Projection();
-		    	
-		/**
-		 * Provides an overall scale value to the view
-		 */
-        public var zoom:Number;
+        private var _screenVertex:ScreenVertex = new ScreenVertex();
         
 		/**
 		 * Used in <code>DofSprite2D</code>.
@@ -74,6 +72,32 @@ package away3d.cameras
 		{
 			_focus = value;			
 			DofCache.focus = _focus;
+		}
+		
+		/**
+		 * Provides an overall scale value to the view
+		 */
+		public function get zoom():Number
+		{
+			return _zoom;
+		}
+		
+		public function set zoom(value:Number):void
+		{
+			_zoom = value;
+		}
+		
+		/**
+		 * Defines the field of view of the camera in a vertical direction.
+		 */
+		public function get fov():Number
+		{
+			return _fov;
+		}
+		
+		public function set fov(value:Number):void
+		{
+			_fov = value;
 		}
 		
 		/**
@@ -172,7 +196,8 @@ package away3d.cameras
 			_screenProjection.focus = focus;
 			_screenProjection.zoom = zoom;
 			_screenProjection.time = getTimer();
-            return vertex.project(_screenProjection);
+			vertex.project(_screenVertex, _screenProjection);
+            return _screenVertex
         }
     	
 		/**

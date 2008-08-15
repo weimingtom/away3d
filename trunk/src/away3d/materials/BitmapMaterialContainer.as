@@ -48,14 +48,14 @@ package away3d.materials
 		protected override function getMapping(tri:DrawTriangle):Matrix
         {
         	_face = tri.face;
-			_dt = _face._dt;
+			_dt = (tri.source as Mesh).drawTriangles[_face] as DrawTriangle;
 			
-        	if (!_cacheDictionary || !_cacheDictionary[_face]) {
+        	if (!_cacheDictionary || !_cacheDictionary[_dt]) {
         		
 	    		//check to see if faceDictionary exists
-	    		_faceVO = _faceDictionary[_face];
+	    		_faceVO = _faceDictionary[_dt];
 	    		if (!_faceVO)
-	    			_faceVO = _faceDictionary[_face] = new FaceVO();
+	    			_faceVO = _faceDictionary[_dt] = new FaceVO();
 	    		
 	        	//check to see if face drawtriangle needs updating
 	        	if (!_dt.texturemapping) {
@@ -74,12 +74,12 @@ package away3d.materials
         		
 	    		//call renderFace on each material
 	    		for each (_material in materials)
-	        		_faceVO = _material.renderFace(_face, _bitmapRect, _faceVO);
+	        		_faceVO = _material.renderBitmapLayer(_dt, _bitmapRect, _faceVO);
 	        		
 	        	_faceVO.updated = false;
 	        	
 	        	if (_cacheDictionary)
-	        		_cacheDictionary[_face] = _faceVO;
+	        		_cacheDictionary[_dt] = _faceVO;
 	        }
         	
         	//check to see if tri texturemapping need updating
@@ -87,7 +87,7 @@ package away3d.materials
         	    tri.transformUV(this);
         	
         	if (_cacheDictionary)
-        		_renderBitmap = _cacheDictionary[_face].bitmap;
+        		_renderBitmap = _cacheDictionary[_dt].bitmap;
         	else
         		_renderBitmap = _faceVO.bitmap;
         	
@@ -183,21 +183,19 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public override function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{
 			//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO();
+			if (!(_faceVO = _faceDictionary[tri]))
+				_faceVO = _faceDictionary[tri] = new FaceVO();
 			
 			//get width and height values
-			_faceWidth = face.bitmapRect.width;
-    		_faceHeight = face.bitmapRect.height;
+			_faceWidth = tri.face.bitmapRect.width;
+    		_faceHeight = tri.face.bitmapRect.height;
 
 			//check to see if bitmapContainer exists
-			_containerVO = _containerDictionary[face];
-			if (!_containerVO)
-				_containerVO = _containerDictionary[face] = new FaceVO();
+			if (!(_containerVO = _containerDictionary[tri]))
+				_containerVO = _containerDictionary[tri] = new FaceVO();
 			
 			//resize container
 			if (parentFaceVO.resized) {
@@ -207,7 +205,7 @@ package away3d.materials
 			
 			//call renderFace on each material
     		for each (_material in materials)
-        		_containerVO = _material.renderFace(_face, containerRect, _containerVO);
+        		_containerVO = _material.renderBitmapLayer(tri, containerRect, _containerVO);
 			
 			//check to see if face update can be skipped
 			if (parentFaceVO.updated || _containerVO.updated) {

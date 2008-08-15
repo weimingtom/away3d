@@ -31,7 +31,7 @@ package away3d.core.base
 		/** @private */
         arcane var _material:ISegmentMaterial;
 		/** @private */
-        arcane var _ds:DrawSegment = new DrawSegment();
+        //arcane var _ds:DrawSegment = new DrawSegment();
 		/** @private */
         arcane function notifyMaterialChange():void
         {
@@ -67,7 +67,7 @@ package away3d.core.base
     	/**
     	 * Defines the parent 3d object of the segment.
     	 */
-		public var parent:BaseMesh;
+		public var parent:Geometry;
 		
 		/**
 		 * Returns an array of vertex objects that are used by the segment.

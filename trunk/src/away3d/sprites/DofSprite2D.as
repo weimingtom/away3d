@@ -15,7 +15,7 @@ package away3d.sprites
 	public class DofSprite2D extends Object3D implements IPrimitiveProvider
     {
         private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex;
+		private var _sc:ScreenVertex = new ScreenVertex();
 		private var _persp:Number;
         private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _dofcache:DofCache;
@@ -77,7 +77,7 @@ package away3d.sprites
         {
         	super.primitives(consumer, session);
 
-            _sc = _center.project(projection);
+            _center.project(_sc, projection);
             if (!_sc.visible)
                 return;
                 
