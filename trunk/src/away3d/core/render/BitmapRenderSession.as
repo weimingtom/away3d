@@ -45,8 +45,8 @@ package away3d.core.render
         	_container = getContainer(_view) as Bitmap;
         	_base = getBitmapData(_view);
         	
-        	_cx = _container.x = -_width/2;
-			_cy = _container.y = -_height/2;
+        	_cx = _container.x = -_view.clip.minX;
+			_cy = _container.y = -_view.clip.minY;
 			_container.scaleX = _scale;
 			_container.scaleY = _scale;
         	
