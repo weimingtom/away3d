@@ -164,29 +164,31 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        protected override function renderShader(face:Face):void
+        protected override function renderShader(tri:DrawTriangle):void
         {
 			//check to see if sourceDictionary exists
-			_sourceBitmap = _sourceDictionary[face];
+			_sourceBitmap = _sourceDictionary[tri];
 			if (!_sourceBitmap || _faceVO.resized) {
-				_sourceBitmap = _sourceDictionary[face] = _parentFaceVO.bitmap.clone();
+				_sourceBitmap = _sourceDictionary[tri] = _parentFaceVO.bitmap.clone();
 				_sourceBitmap.lock();
 			}
 			
 			//check to see if normalDictionary exists
-			_normalBitmap = _normalDictionary[face];
+			_normalBitmap = _normalDictionary[tri];
 			if (!_normalBitmap || _faceVO.resized) {
-				_normalBitmap = _normalDictionary[face] = _parentFaceVO.bitmap.clone();
+				_normalBitmap = _normalDictionary[tri] = _parentFaceVO.bitmap.clone();
 				_normalBitmap.lock();
 			}
+			
+			_face = tri.face;
+			_n0 = _source.geometry.getVertexNormal(_face.v0);
+			_n1 = _source.geometry.getVertexNormal(_face.v1);
+			_n2 = _source.geometry.getVertexNormal(_face.v2);
 			
 			for each (directional in _source.session.lightarray.directionals)
 	    	{
 				_diffuseTransform = directional.diffuseTransform[_source];
 				
-				_n0 = _source.getVertexNormal(face.v0);
-				_n1 = _source.getVertexNormal(face.v1);
-				_n2 = _source.getVertexNormal(face.v2);
 				
 				_szx = _diffuseTransform.szx;
 				_szy = _diffuseTransform.szy;
@@ -210,7 +212,7 @@ package away3d.materials.shaders
 					_faceVO.updated = true;
 					
 					//resolve normal map
-		            _sourceBitmap.applyFilter(_bitmap, face.bitmapRect, _zeroPoint, directional.normalMatrixTransform[_source]);
+		            _sourceBitmap.applyFilter(_bitmap, _face.bitmapRect, _zeroPoint, directional.normalMatrixTransform[_source]);
 					
 		            //normalise bitmap
 					_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform[_source]);

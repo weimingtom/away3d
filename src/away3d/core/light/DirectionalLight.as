@@ -227,6 +227,7 @@ package away3d.core.light
         		diffuseTransform[source] = new Matrix3D();
         	
         	diffuseTransform[source].multiply3x3(transform, source._sceneTransform);
+        	diffuseTransform[source].normalize(diffuseTransform[source]);
         }
         
         /**
@@ -253,6 +254,7 @@ package away3d.core.light
 				specularTransform[source][view] = new Matrix3D();
 				
         	specularTransform[source][view].multiply3x3(halfTransform, source._sceneTransform);
+        	specularTransform[source][view].normalize(specularTransform[source][view]);
         }
         
         /**

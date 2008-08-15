@@ -157,7 +157,7 @@ package away3d.materials.shaders
         * 
         * @param	face	The face object being rendered.
         */
-        protected function renderShader(face:Face):void
+        protected function renderShader(tri:DrawTriangle):void
         {
         	throw new Error("Not implemented");
         }
@@ -240,16 +240,15 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
         {
-        	_source = face.parent;
+        	_source = tri.source as Mesh;
 			_view = _source.session.view;
 			_parentFaceVO = parentFaceVO;
 			
         	//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO(_source, _view);
+			if (!(_faceVO = _faceDictionary[tri]))
+				_faceVO = _faceDictionary[tri] = new FaceVO(_source, _view);
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {
@@ -262,7 +261,7 @@ package away3d.materials.shaders
 				parentFaceVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = face.bitmapRect;
+				_bitmapRect = tri.face.bitmapRect;
 				
 				//reset booleans
 				if (_faceVO.invalidated)
@@ -274,7 +273,7 @@ package away3d.materials.shaders
 				_faceVO.bitmap = parentFaceVO.bitmap;
 				
 				//draw shader
-				renderShader(face);
+				renderShader(tri);
 			}
 			
 			return _faceVO;

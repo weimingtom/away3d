@@ -403,29 +403,6 @@
             for each (var child:Object3D in childarray)
                 addChild(child);
         }
-		
-		/**
-		 * Moves the origin point of the 3d object without moving the contents
-		 * 
-		 * @param	dx		The amount of movement along the local x axis
-		 * @param	dy		The amount of movement along the local y axis
-		 * @param	dz		The amount of movement along the local z axis
-		 */
-        public function movePivot(dx:Number, dy:Number, dz:Number):void
-        {
-        	
-            for each (var child:Object3D in _children)
-            {
-                child.x -= dx;
-                child.y -= dy;
-                child.z -= dz;
-            }
-            
-            var dV:Number3D = new Number3D(dx/scaleX, dy/scaleY, dz/scaleZ);
-            dV.rotate(dV, _transform);
-            dV.add(dV, position);
-            moveTo(dV);
-        }
         
 		/**
 		 * Adds a 3d object to the scene as a child of the container

@@ -1,15 +1,14 @@
 package away3d.lights
 {
-    import away3d.core.draw.*;
-    import away3d.materials.*;
-    import away3d.core.math.*;
     import away3d.core.base.*;
+    import away3d.core.draw.*;
     import away3d.core.light.*;
+    import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.materials.*;
     
     import flash.display.*;
-    import flash.geom.Matrix;
 	
     /**
     * Lightsource that colors all shaded materials proportional to the dot product of the distance vector with the normal vector.
@@ -95,7 +94,8 @@ package away3d.lights
                 return;
 
             var v:Vertex = new Vertex(0, 0, 0);
-            var vp:ScreenVertex = v.project(projection);
+            var vp:ScreenVertex = new ScreenVertex();
+            v.project(vp, projection);
             if (!vp.visible)
                 return;
 

@@ -13,6 +13,6 @@ package away3d.core.base
 		 * 
 		 * @see away3d.core.base.Frame
 		 */
-        function update(mesh:BaseMesh):void;
+        function update(mesh:Mesh):void;
     }
 }

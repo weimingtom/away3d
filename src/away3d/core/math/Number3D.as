@@ -259,21 +259,6 @@ package away3d.core.math
             	
             if (!m2)
             	m2 = new Matrix3D();
-            	
-            if (scaleX)
-            	scaleX = 1/scaleX;
-            
-            if (scaleY)
-            	scaleY = 1/scaleY;
-            	
-            if (scaleZ)
-            	scaleZ = 1/scaleZ;
-            	
-            m1.clone(m);
-            
-            // Normalize the local x, y and z axes to remove scaling.
-            if (scaleX != 1 || scaleY != 1 || scaleZ != 1)
-            	m1.scale(scaleX, scaleY, scaleZ);
 	
 		    // Extract the first angle, rotationX
 			x = Math.atan2(m1.syz, m1.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
@@ -308,7 +293,33 @@ package away3d.core.math
 				z += Math.PI;
 			}
         }
-            	
+        
+        public function quaternion2euler(quarternion:Quaternion):void
+		{
+			
+			var test :Number = quarternion.x*quarternion.y + quarternion.z*quarternion.w;
+			if (test > 0.499) { // singularity at north pole
+				x = 2 * Math.atan2(quarternion.x,quarternion.w);
+				y = Math.PI/2;
+				z = 0;
+				return;
+			}
+			if (test < -0.499) { // singularity at south pole
+				x = -2 * Math.atan2(quarternion.x,quarternion.w);
+				y = - Math.PI/2;
+				z = 0;
+				return;
+			}
+		    
+		    var sqx	:Number = quarternion.x*quarternion.x;
+		    var sqy	:Number = quarternion.y*quarternion.y;
+		    var sqz	:Number = quarternion.z*quarternion.z;
+		    
+		    x = Math.atan2(2*quarternion.y*quarternion.w - 2*quarternion.x*quarternion.z , 1 - 2*sqy - 2*sqz);
+			y = Math.asin(2*test);
+			z = Math.atan2(2*quarternion.x*quarternion.w-2*quarternion.y*quarternion.z , 1 - 2*sqx - 2*sqz);
+		}
+		
     	/**
     	 * Fill the 3d number object with the scale values represented by the 3x3 matrix.
     	 * 

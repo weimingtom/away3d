@@ -1,6 +1,7 @@
 package away3d.materials
 {
 	import away3d.core.*;
+	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
@@ -73,7 +74,7 @@ package away3d.materials
     	 */
 		public function renderTriangle(tri:DrawTriangle):void
 		{
-			tri.source.session.renderTriangleBitmap(_colorMap, getMapping(tri.face.parent, tri.face), tri.v0, tri.v1, tri.v2, smooth, false);
+			tri.source.session.renderTriangleBitmap(_colorMap, getMapping(tri.source as Mesh, tri.face), tri.v0, tri.v1, tri.v2, smooth, false);
 			
 			if (debug)
                 tri.source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);

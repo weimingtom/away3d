@@ -59,8 +59,7 @@ package away3d.core.base
             var bk:Number = bw / d;
             return new Vertex(a._x*ak+b._x*bk, a._y*ak + b._y*bk, a._z*ak + b._z*bk);
         }
-
-        private var projected:ScreenVertex = new ScreenVertex();
+		
         private var projectionTime:int;
 		private var view:Matrix3D;
 		private var sz:Number;
@@ -210,15 +209,8 @@ package away3d.core.base
         /**
         * Projects the vertex to the screen space of the view.
         */
-        public function project(projection:Projection):ScreenVertex
+        public function project(projected:ScreenVertex, projection:Projection):void
         {
-        	//check if current projection has been already applied
-            if (projectionTime == projection.time)
-                return projected;
-			
-			//update projection time
-            projectionTime = projection.time;
-			
             view = projection.view;
     
             sz = _x * view.szx + _y * view.szy + _z * view.szz + view.tz;
@@ -242,7 +234,7 @@ package away3d.core.base
             if (sz*2 <= -projection.focus)
             {
                 projected.visible = false;
-                return projected;
+                return;
             }
             else
                 projected.visible = true;
@@ -255,8 +247,7 @@ package away3d.core.base
             /*
             projected.x = wx * persp;
             projected.y = wy * persp;
-			*/				
-            return projected;
+			*/
         }
     }
 }
