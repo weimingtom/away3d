@@ -710,6 +710,16 @@ package away3d.core.base
             return _position;
         }
 		
+        public function set position(value:Number3D):void
+        {
+            _transform.tx = value.x;
+            _transform.ty = value.y;
+            _transform.tz = value.z;
+
+            _sceneTransformDirty = true;
+			_localTransformDirty = true;
+        }
+        
     	/**
     	 * Defines the transformation of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
