@@ -52,7 +52,7 @@ package away3d.core.render
         	
         	_cm = new Matrix();
         	_cm.scale(1/_scale, 1/_scale);
-			_cm.translate(_bitmapwidth/2, _bitmapheight/2);
+			_cm.translate(_view.clip.minX, _view.clip.minY);
 		}
 		
 		/**
