@@ -21,7 +21,7 @@ package away3d.core.base
     * @see away3d.core.base.WireMesh
     * @see away3d.core.base.Mesh
     */
-    public class Segment extends BaseMeshElement
+    public class Segment extends Element
     {
         use namespace arcane;
 		/** @private */

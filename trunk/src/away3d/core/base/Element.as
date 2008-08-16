@@ -8,29 +8,29 @@ package away3d.core.base
 	 /**
 	 * Dispatched when the vertex of a 3d element changes.
 	 * 
-	 * @eventType away3d.events.MeshElementEvent
+	 * @eventType away3d.events.ElementEvent
 	 */
-	[Event(name="vertexchanged",type="away3d.events.MeshElementEvent")]
+	[Event(name="vertexchanged",type="away3d.events.ElementEvent")]
     
 	 /**
 	 * Dispatched when the vertex value of a 3d element changes.
 	 * 
-	 * @eventType away3d.events.MeshElementEvent
+	 * @eventType away3d.events.ElementEvent
 	 */
-	[Event(name="vertexvaluechanged",type="away3d.events.MeshElementEvent")]
+	[Event(name="vertexvaluechanged",type="away3d.events.ElementEvent")]
     
 	 /**
 	 * Dispatched when the visiblity of a 3d element changes.
 	 * 
-	 * @eventType away3d.events.MeshElementEvent
+	 * @eventType away3d.events.ElementEvent
 	 */
-	[Event(name="visiblechanged",type="away3d.events.MeshElementEvent")]
+	[Event(name="visiblechanged",type="away3d.events.ElementEvent")]
 	
 	/**
 	 * Basic 3d element object
      * Not intended for direct use - use <code>Segment</code> or <code>Face</code>.
 	 */
-    public class BaseMeshElement extends EventDispatcher implements IMeshElement
+    public class Element extends EventDispatcher
     {
         use namespace arcane;
 		/** @private */
@@ -38,40 +38,40 @@ package away3d.core.base
 		/** @private */
         arcane function notifyVertexChange():void
         {
-            if (!hasEventListener(MeshElementEvent.VERTEX_CHANGED))
+            if (!hasEventListener(ElementEvent.VERTEX_CHANGED))
                 return;
-
+			
             if (_vertexchanged == null)
-                _vertexchanged = new MeshElementEvent(MeshElementEvent.VERTEX_CHANGED, this);
-                
+                _vertexchanged = new ElementEvent(ElementEvent.VERTEX_CHANGED, this);
+            
             dispatchEvent(_vertexchanged);
         }
 		/** @private */
         arcane function notifyVertexValueChange():void
         {
-            if (!hasEventListener(MeshElementEvent.VERTEXVALUE_CHANGED))
+            if (!hasEventListener(ElementEvent.VERTEXVALUE_CHANGED))
                 return;
-
+			
             if (_vertexvaluechanged == null)
-                _vertexvaluechanged = new MeshElementEvent(MeshElementEvent.VERTEXVALUE_CHANGED, this);
-                
+                _vertexvaluechanged = new ElementEvent(ElementEvent.VERTEXVALUE_CHANGED, this);
+            
             dispatchEvent(_vertexvaluechanged);
         }
 		/** @private */
         arcane function notifyVisibleChange():void
         {
-            if (!hasEventListener(MeshElementEvent.VISIBLE_CHANGED))
+            if (!hasEventListener(ElementEvent.VISIBLE_CHANGED))
                 return;
-
+			
             if (_visiblechanged == null)
-                _visiblechanged = new MeshElementEvent(MeshElementEvent.VISIBLE_CHANGED, this);
-                
+                _visiblechanged = new ElementEvent(ElementEvent.VISIBLE_CHANGED, this);
+            
             dispatchEvent(_visiblechanged);
         }
 		
-		private var _vertexchanged:MeshElementEvent;
-		private var _vertexvaluechanged:MeshElementEvent;
-		private var _visiblechanged:MeshElementEvent;
+		private var _vertexchanged:ElementEvent;
+		private var _vertexvaluechanged:ElementEvent;
+		private var _visiblechanged:ElementEvent;
 		
 		/**
 		 * Returns an array of vertex objects that make up the 3d element.
@@ -80,9 +80,9 @@ package away3d.core.base
         {
             throw new Error("Not implemented");
         }
-        
+        		
 		/**
-		 * @inheritDoc
+		 * Defines whether the 3d element is visible in the scene.
 		 */
         public function get visible():Boolean
         {
@@ -98,9 +98,9 @@ package away3d.core.base
 
             notifyVisibleChange();
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the squared bounding radius of the 3d element
 		 */
         public function get radius2():Number
         {
@@ -113,101 +113,113 @@ package away3d.core.base
             }
             return maxr;
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the maximum x value of the 3d element
 		 */
         public function get maxX():Number
         {
             return Math.sqrt(radius2);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the minimum x value of the 3d element
 		 */
         public function get minX():Number
         {
             return -Math.sqrt(radius2);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the maximum y value of the 3d element
 		 */
         public function get maxY():Number
         {
             return Math.sqrt(radius2);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the minimum y value of the 3d element
 		 */
         public function get minY():Number
         {
             return -Math.sqrt(radius2);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the maximum z value of the 3d element
 		 */
         public function get maxZ():Number
         {
             return Math.sqrt(radius2);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Returns the minimum z value of the 3d element
 		 */
         public function get minZ():Number
         {
             return -Math.sqrt(radius2);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Default method for adding a vertexchanged event listener
+		 * 
+		 * @param	listener		The listener function
 		 */
         public function addOnVertexChange(listener:Function):void
         {
-            addEventListener(MeshElementEvent.VERTEX_CHANGED, listener, false, 0, true);
+            addEventListener(ElementEvent.VERTEX_CHANGED, listener, false, 0, true);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Default method for removing a vertexchanged event listener
+		 * 
+		 * @param	listener		The listener function
 		 */
         public function removeOnVertexChange(listener:Function):void
         {
-            removeEventListener(MeshElementEvent.VERTEX_CHANGED, listener, false);
+            removeEventListener(ElementEvent.VERTEX_CHANGED, listener, false);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Default method for adding a vertexvaluechanged event listener
+		 * 
+		 * @param	listener		The listener function
 		 */
         public function addOnVertexValueChange(listener:Function):void
         {
-            addEventListener(MeshElementEvent.VERTEXVALUE_CHANGED, listener, false, 0, true);
+            addEventListener(ElementEvent.VERTEXVALUE_CHANGED, listener, false, 0, true);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Default method for removing a vertexvaluechanged event listener
+		 * 
+		 * @param	listener		The listener function
 		 */
         public function removeOnVertexValueChange(listener:Function):void
         {
-            removeEventListener(MeshElementEvent.VERTEXVALUE_CHANGED, listener, false);
+            removeEventListener(ElementEvent.VERTEXVALUE_CHANGED, listener, false);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Default method for adding a visiblechanged event listener
+		 * 
+		 * @param	listener		The listener function
 		 */
         public function addOnVisibleChange(listener:Function):void
         {
-            addEventListener(MeshElementEvent.VISIBLE_CHANGED, listener, false, 0, true);
+            addEventListener(ElementEvent.VISIBLE_CHANGED, listener, false, 0, true);
         }
-        
+		
 		/**
-		 * @inheritDoc
+		 * Default method for removing a visiblechanged event listener
+		 * 
+		 * @param	listener		The listener function
 		 */
         public function removeOnVisibleChange(listener:Function):void
         {
-            removeEventListener(MeshElementEvent.VISIBLE_CHANGED, listener, false);
+            removeEventListener(ElementEvent.VISIBLE_CHANGED, listener, false);
         }
 
 

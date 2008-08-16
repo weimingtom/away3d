@@ -20,11 +20,9 @@
             _children.push(child);
 
             child.addOnTransformChange(onChildChange);
-            child.addOnRadiusChange(onChildChange);
+            child.addOnDimensionsChange(onChildChange);
 
-            rememberChild(child);
-
-            launchNotifies();
+            notifyDimensionsChange();
         }
 		/** @private */
         arcane function internalRemoveChild(child:Object3D):void
@@ -32,170 +30,57 @@
             var index:int = children.indexOf(child);
             if (index == -1)
                 return;
-
-            forgetChild(child);
-
+			
             child.removeOnTransformChange(onChildChange);
-            child.removeOnRadiusChange(onChildChange);
+            child.addOnDimensionsChange(onChildChange);
 
             _children.splice(index, 1);
 
-            launchNotifies();
+            notifyDimensionsChange();
         }
         
         private var _children:Array = new Array();
         private var _radiusChild:Object3D = null;
-        private var _radiusDirty:Boolean = false;
-        private var _radius:Number = 0;
-        private var _maxXChild:Object3D = null;
-        private var _maxXDirty:Boolean = false;
-        private var _maxX:Number = -Infinity;
-        private var _minXChild:Object3D = null;
-        private var _minXDirty:Boolean = false;
-        private var _minX:Number = Infinity;
-        private var _maxYChild:Object3D = null;
-        private var _maxYDirty:Boolean = false;
-        private var _maxY:Number = -Infinity;
-        private var _minYChild:Object3D = null;
-        private var _minYDirty:Boolean = false;
-        private var _minY:Number = Infinity;
-        private var _maxZChild:Object3D = null;
-        private var _maxZDirty:Boolean = false;
-        private var _maxZ:Number = -Infinity;
-        private var _minZChild:Object3D = null;
-        private var _minZDirty:Boolean = false;
-        private var _minZ:Number = Infinity;
-        private var _needNotifyRadiusChange:Boolean = false;
-        private var _needNotifyDimensionsChange:Boolean = false;
-        
-        private function launchNotifies():void
-        {
-            if (_needNotifyRadiusChange)
-            {
-                _needNotifyRadiusChange = false;
-                notifyRadiusChange();
-            }
-            if (_needNotifyDimensionsChange)
-            {
-                _needNotifyDimensionsChange = false;
-                notifyDimensionsChange();
-            }
-        }
 
         private function onChildChange(event:Object3DEvent):void
         {
-            var child:Object3D = event.object;
-
-            forgetChild(child);
-            rememberChild(child);
-
-            launchNotifies();
+            notifyDimensionsChange();
         }
-        
-        private function forgetChild(child:Object3D):void
+                
+        protected override function updateDimensions():void
         {
-            if (child == _radiusChild)
-            {
-                _radiusChild = null;
-                _radiusDirty = true;
-                _needNotifyRadiusChange = true;
+        	//update bounding radius
+        	var children:Array = _children.concat();
+        	var mradius:Number = 0;
+        	var cradius:Number;
+            var num:Number3D = new Number3D();
+            for each (var child:Object3D in children) {
+            	child.setParentPivot(_pivotPoint);
+                cradius = child.parentradius;
+                if (mradius < cradius)
+                    mradius = cradius;
             }
-            if (child == _maxXChild)
-            {
-                _maxXChild = null;
-                _maxXDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (child == _minXChild)
-            {
-                _minXChild = null;
-                _minXDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (child == _maxYChild)
-            {
-                _maxYChild = null;
-                _maxYDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (child == _minYChild)
-            {
-                _minYChild = null;
-                _minYDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (child == _maxZChild)
-            {
-                _maxZChild = null;
-                _maxZDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (child == _minZChild)
-            {
-                _minZChild = null;
-                _minZDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-        }
-
-        private function rememberChild(child:Object3D):void
-        {
-            var r:Number = child.parentradius;
-            if (r > _radius)
-            {
-                _radius = r;
-                _radiusChild = child;
-                _radiusDirty = false;
-                _needNotifyRadiusChange = true;
-            }
-            var mxX:Number = child.parentmaxX;
-            if (mxX > _maxX)
-            {
-                _maxX = mxX;
-                _maxXChild = child;
-                _maxXDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mnX:Number = child.parentminX;
-            if (mnX < _minX)
-            {
-                _minX = mnX;
-                _minXChild = child;
-                _minXDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mxY:Number = child.parentmaxY;
-            if (mxY > _maxY)
-            {
-                _maxY = mxY;
-                _maxYChild = child;
-                _maxYDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mnY:Number = child.parentminY;
-            if (mnY < _minY)
-            {
-                _minY = mnY;
-                _minYChild = child;
-                _minYDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mxZ:Number = child.parentmaxZ;
-            if (mxZ > _maxZ)
-            {
-                _maxZ = mxZ;
-                _maxZChild = child;
-                _maxZDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mnZ:Number = child.parentminZ;
-            if (mnZ < _minZ)
-            {
-                _minZ = mnZ;
-                _minZChild = child;
-                _minZDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
+            _boundingRadius = cradius;
+            
+            //update max/min X
+            children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
+            _maxX = children[0];
+            children.sortOn("parentminX", Array.NUMERIC);
+            _minX = children[0];
+            
+            //update max/min Y
+            children.sortOn("parentmaxY", Array.DESCENDING | Array.NUMERIC);
+            _maxY = children[0];
+            children.sortOn("parentminY", Array.NUMERIC);
+            _minY = children[0];
+            
+            //update max/min Z
+            children.sortOn("parentmaxZ", Array.DESCENDING | Array.NUMERIC);
+            _maxZ = children[0];
+            children.sortOn("parentminZ", Array.NUMERIC);
+            _minZ = children[0];
+            
+            _dimensionsDirty = false;
         }
         
         /**
@@ -204,174 +89,6 @@
         public function get children():Array
         {
             return _children;
-        }
-         
-		/**
-		 * @inheritDoc
-		 */
-        public override function get boundingRadius():Number
-        {
-            if (_radiusDirty)
-            {
-                _radiusChild = null;
-                var mr:Number = 0;
-                for each (var child:Object3D in _children)
-                {
-                    var r:Number = child.parentradius;
-                    if (r > mr)
-                    {
-                        mr = r;
-                        _radiusChild = child;
-                    }
-                }
-                _radius = mr;
-                _radiusDirty = false;
-            }
-            return _radius;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get maxX():Number
-        {
-            if (_maxXDirty)
-            {
-                _maxXChild = null;
-                var extrval:Number = -Infinity;
-                for each (var child:Object3D in _children)
-                {
-                    var val:Number = child.parentmaxX;
-                    if (val > extrval)
-                    {
-                        extrval = val;
-                        _maxXChild = child;
-                    }
-                }
-                _maxX = extrval;
-                _maxXDirty = false;
-            }
-            return _maxX;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get minX():Number
-        {
-            if (_minXDirty)
-            {
-                _minXChild = null;
-                var extrval:Number = Infinity;
-                for each (var child:Object3D in _children)
-                {
-                    var val:Number = child.parentminX;
-                    if (val < extrval)
-                    {
-                        extrval = val;
-                        _minXChild = child;
-                    }
-                }
-                _minX = extrval;
-                _minXDirty = false;
-            }
-            return _minX;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get maxY():Number
-        {
-            if (_maxYDirty)
-            {
-                var extrval:Number = -Infinity;
-                _maxYChild = null;
-                for each (var child:Object3D in _children)
-                {
-                    var val:Number = child.parentmaxY;
-                    if (val > extrval)
-                    {
-                        extrval = val;
-                        _maxYChild = child;
-                    }
-                }
-                _maxY = extrval;
-                _maxYDirty = false;
-            }
-            return _maxY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get minY():Number
-        {
-            if (_minYDirty)
-            {
-                var extrval:Number = Infinity;
-                _minYChild = null;
-                for each (var child:Object3D in _children)
-                {
-                    var val:Number = child.parentminY;
-                    if (val < extrval)
-                    {
-                        extrval = val;
-                        _minYChild = child;
-                    }
-                }
-                _minY = extrval;
-                _minYDirty = false;
-            }
-            return _minY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get maxZ():Number
-        {
-            if (_maxZDirty)
-            {
-                var extrval:Number = -Infinity;
-                _maxZChild = null;
-                for each (var child:Object3D in _children)
-                {
-                    var val:Number = child.parentmaxZ;
-                    if (val > extrval)
-                    {
-                        extrval = val;
-                        _maxZChild = child;
-                    }
-                }
-                _maxZ = extrval;
-                _maxZDirty = false;
-            }
-            return _maxZ;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get minZ():Number
-        {
-            if (_minZDirty)
-            {
-                var extrval:Number = Infinity;
-                _minZChild = null;
-                for each (var child:Object3D in _children)
-                {
-                    var val:Number = child.parentminZ;
-                    if (val < extrval)
-                    {
-                        extrval = val;
-                        _minZChild = child;
-                    }
-                }
-                _minZ = extrval;
-                _minZDirty = false;
-            }
-            return _minZ;
         }
     	
 	    /**

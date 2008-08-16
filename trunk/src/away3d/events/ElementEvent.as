@@ -7,7 +7,7 @@ package away3d.events
     /**
     * Passed as a parameter when a meshelement event occurs
     */
-    public class MeshElementEvent extends Event
+    public class ElementEvent extends Event
     {
     	/**
     	 * Defines the value of the type property of a vertexchanged event object.
@@ -27,26 +27,26 @@ package away3d.events
     	/**
     	 * A reference to the element object that is relevant to the event.
     	 */
-        public var element:IMeshElement;
+        public var element:Element;
 		
 		/**
-		 * Creates a new <code>MeshElementEvent</code> object.
+		 * Creates a new <code>ElementEvent</code> object.
 		 * 
-		 * @param	type		The type of the event. Possible values are: <code>MeshElementEvent.VERTEX_CHANGED</code>, <code>MeshElementEvent.VERTEXVALUE_CHANGED</code> and <code>MeshElementEvent.VISIBLE_CHANGED</code>.
+		 * @param	type		The type of the event. Possible values are: <code>ElementEvent.VERTEX_CHANGED</code>, <code>ElementEvent.VERTEXVALUE_CHANGED</code> and <code>ElementEvent.VISIBLE_CHANGED</code>.
 		 * @param	element		A reference to the element object that is relevant to the event.
 		 */
-        public function MeshElementEvent(type:String, element:IMeshElement)
+        public function ElementEvent(type:String, element:Element)
         {
             super(type);
             this.element = element;
         }
 		
 		/**
-		 * Creates a copy of the MeshElementEvent object and sets the value of each property to match that of the original.
+		 * Creates a copy of the ElementEvent object and sets the value of each property to match that of the original.
 		 */
         public override function clone():Event
         {
-            return new MeshElementEvent(type, element);
+            return new ElementEvent(type, element);
         }
     }
 }

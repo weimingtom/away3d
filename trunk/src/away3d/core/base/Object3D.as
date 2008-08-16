@@ -110,64 +110,59 @@ package away3d.core.base
         /** @private */
         arcane var _localTransformDirty:Boolean;
         /** @private */
-        arcane var _radiusDirty:Boolean = false;
+        arcane var _dimensionsDirty:Boolean = false;
+        /** @private */
+        arcane var _boundingRadius:Number = 0;
+        /** @private */
+        arcane var _maxX:Number = 0;
+        /** @private */
+        arcane var _minX:Number = 0;
+        /** @private */
+        arcane var _maxY:Number = 0;
+        /** @private */
+        arcane var _minY:Number = 0;
+        /** @private */
+        arcane var _maxZ:Number = 0;
+        /** @private */
+        arcane var _minZ:Number = 0;
         /** @private */
         arcane function get parentradius():Number
         {
             //if (_transformDirty)   ???
             //    updateTransform();
-
-            var x:Number = _transform.tx;
-            var y:Number = _transform.ty;
-            var z:Number = _transform.tz;
-            if (!_pivotZero) {
-				x -= (_pivotPoint.x*_transform.sxx + _pivotPoint.y*_transform.sxy + _pivotPoint.z*_transform.sxz);
-				y -= (_pivotPoint.x*_transform.syx + _pivotPoint.y*_transform.syy + _pivotPoint.z*_transform.syz);
-				z -= (_pivotPoint.x*_transform.szx + _pivotPoint.y*_transform.szy + _pivotPoint.z*_transform.szz);
-            }
-            return Math.sqrt(x*x + y*y + z*z) + boundingRadius;
+			_parentradius.sub(position, _parentPivot);
+            
+            return _parentradius.modulo + boundingRadius;
         }
         /** @private */
         arcane function get parentmaxX():Number
         {
-        	if (!_pivotZero)
-				return boundingRadius + _transform.tx - (_pivotPoint.x*_transform.sxx + _pivotPoint.y*_transform.sxy + _pivotPoint.z*_transform.sxz);
-            return boundingRadius + _transform.tx;
+            return boundingRadius + _transform.tx - _parentPivot.x;
         }
 		/** @private */
         arcane function get parentminX():Number
         {
-        	if (!_pivotZero)
-				return -boundingRadius + _transform.tx - (_pivotPoint.x*_transform.sxx + _pivotPoint.y*_transform.sxy + _pivotPoint.z*_transform.sxz)
-            return -boundingRadius + _transform.tx;
+            return -boundingRadius + _transform.tx - _parentPivot.x;
         }
 		/** @private */
         arcane function get parentmaxY():Number
         {
-        	if (!_pivotZero)
-				return boundingRadius + _transform.ty - (_pivotPoint.x*_transform.syx + _pivotPoint.y*_transform.syy + _pivotPoint.z*_transform.syz);
-            return boundingRadius + _transform.ty;
+            return boundingRadius + _transform.ty - _parentPivot.y;
         }
 		/** @private */
         arcane function get parentminY():Number
         {
-        	if (!_pivotZero)
-				return -boundingRadius + _transform.ty - (_pivotPoint.x*_transform.syx + _pivotPoint.y*_transform.syy + _pivotPoint.z*_transform.syz);
-            return -boundingRadius + _transform.ty;
+            return -boundingRadius + _transform.ty - _parentPivot.y;
         }
 		/** @private */
         arcane function get parentmaxZ():Number
         {
-        	if (!_pivotZero)
-				return boundingRadius + _transform.tz - (_pivotPoint.x*_transform.szx + _pivotPoint.y*_transform.szy + _pivotPoint.z*_transform.szz);
-            return boundingRadius + _transform.tz;
+            return boundingRadius + _transform.tz - _parentPivot.z;
         }
 		/** @private */
         arcane function get parentminZ():Number
         {
-        	if (!_pivotZero)
-				return -boundingRadius + _transform.tz - (_pivotPoint.x*_transform.szx + _pivotPoint.y*_transform.szy + _pivotPoint.z*_transform.szz);
-            return -boundingRadius + _transform.tz;
+            return -boundingRadius + _transform.tz - _parentPivot.z;
         }
         /** @private */
         arcane function notifyTransformChange():void
@@ -210,24 +205,17 @@ package away3d.core.base
         /** @private */
         arcane function notifyDimensionsChange():void
         {
-            if (!hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
+            _dimensionsDirty = true;
+            
+            if (_dispatchedDimensionsChange || !hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
                 return;
                 
             if (!_dimensionschanged)
                 _dimensionschanged = new Object3DEvent(Object3DEvent.DIMENSIONS_CHANGED, this);
                 
             dispatchEvent(_dimensionschanged);
-        }
-        /** @private */
-        arcane function notifyRadiusChange():void
-        {
-            if (!hasEventListener(Object3DEvent.RADIUS_CHANGED))
-                return;
-                
-            if (!_radiuschanged)
-                _radiuschanged = new Object3DEvent(Object3DEvent.RADIUS_CHANGED, this);
-                
-            dispatchEvent(_radiuschanged);
+            
+            _dispatchedDimensionsChange = true;
         }
         /** @private */
 		arcane function dispatchMouseEvent(event:MouseEvent3D):Boolean
@@ -239,6 +227,11 @@ package away3d.core.base
 
             return true;
         }
+		/** @private */
+		arcane function setParentPivot(val:Number3D):void
+		{
+			_parentPivot = val;
+		}
 		
         private static var toDEGREES:Number = 180 / Math.PI;
         private static var toRADIANS:Number = Math.PI / 180;
@@ -250,13 +243,15 @@ package away3d.core.base
         arcane var _scaleX:Number = 1;
         arcane var _scaleY:Number = 1;
         arcane var _scaleZ:Number = 1;
+        arcane var _pivotPoint:Number3D = new Number3D();
+        private var _parentPivot:Number3D;
+        private var _parentradius:Number3D = new Number3D();
         private var _scene:Scene3D;
         private var _parent:ObjectContainer3D;
 		private var _quaternion:Quaternion = new Quaternion();
 		private var _rot:Number3D = new Number3D();
 		private var _sca:Number3D = new Number3D();
         private var _position:Number3D = new Number3D();
-        private var _pivotPoint:Number3D = new Number3D();
         private var _pivotZero:Boolean;
         private var _scenePosition:Number3D = new Number3D();
         private var _ddo:DrawDisplayObject = new DrawDisplayObject();
@@ -272,7 +267,7 @@ package away3d.core.base
         private var _scenetransformchanged:Object3DEvent;
         private var _scenechanged:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
-        private var _radiuschanged:Object3DEvent;
+        private var _dispatchedDimensionsChange:Boolean;
 		
         private function updateSceneTransform():void
         {
@@ -331,6 +326,11 @@ package away3d.core.base
             _transformDirty = false;
             _sceneTransformDirty = true;
             _localTransformDirty = true;
+        }
+        
+        protected function updateDimensions():void
+        {
+        	throw new Error("updateDimensions not implemented");
         }
         
         public var projection:Projection = new Projection();
@@ -453,7 +453,10 @@ package away3d.core.base
     	 */
         public function get boundingRadius():Number
         {
-            return 0;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _boundingRadius;
         }
         
     	/**
@@ -463,7 +466,10 @@ package away3d.core.base
     	 */
         public function get maxX():Number
         {
-            return boundingRadius;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _maxX;
         }
         
     	/**
@@ -473,7 +479,10 @@ package away3d.core.base
     	 */
         public function get minX():Number
         {
-            return -boundingRadius;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _minX;
         }
         
     	/**
@@ -483,7 +492,10 @@ package away3d.core.base
     	 */
         public function get maxY():Number
         {
-            return boundingRadius;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _maxY;
         }
         
     	/**
@@ -493,7 +505,10 @@ package away3d.core.base
     	 */
         public function get minY():Number
         {
-            return -boundingRadius;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _minY;
         }
         
     	/**
@@ -503,7 +518,10 @@ package away3d.core.base
     	 */
         public function get maxZ():Number
         {
-            return boundingRadius;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _maxZ;
         }
         
     	/**
@@ -513,8 +531,50 @@ package away3d.core.base
     	 */
         public function get minZ():Number
         {
-            return -boundingRadius;
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+           return _minZ;
         }
+				
+		/**
+		* Boundary width of the 3d object
+		* 
+		*@return	The width of the object
+		*/
+		public function get objectWidth():Number
+		{
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+			return _maxX - _minX;
+		}
+		
+		/**
+		* Boundary height of the 3d object
+		* 
+		*@return	The height of the mesh
+		*/
+		public function get objectHeight():Number
+		{
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+			return _maxY - _minY;
+		}
+		
+		/**
+		* Boundary depth of the 3d object
+		* 
+		*@return	The depth of the mesh
+		*/
+		public function get objectDepth():Number
+		{
+            if (_dimensionsDirty)
+            	updateDimensions();
+           
+			return  _maxZ - _minZ;
+		}
 		
     	/**
     	 * Defines the x coordinate of the 3d object relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
@@ -657,7 +717,7 @@ package away3d.core.base
         	
             _scaleX = scale;
             _transformDirty = true;
-            _radiusDirty = true;
+            _dimensionsDirty = true;
         }
 		
     	/**
@@ -675,7 +735,7 @@ package away3d.core.base
         	
             _scaleY = scale;
             _transformDirty = true;
-            _radiusDirty = true;
+            _dimensionsDirty = true;
         }
 		
     	/**
@@ -693,7 +753,7 @@ package away3d.core.base
         	
             _scaleZ = scale;
             _transformDirty = true;
-            _radiusDirty = true;
+            _dimensionsDirty = true;
         }
         
     	/**
@@ -749,7 +809,7 @@ package away3d.core.base
     			_scaleX = _sca.x;
     			_scaleY = _sca.y;
     			_scaleZ = _sca.z;
-    			_radiusDirty = true;
+    			_dimensionsDirty = true;
     		}
         }
 		
@@ -948,6 +1008,8 @@ package away3d.core.base
     	 */
         public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
+            _dispatchedDimensionsChange = false;
+            
             _v = session.view;
             if (ownCanvas) 
             {
@@ -1288,26 +1350,6 @@ package away3d.core.base
         public function removeOnSceneChange(listener:Function):void
         {
             removeEventListener(Object3DEvent.SCENE_CHANGED, listener, false);
-        }
-		
-		/**
-		 * Default method for adding a radiuschanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function addOnRadiusChange(listener:Function):void
-        {
-            addEventListener(Object3DEvent.RADIUS_CHANGED, listener, false, 0, true);
-        }
-		
-		/**
-		 * Default method for removing a radiuschanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function removeOnRadiusChange(listener:Function):void
-        {
-            removeEventListener(Object3DEvent.RADIUS_CHANGED, listener, false);
         }
 		
 		/**

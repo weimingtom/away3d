@@ -69,7 +69,7 @@
             return _seg;
         }
         
-		private var _geometry:Geometry = new Geometry();
+		private var _geometry:Geometry;
 		private var _material:IMaterial;
 		private var _triangleMaterial:ITriangleMaterial;
 		private var _segmentMaterial:ISegmentMaterial;
@@ -110,15 +110,43 @@
 			if (drawTriangles[event.face])
 				(drawTriangles[event.face] as DrawTriangle).texturemapping = null;
 		}
-		
-        private function onRadiusChange(event:GeometryEvent):void
-        {
-        	notifyRadiusChange();
-        }
         
         private function onDimensionsChange(event:GeometryEvent):void
         {
         	notifyDimensionsChange();
+        }
+        
+        protected override function updateDimensions():void
+        {
+        	//update bounding radius
+        	var vertices:Array = geometry.vertices.concat();
+        	var mradius:Number = 0;
+        	var vradius:Number;
+            var num:Number3D = new Number3D();
+            for each (var vertex:Vertex in vertices) {
+            	num.sub(vertex.position, _pivotPoint);
+                vradius = num.modulo2;
+                if (mradius < vradius)
+                    mradius = vradius;
+            }
+            _boundingRadius = Math.sqrt(mradius);
+            
+            //update max/min X
+            vertices.sortOn("x", Array.DESCENDING | Array.NUMERIC);
+            _maxX = vertices[0];
+            _minX = vertices[vertices.length - 1];
+            
+            //update max/min Y
+            vertices.sortOn("y", Array.DESCENDING | Array.NUMERIC);
+            _maxY = vertices[0];
+            _minY = vertices[vertices.length - 1];
+            
+            //update max/min Z
+            vertices.sortOn("z", Array.DESCENDING | Array.NUMERIC);
+            _maxZ = vertices[0];
+            _minZ = vertices[vertices.length - 1];
+            
+            _dimensionsDirty = false;
         }
         
         //TODO: create effective dispose mechanism for meshs
@@ -223,7 +251,6 @@
             if (_geometry != null) {
             	_geometry.removeOnMappingChange(onFaceMappingChange);
             	_geometry.removeOnMaterialChange(onFaceMaterialChange);
-            	_geometry.removeOnRadiusChange(onRadiusChange);
             	_geometry.removeOnDimensionsChange(onDimensionsChange);
             }
             
@@ -232,7 +259,6 @@
             if (_geometry != null) {
             	_geometry.addOnMappingChange(onFaceMappingChange);
             	_geometry.addOnMaterialChange(onFaceMaterialChange);
-            	_geometry.addOnRadiusChange(onRadiusChange);
             	_geometry.addOnDimensionsChange(onDimensionsChange);
             }
         }
@@ -272,62 +298,6 @@
 	        	_triangleMaterial = _material as ITriangleMaterial;
 	        if (_material is ISegmentMaterial)
 	        	_segmentMaterial = _material as ISegmentMaterial;
-        }
-                
-		/**
-		 * @inheritDoc
-		 */
-        public override function get boundingRadius():Number
-        {
-            return _geometry.boundingRadius;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get maxX():Number
-        {
-            return _geometry.maxX;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get minX():Number
-        {
-            return _geometry.minX;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get maxY():Number
-        {
-            return _geometry.maxY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get minY():Number
-        {
-            return _geometry.minY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get maxZ():Number
-        {
-            return _geometry.maxZ;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get minZ():Number
-        {
-            return _geometry.minZ;
         }
 		
 		/**
@@ -392,36 +362,6 @@
 		}
 		
 		/**
-		* Boundary width of the object
-		* 
-		*@return	The width of the mesh
-		*/
-		public function get meshWidth():Number
-		{
-			return Math.abs(_geometry.maxX - _geometry.minX);
-		}
-		
-		/**
-		* Boundary height of the object
-		* 
-		*@return	The height of the mesh
-		*/
-		public function get meshHeight():Number
-		{
-			return Math.abs(_geometry.maxY - _geometry.minY);
-		}
-		
-		/**
-		* Boundary depth of the object
-		* 
-		*@return	The depth of the mesh
-		*/
-		public function get meshDepth():Number
-		{
-			return  Math.abs(_geometry.maxZ - _geometry.minZ);
-		}
-		
-		/**
 		 * Creates a new <code>BaseMesh</code> object.
 		 *
 		 * @param	init			[optional]	An initialisation object for specifying default instance properties.
@@ -429,6 +369,8 @@
         public function Mesh(init:Object = null)
         {
             super(init);
+                
+            geometry = new Geometry();
             
             material = ini.getMaterial("material");
             outline = ini.getSegmentMaterial("outline");
@@ -516,9 +458,6 @@
         	
         	_dtStore = _dtStore.concat(_dtActive);
         	_dtActive = new Array();
-        	
-            if (outline != null)
-                _geometry.findNeighbours();
 
             if (debugbb)
             {
