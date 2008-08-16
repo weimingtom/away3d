@@ -1084,8 +1084,7 @@
 		
 		
 		/**
- 		* Apply the world rotations to mesh local coordinates.
- 		* Resets the world rotations to zero.
+ 		* Apply the local rotations to the geometry without altering the appearance of the mesh
  		*/
 		public function applyRotations():void
 		{
@@ -1094,6 +1093,18 @@
             rotationX = 0;
             rotationY = 0;
             rotationZ = 0;    
+		}
+		
+		/**
+ 		* Apply the given position to the geometry without altering the appearance of the mesh
+ 		*/
+		public function applyPosition(dx:Number, dy:Number, dz:Number):void
+		{
+			_geometry.applyPosition(dx, dy, dz);
+			var dV:Number3D = new Number3D(dx, dy, dz);
+            dV.rotate(dV, _transform);
+            dV.add(dV, position);
+            moveTo(dV.x, dV.y, dV.z);  
 		}
 		
     }

@@ -1169,8 +1169,7 @@
 		}
 		
 		/**
- 		* Apply the world rotations to mesh local coordinates.
- 		* Resets the world rotations to zero.
+ 		* Apply the given rotation values to vertex coordinates.
  		*/
 		public function applyRotations(rotationX:Number, rotationY:Number, rotationZ:Number):void
 		{
@@ -1193,11 +1192,11 @@
 			var sinz:Number = Math.sin(rotz);
 			var cosz:Number = Math.cos(rotz);
 
-			for(var i:int;i<vertices.length;++i){
+			for each (var vertex:Vertex in vertices) {
 				 
-				x = vertices[i].x;
-				y = vertices[i].y;
-				z = vertices[i].z;
+				x = vertex.x;
+				y = vertex.y;
+				z = vertex.z;
 
 				y1 = y
 				y = y1*cosx+z*-sinx;
@@ -1211,7 +1210,24 @@
 				x = x1*cosz+y*-sinz;
 				y = x1*sinz+y*cosz;
  
-				updateVertex(vertices[i], x, y, z, false);
+				updateVertex(vertex, x, y, z, false);
+			}
+		}
+		
+		/**
+ 		* Apply the given position values to vertex coordinates.
+ 		*/
+		public function applyPosition(dx:Number, dy:Number, dz:Number):void
+		{
+			var x:Number;
+			var y:Number;
+			var z:Number;
+			
+			for each (var vertex:Vertex in vertices) {
+				x = vertex.x;
+				y = vertex.y;
+				z = vertex.z;
+				vertex.setValue(x - dx, y - dy, z - dz);
 			}
 		}
 		
