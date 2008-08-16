@@ -9,6 +9,7 @@ package away3d.core.base
     import away3d.core.utils.*;
     import away3d.events.*;
     import away3d.loaders.utils.*;
+    import away3d.primitives.*;
     
     import flash.display.*;
     import flash.events.EventDispatcher;
@@ -126,7 +127,7 @@ package away3d.core.base
         /** @private */
         arcane var _minZ:Number = 0;
         /** @private */
-        arcane function get parentradius():Number
+        public function get parentradius():Number
         {
             //if (_transformDirty)   ???
             //    updateTransform();
@@ -135,32 +136,32 @@ package away3d.core.base
             return _parentradius.modulo + boundingRadius;
         }
         /** @private */
-        arcane function get parentmaxX():Number
+        public function get parentmaxX():Number
         {
             return boundingRadius + _transform.tx - _parentPivot.x;
         }
 		/** @private */
-        arcane function get parentminX():Number
+        public function get parentminX():Number
         {
             return -boundingRadius + _transform.tx - _parentPivot.x;
         }
 		/** @private */
-        arcane function get parentmaxY():Number
+        public function get parentmaxY():Number
         {
             return boundingRadius + _transform.ty - _parentPivot.y;
         }
 		/** @private */
-        arcane function get parentminY():Number
+        public function get parentminY():Number
         {
             return -boundingRadius + _transform.ty - _parentPivot.y;
         }
 		/** @private */
-        arcane function get parentmaxZ():Number
+        public function get parentmaxZ():Number
         {
             return boundingRadius + _transform.tz - _parentPivot.z;
         }
 		/** @private */
-        arcane function get parentminZ():Number
+        public function get parentminZ():Number
         {
             return -boundingRadius + _transform.tz - _parentPivot.z;
         }
@@ -268,6 +269,8 @@ package away3d.core.base
         private var _scenechanged:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
         private var _dispatchedDimensionsChange:Boolean;
+		private var _debugboundingbox:WireCube;
+		private var _debugboundingsphere:WireSphere;
 		
         private function updateSceneTransform():void
         {
@@ -348,7 +351,7 @@ package away3d.core.base
         public var viewTransform:Matrix3D = new Matrix3D();
         
         /**
-         * Defines whether the object has been transfromed in the scene in teh last frame
+         * Defines whether the object has been transfromed in the scene in the last frame
          */
     	public var sceneTransformed:Boolean;
     	
@@ -447,7 +450,17 @@ package away3d.core.base
         * @see away3d.loaders.Max3DS
         */
     	public var geometryLibrary:GeometryLibrary;
-    	    	
+		
+        /**
+        * Indicates whether a debug bounding box should be rendered around the 3d object.
+        */
+        public var debugbb:Boolean;
+		
+        /**
+        * Indicates whether a debug bounding sphere should be rendered around the 3d object.
+        */
+        public var debugbs:Boolean;
+                
     	/**
     	 * Returns the bounding radius of the 3d object
     	 */
@@ -1045,7 +1058,49 @@ package away3d.core.base
             else
             {                
                 this.session = session;
-            } 
+            }
+                  
+            if (debugbb)
+            {
+                if (_debugboundingbox == null) {
+                    _debugboundingbox = new WireCube({material:"#333333"});
+	                _debugboundingbox.projection = projection;
+                }
+                _debugboundingbox.v000.x = minX;
+                _debugboundingbox.v001.x = minX;
+                _debugboundingbox.v010.x = minX;
+                _debugboundingbox.v011.x = minX;
+                _debugboundingbox.v100.x = maxX;
+                _debugboundingbox.v101.x = maxX;
+                _debugboundingbox.v110.x = maxX;
+                _debugboundingbox.v111.x = maxX;
+                _debugboundingbox.v000.y = minY;
+                _debugboundingbox.v001.y = minY;
+                _debugboundingbox.v010.y = maxY;
+                _debugboundingbox.v011.y = maxY;
+                _debugboundingbox.v100.y = minY;
+                _debugboundingbox.v101.y = minY;
+                _debugboundingbox.v110.y = maxY;
+                _debugboundingbox.v111.y = maxY;
+                _debugboundingbox.v000.z = minZ;
+                _debugboundingbox.v001.z = maxZ;
+                _debugboundingbox.v010.z = minZ;
+                _debugboundingbox.v011.z = maxZ;
+                _debugboundingbox.v100.z = minZ;
+                _debugboundingbox.v101.z = maxZ;
+                _debugboundingbox.v110.z = minZ;
+                _debugboundingbox.v111.z = maxZ;
+                _debugboundingbox.primitives(consumer, session);
+            }
+            
+            if (debugbs)
+            {
+            	if (_debugboundingsphere == null) {
+	                _debugboundingsphere = new WireSphere({material:"#cyan", boundingRadius:boundingRadius, segmentsW:16, segmentsH:12});
+	                _debugboundingsphere.projection = projection;
+                }
+                _debugboundingsphere.primitives(consumer, session);
+            }
         }
         
         /**
@@ -1140,6 +1195,7 @@ package away3d.core.base
         	
         	_pivotZero = (!dx && !dy && !dz);
         	_sceneTransformDirty = true;
+        	_dimensionsDirty = true;
         }
         
 		/**

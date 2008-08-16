@@ -275,12 +275,12 @@
 		protected var ini:Init;
     	
     	/**
-    	 * Array of vertices used in a skinmesh
+    	 * Array of vertices used in a skin
     	 */
         public var skinVertices:Array;
         
         /**
-        * Array of controller objects used to bind vertices with joints in a skinmesh
+        * Array of controller objects used to bind vertices with joints in a skin
         */
         public var skinControllers:Array;
                 
@@ -295,7 +295,7 @@
         public var framenames:Dictionary;
         
 		/**
-		 * Returns an array of the faces contained in the mesh object.
+		 * Returns an array of the faces contained in the geometry object.
 		 */
         public function get faces():Array
         {
@@ -304,7 +304,7 @@
 		
 		
 		/**
-		 * Returns an array of the segments contained in the wiremesh object.
+		 * Returns an array of the segments contained in the geometry object.
 		 */
         public function get segments():Array
         {
@@ -312,7 +312,7 @@
         }
         
 		/**
-		 * Returns an array of the elements contained in the mesh object.
+		 * Returns an array of the elements contained in the geometry object.
 		 */
         public function get elements():Array
         {
@@ -320,12 +320,11 @@
         }
         
         /**
-        * Returns an array of the vertices contained in the mesh object
+        * Returns an array of the vertices contained in the geometry object
         */
         public function get vertices():Array
         {
-            if (_verticesDirty)
-            {
+            if (_verticesDirty) {
                 _vertices = [];
                 var processed:Dictionary = new Dictionary();
                 for each (var element:Element in elements)
@@ -406,7 +405,7 @@
 		}
 		
 		/**
-		 * Adds a face object to the mesh object.
+		 * Adds a face object to the geometry object.
 		 * 
 		 * @param	face	The face object to be added.
 		 */
@@ -421,7 +420,7 @@
         }
 		
 		/**
-		 * Removes a face object from the mesh object.
+		 * Removes a face object from the geometry object.
 		 * 
 		 * @param	face	The face object to be removed.
 		 */
@@ -441,7 +440,7 @@
         }
 		
 		/**
-		 * Adds a segment object to the wiremesh object.
+		 * Adds a segment object to the geometry object.
 		 * 
 		 * @param	segment	The segment object to be added.
 		 */
@@ -456,7 +455,7 @@
         }
 		
 		/**
-		 * Removes a segment object to the wiremesh object.
+		 * Removes a segment object to the geometry object.
 		 * 
 		 * @param	segment	The segment object to be removed.
 		 */
@@ -484,7 +483,7 @@
 		
 		/**
 		 * Divides a face object into 4 equal sized face objects.
-		 * Used to segment a mesh in order to reduce affine persepective distortion.
+		 * Used to segment a geometry in order to reduce affine persepective distortion.
 		 * 
 		 * @see away3d.primitives.SkyBox
 		 */
@@ -645,35 +644,24 @@
             
         }
 		/**
-		 * Duplicates the mesh properties to another 3d object.
+		 * Duplicates the geometry properties to another 3d object.
 		 * 
 		 * @return						The new object instance with duplicated properties applied.
 		 */
         public function clone():Geometry
         {
             var geometry:Geometry = new Geometry();
-
+			
             clonedvertices = new Dictionary();
-
+			
             cloneduvs = new Dictionary();
-            
-            var cloneuv:Function = function(uv:UV):UV
-            {
-                if (uv == null)
-                    return null;
-
-                var result:UV = cloneduvs[uv];
-                if (result == null)
-                {
-                    result = new UV(uv._u, uv._v);
-                    cloneduvs[uv] = result;
-                }
-                return result;
-            };
             
             for each (var face:Face in _faces)
                 geometry.addFace(new Face(cloneVertex(face._v0), cloneVertex(face._v1), cloneVertex(face._v2), face.material, cloneUV(face._uv0), cloneUV(face._uv1), cloneUV(face._uv2)));
-
+            
+            for each (var segment:Segment in _segments)
+                geometry.addSegment(new Segment(cloneVertex(face._v0), cloneVertex(face._v1), segment.material));
+            
             return geometry;
         }
 		

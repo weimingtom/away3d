@@ -39,10 +39,12 @@ package away3d.loaders
         private var _animationData:AnimationData;
 		private var _meshMaterialData:MeshMaterialData;
 		private var numChildren:int;
-		private var averageX:Number;
-		private var averageY:Number;
-		private var averageZ:Number;
-		private var numVertices:int;
+		private var _maxX:Number;
+		private var _minX:Number;
+		private var _maxY:Number;
+		private var _minY:Number;
+		private var _maxZ:Number;
+		private var _minZ:Number;
     	private var _faceListIndex:int;
     	private var _faceData:FaceData;
     	private var _face:Face;
@@ -103,7 +105,7 @@ package away3d.loaders
 		private function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
-				if (!(_objectData is BoneData) && _objectData as ContainerData) {
+				if (!(_objectData is BoneData) && _objectData is ContainerData) {
 					var _containerData:ContainerData = _objectData as ContainerData;
 					var objectContainer:ObjectContainer3D = new ObjectContainer3D({name:_containerData.name});
 					
@@ -111,18 +113,31 @@ package away3d.loaders
 					
 					buildContainer(_containerData, objectContainer);
 					
-					if (centerMeshes) {
-						//determine center and offset all children (useful for subsequent max/min/radius calculations)
-						averageX = averageY = averageZ = 0;
-						numChildren = _containerData.children.length;
-						for each (var _child:Object3D in objectContainer.children) {
-							averageX += _child.x;
-							averageY += _child.y;
-							averageZ += _child.z;
+					if (centerMeshes && objectContainer.children) {
+						//center children in container for better bounding radius calulations
+						_maxX = -Infinity;
+						_minX = Infinity;
+						_maxY = -Infinity;
+						_minY = Infinity;
+						_maxZ = -Infinity;
+						_minZ = Infinity;
+						for each (var child:Object3D in objectContainer.children) {
+							if (_maxX < child.x)
+								_maxX = child.x;
+							if (_minX > child.x)
+								_minX = child.x;
+							if (_maxY < child.y)
+								_maxY = child.y;
+							if (_minY > child.y)
+								_minY = child.y;
+							if (_maxZ < child.z)
+								_maxZ = child.z;
+							if (_minZ > child.z)
+								_minZ = child.z;
 						}
-						if(numChildren){
-							objectContainer.movePivot(averageX/numChildren, averageY/numChildren, averageZ / numChildren);
-						}
+						
+						objectContainer.movePivot((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
+						objectContainer.moveTo((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
 					}
 					
 					parent.addChild(objectContainer);
@@ -204,20 +219,29 @@ package away3d.loaders
 			
 			if (centerMeshes) {
 				//center vertex points in mesh for better bounding radius calulations
-				averageX = averageY = averageZ = 0;
-				numVertices = _geometryData.vertices.length;
+				_maxX = -Infinity;
+				_minX = Infinity;
+				_maxY = -Infinity;
+				_minY = Infinity;
+				_maxZ = -Infinity;
+				_minZ = Infinity;
 				for each (_vertex in _geometryData.vertices) {
-					averageX += _vertex._x;
-					averageY += _vertex._y;
-					averageZ += _vertex._z;
+					if (_maxX < _vertex._x)
+						_maxX = _vertex._x;
+					if (_minX > _vertex._x)
+						_minX = _vertex._x;
+					if (_maxY < _vertex._y)
+						_maxY = _vertex._y;
+					if (_minY > _vertex._y)
+						_minY = _vertex._y;
+					if (_maxZ < _vertex._z)
+						_maxZ = _vertex._z;
+					if (_minZ > _vertex._z)
+						_minZ = _vertex._z;
 				}
 				
-				averageX /= numVertices;
-				averageY /= numVertices;
-				averageZ /= numVertices;
-				
-				mesh.movePivot(averageX, averageY, averageZ);
-				mesh.moveTo(averageX, averageY, averageZ);
+				mesh.movePivot((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
+				mesh.moveTo((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
 			}
 			
 			mesh.type = ".Collada";
@@ -507,9 +531,14 @@ package away3d.loaders
 		 * @see away3d.loaders.data.MeshData
 		 */
         private function parseNode(node:XML, parent:ContainerData):void
-        {
+        {	
 			var _transform:Matrix3D;
 	    	var _objectData:ObjectData;
+	    	var _name:String = node.name().localName;
+	    	
+        	if (String(node.instance_light.@url) != "" || String(node.instance_camera.@url) != "")
+        		return;
+	    	
 	    	
 			if (String(node.instance_controller) == "" && String(node.instance_geometry) == "")
 			{
@@ -517,12 +546,11 @@ package away3d.loaders
 					_objectData = new BoneData();
 				else
 					_objectData = new ContainerData();
-				
-				parent.children.push(_objectData);
 			}else{
 				_objectData = new MeshData();
 			}
 			
+			parent.children.push(_objectData);
 			
 			//ColladaMaya 3.05B
 			if (String(node.@type) == "JOINT")
@@ -573,28 +601,21 @@ package away3d.loaders
                     // Baked transform matrix
                     case "matrix":
                     	var m:Matrix3D = new Matrix3D();
-                    	//var inv:Matrix3D = new Matrix3D();
-                    	//inv.inverse(parent.transform);
                     	m.array2matrix(arrayChild, yUp, scaling);
-                    	//m.multiply(m, inv);
                         _transform.multiply(_transform, m);
 						break;
 						
                     case "node":
-						//parent.children.push(_objectData);
-                        //if (String(child).indexOf("ForegroundColor") == -1)
-                            parseNode(child, _objectData as ContainerData);
+						parseNode(child, _objectData as ContainerData);
                         
                         break;
 
     				case "instance_node":
-						//parent.children.push(_objectData);
     					parseNode(collada.library_nodes.node.(@id == getId(child.@url))[0], _objectData as ContainerData);
     					
     					break;
 
                     case "instance_geometry":
-						parent.children.push(_objectData);
                     	if(String(child).indexOf("lines") == -1) {
 							
 							//add materials to materialLibrary
@@ -608,7 +629,6 @@ package away3d.loaders
                         break;
 					
                     case "instance_controller":
-						parent.children.push(_objectData);
 						
 						//add materials to materialLibrary
 						for each (instance_material in child..instance_material)
