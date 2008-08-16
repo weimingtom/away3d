@@ -1,5 +1,6 @@
 ﻿package away3d.core.base
 {
+    import away3d.animators.data.*;
     import away3d.animators.skin.*;
     import away3d.containers.*;
     import away3d.core.*;
@@ -177,6 +178,11 @@
         */
         public var debugbb:Boolean;
         
+        /**
+        * Placeholder for md2 frame indexes
+        */
+        public var indexes:Array;
+        
 		/**
 		 * Returns an array of the vertices contained in the mesh object.
 		 */
@@ -323,7 +329,68 @@
         {
             return _geometry.minZ;
         }
+		
+		/**
+		 * Indicates the current frame of animation
+		 */
+        public function get frame():int
+        {
+            return geometry.frame;
+        }
         
+        public function set frame(value:int):void
+        {
+        	geometry.frame = value;
+        }
+        
+		/**
+		 * Indicates whether the animation has a cycle event listener
+		 */
+		public function get hasCycleEvent():Boolean
+        {
+        	return geometry.hasCycleEvent;
+        }
+        
+		/**
+		 * Indicates whether the animation has a sequencedone event listener
+		 */
+		public function get hasSequenceEvent():Boolean
+        {
+			return geometry.hasSequenceEvent;
+        }
+        
+		/**
+		 * Determines the frames per second at which the animation will run.
+		 */
+		public function set fps(fps:int):void
+		{
+			geometry.fps = fps;
+		}
+		
+		/**
+		 * Determines whether the animation will loop.
+		 */
+		public function set loop(loop:Boolean):void
+		{
+			geometry.loop = loop;
+		}
+        
+        /**
+        * Determines whether the animation will smooth motion (interpolate) between frames.
+        */
+		public function set smooth(smooth:Boolean):void
+		{
+			geometry.smooth = smooth;
+		}
+		
+		/**
+		 * Indicates whether the animation is currently running.
+		 */
+		public function get isRunning():Boolean
+		{
+			return geometry.isRunning;
+		}
+		
 		/**
 		* Boundary width of the object
 		* 
@@ -672,7 +739,86 @@
             return mesh;
         }
 		
- 		public var indexes:Array;
+		/**
+		 * Plays a sequence of frames
+		 * 
+		 * @param	sequence	The animationsequence to play
+		 */
+        public function play(sequence:AnimationSequence):void
+        {
+        	geometry.play(sequence);
+        }
+        
+		/**
+		 * Starts playing the animation at the specified frame.
+		 * 
+		 * @param	value		A number representing the frame number.
+		 */
+		public function gotoAndPlay(value:int):void
+		{
+			geometry.gotoAndPlay(value);
+		}
+		
+		/**
+		 * Brings the animation to the specifed frame and stops it there.
+		 * 
+		 * @param	value		A number representing the frame number.
+		 */
+		public function gotoAndStop(value:int):void
+		{
+			geometry.gotoAndStop(value);
+		}
+		
+		/**
+		 * Passes an array of animationsequence objects to be added to the animation.
+		 * 
+		 * @param	playlist				An array of animationsequence objects.
+		 * @param	loopLast	[optional]	Determines whether the last sequence will loop. Defaults to false.
+		 */
+		public function setPlaySequences(playlist:Array, loopLast:Boolean = false):void
+		{
+			geometry.setPlaySequences(playlist, loopLast);
+		}
+		
+		/**
+		 * Default method for adding a sequencedone event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function addOnSequenceDone(listener:Function):void
+        {
+            geometry.addOnSequenceDone(listener);
+        }
+		
+		/**
+		 * Default method for removing a sequencedone event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function removeOnSequenceDone(listener:Function):void
+        {
+            geometry.removeOnSequenceDone(listener);
+        }
+		
+		/**
+		 * Default method for adding a cycle event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function addOnCycle(listener:Function):void
+        {
+			geometry.addOnCycle(listener);
+        }
+		
+		/**
+		 * Default method for removing a cycle event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function removeOnCycle(listener:Function):void
+        {
+			geometry.removeOnCycle(listener);
+        }
  		
  		/**
  		 * Returns a formatted string containing a self contained AS3 class definition that can be used to re-create the mesh.
