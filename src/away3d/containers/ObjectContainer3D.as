@@ -64,21 +64,21 @@
             
             //update max/min X
             children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
-            _maxX = children[0];
+            _maxX = children[0].parentmaxX;
             children.sortOn("parentminX", Array.NUMERIC);
-            _minX = children[0];
+            _minX = children[0].parentminX;
             
             //update max/min Y
             children.sortOn("parentmaxY", Array.DESCENDING | Array.NUMERIC);
-            _maxY = children[0];
+            _maxY = children[0].parentmaxY;
             children.sortOn("parentminY", Array.NUMERIC);
-            _minY = children[0];
+            _minY = children[0].parentminY;
             
             //update max/min Z
             children.sortOn("parentmaxZ", Array.DESCENDING | Array.NUMERIC);
-            _maxZ = children[0];
+            _maxZ = children[0].parentmaxZ;
             children.sortOn("parentminZ", Array.NUMERIC);
-            _minZ = children[0];
+            _minZ = children[0].parentminZ;
             
             _dimensionsDirty = false;
         }

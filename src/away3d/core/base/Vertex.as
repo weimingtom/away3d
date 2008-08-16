@@ -228,9 +228,9 @@ package away3d.core.base
 			//*/
     		//end modified
     		
-            if (isNaN(sz))
+            if (isNaN(sz)) {
                 throw new Error("isNaN(sz)");
-
+            }
             if (sz*2 <= -projection.focus)
             {
                 projected.visible = false;

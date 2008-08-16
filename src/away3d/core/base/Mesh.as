@@ -78,7 +78,6 @@
 		private var _n01:Face;
 		private var _n12:Face;
 		private var _n20:Face;
-        private var _debugboundingbox:WireCube;
         private var _screenVertex:ScreenVertex;
 		private var _tri:DrawTriangle;
 		private var _seg:DrawSegment;
@@ -200,11 +199,6 @@
 		 * Indicates whether both the front and reverse sides of a face should be rendered.
 		 */
         public var bothsides:Boolean;
-        
-        /**
-        * Indicates whether a debug bounding box should be rendered around the 3d object.
-        */
-        public var debugbb:Boolean;
         
         /**
         * Placeholder for md2 frame indexes
@@ -458,38 +452,6 @@
         	
         	_dtStore = _dtStore.concat(_dtActive);
         	_dtActive = new Array();
-
-            if (debugbb)
-            {
-                if (_debugboundingbox == null)
-                    _debugboundingbox = new WireCube({material:"#333333"});
-                _debugboundingbox.v000.x = minX;
-                _debugboundingbox.v001.x = minX;
-                _debugboundingbox.v010.x = minX;
-                _debugboundingbox.v011.x = minX;
-                _debugboundingbox.v100.x = maxX;
-                _debugboundingbox.v101.x = maxX;
-                _debugboundingbox.v110.x = maxX;
-                _debugboundingbox.v111.x = maxX;
-                _debugboundingbox.v000.y = minY;
-                _debugboundingbox.v001.y = minY;
-                _debugboundingbox.v010.y = maxY;
-                _debugboundingbox.v011.y = maxY;
-                _debugboundingbox.v100.y = minY;
-                _debugboundingbox.v101.y = minY;
-                _debugboundingbox.v110.y = maxY;
-                _debugboundingbox.v111.y = maxY;
-                _debugboundingbox.v000.z = minZ;
-                _debugboundingbox.v001.z = maxZ;
-                _debugboundingbox.v010.z = minZ;
-                _debugboundingbox.v011.z = maxZ;
-                _debugboundingbox.v100.z = minZ;
-                _debugboundingbox.v101.z = maxZ;
-                _debugboundingbox.v110.z = minZ;
-                _debugboundingbox.v111.z = maxZ;
-                if (_geometry.faces.length > 0)
-                    _debugboundingbox.primitives(consumer, session);
-            }
             
             geometry.update(projection.time);
 			
