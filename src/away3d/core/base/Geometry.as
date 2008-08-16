@@ -1,5 +1,6 @@
 ﻿package away3d.core.base
 {
+    import away3d.animators.data.*;
     import away3d.animators.skin.*;
     import away3d.containers.*;
     import away3d.core.*;
@@ -154,6 +155,12 @@
         private var _skinController:SkinController;
         private var clonedvertices:Dictionary;
         private var cloneduvs:Dictionary;
+        private var _frame:int;
+        private var _animation:Animation;
+		private var _animationgroup:AnimationGroup;
+        private var _sequencedone:AnimationEvent;
+        private var _cycle:AnimationEvent;
+		private var _activeprefix:String;
         
         private function launchNotifies():void
         {
@@ -534,7 +541,34 @@
             }
             return result;
         }
-         
+        
+        private function updatePlaySequence(e:AnimationEvent):void
+		{
+			 
+			if(_animationgroup.playlist.length == 0 ){
+				_animation.removeEventListener(AnimationEvent.SEQUENCE_UPDATE, updatePlaySequence);
+				_animation.sequenceEvent = false;
+				
+				if (hasSequenceEvent) {
+					if (_sequencedone == null)
+						_sequencedone = new AnimationEvent(AnimationEvent.SEQUENCE_DONE, null);
+					
+					dispatchEvent(_sequencedone);
+				}
+				if(_animationgroup.loopLast)  _animation.start();
+			} else{
+			
+				if(_animationgroup.playlist.length == 1 ){
+					loop = _animationgroup.loopLast;
+					//trace("loop last = "+ _animation.loop);
+					_animationgroup.playlist[0].loop = _animationgroup.loopLast;
+					//trace("_animationgroup.playlist[0].loop = "+ _animationgroup.playlist[0].loop);
+				}
+				play(_animationgroup.playlist.shift());
+			}
+			 
+		}
+		
         /**
          * Instance of the Init object used to hold and parse default property values
          * specified by the initialiser object in the 3d object constructor.
@@ -550,6 +584,16 @@
         * Array of controller objects used to bind vertices with joints in a skinmesh
         */
         public var skinControllers:Array;
+                
+        /**
+        * A dictionary containing all frames of the geometry
+        */
+        public var frames:Dictionary;
+        
+        /**
+        * A dictionary containing all frame names of the geometry
+        */
+        public var framenames:Dictionary;
         
 		/**
 		 * Returns an array of the faces contained in the mesh object.
@@ -764,6 +808,71 @@
             }
             return _minZ;
         }
+        
+		/**
+		 * Indicates the current frame of animation
+		 */
+        public function get frame():int
+        {
+            return _animation.frame;
+        }
+        
+        public function set frame(value:int):void
+        {
+            if (_animation.frame == value)
+                return;
+			_frame = value;
+            _animation.frame = value;
+            frames[value].adjust(1);
+        }
+        
+		/**
+		 * Indicates whether the animation has a cycle event listener
+		 */
+		public function get hasCycleEvent():Boolean
+        {
+			return _animation.hasEventListener(AnimationEvent.CYCLE);
+        }
+        
+		/**
+		 * Indicates whether the animation has a sequencedone event listener
+		 */
+		public function get hasSequenceEvent():Boolean
+        {
+			return hasEventListener(AnimationEvent.SEQUENCE_DONE);
+        }
+        
+		/**
+		 * Determines the frames per second at which the animation will run.
+		 */
+		public function set fps(value:int):void
+		{
+			_animation.fps = (value>=1)? value : 1;
+		}
+		
+		/**
+		 * Determines whether the animation will loop.
+		 */
+		public function set loop(loop:Boolean):void
+		{
+			_animation.loop = loop;
+		}
+        
+        /**
+        * Determines whether the animation will smooth motion (interpolate) between frames.
+        */
+		public function set smooth(smooth:Boolean):void
+		{
+			_animation.smooth = smooth;
+		}
+		
+		/**
+		 * Indicates whether the animation is currently running.
+		 */
+		public function get isRunning():Boolean
+		{
+			return (_animation != null)? _animation.isRunning  : false;
+		}
 		
 		/**
 		 * Adds a face object to the mesh object.
@@ -984,6 +1093,14 @@
             _neighboursDirty = false;
         }
         
+        /**
+         * Updates the animation object
+		 * 
+		 * @param	time		The absolute time at the start of the render cycle
+		 * 
+		 * @see away3d.core.traverse.TickTraverser
+		 * @see away3d.core.basr.Animation#update()
+		 */
         public function update(time:int):void
         {
         	if (_renderTime == time)
@@ -996,7 +1113,9 @@
 				
             for each(_skinVertex in skinVertices)
 				_skinVertex.update();
-        	
+				
+			if ((_animation != null) && (frames != null))
+                _animation.update();
         }
 		/**
 		 * Duplicates the mesh properties to another 3d object.
@@ -1096,6 +1215,142 @@
 			}
 		}
 		
+		/**
+		 * Plays a sequence of frames
+		 * 
+		 * @param	sequence	The animationsequence to play
+		 */
+        public function play(sequence:AnimationSequence):void
+        {
+			if(!_animation){
+            	_animation = new Animation(this); 
+			} else{
+				_animation.sequence = new Array();
+			}
+			
+            _animation.fps = sequence.fps;
+            _animation.smooth = sequence.smooth;
+            _animation.loop = sequence.loop;
+			
+            if (sequence.prefix != null){
+				var bvalidprefix:Boolean;
+                for (var framename:String in framenames){
+                    if (framename.indexOf(sequence.prefix) == 0){
+						bvalidprefix = true;
+						_activeprefix = (_activeprefix != sequence.prefix)? sequence.prefix : _activeprefix ;
+                        _animation.sequence.push(new AnimationFrame(framenames[framename], "" + parseInt(framename.substring(sequence.prefix.length))));
+					}
+				}
+				
+				if(bvalidprefix){
+					_animation.sequence.sortOn("sort", Array.NUMERIC );            
+					frames[_frame].adjust(1);
+					_animation.start();
+					//trace(">>>>>>>> [  start "+activeprefix+"  ]");
+				} else{
+					trace("--------- \n--> unable to play animation: unvalid prefix ["+sequence.prefix+"]\n--------- ");
+				}
+			}
+        }
+        
+		/**
+		 * Starts playing the animation at the specified frame.
+		 * 
+		 * @param	value		A number representing the frame number.
+		 */
+		public function gotoAndPlay(value:int):void
+		{
+			_frame = _animation.frame = value;
+			
+			if(!_animation.isRunning)
+				_animation.start();
+		}
+		
+		/**
+		 * Brings the animation to the specifed frame and stops it there.
+		 * 
+		 * @param	value		A number representing the frame number.
+		 */
+		public function gotoAndStop(value:int):void
+		{
+			_frame = _animation.frame = value;
+			
+			if(_animation.isRunning)
+				_animation.stop();
+		}
+		
+		/**
+		 * Passes an array of animationsequence objects to be added to the animation.
+		 * 
+		 * @param	playlist				An array of animationsequence objects.
+		 * @param	loopLast	[optional]	Determines whether the last sequence will loop. Defaults to false.
+		 */
+		public function setPlaySequences(playlist:Array, loopLast:Boolean = false):void
+		{
+			if(playlist.length == 0)
+				return;
+			
+			if(!_animation)
+				_animation = new Animation(this); 
+			
+			_animationgroup = new AnimationGroup();
+			_animationgroup.loopLast = loopLast;
+			_animationgroup.playlist = [];
+			
+			for(var i:int = 0;i<playlist.length;i++ )
+				_animationgroup.playlist[i] = new AnimationSequence(playlist[i].prefix, playlist[i].smooth, true, playlist[i].fps);
+			 
+			if(!_animation.hasEventListener(AnimationEvent.SEQUENCE_UPDATE))
+				_animation.addEventListener(AnimationEvent.SEQUENCE_UPDATE, updatePlaySequence);
+			
+			_animation.sequenceEvent = true;
+			loop = true;
+			play(_animationgroup.playlist.shift());
+		}
+		
+		/**
+		 * Default method for adding a sequencedone event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function addOnSequenceDone(listener:Function):void
+        {
+            addEventListener(AnimationEvent.SEQUENCE_DONE, listener, false, 0, false);
+        }
+		
+		/**
+		 * Default method for removing a sequencedone event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function removeOnSequenceDone(listener:Function):void
+        {
+            removeEventListener(AnimationEvent.SEQUENCE_DONE, listener, false);
+        }
+		
+		/**
+		 * Default method for adding a cycle event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function addOnCycle(listener:Function):void
+        {
+			_animation.cycleEvent = true;
+			_cycle = new AnimationEvent(AnimationEvent.CYCLE, _animation);
+			_animation.addEventListener(AnimationEvent.CYCLE, listener, false, 0, false);
+        }
+		
+		/**
+		 * Default method for removing a cycle event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+		public function removeOnCycle(listener:Function):void
+        {
+			_animation.cycleEvent = false;
+            _animation.removeEventListener(AnimationEvent.CYCLE, listener, false);
+        }
+        
 		/**
 		 * Default method for adding a radiuschanged event listener
 		 * 

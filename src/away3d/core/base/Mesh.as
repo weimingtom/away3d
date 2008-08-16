@@ -139,16 +139,6 @@
 		 */
         public var pushfront:Boolean;
         
-        /**
-        * A dictionary containing all frames of the mesh
-        */
-        public var frames:Dictionary;
-        
-        /**
-        * A dictionary containing all frame names of the mesh
-        */
-        public var framenames:Dictionary;
-        
 		/**
 		 * String defining the source of the mesh.
 		 * 
@@ -807,7 +797,7 @@
 				
 				myPattern = new RegExp(" ","g");
 				
-				for (var framename:String in framenames){
+				for (var framename:String in geometry.framenames){
 					tmpnames.push(framename);
 				}
 				
@@ -815,7 +805,7 @@
 				var fr:Frame;
 				for (i = 0;i<tmpnames.length;i++){
 					avp = new Array();
-					fr = frames[framenames[tmpnames[i]]];
+					fr = geometry.frames[geometry.framenames[tmpnames[i]]];
 					if(tmpnames[i].indexOf(" ") != -1) tmpnames[i] = tmpnames[i].replace(myPattern,"");
 					afn.push("\""+tmpnames[i]+"\"");
 					source += "\n\t\t\toFrames."+tmpnames[i]+"=[";
