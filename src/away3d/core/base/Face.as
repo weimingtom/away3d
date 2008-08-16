@@ -30,7 +30,7 @@ package away3d.core.base
     * 
     * @see away3d.core.base.Mesh
     */
-    public class Face extends BaseMeshElement
+    public class Face extends Element
     {
         use namespace arcane;
 		/** @private */

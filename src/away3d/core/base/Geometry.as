@@ -45,6 +45,7 @@
         {
             if (_neighboursDirty)
                 findNeighbours();
+            
             return _neighbour01[face];
         }
 		/** @private */
@@ -52,6 +53,7 @@
         {
             if (_neighboursDirty)
                 findNeighbours();
+            
             return _neighbour12[face];
         }
 		/** @private */
@@ -59,52 +61,21 @@
         {
             if (_neighboursDirty)
                 findNeighbours();
+            
             return _neighbour20[face];
-        }
-		/** @private */
-        arcane function recalcNeighbours():void
-        {
-            if (!_neighboursDirty)
-            {
-                _neighboursDirty = true;
-                findNeighbours();
-                /*
-                var sn01:Dictionary = _neighbour01;
-                var sn12:Dictionary = _neighbour12;
-                var sn20:Dictionary = _neighbour20;
-                for each (var f:Face in faces)
-                {
-                    if (sn01[f] != _neighbour01[f])
-                        throw new Error("Got you!");
-                    if (sn12[f] != _neighbour12[f])
-                        throw new Error("Got you!");
-                    if (sn20[f] != _neighbour20[f])
-                        throw new Error("Got you!");
-                }
-                */
-            }
         }
 		/** @private */
         arcane function notifyDimensionsChange():void
         {
-            if (!hasEventListener(GeometryEvent.DIMENSIONS_CHANGED))
+            if (_dispatchedDimensionsChange || !hasEventListener(GeometryEvent.DIMENSIONS_CHANGED))
                 return;
-                
+            
             if (!_dimensionschanged)
                 _dimensionschanged = new GeometryEvent(GeometryEvent.DIMENSIONS_CHANGED, this);
                 
             dispatchEvent(_dimensionschanged);
-        }
-        /** @private */
-        arcane function notifyRadiusChange():void
-        {
-            if (!hasEventListener(GeometryEvent.RADIUS_CHANGED))
-                return;
-                
-            if (!_radiuschanged)
-                _radiuschanged = new GeometryEvent(GeometryEvent.RADIUS_CHANGED, this);
-                
-            dispatchEvent(_radiuschanged);
+            
+            _dispatchedDimensionsChange = true;
         }
         
         private var _renderTime:int;
@@ -112,31 +83,8 @@
         private var _segments:Array = [];
         private var _vertices:Array;
         private var _verticesDirty:Boolean = true;
-        private var _radiusElement:IMeshElement = null;
-        private var _radius:Number = 0;
-        private var _radiusDirty:Boolean = false;
-		private var _maxXElement:IMeshElement = null;
-        private var _maxXDirty:Boolean = false;
-        private var _maxX:Number = -Infinity;
-        private var _minXElement:IMeshElement = null;
-        private var _minXDirty:Boolean = false;
-        private var _minX:Number = Infinity;
-        private var _maxYElement:IMeshElement = null;
-        private var _maxYDirty:Boolean = false;
-        private var _maxY:Number = -Infinity;
-		private var _minYElement:IMeshElement = null;
-        private var _minYDirty:Boolean = false;
-        private var _minY:Number = Infinity;
-        private var _maxZElement:IMeshElement = null;
-        private var _maxZDirty:Boolean = false;
-        private var _maxZ:Number = -Infinity;
-        private var _minZElement:IMeshElement = null;
-        private var _minZDirty:Boolean = false;
-        private var _minZ:Number = Infinity;
-        private var _needNotifyRadiusChange:Boolean = false;
-        private var _needNotifyDimensionsChange:Boolean = false;
+        private var _dispatchedDimensionsChange:Boolean;
         private var _dimensionschanged:GeometryEvent;
-        private var _radiuschanged:GeometryEvent;
         private var _neighboursDirty:Boolean = true;
         private var _neighbour01:Dictionary;
         private var _neighbour12:Dictionary;
@@ -161,51 +109,31 @@
         private var _sequencedone:AnimationEvent;
         private var _cycle:AnimationEvent;
 		private var _activeprefix:String;
-        
-        private function launchNotifies():void
-        {
-            if (_needNotifyRadiusChange)
-            {
-                _needNotifyRadiusChange = false;
-                notifyRadiusChange();
-            }
-            if (_needNotifyDimensionsChange)
-            {
-                _needNotifyDimensionsChange = false;
-                notifyDimensionsChange();
-            }
-        }
 		
-        private function addElement(element:IMeshElement):void
+        private function addElement(element:Element):void
         {
             _verticesDirty = true;
             
             element.addOnVertexChange(onElementVertexChange);
             element.addOnVertexValueChange(onElementVertexValueChange);
-            
-            rememberElementRadius(element);
 			
-            launchNotifies();
+            notifyDimensionsChange();
         }
         
-        private function removeElement(element:IMeshElement):void
+        private function removeElement(element:Element):void
         {
-            forgetElementRadius(element);
+            _verticesDirty = true;
 			
             element.removeOnVertexValueChange(onElementVertexValueChange);
             element.removeOnVertexChange(onElementVertexChange);
 			
-            _verticesDirty = true;
-			
-            launchNotifies();
+            notifyDimensionsChange();
         }
 		
         private function findVertFaces():void
         {
-            if (!_vertfacesDirty)
-                return;
-            
             _vertfaces = new Dictionary();
+            
             for each (var face:Face in faces)
             {
                 var v0:Vertex = face.v0;
@@ -231,10 +159,8 @@
         
         private function findVertNormals():void
         {
-        	if (!_vertnormalsDirty)
-                return;
-            
             _vertnormals = new Dictionary();
+            
             for each (var v:Vertex in vertices)
             {
             	var vF:Array = _vertfaces[v];
@@ -261,122 +187,9 @@
             
             _vertnormalsDirty = false;    
         }
-
-        private function rememberFaceNeighbours(face:Face):void
+		
+        private function onFaceVertexChange(event:ElementEvent):void
         {
-            if (_neighboursDirty)
-                return;
-            
-            for each (var another:Face in _faces)
-            {
-                if (face == another)
-                    continue;
-
-                if ((face._v0 == another._v2) && (face._v1 == another._v1))
-                {
-                    _neighbour01[face] = another;
-                    _neighbour12[another] = face;
-                }
-
-                if ((face._v0 == another._v0) && (face._v1 == another._v2))
-                {
-                    _neighbour01[face] = another;
-                    _neighbour20[another] = face;
-                }
-
-                if ((face._v0 == another._v1) && (face._v1 == another._v0))
-                {
-                    _neighbour01[face] = another;
-                    _neighbour01[another] = face;
-                }
-            
-                if ((face._v1 == another._v2) && (face._v2 == another._v1))
-                {
-                    _neighbour12[face] = another;
-                    _neighbour12[another] = face;
-                }
-
-                if ((face._v1 == another._v0) && (face._v2 == another._v2))
-                {
-                    _neighbour12[face] = another;
-                    _neighbour20[another] = face;
-                }
-
-                if ((face._v1 == another._v1) && (face._v2 == another._v0))
-                {
-                    _neighbour12[face] = another;
-                    _neighbour01[another] = face;
-                }
-            
-                if ((face._v2 == another._v2) && (face._v0 == another._v1))
-                {
-                    _neighbour20[face] = another;
-                    _neighbour12[another] = face;
-                }
-
-                if ((face._v2 == another._v0) && (face._v0 == another._v2))
-                {
-                    _neighbour20[face] = another;
-                    _neighbour20[another] = face;
-                }
-
-                if ((face._v2 == another._v1) && (face._v0 == another._v0))
-                {
-                    _neighbour20[face] = another;
-                    _neighbour01[another] = face;
-                }
-            }
-        }
-        
-        private function forgetFaceNeighbours(face:Face):void
-        {
-            if (_neighboursDirty)
-                return;
-            
-            _n01 = _neighbour01[face];
-            if (_n01 != null)
-            {
-                delete _neighbour01[face];
-                if (_neighbour01[_n01] == face)
-                    delete _neighbour01[_n01];
-                if (_neighbour12[_n01] == face)
-                    delete _neighbour12[_n01];
-                if (_neighbour20[_n01] == face)
-                    delete _neighbour20[_n01];
-            }
-            _n12 = _neighbour12[face];
-            if (_n12 != null)
-            {
-                delete _neighbour12[face];
-                if (_neighbour01[_n12] == face)
-                    delete _neighbour01[_n12];
-                if (_neighbour12[_n12] == face)
-                    delete _neighbour12[_n12];
-                if (_neighbour20[_n12] == face)
-                    delete _neighbour20[_n12];
-            }
-            _n20 = _neighbour20[face];
-            if (_n20 != null)
-            {
-                delete _neighbour20[face];
-                if (_neighbour01[_n20] == face)
-                    delete _neighbour01[_n20];
-                if (_neighbour12[_n20] == face)
-                    delete _neighbour12[_n20];
-                if (_neighbour20[_n20] == face)
-                    delete _neighbour20[_n20];
-            }
-        }
-
-        private function onFaceVertexChange(event:MeshElementEvent):void
-        {
-            if (!_neighboursDirty)
-            {
-                var face:Face = event.element as Face;
-                forgetFaceNeighbours(face);
-                rememberFaceNeighbours(face);
-            }
-
             _vertfacesDirty = true;
         }
         
@@ -389,131 +202,17 @@
         {
         	dispatchEvent(event);
         }
-        
-		private function rememberElementRadius(element:IMeshElement):void
+
+        private function onElementVertexChange(event:ElementEvent):void
         {
-            var r2:Number = element.radius2;
-            if (r2 > _radius*_radius)
-            {
-                _radius = Math.sqrt(r2);
-                _radiusElement = element;
-                _radiusDirty = false;
-                _needNotifyRadiusChange = true;
-            }
-            var mxX:Number = element.maxX;
-            if (mxX > _maxX)
-            {
-                _maxX = mxX;
-                _maxXElement = element;
-                _maxXDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mnX:Number = element.minX;
-            if (mnX < _minX)
-            {
-                _minX = mnX;
-                _minXElement = element;
-                _minXDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mxY:Number = element.maxY;
-            if (mxY > _maxY)
-            {
-                _maxY = mxY;
-                _maxYElement = element;
-                _maxYDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mnY:Number = element.minY;
-            if (mnY < _minY)
-            {
-                _minY = mnY;
-                _minYElement = element;
-                _minYDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mxZ:Number = element.maxZ;
-            if (mxZ > _maxZ)
-            {
-                _maxZ = mxZ;
-                _maxZElement = element;
-                _maxZDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-            var mnZ:Number = element.minZ;
-            if (mnZ < _minZ)
-            {
-                _minZ = mnZ;
-                _minZElement = element;
-                _minZDirty = false;
-                _needNotifyDimensionsChange = true;
-            }
-        }
-
-        private function forgetElementRadius(element:IMeshElement):void
-        {
-            if (element == _radiusElement)
-            {
-                _radiusElement = null;
-                _radiusDirty = true;
-                _needNotifyRadiusChange = true;
-            }
-            if (element == _maxXElement)
-            {
-                _maxXElement = null;
-                _maxXDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (element == _minXElement)
-            {
-                _minXElement = null;
-                _minXDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (element == _maxYElement)
-            {
-                _maxYElement = null;
-                _maxYDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (element == _minYElement)
-            {
-                _minYElement = null;
-                _minYDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (element == _maxZElement)
-            {
-                _maxZElement = null;
-                _maxZDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-            if (element == _minZElement)
-            {
-                _minZElement = null;
-                _minZDirty = true;
-                _needNotifyDimensionsChange = true;
-            }
-        }
-
-        private function onElementVertexChange(event:MeshElementEvent):void
-        {
-            var element:IMeshElement = event.element;
-
-            forgetElementRadius(element);
-            rememberElementRadius(element);
-
             _verticesDirty = true;
 
-            launchNotifies();
+            notifyDimensionsChange();
         }
 
-        private function onElementVertexValueChange(event:MeshElementEvent):void
+        private function onElementVertexValueChange(event:ElementEvent):void
         {
-            var element:IMeshElement = event.element;
-            forgetElementRadius(element);
-            rememberElementRadius(element);
-            launchNotifies();
+            notifyDimensionsChange();
         }
         
 		private function cloneVertex(vertex:Vertex):Vertex
@@ -619,7 +318,7 @@
         {
             return _faces.concat(_segments);
         }
-                    
+        
         /**
         * Returns an array of the vertices contained in the mesh object
         */
@@ -629,7 +328,7 @@
             {
                 _vertices = [];
                 var processed:Dictionary = new Dictionary();
-                for each (var element:IMeshElement in elements)
+                for each (var element:Element in elements)
                     for each (var vertex:Vertex in element.vertices)
                         if (!processed[vertex])
                         {
@@ -639,174 +338,6 @@
                 _verticesDirty = false;
             }
             return _vertices;
-        }
-        		
-		/**
-		 * @inheritDoc
-		 */
-        public function get boundingRadius():Number
-        {
-            if (_radiusDirty)
-            {
-                _radiusElement = null;
-                var mr:Number = 0;
-                for each (var element:IMeshElement in elements)
-                {
-                    var r2:Number = element.radius2;
-                    if (r2 > mr)
-                    {
-                        mr = r2;
-                        _radiusElement = element;
-                    }
-                }
-                _radius = Math.sqrt(mr);
-                _radiusDirty = false;
-            }
-            return _radius;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get maxX():Number
-        {
-            if (_maxXDirty)
-            {
-                _maxXElement = null;
-                var extrval:Number = -Infinity;
-                for each (var element:IMeshElement in elements)
-                {
-                    var val:Number = element.maxX;
-                    if (val > extrval)
-                    {
-                        extrval = val;
-                        _maxXElement = element;
-                    }
-                }
-                _maxX = extrval;
-                _maxXDirty = false;
-            }
-            return _maxX;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get minX():Number
-        {
-            if (_minXDirty)
-            {
-                _minXElement = null;
-                var extrval:Number = Infinity;
-                for each (var element:IMeshElement in elements)
-                {
-                    var val:Number = element.minX;
-                    if (val < extrval)
-                    {
-                        extrval = val;
-                        _minXElement = element;
-                    }
-                }
-                _minX = extrval;
-                _minXDirty = false;
-            }
-            return _minX;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get maxY():Number
-        {
-            if (_maxYDirty)
-            {
-                var extrval:Number = -Infinity;
-                _maxYElement = null;
-                for each (var element:IMeshElement in elements)
-                {
-                    var val:Number = element.maxY;
-                    if (val > extrval)
-                    {
-                        extrval = val;
-                        _maxYElement = element;
-                    }
-                }
-                _maxY = extrval;
-                _maxYDirty = false;
-            }
-            return _maxY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get minY():Number
-        {
-            if (_minYDirty)
-            {
-                var extrval:Number = Infinity;
-                _minYElement = null;
-                for each (var element:IMeshElement in elements)
-                {
-                    var val:Number = element.minY;
-                    if (val < extrval)
-                    {
-                        extrval = val;
-                        _minYElement = element;
-                    }
-                }
-                _minY = extrval;
-                _minYDirty = false;
-            }
-            return _minY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get maxZ():Number
-        {
-            if (_maxZDirty)
-            {
-                var extrval:Number = -Infinity;
-                _maxZElement = null;
-                for each (var element:IMeshElement in elements)
-                {
-                    var val:Number = element.maxZ;
-                    if (val > extrval)
-                    {
-                        extrval = val;
-                        _maxZElement = element;
-                    }
-                }
-                _maxZ = extrval;
-                _maxZDirty = false;
-            }
-            return _maxZ;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get minZ():Number
-        {
-            if (_minZDirty)
-            {
-                var extrval:Number = Infinity;
-                _minZElement = null;
-                for each (var element:IMeshElement in elements)
-                {
-                    var val:Number = element.minZ;
-                    if (val < extrval)
-                    {
-                        extrval = val;
-                        _minZElement = element;
-                    }
-                }
-                _minZ = extrval;
-                _minZDirty = false;
-            }
-            return _minZ;
         }
         
 		/**
@@ -887,11 +418,6 @@
 			face.addOnMappingChange(onFaceMappingChange);
 			
             _faces.push(face);
-			
-			//face._dt.source = face.parent = this;
-			//face._dt.create = createDrawTriangle;
-			
-            rememberFaceNeighbours(face);
         }
 		
 		/**
@@ -908,7 +434,7 @@
             removeElement(face);
 			
             _vertfacesDirty = true;
-            forgetFaceNeighbours(face);
+            
             face.removeOnVertexChange(onFaceVertexChange);
 			
             _faces.splice(index, 1);
@@ -1014,14 +540,12 @@
             }
         }
 		
-		public function findNeighbours():void
+		private function findNeighbours():void
         {
-            if (!_neighboursDirty)
-                return;
-
             _neighbour01 = new Dictionary();
             _neighbour12 = new Dictionary();
             _neighbour20 = new Dictionary();
+            
             for each (var face:Face in _faces)
             {
                 var skip:Boolean = true;
@@ -1103,6 +627,8 @@
 		 */
         public function update(time:int):void
         {
+            _dispatchedDimensionsChange = false;
+            
         	if (_renderTime == time)
         		return;
         	
@@ -1116,6 +642,7 @@
 				
 			if ((_animation != null) && (frames != null))
                 _animation.update();
+            
         }
 		/**
 		 * Duplicates the mesh properties to another 3d object.
