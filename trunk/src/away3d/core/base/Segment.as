@@ -240,9 +240,11 @@ package away3d.core.base
         }
     	
 		/**
-		 * Creates a new <code>Face</code> object.
+		 * Creates a new <code>Segment</code> object.
 		 *
-		 * @param	init			[optional]	An initialisation object for specifying default instance properties
+		 * @param	v0						The first vertex object of the segment
+		 * @param	v1						The second vertex object of the segment
+		 * @param	material	[optional]	The material used by the segment to render
 		 */
         public function Segment(v0:Vertex, v1:Vertex, material:ISegmentMaterial = null)
         {
