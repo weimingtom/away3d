@@ -162,6 +162,7 @@ package away3d.loaders
 			if (!geometry) {
 				geometry = _geometryData.geometry = new Geometry();
 				
+				mesh.geometry = geometry;
 				
 				//set materialdata for each face
 				for each (_meshMaterialData in _geometryData.materials) {
@@ -213,9 +214,9 @@ package away3d.loaders
 					geometry.addFace(_face);
 					_faceData.materialData.faces.push(_face);
 				}
+			} else {
+				mesh.geometry = geometry;
 			}
-			
-			mesh.geometry = geometry;
 			
 			if (centerMeshes) {
 				//center vertex points in mesh for better bounding radius calulations
@@ -225,21 +226,20 @@ package away3d.loaders
 				_minY = Infinity;
 				_maxZ = -Infinity;
 				_minZ = Infinity;
-				for each (_vertex in _geometryData.vertices) {
-					if (_maxX < _vertex._x)
-						_maxX = _vertex._x;
-					if (_minX > _vertex._x)
-						_minX = _vertex._x;
-					if (_maxY < _vertex._y)
-						_maxY = _vertex._y;
-					if (_minY > _vertex._y)
-						_minY = _vertex._y;
-					if (_maxZ < _vertex._z)
-						_maxZ = _vertex._z;
-					if (_minZ > _vertex._z)
-						_minZ = _vertex._z;
-				}
-				
+                for each (_vertex in mesh.geometry.vertices) {
+						if (_maxX < _vertex._x)
+							_maxX = _vertex._x;
+						if (_minX > _vertex._x)
+							_minX = _vertex._x;
+						if (_maxY < _vertex._y)
+							_maxY = _vertex._y;
+						if (_minY > _vertex._y)
+							_minY = _vertex._y;
+						if (_maxZ < _vertex._z)
+							_maxZ = _vertex._z;
+						if (_minZ > _vertex._z)
+							_minZ = _vertex._z;
+                    }
 				mesh.movePivot((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
 				mesh.moveTo((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
 			}

@@ -60,7 +60,8 @@
                 if (mradius < cradius)
                     mradius = cradius;
             }
-            _boundingRadius = cradius;
+            
+            _boundingRadius = mradius;
             
             //update max/min X
             children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
@@ -80,7 +81,7 @@
             children.sortOn("parentminZ", Array.NUMERIC);
             _minZ = children[0].parentminZ;
             
-            _dimensionsDirty = false;
+            super.updateDimensions();
         }
         
         /**
