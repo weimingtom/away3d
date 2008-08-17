@@ -138,32 +138,32 @@ package away3d.core.base
         /** @private */
         public function get parentmaxX():Number
         {
-            return boundingRadius + _transform.tx - _parentPivot.x;
+            return boundingRadius + _transform.tx;
         }
 		/** @private */
         public function get parentminX():Number
         {
-            return -boundingRadius + _transform.tx - _parentPivot.x;
+            return -boundingRadius + _transform.tx;
         }
 		/** @private */
         public function get parentmaxY():Number
         {
-            return boundingRadius + _transform.ty - _parentPivot.y;
+            return boundingRadius + _transform.ty;
         }
 		/** @private */
         public function get parentminY():Number
         {
-            return -boundingRadius + _transform.ty - _parentPivot.y;
+            return -boundingRadius + _transform.ty;
         }
 		/** @private */
         public function get parentmaxZ():Number
         {
-            return boundingRadius + _transform.tz - _parentPivot.z;
+            return boundingRadius + _transform.tz;
         }
 		/** @private */
         public function get parentminZ():Number
         {
-            return -boundingRadius + _transform.tz - _parentPivot.z;
+            return -boundingRadius + _transform.tz;
         }
         /** @private */
         arcane function notifyTransformChange():void
@@ -245,6 +245,7 @@ package away3d.core.base
         arcane var _scaleY:Number = 1;
         arcane var _scaleZ:Number = 1;
         arcane var _pivotPoint:Number3D = new Number3D();
+        private var _pivotPointRotate:Number3D = new Number3D();
         private var _parentPivot:Number3D;
         private var _parentradius:Number3D = new Number3D();
         private var _scene:Scene3D;
@@ -277,9 +278,10 @@ package away3d.core.base
             _sceneTransform.multiply(_parent.sceneTransform, transform);
             
             if (!_pivotZero) {
-				_sceneTransform.tx -= (_pivotPoint.x*_sceneTransform.sxx + _pivotPoint.y*_sceneTransform.sxy + _pivotPoint.z*_sceneTransform.sxz);
-				_sceneTransform.ty -= (_pivotPoint.x*_sceneTransform.syx + _pivotPoint.y*_sceneTransform.syy + _pivotPoint.z*_sceneTransform.syz);
-				_sceneTransform.tz -= (_pivotPoint.x*_sceneTransform.szx + _pivotPoint.y*_sceneTransform.szy + _pivotPoint.z*_sceneTransform.szz);
+            	_pivotPointRotate.rotate(_pivotPoint, _sceneTransform);
+				_sceneTransform.tx -= _pivotPointRotate.x;
+				_sceneTransform.ty -= _pivotPointRotate.y;
+				_sceneTransform.tz -= _pivotPointRotate.z;
             }
             
             //calulate the inverse transform of the scene (used for lights and bones)
@@ -333,7 +335,32 @@ package away3d.core.base
         
         protected function updateDimensions():void
         {
-        	throw new Error("updateDimensions not implemented");
+        	_dimensionsDirty = false;
+        	
+        	if (debugbb)
+            {
+                if (_debugboundingbox == null) {
+                    _debugboundingbox = new WireCube({material:"#333333"});
+	                _debugboundingbox.projection = projection;
+                }
+                _debugboundingbox.v000.x = _debugboundingbox.v001.x = _debugboundingbox.v010.x = _debugboundingbox.v011.x = minX;
+                _debugboundingbox.v100.x = _debugboundingbox.v101.x = _debugboundingbox.v110.x = _debugboundingbox.v111.x = maxX;
+                _debugboundingbox.v000.y = _debugboundingbox.v001.y = _debugboundingbox.v100.y = _debugboundingbox.v101.y = minY;
+                _debugboundingbox.v010.y = _debugboundingbox.v011.y = _debugboundingbox.v110.y = _debugboundingbox.v111.y = maxY;
+                _debugboundingbox.v000.z = _debugboundingbox.v010.z = _debugboundingbox.v100.z = _debugboundingbox.v110.z = minZ;
+                _debugboundingbox.v001.z = _debugboundingbox.v011.z = _debugboundingbox.v101.z = _debugboundingbox.v111.z = maxZ;
+            }
+            
+            if (debugbs)
+            {
+            	if (_debugboundingsphere == null) {
+	                _debugboundingsphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
+	                _debugboundingsphere.projection = projection;
+                }
+               _debugboundingsphere.radius = boundingRadius;
+               _debugboundingsphere.buildPrimitive();
+	           _debugboundingsphere.applyPosition(-_pivotPoint.x, -_pivotPoint.y, -_pivotPoint.z)
+            }
         }
         
         public var projection:Projection = new Projection();
@@ -1060,45 +1087,15 @@ package away3d.core.base
                 this.session = session;
             }
                   
-            if (debugbb)
-            {
-                if (_debugboundingbox == null) {
-                    _debugboundingbox = new WireCube({material:"#333333"});
-	                _debugboundingbox.projection = projection;
-                }
-                _debugboundingbox.v000.x = minX;
-                _debugboundingbox.v001.x = minX;
-                _debugboundingbox.v010.x = minX;
-                _debugboundingbox.v011.x = minX;
-                _debugboundingbox.v100.x = maxX;
-                _debugboundingbox.v101.x = maxX;
-                _debugboundingbox.v110.x = maxX;
-                _debugboundingbox.v111.x = maxX;
-                _debugboundingbox.v000.y = minY;
-                _debugboundingbox.v001.y = minY;
-                _debugboundingbox.v010.y = maxY;
-                _debugboundingbox.v011.y = maxY;
-                _debugboundingbox.v100.y = minY;
-                _debugboundingbox.v101.y = minY;
-                _debugboundingbox.v110.y = maxY;
-                _debugboundingbox.v111.y = maxY;
-                _debugboundingbox.v000.z = minZ;
-                _debugboundingbox.v001.z = maxZ;
-                _debugboundingbox.v010.z = minZ;
-                _debugboundingbox.v011.z = maxZ;
-                _debugboundingbox.v100.z = minZ;
-                _debugboundingbox.v101.z = maxZ;
-                _debugboundingbox.v110.z = minZ;
-                _debugboundingbox.v111.z = maxZ;
+            if (debugbb) {
+            	if (_dimensionsDirty || !_debugboundingbox)
+            		updateDimensions();
                 _debugboundingbox.primitives(consumer, session);
             }
             
-            if (debugbs)
-            {
-            	if (_debugboundingsphere == null) {
-	                _debugboundingsphere = new WireSphere({material:"#cyan", boundingRadius:boundingRadius, segmentsW:16, segmentsH:12});
-	                _debugboundingsphere.projection = projection;
-                }
+            if (debugbs) {
+            	if (_dimensionsDirty || !_debugboundingsphere)
+            		updateDimensions();
                 _debugboundingsphere.primitives(consumer, session);
             }
         }

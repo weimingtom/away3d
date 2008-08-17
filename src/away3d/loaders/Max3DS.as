@@ -132,6 +132,13 @@ package away3d.loaders
 		private var centerMeshes:Boolean;
 		private var material:ITriangleMaterial;
 		
+		private var _maxX:Number;
+		private var _minX:Number;
+		private var _maxY:Number;
+		private var _minY:Number;
+		private var _maxZ:Number;
+		private var _minZ:Number;
+		
 		/**
 		 * Read id and length of 3ds chunk
 		 * 
@@ -464,6 +471,8 @@ package away3d.loaders
 				if (!geometry) {
 					geometry = _geometryData.geometry = new Geometry();
 					
+					mesh.geometry = geometry;
+					
 					//set materialdata for each face
 					for each (_meshMaterialData in _geometryData.materials) {
 						for each (_faceListIndex in _meshMaterialData.faceList) {
@@ -483,26 +492,34 @@ package away3d.loaders
 						geometry.addFace(_face);
 						_faceData.materialData.faces.push(_face);
 					}
+				} else {
+					mesh.geometry = geometry;
 				}
-				
-				mesh.geometry = geometry;
-				
+			
 				if (centerMeshes) {
 					//center vertex points in mesh for better bounding radius calulations
-					averageX = averageY = averageZ = 0;
-					numVertices = _geometryData.vertices.length;
-					for each (_vertex in _geometryData.vertices) {
-						averageX += _vertex._x;
-						averageY += _vertex._y;
-						averageZ += _vertex._z;
-					}
-					
-					averageX /= numVertices;
-					averageY /= numVertices;
-					averageZ /= numVertices;
-					
-					mesh.movePivot(averageX, averageY, averageZ);
-					mesh.moveTo(averageX, averageY, averageZ);
+					_maxX = -Infinity;
+					_minX = Infinity;
+					_maxY = -Infinity;
+					_minY = Infinity;
+					_maxZ = -Infinity;
+					_minZ = Infinity;
+                    for each (_vertex in mesh.geometry.vertices) {
+						if (_maxX < _vertex._x)
+							_maxX = _vertex._x;
+						if (_minX > _vertex._x)
+							_minX = _vertex._x;
+						if (_maxY < _vertex._y)
+							_maxY = _vertex._y;
+						if (_minY > _vertex._y)
+							_minY = _vertex._y;
+						if (_maxZ < _vertex._z)
+							_maxZ = _vertex._z;
+						if (_minZ > _vertex._z)
+							_minZ = _vertex._z;
+                    }
+					mesh.movePivot((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
+					mesh.moveTo((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
 				}
 				
 				mesh.type = ".3ds";

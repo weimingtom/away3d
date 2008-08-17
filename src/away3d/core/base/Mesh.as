@@ -148,7 +148,7 @@
             _maxZ = vertices[0].z;
             _minZ = vertices[vertices.length - 1].z;
             
-            _dimensionsDirty = false;
+            super.updateDimensions();
         }
         
         //TODO: create effective dispose mechanism for meshs
