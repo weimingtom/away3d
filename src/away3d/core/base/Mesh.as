@@ -128,22 +128,25 @@
                 if (mradius < vradius)
                     mradius = vradius;
             }
-            _boundingRadius = Math.sqrt(mradius);
+            if (mradius)
+           		_boundingRadius = Math.sqrt(mradius);
+           	else
+           		_boundingRadius = 0;
             
             //update max/min X
             vertices.sortOn("x", Array.DESCENDING | Array.NUMERIC);
-            _maxX = vertices[0];
-            _minX = vertices[vertices.length - 1];
+            _maxX = vertices[0].x;
+            _minX = vertices[vertices.length - 1].x;
             
             //update max/min Y
             vertices.sortOn("y", Array.DESCENDING | Array.NUMERIC);
-            _maxY = vertices[0];
-            _minY = vertices[vertices.length - 1];
+            _maxY = vertices[0].y;
+            _minY = vertices[vertices.length - 1].y;
             
             //update max/min Z
             vertices.sortOn("z", Array.DESCENDING | Array.NUMERIC);
-            _maxZ = vertices[0];
-            _minZ = vertices[vertices.length - 1];
+            _maxZ = vertices[0].z;
+            _minZ = vertices[vertices.length - 1].z;
             
             _dimensionsDirty = false;
         }
