@@ -650,7 +650,7 @@ package away3d.core.base
 		 * @param	v0						The first vertex object of the triangle
 		 * @param	v1						The second vertex object of the triangle
 		 * @param	v2						The third vertex object of the triangle
-		 * @param	material				The material used by the triangle to render
+		 * @param	material	[optional]	The material used by the triangle to render
 		 * @param	uv0			[optional]	The first uv object of the triangle
 		 * @param	uv1			[optional]	The second uv object of the triangle
 		 * @param	uv2			[optional]	The third uv object of the triangle
