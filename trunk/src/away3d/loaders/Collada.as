@@ -1175,7 +1175,7 @@ package away3d.loaders
 		/**
 		 * Converts a data string to an array of objects. Handles vertex and uv objects
 		 */
-        private function deserialize(input:XML, geo:XML, Element:Class, output:Array):Array
+        private function deserialize(input:XML, geo:XML, VObject:Class, output:Array):Array
         {
             var id:String = input.@source.split("#")[1];
 
@@ -1204,7 +1204,7 @@ package away3d.loaders
     			var i:int = 0;
                 while (i < len)
                 {
-    				var element:ValueObject = new Element();
+    				var element:ValueObject = new VObject();
 	            	if (element is Vertex) {
 	            		var vertex:Vertex = element as Vertex;
 	                    for each (param in params) {
@@ -1252,7 +1252,7 @@ package away3d.loaders
                 // Store indexes if no source
                 var recursive :XMLList = geo..vertices.(@id == id)["input"];
 
-                output = deserialize(recursive[0], geo, Element, output);
+                output = deserialize(recursive[0], geo, VObject, output);
             }
 
             return output;
