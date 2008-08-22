@@ -1,6 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
+	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
@@ -12,6 +13,8 @@ package away3d.core.render
     */
     public class FindHit
     {
+    	use namespace arcane;
+    	
         private var view:View3D;
         private var screenX:Number;
         private var screenY:Number;
@@ -33,7 +36,7 @@ package away3d.core.render
         	if (pri is DrawFog)
         		return;
         	
-            if (!pri.source.mouseEnabled)
+            if (!pri.source._mouseEnabled)
                 return;
             
             if (pri.minX > screenX)

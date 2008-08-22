@@ -100,6 +100,8 @@ package away3d.core.base
     public class Object3D extends EventDispatcher implements IClonable
     {
         use namespace arcane;
+        /** @private */
+        arcane var _mouseEnabled:Boolean = true;
 		/** @private */
         arcane var _transformDirty:Boolean;
         /** @private */

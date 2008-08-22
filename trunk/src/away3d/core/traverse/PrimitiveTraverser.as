@@ -1,6 +1,7 @@
 package away3d.core.traverse
 {
 	import away3d.containers.*;
+	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
@@ -12,12 +13,16 @@ package away3d.core.traverse
     */
     public class PrimitiveTraverser extends Traverser
     {
+    	use namespace arcane;
+    	
     	private var _session:AbstractRenderSession;
+    	private var _mouseEnabled:Boolean;
     	
     	private var _view:View3D;
     	private var _focus:Number;
     	private var _zoom:Number;
     	private var _sessions:Array;
+    	private var _mouseEnableds:Array;
         private var _lights:ILightConsumer;
 		
 		/**
@@ -35,7 +40,9 @@ package away3d.core.traverse
 		public function set session(val:AbstractRenderSession):void
 		{
 			_session = val;
+			_mouseEnabled = true;
 			_sessions = [];
+			_mouseEnableds = [];
 			_lights = _session.lightarray;
 			_view = _session.view;
 			_focus = _view.camera.focus;
@@ -67,6 +74,7 @@ package away3d.core.traverse
         public override function enter(node:Object3D):void
         {
         	_sessions.push(_session);
+        	_mouseEnableds.push(_mouseEnabled);
         }
         
 		/**
@@ -78,6 +86,7 @@ package away3d.core.traverse
             {
                 (node as IPrimitiveProvider).primitives(consumer, _session);
                 _session = node.session;
+                _mouseEnabled = node._mouseEnabled = (_mouseEnabled && node.mouseEnabled);
             }
 
             if (node is ILightProvider)
@@ -92,6 +101,7 @@ package away3d.core.traverse
         public override function leave(node:Object3D):void
         {
         	_session = _sessions.pop();
+        	_mouseEnabled = _mouseEnableds.pop();
         }
 
     }

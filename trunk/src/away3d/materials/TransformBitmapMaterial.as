@@ -34,6 +34,8 @@ package away3d.materials
         private var face:Face;
         private var x:Number;
 		private var y:Number;
+		private var px:Number;
+		private var py:Number;
         private var w:Number;
         private var h:Number;
         private var normalR:Number3D = new Number3D();
@@ -514,9 +516,15 @@ package away3d.materials
 				
 				t = _transform.clone();
 				t.invert();
-				if (repeat)
-        			return _bitmap.getPixel32((x*t.a + y*t.c + t.tx)%_bitmap.width, (x*t.b + y*t.d + t.ty)%_bitmap.height);
-        		else
+				if (repeat) {
+					px = (x*t.a + y*t.c + t.tx)%_bitmap.width;
+					py = (x*t.b + y*t.d + t.ty)%_bitmap.height;
+					if (px < 0)
+						px += _bitmap.width;
+					if (py < 0)
+						py += _bitmap.height;
+        			return _bitmap.getPixel32(px, py);
+    			} else
         			return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
    			}
         	return super.getPixel32(u, v);
