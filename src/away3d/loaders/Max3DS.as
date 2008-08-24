@@ -366,7 +366,7 @@ package away3d.loaders
 			
 			for (var i:int = 0; i < numVerts; i++)
 			{
-				_meshData.geometry.vertices.push(new Vertex(_data.readFloat(), _data.readFloat(), _data.readFloat()));
+				_meshData.geometry.vertices.push(new Vertex(-_data.readFloat(), _data.readFloat(), _data.readFloat()));
 				chunk.bytesRead += 12;
 			}
 		}
@@ -379,9 +379,9 @@ package away3d.loaders
 			{
 				_faceData = new FaceData();
 				
-				_faceData.v2 = _data.readUnsignedShort();
-				_faceData.v1 = _data.readUnsignedShort();
 				_faceData.v0 = _data.readUnsignedShort();
+				_faceData.v1 = _data.readUnsignedShort();
+				_faceData.v2 = _data.readUnsignedShort();
 				_faceData.visible = (_data.readUnsignedShort() as Boolean);
 				chunk.bytesRead += 8;
 				
