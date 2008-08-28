@@ -73,9 +73,9 @@ package away3d.materials
 		 */
 		public function PhongColorMaterialCache(color:*, init:Object=null)
 		{
-			this.color = Cast.trycolor(color);
-			
 			super(512, 512, init);
+			
+			this.color = Cast.trycolor(color);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
