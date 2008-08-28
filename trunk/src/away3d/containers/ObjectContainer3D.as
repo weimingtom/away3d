@@ -32,7 +32,7 @@
                 return;
 			
             child.removeOnTransformChange(onChildChange);
-            child.addOnDimensionsChange(onChildChange);
+            child.removeOnDimensionsChange(onChildChange);
 
             _children.splice(index, 1);
 
@@ -51,6 +51,10 @@
         {
         	//update bounding radius
         	var children:Array = _children.concat();
+        	
+        	if (!children.length)
+        		return;
+        	
         	var mradius:Number = 0;
         	var cradius:Number;
             var num:Number3D = new Number3D();
