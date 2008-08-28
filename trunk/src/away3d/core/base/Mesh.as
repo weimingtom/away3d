@@ -119,6 +119,10 @@
         {
         	//update bounding radius
         	var vertices:Array = geometry.vertices.concat();
+        	
+        	if (!vertices.length)
+        		return;
+        	
         	var mradius:Number = 0;
         	var vradius:Number;
             var num:Number3D = new Number3D();
