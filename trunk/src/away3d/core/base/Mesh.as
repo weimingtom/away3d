@@ -136,7 +136,7 @@
            		_boundingRadius = Math.sqrt(mradius);
            	else
            		_boundingRadius = 0;
-            
+             
             //update max/min X
             vertices.sortOn("x", Array.DESCENDING | Array.NUMERIC);
             _maxX = vertices[0].x;

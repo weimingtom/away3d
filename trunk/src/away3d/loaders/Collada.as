@@ -7,6 +7,7 @@ package away3d.loaders
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
+	import away3d.events.ParserEvent;
 	import away3d.loaders.data.*;
 	import away3d.loaders.utils.*;
 	import away3d.materials.*;
@@ -16,7 +17,7 @@ package away3d.loaders
     /**
     * File loader for the Collada file format with animation.
     */
-    public class Collada
+    public class Collada extends AbstractParser
     {
     	use namespace arcane;
 		/** @private */
@@ -31,6 +32,7 @@ package away3d.loaders
         private var materialLibrary:MaterialLibrary;
         private var animationLibrary:AnimationLibrary;
         private var geometryLibrary:GeometryLibrary;
+        private var channelLibrary:ChannelLibrary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
     	private var _meshData:MeshData;
@@ -49,6 +51,7 @@ package away3d.loaders
     	private var _faceData:FaceData;
     	private var _face:Face;
     	private var _vertex:Vertex;
+    	private var _moveVector:Number3D = new Number3D();
 		private var rotationMatrix:Matrix3D = new Matrix3D();
     	private var scalingMatrix:Matrix3D = new Matrix3D();
     	private var translationMatrix:Matrix3D = new Matrix3D();
@@ -57,7 +60,11 @@ package away3d.loaders
         private var VALUE_Z:String;
         private var VALUE_U:String = "S";
         private var VALUE_V:String = "T";
-
+		private var _geometryArray:Array;
+		private var _geometryArrayLength:int;
+		private var _channelArray:Array;
+		private var _channelArrayLength:int;
+		
 		/**
 		 * Collada Animation
 		 */
@@ -136,8 +143,9 @@ package away3d.loaders
 								_minZ = child.z;
 						}
 						
-						objectContainer.movePivot((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
-						objectContainer.moveTo((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
+						objectContainer.movePivot(_moveVector.x = (_maxX + _minX)/2, _moveVector.y = (_maxY + _minY)/2, _moveVector.z = (_maxZ + _minZ)/2);
+						_moveVector.transform(_moveVector, _objectData.transform);
+						objectContainer.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
 					}
 					
 					parent.addChild(objectContainer);
@@ -185,7 +193,7 @@ package away3d.loaders
 					//mesh.bone = container.getChildByName(_meshData.bone) as Bone;
 					
 					for each (skinController in geometry.skinControllers) {
-						bone = container.getBoneByName(skinController.name);
+						bone = (container as ObjectContainer3D).getBoneByName(skinController.name);
 		                if (bone) {
 		                    skinController.joint = bone.joint;
 		                    
@@ -198,7 +206,7 @@ package away3d.loaders
 			  		}
 				}
 				
-				//create faces form face and mesh data
+				//create faces from face and mesh data
 				var face:Face;
 				var matData:MaterialData;
 				for each(_faceData in _geometryData.faces) {
@@ -219,29 +227,9 @@ package away3d.loaders
 			}
 			
 			if (centerMeshes) {
-				//center vertex points in mesh for better bounding radius calulations
-				_maxX = -Infinity;
-				_minX = Infinity;
-				_maxY = -Infinity;
-				_minY = Infinity;
-				_maxZ = -Infinity;
-				_minZ = Infinity;
-                for each (_vertex in mesh.geometry.vertices) {
-						if (_maxX < _vertex._x)
-							_maxX = _vertex._x;
-						if (_minX > _vertex._x)
-							_minX = _vertex._x;
-						if (_maxY < _vertex._y)
-							_maxY = _vertex._y;
-						if (_minY > _vertex._y)
-							_minY = _vertex._y;
-						if (_maxZ < _vertex._z)
-							_maxZ = _vertex._z;
-						if (_minZ > _vertex._z)
-							_minZ = _vertex._z;
-                    }
-				mesh.movePivot((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
-				mesh.moveTo((_maxX + _minX)/2, (_maxY + _minY)/2, (_maxZ + _minZ)/2);
+				mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2, _moveVector.y = (_geometryData.maxY + _geometryData.minY)/2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2);
+				_moveVector.transform(_moveVector, _meshData.transform);
+				mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
 			}
 			
 			mesh.type = ".Collada";
@@ -286,9 +274,11 @@ package away3d.loaders
 				{
 					case AnimationData.SKIN_ANIMATION:
 						var animation:SkinAnimation = new SkinAnimation();
-						animation.length = _animationData.length;
+						animation.start = _animationData.start;
+						animation.length = _animationData.end - _animationData.start;
 						
-						for each (var channel:Channel in _animationData.channels) {
+						for each (var channelData:ChannelData in _animationData.channels) {
+							var channel:Channel = channelData.channel;
 							channel.target = _bones[channel.name] as Bone;
 							animation.appendChannel(channel);
 						}
@@ -351,11 +341,6 @@ package away3d.loaders
         {
             return url.split("#")[1];
         }
-		
-        /**
-        * 3d container object used for storing the parsed collada scene.
-        */
-        public var container:ObjectContainer3D;
     	
     	/**
     	 * Container data object used for storing the parsed collada data structure.
@@ -372,9 +357,9 @@ package away3d.loaders
 		 * @see away3d.loaders.Collada#load()
 		 */
 		
-        public function Collada(xml:XML, init:Object = null)
+        public function Collada(data:*, init:Object = null)
         {
-            collada = xml;
+         	collada = Cast.xml(data);
             
             ini = Init.parse(init);
 			
@@ -393,6 +378,7 @@ package away3d.loaders
 			materialLibrary = container.materialLibrary = new MaterialLibrary();
 			animationLibrary = container.animationLibrary = new AnimationLibrary();
 			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
+			channelLibrary = new ChannelLibrary();
 			materialLibrary.autoLoadTextures = autoLoadTextures;
 			materialLibrary.texturePath = texturePath;
 			
@@ -409,21 +395,9 @@ package away3d.loaders
                 else if (_materialData.material is WireframeMaterial)
                 	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
    			}
-			
+   			
 			//parse the collada file
             parseCollada();
-            
-            //build materials
-			buildMaterials();
-			
-			//build the bones
-			buildRootBones(containerData, container);
-			
-			//build the containers
-			buildContainer(containerData, container);
-			
-			//build animations
-			buildAnimations();
         }
 		
         /**
@@ -433,26 +407,12 @@ package away3d.loaders
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 * @param	loader	[optional]	Not intended for direct use.
 		 *
-		 * @return						A 3d container object representation of the collada file.
+		 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is parsing.
 		 */
-        public static function parse(data:*, init:Object = null, loader:Object = null):ObjectContainer3D
+        public static function parse(data:*, init:Object = null):Object3DLoader
         {
-			var parser:Collada = new Collada(Cast.xml(data), init);
-            return parser.container;
+            return Object3DLoader.parseGeometry(data, Collada, init);
         }
-		
-    	/**
-    	 * Loads and parses the textures for a collada file into a 3d container object.
-    	 *
-    	 * @param	data				The xml data of a loaded file.
-    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the textures are loading.
-    	 */
-		public static function loadTextures(data:*, init:Object = null):Object3DLoader
-		{
-			var parser:Collada = new Collada(Cast.xml(data), init);
-			return Object3DLoader.loadTextures(parser.container, parser.ini);
-		}
 		
     	/**
     	 * Loads and parses a collada file into a 3d container object.
@@ -475,7 +435,38 @@ package away3d.loaders
 					init = { texturePath:_texturePath };
 				}
 			}
-			return Object3DLoader.loadGeometry(url, parse, false, init);
+			return Object3DLoader.loadGeometry(url, Collada, false, init);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function parseNext():void
+        {
+        	if (_parsedChunks < _geometryArrayLength)
+        		parseGeometry(_geometryArray[_parsedChunks]);
+        	else
+        		parseChannel(_channelArray[-_geometryArrayLength + _parsedChunks]);
+        	
+        	_parsedChunks++;
+        	
+        	if (_parsedChunks == _totalChunks) {
+	        	//build materials
+				buildMaterials();
+				
+				//build the bones
+				buildRootBones(containerData, container as ObjectContainer3D);
+				
+				//build the containers
+				buildContainer(containerData, container as ObjectContainer3D);
+				
+				//build animations
+				buildAnimations();
+				
+	        	notifySuccess();
+        	} else {
+				notifyProgress();
+	        }
         }
 
         private function parseCollada():void
@@ -521,6 +512,9 @@ package away3d.loaders
 				parseNode(node, containerData);
 			
 			Debug.trace(" ! ------------- End Parse Scene -------------");
+			_geometryArray = geometryLibrary.getGeometryArray();
+			_geometryArrayLength = _geometryArray.length;
+			_totalChunks += _geometryArrayLength;
 		}
 		
 		/**
@@ -544,8 +538,11 @@ package away3d.loaders
 			{
 				if (String(node.@type) == "JOINT")
 					_objectData = new BoneData();
-				else
+				else {
+					if (parent is BoneData)
+						return;
 					_objectData = new ContainerData();
+				}
 			}else{
 				_objectData = new MeshData();
 			}
@@ -583,7 +580,7 @@ package away3d.loaders
 
                     case "rotate":
                     	sid = child.@sid;
-                        if (_objectData is BoneData && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ"))
+                        if (_objectData is BoneData && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ"))
 							boneData.jointTransform.multiply(boneData.jointTransform, rotateMatrix(arrayChild));
                         else
 	                        _transform.multiply(_transform, rotateMatrix(arrayChild));
@@ -622,8 +619,9 @@ package away3d.loaders
 	                        for each (instance_material in child..instance_material)
 	                        	parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 							
-	                        geo = collada.library_geometries.geometry.(@id == getId(child.@url))[0];
-	                        parseGeometry(geo, _objectData as MeshData);
+							geo = collada.library_geometries.geometry.(@id == getId(child.@url))[0];
+							
+	                        (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo);
 	                    }
 	                    
                         break;
@@ -635,7 +633,9 @@ package away3d.loaders
 							parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 						
 						ctrlr = collada.library_controllers.controller.(@id == getId(child.@url))[0];
-						parseController(ctrlr, _objectData as MeshData);
+						geo = collada.library_geometries.geometry.(@id == getId(ctrlr.skin[0].@source))[0];
+						
+	                    (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
 						
 						break;
                 }
@@ -665,29 +665,16 @@ package away3d.loaders
         }
 		
 		/**
-		 * Populates a MeshData object from geometry data.
+		 * Parses geometry data.
 		 * 
-		 * @see away3d.loaders.data.MeshData
+		 * @see away3d.loaders.data.GeometryData
 		 */
-        private function parseGeometry(geometry:XML, _meshData:MeshData):void
-        {
-        	var geoId:String = geometry.@id;
-        	var geometryData:GeometryData = geometryLibrary.getGeometry(geoId);
-        	
-        	if (geometryData) {
-        		_meshData.geometry = geometryData;
-        		return;
-        	}
-        	
-        	geometryData = geometryLibrary.addGeometry(geoId);
-        	_meshData.geometry = geometryData;
-        	
-			Debug.trace(" + Parse Geometry : "+ geoId);
-            // Semantics
-            //_meshData.name = geometry.@id;
+		private function parseGeometry(geometryData:GeometryData):void
+		{
+			Debug.trace(" + Parse Geometry : "+ geometryData.name);
 			
             // Triangles
-            for each (var triangles:XML in geometry.mesh.triangles)
+            for each (var triangles:XML in geometryData.geoXML.mesh.triangles)
             {
                 // Input
                 var field:Array = [];
@@ -698,10 +685,10 @@ package away3d.loaders
                 	switch(semantic)
                 	{
                 		case "VERTEX":
-                			deserialize(input, geometry, Vertex, geometryData.vertices);
+                			deserialize(input, geometryData.geoXML, Vertex, geometryData.vertices);
                 			break;
                 		case "TEXCOORD":
-                			deserialize(input, geometry, UV, geometryData.uvs);
+                			deserialize(input, geometryData.geoXML, UV, geometryData.uvs);
                 			break;
                 		default:
                 	}
@@ -723,17 +710,17 @@ package away3d.loaders
                 {
                     var _faceData:FaceData = new FaceData();
 
-                    for (var v:Number = 0; v < 3; v++)
+                    for (var vn:Number = 0; vn < 3; vn++)
                     {
                         for each (var fld:String in field)
                         {
                         	switch(fld)
                         	{
                         		case "VERTEX":
-                        			_faceData["v" + v] = data.shift();
+                        			_faceData["v" + vn] = data.shift();
                         			break;
                         		case "TEXCOORD":
-                        			_faceData["uv" + v] = data.shift();
+                        			_faceData["uv" + vn] = data.shift();
                         			break;
                         		default:
                         			data.shift();
@@ -744,34 +731,42 @@ package away3d.loaders
                     geometryData.faces.push(_faceData);
                 }
             }
+            
+			//center vertex points in mesh for better bounding radius calulations
+        	if (centerMeshes) {
+				geometryData.maxX = -Infinity;
+				geometryData.minX = Infinity;
+				geometryData.maxY = -Infinity;
+				geometryData.minY = Infinity;
+				geometryData.maxZ = -Infinity;
+				geometryData.minZ = Infinity;
+                for each (_vertex in geometryData.vertices) {
+					if (geometryData.maxX < _vertex._x)
+						geometryData.maxX = _vertex._x;
+					if (geometryData.minX > _vertex._x)
+						geometryData.minX = _vertex._x;
+					if (geometryData.maxY < _vertex._y)
+						geometryData.maxY = _vertex._y;
+					if (geometryData.minY > _vertex._y)
+						geometryData.minY = _vertex._y;
+					if (geometryData.maxZ < _vertex._z)
+						geometryData.maxZ = _vertex._z;
+					if (geometryData.minZ > _vertex._z)
+						geometryData.minZ = _vertex._z;
+                }
+			}
+			
 			// Double Side
-			if (String(geometry.extra.technique.double_sided) != "")
-            	geometryData.bothsides = (geometry.extra.technique.double_sided[0].toString() == "1");
+			if (String(geometryData.geoXML.extra.technique.double_sided) != "")
+            	geometryData.bothsides = (geometryData.geoXML.extra.technique.double_sided[0].toString() == "1");
             else
             	geometryData.bothsides = false;
-        }
-		
-		private function parseController(ctrlr:XML, instance:MeshData) : void
-        {
-			Debug.trace(" + Parse Controller : " + instance);
 			
-            var skin:XML = ctrlr.skin[0];
-            var geoId:String = getId(skin.@source);
-			
-			var geometry:XML = collada.library_geometries.geometry.(@id == geoId)[0];
-			
-			Debug.trace(" ! geoId : " + geoId);
-			if (!geometry)
+			//parse controller
+			if (!geometryData.ctrlXML)
 				return;
 			
-			var geometryData:GeometryData = geometryLibrary.getGeometry(geoId);
-        	
-        	if (geometryData) {
-        		instance.geometry = geometryData;
-        		return;
-        	}
-        	
-			parseGeometry(geometry, instance);
+			var skin:XML = geometryData.ctrlXML.skin[0];
 			
 			var jointId:String = getId(skin.joints.input.(@semantic == "JOINT")[0].@source);
             var tmp:String = skin.source.(@id == jointId).Name_array.toString();
@@ -804,7 +799,7 @@ package away3d.loaders
 				matrix.array2matrix(float_array.slice(i, i+16), yUp, scaling);
 				matrix.multiply(matrix, bind_shape);
 				
-                instance.geometry.skinControllers.push(skinController = new SkinController());
+                geometryData.skinControllers.push(skinController = new SkinController());
                 skinController.name = name;
                 skinController.bindMatrix = matrix;
                 
@@ -829,19 +824,18 @@ package away3d.loaders
 			
 			var skinVertex	:SkinVertex;
             var c			:int;
-            var j			:int;
             var count		:int = 0;
 			
             i=0;
-            while (i < instance.geometry.vertices.length)
+            while (i < geometryData.vertices.length)
             {
                 c = int(vcount[i]);
-                skinVertex = new SkinVertex(instance.geometry.vertices[i]);
-                instance.geometry.skinVertices.push(skinVertex);
+                skinVertex = new SkinVertex(geometryData.vertices[i]);
+                geometryData.skinVertices.push(skinVertex);
                 j=0;
                 while (j < c)
                 {
-                    skinVertex.controllers.push(instance.geometry.skinControllers[int(v[count])]);
+                    skinVertex.controllers.push(geometryData.skinControllers[int(v[count])]);
                     count++;
                     skinVertex.weights.push(Number(weights[int(v[count])]));
                     count++;
@@ -849,15 +843,13 @@ package away3d.loaders
                 }
                 i++;
             }
-        }
+		}
 		
 		/**
 		 * Detects and parses all animation clips
 		 */ 
 		private function parseAnimationClips() : void
-        {        
-			//create default animation clip
-			_defaultAnimationClip = animationLibrary.addAnimation("default");
+        {
 			
         	//Check for animations
 			var anims:XML = collada.library_animations[0];
@@ -874,9 +866,9 @@ package away3d.loaders
 			
             Debug.trace(" ! ------------- Begin Parse Animation -------------");
             
-            //loop through all animation nodes
-			for each (var node:XML in anims.animation)
-				parseAnimationNode(node);
+            //loop through all animation channels
+			for each (var channel:XML in anims.animation)
+				channelLibrary.addChannel(channel.@id, channel);
 			
 			if (clips) {
 				//loop through all animation clips
@@ -884,19 +876,32 @@ package away3d.loaders
 					parseAnimationClip(clip);
 			}
 			
+			//create default animation clip
+			_defaultAnimationClip = animationLibrary.addAnimation("default");
+			
+			for each (var channelData:ChannelData in channelLibrary)
+				_defaultAnimationClip.channels[channelData.name] = channelData;
+			
 			Debug.trace(" ! ------------- End Parse Animation -------------");
+			_channelArray = channelLibrary.getChannelArray();
+			_channelArrayLength = _channelArray.length;
+			_totalChunks += _channelArrayLength;
         }
         
         private function parseAnimationClip(clip:XML) : void
         {
 			var animationClip:AnimationData = animationLibrary.addAnimation(clip.@id);
 			
-			for each (var channel:XML in clip.instance_animation)
-				animationClip.channels[getId(channel.@url)] = _defaultAnimationClip.channels[getId(channel.@url)];
+			for each (var channel:XML in clip.instance_animation) {
+				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
+				animationClip.start = channel.@start;
+				animationClip.end = channel.@end;
+			}
         }
 		
-		private function parseAnimationNode(node:XML) : void
+		private function parseChannel(channelData:ChannelData) : void
         {
+        	var node:XML = channelData.xml;
 			var id:String = node.channel.@target;
 			var name:String = id.split("/")[0];
             var type:String = id.split("/")[1];
@@ -916,11 +921,11 @@ package away3d.loaders
 				return;
             }
 			
-            var channel:Channel = new Channel(name);
+            var channel:Channel = channelData.channel = new Channel(name);
 			var i:int;
 			var j:int;
 			
-			_defaultAnimationClip.channels[String(node.@id)] = channel;
+			_defaultAnimationClip.channels[channelData.name] = channelData;
 			
 			Debug.trace(" ! channelType : " + type);
 			
@@ -934,18 +939,18 @@ package away3d.loaders
                 var semantic:String = input.@semantic;
 				
 				var p:String
-				var f:Number;
 				var sign:int = (type.charAt(type.length - 1) == "X")? -1 : 1;
                 switch(semantic) {
                     case "INPUT":
-                        for each (p in list) {
-                            f = Number(p);
-                            
-                            if (_defaultAnimationClip.length < f)
-                                _defaultAnimationClip.length = f;
-                            
-                            channel.times.push(f);
-                        }
+                        for each (p in list)
+                            channel.times.push(Number(p));
+                        
+                        if (_defaultAnimationClip.start > channel.times[0])
+                            _defaultAnimationClip.start = channel.times[0];
+                        
+                        if (_defaultAnimationClip.end < channel.times[channel.times.length-1])
+                            _defaultAnimationClip.end = channel.times[channel.times.length-1];
+                        
                         break;
                     case "OUTPUT":
                         i=0
@@ -1027,12 +1032,14 @@ package away3d.loaders
 						param[0] *= scaling;
      				break;
 				case "rotateX":
+				case "RotX":
      				channel.type = ["jointRotationX"];
      				if (yUp)
 						for each (param in channel.param)
 							param[0] *= -1;
      				break;
 				case "rotateY":
+				case "RotY":
 					if (yUp)
 						channel.type = ["jointRotationY"];
 					else
@@ -1042,6 +1049,7 @@ package away3d.loaders
 							param[0] *= -1;
      				break;
 				case "rotateZ":
+				case "RotZ":
 					if (yUp)
 						channel.type = ["jointRotationZ"];
 					else

@@ -18,7 +18,11 @@ package away3d.animators
 		 * Defines the total length of the animation in seconds
 		 */
         public var length:Number;
-        
+		
+		/**
+		 * Defines the start of the animation in seconds
+		 */
+        public var start:Number;
 		
         public function SkinAnimation()
         {
@@ -35,14 +39,20 @@ package away3d.animators
 		 */
         public function update(time:Number):void
         {
-			if (time > length) {
+			if (time - start > length ) {
                 if (loop) {
-                    time = time % length;
+                    time = (time - start) % length;
                 }else{
                     time = length;
                 }
-            }
-            
+            } else if (time < start) {
+                if (loop) {
+                    time = length - (time - start) % length;
+                }else{
+                    time = start;
+                }
+        	}
+        	
             for each (var channel:Channel in _channels)
                 channel.update(time);
         }

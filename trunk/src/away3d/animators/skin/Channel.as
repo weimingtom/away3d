@@ -58,7 +58,7 @@ package away3d.animators.skin
 						i = 0;
 						while (i < type.length) {
 							if (type[i] == "transform") {
-								target[type[i]] = param[index][i];
+								target.transform = param[index][i];
 							} else {
 								target[type[i]] = ((time - _time) * param[index + 1][i] + (times[index + 1] - time) * param[index][i]) / (times[index + 1] - _time);
 							}

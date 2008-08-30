@@ -3,7 +3,7 @@ package away3d.loaders.data
 	import away3d.core.math.Matrix3D;
 	
 	/**
-	 * Data class for a gneric 3d object
+	 * Data class for a generic 3d object
 	 */
 	public class ObjectData
 	{

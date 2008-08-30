@@ -32,9 +32,14 @@ package away3d.loaders.data
 		public var animation:IMeshAnimation;
 		
 		/**
-		 * Reference to the number of seconds the animation takes to complete.
+		 * Reference to the time the animation starts.
 		 */
-		public var length:Number = 0;
+		public var start:Number = 0;
+		
+		/**
+		 * Reference to the number of seconds the animation ends.
+		 */
+		public var end:Number = 0;
 		
 		/**
 		 * String representing the animation type.

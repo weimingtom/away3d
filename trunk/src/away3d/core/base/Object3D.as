@@ -368,7 +368,7 @@ package away3d.core.base
         public var projection:Projection = new Projection();
         
     	/**
-    	 * Returns the invere of sceneTransform.
+    	 * Returns the inverse of sceneTransform.
     	 * 
     	 * @see #sceneTransform
     	 */
