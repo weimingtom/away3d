@@ -7,7 +7,6 @@ package away3d.loaders
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
-	import away3d.events.ParserEvent;
 	import away3d.loaders.data.*;
 	import away3d.loaders.utils.*;
 	import away3d.materials.*;
@@ -409,9 +408,9 @@ package away3d.loaders
 		 *
 		 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is parsing.
 		 */
-        public static function parse(data:*, init:Object = null):Object3DLoader
+        public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-            return Object3DLoader.parseGeometry(data, Collada, init);
+            return Object3DLoader.parseGeometry(data, Collada, init).handle as ObjectContainer3D;
         }
 		
     	/**
