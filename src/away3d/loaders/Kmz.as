@@ -38,7 +38,7 @@ package away3d.loaders
 				var data:ByteArray = kmzFile.getInput(entry);
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
 					collada = new XML(data.toString());
-					container = Collada.parse(collada, init).handle;
+					container = Collada.parse(collada, init);
 					if (container is Object3DLoader) {
 						(container as Object3DLoader).parser.container.materialLibrary.loadRequired = false;
 						(container as Object3DLoader).addOnSuccess(onParseGeometry);
@@ -123,7 +123,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
-            return Object3DLoader.parseGeometry(data, Kmz, init);
+            return Object3DLoader.parseGeometry(data, Kmz, init).handle as ObjectContainer3D;
         }
     	
     	/**
