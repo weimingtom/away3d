@@ -14,7 +14,7 @@ package away3d.loaders
     /**
     * File loader for the 3DS file format.
     */
-	public class Max3DS
+	public class Max3DS extends AbstractParser
 	{
 		use namespace arcane;
 		/** @private */
@@ -34,6 +34,8 @@ package away3d.loaders
 		private var _faceListIndex:int;	
 		private var _face:Face;
 		private var _vertex:Vertex;
+		private var _totalChunks:int = 0;
+        private var _parsedChunks:int = 0;
 		
 		//>----- Color Types --------------------------------------------------------
 		
@@ -103,11 +105,6 @@ package away3d.loaders
 		
 		private var texturePath:String;
         private var autoLoadTextures:Boolean;
-        
-        /**
-        * 3d container object used for storing the parsed 3ds object.
-        */
-		public var container:ObjectContainer3D;
         
         /**
         * Reference container for all materials used in the 3ds object.
@@ -523,7 +520,7 @@ package away3d.loaders
 				}
 				
 				mesh.type = ".3ds";
-				container.addChild(mesh);
+				(container as ObjectContainer3D).addChild(mesh);
 			}
 		}
 		
@@ -553,7 +550,7 @@ package away3d.loaders
 				}
 			}
 		}
-        
+		
 		/**
 		 * Creates a new <code>Max3DS</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
 		 * 
@@ -563,9 +560,9 @@ package away3d.loaders
 		 * @see away3d.loaders.Max3DS#parse()
 		 * @see away3d.loaders.Max3DS#load()
 		 */
-		public function Max3DS(data:ByteArray, init:Object = null)
+		public function Max3DS(data:*, init:Object = null)
 		{
-			_data = data;
+			_data = Cast.bytearray(data);
 			_data.endian = Endian.LITTLE_ENDIAN;
 			
 			ini = Init.parse(init);
@@ -631,21 +628,8 @@ package away3d.loaders
 					init = { texturePath:_texturePath };
 				}
 			}
-            return Object3DLoader.loadGeometry(url, parse, true, init);
+            return Object3DLoader.loadGeometry(url, Max3DS, true, init);
         }
-    	
-    	/**
-    	 * Loads and parses the textures for a 3ds file into a 3d container object.
-    	 * 
-    	 * @param	data				The binary data of a loaded file.
-    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the textures are loading.
-    	 */
-		public static function loadTextures(data:*, init:Object = null):Object3DLoader
-		{
-			var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
-			return Object3DLoader.loadTextures(parser.container, parser.ini);
-		}
 
 		/**
 		 * Creates a 3d container object from the raw binary data of a 3ds file.
@@ -658,8 +642,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
-        	var parser:Max3DS = new Max3DS(Cast.bytearray(data), init);
-            return parser.container;
+        	return Object3DLoader.parseGeometry(data, Max3DS, init).handle as ObjectContainer3D;
         }
 	}
 }

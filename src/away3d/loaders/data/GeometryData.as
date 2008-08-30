@@ -61,5 +61,45 @@ package away3d.loaders.data
 		 * Reference to the geometry object of the resulting geometry.
 		 */
 		public var geometry:Geometry;
+		
+		/**
+		 * Reference to the xml object defining the geometry.
+		 */
+		public var geoXML:XML;
+		
+		/**
+		 * Reference to the xml object defining the controller.
+		 */
+		public var ctrlXML:XML;
+		
+    	/**
+    	 * Returns the maximum x value of the geometry data
+    	 */
+		public var maxX:Number;
+		
+    	/**
+    	 * Returns the minimum x value of the geometry data
+    	 */
+		public var minX:Number;
+		
+    	/**
+    	 * Returns the maximum y value of the geometry data
+    	 */
+		public var maxY:Number;
+		
+    	/**
+    	 * Returns the minimum y value of the geometry data
+    	 */
+		public var minY:Number;
+		
+    	/**
+    	 * Returns the maximum z value of the geometry data
+    	 */
+		public var maxZ:Number;
+		
+    	/**
+    	 * Returns the minimum z value of the geometry data
+    	 */
+		public var minZ:Number;
 	}
 }

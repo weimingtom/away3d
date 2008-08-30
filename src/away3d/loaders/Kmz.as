@@ -1,12 +1,13 @@
 package away3d.loaders
 {
     import away3d.containers.*;
-    import away3d.materials.*;
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
+    import away3d.events.LoaderEvent;
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
+    import away3d.materials.*;
     
     import flash.display.Bitmap;
     import flash.display.Loader;
@@ -18,34 +19,59 @@ package away3d.loaders
     /**
     * File loader for the KMZ 4 file format (exported from Google Sketchup).
     */
-    public class Kmz
+    public class Kmz extends AbstractParser
     {
 		use namespace arcane;
     	
         private var collada:XML;
         private var _materialData:MaterialData;
         private var _face:Face;
+    	private var kmzFile:ZipFile;
     	
         private function parseKmz(datastream:ByteArray, init:Object):void
         {
         	
-            var kmzFile:ZipFile = new ZipFile(datastream);
+            kmzFile = new ZipFile(datastream);
 			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
 			for(var i:int = 0; i < kmzFile.entries.length; i++) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
 					collada = new XML(data.toString());
-					container = Collada.parse(collada, init, this);
-					materialLibrary = container.materialLibrary;
-					materialLibrary.loadRequired = false;
-				} else if((entry.name.indexOf(".jpg")>-1 || entry.name.indexOf(".png")>-1) && entry.name.indexOf("images/")>-1) {
+					container = Collada.parse(collada, init).handle;
+					if (container is Object3DLoader) {
+						(container as Object3DLoader).parser.container.materialLibrary.loadRequired = false;
+						(container as Object3DLoader).addOnSuccess(onParseGeometry);
+        	trace("lkdjsfsfs");
+					} else {
+						parseImages();
+					}
+				}
+			}
+        }
+        
+        private function onParseGeometry(event:LoaderEvent):void
+        {
+        	container = event.loader.handle;
+        	parseImages();
+        }
+        
+        private function parseImages():void
+        {
+        	materialLibrary = container.materialLibrary;
+			materialLibrary.loadRequired = false;
+			
+			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
+			for(var i:int = 0; i < kmzFile.entries.length; i++) {
+				var entry:ZipEntry = kmzFile.entries[i];
+				var data:ByteArray = kmzFile.getInput(entry);
+				if((entry.name.indexOf(".jpg")>-1 || entry.name.indexOf(".png")>-1) && entry.name.indexOf("images/")>-1) {
 					var _loader:Loader = new Loader();
 					_loader.name = "../" + entry;
 					_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadBitmapCompleteHandler);
 					_loader.loadBytes(data);
-				};
-			};
+				}
+			}
         }
         
         private function loadBitmapCompleteHandler(e:Event):void {
@@ -61,11 +87,6 @@ package away3d.loaders
 				}
 			}
 		}
-        
-        /**
-        * 3d container object used for storing the parsed kmz scene.
-        */
-    	public var container:ObjectContainer3D;
         
         /**
         * Reference container for all materials used in the kmz scene.
@@ -87,9 +108,9 @@ package away3d.loaders
 		 * @see away3d.loaders.Kmz#parse()
 		 * @see away3d.loaders.Kmz#load()
 		 */
-        public function Kmz(datastream:ByteArray, init:Object = null)
+        public function Kmz(data:*, init:Object = null)
         {
-            parseKmz(datastream, init);
+            parseKmz(Cast.bytearray(data), init);
         }
 
 		/**
@@ -103,7 +124,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
-            return new Kmz(Cast.bytearray(data), init).container;
+            return Object3DLoader.parseGeometry(data, Kmz, init);
         }
     	
     	/**
@@ -115,7 +136,12 @@ package away3d.loaders
     	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.loadGeometry(url, parse, true, init);
+            return Object3DLoader.loadGeometry(url, Kmz, true, init);
+        }
+        
+        public override function parseNext():void
+        {
+        	notifySuccess();
         }
     }
 }

@@ -3,6 +3,7 @@ package away3d.loaders
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
+    
     import flash.utils.*;
 
     /**
@@ -10,7 +11,7 @@ package away3d.loaders
     * 
     * @author Philippe Ajoux (philippe.ajoux@gmail.com)
     */
-    public class Md2still
+    public class Md2still extends AbstractParser
     {
 		use namespace arcane;
     	
@@ -140,7 +141,7 @@ package away3d.loaders
 		 * @see away3d.loaders.Md2Still#parse()
 		 * @see away3d.loaders.Md2Still#load()
 		 */
-        public function Md2still(data:ByteArray, init:Object = null)
+        public function Md2still(data:*, init:Object = null)
         {
             ini = Init.parse(init);
 
@@ -148,7 +149,7 @@ package away3d.loaders
 
             mesh = new Mesh(ini);
 
-            parseMd2still(data);
+            parseMd2still(Cast.bytearray(data));
         }
 
 		/**
@@ -162,7 +163,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
         {
-            return new Md2still(Cast.bytearray(data), init).mesh;
+            return Object3DLoader.parseGeometry(data, Md2still, init).handle as Mesh;
         }
     	
     	/**
@@ -174,7 +175,7 @@ package away3d.loaders
     	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.loadGeometry(url, parse, true, init);
+            return Object3DLoader.loadGeometry(url, Md2still, true, init);
         }
     }
 }
