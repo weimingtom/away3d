@@ -57,7 +57,6 @@ package away3d.loaders
 		 */
         protected override function notifyError(event:Event):void 
         {
-        	super.notifyError(event);
         	
         	//write message
         	if (mode == LOADING_GEOMETRY)
@@ -74,6 +73,8 @@ package away3d.loaders
             graphics.beginFill(0xFF0000);
             graphics.drawRect(0, 0, 200, 200);
             graphics.endFill();
+            
+        	super.notifyError(event);
         }
 		
 		/**

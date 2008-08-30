@@ -147,7 +147,7 @@ package away3d.loaders
 
             scaling = ini.getNumber("scaling", 1) * 100;
 
-            mesh = new Mesh(ini);
+            mesh = (container = new Mesh(ini)) as Mesh;
 
             parseMd2still(Cast.bytearray(data));
         }
@@ -157,11 +157,10 @@ package away3d.loaders
 		 * 
 		 * @param	data				The binary data of a loaded file.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-		 * @param	loader	[optional]	Not intended for direct use.
 		 * 
 		 * @return						A 3d mesh object representation of the md2 file.
 		 */
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
+        public static function parse(data:*, init:Object = null):Mesh
         {
             return Object3DLoader.parseGeometry(data, Md2still, init).handle as Mesh;
         }
