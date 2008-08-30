@@ -42,7 +42,6 @@ package away3d.loaders
 					if (container is Object3DLoader) {
 						(container as Object3DLoader).parser.container.materialLibrary.loadRequired = false;
 						(container as Object3DLoader).addOnSuccess(onParseGeometry);
-        	trace("lkdjsfsfs");
 					} else {
 						parseImages();
 					}
