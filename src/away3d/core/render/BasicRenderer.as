@@ -72,10 +72,13 @@ package away3d.core.render
             scene = view.scene;
             camera = view.camera;
             clip = view.clip;
+            
+            view.scene.updateSession = new Dictionary(true);
+            
             // resolve projection
             projtraverser.view = view;
             scene.traverse(projtraverser);
-                    
+            
             // get blockers for occlusion culling
             blockerarray.clip = clip;
             blocktraverser.consumer = blockerarray;
@@ -97,6 +100,8 @@ package away3d.core.render
             scene.traverse(pritraverser);
             primitives = priarray.list();
             
+            _session.clear();
+            
             // apply filters
             for each (filter in filters)
                 primitives = filter.filter(primitives, scene, camera, clip);
@@ -116,7 +121,8 @@ package away3d.core.render
 			
             // render all primitives
             for each (primitive in primitives)
-                primitive.render();
+            	if (primitive.source.session.updateSession[view])
+                	primitive.render();
 			/*
 			//reset materials
 			for (object in materials)

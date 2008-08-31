@@ -119,20 +119,23 @@ package away3d.core.render
 		 */
         public override function clear():void
         {
-        	super.clear();
-        	
-        	//clear base canvas
-            _container.graphics.clear();
-            
-            //remove all children
-            i = _container.numChildren;
-			while (i--)
-				_container.removeChild(_container.getChildAt(i));
-			
-            children = new Dictionary(true);
-            newLayer = null;
-            
- 			graphics = _container.graphics;	
+       		super.clear();
+       		
+        	if (updateSession[_view]) {
+        		
+	        	//clear base canvas
+	            _container.graphics.clear();
+	            
+	            //remove all children
+	            i = _container.numChildren;
+				while (i--)
+					_container.removeChild(_container.getChildAt(i));
+				
+	            children = new Dictionary(true);
+	            newLayer = null;
+	            
+	 			graphics = _container.graphics;
+        	}
         }	          
         
 		/**
@@ -140,8 +143,8 @@ package away3d.core.render
 		 */
         public override function flush():void
         {
-        	super.flush();
-       		// NOP
+        		super.flush();
+       			// NOP
         }       
         
 		/**

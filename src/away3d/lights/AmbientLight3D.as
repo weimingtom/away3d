@@ -100,7 +100,6 @@ package away3d.lights
         override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
         	super.primitives(consumer, session);
-
         }
 		
 		/**

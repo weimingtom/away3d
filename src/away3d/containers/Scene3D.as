@@ -5,7 +5,9 @@ package away3d.containers
 	import away3d.core.math.*;
 	import away3d.core.traverse.*;
 	import away3d.core.utils.*;
+	import away3d.events.Object3DEvent;
 	
+	import flash.utils.Dictionary;
 	import flash.utils.getTimer;
     
     /**
@@ -14,7 +16,12 @@ package away3d.containers
     public class Scene3D extends ObjectContainer3D
     {
     	use namespace arcane;
-    	
+        
+        /**
+        * Library of booleans for update status of all sessions in the view.
+        */
+        public var updateSession:Dictionary;
+        
     	/**
     	 * Interface for physics (not implemented)
     	 */
@@ -26,6 +33,38 @@ package away3d.containers
 		 * @see away3d.core.base.Object3D#tick()
 		 */
 		public var tickTraverser:TickTraverser = new TickTraverser();
+        
+		/**
+		 * Cannot parent a <code>Scene3D</code> object
+		 * 
+		 * @throws	Error	Scene can't be parented
+		 */
+		public override function get parent():ObjectContainer3D
+		{
+			return super.parent;
+		}
+		
+        public override function set parent(value:ObjectContainer3D):void
+        {
+            if (value != null)
+                throw new Error("Scene can't be parented");
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get sceneTransform():Matrix3D
+        {
+        	sceneTransformed = false;
+        	
+        	if (_transformDirty)
+        		 _sceneTransformDirty = true;
+			
+        	if (_sceneTransformDirty)
+        		notifySceneTransformChange();
+        	
+            return transform;
+        }
     	
 		/**
 		 * Creates a new <code>Scene3D</code> object
@@ -76,35 +115,5 @@ package away3d.containers
             if (physics != null)
                 physics.updateTime(time);
         }
-        
-		/**
-		 * Cannot parent a <code>Scene3D</code> object
-		 * 
-		 * @throws	Error	Scene can't be parented
-		 */
-		public override function get parent():ObjectContainer3D
-		{
-			return super.parent;
-		}
-        public override function set parent(value:ObjectContainer3D):void
-        {
-            if (value != null)
-                throw new Error("Scene can't be parented");
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get sceneTransform():Matrix3D
-        {
-        	if (_transformDirty)
-        		 _sceneTransformDirty = true;
-        	if (_sceneTransformDirty) {
-        		_sceneTransformDirty = false;
-        		notifySceneTransformChange();
-        	}
-            return transform;
-        }
-
     }
 }

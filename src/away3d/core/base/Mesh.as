@@ -79,6 +79,8 @@
 		private var _n12:Face;
 		private var _n20:Face;
         private var _screenVertex:ScreenVertex;
+        private var _priArray:Array;
+        private var _pri:DrawPrimitive;
 		private var _tri:DrawTriangle;
 		private var _seg:DrawSegment;
         private var _backmat:ITriangleMaterial;
@@ -457,174 +459,182 @@
         {
         	super.primitives(consumer, session);
         	
-        	_dtStore = _dtStore.concat(_dtActive);
-        	_dtActive = new Array();
-            
-            geometry.update(projection.time);
-			
-            _backmat = back || _triangleMaterial;
-			
-			for each (var vertex:Vertex in _geometry.vertices) {
+        	if (this.session.view.camera.sceneTransformed || scene.updateSession[this.session]) {
+        		_priArray = new Array();
+	        	_dtStore = _dtStore.concat(_dtActive);
+	        	_dtActive = new Array();
+	            
+	            geometry.update(projection.time);
 				
-				if (!(_screenVertex = screenVertices[vertex]))
-					_screenVertex = screenVertices[vertex] = new ScreenVertex();
+	            _backmat = back || _triangleMaterial;
 				
-				vertex.project(_screenVertex, projection);
-			}
-			
-            for each (var face:Face in _geometry.faces)
-            {
-                if (!face._visible)
-                    continue;
-				
-				//project each Vertex to a ScreenVertex
-				if (!(_tri = drawTriangles[face])) {
-					_tri = drawTriangles[face] = new DrawTriangle();
-					_tri.source = this;
-					_tri.create = createDrawTriangle;
-					_tri.face = face;
+				for each (var vertex:Vertex in _geometry.vertices) {
+					
+					if (!(_screenVertex = screenVertices[vertex]))
+						_screenVertex = screenVertices[vertex] = new ScreenVertex();
+					
+					vertex.project(_screenVertex, projection);
 				}
 				
-				_tri.v0 = screenVertices[face._v0];
-				_tri.v1 = screenVertices[face._v1];
-				_tri.v2 = screenVertices[face._v2];				
-				//check each ScreenVertex is visible
-                if (!_tri.v0.visible)
-                    continue;
-
-                if (!_tri.v1.visible)
-                    continue;
-
-                if (!_tri.v2.visible)
-                    continue;
-				
-				//calculate Draw_triangle properties
-                _tri.calc();
-				
-				//check _triangle is not behind the camera
-                //if (_tri.maxZ < 0)
-                //    continue;
-				
-				//determine if _triangle is facing towards or away from camera
-                _backface = _tri.area < 0;
-				
-				//if _triangle facing away, check for backface material
-                if (_backface) {
-                    if (!bothsides)
-                        continue;
-                    _tri.material = face._back;
-                    if (_tri.material == null)
-                    	_tri.material = face._material;
-                } else
-                    _tri.material = face._material;
-				
-				//determine the material of the _triangle
-                if (_tri.material == null)
-                    if (_backface)
-                        _tri.material = _backmat;
-                    else
-                        _tri.material = _triangleMaterial;
-				
-				//do not draw material if visible is false
-                if (_tri.material != null)
-                    if (!_tri.material.visible)
-                        _tri.material = null;
-				
-				//if there is no material and no outline, continue
-                if (outline == null)
-                    if (_tri.material == null)
-                        continue;
-				
-                if (pushback)
-                    _tri.screenZ = _tri.maxZ;
-
-                if (pushfront)
-                    _tri.screenZ = _tri.minZ;
-				
-				_uvmaterial = (_tri.material is IUVMaterial || _tri.material is ILayerMaterial);
-				
-				//swap ScreenVerticies if _triangle facing away from camera
-                if (_backface) {
-                    // Make cleaner
-                    _vt = _tri.v1;
-                    _tri.v1 = _tri.v2;
-                    _tri.v2 = _vt;
+	            for each (var face:Face in _geometry.faces)
+	            {
+	                if (!face._visible)
+	                    continue;
 					
-                    _tri.area = -_tri.area;
-                    
-                    if (_uvmaterial) {
+					//project each Vertex to a ScreenVertex
+					if (!(_tri = drawTriangles[face])) {
+						_tri = drawTriangles[face] = new DrawTriangle();
+						_tri.source = this;
+						_tri.create = createDrawTriangle;
+						_tri.face = face;
+					}
+					
+					_tri.v0 = screenVertices[face._v0];
+					_tri.v1 = screenVertices[face._v1];
+					_tri.v2 = screenVertices[face._v2];					
+					//check each ScreenVertex is visible
+	                if (!_tri.v0.visible)
+	                    continue;
+					
+	                if (!_tri.v1.visible)
+	                    continue;
+					
+	                if (!_tri.v2.visible)
+	                    continue;
+					
+					//calculate Draw_triangle properties
+	                _tri.calc();
+					
+					//check _triangle is not behind the camera
+	                //if (_tri.maxZ < 0)
+	                //    continue;
+					
+					//determine if _triangle is facing towards or away from camera
+	                _backface = _tri.area < 0;
+					
+					//if _triangle facing away, check for backface material
+	                if (_backface) {
+	                    if (!bothsides)
+	                        continue;
+	                    _tri.material = face._back;
+	                    if (_tri.material == null)
+	                    	_tri.material = face._material;
+	                } else
+	                    _tri.material = face._material;
+					
+					//determine the material of the _triangle
+	                if (_tri.material == null)
+	                    if (_backface)
+	                        _tri.material = _backmat;
+	                    else
+	                        _tri.material = _triangleMaterial;
+					
+					//do not draw material if visible is false
+	                if (_tri.material != null)
+	                    if (!_tri.material.visible)
+	                        _tri.material = null;
+					
+					//if there is no material and no outline, continue
+	                if (outline == null)
+	                    if (_tri.material == null)
+	                        continue;
+					
+	                if (pushback)
+	                    _tri.screenZ = _tri.maxZ;
+					
+	                if (pushfront)
+	                    _tri.screenZ = _tri.minZ;
+					
+					_uvmaterial = (_tri.material is IUVMaterial || _tri.material is ILayerMaterial);
+					
+					//swap ScreenVerticies if _triangle facing away from camera
+	                if (_backface) {
+	                    // Make cleaner
+	                    _vt = _tri.v1;
+	                    _tri.v1 = _tri.v2;
+	                    _tri.v2 = _vt;
+						
+	                    _tri.area = -_tri.area;
+	                    
+	                    if (_uvmaterial) {
+							//pass accross uv values
+			                _tri.uv0 = face._uv0;
+			                _tri.uv1 = face._uv2;
+			                _tri.uv2 = face._uv1;
+	                    }
+	                } else if (_uvmaterial) {
 						//pass accross uv values
 		                _tri.uv0 = face._uv0;
-		                _tri.uv1 = face._uv2;
-		                _tri.uv2 = face._uv1;
-                    }
-                } else if (_uvmaterial) {
-					//pass accross uv values
-	                _tri.uv0 = face._uv0;
-	                _tri.uv1 = face._uv1;
-	                _tri.uv2 = face._uv2;
-                }
-                
-                //check if face swapped direction
-                if (_tri.backface != _backface) {
-                	_tri.backface = _backface;
-                	_tri.texturemapping = null;
-                }
-                
-                if (outline != null && !_backface)
-                {
-                    _n01 = _geometry.neighbour01(face);
-                    if (_n01 == null || _n01.front(projection) <= 0)
-                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v0, _tri.v1));
-
-                    _n12 = _geometry.neighbour12(face);
-                    if (_n12 == null || _n12.front(projection) <= 0)
-                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v1, _tri.v2));
-
-                    _n20 = _geometry.neighbour20(face);
-                    if (_n20 == null || _n20.front(projection) <= 0)
-                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v2, _tri.v0));
-
-                    if (_tri.material == null)
-                    	continue;
-                }
-                _tri.projection = projection;
-                consumer.primitive(_tri);
-            }
-            
-            for each (var segment:Segment in geometry.segments)
-            {
-            	if (!(_seg = drawSegments[segment])) {
-					_seg = drawSegments[segment] = new DrawSegment();
-					_seg.create = createDrawSegment;
-					_seg.source = this;
-            	}
-            	
-            	_seg.v0 = screenVertices[segment._v0];
-				_seg.v1 = screenVertices[segment._v1];
-    
-                if (!_seg.v0.visible)
-                    continue;
-
-                if (!_seg.v1.visible)
-                    continue;
-
-                _seg.calc();
-
-                if (_seg.maxZ < 0)
-                    continue;
-
-                _seg.material = segment.material || _segmentMaterial;
-
-                if (_seg.material == null)
-                    continue;
-
-                if (!_seg.material.visible)
-                    continue;
-                
-                _seg.projection = projection;
-                consumer.primitive(_seg);
-            }
+		                _tri.uv1 = face._uv1;
+		                _tri.uv2 = face._uv2;
+	                }
+	                
+	                //check if face swapped direction
+	                if (_tri.backface != _backface) {
+	                	_tri.backface = _backface;
+	                	_tri.texturemapping = null;
+	                }
+	                
+	                if (outline != null && !_backface)
+	                {
+	                    _n01 = _geometry.neighbour01(face);
+	                    if (_n01 == null || _n01.front(projection) <= 0)
+	                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v0, _tri.v1));
+						
+	                    _n12 = _geometry.neighbour12(face);
+	                    if (_n12 == null || _n12.front(projection) <= 0)
+	                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v1, _tri.v2));
+						
+	                    _n20 = _geometry.neighbour20(face);
+	                    if (_n20 == null || _n20.front(projection) <= 0)
+	                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v2, _tri.v0));
+						
+	                    if (_tri.material == null)
+	                    	continue;
+	                }
+	                _tri.projection = projection;
+	                _priArray.push(_tri);
+	                consumer.primitive(_tri);
+	            }
+	            
+	            for each (var segment:Segment in geometry.segments)
+	            {
+	            	if (!(_seg = drawSegments[segment])) {
+						_seg = drawSegments[segment] = new DrawSegment();
+						_seg.create = createDrawSegment;
+						_seg.source = this;
+	            	}
+	            	
+	            	_seg.v0 = screenVertices[segment._v0];
+					_seg.v1 = screenVertices[segment._v1];
+	    
+	                if (!_seg.v0.visible)
+	                    continue;
+					
+	                if (!_seg.v1.visible)
+	                    continue;
+					
+	                _seg.calc();
+					
+	                if (_seg.maxZ < 0)
+	                    continue;
+					
+	                _seg.material = segment.material || _segmentMaterial;
+					
+	                if (_seg.material == null)
+	                    continue;
+					
+	                if (!_seg.material.visible)
+	                    continue;
+	                
+	                _seg.projection = projection;
+	                _priArray.push(_seg);
+	                consumer.primitive(_seg);
+	            }
+	        } else {
+	        	for each (_pri in _priArray)
+	        		consumer.primitive(_pri);
+	        }
         }
 		
 		/**
