@@ -158,19 +158,22 @@ package away3d.core.render
 		 */
         public override function clear():void
         {
-        	super.clear();
-        	
-        	//clear base canvas
-        	_base.lock();
-        	_base.fillRect(_base.rect, 0);
-            
-            //remove all children
-            children = new Dictionary(true);
-            newLayer = null;
-            
-            //remove all layers
-            layers = [];
-            _layerDirty = true;
+	        super.clear();
+	        
+        	if (updateSession[_view]) {
+        		
+	        	//clear base canvas
+	        	_base.lock();
+	        	_base.fillRect(_base.rect, 0);
+	            
+	            //remove all children
+	            children = new Dictionary(true);
+	            newLayer = null;
+	            
+	            //remove all layers
+	            layers = [];
+	            _layerDirty = true;
+	        }
         }
         
 		/**
@@ -178,13 +181,16 @@ package away3d.core.render
 		 */
         public override function flush():void
         {
-        	super.flush();
-        	
-        	i = 0;
-            for each (layer in layers)
-            	_base.draw(layer, _cm, layer.transform.colorTransform, layer.blendMode, _base.rect);
-           	
-           _base.unlock();
+	        super.flush();
+	        	
+        	if (updateSession[_view]) {
+        		
+	        	i = 0;
+	            for each (layer in layers)
+	            	_base.draw(layer, _cm, layer.transform.colorTransform, layer.blendMode, _base.rect);
+	           	
+	           _base.unlock();
+	        }
         }
         
 		/**

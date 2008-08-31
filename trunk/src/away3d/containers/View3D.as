@@ -343,7 +343,7 @@ package away3d.containers
         	//setup view in session
         	_session.view = this;
         	
-        	_session.clear();
+        	//_session.clear();
         }
 		
         /**

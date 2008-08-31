@@ -174,10 +174,10 @@ package away3d.core.base
         	
             if (!hasEventListener(Object3DEvent.TRANSFORM_CHANGED))
                 return;
-
+			
             if (!_transformchanged)
                 _transformchanged = new Object3DEvent(Object3DEvent.TRANSFORM_CHANGED, this);
-                
+            
             dispatchEvent(_transformchanged);
         }
         /** @private */
@@ -188,21 +188,23 @@ package away3d.core.base
         	
             if (!hasEventListener(Object3DEvent.SCENETRANSFORM_CHANGED))
                 return;
-
+			
             if (!_scenetransformchanged)
                 _scenetransformchanged = new Object3DEvent(Object3DEvent.SCENETRANSFORM_CHANGED, this);
-                
+            
             dispatchEvent(_scenetransformchanged);
         }
         /** @private */       
         arcane function notifySceneChange():void
         {
+        	_sceneTransformDirty = true;
+        	
             if (!hasEventListener(Object3DEvent.SCENE_CHANGED))
                 return;
-
+			
             if (!_scenechanged)
                 _scenechanged = new Object3DEvent(Object3DEvent.SCENE_CHANGED, this);
-                
+            
             dispatchEvent(_scenechanged);
         }
         /** @private */
@@ -251,6 +253,7 @@ package away3d.core.base
         private var _parentPivot:Number3D;
         private var _parentradius:Number3D = new Number3D();
         private var _scene:Scene3D;
+        private var _oldscene:Scene3D;
         private var _parent:ObjectContainer3D;
 		private var _quaternion:Quaternion = new Quaternion();
 		private var _rot:Number3D = new Number3D();
@@ -289,7 +292,6 @@ package away3d.core.base
             //calulate the inverse transform of the scene (used for lights and bones)
             inverseSceneTransform.inverse(_sceneTransform);
             
-            _sceneTransformDirty = false;
             notifySceneTransformChange();
         }
 		
@@ -307,8 +309,10 @@ package away3d.core.base
         {
             if (_scene == _parent.scene)
                 return;
-
+                
+			_oldscene = _scene;
             _scene = _parent.scene;
+            
             notifySceneChange();
         }
 		
@@ -868,7 +872,7 @@ package away3d.core.base
             if (value == _parent)
                 return;
 			
-            var oldscene:Scene3D = scene;
+            _oldscene = _scene;
 			
             if (_parent != null)
             {
@@ -877,6 +881,7 @@ package away3d.core.base
             }
 			
             _parent = value;
+            _scene = _parent ? _parent.scene : null;
 			
             if (_parent != null)
             {
@@ -885,9 +890,8 @@ package away3d.core.base
                 _parent.addOnSceneTransformChange(onParentTransformChange);
             }
 			
-            _scene = _parent ? _parent.scene : null;
 			
-            if (_scene != oldscene)
+            if (_scene != _oldscene)
                 notifySceneChange();
 			
             _sceneTransformDirty = true;
@@ -905,10 +909,10 @@ package away3d.core.base
             if (_scene == null) {
             	if (_transformDirty)
             		 _sceneTransformDirty = true;
-            	if (_sceneTransformDirty) {
-            		_sceneTransformDirty = false;
+				
+            	if (_sceneTransformDirty)
             		notifySceneTransformChange();
-            	}
+            	
                 return transform;
             }
 
@@ -1051,7 +1055,7 @@ package away3d.core.base
         public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
         {
             _dispatchedDimensionsChange = false;
-            
+        		
             _v = session.view;
             if (ownCanvas) 
             {
@@ -1061,6 +1065,7 @@ package away3d.core.base
                 session.registerChildSession(ownSession);
                 
                 ownSession.view = _v;
+        		
                 _c = ownSession.getContainer(_v);
                 _c.filters = filters;
                 _c.alpha = alpha;
@@ -1076,19 +1081,24 @@ package away3d.core.base
              	_sc.y = _c.y;
              	_sc.z = Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
              	
-             	_ddo.source = this;
+             	_ddo.source = this.parent;
              	_ddo.screenvertex = _sc;
              	_ddo.displayobject = _c;
-             	_ddo.session = session;
+             	_ddo.session = this.parent.session;
              	_ddo.calc();
              	
                 consumer.primitive(_ddo);
             }
             else
-            {                
+            {   
                 this.session = session;
             }
-                  
+        	
+            if (sceneTransformed)
+    			scene.updateSession[this.session] = true;
+        	else
+        		scene.updateSession[this.session] = scene.updateSession[this.session] || false;
+        	
             if (debugbb) {
             	if (_dimensionsDirty || !_debugboundingbox)
             		updateDimensions();

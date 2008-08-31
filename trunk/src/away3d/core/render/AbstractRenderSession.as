@@ -86,6 +86,11 @@ package away3d.core.render
         public var graphics:Graphics;
         
         /**
+        * Dictionary of booleans that determines whether rendered contents of the session should be updated in the given view. Defaults to true;
+        */
+        public var updateSession:Dictionary = new Dictionary(true);
+        
+        /**
         * Defines the view object used for the render session.
         */
         public function get view():View3D
@@ -149,27 +154,30 @@ package away3d.core.render
 		 */
         public function clear():void
         {
+        	updateSession[_view] = _view.camera.sceneTransformed || _view.scene.updateSession[this]
         	
-        	for each (var sprite:Sprite in spriteLayers) {
-        		sprite.graphics.clear();
-        		if (sprite.numChildren) {
-        			var i:int = sprite.numChildren;
-        			while (i--) {
-        				ds = sprite.getChildAt(i);
-        				if (ds is Shape)
-        					(ds as Shape).graphics.clear();
-        			}
-        				
-        		}
-        	}
-        	
-        	//clear child canvases
-            i = doActive.length;
-            while (i--) {
-            	cont = doActive.pop();
-            	cont.graphics.clear();
-            	doStore.push(cont);
-            }
+        	if (updateSession[_view]) {
+	        	for each (var sprite:Sprite in spriteLayers) {
+	        		sprite.graphics.clear();
+	        		if (sprite.numChildren) {
+	        			var i:int = sprite.numChildren;
+	        			while (i--) {
+	        				ds = sprite.getChildAt(i);
+	        				if (ds is Shape)
+	        					(ds as Shape).graphics.clear();
+	        			}
+	        				
+	        		}
+	        	}
+	        	
+	        	//clear child canvases
+	            i = doActive.length;
+	            while (i--) {
+	            	cont = doActive.pop();
+	            	cont.graphics.clear();
+	            	doStore.push(cont);
+	            }
+	        }
             
         	for each(session in sessions)
        			session.clear();

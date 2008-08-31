@@ -18,7 +18,7 @@
         arcane function internalAddChild(child:Object3D):void
         {
             _children.push(child);
-
+			
             child.addOnTransformChange(onChildChange);
             child.addOnDimensionsChange(onChildChange);
 
