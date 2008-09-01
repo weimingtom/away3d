@@ -59,7 +59,7 @@ package away3d.materials.shaders
         /** @private */
 		arcane var _face:Face;
         /** @private */
-		arcane var _lights:LightArray;
+		arcane var _lights:ILightConsumer;
         /** @private */
 		arcane var _parentFaceVO:FaceVO;
         /** @private */

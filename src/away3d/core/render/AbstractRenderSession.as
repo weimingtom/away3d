@@ -5,6 +5,7 @@ package away3d.core.render
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
+	import away3d.materials.IUpdatingMaterial;
 	
 	import flash.display.*;
 	import flash.geom.*;
@@ -55,8 +56,14 @@ package away3d.core.render
         private var cont:Shape;
         private var ds:DisplayObject;
         private var time:int;
+        private var materials:Dictionary;
+        private var primitive:DrawPrimitive;
+        private var triangle:DrawTriangle;
+        
 		/** @private */
         protected var i:int;
+        
+        public var primitives:Array;
         
         /**
         * Dictionary of child sessions.
@@ -90,6 +97,20 @@ package away3d.core.render
         */
         public var updateSession:Dictionary = new Dictionary(true);
         
+        public var priconsumers:Dictionary = new Dictionary(true);
+        
+        public var consumer:IPrimitiveConsumer;
+        
+        /**
+        * Defines the light consumer object for the render sesion.
+        */
+        public var lightarray:ILightConsumer;
+        
+        /**
+        * Defines the primitive consumer object for the render sesion.
+        */
+        public var priconsumer:IPrimitiveConsumer;
+        
         /**
         * Defines the view object used for the render session.
         */
@@ -99,22 +120,19 @@ package away3d.core.render
         }
         
         public function set view(val:View3D):void
-        {	
+        {
         	_view = val;
+        	
+        	//cehck if root session
+        	if (_view.session == this) {
+	        	priconsumer = _view.renderer.primitiveConsumer;
+	        } else if (!priconsumers[_view]) {
+	        	priconsumer = priconsumers[_view] = _view.renderer.primitiveConsumer.clone();
+	        } else {
+	        	priconsumer = priconsumers[_view];
+	        }
+	        	priconsumer.view = _view;
         	time = getTimer();
-        }
-        
-        /**
-        * Defines the light provider object for the render sesion.
-        */
-        public function get lightarray():LightArray
-        {
-        	return _lightarray;
-        }
-        
-        public function set lightarray(val:LightArray):void
-        {
-        	_lightarray = val;
         }
         
 		/**
@@ -177,10 +195,49 @@ package away3d.core.render
 	            	cont.graphics.clear();
 	            	doStore.push(cont);
 	            }
+	            
+	            //clear primitives consumer
+	            priconsumer.clear()
 	        }
             
         	for each(session in sessions)
        			session.clear();
+        }
+		
+		/**
+		 * Filters the render session.
+		 */
+        public function filter(filters:Array):void
+        {
+        	if (updateSession[_view])
+        		priconsumer.filter(filters);
+        	
+        	for each(session in sessions)
+       			session.filter(filters);
+        }
+        
+        public function render():void
+        {
+        	primitives = priconsumer.list();
+        	
+        	if (updateSession[_view]) {
+				//update materials
+				materials = new Dictionary(true);
+				for each (primitive in primitives)
+					if(primitive is DrawTriangle) {
+						triangle = primitive as DrawTriangle;
+						if (!materials[triangle.source])
+							materials[triangle.source] = new Dictionary(true);
+						if (triangle.material is IUpdatingMaterial && !materials[triangle.source][triangle.material]) {
+							(materials[triangle.source][triangle.material] = triangle.material as IUpdatingMaterial).updateMaterial(triangle.source, _view);
+						}
+					}
+				
+				priconsumer.render();
+	        }
+	        
+        	for each(session in sessions)
+       			session.render();
         }
         
         /**

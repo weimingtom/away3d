@@ -2,49 +2,51 @@ package away3d.core.render
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-    import away3d.core.base.*;
-    import away3d.core.clip.*;
-    import away3d.core.draw.*;
-    import away3d.core.light.*;
-    import away3d.core.filter.*;
-    import away3d.materials.IUpdatingMaterial;
-    import away3d.core.traverse.*;
-    import away3d.core.stats.*;
-    
-    import flash.utils.Dictionary;
+	import away3d.core.base.*;
+	import away3d.core.clip.*;
+	import away3d.core.draw.*;
+	import away3d.core.filter.*;
+	import away3d.core.light.*;
+	import away3d.core.stats.*;
+	import away3d.core.traverse.*;
+	
+	import flash.utils.Dictionary;
     
 
     /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
     public class QuadrantRenderer implements IRenderer
     {
         private var qdrntfilters:Array;
-        private var qdrntfilter:IPrimitiveQuadrantFilter;
 		private var scene:Scene3D;
         private var camera:Camera3D;
         private var clip:Clipping;
         private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
         private var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree();
         private var lightarray:LightArray = new LightArray();
+        private var sessiontraverser:SessionTraverser = new SessionTraverser();
         private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
         private var primitives:Array;
         private var materials:Dictionary;
-        private var _session:AbstractRenderSession;
         private var primitive:DrawPrimitive;
         private var triangle:DrawTriangle;
         private var object:Object3D;
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get session():AbstractRenderSession
-        {
-        	return this._session;
-        }
-        
-        public function set session(value:AbstractRenderSession):void
-        {
-        	this._session = value;
-        }
+        private var session:AbstractRenderSession;
+		private var s:AbstractRenderSession;
+		
+		private function countFaces(session:AbstractRenderSession):int
+		{
+			var output:int = session.primitives.length;
+			
+			for each (s in session.sessions)
+				output += countFaces(s);
+				
+			return output;
+		}
+		
+		public function get primitiveConsumer():IPrimitiveConsumer
+		{
+			return pritree;
+		}
 		
 		/**
 		 * Creates a new <code>QuadrantRenderer</code> object.
@@ -57,16 +59,17 @@ package away3d.core.render
 
             for each (var filter:IPrimitiveQuadrantFilter in filters)
                 qdrntfilters.push(filter);
-            clip = new Clipping();
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function render(view:View3D):Array
+        public function render(view:View3D):void
         {
             scene = view.scene;
             camera = view.camera;
+            clip = view.clip;
+            session = view.session;
             
             view.scene.updateSession = new Dictionary(true);
             
@@ -78,47 +81,26 @@ package away3d.core.render
             lightarray.clear();
             
             //setup session
-            _session.view = view;
-            _session.lightarray = lightarray;
+            session.view = view;
+            session.lightarray = lightarray;
             
-            //setup primitives consumer
-            pritree.clip = clip;
+            //traverse sessions
+            sessiontraverser.view = view;
+            scene.traverse(sessiontraverser);
+			
+			session.clear();
             
             //traverse primitives
-            pritraverser.consumer = pritree;
-            pritraverser.session = _session;
+            pritraverser.view = view;
             scene.traverse(pritraverser);
-			primitives = pritree.list();
 			
-			_session.clear();
+			session.filter(qdrntfilters);
 			
-			//apply filters
-            for each (qdrntfilter in qdrntfilters)
-                qdrntfilter.filter(pritree, scene, camera, clip);
-            
-			//update materials
-			materials = new Dictionary(true);
-			for each (primitive in primitives)
-				if(primitive is DrawTriangle) {
-					triangle = primitive as DrawTriangle;
-					if (!materials[triangle.source])
-						materials[triangle.source] = new Dictionary(true);
-					if (triangle.material is IUpdatingMaterial && !materials[triangle.source][triangle.material]) {
-						(materials[triangle.source][triangle.material] = triangle.material as IUpdatingMaterial).updateMaterial(triangle.source, view);
-					}
-				}
+			session.render();
 			
-			//render all primitives
-            pritree.render();
-            /*
-			for (object in materials)
-				materials[object].resetMaterial(object as Mesh);
-			*/
             //dispatch stats
             if (view.statsOpen)
-            	view.statsPanel.updateStats(primitives.length, camera);
-			
-			return primitives;
+            	view.statsPanel.updateStats(countFaces(session), camera);
         }
         
 		/**

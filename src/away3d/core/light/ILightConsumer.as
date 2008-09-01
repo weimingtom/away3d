@@ -6,6 +6,11 @@ package away3d.core.light
     */
     public interface ILightConsumer
     {
+    	function get ambients():Array;
+    	function get directionals():Array;
+    	function get points():Array;
+    	function get numLights():int;
+    	
     	/**
     	 * Adds an ambient light primitive to the light consumer.
     	 *

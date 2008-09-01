@@ -101,9 +101,9 @@ package away3d.sprites
     	 * @see	away3d.core.traverse.PrimitiveTraverser
     	 * @see	away3d.core.draw.DrawScaledBitmap
 		 */
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
+        override public function primitives():void
         {
-        	super.primitives(consumer, session);
+        	super.primitives();
 
             if (_vertices.length == 0)
                 return;
@@ -144,7 +144,7 @@ package away3d.sprites
             _primitive.rotation = rotation;
             _primitive.calc();
             
-            consumer.primitive(_primitive);
+            session.priconsumer.primitive(_primitive);
         }
     }
 }

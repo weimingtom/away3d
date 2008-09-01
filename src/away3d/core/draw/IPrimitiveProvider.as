@@ -1,6 +1,5 @@
 package away3d.core.draw
 {
-    import away3d.core.draw.*;
     import away3d.core.render.*;
 
     /**
@@ -11,12 +10,11 @@ package away3d.core.draw
     	/**
     	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
     	 * 
-    	 * @param	consumer	The consumer instance
-    	 * @param	session		The render session of the 3d object
-    	 * 
     	 * @see	away3d.core.traverse.PrimitiveTraverser
     	 * @see	away3d.core.draw.DrawPrimitive
     	 */
-        function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void;
+        function primitives():void;
+        
+        function sessions(session:AbstractRenderSession):void;
     }
 }

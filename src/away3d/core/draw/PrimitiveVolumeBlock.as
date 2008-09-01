@@ -1,9 +1,13 @@
 package away3d.core.draw
 {
+	import away3d.cameras.*;
+	import away3d.containers.*;
+	import away3d.core.block.*;
 	import away3d.core.clip.*;
-    import away3d.core.render.*;
-    
-    import flash.utils.Dictionary;
+	import away3d.core.filter.*;
+	import away3d.core.render.*;
+	
+	import flash.utils.Dictionary;
     
     //TODO: properly implement a volume block renderer.
     /**
@@ -16,18 +20,26 @@ package away3d.core.draw
         private var _root:PrimitiveVolumeBlockNode = new PrimitiveVolumeBlockNode(null);
         private var _clip:Clipping;
         private var _result:Array;
+		private var _primitive:DrawPrimitive;
+        private var _view:View3D;
+        private var _scene:Scene3D;
+        private var _camera:Camera3D;
+		private var _filter:IPrimitiveFilter;
 		
 		/**
 		 * Defines the clipping object to be used on the drawing primitives.
 		 */
-		public function get clip():Clipping
+		public function get view():View3D
 		{
-			return _clip;
+			return _view;
 		}
 		
-		public function set clip(val:Clipping):void
+		public function set view(val:View3D):void
 		{
-			_clip = val;
+			_view = val;
+			_scene = val.scene;
+			_camera = val.camera;
+			_clip = val.clip;
 		}
         
 		/**
@@ -126,6 +138,26 @@ package away3d.core.draw
             }
             return _result;
         }
+                
+        public function clear():void
+        {
+        	_result = [];
+        }
         
+        public function clone():IPrimitiveConsumer
+        {
+        	return new PrimitiveVolumeBlock();
+        }
+        
+        public function render():void
+        {
+    		// render all primitives
+        }
+		
+		public function filter(filters:Array):void
+		{
+			for each (_filter in filters)
+        		_result = _filter.filter(_result, _scene, _camera, _clip);
+		}
     }
 }

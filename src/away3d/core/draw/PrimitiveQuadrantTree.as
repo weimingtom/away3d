@@ -1,7 +1,10 @@
 package away3d.core.draw
 {
+	import away3d.cameras.*;
+	import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.clip.*;
+    import away3d.core.filter.IPrimitiveQuadrantFilter;
     import away3d.core.render.*;
 
     /**
@@ -10,7 +13,6 @@ package away3d.core.draw
     public final class PrimitiveQuadrantTree implements IPrimitiveConsumer
     {
         private var _root:PrimitiveQuadrantTreeNode;
-        private var _clip:Clipping;
 		private var _rect:RectangleClipping;
 		private var _center:Array;
 		private var _result:Array;
@@ -22,6 +24,13 @@ package away3d.core.draw
 		private var _child:DrawPrimitive;
 		private var _children:Array;
 		private var i:int;
+		private var _primitives:Array;
+        private var _view:View3D;
+        private var _scene:Scene3D;
+        private var _camera:Camera3D;
+        private var _clip:Clipping;
+        private var _blockers:Array;
+		private var _filter:IPrimitiveQuadrantFilter;
 		
 		private function getList(node:PrimitiveQuadrantTreeNode):void
         {
@@ -80,16 +89,19 @@ package away3d.core.draw
         }
         
 		/**
-		 * Defines the clipping object to be used on the drawing primitives.
+		 * Defines the view to be used with the consumer.
 		 */
-		public function get clip():Clipping
+		public function get view():View3D
 		{
-			return _clip;
+			return _view;
 		}
 		
-		public function set clip(val:Clipping):void
+		public function set view(val:View3D):void
 		{
-			_clip = val;
+			_view = val;
+			_scene = val.scene;
+			_camera = val.camera;
+			_clip = val.clip;
 			_rect = _clip.asRectangleClipping();
 			if (!_root)
 				_root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY, 0);
@@ -161,6 +173,22 @@ package away3d.core.draw
             return _result;
         }
         
+        public function clear():void
+        {
+        	_primitives = [];
+        }
+        
+        public function clone():IPrimitiveConsumer
+        {
+        	return new PrimitiveQuadrantTree();
+        }
+        
+		public function filter(filters:Array):void
+		{
+			for each (_filter in filters)
+        		_filter.filter(this, _scene, _camera, _clip);
+		}
+		
         /**
         * Calls the render function on all primitives in the quadrant tree
         */

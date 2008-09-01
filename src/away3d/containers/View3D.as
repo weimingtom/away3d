@@ -17,7 +17,6 @@ package away3d.containers
 	import flash.events.Event;
 	import flash.events.EventPhase;
 	import flash.events.MouseEvent;
-	import flash.utils.Dictionary;
 	
 	 /**
 	 * Dispatched when a user moves the cursor while it is over a 3d object
@@ -72,7 +71,6 @@ package away3d.containers
         }
         		
 		private var _session:AbstractRenderSession;
-		private var _renderer:IRenderer;
         private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
 		private var _mousedown:Boolean;
@@ -114,7 +112,7 @@ package away3d.containers
         
         private function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
-            findhit = new FindHit(this, primitives, x, y);
+            findhit = new FindHit(this, session, x, y);
             var event:MouseEvent3D = findhit.getMouseEvent(type);
             var target:Object3D = event.object;
             var targetMaterial:IUVMaterial = event.material;
@@ -155,7 +153,9 @@ package away3d.containers
             var tar:Object3D = event.object;
             while (tar != null)
             {
-                if (tar.dispatchMouseEvent(event))
+            	var evt:MouseEvent3D = event.clone() as MouseEvent3D;
+            	evt.object = tar;
+                if (tar.dispatchMouseEvent(evt))
                     break;
                 tar = tar.parent;
             }       
@@ -255,16 +255,7 @@ package away3d.containers
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
         */
-        public function get renderer():IRenderer
-        {
-        	return _renderer;
-        }
-        
-        public function set renderer(val:IRenderer):void
-        {
-        	_renderer = val;
-        	_renderer.session = _session;
-        }
+        public var renderer:IRenderer
         
         /**
         * Session object used to draw all drawing primitives returned from the renderer to the view container.
@@ -280,7 +271,6 @@ package away3d.containers
         public function set session(val:AbstractRenderSession):void
         {
         	_session = val;
-        	_renderer.session = _session;
         	
         	//clear children
         	while (numChildren)
@@ -305,7 +295,7 @@ package away3d.containers
             var stats:Boolean = _ini.getBoolean("stats", true);
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
             camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
-			_renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
+			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
 			session = _ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
 			clip = _ini.getObject("clip", Clipping) as Clipping;
 			x = _ini.getNumber("x", 0);
@@ -339,7 +329,6 @@ package away3d.containers
 			if (clip == _defaultclip)
             	clip = _defaultclip.screen(this);
         	
-        
         	//setup view in session
         	_session.view = this;
         	
@@ -388,7 +377,7 @@ package away3d.containers
         {
             clear();
             
-            primitives = _renderer.render(this);
+            renderer.render(this);
 			
 			flush();
         	

@@ -79,7 +79,6 @@
 		private var _n12:Face;
 		private var _n20:Face;
         private var _screenVertex:ScreenVertex;
-        private var _priArray:Array;
         private var _pri:DrawPrimitive;
 		private var _tri:DrawTriangle;
 		private var _seg:DrawSegment;
@@ -87,6 +86,7 @@
         private var _backface:Boolean;
         private var _uvmaterial:Boolean;
         private var _vt:ScreenVertex;
+        private var _consumer:IPrimitiveConsumer;
 		private var _dtStore:Array = new Array();
         private var _dtActive:Array = new Array();
         private var _dsStore:Array = new Array();
@@ -455,12 +455,12 @@
     	 * @see	away3d.core.draw.DrawTriangle
     	 * @see	away3d.core.draw.DrawSegment
 		 */
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
+        override public function primitives():void
         {
-        	super.primitives(consumer, session);
+        	super.primitives();
         	
-        	if (this.session.view.camera.sceneTransformed || scene.updateSession[this.session]) {
-        		_priArray = new Array();
+        	if (session.view.camera.sceneTransformed || scene.updateSession[session]) {
+        		_consumer = session.priconsumer;
 	        	_dtStore = _dtStore.concat(_dtActive);
 	        	_dtActive = new Array();
 	            
@@ -579,22 +579,21 @@
 	                {
 	                    _n01 = _geometry.neighbour01(face);
 	                    if (_n01 == null || _n01.front(projection) <= 0)
-	                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v0, _tri.v1));
+	                    	_consumer.primitive(createDrawSegment(outline, projection, _tri.v0, _tri.v1));
 						
 	                    _n12 = _geometry.neighbour12(face);
 	                    if (_n12 == null || _n12.front(projection) <= 0)
-	                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v1, _tri.v2));
+	                    	_consumer.primitive(createDrawSegment(outline, projection, _tri.v1, _tri.v2));
 						
 	                    _n20 = _geometry.neighbour20(face);
 	                    if (_n20 == null || _n20.front(projection) <= 0)
-	                    	consumer.primitive(createDrawSegment(outline, projection, _tri.v2, _tri.v0));
+	                    	_consumer.primitive(createDrawSegment(outline, projection, _tri.v2, _tri.v0));
 						
 	                    if (_tri.material == null)
 	                    	continue;
 	                }
 	                _tri.projection = projection;
-	                _priArray.push(_tri);
-	                consumer.primitive(_tri);
+	                _consumer.primitive(_tri);
 	            }
 	            
 	            for each (var segment:Segment in geometry.segments)
@@ -628,12 +627,8 @@
 	                    continue;
 	                
 	                _seg.projection = projection;
-	                _priArray.push(_seg);
-	                consumer.primitive(_seg);
+	                _consumer.primitive(_seg);
 	            }
-	        } else {
-	        	for each (_pri in _priArray)
-	        		consumer.primitive(_pri);
 	        }
         }
 		
