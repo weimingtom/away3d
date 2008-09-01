@@ -37,6 +37,7 @@ package away3d.loaders
             graphics.drawCircle(100, 100, 100);
             info = new TextField();
             info.width = 200;
+            info.height = 200;
             tf = new TextFormat();
             tf.size = 24;
             tf.color = 0x00FFFF;
