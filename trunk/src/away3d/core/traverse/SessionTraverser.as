@@ -11,15 +11,14 @@ package away3d.core.traverse
     /**
     * Traverser that gathers drawing primitives to render the scene.
     */
-    public class PrimitiveTraverser extends Traverser
+    public class SessionTraverser extends Traverser
     {
     	use namespace arcane;
     	
     	private var _view:View3D;
-    	private var _mouseEnabled:Boolean;
-    	private var _mouseEnableds:Array;
-        private var _lights:ILightConsumer;
-		
+    	private var _session:AbstractRenderSession;
+    	private var _sessions:Array;
+    	
 		/**
 		 * Defines the render session being used.
 		 */
@@ -30,15 +29,15 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
-			_mouseEnabled = true;
-			_mouseEnableds = [];
-			_lights = _view.session.lightarray;
+			
+			_sessions = [];
+			_session = _view.session;
 		}
 		    	
 		/**
 		 * Creates a new <code>PrimitiveTraverser</code> object.
 		 */
-        public function PrimitiveTraverser()
+        public function SessionTraverser()
         {
         }
         
@@ -59,7 +58,7 @@ package away3d.core.traverse
 		 */
         public override function enter(node:Object3D):void
         {
-        	_mouseEnableds.push(_mouseEnabled);
+        	_sessions.push(_session);
         }
         
 		/**
@@ -69,13 +68,8 @@ package away3d.core.traverse
         {
             if (node is IPrimitiveProvider)
             {
-                (node as IPrimitiveProvider).primitives();
-                _mouseEnabled = node._mouseEnabled = (_mouseEnabled && node.mouseEnabled);
-            }
-
-            if (node is ILightProvider)
-            {
-                (node as ILightProvider).light(_lights);
+                (node as IPrimitiveProvider).sessions(_session);
+                _session = node.session;
             }
         }
         
@@ -84,7 +78,7 @@ package away3d.core.traverse
 		 */
         public override function leave(node:Object3D):void
         {
-        	_mouseEnabled = _mouseEnableds.pop();
+        	_session = _sessions.pop();
         }
 
     }

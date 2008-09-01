@@ -1040,28 +1040,21 @@ package away3d.core.base
                
             }
         }
-    	/**
-    	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
-    	 * 
-    	 * @param	consumer	The consumer instance
-    	 * @param	session		The render session of the 3d object
-    	 * 
-    	 * @see	away3d.core.traverse.PrimitiveTraverser
-    	 * @see	away3d.core.draw.DrawPrimitive
-    	 */
-        public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
+        
+        public function sessions(session:AbstractRenderSession):void
         {
-            _dispatchedDimensionsChange = false;
-        		
             _v = session.view;
-            if (ownCanvas) 
-            {
+            if (ownCanvas) {
                 if (!ownSession)
                 	ownSession = new SpriteRenderSession();
             
                 session.registerChildSession(ownSession);
                 
                 ownSession.view = _v;
+                ownSession.lightarray = session.lightarray;
+        		
+        		if (ownSession.priconsumer is PrimitiveArray)
+        			(ownSession.priconsumer as PrimitiveArray).blockers = (session.priconsumer as PrimitiveArray).blockers;
         		
                 _c = ownSession.getContainer(_v);
                 _c.filters = filters;
@@ -1071,20 +1064,10 @@ package away3d.core.base
                 	_c.blendMode = blendMode;
                 else
                 	_c.blendMode = BlendMode.NORMAL;
-                ownSession.lightarray = session.lightarray;
+                
+                
                 this.session = ownSession;
              	
-             	_sc.x = _c.x;
-             	_sc.y = _c.y;
-             	_sc.z = Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
-             	
-             	_ddo.source = this.parent;
-             	_ddo.screenvertex = _sc;
-             	_ddo.displayobject = _c;
-             	_ddo.session = this.parent.session;
-             	_ddo.calc();
-             	
-                consumer.primitive(_ddo);
             }
             else
             {   
@@ -1095,17 +1078,45 @@ package away3d.core.base
     			_scene.updateSession[this.session] = true;
         	else
         		_scene.updateSession[this.session] = _scene.updateSession[this.session] || false;
+        }
+        
+    	/**
+    	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
+    	 * 
+    	 * @param	consumer	The consumer instance
+    	 * @param	session		The render session of the 3d object
+    	 * 
+    	 * @see	away3d.core.traverse.PrimitiveTraverser
+    	 * @see	away3d.core.draw.DrawPrimitive
+    	 */
+        public function primitives():void
+        {
+            _dispatchedDimensionsChange = false;
+            
+			if (ownCanvas) {
+             	_sc.x = _c.x;
+             	_sc.y = _c.y;
+             	_sc.z = Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
+             	
+             	_ddo.source = parent;
+             	_ddo.screenvertex = _sc;
+             	_ddo.displayobject = _c;
+             	_ddo.session = parent.session;
+             	_ddo.calc();
+             	
+                parent.session.priconsumer.primitive(_ddo);
+   			}
         	
             if (debugbb) {
             	if (_dimensionsDirty || !_debugboundingbox)
             		updateDimensions();
-                _debugboundingbox.primitives(consumer, session);
+                _debugboundingbox.primitives();
             }
             
             if (debugbs) {
             	if (_dimensionsDirty || !_debugboundingsphere)
             		updateDimensions();
-                _debugboundingsphere.primitives(consumer, session);
+                _debugboundingsphere.primitives();
             }
         }
         

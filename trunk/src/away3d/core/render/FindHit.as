@@ -7,6 +7,8 @@ package away3d.core.render
 	import away3d.core.math.*;
 	import away3d.events.*;
 	import away3d.materials.*;
+	
+	import flash.display.Stage;
 
     /** 
     * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
@@ -28,8 +30,20 @@ package away3d.core.render
         private var sceneY:Number;
         private var sceneZ:Number;
         private var primitive:DrawPrimitive;
+        private var session:AbstractRenderSession;
         private var inv:Matrix3D = new Matrix3D();
         private var persp:Number;
+        
+        private function checkSession(session:AbstractRenderSession):void
+        {
+        	if (session.getContainer(view).hitTestPoint(view.stage.mouseX, view.stage.mouseY)) {
+	        	for each (primitive in session.primitives)
+	               checkPrimitive(primitive);
+	            
+	        	for each (session in session.sessions)
+	        		checkSession(session);
+	        }
+        }
         
         private function checkPrimitive(pri:DrawPrimitive):void
         {
@@ -92,14 +106,13 @@ package away3d.core.render
 		 * @param	x			The x coordinate of the point to test.
 		 * @param	y			The y coordinate of the point to test.
 		 */
-        public function FindHit(view:View3D, primitives:Array, x:Number, y:Number)
+        public function FindHit(view:View3D, session:AbstractRenderSession, x:Number, y:Number)
         {
             this.view = view;
             screenX = x;
             screenY = y;
             
-            for each (primitive in primitives)
-                checkPrimitive(primitive);
+            checkSession(session);
         }
         
         /**

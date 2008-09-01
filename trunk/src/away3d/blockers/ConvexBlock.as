@@ -129,12 +129,12 @@ package away3d.blockers
     	 * @see	away3d.core.traverse.PrimitiveTraverser
     	 * @see	away3d.core.draw.DrawPrimitive
 		 */
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
+        override public function primitives():void
         {
-        	super.primitives(consumer, session);
+        	super.primitives();
         	
             if (debug)
-                consumer.primitive(_cb);
+                session.priconsumer.primitive(_cb);
         }
     }
 }

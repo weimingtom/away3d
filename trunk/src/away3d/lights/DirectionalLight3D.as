@@ -179,9 +179,9 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
+        override public function primitives():void
         {
-        	super.primitives(consumer, session);
+        	super.primitives();
 
         }
 		

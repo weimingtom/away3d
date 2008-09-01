@@ -86,9 +86,9 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
+        override public function primitives():void
         {
-        	super.primitives(consumer, session);
+        	super.primitives();
 
             if (!debug)
                 return;
@@ -107,7 +107,7 @@ package away3d.lights
             tri.source = this;
             tri.projection = projection;
             tri.material = new ColorMaterial(color);
-            consumer.primitive(tri);
+            session.priconsumer.primitive(tri);
 
         }
 		
