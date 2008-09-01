@@ -74,6 +74,8 @@ package away3d.containers
 		 */
         public function Scene3D(init:Object = null, ...objects)
         {
+            _scene = this;
+            
             if (init != null && init is Object3D) {
                 addChild(init as Object3D);
                 init = null;

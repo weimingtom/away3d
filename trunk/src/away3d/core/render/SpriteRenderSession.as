@@ -122,6 +122,7 @@ package away3d.core.render
        		super.clear();
        		
         	if (updateSession[_view]) {
+        		_container.cacheAsBitmap = false;
         		
 	        	//clear base canvas
 	            _container.graphics.clear();
@@ -135,6 +136,8 @@ package away3d.core.render
 	            newLayer = null;
 	            
 	 			graphics = _container.graphics;
+        	} else {
+        		_container.cacheAsBitmap = true;
         	}
         }	          
         

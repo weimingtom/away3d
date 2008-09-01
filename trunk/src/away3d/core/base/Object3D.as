@@ -252,7 +252,7 @@ package away3d.core.base
         private var _pivotPointRotate:Number3D = new Number3D();
         private var _parentPivot:Number3D;
         private var _parentradius:Number3D = new Number3D();
-        private var _scene:Scene3D;
+        arcane var _scene:Scene3D;
         private var _oldscene:Scene3D;
         private var _parent:ObjectContainer3D;
 		private var _quaternion:Quaternion = new Quaternion();
@@ -985,9 +985,6 @@ package away3d.core.base
             scaleY(init.getNumber("scaleY", 1) * scaling);
             scaleZ(init.getNumber("scaleZ", 1) * scaling);
             */
-            
-            if (this is Scene3D)
-                _scene = this as Scene3D;
         }
 		
     	/**
@@ -1011,8 +1008,8 @@ package away3d.core.base
     	 */
         public function distanceTo(obj:Object3D):Number
         {
-            var m1:Matrix3D = scene == null ? transform : sceneTransform;
-            var m2:Matrix3D = obj.scene == null ? obj.transform : obj.sceneTransform;
+            var m1:Matrix3D = _scene == this ? transform : sceneTransform;
+            var m2:Matrix3D = obj.scene == obj ? obj.transform : obj.sceneTransform;
 
             var dx:Number = m1.tx - m2.tx;
             var dy:Number = m1.ty - m2.ty;
@@ -1095,9 +1092,9 @@ package away3d.core.base
             }
         	
             if (sceneTransformed)
-    			scene.updateSession[this.session] = true;
+    			_scene.updateSession[this.session] = true;
         	else
-        		scene.updateSession[this.session] = scene.updateSession[this.session] || false;
+        		_scene.updateSession[this.session] = _scene.updateSession[this.session] || false;
         	
             if (debugbb) {
             	if (_dimensionsDirty || !_debugboundingbox)
