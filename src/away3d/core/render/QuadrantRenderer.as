@@ -68,6 +68,8 @@ package away3d.core.render
             scene = view.scene;
             camera = view.camera;
             
+            view.scene.updateSession = new Dictionary(true);
+            
             // resolve projection
 			projtraverser.view = view;
 			scene.traverse(projtraverser);
@@ -87,6 +89,8 @@ package away3d.core.render
             pritraverser.session = _session;
             scene.traverse(pritraverser);
 			primitives = pritree.list();
+			
+			_session.clear();
 			
 			//apply filters
             for each (qdrntfilter in qdrntfilters)
