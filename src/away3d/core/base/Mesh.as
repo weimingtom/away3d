@@ -459,7 +459,7 @@
         {
         	super.primitives();
         	
-        	if (session.view.camera.sceneTransformed || scene.updateSession[session]) {
+        	if (session.view.forceUpdate || session.view.camera.sceneTransformed || scene.updateSession[session]) {
         		_consumer = session.priconsumer;
 	        	_dtStore = _dtStore.concat(_dtActive);
 	        	_dtActive = new Array();

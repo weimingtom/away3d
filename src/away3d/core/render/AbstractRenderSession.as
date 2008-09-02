@@ -172,7 +172,7 @@ package away3d.core.render
 		 */
         public function clear():void
         {
-        	updateSession[_view] = _view.camera.sceneTransformed || _view.scene.updateSession[this]
+        	updateSession[_view] = _view.forceUpdate || _view.camera.sceneTransformed || _view.scene.updateSession[this]
         	
         	if (updateSession[_view]) {
 	        	for each (var sprite:Sprite in spriteLayers) {
