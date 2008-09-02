@@ -8,6 +8,8 @@
     import away3d.core.traverse.*;
     import away3d.events.*;
     
+    import flash.utils.Dictionary;
+    
     /**
     * 3d object container node for other 3d objects in a scene
     */
@@ -31,9 +33,12 @@
             if (index == -1)
                 return;
 			
+			if (child.ownCanvas)
+				session.sessions = new Dictionary(true);
+			
             child.removeOnTransformChange(onChildChange);
             child.removeOnDimensionsChange(onChildChange);
-
+			
             _children.splice(index, 1);
 
             notifyDimensionsChange();

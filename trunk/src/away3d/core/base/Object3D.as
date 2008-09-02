@@ -890,7 +890,6 @@ package away3d.core.base
                 _parent.addOnSceneTransformChange(onParentTransformChange);
             }
 			
-			
             if (_scene != _oldscene)
                 notifySceneChange();
 			

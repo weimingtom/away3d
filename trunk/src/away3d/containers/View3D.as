@@ -17,6 +17,7 @@ package away3d.containers
 	import flash.events.Event;
 	import flash.events.EventPhase;
 	import flash.events.MouseEvent;
+	import flash.utils.Dictionary;
 	
 	 /**
 	 * Dispatched when a user moves the cursor while it is over a 3d object
@@ -69,7 +70,7 @@ package away3d.containers
 
             dispatchEvent(event);
         }
-        		
+        private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
         private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
@@ -153,9 +154,7 @@ package away3d.containers
             var tar:Object3D = event.object;
             while (tar != null)
             {
-            	var evt:MouseEvent3D = event.clone() as MouseEvent3D;
-            	evt.object = tar;
-                if (tar.dispatchMouseEvent(evt))
+                if (tar.dispatchMouseEvent(event))
                     break;
                 tar = tar.parent;
             }       
@@ -223,7 +222,16 @@ package away3d.containers
         * 
         * @see render()
         */
-        public var scene:Scene3D;
+        public function get scene():Scene3D
+        {
+        	return _scene;
+        }
+    	
+        public function set scene(val:Scene3D):void
+        {
+        	_scene = val;
+        	_session.sessions = new Dictionary(true);
+        }
         
         /**
         * Camera used when rendering.
@@ -232,6 +240,12 @@ package away3d.containers
         */
         public var camera:Camera3D;
         
+        /**
+        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to true.
+        * 
+        * @see render()
+        */
+        public var forceUpdate:Boolean;
       
         
         /**
@@ -293,13 +307,14 @@ package away3d.containers
 			_ini = Init.parse(init) as Init;
 			
             var stats:Boolean = _ini.getBoolean("stats", true);
+			session = _ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
             camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
 			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
-			session = _ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
 			clip = _ini.getObject("clip", Clipping) as Clipping;
 			x = _ini.getNumber("x", 0);
 			y = _ini.getNumber("y", 0);
+			forceUpdate = _ini.getBoolean("forceUpdate", true);
 			
             _interactiveLayer.blendMode = BlendMode.ALPHA;
             
