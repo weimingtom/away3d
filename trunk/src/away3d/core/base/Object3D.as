@@ -8,6 +8,7 @@ package away3d.core.base
     import away3d.core.traverse.*;
     import away3d.core.utils.*;
     import away3d.events.*;
+    import away3d.loaders.data.AnimationData;
     import away3d.loaders.utils.*;
     import away3d.primitives.*;
     
@@ -135,7 +136,7 @@ package away3d.core.base
             //    updateTransform();
 			_parentradius.sub(position, _parentPivot);
             
-            return _parentradius.modulo + boundingRadius;
+            return _parentradius.modulo + boundingRadius*(_scaleX + _scaleY + _scaleZ)/3;
         }
         /** @private */
         public function get parentmaxX():Number
@@ -350,12 +351,17 @@ package away3d.core.base
 	                _debugboundingbox.projection = projection;
 	                _debugboundingbox._scene = _scene;
                 }
-                _debugboundingbox.v000.x = _debugboundingbox.v001.x = _debugboundingbox.v010.x = _debugboundingbox.v011.x = minX;
-                _debugboundingbox.v100.x = _debugboundingbox.v101.x = _debugboundingbox.v110.x = _debugboundingbox.v111.x = maxX;
-                _debugboundingbox.v000.y = _debugboundingbox.v001.y = _debugboundingbox.v100.y = _debugboundingbox.v101.y = minY;
-                _debugboundingbox.v010.y = _debugboundingbox.v011.y = _debugboundingbox.v110.y = _debugboundingbox.v111.y = maxY;
-                _debugboundingbox.v000.z = _debugboundingbox.v010.z = _debugboundingbox.v100.z = _debugboundingbox.v110.z = minZ;
-                _debugboundingbox.v001.z = _debugboundingbox.v011.z = _debugboundingbox.v101.z = _debugboundingbox.v111.z = maxZ;
+                if (boundingRadius) {
+                	_debugboundingbox.visible = true;
+	                _debugboundingbox.v000.x = _debugboundingbox.v001.x = _debugboundingbox.v010.x = _debugboundingbox.v011.x = minX;
+	                _debugboundingbox.v100.x = _debugboundingbox.v101.x = _debugboundingbox.v110.x = _debugboundingbox.v111.x = maxX;
+	                _debugboundingbox.v000.y = _debugboundingbox.v001.y = _debugboundingbox.v100.y = _debugboundingbox.v101.y = minY;
+	                _debugboundingbox.v010.y = _debugboundingbox.v011.y = _debugboundingbox.v110.y = _debugboundingbox.v111.y = maxY;
+	                _debugboundingbox.v000.z = _debugboundingbox.v010.z = _debugboundingbox.v100.z = _debugboundingbox.v110.z = minZ;
+	                _debugboundingbox.v001.z = _debugboundingbox.v011.z = _debugboundingbox.v101.z = _debugboundingbox.v111.z = maxZ;
+                } else {
+                	_debugboundingbox.visible = false;
+                }
             }
             
             if (debugbs)
@@ -365,9 +371,14 @@ package away3d.core.base
 	                _debugboundingsphere.projection = projection;
 	                _debugboundingsphere._scene = _scene;
                 }
-               _debugboundingsphere.radius = boundingRadius;
-               _debugboundingsphere.buildPrimitive();
-	           _debugboundingsphere.applyPosition(-_pivotPoint.x, -_pivotPoint.y, -_pivotPoint.z)
+                if (boundingRadius) {
+                	_debugboundingsphere.visible = true;
+					_debugboundingsphere.radius = boundingRadius;
+					_debugboundingsphere.buildPrimitive();
+					_debugboundingsphere.applyPosition(-_pivotPoint.x, -_pivotPoint.y, -_pivotPoint.z);
+            	} else {
+            		_debugboundingsphere.visible = false;
+            	}
             }
         }
         
@@ -1137,10 +1148,10 @@ package away3d.core.base
                 parent.session.priconsumer.primitive(_ddo);
    			}
         	
-            if (debugbb)
+            if (debugbb && _debugboundingsphere.visible)
                 _debugboundingbox.primitives();
             
-            if (debugbs)
+            if (debugbs && _debugboundingsphere.visible)
                 _debugboundingsphere.primitives(); 
         }
         
@@ -1377,15 +1388,21 @@ package away3d.core.base
 		 * @param	object	[optional]	The new object instance into which all properties are copied
 		 * @return						The new object instance with duplicated properties applied
 		 */
-        public function clone(object:* = null):*
+        public function clone(object:Object3D = null):Object3D
         {
             var object3D:Object3D = object || new Object3D();
             object3D.transform = transform;
             object3D.name = name;
+            object3D.ownCanvas = ownCanvas;
+            object3D.filters = filters;
             object3D.visible = visible;
             object3D.mouseEnabled = mouseEnabled;
             object3D.useHandCursor = useHandCursor;
+            object3D.alpha = alpha;
+            object3D.pushback = pushback;
+            object3D.pushfront = pushfront;
             object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
+            
             return object3D;
         }
 		

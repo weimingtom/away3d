@@ -1,5 +1,6 @@
 package away3d.core.base
 {
+    import away3d.animators.skin.SkinVertex;
     import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -229,6 +230,10 @@ package away3d.core.base
     		//end modified
     		
             if (isNaN(sz)) {
+            	trace(_x);
+            	trace(_y);
+            	trace(_z);
+            	trace(view.tz);
                 throw new Error("isNaN(sz)");
             }
             if (sz*2 <= -projection.focus)

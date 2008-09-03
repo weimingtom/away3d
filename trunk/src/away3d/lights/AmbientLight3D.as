@@ -108,9 +108,9 @@ package away3d.lights
 		 * @param	object	[optional]	The new object instance into which all properties are copied
 		 * @return						The new object instance with duplicated properties applied
 		 */
-        public override function clone(object:* = null):*
+        public override function clone(object:Object3D = null):Object3D
         {
-            var light:AmbientLight3D = object || new AmbientLight3D();
+            var light:AmbientLight3D = (object as AmbientLight3D) || new AmbientLight3D();
             super.clone(light);
             light.color = color;
             light.ambient = ambient;

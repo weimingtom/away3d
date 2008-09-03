@@ -1,6 +1,7 @@
 package away3d.animators
 {
 	import away3d.animators.skin.*;
+	import away3d.containers.ObjectContainer3D;
 	import away3d.core.utils.*;
 	
 	import flash.utils.*;
@@ -56,6 +57,20 @@ package away3d.animators
             for each (var channel:Channel in _channels)
                 channel.update(time);
         }
+		
+		public function clone(object:ObjectContainer3D):IMeshAnimation
+		{
+			var skinAnimation:SkinAnimation = new SkinAnimation();
+			
+			skinAnimation.loop = loop;
+			skinAnimation.length = length;
+			skinAnimation.start = start;
+			
+			for each (var channel:Channel in _channels)
+				skinAnimation.appendChannel(channel.clone(object));
+				
+			return skinAnimation;
+		}
 		
 		/**
 		 * Adds an animation channel to the animation timeline.

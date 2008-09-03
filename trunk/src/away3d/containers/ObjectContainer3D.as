@@ -1,12 +1,15 @@
 ﻿package away3d.containers
 {
     import away3d.animators.skin.Bone;
+    import away3d.animators.skin.SkinController;
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.traverse.*;
     import away3d.events.*;
+    import away3d.loaders.data.*;
+    import away3d.loaders.utils.*;
     
     import flash.utils.Dictionary;
     
@@ -57,39 +60,39 @@
         	//update bounding radius
         	var children:Array = _children.concat();
         	
-        	if (!children.length)
-        		return;
-        	
-        	var mradius:Number = 0;
-        	var cradius:Number;
-            var num:Number3D = new Number3D();
-            for each (var child:Object3D in children) {
-            	child.setParentPivot(_pivotPoint);
-                cradius = child.parentradius;
-                if (mradius < cradius)
-                    mradius = cradius;
-            }
-            
-            _boundingRadius = mradius;
-            
-            //update max/min X
-            children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
-            _maxX = children[0].parentmaxX;
-            children.sortOn("parentminX", Array.NUMERIC);
-            _minX = children[0].parentminX;
-            
-            //update max/min Y
-            children.sortOn("parentmaxY", Array.DESCENDING | Array.NUMERIC);
-            _maxY = children[0].parentmaxY;
-            children.sortOn("parentminY", Array.NUMERIC);
-            _minY = children[0].parentminY;
-            
-            //update max/min Z
-            children.sortOn("parentmaxZ", Array.DESCENDING | Array.NUMERIC);
-            _maxZ = children[0].parentmaxZ;
-            children.sortOn("parentminZ", Array.NUMERIC);
-            _minZ = children[0].parentminZ;
-            
+        	if (children.length) {
+	        	
+	        	var mradius:Number = 0;
+	        	var cradius:Number;
+	            var num:Number3D = new Number3D();
+	            for each (var child:Object3D in children) {
+	            	child.setParentPivot(_pivotPoint);
+	                cradius = child.parentradius;
+	                if (mradius < cradius)
+	                    mradius = cradius;
+	            }
+	            
+	            _boundingRadius = mradius;
+	            
+	            //update max/min X
+	            children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
+	            _maxX = children[0].parentmaxX;
+	            children.sortOn("parentminX", Array.NUMERIC);
+	            _minX = children[0].parentminX;
+	            
+	            //update max/min Y
+	            children.sortOn("parentmaxY", Array.DESCENDING | Array.NUMERIC);
+	            _maxY = children[0].parentmaxY;
+	            children.sortOn("parentminY", Array.NUMERIC);
+	            _minY = children[0].parentminY;
+	            
+	            //update max/min Z
+	            children.sortOn("parentmaxZ", Array.DESCENDING | Array.NUMERIC);
+	            _maxZ = children[0].parentmaxZ;
+	            children.sortOn("parentminZ", Array.NUMERIC);
+	            _minZ = children[0].parentminZ;
+         	}
+         	
             super.updateDimensions();
         }
         
@@ -246,14 +249,71 @@
 		 * @param	object	[optional]	The new object instance into which all properties are copied
 		 * @return						The new object instance with duplicated properties applied
 		 */
-        public override function clone(object:* = null):*
+        public override function clone(object:Object3D = null):Object3D
         {
-            var container:ObjectContainer3D = object || new ObjectContainer3D();
+            var container:ObjectContainer3D = (object as ObjectContainer3D) || new ObjectContainer3D();
             super.clone(container);
-
-            for each (var child:Object3D in children)
+			
+			var child:Object3D;
+            for each (child in children)
                 container.addChild(child.clone());
                 
+            return container;
+        }
+		
+		/**
+		 * Duplicates the 3d object's properties to another <code>ObjectContainer3D</code> object, including bones and geometry
+		 * 
+		 * @param	object	[optional]	The new object instance into which all properties are copied
+		 * @return						The new object instance with duplicated properties applied
+		 */
+        public function cloneAll(object:Object3D = null):Object3D
+        {
+            var container:ObjectContainer3D = (object as ObjectContainer3D) || new ObjectContainer3D();
+            super.clone(container);
+			
+			var child:Object3D;
+            for each (child in children) {
+            	if (child is ObjectContainer3D) {
+            		var _child:Object3D = (child as ObjectContainer3D).cloneAll();
+                	container.addChild(_child);
+            	} else
+                	container.addChild(child.clone());
+            }
+            
+            if (animationLibrary) {
+        		container.animationLibrary = new AnimationLibrary();
+            	for each (var _animationData:AnimationData in animationLibrary) 
+            		_animationData.clone(container);
+            }
+            
+        	//wire up new bones to new skincontrollers if available
+            for each (child in container.children) {
+                if (child is Mesh) {
+                	var geometry:Geometry = (child as Mesh).geometry.clone();
+                	var skinControllers:Array = geometry.skinControllers;
+                	var rootBone:Bone;
+                	var skinController:SkinController;
+                	
+					for each (skinController in skinControllers) {
+						var bone:Bone = container.getBoneByName(skinController.name);
+		                if (bone) {
+		                    skinController.joint = bone.joint;
+		                    
+		                    if (!(bone.parent.parent is Bone))
+		                    	rootBone = bone;
+		                }
+		            }
+		            
+		            //geometry.rootBone = rootBone;
+		            
+		            for each (skinController in skinControllers)
+		            	skinController.inverseTransform = rootBone.parent.inverseSceneTransform;
+		            
+                	(child as Mesh).geometry = geometry;
+				}
+            }
+            
             return container;
         }
     }

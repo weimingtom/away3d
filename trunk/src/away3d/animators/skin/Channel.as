@@ -69,5 +69,20 @@ package away3d.animators.skin
 				}
 			}
         }
+        
+        public function clone(object:ObjectContainer3D):Channel
+        {
+        	var channel:Channel = new Channel(name);
+        	
+        	channel.target = object.getBoneByName(name);
+        	channel.type = type.concat();
+        	channel.param = param.concat();
+        	channel.inTangent = inTangent.concat();
+        	channel.outTangent = outTangent.concat();
+        	channel.times = times.concat();
+        	channel.interpolations = interpolations.concat();
+        	
+        	return channel;
+        }
     }
 }
