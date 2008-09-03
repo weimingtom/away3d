@@ -56,6 +56,11 @@ package away3d.loaders.data
 		public var specularColor:uint;
 		
 		/**
+		 * Optional shininess of the material.
+		 */
+		public var shininess:Number;
+		
+		/**
 		 * Reference to the filename of the texture image.
 		 */
 		public var textureFileName:String;

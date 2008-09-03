@@ -167,16 +167,6 @@
         */
         
 		/**
-		 * Elements use their furthest point from the camera when z-sorting
-		 */
-        public var pushback:Boolean;
-		
-		/**
-		 * Elements use their nearest point to the camera when z-sorting
-		 */
-        public var pushfront:Boolean;
-        
-		/**
 		 * String defining the source of the mesh.
 		 * 
 		 * If the mesh has been created internally, the string is used to display the package name of the creating object.
@@ -379,8 +369,6 @@
             outline = ini.getSegmentMaterial("outline");
             back = ini.getMaterial("back");
             bothsides = ini.getBoolean("bothsides", false);
-            pushback = ini.getBoolean("pushback", false);
-            pushfront = ini.getBoolean("pushfront", false);
             debugbb = ini.getBoolean("debugbb", false);
 
             if ((material == null) && (outline == null))

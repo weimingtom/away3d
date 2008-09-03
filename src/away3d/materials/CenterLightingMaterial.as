@@ -141,7 +141,7 @@ package away3d.materials
         /**
         * Coefficient for shininess level
         */
-        public var ak:Number = 20;
+        public var shininess:Number = 20;
 		
 		/**
 		 * @private
@@ -150,7 +150,7 @@ package away3d.materials
         {
             ini = Init.parse(init);
 
-            ak = ini.getNumber("ak", 20);
+            shininess = ini.getColor("shininess", 20);
         }
         
 		/**
@@ -255,12 +255,14 @@ package away3d.materials
 
                 if (rfz < 0)
                     continue;
-                
+                //trace("spec");
                 rfx = dfx - 2*nf*nx;
                 rfy = dfy - 2*nf*ny;
 
-                spec = directional.specular * Math.pow(rfz, ak) * specular_brightness;
-
+                spec = directional.specular * Math.pow(rfz, shininess) * specular_brightness;
+                //trace(nf);
+                //trace(nz);
+                //trace(dfz);
                 ksr += red * spec;
                 ksg += green * spec;
                 ksb += blue * spec;
@@ -306,7 +308,7 @@ package away3d.materials
                 rfx = dfx - 2*nf*pa;
                 rfy = dfy - 2*nf*pb;
                 
-                spec = point.specular * fade * Math.pow(rfz, ak) * specular_brightness;
+                spec = point.specular * fade * Math.pow(rfz, shininess) * specular_brightness;
 
                 ksr += red * spec;
                 ksg += green * spec;

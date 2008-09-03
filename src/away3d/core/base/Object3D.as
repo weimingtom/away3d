@@ -348,6 +348,7 @@ package away3d.core.base
                 if (_debugboundingbox == null) {
                     _debugboundingbox = new WireCube({material:"#333333"});
 	                _debugboundingbox.projection = projection;
+	                _debugboundingbox._scene = _scene;
                 }
                 _debugboundingbox.v000.x = _debugboundingbox.v001.x = _debugboundingbox.v010.x = _debugboundingbox.v011.x = minX;
                 _debugboundingbox.v100.x = _debugboundingbox.v101.x = _debugboundingbox.v110.x = _debugboundingbox.v111.x = maxX;
@@ -362,6 +363,7 @@ package away3d.core.base
             	if (_debugboundingsphere == null) {
 	                _debugboundingsphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
 	                _debugboundingsphere.projection = projection;
+	                _debugboundingsphere._scene = _scene;
                 }
                _debugboundingsphere.radius = boundingRadius;
                _debugboundingsphere.buildPrimitive();
@@ -370,6 +372,16 @@ package away3d.core.base
         }
         
         public var projection:Projection = new Projection();
+        
+		/**
+		 * Elements use their furthest point from the camera when z-sorting
+		 */
+        public var pushback:Boolean;
+		
+		/**
+		 * Elements use their nearest point to the camera when z-sorting
+		 */
+        public var pushfront:Boolean;
         
     	/**
     	 * Returns the inverse of sceneTransform.
@@ -961,6 +973,8 @@ package away3d.core.base
             useHandCursor = ini.getBoolean("useHandCursor", useHandCursor);
             filters = ini.getArray("filters");
             alpha = ini.getNumber("alpha", 1);
+            pushback = ini.getBoolean("pushback", false);
+            pushfront = ini.getBoolean("pushfront", false);
             
             x = ini.getNumber("x", 0);
             y = ini.getNumber("y", 0);
@@ -1067,9 +1081,7 @@ package away3d.core.base
                 
                 this.session = ownSession;
              	
-            }
-            else
-            {   
+            } else {   
                 this.session = session;
             }
         	
@@ -1077,6 +1089,19 @@ package away3d.core.base
     			_scene.updateSession[this.session] = true;
         	else
         		_scene.updateSession[this.session] = _scene.updateSession[this.session] || false;
+        	
+        	if (debugbb) {
+            	if (_dimensionsDirty || !_debugboundingbox)
+            		updateDimensions();
+        		_debugboundingbox.sessions(this.session);
+        	}
+        		
+        	if (debugbs) {
+            	if (_dimensionsDirty || !_debugboundingsphere)
+            		updateDimensions();
+        		_debugboundingsphere.sessions(this.session);
+        	}
+        	
         }
         
     	/**
@@ -1097,6 +1122,12 @@ package away3d.core.base
              	_sc.y = _c.y;
              	_sc.z = Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
              	
+             	if (pushback)
+             		_sc.z += boundingRadius;
+             		
+             	if (pushfront)
+             		_sc.z -= boundingRadius;
+             		
              	_ddo.source = parent;
              	_ddo.screenvertex = _sc;
              	_ddo.displayobject = _c;
@@ -1106,17 +1137,11 @@ package away3d.core.base
                 parent.session.priconsumer.primitive(_ddo);
    			}
         	
-            if (debugbb) {
-            	if (_dimensionsDirty || !_debugboundingbox)
-            		updateDimensions();
+            if (debugbb)
                 _debugboundingbox.primitives();
-            }
             
-            if (debugbs) {
-            	if (_dimensionsDirty || !_debugboundingsphere)
-            		updateDimensions();
-                _debugboundingsphere.primitives();
-            }
+            if (debugbs)
+                _debugboundingsphere.primitives(); 
         }
         
         /**
