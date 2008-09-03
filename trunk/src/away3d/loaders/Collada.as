@@ -26,6 +26,7 @@ package away3d.loaders
         private var material:ITriangleMaterial;
         private var centerMeshes:Boolean;
         private var scaling:Number;
+        private var shading:Boolean;
         private var texturePath:String;
         private var autoLoadTextures:Boolean;
         private var materialLibrary:MaterialLibrary;
@@ -253,7 +254,7 @@ package away3d.loaders
 						materialLibrary.loadRequired = true;
 						break;
 					case MaterialData.SHADING_MATERIAL:
-						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
+						_materialData.material = new ShadingColorMaterial(null, {ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor, shininess:_materialData.shininess});
 						break;
 					case MaterialData.COLOR_MATERIAL:
 						_materialData.material = new ColorMaterial(_materialData.diffuseColor);
@@ -365,6 +366,7 @@ package away3d.loaders
 			texturePath = ini.getString("texturePath", "");
 			autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
             scaling = ini.getNumber("scaling", 1)*100;
+            shading = ini.getBoolean("shading", false);
             material = ini.getMaterial("material");
             centerMeshes = ini.getBoolean("centerMeshes", false);
 
@@ -657,8 +659,12 @@ package away3d.loaders
                 if (_materialData.textureFileName) {
             		_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
                 } else {
-                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
-                	_materialData.diffuseColor = getTextureColor(target);
+                	if (shading)
+                		_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                	else
+	                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
+                	
+                	parseColorMaterial(collada.library_materials.material.(@id == name)[0], _materialData);
                 }
             }
         }
@@ -1159,26 +1165,29 @@ package away3d.loaders
 		/**
 		 * Retrieves the color of a material
 		 */
-		private function getTextureColor( name:String ):uint
+		private function parseColorMaterial(material:XML, materialData:MaterialData):void
 		{
-			var color:uint;
-			var material:XML = collada.library_materials.material.(@id == name)[0];
-			if( material )
-			{
+			if (material) {
 				var effectId:String = getId( material.instance_effect.@url );
 				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
-	
-				if (effect..diffuse.length() == 0) return color;
-	
-				var diffuse:XML =  effect..diffuse[0];
 				
-				var colorArray:Array = diffuse.color.split(" ");
-				var colorString:String = (colorArray[0]*255).toString(16) + (colorArray[1]*255).toString(16) + (colorArray[2]*255).toString(16);
-				color = parseInt(colorString, 16);
+				materialData.ambientColor = getColorValue(effect..ambient[0]);
+				materialData.diffuseColor = getColorValue(effect..diffuse[0]);
+				materialData.specularColor = getColorValue(effect..specular[0]);
+				materialData.shininess = Number(effect..shininess.float[0]);
 			}
-			return color;
 		}
-				
+		
+		private function getColorValue(color:XML):uint
+		{
+			if (color.length() == 0)
+				return 0xFFFFFF;
+			
+			var colorArray:Array = color.color.split(" ");
+			var colorString:String = (colorArray[0]*255).toString(16) + (colorArray[1]*255).toString(16) + (colorArray[2]*255).toString(16);
+			return parseInt(colorString, 16);
+		}
+		
 		/**
 		 * Converts a data string to an array of objects. Handles vertex and uv objects
 		 */
