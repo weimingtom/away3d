@@ -201,9 +201,12 @@ package away3d.loaders
 		                    	rootBone = bone;
 		                } else
 		                	Debug.warning("no joint found for " + skinController.name);
-		                
+		   			}
+		   			
+		   			geometry.rootBone = rootBone;
+		   			
+		   			for each (skinController in geometry.skinControllers)
 		                skinController.inverseTransform = rootBone.parent.inverseSceneTransform;
-			  		}
 				}
 				
 				//create faces from face and mesh data

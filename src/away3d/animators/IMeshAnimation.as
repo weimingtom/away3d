@@ -1,5 +1,7 @@
 package away3d.animators
 {
+	import away3d.containers.ObjectContainer3D;
+	
 
     /**
     * Interface for objects containing animation information for meshes.
@@ -7,5 +9,7 @@ package away3d.animators
     public interface IMeshAnimation
     {
     	function update(time:Number):void;
+    	
+    	function clone(object:ObjectContainer3D):IMeshAnimation;
     }
 }

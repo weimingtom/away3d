@@ -102,6 +102,8 @@
 		private var _skinVertex:SkinVertex;
         private var _skinController:SkinController;
         private var clonedvertices:Dictionary;
+        private var clonedskinvertices:Dictionary;
+        private var clonedskincontrollers:Dictionary;
         private var cloneduvs:Dictionary;
         private var _frame:int;
         private var _animation:Animation;
@@ -218,13 +220,45 @@
 		private function cloneVertex(vertex:Vertex):Vertex
         {
             var result:Vertex = clonedvertices[vertex];
-            if (result == null)
-            {
+            
+            if (result == null) {
                 result = new Vertex(vertex._x, vertex._y, vertex._z);
                 result.extra = (vertex.extra is IClonable) ? (vertex.extra as IClonable).clone() : vertex.extra;
                 clonedvertices[vertex] = result;
             }
+            
             return result;
+        }
+        
+        private function cloneSkinVertex(skinVertex:SkinVertex):SkinVertex
+        {
+        	var result:SkinVertex = clonedskinvertices[skinVertex];
+        	
+        	if (result == null) {
+	        	result = new SkinVertex(cloneVertex(skinVertex.skinnedVertex.vertex));
+	        	result.weights = skinVertex.weights.concat();
+	        	
+				for each (_skinController in skinVertex.controllers)
+					result.controllers.push(cloneSkinController(_skinController));
+					
+				clonedskinvertices[skinVertex] = result;
+        	}
+        	
+        	return result;
+        }
+        
+        private function cloneSkinController(skinController:SkinController):SkinController
+        {
+        	var result:SkinController = clonedskincontrollers[skinController];
+        	
+        	if (result == null) {
+        		result = new SkinController();
+	            result.name = skinController.name;
+	            result.bindMatrix = skinController.bindMatrix;
+        		clonedskincontrollers[skinController] = result;
+        	}
+        	
+        	return result;
         }
         
         private function cloneUV(uv:UV):UV
@@ -233,11 +267,12 @@
                 return null;
 
             var result:UV = cloneduvs[uv];
-            if (result == null)
-            {
+            
+            if (result == null) {
                 result = new UV(uv._u, uv._v);
                 cloneduvs[uv] = result;
             }
+            
             return result;
         }
         
@@ -273,24 +308,29 @@
          * specified by the initialiser object in the 3d object constructor.
          */
 		protected var ini:Init;
-    	
+        
+        /**
+        * Reference to the root heirarchy of bone controllers for a skin.
+        */
+        public var rootBone:Bone;
+        
     	/**
-    	 * Array of vertices used in a skin
+    	 * Array of vertices used in a skin.
     	 */
         public var skinVertices:Array;
         
         /**
-        * Array of controller objects used to bind vertices with joints in a skin
+        * Array of controller objects used to bind vertices with joints in a skin.
         */
         public var skinControllers:Array;
                 
         /**
-        * A dictionary containing all frames of the geometry
+        * A dictionary containing all frames of the geometry.
         */
         public var frames:Dictionary;
         
         /**
-        * A dictionary containing all frame names of the geometry
+        * A dictionary containing all frame names of the geometry.
         */
         public var framenames:Dictionary;
         
@@ -644,17 +684,30 @@
             
         }
 		/**
-		 * Duplicates the geometry properties to another 3d object.
+		 * Duplicates the geometry properties to another geometry object.
 		 * 
-		 * @return						The new object instance with duplicated properties applied.
+		 * @return				The new geometry instance with duplicated properties applied.
 		 */
         public function clone():Geometry
         {
             var geometry:Geometry = new Geometry();
 			
             clonedvertices = new Dictionary();
-			
             cloneduvs = new Dictionary();
+            
+			if (skinVertices) {
+				clonedskinvertices = new Dictionary(true);
+				clonedskincontrollers = new Dictionary(true);
+				
+				geometry.skinVertices = new Array();
+				geometry.skinControllers = new Array();
+				
+	            for each (var skinVertex:SkinVertex in skinVertices)
+	            	geometry.skinVertices.push(cloneSkinVertex(skinVertex));
+	            	
+	            for each (var skinController:SkinController in clonedskincontrollers)
+	            	geometry.skinControllers.push(skinController);
+	       	}
             
             for each (var face:Face in _faces)
                 geometry.addFace(new Face(cloneVertex(face._v0), cloneVertex(face._v1), cloneVertex(face._v2), face.material, cloneUV(face._uv0), cloneUV(face._uv1), cloneUV(face._uv2)));

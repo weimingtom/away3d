@@ -1,6 +1,8 @@
 package away3d.loaders.data
 {
 	import away3d.animators.*;
+	import away3d.containers.*;
+	import away3d.core.base.*;
 	
 	import flash.utils.*;
 	
@@ -50,5 +52,17 @@ package away3d.loaders.data
 		 * Dictonary of names representing the animation channels used in the animation.
 		 */
 		public var channels:Dictionary = new Dictionary(true);
+		
+		public function clone(object:Object3D):AnimationData
+		{
+			var animationData:AnimationData = object.animationLibrary.addAnimation(name);
+			
+    		animationData.start = start;
+    		animationData.end = end;
+    		animationData.animationType = animationType;
+    		animationData.animation = animation.clone(object as ObjectContainer3D);
+    		
+    		return animationData;
+		}
 	}
 }

@@ -105,49 +105,32 @@ package away3d.animators.skin
 			addChild(joint = new ObjectContainer3D());
 			//addChild(new Sphere({radius:3}));
         }
-        
-		/**
-		 * Get frame name Collada 3.02
-		 * @param	frameName
-		 * @return
-        public function getBoneByName(boneName:String):Bone
-        {
-			if (name)
-				if (name == boneName)
-					return this;
-			
-            var bone:Bone;
-            for each(var object3D:Object3D in joint.children) {
-                if (object3D is Bone){
-                    bone = (object3D as Bone).getBoneByName(boneName);
-                    if (bone)
-                        return bone;
-                }
-            }
-            return null;
-        }
 		
-		 */
 		/**
-		 * Get frame id Collada 3.05B
-		 * @param	frameId
-		 * @return
-        public function getBoneById(frameId:String):Bone
-        {
-			if (id)
-				if (id == frameId)
-					return this;
-			
-            var bone:Bone;
-            for each(var object3D:Object3D in joint.children) {
-                if (object3D is Bone) {
-					bone = (object3D as Bone).getBoneById(frameId);
-                    if (bone)
-                        return bone;
-                }
-            }
-            return null;
-        }
+		 * Duplicates the 3d object's properties to another <code>Bone</code> object
+		 * 
+		 * @param	object	[optional]	The new object instance into which all properties are copied
+		 * @return						The new object instance with duplicated properties applied
 		 */
+        public override function clone(object:Object3D = null):Object3D
+        {
+            var bone:Bone = (object as Bone) || new Bone();
+            super.clone(bone);
+            
+            bone.joint = bone.children[0];
+            
+            return bone;
+        }
+        
+        public override function cloneAll(object:Object3D = null):Object3D
+        {
+            var bone:Bone = (object as Bone) || new Bone();
+            super.cloneAll(bone);
+            
+            bone.id = id;
+            bone.joint = bone.children[0];
+            
+            return bone;
+        }
     }
 }

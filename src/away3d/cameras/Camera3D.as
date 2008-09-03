@@ -230,9 +230,9 @@ package away3d.cameras
 		 * @param	object	[optional]	The new object instance into which all properties are copied.
 		 * @return						The new object instance with duplicated properties applied.
 		 */
-        public override function clone(object:* = null):*
+        public override function clone(object:Object3D = null):Object3D
         {
-            var camera:Camera3D = object || new Camera3D();
+            var camera:Camera3D = (object as Camera3D) || new Camera3D();
             super.clone(camera);
             camera.zoom = zoom;
             camera.focus = focus;

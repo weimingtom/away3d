@@ -122,38 +122,38 @@
         	//update bounding radius
         	var vertices:Array = geometry.vertices.concat();
         	
-        	if (!vertices.length)
-        		return;
-        	
-        	var mradius:Number = 0;
-        	var vradius:Number;
-            var num:Number3D = new Number3D();
-            for each (var vertex:Vertex in vertices) {
-            	num.sub(vertex.position, _pivotPoint);
-                vradius = num.modulo2;
-                if (mradius < vradius)
-                    mradius = vradius;
-            }
-            if (mradius)
-           		_boundingRadius = Math.sqrt(mradius);
-           	else
-           		_boundingRadius = 0;
-             
-            //update max/min X
-            vertices.sortOn("x", Array.DESCENDING | Array.NUMERIC);
-            _maxX = vertices[0].x;
-            _minX = vertices[vertices.length - 1].x;
-            
-            //update max/min Y
-            vertices.sortOn("y", Array.DESCENDING | Array.NUMERIC);
-            _maxY = vertices[0].y;
-            _minY = vertices[vertices.length - 1].y;
-            
-            //update max/min Z
-            vertices.sortOn("z", Array.DESCENDING | Array.NUMERIC);
-            _maxZ = vertices[0].z;
-            _minZ = vertices[vertices.length - 1].z;
-            
+        	if (vertices.length) {
+	        	
+	        	var mradius:Number = 0;
+	        	var vradius:Number;
+	            var num:Number3D = new Number3D();
+	            for each (var vertex:Vertex in vertices) {
+	            	num.sub(vertex.position, _pivotPoint);
+	                vradius = num.modulo2;
+	                if (mradius < vradius)
+	                    mradius = vradius;
+	            }
+	            if (mradius)
+	           		_boundingRadius = Math.sqrt(mradius);
+	           	else
+	           		_boundingRadius = 0;
+	             
+	            //update max/min X
+	            vertices.sortOn("x", Array.DESCENDING | Array.NUMERIC);
+	            _maxX = vertices[0].x;
+	            _minX = vertices[vertices.length - 1].x;
+	            
+	            //update max/min Y
+	            vertices.sortOn("y", Array.DESCENDING | Array.NUMERIC);
+	            _maxY = vertices[0].y;
+	            _minY = vertices[vertices.length - 1].y;
+	            
+	            //update max/min Z
+	            vertices.sortOn("z", Array.DESCENDING | Array.NUMERIC);
+	            _maxZ = vertices[0].z;
+	            _minZ = vertices[vertices.length - 1].z;
+         	}
+         	
             super.updateDimensions();
         }
         
@@ -621,21 +621,21 @@
         }
 		
 		/**
-		 * Duplicates the mesh properties to another 3d object.
+		 * Duplicates the mesh properties to another 3d object
 		 * 
 		 * @param	object	[optional]	The new object instance into which all properties are copied. The default is <code>Mesh</code>.
 		 * @return						The new object instance with duplicated properties applied.
 		 */
-        public override function clone(object:* = null):*
+        public override function clone(object:Object3D = null):Object3D
         {
-            var mesh:Mesh = object || new Mesh();
+            var mesh:Mesh = (object as Mesh) || new Mesh();
             super.clone(mesh);
             mesh.material = material;
             mesh.outline = outline;
             mesh.back = back;
+            mesh.bothsides = bothsides;
             mesh.debugbb = debugbb;
-			
-			mesh.geometry = geometry.clone();
+			mesh.geometry = geometry;
 			
             return mesh;
         }
