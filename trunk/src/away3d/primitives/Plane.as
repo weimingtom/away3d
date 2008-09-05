@@ -148,8 +148,8 @@
         {
             super(init);
 
-            _width = ini.getNumber("width", 0, {min:0});
-            _height = ini.getNumber("height", 0, {min:0});
+            _width = ini.getNumber("width", 100, {min:0});
+            _height = ini.getNumber("height", 100, {min:0});
             var segments:int = ini.getInt("segments", 1, {min:1});
             _segmentsW = ini.getInt("segmentsW", segments, {min:1});
             _segmentsH = ini.getInt("segmentsH", segments, {min:1});

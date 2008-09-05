@@ -630,6 +630,7 @@
         {
             var mesh:Mesh = (object as Mesh) || new Mesh();
             super.clone(mesh);
+            mesh.type = type;
             mesh.material = material;
             mesh.outline = outline;
             mesh.back = back;

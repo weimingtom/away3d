@@ -107,15 +107,18 @@
 	    /**
 	    * Creates a new <code>ObjectContainer3D</code> object
 	    * 
-	    * @param	init			[optional]	An initialisation object for specifying default instance properties
-	    * @param	...childarray				An array of 3d objects to be added as children of the container on instatiation
+	    * @param	...initarray				An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	    */
-        public function ObjectContainer3D(init:Object = null, ...childarray)
+        public function ObjectContainer3D(...initarray:Array)
         {
-            if (init != null && init is Object3D) {
-                addChild(init as Object3D);
-                init = null;
-            }
+        	var init:Object;
+        	var childarray:Array = [];
+        	
+            for each (var object:Object in initarray)
+            	if (object is Object3D)
+            		childarray.push(object);
+            	else
+            		init = object;
 
             super(init);
             
