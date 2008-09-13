@@ -108,7 +108,7 @@ package away3d.materials.shaders
         {
         	clearLightingShapeDictionary();
         	for each (directional in source.session.lightarray.directionals) {
-        		if (!directional.diffuseTransform[source] || source.sceneTransformed) {
+        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         			directional.setNormalMatrixTransform(source);
         			directional.setColorMatrixTransform(source);

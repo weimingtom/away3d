@@ -435,11 +435,11 @@ package away3d.loaders
 				var _pathArray		:Array = url.split("/");
 				var _imageName		:String = _pathArray.pop();
 				var _texturePath	:String = (_pathArray.length>0)?_pathArray.join("/")+"/":_pathArray.join("/");
-				if (init){
-					init.texturePath = (init.texturePath)?init.texturePath:_texturePath;
-				}else {
-					init = { texturePath:_texturePath };
-				}
+				
+				if (init)
+					init.texturePath = init.texturePath || _texturePath;
+				else
+					init = {texturePath:_texturePath};
 			}
 			return Object3DLoader.loadGeometry(url, Collada, false, init);
         }

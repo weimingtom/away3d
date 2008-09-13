@@ -8,6 +8,7 @@ package away3d.core.render
 	import away3d.materials.IUpdatingMaterial;
 	
 	import flash.display.*;
+	import flash.events.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	
@@ -15,7 +16,7 @@ package away3d.core.render
     * Abstract Drawing session object containing the method used for drawing the view to screen.
     * Not intended for direct use - use <code>SpriteRenderSession</code> or <code>BitmapRenderSession</code>.
     */
-	public class AbstractRenderSession
+	public class AbstractRenderSession extends EventDispatcher
 	{
 		use namespace arcane;
 		/** @private */
@@ -25,7 +26,7 @@ package away3d.core.render
 		/** @private */
 		arcane var _shape:Shape;
 		/** @private */
-        arcane var _lightarray:LightArray;
+        arcane var _lightarray:ILightConsumer;
 		/** @private */
         arcane var _renderSource:Object3D;
 		/** @private */
@@ -35,7 +36,7 @@ package away3d.core.render
 		/** Array for storing added displayobjects to the canvas */
 		arcane var doActive:Array = new Array();
 		
-        private var session:AbstractRenderSession;
+        private var _session:AbstractRenderSession;
         private var a:Number;
         private var b:Number;
         private var c:Number;
@@ -63,12 +64,29 @@ package away3d.core.render
 		/** @private */
         protected var i:int;
         
+        public var updated:Boolean;
+        
         public var primitives:Array;
         
         /**
-        * Dictionary of child sessions.
+        * Placeholder for filters property of containers
         */
-       	public var sessions:Dictionary = new Dictionary(true);
+        public var filters:Array;
+        
+        /**
+        * Placeholder for alpha property of containers
+        */
+        public var alpha:Number;
+        
+        /**
+        * Placeholder for blendMode property of containers
+        */
+        public var blendMode:String;
+        
+        /**
+        * Array of child sessions.
+        */
+       	public var sessions:Array;
        	
        	/**
        	 * Dictionary of sprite layers for rendering composite materials.
@@ -92,11 +110,6 @@ package away3d.core.render
         */
         public var graphics:Graphics;
         
-        /**
-        * Dictionary of booleans that determines whether rendered contents of the session should be updated in the given view. Defaults to true;
-        */
-        public var updateSession:Dictionary = new Dictionary(true);
-        
         public var priconsumers:Dictionary = new Dictionary(true);
         
         public var consumer:IPrimitiveConsumer;
@@ -104,7 +117,18 @@ package away3d.core.render
         /**
         * Defines the light consumer object for the render sesion.
         */
-        public var lightarray:ILightConsumer;
+        public function get lightarray():ILightConsumer
+        {
+        	return _lightarray;
+        }
+        
+        public function set lightarray(val:ILightConsumer):void
+        {
+        	_lightarray = val;
+        	
+        	for each (_session in sessions)
+        		_session.lightarray = _lightarray;
+        }
         
         /**
         * Defines the primitive consumer object for the render sesion.
@@ -123,7 +147,9 @@ package away3d.core.render
         {
         	_view = val;
         	
-        	//cehck if root session
+        	updated = _view.updated || _view.forceUpdate || _view.scene.updatedSessions[this];
+        	
+        	//check if root session
         	if (_view.session == this) {
 	        	priconsumer = _view.renderer.primitiveConsumer;
 	        } else if (!priconsumers[_view]) {
@@ -131,8 +157,12 @@ package away3d.core.render
 	        } else {
 	        	priconsumer = priconsumers[_view];
 	        }
-	        	priconsumer.view = _view;
+	        
+	        priconsumer.view = _view;
         	time = getTimer();
+        	
+        	for each (_session in sessions)
+        		_session.view = _view;
         }
         
 		/**
@@ -140,10 +170,23 @@ package away3d.core.render
 		 * 
 		 * @param	session		The session object to be added as a child.
 		 */
-        public function registerChildSession(session:AbstractRenderSession):void
+        public function addChildSession(session:AbstractRenderSession):void
         {
-        	if (!sessions[session])
-        		sessions[session] = session;	
+        	sessions.push(session);	
+        }
+        
+		/**
+		 * Removes a child session of the session object.
+		 * 
+		 * @param	session		The session object to be removed.
+		 */
+        public function removeChildSession(session:AbstractRenderSession):void
+        {
+        	var index:int = sessions.indexOf(session);
+            if (index == -1)
+                return;
+            
+            sessions.splice(index, 1);	
         }
         
        	/**
@@ -172,9 +215,7 @@ package away3d.core.render
 		 */
         public function clear():void
         {
-        	updateSession[_view] = _view.forceUpdate || _view.camera.sceneTransformed || _view.scene.updateSession[this]
-        	
-        	if (updateSession[_view]) {
+        	if (updated) {
 	        	for each (var sprite:Sprite in spriteLayers) {
 	        		sprite.graphics.clear();
 	        		if (sprite.numChildren) {
@@ -200,8 +241,8 @@ package away3d.core.render
 	            priconsumer.clear()
 	        }
             
-        	for each(session in sessions)
-       			session.clear();
+        	for each(_session in sessions)
+       			_session.clear();
         }
 		
 		/**
@@ -209,18 +250,18 @@ package away3d.core.render
 		 */
         public function filter(filters:Array):void
         {
-        	if (updateSession[_view])
+        	if (updated)
         		priconsumer.filter(filters);
         	
-        	for each(session in sessions)
-       			session.filter(filters);
+        	for each(_session in sessions)
+       			_session.filter(filters);
         }
         
         public function render():void
         {
-        	primitives = priconsumer.list();
-        	
-        	if (updateSession[_view]) {
+        	if (updated) {
+	        	primitives = priconsumer.list()
+				
 				//update materials
 				materials = new Dictionary(true);
 				for each (primitive in primitives)
@@ -236,8 +277,9 @@ package away3d.core.render
 				priconsumer.render();
 	        }
 	        
-        	for each(session in sessions)
-       			session.render();
+	        //index -= priconsumer.length;
+        	for each(_session in sessions)
+       			_session.render();
         }
         
         /**
@@ -430,8 +472,8 @@ package away3d.core.render
         public function flush():void
         {
         	
-       		for each(session in sessions)
-       			session.flush();
+       		for each(_session in sessions)
+       			_session.flush();
         }
 		
 		/**

@@ -159,7 +159,7 @@ package away3d.materials
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	for each (directional in source.session.lightarray.directionals) {
-        		if (!directional.diffuseTransform[source] || source.sceneTransformed) {
+        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         		}
         	}

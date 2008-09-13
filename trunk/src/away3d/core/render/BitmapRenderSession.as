@@ -43,6 +43,9 @@ package away3d.core.render
         	super.view = val;
         	
         	_container = getContainer(_view) as Bitmap;
+        	_container.filters = filters;
+        	_container.alpha = alpha || 1;
+        	_container.blendMode = blendMode || BlendMode.NORMAL;
         	_base = getBitmapData(_view);
         	
         	_cx = _container.x = _view.clip.minX;
@@ -160,7 +163,7 @@ package away3d.core.render
         {
 	        super.clear();
 	        
-        	if (updateSession[_view]) {
+        	if (updated) {
         		
 	        	//clear base canvas
 	        	_base.lock();
@@ -183,7 +186,7 @@ package away3d.core.render
         {
 	        super.flush();
 	        	
-        	if (updateSession[_view]) {
+        	if (updated) {
         		
 	        	i = 0;
 	            for each (layer in layers)

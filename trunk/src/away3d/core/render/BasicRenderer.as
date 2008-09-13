@@ -27,10 +27,8 @@ package away3d.core.render
         private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
         private var blockerarray:BlockerArray = new BlockerArray();
         private var blocktraverser:BlockerTraverser = new BlockerTraverser();
-        private var blockers:Array;
         private var priarray:PrimitiveArray = new PrimitiveArray();
         private var lightarray:LightArray = new LightArray();
-        private var sessiontraverser:SessionTraverser = new SessionTraverser();
         private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
         private var primitives:Array;
         private var object:Object;
@@ -74,29 +72,23 @@ package away3d.core.render
             clip = view.clip;
             session = view.session;
             
-            view.scene.updateSession = new Dictionary(true);
-            
             // resolve projection
             projtraverser.view = view;
             scene.traverse(projtraverser);
-            
+        	
             // get blockers for occlusion culling
             blockerarray.clip = clip;
             blocktraverser.consumer = blockerarray;
             blocktraverser.view = view;
             scene.traverse(blocktraverser);
-            blockers = blockerarray.list();
+            priarray.blockers = blockerarray.list();
+            
+            //setup view in session
+        	session.view = view;
             
             // clear lights
             lightarray.clear();
             session.lightarray = lightarray;
-			
-			//setup primitives consumer
-            priarray.blockers = blockers;
-            
-            //traverse sessions
-            sessiontraverser.view = view;
-            scene.traverse(sessiontraverser);
             
             session.clear();
             
@@ -111,6 +103,8 @@ package away3d.core.render
             //dispatch stats
             if (view.statsOpen)
             	view.statsPanel.updateStats(countFaces(session), camera);
+            	
+            session.flush();
         }
         
 		/**

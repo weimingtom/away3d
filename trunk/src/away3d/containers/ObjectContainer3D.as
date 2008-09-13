@@ -11,8 +11,6 @@
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
     
-    import flash.utils.Dictionary;
-    
     /**
     * 3d object container node for other 3d objects in a scene
     */
@@ -36,9 +34,6 @@
             if (index == -1)
                 return;
 			
-			if (child.ownCanvas)
-				session.sessions = new Dictionary(true);
-			
             child.removeOnTransformChange(onChildChange);
             child.removeOnDimensionsChange(onChildChange);
 			
@@ -49,7 +44,7 @@
         
         private var _children:Array = new Array();
         private var _radiusChild:Object3D = null;
-
+		
         private function onChildChange(event:Object3DEvent):void
         {
             notifyDimensionsChange();
@@ -107,7 +102,7 @@
 	    /**
 	    * Creates a new <code>ObjectContainer3D</code> object
 	    * 
-	    * @param	...initarray				An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
+	    * @param	...initarray		An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	    */
         public function ObjectContainer3D(...initarray:Array)
         {
@@ -119,7 +114,7 @@
             		childarray.push(object);
             	else
             		init = object;
-
+            
             super(init);
             
             for each (var child:Object3D in childarray)
@@ -147,8 +142,7 @@
         {
             if (child == null)
                 throw new Error("ObjectContainer3D.addChild(null)");
-            if (child.parent == this)
-                return;
+            
             child.parent = this;
         }
         

@@ -14,7 +14,5 @@ package away3d.core.draw
     	 * @see	away3d.core.draw.DrawPrimitive
     	 */
         function primitives():void;
-        
-        function sessions(session:AbstractRenderSession):void;
     }
 }

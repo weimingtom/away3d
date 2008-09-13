@@ -1,5 +1,6 @@
 package away3d.core.traverse
 {
+	import away3d.cameras.Camera3D;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
@@ -15,6 +16,7 @@ package away3d.core.traverse
 		private var _projection:Projection;
         private var _view:View3D;
         private var _time:int;
+        private var _camera:Camera3D;
         private var _cameraview:Matrix3D;
 		
 		/**
@@ -28,7 +30,8 @@ package away3d.core.traverse
 		{
 			_view = val;
 			_time = getTimer();
-            _cameraview = _view.camera.view;
+			_camera = _view.camera;
+            _cameraview = _camera.view;
 			if (_view.statsOpen)
 				_view.statsPanel.clearObjects();
 		}
@@ -48,7 +51,7 @@ package away3d.core.traverse
         	//check if node is visible
             if (!node.visible)
                 return false;
-                
+            
             //compute viewTransform matrix
             node.viewTransform.multiply(_cameraview, node.sceneTransform);
             

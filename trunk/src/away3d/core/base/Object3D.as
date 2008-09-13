@@ -8,7 +8,6 @@ package away3d.core.base
     import away3d.core.traverse.*;
     import away3d.core.utils.*;
     import away3d.events.*;
-    import away3d.loaders.data.AnimationData;
     import away3d.loaders.utils.*;
     import away3d.primitives.*;
     
@@ -185,8 +184,12 @@ package away3d.core.base
         arcane function notifySceneTransformChange():void
         {
         	_sceneTransformDirty = false;
-        	sceneTransformed = true;
         	
+        	_sessionDirty = true;
+        	
+        	if (_scene)
+	        	_scene.updatedObjects[this] = this;
+	        
             if (!hasEventListener(Object3DEvent.SCENETRANSFORM_CHANGED))
                 return;
 			
@@ -195,7 +198,7 @@ package away3d.core.base
             
             dispatchEvent(_scenetransformchanged);
         }
-        /** @private */       
+        /** @private */
         arcane function notifySceneChange():void
         {
         	_sceneTransformDirty = true;
@@ -207,6 +210,26 @@ package away3d.core.base
                 _scenechanged = new Object3DEvent(Object3DEvent.SCENE_CHANGED, this);
             
             dispatchEvent(_scenechanged);
+        }
+         /** @private */
+        arcane function notifySessionChange():void
+        {
+        	if (_ownSession)
+        		_session = _ownSession;
+        	else if (_parent)
+        		_session = _parent.session;
+        	else
+        		_session = null;
+        		
+        	_sessionDirty = true;
+        	
+            if (!hasEventListener(Object3DEvent.SESSION_CHANGED))
+                return;
+			
+            if (!_sessionchanged)
+                _sessionchanged = new Object3DEvent(Object3DEvent.SESSION_CHANGED, this);
+            
+            dispatchEvent(_sessionchanged);
         }
         /** @private */
         arcane function notifyDimensionsChange():void
@@ -243,6 +266,7 @@ package away3d.core.base
         private static var toRADIANS:Number = Math.PI / 180;
 		
         private var _rotationDirty:Boolean;
+        private var _sessionDirty:Boolean;
         arcane var _rotationX:Number = 0;
         arcane var _rotationY:Number = 0;
         arcane var _rotationZ:Number = 0;
@@ -253,9 +277,9 @@ package away3d.core.base
         private var _pivotPointRotate:Number3D = new Number3D();
         private var _parentPivot:Number3D;
         private var _parentradius:Number3D = new Number3D();
-        arcane var _scene:Scene3D;
+        private var _scene:Scene3D;
         private var _oldscene:Scene3D;
-        private var _parent:ObjectContainer3D;
+        private var _parent:Object3D;
 		private var _quaternion:Quaternion = new Quaternion();
 		private var _rot:Number3D = new Number3D();
 		private var _sca:Number3D = new Number3D();
@@ -274,10 +298,17 @@ package away3d.core.base
         private var _transformchanged:Object3DEvent;
         private var _scenetransformchanged:Object3DEvent;
         private var _scenechanged:Object3DEvent;
+        private var _sessionchanged:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
         private var _dispatchedDimensionsChange:Boolean;
 		private var _debugboundingbox:WireCube;
 		private var _debugboundingsphere:WireSphere;
+		private var _session:AbstractRenderSession;
+		private var _ownSession:AbstractRenderSession;
+		private var _ownCanvas:Boolean;
+		private var _filters:Array;
+		private var _alpha:Number;
+		private var _blendMode:String;
 		
         private function updateSceneTransform():void
         {
@@ -306,12 +337,28 @@ package away3d.core.base
             _rotationDirty = false;
         }
 		
+		private function updateSession():void
+		{
+        	if (_session)
+        		_scene.updatedSessions[_session] = _session;
+        		
+        	_sessionDirty = false;
+		}
+		
+        private function onParentSessionChange(event:Object3DEvent):void
+        {
+        	if (_ownSession)
+        		_parent.session.addChildSession(_ownSession);
+        		
+            if (!_ownSession && _session != _parent.session)
+	            notifySessionChange();
+        }
+        
         private function onParentSceneChange(event:Object3DEvent):void
         {
             if (_scene == _parent.scene)
                 return;
-                
-			_oldscene = _scene;
+            
             _scene = _parent.scene;
             
             notifySceneChange();
@@ -349,7 +396,7 @@ package away3d.core.base
                 if (_debugboundingbox == null) {
                     _debugboundingbox = new WireCube({material:"#333333"});
 	                _debugboundingbox.projection = projection;
-	                _debugboundingbox._scene = _scene;
+	                _debugboundingbox.parent = this;
                 }
                 if (boundingRadius) {
                 	_debugboundingbox.visible = true;
@@ -369,7 +416,7 @@ package away3d.core.base
             	if (_debugboundingsphere == null) {
 	                _debugboundingsphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
 	                _debugboundingsphere.projection = projection;
-	                _debugboundingsphere._scene = _scene;
+	                _debugboundingsphere.parent = this;
                 }
                 if (boundingRadius) {
                 	_debugboundingsphere.visible = true;
@@ -406,16 +453,6 @@ package away3d.core.base
          */
         public var viewTransform:Matrix3D = new Matrix3D();
         
-        /**
-         * Defines whether the object has been transfromed in the scene in the last frame
-         */
-    	public var sceneTransformed:Boolean;
-    	
-    	/**
-    	 * The render session used by the 3d object
-    	 */
-        public var session:AbstractRenderSession;
-        
     	/**
     	 * Defines whether the 3d object is visible in the scene
     	 */
@@ -431,34 +468,6 @@ package away3d.core.base
         public var name:String;
         
     	/**
-    	 * An optional array of filters that can be applied to the 3d object.
-    	 * 
-    	 * Requires <code>ownCanvas</code> to be set to true.
-    	 * 
-    	 * @see #ownCanvas
-    	 */
-        public var filters:Array;
-    	    
-        
-    	/**
-    	 * An optional alpha value that can be applied to the 3d object.
-    	 * 
-    	 * Requires <code>ownCanvas</code> to be set to true.
-    	 * 
-    	 * @see #ownCanvas
-    	 */
-        public var alpha:Number;
-        
-    	/**
-    	 * An optional blend mode that can be applied to the 3d object.
-    	 * 
-    	 * Requires <code>ownCanvas</code> to be set to true.
-    	 * 
-    	 * @see #ownCanvas
-    	 */
-        public var blendMode:String;
-        
-    	/**
     	 * An optional untyped object that can contain used-defined properties
     	 */
         public var extra:Object;
@@ -472,16 +481,6 @@ package away3d.core.base
     	 * Defines whether a hand cursor is displayed when the mouse rolls over the 3d object.
     	 */
         public var useHandCursor:Boolean = false;
-
-    	/**
-    	 * Defines whether the contents of the 3d object are rendered inside it's own sprite
-    	 */
-        public var ownCanvas:Boolean = false;
-        
-    	/**
-    	 * Defines whether the contents of the 3d object are rendered using it's own render session
-    	 */
-        public var ownSession:AbstractRenderSession;
         
         /**
         * Reference container for all materials used in the container. Populated in <code>Collada</code> and <code>Max3DS</code> importers.
@@ -516,7 +515,15 @@ package away3d.core.base
         * Indicates whether a debug bounding sphere should be rendered around the 3d object.
         */
         public var debugbs:Boolean;
-                
+    	
+    	/**
+    	 * The render session used by the 3d object
+    	 */
+        public function get session():AbstractRenderSession
+        {
+        	return _session;
+        }
+        
     	/**
     	 * Returns the bounding radius of the 3d object
     	 */
@@ -644,7 +651,144 @@ package away3d.core.base
            
 			return  _maxZ - _minZ;
 		}
-		
+        
+    	/**
+    	 * Defines whether the contents of the 3d object are rendered using it's own render session
+    	 */
+        public function get ownCanvas():Boolean
+        {
+            return _ownCanvas;
+        }
+    
+        public function set ownCanvas(val:Boolean):void
+        {
+        	if (_ownCanvas == val)
+        		return;
+        	
+        	if (val)
+        		ownSession = new SpriteRenderSession();
+        	else if (this is Scene3D)
+        		throw new Error("Scene cannot have ownCanvas set to false");
+        	else
+        		ownSession = null;
+        }
+        
+    	/**
+    	 * An optional array of filters that can be applied to the 3d object.
+    	 * 
+    	 * Requires <code>ownCanvas</code> to be set to true.
+    	 * 
+    	 * @see #ownCanvas
+    	 */
+        public function get filters():Array
+        {
+            return _filters;
+        }
+    
+        public function set filters(val:Array):void
+        {
+        	if (_filters == val)
+        		return;
+        	
+        	_filters = val;
+        	
+        	if (_ownSession)
+        		_ownSession.filters = _filters;
+        }
+        
+    	/**
+    	 * An optional alpha value that can be applied to the 3d object.
+    	 * 
+    	 * Requires <code>ownCanvas</code> to be set to true.
+    	 * 
+    	 * @see #ownCanvas
+    	 */
+        public function get alpha():Number
+        {
+            return _alpha;
+        }
+    
+        public function set alpha(val:Number):void
+        {
+        	if (_alpha == val)
+        		return;
+        	
+        	_alpha = val;
+        	
+        	if (_ownSession)
+        		_ownSession.alpha = _alpha;
+        }
+        
+    	/**
+    	 * An optional blend mode that can be applied to the 3d object.
+    	 * 
+    	 * Requires <code>ownCanvas</code> to be set to true.
+    	 * 
+    	 * @see #ownCanvas
+    	 */
+        public function get blendMode():String
+        {
+            return _blendMode;
+        }
+    
+        public function set blendMode(val:String):void
+        {
+        	if (_blendMode == val)
+        		return;
+        	
+        	_blendMode = val;
+        	
+        	if (_ownSession)
+        		_ownSession.blendMode = _blendMode;
+        }
+        
+    	/**
+    	 * Defines a unique render session for the 3d object.
+    	 */
+        public function get ownSession():AbstractRenderSession
+        {
+            return _ownSession;
+        }
+    
+        public function set ownSession(val:AbstractRenderSession):void
+        {
+        	if (_ownSession == val)
+        		return;
+        	
+        	//remove old session from parent session
+        	if (_ownSession && _parent)
+        		_parent.session.removeChildSession(_ownSession);
+        	
+        	//reset old session children
+        	if (_ownSession)
+        		_ownSession.sessions = new Array();
+        	
+        	//set new session
+        	_ownSession = val;
+        	
+        	//reset new session children and session properties
+        	if (_ownSession) {
+        		_ownSession.sessions = new Array();
+	        	_ownSession.filters = _filters;
+	    		_ownSession.alpha = _alpha;
+	    		_ownSession.blendMode = _blendMode;
+        	} else if (this is Scene3D) {
+        		throw new Error("Scene cannot have ownSession set to null");
+        	}
+        	
+        	//add new session to parent session
+        	if (_ownSession && _parent)
+        		_parent.session.addChildSession(_ownSession);
+        	
+        	//update ownCanvas property
+        	if (_ownSession)
+        		_ownCanvas = true;
+        	else
+        		_ownCanvas = false;
+        	
+        	notifySessionChange();
+        }
+        
     	/**
     	 * Defines the x coordinate of the 3d object relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
@@ -885,50 +1029,64 @@ package away3d.core.base
     	/**
     	 * Defines the parent of the 3d object.
     	 */
-        public function get parent():ObjectContainer3D
+        public function get parent():Object3D
         {
             return _parent;
         }
 		
-        public function set parent(value:ObjectContainer3D):void
+        public function set parent(value:Object3D):void
         {
+        	if (this is Scene3D)
+        		 throw new Error("Scene can't be parented");
+			
             if (value == _parent)
                 return;
 			
             _oldscene = _scene;
 			
-            if (_parent != null)
-            {
+            if (_parent != null) {
+            	_parent.removeOnSessionChange(onParentSessionChange);
                 _parent.removeOnSceneChange(onParentSceneChange);
-                _parent.internalRemoveChild(this);
+                
+                if (_parent is ObjectContainer3D)
+                	(_parent as ObjectContainer3D).internalRemoveChild(this);
+                
+                if (_ownSession && _parent.session)
+					_parent.session.removeChildSession(_ownSession);
             }
 			
             _parent = value;
             _scene = _parent ? _parent.scene : null;
 			
-            if (_parent != null)
-            {
-                _parent.internalAddChild(this);
+            if (_parent != null) {
+            	if (_parent is ObjectContainer3D)
+                	(_parent as ObjectContainer3D).internalAddChild(this);
+                
+                _parent.addOnSessionChange(onParentSessionChange);
                 _parent.addOnSceneChange(onParentSceneChange);
                 _parent.addOnSceneTransformChange(onParentTransformChange);
+                
+                if (_ownSession && _parent.session)
+					_parent.session.addChildSession(_ownSession);
             }
 			
             if (_scene != _oldscene)
                 notifySceneChange();
+			
+			if (!_ownSession && _parent && _session != _parent.session)
+				notifySessionChange();
 			
             _sceneTransformDirty = true;
             _localTransformDirty = true;
         }
         
     	/**
-    	 * Returns the transformation of the 3d object, relative to the global coordinates of the <code>Scene3D</code>.
+    	 * Returns the transformation of the 3d object, relative to the global coordinates of the <code>Scene3D</code> object.
     	 */
         public function get sceneTransform():Matrix3D
         {
-        	sceneTransformed = false;
-        	
         	//for camera transforms
-            if (_scene == null) {
+            if (_scene == null || _scene == this) {
             	if (_transformDirty)
             		 _sceneTransformDirty = true;
 				
@@ -937,21 +1095,24 @@ package away3d.core.base
             	
                 return transform;
             }
-
+			
             if (_transformDirty) 
                 updateTransform();
-
+			
             if (_sceneTransformDirty) 
                 updateSceneTransform();
 			
 			if (_localTransformDirty)
 				notifyTransformChange();
 			
+        	if (_sessionDirty)
+        		updateSession();
+        	
             return _sceneTransform;
         }
 		
     	/**
-    	 * Returns the position of the 3d object, relative to the global coordinates of the <code>Scene3D</code>.
+    	 * Returns the position of the 3d object, relative to the global coordinates of the <code>Scene3D</code> object.
     	 */
         public function get scenePosition():Number3D
         {
@@ -974,16 +1135,18 @@ package away3d.core.base
     	 */
         public function Object3D(init:Object = null):void
         {
+        	
             ini = Init.parse(init);
 
             name = ini.getString("name", name);
-            ownCanvas = ini.getBoolean("ownCanvas", ownCanvas);
             ownSession = ini.getObject("ownSession", AbstractRenderSession) as AbstractRenderSession;
+            ownCanvas = ini.getBoolean("ownCanvas", ownCanvas);
             visible = ini.getBoolean("visible", visible);
             mouseEnabled = ini.getBoolean("mouseEnabled", mouseEnabled);
             useHandCursor = ini.getBoolean("useHandCursor", useHandCursor);
             filters = ini.getArray("filters");
             alpha = ini.getNumber("alpha", 1);
+            blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             pushback = ini.getBoolean("pushback", false);
             pushfront = ini.getBoolean("pushfront", false);
             
@@ -997,10 +1160,10 @@ package away3d.core.base
 
             extra = ini.getObject("extra");
 
-            parent = ini.getObject3D("parent") as ObjectContainer3D;
-			
-			if (ownSession)
-				ownCanvas = true;
+        	if (this is Scene3D)
+        		_scene = this as Scene3D;
+        	else
+            	parent = ini.getObject3D("parent") as ObjectContainer3D;
 			
             /*
             var scaling:Number = init.getNumber("scale", 1);
@@ -1065,56 +1228,6 @@ package away3d.core.base
             }
         }
         
-        public function sessions(session:AbstractRenderSession):void
-        {
-            _v = session.view;
-            if (ownCanvas) {
-                if (!ownSession)
-                	ownSession = new SpriteRenderSession();
-            
-                session.registerChildSession(ownSession);
-                
-                ownSession.view = _v;
-                ownSession.lightarray = session.lightarray;
-        		
-        		if (ownSession.priconsumer is PrimitiveArray)
-        			(ownSession.priconsumer as PrimitiveArray).blockers = (session.priconsumer as PrimitiveArray).blockers;
-        		
-                _c = ownSession.getContainer(_v);
-                _c.filters = filters;
-                _c.alpha = alpha;
-                
-                if (blendMode != null)
-                	_c.blendMode = blendMode;
-                else
-                	_c.blendMode = BlendMode.NORMAL;
-                
-                
-                this.session = ownSession;
-             	
-            } else {   
-                this.session = session;
-            }
-        	
-            if (sceneTransformed)
-    			_scene.updateSession[this.session] = true;
-        	else
-        		_scene.updateSession[this.session] = _scene.updateSession[this.session] || false;
-        	
-        	if (debugbb) {
-            	if (_dimensionsDirty || !_debugboundingbox)
-            		updateDimensions();
-        		_debugboundingbox.sessions(this.session);
-        	}
-        		
-        	if (debugbs) {
-            	if (_dimensionsDirty || !_debugboundingsphere)
-            		updateDimensions();
-        		_debugboundingsphere.sessions(this.session);
-        	}
-        	
-        }
-        
     	/**
     	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
     	 * 
@@ -1128,7 +1241,8 @@ package away3d.core.base
         {
             _dispatchedDimensionsChange = false;
             
-			if (ownCanvas) {
+			if (_ownCanvas) {
+				_c = _session.getContainer(_session.view);
              	_sc.x = _c.x;
              	_sc.y = _c.y;
              	_sc.z = Math.sqrt(viewTransform.tz*viewTransform.tz + viewTransform.tx + viewTransform.tx + viewTransform.ty*viewTransform.ty);
@@ -1139,20 +1253,33 @@ package away3d.core.base
              	if (pushfront)
              		_sc.z -= boundingRadius;
              		
-             	_ddo.source = parent;
+             	_ddo.source = _parent;
              	_ddo.screenvertex = _sc;
              	_ddo.displayobject = _c;
-             	_ddo.session = parent.session;
              	_ddo.calc();
              	
-                parent.session.priconsumer.primitive(_ddo);
+             	if (_parent) {
+	             	_ddo.session = _parent.session;
+                	_parent.session.priconsumer.primitive(_ddo);
+				} else {
+					_ddo.session = _session.view.session;
+                	_session.view.session.priconsumer.primitive(_ddo);
+    			}
    			}
         	
-            if (debugbb && _debugboundingsphere.visible)
-                _debugboundingbox.primitives();
+            if (debugbb) {
+            	if (_dimensionsDirty)
+            		updateDimensions();
+            	if (_debugboundingsphere.visible)
+                	_debugboundingbox.primitives();
+            }
             
-            if (debugbs && _debugboundingsphere.visible)
-                _debugboundingsphere.primitives(); 
+            if (debugbs) {
+            	if (_dimensionsDirty)
+            		updateDimensions();
+            	if (_debugboundingsphere.visible)
+	                _debugboundingsphere.primitives();
+            }
         }
         
         /**
@@ -1466,6 +1593,26 @@ package away3d.core.base
             removeEventListener(Object3DEvent.SCENE_CHANGED, listener, false);
         }
 		
+		/**
+		 * Default method for adding a sessionchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function addOnSessionChange(listener:Function):void
+        {
+            addEventListener(Object3DEvent.SESSION_CHANGED, listener, false, 0, true);
+        }
+		
+		/**
+		 * Default method for removing a sessionchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function removeOnSessionChange(listener:Function):void
+        {
+            removeEventListener(Object3DEvent.SESSION_CHANGED, listener, false);
+        }
+        
 		/**
 		 * Default method for adding a dimensionschanged event listener
 		 * 

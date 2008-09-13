@@ -23,7 +23,6 @@ package away3d.core.render
         private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
         private var pritree:PrimitiveQuadrantTree = new PrimitiveQuadrantTree();
         private var lightarray:LightArray = new LightArray();
-        private var sessiontraverser:SessionTraverser = new SessionTraverser();
         private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
         private var primitives:Array;
         private var materials:Dictionary;
@@ -71,22 +70,16 @@ package away3d.core.render
             clip = view.clip;
             session = view.session;
             
-            view.scene.updateSession = new Dictionary(true);
-            
             // resolve projection
 			projtraverser.view = view;
 			scene.traverse(projtraverser);
             
+            //setup view in session
+        	session.view = view;
+        	
             // clear lights
             lightarray.clear();
-            
-            //setup session
-            session.view = view;
             session.lightarray = lightarray;
-            
-            //traverse sessions
-            sessiontraverser.view = view;
-            scene.traverse(sessiontraverser);
 			
 			session.clear();
             
@@ -101,6 +94,8 @@ package away3d.core.render
             //dispatch stats
             if (view.statsOpen)
             	view.statsPanel.updateStats(countFaces(session), camera);
+            	
+            session.flush();
         }
         
 		/**
