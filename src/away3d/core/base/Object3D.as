@@ -186,9 +186,6 @@ package away3d.core.base
         	_sceneTransformDirty = false;
         	
         	_sessionDirty = true;
-        	
-        	if (_scene)
-	        	_scene.updatedObjects[this] = this;
 	        
             if (!hasEventListener(Object3DEvent.SCENETRANSFORM_CHANGED))
                 return;
@@ -337,11 +334,15 @@ package away3d.core.base
             _rotationDirty = false;
         }
 		
-		private function updateSession():void
+		public function updateSession():void
 		{
-        	if (_session)
-        		_scene.updatedSessions[_session] = _session;
-        		
+			if (!_sessionDirty)
+				return;
+			
+        	_scene.updatedSessions[_session] = _session;
+        	
+        	_scene.updatedObjects[this] = this;
+	        
         	_sessionDirty = false;
 		}
 		
@@ -1104,9 +1105,6 @@ package away3d.core.base
 			
 			if (_localTransformDirty)
 				notifyTransformChange();
-			
-        	if (_sessionDirty)
-        		updateSession();
         	
             return _sceneTransform;
         }
