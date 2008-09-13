@@ -55,6 +55,9 @@ package away3d.core.traverse
             //compute viewTransform matrix
             node.viewTransform.multiply(_cameraview, node.sceneTransform);
             
+            //update session
+            node.updateSession();
+            
             //update projection object
             _projection = node.projection;
             _projection.view = node.viewTransform;
