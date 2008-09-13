@@ -130,7 +130,7 @@ package away3d.core.base
     	/**
     	 * Defines the parent 3d object of the face.
     	 */
-		public var parent:Geometry;
+		//public var parent:Geometry;
 		
 		/**
 		 * Returns an array of vertex objects that are used by the face.

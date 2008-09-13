@@ -46,7 +46,7 @@ package away3d.cameras
 		 * 
 		 * @throws	Error	TargetCamera can't be parented.
 		 */
-        public override function set parent(value:ObjectContainer3D):void
+        public override function set parent(value:Object3D):void
         {
             if (value != null)
                 throw new Error("TargetCamera can't be parented");

@@ -31,6 +31,9 @@ package away3d.core.render
         	super.view = val;
         	
         	_container = getContainer(_view) as Sprite;
+        	_container.filters = filters;
+        	_container.alpha = alpha || 1;
+        	_container.blendMode = blendMode || BlendMode.NORMAL;
         	graphics = _container.graphics;
         	
         	//clip the edges of the root container with  scrollRect
@@ -121,25 +124,27 @@ package away3d.core.render
         {
        		super.clear();
        		
-        	if (updateSession[_view]) {
-        		_container.cacheAsBitmap = false;
-        		
-	        	//clear base canvas
-	            _container.graphics.clear();
-	            
-	            //remove all children
-	            i = _container.numChildren;
-				while (i--)
-					_container.removeChild(_container.getChildAt(i));
-				
-	            children = new Dictionary(true);
-	            newLayer = null;
-	            
-	 			graphics = _container.graphics;
-        	} else {
-        		_container.cacheAsBitmap = true;
-        	}
-        }	          
+       		if (_container) {
+	        	if (updated) {
+	        		_container.cacheAsBitmap = false;
+	        		
+		        	//clear base canvas
+		            _container.graphics.clear();
+		            
+		            //remove all children
+		            i = _container.numChildren;
+					while (i--)
+						_container.removeChild(_container.getChildAt(i));
+					
+		            children = new Dictionary(true);
+		            newLayer = null;
+		            
+		 			graphics = _container.graphics;
+	        	} else {
+	        		_container.cacheAsBitmap = true;
+	        	}
+       		}
+        }
         
 		/**
 		 * @inheritDoc

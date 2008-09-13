@@ -17,7 +17,6 @@ package away3d.containers
 	import flash.events.Event;
 	import flash.events.EventPhase;
 	import flash.events.MouseEvent;
-	import flash.utils.Dictionary;
 	
 	 /**
 	 * Dispatched when a user moves the cursor while it is over a 3d object
@@ -60,9 +59,9 @@ package away3d.containers
 	public class View3D extends Sprite
 	{
 		use namespace arcane;
-		
+		/** @private */
 		arcane var _interactiveLayer:Sprite = new Sprite();
-		
+		/** @private */
         arcane function dispatchMouseEvent(event:MouseEvent3D):void
         {
             if (!hasEventListener(event.type))
@@ -72,17 +71,39 @@ package away3d.containers
         }
         private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
+		private var _camera:Camera3D;
         private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
 		private var _mousedown:Boolean;
         private var _lastmove_mouseX:Number;
         private var _lastmove_mouseY:Number;
 		private var _oldclip:Clipping;
+		private var _updatescene:ViewEvent;
+		private var _updated:Boolean;
+		
+		private function notifySceneUpdate():void
+		{
+			//dispatch event
+			if (!_updatescene)
+				_updatescene = new ViewEvent(ViewEvent.UPDATE_SCENE, this);
+				
+			dispatchEvent(_updatescene);
+		}
 		
 		private function createStatsMenu(event:Event):void
 		{
 			statsPanel = new Stats(this, stage.frameRate); 
 			statsOpen = false;
+		}
+		
+		private function onCameraTransformChange(e:Object3DEvent):void
+		{
+			_updated = true;
+		}
+				
+		private function onSessionChange(e:Object3DEvent):void
+		{
+			_session.sessions = [e.object.session];
 		}
 		
         private function onMouseDown(e:MouseEvent):void
@@ -113,7 +134,7 @@ package away3d.containers
         
         private function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
-            findhit = new FindHit(this, session, x, y);
+            findhit = new FindHit(this, _scene.session, x, y);
             var event:MouseEvent3D = findhit.getMouseEvent(type);
             var target:Object3D = event.object;
             var targetMaterial:IUVMaterial = event.material;
@@ -216,7 +237,74 @@ package away3d.containers
         * Current material under the mouse.
         */
         public var mouseMaterial:IUVMaterial;
+        
+        /**
+        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to true.
+        * 
+        * @see #render()
+        */
+        public var forceUpdate:Boolean;
+      
+        
+        /**
+        * Clipping area used when rendering.
+        * 
+        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
+        * 
+        * @see #render()
+        * @see away3d.core.render.Clipping.scene()
+        */
+        public var clip:Clipping;
+        
 
+        /**
+        * Traverser used to find the current object under the mouse.
+        * 
+        * @see #fireMouseEvent
+        */
+        public var findhit:FindHit;
+        
+        /**
+        * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
+        */
+        public var renderer:IRenderer
+		
+		/**
+		* Flag used to determine if the camera has updated the view.
+        * 
+        * @see #camera
+        */
+        public function get updated():Boolean
+        {
+        	return _updated;
+        }
+        
+        /**
+        * Camera used when rendering.
+        * 
+        * @see #render()
+        */
+        public function get camera():Camera3D
+        {
+        	return _camera;
+        }
+    	
+        public function set camera(val:Camera3D):void
+        {
+        	if (_camera == val)
+        		return;
+        	
+        	if (_camera)
+        		_camera.removeOnSceneTransformChange(onCameraTransformChange);
+        	
+        	_camera = val;
+        	
+        	if (_camera)
+        		_camera.addOnSceneTransformChange(onCameraTransformChange);
+        	else
+        		throw new Error("View cannot have camera set to null");
+        }
+        
 		/**
 		* Scene used when rendering.
         * 
@@ -229,47 +317,25 @@ package away3d.containers
     	
         public function set scene(val:Scene3D):void
         {
+        	if (_scene == val)
+        		return;
+        	
+        	if (_scene) {
+        		_scene.internalRemoveView(this);
+        		_scene.removeOnSessionChange(onSessionChange);
+	        	_session.sessions = [];
+	        }
+        	
         	_scene = val;
-        	_session.sessions = new Dictionary(true);
+        	
+        	if (_scene) {
+        		_scene.internalAddView(this);
+        		_scene.addOnSessionChange(onSessionChange);
+        		_session.sessions = [_scene.ownSession];
+        	} else {
+        		throw new Error("View cannot have scene set to null");
+        	}
         }
-        
-        /**
-        * Camera used when rendering.
-        * 
-        * @see render()
-        */
-        public var camera:Camera3D;
-        
-        /**
-        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to true.
-        * 
-        * @see render()
-        */
-        public var forceUpdate:Boolean;
-      
-        
-        /**
-        * Clipping area used when rendering.
-        * 
-        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
-        * 
-        * @see render()
-        * @see away3d.core.render.Clipping.scene()
-        */
-        public var clip:Clipping;
-        
-
-        /**
-        * Traverser used to find the current object under the mouse.
-        * 
-        * @see fireMouseEvent
-        */
-        public var findhit:FindHit;
-        
-        /**
-        * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
-        */
-        public var renderer:IRenderer
         
         /**
         * Session object used to draw all drawing primitives returned from the renderer to the view container.
@@ -284,7 +350,20 @@ package away3d.containers
     	
         public function set session(val:AbstractRenderSession):void
         {
+        	if (_session == val)
+        		return;
+        	
+        	if (_session)
+        		_session.sessions = [];
+        	
         	_session = val;
+        	
+        	if (_session) {
+	        	if (_scene)
+	        		_session.sessions = [_scene.ownSession];
+        	} else {
+        		throw new Error("View cannot have session set to null");
+        	}
         	
         	//clear children
         	while (numChildren)
@@ -330,26 +409,6 @@ package away3d.containers
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);			
 		}
 		
-		
-        /**
-        * Clears previuosly rendered view from the session.
-        * 
-        * @see session
-        */
-        public function clear():void
-        {
-        	_oldclip = clip;
-            
-            //if clip set to default, determine screen clipping
-			if (clip == _defaultclip)
-            	clip = _defaultclip.screen(this);
-        	
-        	//setup view in session
-        	_session.view = this;
-        	
-        	//_session.clear();
-        }
-		
         /**
         * Returns the <code>DisplayObject</code> container of the rendered scene.
         * 
@@ -382,7 +441,17 @@ package away3d.containers
 			else
 				throw new Error("incorrect session object - require BitmapRenderSession");	
 		}
-				
+		
+        /**
+        * Clears previously rendered view from all render sessions.
+        * 
+        * @see #session
+        */
+        public function clear():void
+        {
+        	session.clear();
+        }
+        
         /**
         * Renders a snapshot of the view to the render session's view container.
         * 
@@ -390,27 +459,28 @@ package away3d.containers
         */
         public function render():void
         {
-            clear();
+        	_updated = false;
+        	
+        	_oldclip = clip;
             
+            //if clip set to default, determine screen clipping
+			if (clip == _defaultclip)
+            	clip = _defaultclip.screen(this);
+            
+            //update scene
+            notifySceneUpdate();
+            
+            //render scene
             renderer.render(this);
 			
-			flush();
+			//revert clip value
+			clip = _oldclip;
         	
+        	//debug check
             Init.checkUnusedArguments();
-
+			
+			//check for mouse interaction
             fireMouseMoveEvent();
-        }
-		
-		/**
-		 * Completes the rendering of a view by flushing the session
-		 * 
-		 * @see #session
-		 */
-        public function flush():void
-        {
-        	_session.flush();
-        	
-        	clip = _oldclip;
         }
         
 		/**

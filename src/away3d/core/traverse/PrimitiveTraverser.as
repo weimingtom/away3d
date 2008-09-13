@@ -21,7 +21,7 @@ package away3d.core.traverse
         private var _lights:ILightConsumer;
 		
 		/**
-		 * Defines the render session being used.
+		 * Defines the view being used.
 		 */
 		public function get view():View3D
 		{

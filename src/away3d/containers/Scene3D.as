@@ -3,12 +3,14 @@ package away3d.containers
 	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
+	import away3d.core.render.*;
 	import away3d.core.traverse.*;
 	import away3d.core.utils.*;
-	import away3d.events.Object3DEvent;
+	import away3d.events.*;
 	
-	import flash.utils.Dictionary;
-	import flash.utils.getTimer;
+	import flash.display.*;
+	import flash.events.*;
+	import flash.utils.*;
     
     /**
     * The root container of all 3d objects in a single scene
@@ -16,11 +18,59 @@ package away3d.containers
     public class Scene3D extends ObjectContainer3D
     {
     	use namespace arcane;
+		/** @private */
+        arcane function internalRemoveView(view:View3D):void
+        {
+        	view.removeEventListener(ViewEvent.UPDATE_SCENE, onUpdateScene);
+        }
+		/** @private */
+        arcane function internalAddView(view:View3D):void
+        {
+        	view.addEventListener(ViewEvent.UPDATE_SCENE, onUpdateScene);
+        }
+        
+        private var _view:View3D;
+        private var _autoUpdate:Boolean;
+        private var _broadcaster:Sprite = new Sprite();
+        
+        private function onUpdateScene(event:ViewEvent):void
+        {
+        	if (autoUpdate) {
+        		if (_view && _view != event.view)
+        			Debug.warning("Multiple views detected! Should consider switching to manual updateScene");
+        		else
+        			_view = event.view;
+        		
+        		updateScene();
+        	}
+        }
+        
+		/**
+		 * Traverser object for all custom <code>tick()</code> methods
+		 * 
+		 * @see away3d.core.base.Object3D#tick()
+		 */
+        public var tickTraverser:TickTraverser = new TickTraverser();
         
         /**
-        * Library of booleans for update status of all sessions in the view.
+        * Library of booleans for update status of all objects in the scene.
         */
-        public var updateSession:Dictionary;
+        public var updatedObjects:Dictionary;
+        
+        /**
+        * Library of booleans for update status of all sessions in the scene.
+        */
+        public var updatedSessions:Dictionary;
+        
+        /**
+        * Library of booleans for update status of all materials in the scene.
+        */
+        public var updatedMaterials:Dictionary;
+        
+        /**
+        * Defines whether scene events are automatically triggered by the view, or manually by <code>updateScene()</code>
+        */
+		public var autoUpdate:Boolean;
         
     	/**
     	 * Interface for physics (not implemented)
@@ -28,35 +78,10 @@ package away3d.containers
         public var physics:IPhysicsScene;
         
 		/**
-		 * Traverser object for all custom <code>tick()</code> methods
-		 * 
-		 * @see away3d.core.base.Object3D#tick()
-		 */
-		public var tickTraverser:TickTraverser = new TickTraverser();
-        
-		/**
-		 * Cannot parent a <code>Scene3D</code> object
-		 * 
-		 * @throws	Error	Scene can't be parented
-		 */
-		public override function get parent():ObjectContainer3D
-		{
-			return super.parent;
-		}
-		
-        public override function set parent(value:ObjectContainer3D):void
-        {
-            if (value != null)
-                throw new Error("Scene can't be parented");
-        }
-        
-		/**
 		 * @inheritDoc
 		 */
         public override function get sceneTransform():Matrix3D
         {
-        	sceneTransformed = false;
-        	
         	if (_transformDirty)
         		 _sceneTransformDirty = true;
 			
@@ -69,20 +94,29 @@ package away3d.containers
 		/**
 		 * Creates a new <code>Scene3D</code> object
 		 * 
-		 * @param	init	[optional]	An initialisation object for specifying default instance properties
-		 * @param	...objects				An array of 3d objects to be added as children on instatiation
+	    * @param	...initarray		An array of 3d objects to be added as children of the scene on instatiation. Can contain an initialisation object
 		 */
-        public function Scene3D(init:Object = null, ...objects)
+        public function Scene3D(...initarray)
         {
-            _scene = this;
+            var init:Object;
+            var childarray:Array = [];
             
-            if (init != null && init is Object3D) {
-                addChild(init as Object3D);
-                init = null;
-            }
+            for each (var object:Object in initarray)
+            	if (object is Object3D)
+            		childarray.push(object);
+            	else
+            		init = object;
+			
+			//force own canvas
+			if (init)
+				init.ownCanvas = true;
+			else
+				init = {ownCanvas:true};
             
-            ini = Init.parse(init);
-
+            super(init);
+			
+			autoUpdate = ini.getBoolean("autoUpdate", true);
+			
             var ph:Object = ini.getObject("physics");
             if (ph is IPhysicsScene)
                 physics = ph as IPhysicsScene;
@@ -91,9 +125,24 @@ package away3d.containers
                     physics = null; // new RobPhysicsEngine();
             if (ph is Object)
                 physics = null; // new RobPhysicsEngine(ph); // ph - init object
-
-            for each (var object:Object3D in objects)
-                addChild(object);
+                
+            for each (var child:Object3D in childarray)
+                addChild(child);
+        }
+		
+		/**
+		 * Calling manually will update scene specific variables
+		 */
+        public function updateScene():void
+        {
+        	//clear updated objects
+        	updatedObjects = new Dictionary(true);
+        	
+        	//clear updated sessions
+        	updatedSessions = new Dictionary(true);
+        	
+        	//clear updated materials
+        	updatedMaterials = new Dictionary(true);
         }
 		
 		/**
@@ -108,7 +157,7 @@ package away3d.containers
         	//set current time
             if (time == -1)
                 time = getTimer();
-                
+            
             //traverser scene ticks
             tickTraverser.now = time;
             traverse(tickTraverser);

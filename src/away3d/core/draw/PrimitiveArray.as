@@ -68,7 +68,6 @@ package away3d.core.draw
                         return;
                     i++;
                 }
-                
                 _primitives.push(pri);
             }
         }
@@ -96,7 +95,9 @@ package away3d.core.draw
         
         public function clone():IPrimitiveConsumer
         {
-        	return new PrimitiveArray();
+        	var priarray:PrimitiveArray = new PrimitiveArray();
+        	priarray.blockers = blockers;
+        	return priarray;
         }
         
         public function render():void

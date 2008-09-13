@@ -8,6 +8,7 @@ package away3d.materials
     */
     public interface IUpdatingMaterial
     {
+    	
     	/**
     	 * Called once per render loop when material is visible.
     	 */
