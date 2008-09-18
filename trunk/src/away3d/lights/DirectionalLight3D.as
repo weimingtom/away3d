@@ -1,5 +1,6 @@
 package away3d.lights
 {
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -139,7 +140,7 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        public function light(consumer:ILightConsumer):void
+        public function light():void
         {
             //update color
 			if (_colorDirty) {
@@ -170,7 +171,7 @@ package away3d.lights
         		_ls.updateSpecularBitmap(specular);
         	}
         	
-            consumer.directionalLight(_ls);
+            (parent as ObjectContainer3D).lightarray.directionalLight(_ls);
             
             _colorDirty = false;
             _brightnessDirty = false;
@@ -179,9 +180,9 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        override public function primitives():void
+        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
         {
-        	super.primitives();
+        	super.primitives(view, consumer);
 
         }
 		

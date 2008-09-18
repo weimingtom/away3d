@@ -1,14 +1,18 @@
 package away3d.materials
 {
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.events.*;
+    
+    import flash.events.*;
 
     /**
     * Wire material for face border outlining only
     */
-    public class WireframeMaterial implements ITriangleMaterial, ISegmentMaterial
+    public class WireframeMaterial extends EventDispatcher implements ITriangleMaterial, ISegmentMaterial
     {
         /**
         * Instance of the Init object used to hold and parse default property values
@@ -53,6 +57,14 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
+        public function updateMaterial(source:Object3D, view:View3D):void
+        {
+        	
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function renderSegment(seg:DrawSegment):void
         {
             if (alpha <= 0)
@@ -78,6 +90,22 @@ package away3d.materials
         public function get visible():Boolean
         {
             return (alpha > 0);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function addOnUpdate(listener:Function):void
+        {
+        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.UPDATED, listener, false);
         }
     }
 }

@@ -1,14 +1,18 @@
 package away3d.materials
 {
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-
+    import away3d.events.*;
+    
+    import flash.events.*;
+	
     /**
     * Material for solid color drawing
     */
-    public class ColorMaterial implements ITriangleMaterial, IFogMaterial
+    public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial
     {
     	private var _alpha:Number;
     	
@@ -65,6 +69,14 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
+        public function updateMaterial(source:Object3D, view:View3D):void
+        {
+        	
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
             tri.source.session.renderTriangleColor(color, _alpha, tri.v0, tri.v1, tri.v2);
@@ -75,7 +87,7 @@ package away3d.materials
 		 */
         public function renderFog(fog:DrawFog):void
         {
-            fog.source.session.renderFogColor(color, _alpha);
+            fog.source.session.renderFogColor(fog.clip, color, _alpha);
         }
         
 		/**
@@ -84,6 +96,22 @@ package away3d.materials
         public function clone():IFogMaterial
         {
         	return new ColorMaterial(color, {alpha:alpha});
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function addOnUpdate(listener:Function):void
+        {
+        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.UPDATED, listener, false);
         }
     }
 }

@@ -8,9 +8,7 @@ package away3d.core.render
     * Interface for renderers capable of rendering a scene to a view
     */
     public interface IRenderer
-    {
-        function get primitiveConsumer():IPrimitiveConsumer;
-        
+    {   
     	/**
     	 * Executes the render pipe that resolves the 3d scene into the view.
     	 */

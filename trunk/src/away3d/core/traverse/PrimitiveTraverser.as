@@ -18,7 +18,6 @@ package away3d.core.traverse
     	private var _view:View3D;
     	private var _mouseEnabled:Boolean;
     	private var _mouseEnableds:Array;
-        private var _lights:ILightConsumer;
 		
 		/**
 		 * Defines the view being used.
@@ -32,7 +31,6 @@ package away3d.core.traverse
 			_view = val;
 			_mouseEnabled = true;
 			_mouseEnableds = [];
-			_lights = _view.session.lightarray;
 		}
 		    	
 		/**
@@ -50,7 +48,7 @@ package away3d.core.traverse
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(_view);
+                return (node as ILODObject).matchLOD(_view.camera);
             return true;
         }
         
@@ -68,15 +66,9 @@ package away3d.core.traverse
         public override function apply(node:Object3D):void
         {
             if (node is IPrimitiveProvider)
-            {
-                (node as IPrimitiveProvider).primitives();
-                _mouseEnabled = node._mouseEnabled = (_mouseEnabled && node.mouseEnabled);
-            }
-
-            if (node is ILightProvider)
-            {
-                (node as ILightProvider).light(_lights);
-            }
+                (node as IPrimitiveProvider).primitives(_view, node.session.getConsumer(view));
+            
+            _mouseEnabled = node._mouseEnabled = (_mouseEnabled && node.mouseEnabled);
         }
         
 		/**

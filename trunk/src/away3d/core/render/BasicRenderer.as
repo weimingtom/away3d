@@ -19,36 +19,43 @@ package away3d.core.render
     * which resolves the projection, culls any drawing primitives that are occluded or outside the viewport,
     * and then z-sorts and renders them to screen.
     */
-    public class BasicRenderer implements IRenderer
+    public class BasicRenderer extends AbstractRenderer implements IRenderer, IPrimitiveConsumer
     {
-        private var filters:Array;
-        private var scene:Scene3D;
-        private var camera:Camera3D;
-        private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
-        private var blockerarray:BlockerArray = new BlockerArray();
-        private var blocktraverser:BlockerTraverser = new BlockerTraverser();
-        private var priarray:PrimitiveArray = new PrimitiveArray();
-        private var lightarray:LightArray = new LightArray();
-        private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
-        private var primitives:Array;
-        private var object:Object;
-        private var clip:Clipping;
-        private var session:AbstractRenderSession;
-		private var s:AbstractRenderSession;
+    	private var _filters:Array;
+    	private var _primitive:DrawPrimitive;
+        private var _primitives:Array = [];
+        private var _view:View3D;
+        private var _scene:Scene3D;
+        private var _camera:Camera3D;
+        private var _clip:Clipping;
+        private var _blockers:Array = [];
+		private var _filter:IPrimitiveFilter;
 		
-		private function countFaces(session:AbstractRenderSession):int
+		/**
+		 * Defines the array of filters to be used on the drawing primitives.
+		 */
+		public function get filters():Array
 		{
-			var output:int = session.primitives.length;
-			
-			for each (s in session.sessions)
-				output += countFaces(s);
-				
-			return output;
+			return _filters.slice(0, _filters.length - 1);
 		}
 		
-		public function get primitiveConsumer():IPrimitiveConsumer
+		public function set filters(val:Array):void
 		{
-			return priarray;
+			_filters = val;
+			_filters.push(new ZSortFilter());
+		}
+		
+		/**
+		 * Defines the array of blocker primitives to be used on the drawing primitives.
+		 */
+		public function get blockers():Array
+		{
+			return _blockers;
+		}
+		
+		public function set blockers(val:Array):void
+		{
+			_blockers = val;
 		}
 		
 		/**
@@ -58,53 +65,61 @@ package away3d.core.render
 		 */
         public function BasicRenderer(...filters)
         {
-            this.filters = filters;
-            this.filters.push(new ZSortFilter());
+            _filters = filters;
+            _filters.push(new ZSortFilter());
         }
         
 		/**
 		 * @inheritDoc
 		 */
+        public function primitive(pri:DrawPrimitive):void
+        {
+            if (_clip.check(pri))
+            {
+                var blockercount:int = _blockers.length;
+                var i:int = 0;
+                while (i < blockercount)
+                {          
+                    var blocker:Blocker = _blockers[i];
+                    if (blocker.screenZ > pri.minZ)
+                        break;
+                    if (blocker.block(pri))
+                        return;
+                    i++;
+                }
+                _primitives.push(pri);
+            }
+        }
+		
+		/**
+		 * A list of primitives that have been clipped and blocked.
+		 * 
+		 * @return	An array containing the primitives to be rendered.
+		 */
+        public function list():Array
+        {
+            return _primitives;
+        }
+        
+        public override function clear(view:View3D):void
+        {
+        	super.clear(view);
+        	_primitives = [];
+        	_scene = view.scene;
+        	_camera = view.camera;
+        	_clip = view.clip;
+        }
+        
         public function render(view:View3D):void
         {
-            scene = view.scene;
-            camera = view.camera;
-            clip = view.clip;
-            session = view.session;
-            
-            // resolve projection
-            projtraverser.view = view;
-            scene.traverse(projtraverser);
         	
-            // get blockers for occlusion culling
-            blockerarray.clip = clip;
-            blocktraverser.consumer = blockerarray;
-            blocktraverser.view = view;
-            scene.traverse(blocktraverser);
-            priarray.blockers = blockerarray.list();
-            
-            //setup view in session
-        	session.view = view;
-            
-            // clear lights
-            lightarray.clear();
-            session.lightarray = lightarray;
-            
-            session.clear();
-            
-            //traverse primitives
-            pritraverser.view = view;
-            scene.traverse(pritraverser);
-            
-            session.filter(filters);
-			
-			session.render();
-			
-            //dispatch stats
-            if (view.statsOpen)
-            	view.statsPanel.updateStats(countFaces(session), camera);
-            	
-            session.flush();
+        	//filter primitives array
+			for each (_filter in _filters)
+        		_primitives = _filter.filter(_primitives, _scene, _camera, _clip);
+        	
+    		// render all primitives
+            for each (_primitive in _primitives)
+                _primitive.render();
         }
         
 		/**
@@ -112,7 +127,14 @@ package away3d.core.render
 		 */
         public function toString():String
         {
-            return "Basic ["+filters.join("+")+"]";
+            return "Basic [" + _filters.join("+") + "]";
+        }
+        
+        public function clone():IPrimitiveConsumer
+        {
+        	var renderer:BasicRenderer = new BasicRenderer();
+        	renderer.filters = filters;
+        	return renderer;
         }
     }
 }

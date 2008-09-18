@@ -5,6 +5,7 @@ package away3d.materials
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
+	import away3d.events.*;
 	
 	import flash.display.*;
 	import flash.geom.*;
@@ -17,7 +18,7 @@ package away3d.materials
 	 * 
 	 * @see away3d.materials.CompositeMaterial
 	 */
-	public class BitmapMaterialContainer extends BitmapMaterial implements ITriangleMaterial, IUpdatingMaterial, ILayerMaterial
+	public class BitmapMaterialContainer extends BitmapMaterial implements ITriangleMaterial, ILayerMaterial
 	{
 		use namespace arcane;
 		
@@ -31,8 +32,18 @@ package away3d.materials
 		private var _faceHeight:int;
 		private var _forceRender:Boolean;
 		private var _face:Face;
-		private var _dt:DrawTriangle;
 		private var _material:ILayerMaterial;
+        private var _viewDictionary:Dictionary = new Dictionary(true);
+        
+        private function onMaterialUpdate(event:MaterialEvent):void
+        {
+        	dispatchEvent(event);
+        }
+        
+		/**
+		 * An array of bitmapmaterial objects to be overlayed sequentially.
+		 */
+		protected var materials:Array;
         
 		/**
 		 * @inheritDoc
@@ -48,17 +59,13 @@ package away3d.materials
 		protected override function getMapping(tri:DrawTriangle):Matrix
         {
         	_face = tri.face;
-			_dt = (tri.source as Mesh).drawTriangles[_face] as DrawTriangle;
-			
-        	if (!_cacheDictionary || !_cacheDictionary[_dt]) {
+    		_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+    		
+        	if (!_cacheDictionary || !_cacheDictionary[_faceVO]) {
         		
-	    		//check to see if faceDictionary exists
-	    		_faceVO = _faceDictionary[_dt];
-	    		if (!_faceVO)
-	    			_faceVO = _faceDictionary[_dt] = new FaceVO();
 	    		
 	        	//check to see if face drawtriangle needs updating
-	        	if (!_dt.texturemapping) {
+	        	if (!_faceVO.texturemapping) {
 	        		
 	        		//update face bitmapRect
 	        		_face.bitmapRect = new Rectangle(int(_width*_face.minU), int(_height*(1 - _face.maxV)), int(_width*(_face.maxU-_face.minU)+2), int(_height*(_face.maxV-_face.minV)+2));
@@ -66,38 +73,39 @@ package away3d.materials
 	        		_faceHeight = _face.bitmapRect.height;
 	        		
 	        		//update texturemapping
-	        		_dt.transformUV(this);
+	        		_faceVO.invtexturemapping = tri.transformUV(this).clone();
+	        		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
+	        		_faceVO.texturemapping.invert();
 	        		
 	        		//resize bitmapData for container
 	        		_faceVO.resize(_faceWidth, _faceHeight, transparent);
 	        	}
+	        	
+	        	if (_cacheDictionary)
+	        		_cacheDictionary[_faceVO] = _faceVO;
         		
 	    		//call renderFace on each material
 	    		for each (_material in materials)
-	        		_faceVO = _material.renderBitmapLayer(_dt, _bitmapRect, _faceVO);
+	        		_faceVO = _material.renderBitmapLayer(tri, _bitmapRect, _faceVO);
 	        		
 	        	_faceVO.updated = false;
-	        	
-	        	if (_cacheDictionary)
-	        		_cacheDictionary[_dt] = _faceVO;
 	        }
         	
         	//check to see if tri texturemapping need updating
-        	if (!tri.texturemapping)
-        	    tri.transformUV(this);
+        	if (!_faceVO.texturemapping) {
+        		//update texturemapping
+        		_faceVO.invtexturemapping = tri.transformUV(this).clone();
+        		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
+        		_faceVO.texturemapping.invert();
+        	}
         	
         	if (_cacheDictionary)
-        		_renderBitmap = _cacheDictionary[_dt].bitmap;
+        		_renderBitmap = _cacheDictionary[_faceVO].bitmap;
         	else
         		_renderBitmap = _faceVO.bitmap;
         	
-        	return tri.texturemapping;
+        	return _faceVO.texturemapping;
         }
-        
-		/**
-		 * An array of bitmapmaterial objects to be overlayed sequentially.
-		 */
-		public var materials:Array;
 		
 		/**
 		 * Defines whether the caching bitmapData objects are transparent
@@ -133,17 +141,36 @@ package away3d.materials
 		{
 			super(new BitmapData(width, height, true, 0x00FFFFFF), init);
 			
+			materials = ini.getArray("materials");
 			_width = width;
 			_height = height;
 			_bitmapRect = new Rectangle(0, 0, _width, _height);
-			
-			if (!materials)
-				materials = ini.getArray("materials");
+            
+            for each (_material in materials)
+            	_material.addOnUpdate(onMaterialUpdate);
 			
 			transparent = ini.getBoolean("transparent", true);
 			cache = ini.getBoolean("cache", true);
 		}
-		
+		        
+        public function addMaterial(material:ILayerMaterial):void
+        {
+        	_material.addOnUpdate(onMaterialUpdate);
+        	materials.push(_material);
+        }
+        
+        public function removeMaterial(material:ILayerMaterial):void
+        {
+        	var index:int = materials.indexOf(material);
+        	
+        	if (index == -1)
+        		return;
+        	
+        	material.removeOnUpdate(onMaterialUpdate);
+        	
+        	materials.splice(index, 1);
+        }
+        
 		/**
 		 * Clear and updates the currrent bitmapData surface on all faces.
 		 */
@@ -168,8 +195,24 @@ package away3d.materials
         	_blendModeDirty = false;
         	
         	for each (_material in materials)
-        		if (_material is IUpdatingMaterial)
-        			(_material as IUpdatingMaterial).updateMaterial(source, view);
+        		_material.updateMaterial(source, view);
+        }
+        
+        public override function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        {
+        	if ((_faceDictionary = _viewDictionary[view])) {
+        		if ((_faceVO = _faceDictionary[face]))
+	        		return _faceVO;
+        	} else {
+        		_faceDictionary = _viewDictionary[view] = new Dictionary(true);
+        	}
+        	
+        	return _faceDictionary[face] = new FaceVO();
+        }
+        
+        public override function removeFaceDictionary():void
+        {
+			_viewDictionary = new Dictionary(true);
         }
         
 		/**

@@ -31,5 +31,7 @@ package away3d.core.light
 		 * @param	point			The light primitive to add.
 		 */
         function pointLight(point:PointLight):void;
+        
+        function clear():void;
     }
 }

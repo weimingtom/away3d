@@ -6,12 +6,12 @@ package away3d.materials
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-    import away3d.events.MaterialEvent;
+    import away3d.events.*;
     
     import flash.display.*;
     import flash.events.*;
     import flash.geom.*;
-    import flash.utils.Dictionary;
+    import flash.utils.*;
     
 	 /**
 	 * Dispatched when the bitmapData used for the material texture is resized.
@@ -23,13 +23,17 @@ package away3d.materials
     /**
     * Basic bitmap material
     */
-    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IUpdatingMaterial
+    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial
     {
     	use namespace arcane;
+    	/** @private */
+    	arcane var _texturemapping:Matrix;
         /** @private */
     	arcane var _bitmap:BitmapData;
         /** @private */
     	arcane var _renderBitmap:BitmapData;
+        /** @private */
+        arcane var _bitmapDirty:Boolean;
         /** @private */
     	arcane var _colorTransform:ColorTransform;
         /** @private */
@@ -66,6 +70,17 @@ package away3d.materials
 		arcane var _sourceVO:FaceVO;
         /** @private */
         arcane var _session:AbstractRenderSession;
+		/** @private */
+        arcane function notifyMaterialUpdate():void
+        {
+            if (!hasEventListener(MaterialEvent.UPDATED))
+                return;
+			
+            if (_materialupdated == null)
+                _materialupdated = new MaterialEvent(MaterialEvent.UPDATED, this);
+                
+            dispatchEvent(_materialupdated);
+        }
         /** @private */
         arcane function clearShapeDictionary():void
         {
@@ -75,6 +90,8 @@ package away3d.materials
         /** @private */
         arcane function clearFaceDictionary():void
         {
+        	notifyMaterialUpdate();
+        	
         	for each (_faceVO in _faceDictionary) {
         		if (!_faceVO.cleared)
         			_faceVO.clear();
@@ -85,8 +102,7 @@ package away3d.materials
 		arcane function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):void
 		{
 			//check to see if sourceDictionary exists
-			_sourceVO = _faceDictionary[source];
-			if (!_sourceVO)
+			if (!(_sourceVO = _faceDictionary[source]))
 				_sourceVO = _faceDictionary[source] = new FaceVO();
 			
 			_sourceVO.resize(containerRect.width, containerRect.height);
@@ -117,9 +133,11 @@ package away3d.materials
 			}
 		}
 		
+		private var _view:View3D;
         private var _precision:Number;
         private var _shapeDictionary:Dictionary = new Dictionary(true);
     	private var _shape:Shape;
+    	private var _materialupdated:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
         private var triangle:DrawTriangle = new DrawTriangle(); 
@@ -179,7 +197,7 @@ package away3d.materials
             cy = c.y;
             cz = c.z;
             
-            if (!_session.view.clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!_view.clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
             if ((az <= 0) && (bz <= 0) && (cz <= 0))
@@ -378,7 +396,7 @@ package away3d.materials
                 return;
             }
 			
-			updateRenderBitmap();
+			_bitmapDirty = true;
         }
     	
     	/**
@@ -390,6 +408,8 @@ package away3d.materials
     	 */
         protected function updateRenderBitmap():void
         {
+        	_bitmapDirty = false;
+        	
         	if (_colorTransform) {
 	        	if (!_bitmap.transparent && _alpha != 1) {
 	                _renderBitmap = new BitmapData(_bitmap.width, _bitmap.height, true);
@@ -399,7 +419,7 @@ package away3d.materials
 	           }
 	            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);
 	        } else {
-	        	_renderBitmap = _bitmap;
+	        	_renderBitmap = _bitmap.clone();
 	        }
         }
         
@@ -411,7 +431,14 @@ package away3d.materials
         */
 		protected function getMapping(tri:DrawTriangle):Matrix
 		{
-			return tri.texturemapping || tri.transformUV(this);
+			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			if (_faceVO.texturemapping)
+				return _faceVO.texturemapping;
+			
+			_texturemapping = tri.transformUV(this).clone();
+			_texturemapping.invert();
+			
+			return _faceVO.texturemapping = _texturemapping;
 		}
 		
     	/**
@@ -466,6 +493,13 @@ package away3d.materials
         public function get bitmap():BitmapData
         {
         	return _bitmap;
+        }
+        
+        public function set bitmap(val:BitmapData):void
+        {
+        	_bitmap = val;
+        	
+        	_bitmapDirty = true;
         }
         
 		/**
@@ -581,13 +615,29 @@ package away3d.materials
         	_graphics = null;
         	clearShapeDictionary();
         	
-        	if (_colorTransformDirty || _blendModeDirty)
+        	if (_bitmapDirty || _colorTransformDirty || _blendModeDirty)
         		clearFaceDictionary();
         		
         	if (_colorTransformDirty)
         		setColorTransform();
         		
+        	if (_bitmapDirty);
+        		updateRenderBitmap();
+        		
         	_blendModeDirty = false;
+        }
+        
+        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        {
+        	if ((_faceVO = _faceDictionary[face]))
+        		return _faceVO;
+        	
+        	return _faceDictionary[face] = new FaceVO();
+        }
+        
+        public function removeFaceDictionary():void
+        {
+			_faceDictionary = new Dictionary(true);
         }
         
 		/**
@@ -599,7 +649,7 @@ package away3d.materials
         		_graphics = layer.graphics;
         	} else {
         		_session = tri.source.session;
-	        	if (_session != _session.view.session) {
+	        	if (_session != tri.view.session) {
 	        		//check to see if source shape exists
 		    		if (!(_shape = _shapeDictionary[_session]))
 		    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
@@ -624,8 +674,9 @@ package away3d.materials
         {
         	_mapping = getMapping(tri);
 			_session = tri.source.session;
+        	_view = tri.view;
         	
-        	if (!_graphics && _session != _session.view.session && _session.newLayer)
+        	if (!_graphics && _session != tri.view.session && _session.newLayer)
         		_graphics = _session.newLayer.graphics;
         	
 			if (precision) {
@@ -707,6 +758,21 @@ package away3d.materials
         {
         	removeEventListener(MaterialEvent.RESIZED, listener, false);
         }
- 
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function addOnUpdate(listener:Function):void
+        {
+        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.UPDATED, listener, false);
+        }
     }
 }

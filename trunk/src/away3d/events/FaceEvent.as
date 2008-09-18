@@ -15,11 +15,6 @@ package away3d.events
     	public static const MAPPING_CHANGED:String = "mappingchanged";
     	
     	/**
-    	 * Defines the value of the type property of a materialchanged event object.
-    	 */
-    	public static const MATERIAL_CHANGED:String = "materialchanged";
-    	
-    	/**
     	 * A reference to the face object that is relevant to the event.
     	 */
         public var face:Face;

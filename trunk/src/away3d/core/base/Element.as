@@ -73,6 +73,16 @@ package away3d.core.base
 		private var _vertexvaluechanged:ElementEvent;
 		private var _visiblechanged:ElementEvent;
 		
+    	/**
+    	 * An optional untyped object that can contain used-defined properties.
+    	 */
+        public var extra:Object;
+        
+    	/**
+    	 * Defines the parent 3d object of the segment.
+    	 */
+		public var parent:Geometry;
+		
 		/**
 		 * Returns an array of vertex objects that make up the 3d element.
 		 */
@@ -80,7 +90,7 @@ package away3d.core.base
         {
             throw new Error("Not implemented");
         }
-        		
+        
 		/**
 		 * Defines whether the 3d element is visible in the scene.
 		 */

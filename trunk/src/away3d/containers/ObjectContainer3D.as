@@ -11,6 +11,8 @@
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
     
+    import flash.display.*;
+    
     /**
     * 3d object container node for other 3d objects in a scene
     */
@@ -42,14 +44,18 @@
             notifyDimensionsChange();
         }
         
+        private var consumer:IPrimitiveConsumer;
         private var _children:Array = new Array();
         private var _radiusChild:Object3D = null;
-		
+		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
+        private var _c:DisplayObject;
+        private var _sc:ScreenVertex;
+        
         private function onChildChange(event:Object3DEvent):void
         {
             notifyDimensionsChange();
         }
-                
+        
         protected override function updateDimensions():void
         {
         	//update bounding radius
@@ -239,7 +245,40 @@
                 traverser.leave(this);
             }
         }
-		
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function primitives(view:View3D, consumer:IPrimitiveConsumer):void
+        {
+        	super.primitives(view, consumer);
+        	
+        	if (session.updated) {
+	        	for each (var child:Object3D in children) {
+					if (child.ownCanvas) {
+						_c = child.session.getContainer(view);
+						
+						if (!(_sc = consumer.screenVertices[child]))
+							_sc = consumer.screenVertices[child] = new ScreenVertex();
+						
+		             	_sc.x = _c.x;
+		             	_sc.y = _c.y;
+		             	_sc.z = view.camera.viewTransforms[child].position.modulo;
+		             	
+		             	if (child.pushback)
+		             		_sc.z += child.boundingRadius;
+		             		
+		             	if (child.pushfront)
+		             		_sc.z -= child.boundingRadius;
+		             	
+		             	_ddo = consumer.createDrawDisplayObject(view, session, _c, _sc);
+		             	
+		             	consumer.primitive(_ddo);
+		   			}
+	        	}
+	        }
+        }
+        
 		/**
 		 * Duplicates the 3d object's properties to another <code>ObjectContainer3D</code> object
 		 * 

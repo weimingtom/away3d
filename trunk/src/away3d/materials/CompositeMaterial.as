@@ -6,8 +6,10 @@ package away3d.materials
 	import away3d.core.draw.*;
 	import away3d.core.render.AbstractRenderSession;
 	import away3d.core.utils.*;
+	import away3d.events.*;
 	
 	import flash.display.*;
+	import flash.events.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	
@@ -18,7 +20,7 @@ package away3d.materials
 	 * 
 	 * @see away3d.materials.BitmapMaterialContainer
 	 */
-	public class CompositeMaterial implements ITriangleMaterial, IUpdatingMaterial, ILayerMaterial
+	public class CompositeMaterial extends EventDispatcher implements ITriangleMaterial, ILayerMaterial
 	{
 		use namespace arcane;
         /** @private */
@@ -42,7 +44,7 @@ package away3d.materials
 		private var _red:Number;
 		private var _green:Number;
 		private var _blue:Number;
-		private var material:ILayerMaterial;
+		private var _material:ILayerMaterial;
         
         private function clearSpriteDictionary():void
         {
@@ -50,17 +52,44 @@ package away3d.materials
 	        	_sprite.graphics.clear();
         }
         
+        private function onMaterialUpdate(event:MaterialEvent):void
+        {
+        	dispatchEvent(event);
+        }
+        
+		/**
+		 * An array of bitmapmaterial objects to be overlayed sequentially.
+		 */
+		protected var materials:Array;
+		
         /**
         * Instance of the Init object used to hold and parse default property values
         * specified by the initialiser object in the 3d object constructor.
         */
         protected var ini:Init;
         
-		/**
-		 * An array of bitmapmaterial objects to be overlayed sequentially.
-		 */
-		public var materials:Array;
-		
+    	/**
+    	 * Updates the colortransform object applied to the texture from the <code>color</code> and <code>alpha</code> properties.
+    	 * 
+    	 * @see color
+    	 * @see alpha
+    	 */
+        protected function setColorTransform():void
+        {
+        	_colorTransformDirty = false;
+        	
+            if (_alpha == 1 && _color == 0xFFFFFF) {
+                _colorTransform = null;
+                return;
+            } else if (!_colorTransform)
+            	_colorTransform = new ColorTransform();
+            
+			_colorTransform.redMultiplier = _red;
+			_colorTransform.greenMultiplier = _green;
+			_colorTransform.blueMultiplier = _blue;
+			_colorTransform.alphaMultiplier = _alpha;
+        }
+        
         /**
         * Defines a blendMode value for the layer container.
         */
@@ -111,28 +140,14 @@ package away3d.materials
             _colorTransformDirty = true;
         }
         
-    	/**
-    	 * Updates the colortransform object applied to the texture from the <code>color</code> and <code>alpha</code> properties.
-    	 * 
-    	 * @see color
-    	 * @see alpha
-    	 */
-        protected function setColorTransform():void
+		/**
+		 * @inheritDoc
+		 */
+        public function get visible():Boolean
         {
-        	_colorTransformDirty = false;
-        	
-            if (_alpha == 1 && _color == 0xFFFFFF) {
-                _colorTransform = null;
-                return;
-            } else if (!_colorTransform)
-            	_colorTransform = new ColorTransform();
-            
-			_colorTransform.redMultiplier = _red;
-			_colorTransform.greenMultiplier = _green;
-			_colorTransform.blueMultiplier = _blue;
-			_colorTransform.alphaMultiplier = _alpha;
+            return true;
         }
-		
+        
 		/**
 		 * Creates a new <code>CompositeMaterial</code> object.
 		 * 
@@ -147,8 +162,29 @@ package away3d.materials
 			alpha = ini.getNumber("alpha", 1, {min:0, max:1});
             color = ini.getColor("color", 0xFFFFFF);
             
+            for each (_material in materials)
+            	_material.addOnUpdate(onMaterialUpdate);
+            
             _colorTransformDirty = true;
 		}
+        
+        public function addMaterial(material:ILayerMaterial):void
+        {
+        	_material.addOnUpdate(onMaterialUpdate);
+        	materials.push(_material);
+        }
+        
+        public function removeMaterial(material:ILayerMaterial):void
+        {
+        	var index:int = materials.indexOf(material);
+        	
+        	if (index == -1)
+        		return;
+        	
+        	material.removeOnUpdate(onMaterialUpdate);
+        	
+        	materials.splice(index, 1);
+        }
         
 		/**
 		 * @inheritDoc
@@ -160,9 +196,8 @@ package away3d.materials
         	if (_colorTransformDirty)
         		setColorTransform();
         	
-        	for each (material in materials)
-        		if (material is IUpdatingMaterial)
-        			(material as IUpdatingMaterial).updateMaterial(source, view);
+        	for each (_material in materials)
+        		_material.updateMaterial(source, view);
         }
         
 		/**
@@ -174,7 +209,7 @@ package away3d.materials
         	_session = _source.session;
     		var level:int = 0;
         	
-        	if (_session != _session.view.session) {
+        	if (_session != tri.view.session) {
         		//check to see if session sprite exists
 	    		if (!(_sprite = _session.spriteLayers[level]))
 	    			_sprite = _session.spriteLayers[level] = new Sprite();
@@ -185,7 +220,7 @@ package away3d.materials
         	}
 	    	
 	    	if (!_session.children[_sprite]) {
-	    		if (_session != _session.view.session)
+	    		if (_session != tri.view.session)
         			_session.addLayerObject(_sprite);
         		else
         			_session.addDisplayObject(_sprite);
@@ -200,8 +235,8 @@ package away3d.materials
       		}
         	
     		//call renderLayer on each material
-    		for each (material in materials)
-        		material.renderLayer(tri, _sprite, ++level);
+    		for each (_material in materials)
+        		_material.renderLayer(tri, _sprite, ++level);
         }
         
 		/**
@@ -215,7 +250,7 @@ package away3d.materials
         		_source = tri.source;
         		_session = _source.session;
         		
-	        	if (_session != _session.view.session) {
+	        	if (_session != tri.view.session) {
 	        		//check to see if session sprite exists
 		    		if (!(_sprite = _session.spriteLayers[level]))
 		    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
@@ -235,8 +270,8 @@ package away3d.materials
         	}
     		
 	    	//call renderLayer on each material
-    		for each (material in materials)
-        		material.renderLayer(tri, _sprite, level++);
+    		for each (_material in materials)
+        		_material.renderLayer(tri, _sprite, level++);
         }
         
 		/**
@@ -250,9 +285,17 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function get visible():Boolean
+        public function addOnUpdate(listener:Function):void
         {
-            return true;
+        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.UPDATED, listener, false);
         }
 	}
 }

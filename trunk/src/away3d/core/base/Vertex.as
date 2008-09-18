@@ -229,13 +229,9 @@ package away3d.core.base
 			//*/
     		//end modified
     		
-            if (isNaN(sz)) {
-            	trace(_x);
-            	trace(_y);
-            	trace(_z);
-            	trace(view.tz);
+            if (isNaN(sz))
                 throw new Error("isNaN(sz)");
-            }
+            
             if (sz*2 <= -projection.focus)
             {
                 projected.visible = false;

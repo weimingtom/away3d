@@ -1,7 +1,8 @@
 package away3d.lights
 {
-    import away3d.core.draw.*;
+    import away3d.containers.*;
     import away3d.core.base.*;
+    import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
@@ -75,7 +76,7 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        public function light(consumer:ILightConsumer):void
+        public function light():void
         {
            //update color
 			if (_colorDirty) {
@@ -91,15 +92,15 @@ package away3d.lights
 	        	_ls.updateAmbientBitmap(_ambient);
         	}
         	
-            consumer.ambientLight(_ls);
+            (parent as ObjectContainer3D).lightarray.ambientLight(_ls);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        override public function primitives():void
+        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
         {
-        	super.primitives();
+        	super.primitives(view, consumer);
         }
 		
 		/**

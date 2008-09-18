@@ -1,14 +1,19 @@
 package away3d.core.draw
 {
-    import away3d.containers.View3D;
+    import away3d.containers.*;
+    import away3d.core.base.*;
+    import away3d.core.render.*;
+    import away3d.materials.*;
+    
+    import flash.display.*;
+    import flash.utils.*;
 
     /**
     * Interface for containers capable of drawing primitives
     */
     public interface IPrimitiveConsumer
     {
-    	function get view():View3D
-    	function set view(val:View3D):void
+    	function get screenVertices():Dictionary;
     	
     	/**
     	 * Adds a drawing primitive to the primitive consumer
@@ -19,12 +24,14 @@ package away3d.core.draw
         
         function list():Array;
         
-        function clear():void;
+        function clear(view:View3D):void;
         
         function clone():IPrimitiveConsumer;
         
-        function filter(filters:Array):void;
+        function createDrawTriangle(view:View3D, source:Object3D, face:Face, material:ITriangleMaterial = null, projection:Projection = null, v0:ScreenVertex = null, v1:ScreenVertex = null, v2:ScreenVertex = null, uv0:UV = null, uv1:UV = null, uv2:UV = null):DrawTriangle;
         
-        function render():void;
+        function createDrawSegment(view:View3D, source:Object3D, material:ISegmentMaterial = null, projection:Projection = null, v0:ScreenVertex = null, v1:ScreenVertex = null):DrawSegment;
+        
+        function createDrawDisplayObject(view:View3D, session:AbstractRenderSession, displayobject:DisplayObject, screenvertex:ScreenVertex):DrawDisplayObject;
     }
 }

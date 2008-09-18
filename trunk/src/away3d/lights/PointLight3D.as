@@ -1,5 +1,6 @@
 package away3d.lights
 {
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -68,11 +69,11 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        public function light(consumer:ILightConsumer):void
+        public function light():void
         {
-            _ls.x = viewTransform.tx;
-            _ls.y = viewTransform.ty;
-            _ls.z = viewTransform.tz;
+            _ls.x = scenePosition.x;
+            _ls.y = scenePosition.y;
+            _ls.z = scenePosition.z;
             _ls.light = this;
             _ls.red = (color & 0xFF0000) >> 16;
             _ls.green = (color & 0xFF00) >> 8;
@@ -80,15 +81,15 @@ package away3d.lights
             _ls.ambient = ambient*brightness;
             _ls.diffuse = diffuse*brightness;
             _ls.specular = specular*brightness;
-            consumer.pointLight(_ls);
+            (parent as ObjectContainer3D).lightarray.pointLight(_ls);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        override public function primitives():void
+        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
         {
-        	super.primitives();
+        	super.primitives(view, consumer);
 
             if (!debug)
                 return;
@@ -107,7 +108,7 @@ package away3d.lights
             tri.source = this;
             tri.projection = projection;
             tri.material = new ColorMaterial(color);
-            session.priconsumer.primitive(tri);
+            consumer.primitive(tri);
 
         }
 		

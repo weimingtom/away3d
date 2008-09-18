@@ -6,8 +6,9 @@ package away3d.cameras
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.events.CameraEvent;
     
-    import flash.utils.getTimer;
+    import flash.utils.*;
     
 	/**
 	 * Basic camera used to resolve a view.
@@ -22,9 +23,48 @@ package away3d.cameras
         private var _focus:Number;
         private var _zoom:Number;
         private var _fov:Number;
-    	private var _view:Matrix3D = new Matrix3D();
+    	private var _invViewTransform:Matrix3D = new Matrix3D();
         private var _screenProjection:Projection = new Projection();
         private var _screenVertex:ScreenVertex = new ScreenVertex();
+        private var _vtActive:Array = new Array();
+        private var _vtStore:Array = new Array();
+        private var _vt:Matrix3D;
+		private var _cameraupdated:CameraEvent;
+		
+        private function notifyCameraUpdate():void
+        {
+            if (!hasEventListener(CameraEvent.UPDATED))
+                return;
+			
+            if (_cameraupdated == null)
+                _cameraupdated = new CameraEvent(CameraEvent.UPDATED, this);
+                
+            dispatchEvent(_cameraupdated);
+        }
+        
+    	public var viewTransform:Matrix3D = new Matrix3D();
+    	
+        /**
+        * Dictionary of all objects transforms calulated from the camera view for the last render frame
+        */
+        public var viewTransforms:Dictionary;
+        
+        public function createViewTransform(node:Object3D):Matrix3D
+        {
+        	if (_vtStore.length)
+        		_vtActive.push(_vt = viewTransforms[node] = _vtStore.pop());
+        	else
+        		_vtActive.push(_vt = viewTransforms[node] = new Matrix3D());
+        	
+        	return _vt
+        }
+        
+        public function clearViewTransforms():void
+        {
+        	viewTransforms = new Dictionary(true);
+        	_vtStore = _vtStore.concat(_vtActive);
+        	_vtActive = new Array();
+        }
         
 		/**
 		 * Used in <code>DofSprite2D</code>.
@@ -72,6 +112,7 @@ package away3d.cameras
 		{
 			_focus = value;			
 			DofCache.focus = _focus;
+			notifyCameraUpdate();
 		}
 		
 		/**
@@ -85,6 +126,7 @@ package away3d.cameras
 		public function set zoom(value:Number):void
 		{
 			_zoom = value;
+			notifyCameraUpdate();
 		}
 		
 		/**
@@ -171,8 +213,8 @@ package away3d.cameras
         public function get view():Matrix3D
         {
         	viewTransform.multiply(sceneTransform, _flipY);
-        	_view.inverse(viewTransform);
-        	return _view;
+        	_invViewTransform.inverse(viewTransform);
+        	return _invViewTransform;
         }
     	
 
@@ -191,8 +233,8 @@ package away3d.cameras
 
             if (vertex == null)
                 vertex = new Vertex(0,0,0);
-			object.viewTransform.multiply(view, object.sceneTransform);
-			_screenProjection.view = object.viewTransform;
+			createViewTransform(object).multiply(view, object.sceneTransform);
+			_screenProjection.view = viewTransforms[object];
 			_screenProjection.focus = focus;
 			_screenProjection.zoom = zoom;
 			_screenProjection.time = getTimer();
@@ -237,6 +279,26 @@ package away3d.cameras
             camera.zoom = zoom;
             camera.focus = focus;
             return camera;
+        }
+		
+		/**
+		 * Default method for adding a cameraupdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function addOnUpdate(listener:Function):void
+        {
+            addEventListener(CameraEvent.UPDATED, listener, false, 0, false);
+        }
+		
+		/**
+		 * Default method for removing a cameraupdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+            removeEventListener(CameraEvent.UPDATED, listener, false);
         }
     }
 }

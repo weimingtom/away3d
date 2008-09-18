@@ -20,54 +20,6 @@
     public class Mesh extends Object3D implements IPrimitiveProvider
     {
         use namespace arcane;
-        /** @private */
-        arcane var screenVertices:Dictionary = new Dictionary(true);
-        /** @private */
-        arcane var drawTriangles:Dictionary = new Dictionary(true);
-        /** @private */
-        arcane var drawSegments:Dictionary = new Dictionary(true);
-		/** @private */
-		arcane function createDrawTriangle(face:Face, material:ITriangleMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
-		{
-			if (_dtStore.length) {
-            	_dtActive.push(_tri = _dtStore.pop());
-            	_tri.texturemapping = null;
-            	_tri.create = createDrawTriangle;
-   			} else {
-            	_dtActive.push(_tri = new DrawTriangle());
-	            _tri.source = this;
-		        _tri.create = createDrawTriangle;
-            }
-            _tri.face = face;
-            _tri.material = material;
-            _tri.projection = projection;
-            _tri.v0 = v0;
-            _tri.v1 = v1;
-            _tri.v2 = v2;
-            _tri.uv0 = uv0;
-            _tri.uv1 = uv1;
-            _tri.uv2 = uv2;
-            _tri.calc();
-            return _tri;
-		}
-		/** @private */
-        arcane function createDrawSegment(material:ISegmentMaterial, projection:Projection, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
-        {
-            if (_dsStore.length) {
-            	_dsActive.push(_seg = _dsStore.pop());
-            	_seg.create = createDrawSegment;
-        	} else {
-            	_dsActive.push(_seg = new DrawSegment());
-	            _seg.source = this;
-	            _seg.create = createDrawSegment;
-            }
-            _seg.material = material;
-            _seg.projection = projection;
-            _seg.v0 = v0;
-            _seg.v1 = v1;
-            _seg.calc();
-            return _seg;
-        }
         
 		private var _geometry:Geometry;
 		private var _material:IMaterial;
@@ -86,30 +38,28 @@
         private var _backface:Boolean;
         private var _uvmaterial:Boolean;
         private var _vt:ScreenVertex;
-        private var _consumer:IPrimitiveConsumer;
-		private var _dtStore:Array = new Array();
-        private var _dtActive:Array = new Array();
-        private var _dsStore:Array = new Array();
-        private var _dsActive:Array = new Array();
+        private var _face:Face;
         
 		private function onMaterialResize(event:MaterialEvent):void
 		{
-			for each (var face:Face in _geometry.faces)
-        		if (face._material == null)
-        			if (drawTriangles[face])
-						(drawTriangles[face] as DrawTriangle).texturemapping = null;
+			_sessionDirty = true;
+			
+			for each (_face in faces)
+				if (!_face.material)
+					(_material as IUVMaterial).getFaceVO(_face, this).texturemapping = null;
 		}
-        
-        private function onFaceMaterialChange(event:FaceEvent):void
+		
+		private function onMaterialUpdate(event:MaterialEvent):void
 		{
-			if (drawTriangles[event.face])
-				(drawTriangles[event.face] as DrawTriangle).texturemapping = null;
+			_scene.updatedSessions[session] = session;
 		}
-        
+		
         private function onFaceMappingChange(event:FaceEvent):void
 		{
-			if (drawTriangles[event.face])
-				(drawTriangles[event.face] as DrawTriangle).texturemapping = null;
+			_sessionDirty = true;
+			
+			if (event.face.material && (event.face.material is IUVMaterial))
+				(event.face.material as IUVMaterial).getFaceVO(event.face, this).texturemapping = null;
 		}
         
         private function onDimensionsChange(event:GeometryEvent):void
@@ -242,16 +192,16 @@
                 return;
             
             if (_geometry != null) {
+            	_geometry.removeOnMaterialUpdate(onMaterialUpdate);
             	_geometry.removeOnMappingChange(onFaceMappingChange);
-            	_geometry.removeOnMaterialChange(onFaceMaterialChange);
             	_geometry.removeOnDimensionsChange(onDimensionsChange);
             }
             
         	_geometry = val;
         	
             if (_geometry != null) {
+            	_geometry.addOnMaterialUpdate(onMaterialUpdate);
             	_geometry.addOnMappingChange(onFaceMappingChange);
-            	_geometry.addOnMaterialChange(onFaceMaterialChange);
             	_geometry.addOnDimensionsChange(onDimensionsChange);
             }
         }
@@ -272,21 +222,31 @@
         	if (_material == val)
                 return;
             
-            if (_material != null && _material is IUVMaterial)
-            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+            if (_material != null) {
+	            //remove resize listener and facedictionary references
+            	if (_material is IUVMaterial) {
+	            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+	            	(_material as IUVMaterial).removeFaceDictionary();
+            	}
+	            //remove update listener
+				_material.removeOnUpdate(onMaterialUpdate);
+            }
             
+			
+			//set material value
         	_material = val;
         	
-        	if (_material != null && _material is IUVMaterial)
-            	(_material as IUVMaterial).addOnResize(onMaterialResize);
+        	if (_material != null) {
+	        	//add resize listener
+	        	if (_material is IUVMaterial)
+	            	(_material as IUVMaterial).addOnResize(onMaterialResize);
+        		
+	        	//add update listener
+				_material.addOnUpdate(onMaterialUpdate);
+        	}
         	
-        	//reset texturemapping (if applicable)
-        	if (_material is IUVMaterial || _material is ILayerMaterial)
-	        	for each (var face:Face in _geometry.faces)
-	        		if (face._material == null)
-	        			if (drawTriangles[face])
-							(drawTriangles[face] as DrawTriangle).texturemapping = null;
-	        			
+	        
+	        //pass typecast values to internal varaibles
 	        if (_material is ITriangleMaterial)
 	        	_triangleMaterial = _material as ITriangleMaterial;
 	        if (_material is ISegmentMaterial)
@@ -443,23 +403,18 @@
     	 * @see	away3d.core.draw.DrawTriangle
     	 * @see	away3d.core.draw.DrawSegment
 		 */
-        override public function primitives():void
+        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
         {
-        	super.primitives();
+        	super.primitives(view, consumer);
         	
         	if (session.updated) {
-	    		_consumer = session.priconsumer;
-	        	_dtStore = _dtStore.concat(_dtActive);
-	        	_dtActive = new Array();
-	            
-	            geometry.update(projection.time);
 				
 	            _backmat = back || _triangleMaterial;
 				
 				for each (var vertex:Vertex in _geometry.vertices) {
 					
-					if (!(_screenVertex = screenVertices[vertex]))
-						_screenVertex = screenVertices[vertex] = new ScreenVertex();
+					if (!(_screenVertex = consumer.screenVertices[vertex]))
+						_screenVertex = consumer.screenVertices[vertex] = new ScreenVertex();
 					
 					vertex.project(_screenVertex, projection);
 				}
@@ -470,16 +425,11 @@
 	                    continue;
 					
 					//project each Vertex to a ScreenVertex
-					if (!(_tri = drawTriangles[face])) {
-						_tri = drawTriangles[face] = new DrawTriangle();
-						_tri.source = this;
-						_tri.create = createDrawTriangle;
-						_tri.face = face;
-					}
+					_tri = consumer.createDrawTriangle(view, this, face);
 					
-					_tri.v0 = screenVertices[face._v0];
-					_tri.v1 = screenVertices[face._v1];
-					_tri.v2 = screenVertices[face._v2];					
+					_tri.v0 = consumer.screenVertices[face._v0];
+					_tri.v1 = consumer.screenVertices[face._v1];
+					_tri.v2 = consumer.screenVertices[face._v2];					
 					//check each ScreenVertex is visible
 	                if (!_tri.v0.visible)
 	                    continue;
@@ -556,44 +506,42 @@
 		                _tri.uv1 = face._uv1;
 		                _tri.uv2 = face._uv2;
 	                }
-	                
+						
 	                //check if face swapped direction
 	                if (_tri.backface != _backface) {
 	                	_tri.backface = _backface;
-	                	_tri.texturemapping = null;
+	                	if (_tri.material is IUVMaterial)
+	                		(_tri.material as IUVMaterial).getFaceVO(_tri.face, this, view).texturemapping = null;
 	                }
-	                
+					
 	                if (outline != null && !_backface)
 	                {
 	                    _n01 = _geometry.neighbour01(face);
 	                    if (_n01 == null || _n01.front(projection) <= 0)
-	                    	_consumer.primitive(createDrawSegment(outline, projection, _tri.v0, _tri.v1));
+	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, projection, _tri.v0, _tri.v1));
 						
 	                    _n12 = _geometry.neighbour12(face);
 	                    if (_n12 == null || _n12.front(projection) <= 0)
-	                    	_consumer.primitive(createDrawSegment(outline, projection, _tri.v1, _tri.v2));
+	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, projection, _tri.v1, _tri.v2));
 						
 	                    _n20 = _geometry.neighbour20(face);
 	                    if (_n20 == null || _n20.front(projection) <= 0)
-	                    	_consumer.primitive(createDrawSegment(outline, projection, _tri.v2, _tri.v0));
+	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, projection, _tri.v2, _tri.v0));
 						
 	                    if (_tri.material == null)
 	                    	continue;
 	                }
+					
 	                _tri.projection = projection;
-	                _consumer.primitive(_tri);
+	                consumer.primitive(_tri);
 	            }
 	            
 	            for each (var segment:Segment in geometry.segments)
 	            {
-	            	if (!(_seg = drawSegments[segment])) {
-						_seg = drawSegments[segment] = new DrawSegment();
-						_seg.create = createDrawSegment;
-						_seg.source = this;
-	            	}
+	            	_seg = consumer.createDrawSegment(view, this);
 	            	
-	            	_seg.v0 = screenVertices[segment._v0];
-					_seg.v1 = screenVertices[segment._v1];
+	            	_seg.v0 = consumer.screenVertices[segment._v0];
+					_seg.v1 = consumer.screenVertices[segment._v1];
 	    
 	                if (!_seg.v0.visible)
 	                    continue;
@@ -615,11 +563,22 @@
 	                    continue;
 	                
 	                _seg.projection = projection;
-	                _consumer.primitive(_seg);
+	                consumer.primitive(_seg);
 	            }
 	        }
         }
-		
+        
+        /**
+        * Updates the materials in the mesh object
+        */
+        public function updateMaterials(source:Object3D, view:View3D):void
+        {    	
+        	if (_material)
+        		_material.updateMaterial(source, view);
+        	if (back)
+        		back.updateMaterial(source, view);
+        }
+        
 		/**
 		 * Duplicates the mesh properties to another 3d object
 		 * 
@@ -983,7 +942,6 @@
 		{
 			_geometry.updateVertex(v, x, y, z, refreshNormals);
 		}
-		
 		
 		/**
  		* Apply the local rotations to the geometry without altering the appearance of the mesh

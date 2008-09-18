@@ -155,6 +155,7 @@ package away3d.core.draw
         private var uv01:UV;
         private var uv12:UV;
         private var uv20:UV;
+        private var _invtexmapping:Matrix = new Matrix();
         
         private function num(n:Number):Number
         {
@@ -241,16 +242,6 @@ package away3d.core.draw
     	 */
         public var material:ITriangleMaterial;
         
-    	/**
-    	 * The inverse texturemapping matrix of the triangle primitive texture.
-    	 */
-        public var invtexturemapping:Matrix;
-        
-    	/**
-    	 * The texturemapping matrix of the triangle primitive texture.
-    	 */
-        public var texturemapping:Matrix;
-        
 		/**
 		 * @inheritDoc
 		 */
@@ -262,7 +253,6 @@ package away3d.core.draw
             uv0 = null;
             uv1 = null;
             uv2 = null;
-            texturemapping = null;
         }
         
 		/**
@@ -292,8 +282,7 @@ package away3d.core.draw
             _v2 = materialHeight * (1 - uv2._v);
       
             // Fix perpendicular projections
-            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
-            {
+            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2)) {
             	if (_u0 > 0.05)
                 	_u0 -= 0.05;
                 else
@@ -305,8 +294,7 @@ package away3d.core.draw
                 	_v0 += 0.07;
             }
     
-            if (_u2 == _u1 && _v2 == _v1)
-            {
+            if (_u2 == _u1 && _v2 == _v1) {
             	if (_u2 > 0.04)
                 	_u2 -= 0.04;
                 else
@@ -318,17 +306,20 @@ package away3d.core.draw
                 	_v2 += 0.06;
             }
             
-            if (material is BitmapMaterialContainer)
-            {
-            	invtexturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0 - face.bitmapRect.x, _v0 - face.bitmapRect.y);
-            	texturemapping = invtexturemapping.clone();
-            	texturemapping.invert();
-            	return texturemapping;
+        	_invtexmapping.a = _u1 - _u0;
+        	_invtexmapping.b = _v1 - _v0;
+        	_invtexmapping.c = _u2 - _u0;
+        	_invtexmapping.d = _v2 - _v0;
+        	
+            if (material is BitmapMaterialContainer) {
+            	_invtexmapping.tx = _u0 - face.bitmapRect.x;
+            	_invtexmapping.ty = _v0 - face.bitmapRect.y;
+            } else {
+            	_invtexmapping.tx = _u0;
+            	_invtexmapping.ty = _v0;
             }
             
-            texturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
-            texturemapping.invert();
-            return texturemapping;
+            return _invtexmapping;
         }
         
 		/**

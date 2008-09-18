@@ -81,8 +81,8 @@ package away3d.loaders
 				if (_materialData.textureFileName == loader.name) {
 					_materialData.textureBitmap = Bitmap(loader.content).bitmapData;
 					_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
-					for each(_face in _materialData.faces)
-						_face.material = _materialData.material;
+					for each(_face in _materialData.elements)
+						_face.material = _materialData.material as ITriangleMaterial;
 				}
 			}
 		}

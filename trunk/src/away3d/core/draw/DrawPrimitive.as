@@ -1,5 +1,6 @@
 package away3d.core.draw
 {
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.render.*;
 
@@ -8,6 +9,11 @@ package away3d.core.draw
     */
     public class DrawPrimitive
     {
+    	/**
+    	 * The view 3d object of the drawing primitive.
+    	 */
+        public var view:View3D;
+        
     	/**
     	 * The parent 3d object of the drawing primitive.
     	 */

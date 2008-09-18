@@ -29,34 +29,6 @@ package away3d.core.render
 		private var mActive:Array = new Array();
 		private var layers:Array = [];
 		private var layer:DisplayObject;
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function get view():View3D
-        {
-        	return _view;
-        }
-        
-        public override function set view(val:View3D):void
-        {
-        	super.view = val;
-        	
-        	_container = getContainer(_view) as Bitmap;
-        	_container.filters = filters;
-        	_container.alpha = alpha || 1;
-        	_container.blendMode = blendMode || BlendMode.NORMAL;
-        	_base = getBitmapData(_view);
-        	
-        	_cx = _container.x = _view.clip.minX;
-			_cy = _container.y = _view.clip.minY;
-			_container.scaleX = _scale;
-			_container.scaleY = _scale;
-        	
-        	_cm = new Matrix();
-        	_cm.scale(1/_scale, 1/_scale);
-			_cm.translate(-_view.clip.minX/_scale, -_view.clip.minY/_scale);
-		}
 		
 		/**
 		 * Creates a new <code>BitmapRenderSession</code> object.
@@ -159,12 +131,23 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public override function clear():void
+        public override function clear(view:View3D):void
         {
-	        super.clear();
+	        super.clear(view);
 	        
         	if (updated) {
-        		
+        		_container = getContainer(view) as Bitmap;
+	        	_base = getBitmapData(view);
+	        	
+	        	_cx = _container.x = view.clip.minX;
+				_cy = _container.y = view.clip.minY;
+				_container.scaleX = _scale;
+				_container.scaleY = _scale;
+	        	
+	        	_cm = new Matrix();
+	        	_cm.scale(1/_scale, 1/_scale);
+				_cm.translate(-view.clip.minX/_scale, -view.clip.minY/_scale);
+				
 	        	//clear base canvas
 	        	_base.lock();
 	        	_base.fillRect(_base.rect, 0);
@@ -177,18 +160,20 @@ package away3d.core.render
 	            layers = [];
 	            _layerDirty = true;
 	        }
+	        
+        	_container.filters = filters;
+        	_container.alpha = alpha || 1;
+        	_container.blendMode = blendMode || BlendMode.NORMAL;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public override function flush():void
+        public override function render(view:View3D):void
         {
-	        super.flush();
+	        super.render(view);
 	        	
         	if (updated) {
-        		
-	        	i = 0;
 	            for each (layer in layers)
 	            	_base.draw(layer, _cm, layer.transform.colorTransform, layer.blendMode, _base.rect);
 	           	
