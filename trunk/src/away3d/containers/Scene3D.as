@@ -156,7 +156,7 @@ package away3d.containers
 	        	
 	        	//clear camera view transforms
 	        	_view.camera.clearViewTransforms();
-	        	trace(_view.camera);
+	        	
 	        	//traverse scene
         		_projtraverser.view = _view;
 				traverse(_projtraverser);
