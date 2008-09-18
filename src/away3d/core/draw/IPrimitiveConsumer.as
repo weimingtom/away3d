@@ -13,8 +13,6 @@ package away3d.core.draw
     */
     public interface IPrimitiveConsumer
     {
-    	function get screenVertices():Dictionary;
-    	
     	/**
     	 * Adds a drawing primitive to the primitive consumer
     	 *
@@ -27,6 +25,10 @@ package away3d.core.draw
         function clear(view:View3D):void;
         
         function clone():IPrimitiveConsumer;
+        
+    	function createScreenVertex(source:Object3D, vertex:Vertex = null):ScreenVertex;
+        
+        function getScreenVertex(source:Object3D, vertex:Vertex = null):ScreenVertex;
         
         function createDrawTriangle(view:View3D, source:Object3D, face:Face, material:ITriangleMaterial = null, projection:Projection = null, v0:ScreenVertex = null, v1:ScreenVertex = null, v2:ScreenVertex = null, uv0:UV = null, uv1:UV = null, uv2:UV = null):DrawTriangle;
         

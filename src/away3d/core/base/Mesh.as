@@ -413,8 +413,7 @@
 				
 				for each (var vertex:Vertex in _geometry.vertices) {
 					
-					if (!(_screenVertex = consumer.screenVertices[vertex]))
-						_screenVertex = consumer.screenVertices[vertex] = new ScreenVertex();
+					_screenVertex = consumer.createScreenVertex(this, vertex);
 					
 					vertex.project(_screenVertex, projection);
 				}
@@ -427,9 +426,9 @@
 					//project each Vertex to a ScreenVertex
 					_tri = consumer.createDrawTriangle(view, this, face);
 					
-					_tri.v0 = consumer.screenVertices[face._v0];
-					_tri.v1 = consumer.screenVertices[face._v1];
-					_tri.v2 = consumer.screenVertices[face._v2];					
+					_tri.v0 = consumer.getScreenVertex(this, face._v0);
+					_tri.v1 = consumer.getScreenVertex(this, face._v1);
+					_tri.v2 = consumer.getScreenVertex(this, face._v2);					
 					//check each ScreenVertex is visible
 	                if (!_tri.v0.visible)
 	                    continue;
@@ -540,8 +539,8 @@
 	            {
 	            	_seg = consumer.createDrawSegment(view, this);
 	            	
-	            	_seg.v0 = consumer.screenVertices[segment._v0];
-					_seg.v1 = consumer.screenVertices[segment._v1];
+	            	_seg.v0 = consumer.getScreenVertex(this, segment._v0);
+					_seg.v1 = consumer.getScreenVertex(this, segment._v1);
 	    
 	                if (!_seg.v0.visible)
 	                    continue;

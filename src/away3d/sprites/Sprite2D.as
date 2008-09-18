@@ -75,8 +75,7 @@ package away3d.sprites
         {
         	super.primitives(view, consumer);
         	
-			if (!(_sc = consumer.screenVertices[this]))
-				_sc = consumer.screenVertices[this] = new ScreenVertex();
+			_sc = consumer.createScreenVertex(this);
 			
             _center.project(_sc, projection);
             if (!_sc.visible)

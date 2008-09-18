@@ -258,8 +258,7 @@
 					if (child.ownCanvas) {
 						_c = child.session.getContainer(view);
 						
-						if (!(_sc = consumer.screenVertices[child]))
-							_sc = consumer.screenVertices[child] = new ScreenVertex();
+						_sc = consumer.createScreenVertex(child);
 						
 		             	_sc.x = _c.x;
 		             	_sc.y = _c.y;

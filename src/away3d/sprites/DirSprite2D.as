@@ -114,8 +114,7 @@ package away3d.sprites
             for each (var vertex:Vertex in _vertices)
             {
         		
-				if (!(_screenVertex = consumer.screenVertices[vertex]))
-					_screenVertex = consumer.screenVertices[vertex] = new ScreenVertex();
+				_screenVertex = consumer.createScreenVertex(this, vertex);
 				
                 vertex.project(_screenVertex, projection);
                 var z:Number = _screenVertex.z;
