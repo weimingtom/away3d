@@ -23,6 +23,7 @@ package away3d.core.render
     */
     public class AbstractRenderer
     {
+    	private var _sc:ScreenVertex;
     	private var _tri:DrawTriangle;
 		private var _seg:DrawSegment;
 		private var _ddo:DrawDisplayObject;
@@ -33,13 +34,16 @@ package away3d.core.render
         private var _clip:Clipping;
         private var _blockers:Array;
 		private var _filter:IPrimitiveFilter;
+		private var _scStore:Array = new Array();
+        private var _scActive:Array = new Array();
 		private var _dtStore:Array = new Array();
         private var _dtActive:Array = new Array();
         private var _dsStore:Array = new Array();
         private var _dsActive:Array = new Array();
         private var _ddStore:Array = new Array();
         private var _ddActive:Array = new Array();
-        private var _screenVertices:Dictionary = new Dictionary(true);
+        private var _screenObjects:Dictionary = new Dictionary(true);
+        private var _screenVertices:Dictionary;
         
         public function get screenVertices():Dictionary
         {
@@ -48,12 +52,47 @@ package away3d.core.render
         
         public function clear(view:View3D):void
         {
+        	_scStore = _scStore.concat(_scActive);
+        	_scActive = new Array();
     	    _dtStore = _dtStore.concat(_dtActive);
         	_dtActive = new Array();
     	    _dsStore = _dsStore.concat(_dsActive);
         	_dsActive = new Array();
         	_ddStore = _ddStore.concat(_ddActive);
         	_ddActive = new Array();
+        }
+        
+        public function createScreenVertex(source:Object3D, vertex:Vertex = null):ScreenVertex
+        {
+        	if (vertex) {
+	        	if ((_screenVertices = _screenObjects[source])) {
+	            	if ((_sc = _screenVertices[vertex]))
+	            		return _sc;
+	        		
+	        		return _screenVertices[vertex] = new ScreenVertex();
+	   			}
+	   			
+	   			_screenVertices = _screenObjects[source] = new Dictionary();
+	   			return _screenVertices[vertex] = new ScreenVertex();
+        	}
+        	
+        	if ((_screenVertices = _screenObjects[source])) {
+        		if ((_sc = _screenVertices[source]))
+	            	return _sc;
+	            
+        		return _screenVertices[source] = new ScreenVertex();
+   			}
+   			
+   			_screenVertices = _screenObjects[source] = new Dictionary();
+   			return _screenVertices[source] = new ScreenVertex();
+        }
+        
+        public function getScreenVertex(source:Object3D, vertex:Vertex = null):ScreenVertex
+        {
+        	if (vertex)
+   				return _screenObjects[source][vertex];
+   			
+   			return _screenObjects[source][source];
         }
         
 		public function createDrawTriangle(view:View3D, source:Object3D, face:Face, material:ITriangleMaterial = null, projection:Projection = null, v0:ScreenVertex = null, v1:ScreenVertex = null, v2:ScreenVertex = null, uv0:UV = null, uv1:UV = null, uv2:UV = null):DrawTriangle
