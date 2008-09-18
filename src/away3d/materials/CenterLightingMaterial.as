@@ -8,6 +8,7 @@ package away3d.materials
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.events.*;
     
     import flash.display.*;
     import flash.events.*;
@@ -16,7 +17,7 @@ package away3d.materials
     * Abstract class for materials that calculate lighting for the face's center
     * Not intended for direct use - use <code>ShadingColorMaterial</code> or <code>WhiteShadingBitmapMaterial</code>.
     */
-    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial, IUpdatingMaterial
+    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial
     {
     	use namespace arcane;
         /** @private */
@@ -86,6 +87,7 @@ package away3d.materials
         private var rfy:Number;
         private var rfz:Number;
         private var spec:Number;
+        private var rf:Number;
         private var graphics:Graphics;
         private var cz:Number;
         private var cx:Number;
@@ -158,7 +160,7 @@ package away3d.materials
 		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (directional in source.session.lightarray.directionals) {
+        	for each (directional in source.lightarray.directionals) {
         		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         		}
@@ -218,14 +220,14 @@ package away3d.materials
 			
 			_source = tri.source as Mesh;
 			
-			for each (directional in session.lightarray.directionals)
+			for each (directional in tri.source.lightarray.directionals)
             {
             	_diffuseTransform = directional.diffuseTransform[_source];
             	
                 red = directional.red;
                 green = directional.green;
                 blue = directional.blue;
-
+				
                 dfx = _diffuseTransform.szx;
 				dfy = _diffuseTransform.szy;
 				dfz = _diffuseTransform.szz;
@@ -235,40 +237,36 @@ package away3d.materials
                 nz = tri.face.normal.z;
                 
                 amb = directional.ambient * ambient_brightness;
-
+				
                 kar += red * amb;
                 kag += green * amb;
                 kab += blue * amb;
                 
                 nf = dfx*nx + dfy*ny + dfz*nz;
-
+				
                 if (nf < 0)
                     continue;
-
+				
                 diff = directional.diffuse * nf * diffuse_brightness;
                 
                 kdr += red * diff;
                 kdg += green * diff;
                 kdb += blue * diff;
                 
-                rfz = dfz - 2*nf*nz;
-
-                if (rfz < 0)
-                    continue;
-                //trace("spec");
-                rfx = dfx - 2*nf*nx;
-                rfy = dfy - 2*nf*ny;
-
-                spec = directional.specular * Math.pow(rfz, shininess) * specular_brightness;
-                //trace(nf);
-                //trace(nz);
-                //trace(dfz);
+                rfx = _diffuseTransform.szx;
+				rfy = _diffuseTransform.szy;
+				rfz = _diffuseTransform.szz;
+				
+				rf = rfx*nx + rfy*ny + rfz*nz;
+				
+                spec = directional.specular * Math.pow(rf, shininess) * specular_brightness;
+                
                 ksr += red * spec;
                 ksg += green * spec;
                 ksb += blue * spec;
             }
             
-            for each (point in session.lightarray.points)
+            for each (point in tri.source.lightarray.points)
             {
                 red = point.red;
                 green = point.green;
@@ -314,9 +312,9 @@ package away3d.materials
                 ksg += green * spec;
                 ksb += blue * spec;
             }
-
+			
             renderTri(tri, session, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
-
+			
             if (draw_fall || draw_reflect || draw_normal)
             {
                 graphics = session.graphics,
@@ -338,7 +336,7 @@ package away3d.materials
                 }
 
                 if (draw_fall || draw_reflect)
-                    for each (point in session.lightarray.points)
+                    for each (point in tri.source.lightarray.points)
                     {
                         red = point.red;
                         green = point.green;
@@ -401,6 +399,22 @@ package away3d.materials
         public function get visible():Boolean
         {
             throw new Error("Not implemented");
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function addOnUpdate(listener:Function):void
+        {
+        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.UPDATED, listener, false);
         }
     }
 }

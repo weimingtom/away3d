@@ -30,6 +30,11 @@ package away3d.events
     	public static const SESSION_CHANGED:String = "sessionchanged";
     	
     	/**
+    	 * Defines the value of the type property of a sessionupdated event object.
+    	 */
+    	public static const SESSION_UPDATED:String = "sessionupdated";
+    	
+    	/**
     	 * Defines the value of the type property of a radiuschanged event object.
     	 */
     	public static const RADIUS_CHANGED:String = "radiuschanged";

@@ -499,7 +499,7 @@ package away3d.core.filter
 		/**
 		 * @inheritDoc
 		 */
-        public function filter(tree:PrimitiveQuadrantTree, scene:Scene3D, camera:Camera3D, clip:Clipping):void
+        public function filter(tree:QuadrantRenderer, scene:Scene3D, camera:Camera3D, clip:Clipping):void
         {
             start = getTimer();
             check = 0;

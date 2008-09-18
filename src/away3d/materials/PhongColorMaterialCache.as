@@ -56,13 +56,16 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
+			if (_specular == val)
+				return;
+			
 			_specular = val;
 			_specularPhongShader.specular = val;
 			
 			if (_specular && materials.length < 3)
-        		materials.push(_specularPhongShader);
+        		addMaterial(_specularPhongShader);
    			else if (materials.length > 2)
-            	materials.pop();
+            	removeMaterial(_specularPhongShader);
 		}
 		
 		/**
@@ -73,6 +76,9 @@ package away3d.materials
 		 */
 		public function PhongColorMaterialCache(color:*, init:Object=null)
 		{
+			if (init && init.materials)
+				delete init.materials;
+			
 			super(512, 512, init);
 			
 			this.color = Cast.trycolor(color);
@@ -82,15 +88,15 @@ package away3d.materials
 			
 			//create new materials
 			_phongShader = new BitmapMaterialContainer(512, 512, {transparent:false});
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_phongShader);
+			addMaterial(_phongShader);
+			
 			if (_specular)
-				materials.push(_specularPhongShader);
+				addMaterial(_specularPhongShader);
 		}
 		
 	}

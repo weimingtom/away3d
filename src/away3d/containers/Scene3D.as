@@ -30,20 +30,25 @@ package away3d.containers
         }
         
         private var _view:View3D;
+        private var _currentView:View3D;
+        private var _mesh:Mesh;
         private var _autoUpdate:Boolean;
-        private var _broadcaster:Sprite = new Sprite();
+        private var _projtraverser:ProjectionTraverser = new ProjectionTraverser();
         
         private function onUpdateScene(event:ViewEvent):void
         {
         	if (autoUpdate) {
-        		if (_view && _view != event.view)
-        			Debug.warning("Multiple views detected! Should consider switching to manual updateScene");
-        		else
-        			_view = event.view;
+        		
+        		if (_currentView && _currentView != event.view)
+        			Debug.error("Multiple views detected! Should consider switching to manual updateScene");
+        		
+        		_currentView = event.view;
         		
         		updateScene();
         	}
         }
+        
+        public var viewDictionary:Dictionary = new Dictionary(true);
         
 		/**
 		 * Traverser object for all custom <code>tick()</code> methods
@@ -53,19 +58,19 @@ package away3d.containers
         public var tickTraverser:TickTraverser = new TickTraverser();
         
         /**
-        * Library of booleans for update status of all objects in the scene.
+        * Library of updated 3d objects in the scene.
         */
         public var updatedObjects:Dictionary;
         
         /**
-        * Library of booleans for update status of all sessions in the scene.
+        * Library of updated sessions in the scene.
         */
         public var updatedSessions:Dictionary;
         
         /**
-        * Library of booleans for update status of all materials in the scene.
+        * Library of  all meshes in the scene.
         */
-        public var updatedMaterials:Dictionary;
+        public var meshes:Dictionary;
         
         /**
         * Defines whether scene events are automatically triggered by the view, or manually by <code>updateScene()</code>
@@ -107,11 +112,13 @@ package away3d.containers
             	else
             		init = object;
 			
-			//force own canvas
-			if (init)
+			//force ownCanvas and ownLights
+			if (init) {
 				init.ownCanvas = true;
-			else
-				init = {ownCanvas:true};
+				init.ownLights = true;
+			} else {
+				init = {ownCanvas:true, ownLights:true};
+            }
             
             super(init);
 			
@@ -141,8 +148,27 @@ package away3d.containers
         	//clear updated sessions
         	updatedSessions = new Dictionary(true);
         	
-        	//clear updated materials
-        	updatedMaterials = new Dictionary(true);
+        	//execute projection traverser on each view
+        	for each(_view in viewDictionary) {
+        		
+	        	//clear meshes
+	        	meshes = new Dictionary(true);
+	        	
+	        	//clear camera view transforms
+	        	_view.camera.clearViewTransforms();
+	        	trace(_view.camera);
+	        	//traverse scene
+        		_projtraverser.view = _view;
+				traverse(_projtraverser);
+	        	
+	        	//update materials in meshes
+	        	for each (_mesh in meshes) {
+	        		//update node materials
+		        	_mesh.updateMaterials(_mesh, _view);
+		        	//update geometry materials
+		        	_mesh.geometry.updateMaterials(_mesh, _view);
+	        	}
+        	}
         }
 		
 		/**

@@ -68,6 +68,9 @@ package away3d.materials
 		 */
 		public function EnviroBitmapMaterial(bitmap:BitmapData, enviroMap:BitmapData, init:Object = null)
 		{
+			if (init && init.materials)
+				delete init.materials;
+			
 			super(init);
 			
 			_mode = ini.getString("mode", "linear");
@@ -78,9 +81,8 @@ package away3d.materials
 			_enviroShader = new EnviroShader(enviroMap, {mode:_mode, reflectiveness:_reflectiveness});
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_bitmapMaterial);
-			materials.push(_enviroShader);
+			addMaterial(_bitmapMaterial);
+			addMaterial(_enviroShader);
 			
 		}
 		

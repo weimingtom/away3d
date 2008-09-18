@@ -59,16 +59,6 @@ package away3d.core.base
             notifyVertexValueChange();
         }
 		
-    	/**
-    	 * An optional untyped object that can contain used-defined properties.
-    	 */
-        public var extra:Object;
-        
-    	/**
-    	 * Defines the parent 3d object of the segment.
-    	 */
-		public var parent:Geometry;
-		
 		/**
 		 * Returns an array of vertex objects that are used by the segment.
 		 */

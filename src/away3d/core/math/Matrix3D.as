@@ -67,97 +67,97 @@ package away3d.core.math
     	 * The value in the first row and first column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var sxx:Number;
+        public var sxx:Number = 1;
         
     	/**
     	 * The value in the first row and second column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var sxy:Number;
+        public var sxy:Number = 0;
         
     	/**
     	 * The value in the first row and third column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var sxz:Number;
+        public var sxz:Number = 0;
         
     	/**
     	 * The value in the first row and forth column of the Matrix object,
     	 * which affects the positioning along the x axis of a 3d object.
     	 */
-        public var tx:Number;
+        public var tx:Number = 0;
         
     	/**
     	 * The value in the second row and first column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var syx:Number;
+        public var syx:Number = 0;
         
     	/**
     	 * The value in the second row and second column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var syy:Number;
+        public var syy:Number = 1;
         
     	/**
     	 * The value in the second row and third column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var syz:Number;
+        public var syz:Number = 0;
         
     	/**
     	 * The value in the second row and fourth column of the Matrix object,
     	 * which affects the positioning along the y axis of a 3d object.
     	 */
-        public var ty:Number;
+        public var ty:Number = 0;
         
     	/**
     	 * The value in the third row and first column of the Matrix object,
     	 * which affects the rotation and scaling of a 3d object.
     	 */
-        public var szx:Number;
+        public var szx:Number = 0;
         
     	/**
     	 * The value in the third row and second column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var szy:Number;
+        public var szy:Number = 0;
                 
     	/**
     	 * The value in the third row and third column of the Matrix object,
     	 * which affect the rotation and scaling of a 3d object.
     	 */
-        public var szz:Number;
+        public var szz:Number = 1;
         
     	/**
     	 * The value in the third row and fourth column of the Matrix object,
     	 * which affects the positioning along the z axis of a 3d object.
     	 */
-        public var tz:Number;
+        public var tz:Number = 0;
 
     	/**
     	 * The value in the 4th row and first column of the Matrix object,
     	 * --
     	 */
-		public var swx:Number;
+		public var swx:Number = 0;
 		
 		 /**
     	 * The value in the 4th row and second column of the Matrix object,
     	 * --
     	 */
-		public var swy:Number;
+		public var swy:Number = 0;
 		
 		 /**
     	 * The value in the 4th row and third column of the Matrix object,
     	 * --
     	 */
-		public var swz:Number;
+		public var swz:Number = 0;
 		
 		/**
     	 * The value in the 4th row and 4th column of the Matrix object,
     	 * --
     	 */
-		public var tw:Number;
+		public var tw:Number = 1;
 		
 		
         /**
@@ -199,8 +199,6 @@ package away3d.core.math
 		 */
         public function Matrix3D()
         {
-            sxx = syy = szz = tw = 1;
-            sxy = sxz = tx = syx = syz = ty = szx = szy = tz = swx = swy = swz = 0;
         }
 		
 		/**

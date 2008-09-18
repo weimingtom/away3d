@@ -20,32 +20,6 @@ package away3d.core.render
         private var _clip:Clipping;
         
 		/**
-		 * @inheritDoc
-		 */
-        public override function get view():View3D
-        {
-        	return _view;
-        }
-        public override function set view(val:View3D):void
-        {	
-        	super.view = val;
-        	
-        	_container = getContainer(_view) as Sprite;
-        	_container.filters = filters;
-        	_container.alpha = alpha || 1;
-        	_container.blendMode = blendMode || BlendMode.NORMAL;
-        	graphics = _container.graphics;
-        	
-        	//clip the edges of the root container with  scrollRect
-        	if (this == view.session) {
-	        	_clip = _view.clip;
-	        	_container.scrollRect = new Rectangle(_clip.minX-1, _clip.minY-1, _clip.maxX - _clip.minX + 2, _clip.maxY - _clip.minY + 2);
-	        	_container.x = _clip.minX - 1;
-	        	_container.y = _clip.minY - 1;
-	        }
-        }
-		
-		/**
 		 * Creates a new <code>SpriteRenderSession</code> object.
 		 */
 		public function SpriteRenderSession():void
@@ -120,40 +94,43 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public override function clear():void
+        public override function clear(view:View3D):void
         {
-       		super.clear();
+       		super.clear(view);
        		
-       		if (_container) {
-	        	if (updated) {
-	        		_container.cacheAsBitmap = false;
-	        		
-		        	//clear base canvas
-		            _container.graphics.clear();
-		            
-		            //remove all children
-		            i = _container.numChildren;
-					while (i--)
-						_container.removeChild(_container.getChildAt(i));
-					
-		            children = new Dictionary(true);
-		            newLayer = null;
-		            
-		 			graphics = _container.graphics;
-	        	} else {
-	        		_container.cacheAsBitmap = true;
-	        	}
-       		}
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function flush():void
-        {
-        		super.flush();
-       			// NOP
-        }       
+    		_container = getContainer(view) as Sprite;
+        	if (updated) {
+	        	graphics = _container.graphics;
+	        	
+	        	//clip the edges of the root container with  scrollRect
+	        	if (this == view.session) {
+		        	_clip = view.clip;
+		        	_container.scrollRect = new Rectangle(_clip.minX-1, _clip.minY-1, _clip.maxX - _clip.minX + 2, _clip.maxY - _clip.minY + 2);
+		        	_container.x = _clip.minX - 1;
+		        	_container.y = _clip.minY - 1;
+		        }
+        		_container.cacheAsBitmap = false;
+        		
+	        	//clear base canvas
+	            _container.graphics.clear();
+	            
+	            //remove all children
+	            i = _container.numChildren;
+				while (i--)
+					_container.removeChild(_container.getChildAt(i));
+				
+	            children = new Dictionary(true);
+	            newLayer = null;
+	            
+	 			graphics = _container.graphics;
+        	} else {
+        		_container.cacheAsBitmap = true;
+        	}
+        	
+        	_container.filters = filters;
+        	_container.alpha = alpha || 1;
+        	_container.blendMode = blendMode || BlendMode.NORMAL;
+        }   
         
 		/**
 		 * @inheritDoc

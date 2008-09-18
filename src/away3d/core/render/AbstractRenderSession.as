@@ -3,9 +3,12 @@ package away3d.core.render
 	import away3d.containers.*;
 	import away3d.core.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
-	import away3d.materials.IUpdatingMaterial;
+	import away3d.core.traverse.*;
+	import away3d.events.Object3DEvent;
+	import away3d.events.SessionEvent;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -20,13 +23,9 @@ package away3d.core.render
 	{
 		use namespace arcane;
 		/** @private */
-		arcane var _view:View3D;
-		/** @private */
 		arcane var _containers:Dictionary = new Dictionary(true);
 		/** @private */
 		arcane var _shape:Shape;
-		/** @private */
-        arcane var _lightarray:ILightConsumer;
 		/** @private */
         arcane var _renderSource:Object3D;
 		/** @private */
@@ -35,8 +34,44 @@ package away3d.core.render
 		arcane var doStore:Array = new Array();
 		/** Array for storing added displayobjects to the canvas */
 		arcane var doActive:Array = new Array();
-		
+		/** @private */
+		arcane function notifySessionUpdate():void
+		{
+			if (!hasEventListener(SessionEvent.UPDATED))
+                return;
+			
+            if (!_sessionupdated)
+                _sessionupdated = new SessionEvent(SessionEvent.UPDATED, this);
+            
+            dispatchEvent(_sessionupdated);
+		}
+		/** @private */
+        arcane function internalAddViewSession(session:AbstractRenderSession):void
+        {
+        	sessions = [session];
+        	session.addOnUpdate(onSessionUpdate);
+        }
+		/** @private */
+        arcane function internalRemoveViewSession(session:AbstractRenderSession):void
+        {
+        	sessions = [];
+        	session.removeOnUpdate(onSessionUpdate);
+        }
+		/** @private */
+        arcane function internalAddOwnSession(object:Object3D):void
+        {
+        	object.addEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdated);
+        }
+		/** @private */
+        arcane function internalRemoveOwnSession(object:Object3D):void
+        {
+        	object.addEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdated);
+        }
+        
+		private var _renderers:Dictionary = new Dictionary(true);
+		private var _renderer:IPrimitiveConsumer;
         private var _session:AbstractRenderSession;
+        private var _sessionupdated:SessionEvent;
         private var a:Number;
         private var b:Number;
         private var c:Number;
@@ -61,8 +96,20 @@ package away3d.core.render
         private var primitive:DrawPrimitive;
         private var triangle:DrawTriangle;
         
+        private function onObjectSessionUpdated(object:Object3DEvent):void
+        {
+        	notifySessionUpdate();
+        }
+        
+        private function onSessionUpdate(event:SessionEvent):void
+        {
+        	dispatchEvent(event);
+        }
+        
 		/** @private */
         protected var i:int;
+        
+        public var parent:AbstractRenderSession;
         
         public var updated:Boolean;
         
@@ -113,57 +160,24 @@ package away3d.core.render
         public var priconsumers:Dictionary = new Dictionary(true);
         
         public var consumer:IPrimitiveConsumer;
-        
-        /**
-        * Defines the light consumer object for the render sesion.
-        */
-        public function get lightarray():ILightConsumer
-        {
-        	return _lightarray;
-        }
-        
-        public function set lightarray(val:ILightConsumer):void
-        {
-        	_lightarray = val;
-        	
-        	for each (_session in sessions)
-        		_session.lightarray = _lightarray;
-        }
-        
-        /**
-        * Defines the primitive consumer object for the render sesion.
-        */
-        public var priconsumer:IPrimitiveConsumer;
-        
-        /**
-        * Defines the view object used for the render session.
-        */
-        public function get view():View3D
-        {
-        	return _view;
-        }
-        
-        public function set view(val:View3D):void
-        {
-        	_view = val;
-        	
-        	updated = _view.updated || _view.forceUpdate || _view.scene.updatedSessions[this];
-        	
-        	//check if root session
-        	if (_view.session == this) {
-	        	priconsumer = _view.renderer.primitiveConsumer;
-	        } else if (!priconsumers[_view]) {
-	        	priconsumer = priconsumers[_view] = _view.renderer.primitiveConsumer.clone();
-	        } else {
-	        	priconsumer = priconsumers[_view];
-	        }
-	        
-	        priconsumer.view = _view;
-        	time = getTimer();
-        	
-        	for each (_session in sessions)
-        		_session.view = _view;
-        }
+		
+		public function get renderer():IPrimitiveConsumer
+		{
+			return _renderer;
+		}
+		
+		public function set renderer(val:IPrimitiveConsumer):void
+		{
+			if (_renderer == val)
+				return;
+			
+			_renderer = val;
+			
+			clearRenderers();
+			
+			for each (_session in sessions)
+				_session.clearRenderers();
+		}
         
 		/**
 		 * Adds a session as a child of the session object.
@@ -172,7 +186,9 @@ package away3d.core.render
 		 */
         public function addChildSession(session:AbstractRenderSession):void
         {
-        	sessions.push(session);	
+        	sessions.push(session);
+        	session.addOnUpdate(onSessionUpdate);
+        	session.parent = this;
         }
         
 		/**
@@ -182,11 +198,21 @@ package away3d.core.render
 		 */
         public function removeChildSession(session:AbstractRenderSession):void
         {
+        	session.removeOnUpdate(onSessionUpdate);
+        	
         	var index:int = sessions.indexOf(session);
             if (index == -1)
                 return;
             
             sessions.splice(index, 1);	
+        }
+        
+        public function clearChildSessions():void
+        {
+        	for each (_session in sessions)
+        		_session.removeOnUpdate(onSessionUpdate);
+        		
+        	sessions = new Array();
         }
         
        	/**
@@ -210,12 +236,41 @@ package away3d.core.render
 			throw new Error("Not implemented");
 		}
 		
+		public function getConsumer(view:View3D):IPrimitiveConsumer
+		{
+			if (_renderers[view])
+				return _renderers[view];
+			
+			if (_renderer)
+				return _renderers[view] = _renderer.clone();
+			
+			if (parent)
+				return _renderers[view] = parent.getConsumer(view).clone();
+			
+			return _renderers[view] = (view.renderer as IPrimitiveConsumer).clone();
+		}
+		
+        public function getTotalFaces(view:View3D):int
+        {
+        	var output:int = getConsumer(view).list().length;
+			
+			for each (_session in sessions)
+				output += _session.getTotalFaces(view);
+				
+			return output;
+        }
+        
 		/**
 		 * Clears the render session.
 		 */
-        public function clear():void
+        public function clear(view:View3D):void
         {
-        	if (updated) {
+        	updated = view.updated || view.forceUpdate || view.scene.updatedSessions[this];
+			
+        	for each(_session in sessions)
+       			_session.clear(view);
+        	
+			if (updated) {
 	        	for each (var sprite:Sprite in spriteLayers) {
 	        		sprite.graphics.clear();
 	        		if (sprite.numChildren) {
@@ -225,7 +280,6 @@ package away3d.core.render
 	        				if (ds is Shape)
 	        					(ds as Shape).graphics.clear();
 	        			}
-	        				
 	        		}
 	        	}
 	        	
@@ -238,48 +292,23 @@ package away3d.core.render
 	            }
 	            
 	            //clear primitives consumer
-	            priconsumer.clear()
-	        }
-            
-        	for each(_session in sessions)
-       			_session.clear();
-        }
-		
-		/**
-		 * Filters the render session.
-		 */
-        public function filter(filters:Array):void
-        {
-        	if (updated)
-        		priconsumer.filter(filters);
-        	
-        	for each(_session in sessions)
-       			_session.filter(filters);
+	            getConsumer(view).clear(view);
+			}
         }
         
-        public function render():void
+        public function render(view:View3D):void
         {
-        	if (updated) {
-	        	primitives = priconsumer.list()
-				
-				//update materials
-				materials = new Dictionary(true);
-				for each (primitive in primitives)
-					if(primitive is DrawTriangle) {
-						triangle = primitive as DrawTriangle;
-						if (!materials[triangle.source])
-							materials[triangle.source] = new Dictionary(true);
-						if (triangle.material is IUpdatingMaterial && !materials[triangle.source][triangle.material]) {
-							(materials[triangle.source][triangle.material] = triangle.material as IUpdatingMaterial).updateMaterial(triangle.source, _view);
-						}
-					}
-				
-				priconsumer.render();
-	        }
-	        
 	        //index -= priconsumer.length;
         	for each(_session in sessions)
-       			_session.render();
+       			_session.render(view);
+       		
+        	if (updated)
+	            (getConsumer(view) as IRenderer).render(view);
+        }
+        
+        public function clearRenderers():void
+        {
+        	_renderers = new Dictionary(true);
         }
         
         /**
@@ -455,25 +484,15 @@ package away3d.core.render
         /**
          * Draws a fog element into the graphics object.
          */
-        public function renderFogColor(color:int, alpha:Number):void
+        public function renderFogColor(clip:Clipping, color:int, alpha:Number):void
         {
         	if (_layerDirty)
         		createLayer();
         	
         	graphics.lineStyle();
             graphics.beginFill(color, alpha);
-            graphics.drawRect(_view.clip.minX, _view.clip.minY, _view.clip.maxX - _view.clip.minX, _view.clip.maxY - _view.clip.minY);
+            graphics.drawRect(clip.minX, clip.minY, clip.maxX - clip.minX, clip.maxY - clip.minY);
             graphics.endFill();
-        }
-                
-        /**
-        * Flushes any cached drawing operations to screen.
-        */ 
-        public function flush():void
-        {
-        	
-       		for each(_session in sessions)
-       			_session.flush();
         }
 		
 		/**
@@ -484,6 +503,26 @@ package away3d.core.render
         public function clone():AbstractRenderSession
         {
         	throw new Error("Not implemented");
+        }
+		
+		/**
+		 * Default method for adding a sessionupdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function addOnUpdate(listener:Function):void
+        {
+            addEventListener(SessionEvent.UPDATED, listener, false, 0, false);
+        }
+		
+		/**
+		 * Default method for removing a sessionupdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function removeOnUpdate(listener:Function):void
+        {
+            removeEventListener(SessionEvent.UPDATED, listener, false);
         }
 	}
 }

@@ -4,8 +4,10 @@ package away3d.containers
 	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
+	import away3d.core.draw.*;
 	import away3d.core.render.*;
 	import away3d.core.stats.*;
+	import away3d.core.traverse.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	import away3d.materials.*;
@@ -72,6 +74,7 @@ package away3d.containers
         private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
 		private var _camera:Camera3D;
+		private var _renderer:IRenderer;
         private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
 		private var _mousedown:Boolean;
@@ -80,7 +83,12 @@ package away3d.containers
 		private var _oldclip:Clipping;
 		private var _updatescene:ViewEvent;
 		private var _updated:Boolean;
-		
+		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
+		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
+        private var _container:DisplayObject;
+        private var _sc:ScreenVertex = new ScreenVertex();
+        private var _consumer:IPrimitiveConsumer;
+        
 		private function notifySceneUpdate():void
 		{
 			//dispatch event
@@ -96,11 +104,21 @@ package away3d.containers
 			statsOpen = false;
 		}
 		
+		private function onSessionUpdate(event:SessionEvent):void
+		{
+			_scene.updatedSessions[event.target] = event.target;
+		}
+		
 		private function onCameraTransformChange(e:Object3DEvent):void
 		{
 			_updated = true;
 		}
-				
+		
+		private function onCameraUpdated(e:CameraEvent):void
+		{
+			_updated = true;
+		}
+		
 		private function onSessionChange(e:Object3DEvent):void
 		{
 			_session.sessions = [e.object.session];
@@ -217,11 +235,6 @@ package away3d.containers
 		 * Optional string for storing source url.
 		 */
 		public var sourceURL:String;
-                
-		/**
-		 * temporary store for rendered primitives.
-		 */
-        public var primitives:Array;
 		
         /**
         * Forces mousemove events to fire even when cursor is static.
@@ -267,7 +280,25 @@ package away3d.containers
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
         */
-        public var renderer:IRenderer
+        public function get renderer():IRenderer
+        {
+        	return _renderer;
+        }
+    	
+        public function set renderer(val:IRenderer):void
+        {
+        	if (_renderer == val)
+        		return;
+        	
+        	_renderer = val;
+        	
+        	if (_renderer) {
+        		if (_session)
+        			_session.renderer = _renderer as IPrimitiveConsumer;
+        	} else {
+        		throw new Error("View cannot have renderer set to null");
+        	}
+        }
 		
 		/**
 		* Flag used to determine if the camera has updated the view.
@@ -294,15 +325,19 @@ package away3d.containers
         	if (_camera == val)
         		return;
         	
-        	if (_camera)
+        	if (_camera) {
         		_camera.removeOnSceneTransformChange(onCameraTransformChange);
+        		_camera.removeOnUpdate(onCameraUpdated);
+        	}
         	
         	_camera = val;
         	
-        	if (_camera)
+        	if (_camera) {
         		_camera.addOnSceneTransformChange(onCameraTransformChange);
-        	else
+        		_camera.addOnUpdate(onCameraUpdated);
+        	} else {
         		throw new Error("View cannot have camera set to null");
+        	}
         }
         
 		/**
@@ -322,8 +357,10 @@ package away3d.containers
         	
         	if (_scene) {
         		_scene.internalRemoveView(this);
+        		delete _scene.viewDictionary[this];
         		_scene.removeOnSessionChange(onSessionChange);
-	        	_session.sessions = [];
+        		if (_session)
+        			_session.internalRemoveViewSession(_scene.ownSession);
 	        }
         	
         	_scene = val;
@@ -331,7 +368,9 @@ package away3d.containers
         	if (_scene) {
         		_scene.internalAddView(this);
         		_scene.addOnSessionChange(onSessionChange);
-        		_session.sessions = [_scene.ownSession];
+        		_scene.viewDictionary[this] = this;
+        		if (_session)
+        			_session.internalAddViewSession(_scene.ownSession);
         	} else {
         		throw new Error("View cannot have scene set to null");
         	}
@@ -353,14 +392,21 @@ package away3d.containers
         	if (_session == val)
         		return;
         	
-        	if (_session)
-        		_session.sessions = [];
+        	if (_session) {
+        		_session.removeOnUpdate(onSessionUpdate);
+        		_session.renderer = null;
+	        	if (_scene)
+	        		_session.internalRemoveViewSession(_scene.ownSession);
+        	}
         	
         	_session = val;
         	
         	if (_session) {
+        		_session.addOnUpdate(onSessionUpdate);
+        		if (_renderer)
+        			_session.renderer = _renderer as IPrimitiveConsumer;
 	        	if (_scene)
-	        		_session.sessions = [_scene.ownSession];
+	        		_session.internalAddViewSession(_scene.ownSession);
         	} else {
         		throw new Error("View cannot have session set to null");
         	}
@@ -393,18 +439,25 @@ package away3d.containers
 			clip = _ini.getObject("clip", Clipping) as Clipping;
 			x = _ini.getNumber("x", 0);
 			y = _ini.getNumber("y", 0);
-			forceUpdate = _ini.getBoolean("forceUpdate", true);
+			forceUpdate = _ini.getBoolean("forceUpdate", false);
 			
+			//setup blendmode for hidden interactive layer
             _interactiveLayer.blendMode = BlendMode.ALPHA;
             
+            //setup view property on traverser
+            _pritraverser.view = this;
+            
+            //setup events on view
             addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			
+			//setup default clip value
             if (!clip)
             	clip = _defaultclip;
             
+            //setup stats panel creation
             if (stats)
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);			
 		}
@@ -449,7 +502,7 @@ package away3d.containers
         */
         public function clear():void
         {
-        	session.clear();
+        	session.clear(this);
         }
         
         /**
@@ -469,10 +522,28 @@ package away3d.containers
             
             //update scene
             notifySceneUpdate();
+	            
+            //clear session
+            _session.clear(this);
+            
+            //draw scene into view session
+            if (_session.updated) {
+	        	_container = _scene.session.getContainer(this);
+	        	_consumer = _session.getConsumer(this);
+	         	_ddo = _consumer.createDrawDisplayObject(this, _session, _container, _sc);
+	         	_consumer.primitive(_ddo);
+            }
+            
+            //traverse scene
+            _scene.traverse(_pritraverser);
             
             //render scene
-            renderer.render(this);
+            _session.render(this);
 			
+			//dispatch stats
+            if (statsOpen)
+            	statsPanel.updateStats(_session.getTotalFaces(this), camera);
+            
 			//revert clip value
 			clip = _oldclip;
         	

@@ -13,7 +13,7 @@ package away3d.core.draw
     /**
     * Volume block tree for storing drawing primitives
     */
-    public class PrimitiveVolumeBlock implements IPrimitiveConsumer
+    public class PrimitiveVolumeBlock extends AbstractRenderer implements IPrimitiveConsumer
     {
         private var _blocks:Dictionary = new Dictionary(true);
         private var _block:PrimitiveVolumeBlockNode;
@@ -21,26 +21,9 @@ package away3d.core.draw
         private var _clip:Clipping;
         private var _result:Array;
 		private var _primitive:DrawPrimitive;
-        private var _view:View3D;
         private var _scene:Scene3D;
         private var _camera:Camera3D;
 		private var _filter:IPrimitiveFilter;
-		
-		/**
-		 * Defines the clipping object to be used on the drawing primitives.
-		 */
-		public function get view():View3D
-		{
-			return _view;
-		}
-		
-		public function set view(val:View3D):void
-		{
-			_view = val;
-			_scene = val.scene;
-			_camera = val.camera;
-			_clip = val.clip;
-		}
         
 		/**
 		 * @inheritDoc
@@ -139,8 +122,12 @@ package away3d.core.draw
             return _result;
         }
                 
-        public function clear():void
+        public override function clear(view:View3D):void
         {
+        	super.clear(view);
+			_scene = view.scene;
+			_camera = view.camera;
+			_clip = view.clip;
         	_result = [];
         }
         
@@ -149,7 +136,7 @@ package away3d.core.draw
         	return new PrimitiveVolumeBlock();
         }
         
-        public function render():void
+        public function render(view:View3D):void
         {
     		// render all primitives
         }

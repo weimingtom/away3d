@@ -37,7 +37,7 @@ package away3d.core.render
         private function checkSession(session:AbstractRenderSession):void
         {
         	if (session.getContainer(view).hitTestPoint(view.stage.mouseX, view.stage.mouseY)) {
-	        	for each (primitive in session.primitives)
+	        	for each (primitive in session.getConsumer(view).list())
 	               checkPrimitive(primitive);
 	            
 	        	for each (session in session.sessions)
@@ -50,7 +50,7 @@ package away3d.core.render
         	if (pri is DrawFog)
         		return;
         	
-            if (!pri.source._mouseEnabled)
+            if (!pri.source || !pri.source._mouseEnabled)
                 return;
             
             if (pri.minX > screenX)
@@ -85,7 +85,7 @@ package away3d.core.render
                     screenZ = z;
                     persp = view.camera.zoom / (1 + screenZ / view.camera.focus);
                     inv = view.camera.viewTransform;
-
+					
                     sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
                     sceneZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;

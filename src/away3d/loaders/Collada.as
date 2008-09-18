@@ -218,12 +218,12 @@ package away3d.loaders
 					_face = new Face(_geometryData.vertices[_faceData.v0],
 												_geometryData.vertices[_faceData.v1],
 												_geometryData.vertices[_faceData.v2],
-												_faceData.materialData.material,
+												_faceData.materialData.material as ITriangleMaterial,
 												_geometryData.uvs[_faceData.uv0],
 												_geometryData.uvs[_faceData.uv1],
 												_geometryData.uvs[_faceData.uv2]);
 					geometry.addFace(_face);
-					_faceData.materialData.faces.push(_face);
+					_faceData.materialData.elements.push(_face);
 				}
 			} else {
 				mesh.geometry = geometry;
@@ -542,6 +542,9 @@ package away3d.loaders
 	    	
 			if (String(node.instance_controller) == "" && String(node.instance_geometry) == "")
 			{
+				if (String(node.node) == "")
+					return;
+				
 				if (String(node.@type) == "JOINT")
 					_objectData = new BoneData();
 				else {

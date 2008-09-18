@@ -1,5 +1,6 @@
 package away3d.containers
 {
+    import away3d.cameras.Camera3D;
     import away3d.core.base.*;
     import away3d.core.math.*;
     import away3d.core.utils.*;
@@ -43,10 +44,10 @@ package away3d.containers
     	 * @see	#maxp
     	 * @see	#minp
 		 */
-        public function matchLOD(view:View3D):Boolean
+        public function matchLOD(camera:Camera3D):Boolean
         {
-            var z:Number = viewTransform.tz;
-            var persp:Number = view.camera.zoom / (1 + z / view.camera.focus);
+            var z:Number = camera.viewTransforms[this].tz;
+            var persp:Number = camera.zoom / (1 + z / camera.focus);
 
             if (persp < minp)
                 return false;

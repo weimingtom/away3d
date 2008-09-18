@@ -1,5 +1,6 @@
 package away3d.sprites
 {
+    import away3d.containers.*;
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
@@ -21,7 +22,6 @@ package away3d.sprites
         private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _vertices:Array = [];
         private var _bitmaps:Dictionary = new Dictionary(true);
-        private var screenVertices:Dictionary = new Dictionary(true);
         private var _screenVertex:ScreenVertex;
         
         /**
@@ -101,9 +101,9 @@ package away3d.sprites
     	 * @see	away3d.core.traverse.PrimitiveTraverser
     	 * @see	away3d.core.draw.DrawScaledBitmap
 		 */
-        override public function primitives():void
+        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
         {
-        	super.primitives();
+        	super.primitives(view, consumer);
 
             if (_vertices.length == 0)
                 return;
@@ -113,8 +113,9 @@ package away3d.sprites
             
             for each (var vertex:Vertex in _vertices)
             {
-            	if (!(_screenVertex = screenVertices[vertex]))
-					_screenVertex = screenVertices[vertex] = new ScreenVertex();
+        		
+				if (!(_screenVertex = consumer.screenVertices[vertex]))
+					_screenVertex = consumer.screenVertices[vertex] = new ScreenVertex();
 				
                 vertex.project(_screenVertex, projection);
                 var z:Number = _screenVertex.z;
@@ -144,7 +145,7 @@ package away3d.sprites
             _primitive.rotation = rotation;
             _primitive.calc();
             
-            session.priconsumer.primitive(_primitive);
+            consumer.primitive(_primitive);
         }
     }
 }

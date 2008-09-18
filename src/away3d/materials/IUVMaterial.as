@@ -1,7 +1,11 @@
 package away3d.materials
 {
     
-    import flash.display.BitmapData;
+    import away3d.containers.*;
+    import away3d.core.base.*;
+    import away3d.core.utils.*;
+    
+    import flash.display.*;
 	
     /**
     * Interface for materials that use uv texture coordinates
@@ -31,6 +35,10 @@ package away3d.materials
         * @return		The argb pixel value.
         */
         function getPixel32(u:Number, v:Number):uint;
+		
+		function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO;
+		
+		function removeFaceDictionary():void;
 		
 		/**
 		 * Default method for adding a materialresize event listener

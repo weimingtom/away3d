@@ -20,10 +20,10 @@ package away3d.core.draw
     	 */
         public var displayobject:DisplayObject;
         
-        /**
-        * A reference to the render session used by the drawing primitive.
-        */
-		public var session:AbstractRenderSession;
+    	/**
+    	 * A reference to the session used by the drawing primitive.
+    	 */
+        public var session:AbstractRenderSession;
         
 		/**
 		 * @inheritDoc

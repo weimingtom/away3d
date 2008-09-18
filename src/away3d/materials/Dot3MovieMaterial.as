@@ -72,6 +72,9 @@ package away3d.materials
 		 */
 		public function Dot3MovieMaterial(movie:Sprite, normalMap:BitmapData, init:Object=null)
 		{
+			if (init && init.materials)
+				delete init.materials;
+			
 			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
@@ -80,13 +83,12 @@ package away3d.materials
 			//create new materials
 			_movieMaterial = new MovieMaterial(movie, ini);
 			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_movieMaterial);
-			materials.push(_phongShader);
+			addMaterial(_movieMaterial);
+			addMaterial(_phongShader);
 			//materials.push(specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
 			
 		}

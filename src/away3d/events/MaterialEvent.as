@@ -30,6 +30,11 @@ package away3d.events
     	public static const RESIZED:String = "materialresize";
     	
     	/**
+    	 * Defines the value of the type property of a materialupdated event object.
+    	 */
+    	public static const UPDATED:String = "materialupdated";
+    	
+    	/**
     	 * Defines the value of the type property of a materialchanged event object.
     	 */
     	public static const CHANGED:String = "materialchanged";

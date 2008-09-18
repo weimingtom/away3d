@@ -79,13 +79,12 @@ package away3d.materials
 			//create new materials
 			_bitmapMaterial = new BitmapMaterial(bitmap, ini);
 			_phongShader = new BitmapMaterialContainer(bitmap.width, bitmap.height, {blendMode:BlendMode.MULTIPLY, transparent:false});
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_bitmapMaterial);
-			materials.push(_phongShader);
+			addMaterial(_bitmapMaterial);
+			addMaterial(_phongShader);
 			//materials.push(_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
 		}
 		

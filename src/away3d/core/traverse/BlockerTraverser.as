@@ -35,7 +35,7 @@ package away3d.core.traverse
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(view);
+                return (node as ILODObject).matchLOD(view.camera);
             return true;
         }
         

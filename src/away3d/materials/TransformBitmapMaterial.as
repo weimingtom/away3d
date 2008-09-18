@@ -170,7 +170,6 @@ package away3d.materials
             }
             
             t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
-            t.invert();
             return t;
         }
 		
@@ -263,29 +262,28 @@ package away3d.materials
 		 */
 		protected override function getMapping(tri:DrawTriangle):Matrix
 		{
-        	//check to see if faceDictionary value exists
-        	_faceVO = _faceDictionary[face = tri.face];
-        	if (!_faceVO)
-        		_faceVO = _faceDictionary[face] = new FaceVO();
+        	_faceVO = getFaceVO(tri.face, tri.source);
         	
         	//check to see if rendering can be skipped
-        	if (_faceVO.invalidated || !tri.texturemapping || _faceVO.backface != tri.backface) {
+        	if (_faceVO.invalidated || !_faceVO.texturemapping || _faceVO.backface != tri.backface) {
         		_faceVO.invalidated = false;
         		_faceVO.backface = tri.backface;
         		
         		//use projectUV if projection vector detected
-        		if (projectionVector)
-        			_faceVO.mapping = projectUV(tri);
-        		else if (!tri.texturemapping)
-        			_faceVO.mapping = tri.transformUV(this);
-        		else
-        			_faceVO.mapping = tri.texturemapping;
+        		if (projectionVector) {
+        			_faceVO.texturemapping = projectUV(tri);
+        			_faceVO.texturemapping.invert();
+        		} else if (!_faceVO.texturemapping) {
+        			_faceVO.texturemapping = tri.transformUV(this).clone();
+	        		_faceVO.texturemapping.invert();
+        		}
         		
         		//apply transform matrix if one exists
         		if (_transform) {
-	        		_mapping = _transform.clone();
-	        		_mapping.concat(_faceVO.mapping);
-	        		return _faceVO.mapping = _mapping;
+        			_faceVO.mapping = _transform.clone();
+	        		_faceVO.mapping.concat(_faceVO.texturemapping);
+	        	} else {
+	        		_faceVO.mapping = _faceVO.texturemapping;
 	        	}
         	}
         	return _faceVO.mapping;
@@ -531,27 +529,6 @@ package away3d.materials
         }
         
 		/**
-		 * @inheritDoc
-		 */
-        public override function updateMaterial(source:Object3D, view:View3D):void
-        {
-        	_graphics = null;
-        	clearShapeDictionary();
-        	
-        	if (_transformDirty || _projectionDirty || _colorTransformDirty || _blendModeDirty)
-        		clearFaceDictionary();
-        	
-        	if (_colorTransformDirty)
-        		setColorTransform();
-        	
-        	if (_transformDirty)
-        		updateTransform();
-        		
-        	_projectionDirty = false;
-        	_blendModeDirty = false;
-        }
-        
-		/**
 		 * Creates a new <code>TransformBitmapMaterial</code> object.
 		 * 
 		 * @param	bitmap				The bitmapData object to be used as the material's texture.
@@ -570,6 +547,31 @@ package away3d.materials
             projectionVector = ini.getObject("projectionVector", Number3D) as Number3D;
             throughProjection = ini.getBoolean("throughProjection", true);
             globalProjection = ini.getBoolean("globalProjection", false);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function updateMaterial(source:Object3D, view:View3D):void
+        {
+        	_graphics = null;
+        	clearShapeDictionary();
+        	
+        	if (_bitmapDirty || _transformDirty || _projectionDirty || _colorTransformDirty || _blendModeDirty)
+        		clearFaceDictionary();
+        	
+        	if (_colorTransformDirty)
+        		setColorTransform();
+        	
+        	if (_transformDirty)
+        		updateTransform();
+        	
+        	if (_bitmapDirty)
+        		updateRenderBitmap();
+        	
+        	_projectionDirty = false;
+        	_bitmapDirty = false;
+        	_blendModeDirty = false;
         }
         
 		/**
@@ -615,6 +617,9 @@ package away3d.materials
 				_faceVO.resized = true;
 			}
 			
+			//pass on invtexturemapping value
+			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			
 			//check to see if rendering can be skipped
 			if (parentFaceVO.updated || _faceVO.invalidated) {
 				parentFaceVO.updated = false;
@@ -635,7 +640,7 @@ package away3d.materials
 				if (_projectionVector) {
 					
 					//calulate mapping
-					_invtexturemapping = tri.invtexturemapping;
+					_invtexturemapping = _faceVO.invtexturemapping;
 					_mapping.concat(projectUV(tri));
 					_mapping.concat(_invtexturemapping);
 					

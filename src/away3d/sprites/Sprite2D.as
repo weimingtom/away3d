@@ -1,5 +1,6 @@
 package away3d.sprites
 {
+    import away3d.containers.*;
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
@@ -15,7 +16,7 @@ package away3d.sprites
     public class Sprite2D extends Object3D implements IPrimitiveProvider
     {
         private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex =  new ScreenVertex();
+		private var _sc:ScreenVertex;
 		private var _persp:Number;
         private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
 		
@@ -70,11 +71,13 @@ package away3d.sprites
     	 * @see	away3d.core.traverse.PrimitiveTraverser
     	 * @see	away3d.core.draw.DrawScaledBitmap
 		 */
-        override public function primitives():void
+        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
         {
-        	super.primitives();
+        	super.primitives(view, consumer);
         	
-
+			if (!(_sc = consumer.screenVertices[this]))
+				_sc = consumer.screenVertices[this] = new ScreenVertex();
+			
             _center.project(_sc, projection);
             if (!_sc.visible)
                 return;
@@ -89,7 +92,7 @@ package away3d.sprites
             _primitive.rotation = rotation;
             _primitive.calc();
             
-            session.priconsumer.primitive(_primitive);
+            consumer.primitive(_primitive);
         }
     }
 }

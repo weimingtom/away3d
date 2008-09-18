@@ -12,8 +12,8 @@ package away3d.loaders.data
 	 */
 	public class MaterialData
 	{
-		private var _material:ITriangleMaterial;
-		private var _face:Face;
+		private var _material:IMaterial;
+		private var _element:Element;
 		
 		/**
 		 * String representing a texture material.
@@ -73,23 +73,27 @@ package away3d.loaders.data
 		/**
 		 * defines the material object of the resulting material.
 		 */
-		public function get material():ITriangleMaterial
+		public function get material():IMaterial
         {
         	return _material;
         }
 		
-		public function set material(val:ITriangleMaterial):void
+		public function set material(val:IMaterial):void
         {
         	if (_material == val)
                 return;
             
             _material = val;
             
-            if(_material is IUVMaterial)
+            if (_material is IUVMaterial)
             	textureBitmap = (_material as IUVMaterial).bitmap;
             
-            for each(_face in faces)
-            	_face.material = _material;
+            if(_material is ITriangleMaterial)
+            	for each(_element in elements)
+            		(_element as Face).material = _material as ITriangleMaterial;		
+			else if(_material is ISegmentMaterial)
+            	for each(_element in elements)
+            		(_element as Segment).material = _material as ISegmentMaterial;
         }
         		
 		/**
@@ -98,8 +102,8 @@ package away3d.loaders.data
 		public var materialType:String = WIREFRAME_MATERIAL;
 		
 		/**
-		 * Array of indexes representing the faces that use the material.
+		 * Array of indexes representing the elements that use the material.
 		 */
-		public var faces:Array = [];
+		public var elements:Array = [];
 	}
 }

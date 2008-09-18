@@ -66,22 +66,11 @@ package away3d.core.base
             return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
         }
 		/** @private */
-        arcane function notifyMaterialChange():void
-        {
-            if (!hasEventListener(FaceEvent.MATERIAL_CHANGED))
-                return;
-
-            if (_materialchanged == null)
-                _materialchanged = new FaceEvent(FaceEvent.MATERIAL_CHANGED, this);
-                
-            dispatchEvent(_materialchanged);
-        }
-		/** @private */
         arcane function notifyMappingChange():void
-        {
+        {	
             if (!hasEventListener(FaceEvent.MAPPING_CHANGED))
                 return;
-
+			
             if (_mappingchanged == null)
                 _mappingchanged = new FaceEvent(FaceEvent.MAPPING_CHANGED, this);
                 
@@ -121,16 +110,6 @@ package away3d.core.base
         {
             notifyMappingChange();
         }
-        
-    	/**
-    	 * An optional untyped object that can contain used-defined properties.
-    	 */
-        public var extra:Object;
-        
-    	/**
-    	 * Defines the parent 3d object of the face.
-    	 */
-		//public var parent:Geometry;
 		
 		/**
 		 * Returns an array of vertex objects that are used by the face.
@@ -239,15 +218,23 @@ package away3d.core.base
             if (value == _material)
                 return;
 			
-			if (_material != null && _material is IUVMaterial)
-            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+			if (_material != null) {
+				if (_material is IUVMaterial)
+					(_material as IUVMaterial).removeOnResize(onMaterialResize);
+				if (parent)
+					parent.removeMaterial(this, _material);
+			}
             
             _material = value;
             
-			if (_material != null && _material is IUVMaterial)
-            	(_material as IUVMaterial).addOnResize(onMaterialResize);
+			if (_material != null) {
+				if (_material is IUVMaterial)
+					(_material as IUVMaterial).addOnResize(onMaterialResize);
+				if (parent)
+					parent.addMaterial(this, _material);
+			}
             
-            notifyMaterialChange();
+            notifyMappingChange();
         }
 		
 		/**
@@ -263,10 +250,16 @@ package away3d.core.base
         {
             if (value == _back)
                 return;
-
+			
+			if (_back != null)
+				parent.removeMaterial(this, _back);
+            
             _back = value;
-
-            // notifyBackChange(); TODO
+            
+			if (_back != null)
+				parent.addMaterial(this, _back);
+			
+			notifyMappingChange();
         }
 		
 		/**
@@ -708,26 +701,5 @@ package away3d.core.base
         {
             removeEventListener(FaceEvent.MAPPING_CHANGED, listener, false);
         }
-		
-		/**
-		 * Default method for adding a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function addOnMaterialChange(listener:Function):void
-        {
-            addEventListener(FaceEvent.MATERIAL_CHANGED, listener, false, 0, true);
-        }
-		
-		/**
-		 * Default method for removing a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function removeOnMaterialChange(listener:Function):void
-        {
-            removeEventListener(FaceEvent.MATERIAL_CHANGED, listener, false);
-        }
-
     }
 }
