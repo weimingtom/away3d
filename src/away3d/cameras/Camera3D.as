@@ -23,13 +23,17 @@ package away3d.cameras
         private var _focus:Number;
         private var _zoom:Number;
         private var _fov:Number;
-    	private var _invViewTransform:Matrix3D = new Matrix3D();
-        private var _screenProjection:Projection = new Projection();
+    	private var _view:Matrix3D = new Matrix3D();
         private var _screenVertex:ScreenVertex = new ScreenVertex();
         private var _vtActive:Array = new Array();
         private var _vtStore:Array = new Array();
         private var _vt:Matrix3D;
 		private var _cameraupdated:CameraEvent;
+		private var _x:Number;
+		private var _y:Number;
+		private var _z:Number;
+		private var _sz:Number;
+		private var _persp:Number;
 		
         private function notifyCameraUpdate():void
         {
@@ -42,7 +46,7 @@ package away3d.cameras
             dispatchEvent(_cameraupdated);
         }
         
-    	public var viewTransform:Matrix3D = new Matrix3D();
+    	public var invView:Matrix3D = new Matrix3D();
     	
         /**
         * Dictionary of all objects transforms calulated from the camera view for the last render frame
@@ -212,9 +216,9 @@ package away3d.cameras
 		 */
         public function get view():Matrix3D
         {
-        	viewTransform.multiply(sceneTransform, _flipY);
-        	_invViewTransform.inverse(viewTransform);
-        	return _invViewTransform;
+        	invView.multiply(sceneTransform, _flipY);
+        	_view.inverse(invView);
+        	return _view;
         }
     	
 
@@ -233,13 +237,56 @@ package away3d.cameras
 
             if (vertex == null)
                 vertex = new Vertex(0,0,0);
+                
 			createViewTransform(object).multiply(view, object.sceneTransform);
-			_screenProjection.view = viewTransforms[object];
-			_screenProjection.focus = focus;
-			_screenProjection.zoom = zoom;
-			_screenProjection.time = getTimer();
-			vertex.project(_screenVertex, _screenProjection);
+            project(viewTransforms[object], vertex, _screenVertex);
+            
             return _screenVertex
+        }
+        
+       /**
+        * Projects the vertex to the screen space of the view.
+        */
+        public function project(viewTransform:Matrix3D, vertex:Vertex, screenvertex:ScreenVertex):void
+        {
+        	_x = vertex.x;
+        	_y = vertex.y;
+        	_z = vertex.z;
+        	
+            _sz = _x * viewTransform.szx + _y * viewTransform.szy + _z * viewTransform.szz + viewTransform.tz;
+    		/*/
+    		//modified
+    		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
+    		var wy:Number = x * view.syx + y * view.syy + z * view.syz + view.ty;
+    		var wz:Number = x * view.szx + y * view.szy + z * view.szz + view.tz;
+			var wx2:Number = Math.pow(wx, 2);
+			var wy2:Number = Math.pow(wy, 2);
+    		var c:Number = Math.sqrt(wx2 + wy2 + wz*wz);
+			var c2:Number = (wx2 + wy2);
+			persp = c2? projection.focus*(c - wz)/c2 : 0;
+			sz = (c != 0 && wz != -c)? c*Math.sqrt(0.5 + 0.5*wz/c) : 0;
+			//*/
+    		//end modified
+    		
+            if (isNaN(_sz))
+                throw new Error("isNaN(sz)");
+            
+            if (_sz*2 <= -focus) {
+                screenvertex.visible = false;
+                return;
+            } else {
+                screenvertex.visible = true;
+            }
+
+         	_persp = zoom / (1 + _sz / focus);
+
+            screenvertex.x = (_x * viewTransform.sxx + _y * viewTransform.sxy + _z * viewTransform.sxz + viewTransform.tx) * _persp;
+            screenvertex.y = (_x * viewTransform.syx + _y * viewTransform.syy + _z * viewTransform.syz + viewTransform.ty) * _persp;
+            screenvertex.z = _sz;
+            /*
+            projected.x = wx * persp;
+            projected.y = wy * persp;
+			*/
         }
     	
 		/**

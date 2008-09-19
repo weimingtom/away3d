@@ -401,6 +401,8 @@ package away3d.core.base
         	_lightsDirty = false;
         }
         
+        protected var viewTransform:Matrix3D;
+        
         /**
          * Instance of the Init object used to hold and parse default property values
          * specified by the initialiser object in the 3d object constructor.
@@ -425,11 +427,9 @@ package away3d.core.base
         	
         	if (debugbb)
             {
-                if (_debugboundingbox == null) {
-                    _debugboundingbox = new WireCube({material:"#333333"});
-	                _debugboundingbox.projection = projection;
-	                //_debugboundingbox.parent = this;
-                }
+                if (_debugboundingbox == null)
+                    _debugboundingbox = new WireCube({material:"#333333", transformHash:this});
+                
                 if (boundingRadius) {
                 	_debugboundingbox.visible = true;
 	                _debugboundingbox.v000.x = _debugboundingbox.v001.x = _debugboundingbox.v010.x = _debugboundingbox.v011.x = minX;
@@ -445,11 +445,9 @@ package away3d.core.base
             
             if (debugbs)
             {
-            	if (_debugboundingsphere == null) {
-	                _debugboundingsphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
-	                _debugboundingsphere.projection = projection;
-	                //_debugboundingsphere.parent = this;
-                }
+            	if (_debugboundingsphere == null)
+	                _debugboundingsphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12, transformHash:this});
+	            
                 if (boundingRadius) {
                 	_debugboundingsphere.visible = true;
 					_debugboundingsphere.radius = boundingRadius;
@@ -461,7 +459,10 @@ package away3d.core.base
             }
         }
         
-        public var projection:Projection = new Projection();
+        /**
+        * Defines an alternative value used in the camera's lookup dictionary for the viewtransform matrix of the object. If null, the 3d object instance is used.
+        */
+        public var transformHash:Object3D;
         
 		/**
 		 * Elements use their furthest point from the camera when z-sorting
@@ -1234,22 +1235,22 @@ package away3d.core.base
             visible = ini.getBoolean("visible", visible);
             mouseEnabled = ini.getBoolean("mouseEnabled", mouseEnabled);
             useHandCursor = ini.getBoolean("useHandCursor", useHandCursor);
+            renderer = ini.getObject("renderer", IPrimitiveConsumer) as IPrimitiveConsumer;
             filters = ini.getArray("filters");
             alpha = ini.getNumber("alpha", 1);
             blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             pushback = ini.getBoolean("pushback", false);
             pushfront = ini.getBoolean("pushfront", false);
-            
             x = ini.getNumber("x", 0);
             y = ini.getNumber("y", 0);
-            z = ini.getNumber("z", 0);
-            
+            z = ini.getNumber("z", 0);        
             rotationX = ini.getNumber("rotationX", 0);
             rotationY = ini.getNumber("rotationY", 0);
             rotationZ = ini.getNumber("rotationZ", 0);
-
+            transformHash = ini.getObject3D("transformHash");
+            
             extra = ini.getObject("extra");
-
+			
         	if (this is Scene3D)
         		_scene = this as Scene3D;
         	else

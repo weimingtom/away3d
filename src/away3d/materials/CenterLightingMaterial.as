@@ -32,7 +32,6 @@ package away3d.materials
 		private var point:PointLight;
 		private var directional:DirectionalLight;
 		private var global:AmbientLight;
-        private var projection:Projection;
         private var focus:Number;
         private var zoom:Number;
         private var v0z:Number;
@@ -176,9 +175,8 @@ package away3d.materials
             v0 = tri.v0;
             v1 = tri.v1;
             v2 = tri.v2;
-            projection = tri.projection;
-            focus = projection.focus;
-            zoom = projection.zoom;
+            focus = tri.view.camera.focus;
+            zoom = tri.view.camera.zoom;
 
             v0z = v0.z;
             v0p = (1 + v0z / focus) / zoom;

@@ -54,14 +54,11 @@ package away3d.core.base
 		/** @private */
 		arcane var bitmapRect:Rectangle;
 		/** @private */
-        arcane function front(projection:Projection):Number
+        arcane function front(consumer:IPrimitiveConsumer, object:Object3D):Number
         {
-            var sv0:ScreenVertex = new ScreenVertex();
-            _v0.project(sv0, projection);
-            var sv1:ScreenVertex = new ScreenVertex();;
-            _v1.project(sv1, projection);
-            var sv2:ScreenVertex = new ScreenVertex();
-            _v2.project(sv2, projection);
+            var sv0:ScreenVertex = consumer.getScreenVertex(object, _v0);
+            var sv1:ScreenVertex = consumer.getScreenVertex(object, _v1);
+            var sv2:ScreenVertex = consumer.getScreenVertex(object, _v2);
                 
             return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
         }

@@ -75,13 +75,17 @@ package away3d.sprites
         {
         	super.primitives(view, consumer);
         	
-			_sc = consumer.createScreenVertex(this);
-			
-            _center.project(_sc, projection);
+        	viewTransform = view.camera.viewTransforms[transformHash || this];
+        	
+			_sc = consumer.createScreenVertex(this, _center);
+            
+            view.camera.project(viewTransform, _center, _sc);
+            
             if (!_sc.visible)
                 return;
 
-            _persp = projection.zoom / (1 + _sc.z / projection.focus);
+            _persp = view.camera.zoom / (1 + _sc.z / view.camera.focus);
+            
             _sc.z += deltaZ;
             
             _primitive.screenvertex = _sc;

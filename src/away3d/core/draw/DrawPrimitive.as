@@ -20,11 +20,6 @@ package away3d.core.draw
         public var source:Object3D;
         
         /**
-        * Reference to the last projection object used for the primitive
-        */
-        public var projection:Projection;
-        
-        /**
         * Placeholder function for creating new drawing primitives from a cache of objects.
         * Saves recreating objects and GC problems.
         */

@@ -28,9 +28,9 @@ package away3d.core.base
         /** @private Applies perspective distortion */
         arcane function perspective(focus:Number):ScreenVertex
         {
-            persp = 1 / (1 + _z / focus);
+            _persp = 1 / (1 + _z / focus);
 
-            return new ScreenVertex(_x * persp, _y * persp, z);
+            return new ScreenVertex(_x * _persp, _y * _persp, _z);
         }
         /** @private Sets the vertex coordinates */
         arcane function setValue(x:Number, y:Number, z:Number):void
@@ -61,11 +61,8 @@ package away3d.core.base
             return new Vertex(a._x*ak+b._x*bk, a._y*ak + b._y*bk, a._z*ak + b._z*bk);
         }
 		
-        private var projectionTime:int;
-		private var view:Matrix3D;
-		private var sz:Number;
-		private var persp:Number;
         private var _position:Number3D = new Number3D();
+        private var _persp:Number;
         
     	/**
     	 * Defines the x coordinate of the vertex relative to the local coordinates of the parent mesh object.
@@ -205,50 +202,6 @@ package away3d.core.base
         public override function toString(): String
         {
             return "new Vertex("+_x+", "+_y+", "+z+")";
-        }
-		
-        /**
-        * Projects the vertex to the screen space of the view.
-        */
-        public function project(projected:ScreenVertex, projection:Projection):void
-        {
-            view = projection.view;
-    
-            sz = _x * view.szx + _y * view.szy + _z * view.szz + view.tz;
-    		/*/
-    		//modified
-    		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
-    		var wy:Number = x * view.syx + y * view.syy + z * view.syz + view.ty;
-    		var wz:Number = x * view.szx + y * view.szy + z * view.szz + view.tz;
-			var wx2:Number = Math.pow(wx, 2);
-			var wy2:Number = Math.pow(wy, 2);
-    		var c:Number = Math.sqrt(wx2 + wy2 + wz*wz);
-			var c2:Number = (wx2 + wy2);
-			persp = c2? projection.focus*(c - wz)/c2 : 0;
-			sz = (c != 0 && wz != -c)? c*Math.sqrt(0.5 + 0.5*wz/c) : 0;
-			//*/
-    		//end modified
-    		
-            if (isNaN(sz))
-                throw new Error("isNaN(sz)");
-            
-            if (sz*2 <= -projection.focus)
-            {
-                projected.visible = false;
-                return;
-            }
-            else
-                projected.visible = true;
-
-         	persp = projection.zoom / (1 + sz / projection.focus);
-
-            projected.x = (_x * view.sxx + _y * view.sxy + _z * view.sxz + view.tx) * persp;
-            projected.y = (_x * view.syx + _y * view.syy + _z * view.syz + view.ty) * persp;
-            projected.z = sz;
-            /*
-            projected.x = wx * persp;
-            projected.y = wy * persp;
-			*/
         }
     }
 }

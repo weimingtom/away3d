@@ -57,7 +57,7 @@ package away3d.blockers
     	 * @see	away3d.core.traverse.BlockerTraverser
     	 * @see	away3d.core.block.Blocker
 		 */
-        public function blockers(consumer:IBlockerConsumer):void
+        public function blockers(view:View3D, consumer:IBlockerConsumer):void
         {
         	if (vertices.length < 3)
                 return;
@@ -67,6 +67,8 @@ package away3d.blockers
             var s:String = "";
             var p:String = "";
             
+            viewTransform = view.camera.viewTransforms[transformHash || this];
+            
             for each (var vertex:Vertex in vertices)
             {
                 s += vertex.toString() + "\n";
@@ -74,7 +76,7 @@ package away3d.blockers
 				if (!(_screenVertex = screenVertices[vertex]))
 					_screenVertex = screenVertices[vertex] = new ScreenVertex();
 				
-                vertex.project(_screenVertex, projection);
+                view.camera.project(viewTransform, vertex, _screenVertex);
 
                 if (base == null)
                     base = _screenVertex;

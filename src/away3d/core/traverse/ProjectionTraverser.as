@@ -14,7 +14,6 @@ package away3d.core.traverse
     */
     public class ProjectionTraverser extends Traverser
     {
-		private var _projection:Projection;
         private var _view:View3D;
         private var _mesh:Mesh;
         private var _time:int;
@@ -76,13 +75,6 @@ package away3d.core.traverse
 	            //update elements
 	        	_mesh.geometry.updateElements(_time);
             }
-            
-            //update projection object
-            _projection = node.projection;
-            _projection.view = _cameraviewtransforms[node];
-            _projection.focus = _view.camera.focus;
-            _projection.zoom = _view.camera.zoom;
-            _projection.time = _time;
             
             return true;
         }
