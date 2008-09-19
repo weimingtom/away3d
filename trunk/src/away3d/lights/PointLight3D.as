@@ -1,6 +1,7 @@
 package away3d.lights
 {
     import away3d.containers.*;
+    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -8,6 +9,7 @@ package away3d.lights
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.materials.*;
+    import away3d.primitives.Sphere;
     
     import flash.display.*;
 	
@@ -17,7 +19,10 @@ package away3d.lights
     */
     public class PointLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
     {
+    	use namespace arcane;
+    	
 		private var _ls:PointLight = new PointLight();
+        private var _debuglightsphere:Sphere;
         
         /**
         * Toggles debug mode: light object is visualised in the scene.
@@ -93,23 +98,12 @@ package away3d.lights
 
             if (!debug)
                 return;
-
-            var v:Vertex = new Vertex(0, 0, 0);
-            var vp:ScreenVertex = new ScreenVertex();
-            v.project(vp, projection);
-            if (!vp.visible)
-                return;
-
-            var tri:DrawTriangle = new DrawTriangle();
-            tri.v0 = new ScreenVertex(vp.x + 3, vp.y + 2, vp.z);
-            tri.v1 = new ScreenVertex(vp.x - 3, vp.y + 2, vp.z);
-            tri.v2 = new ScreenVertex(vp.x, vp.y - 3, vp.z);
-            tri.calc();
-            tri.source = this;
-            tri.projection = projection;
-            tri.material = new ColorMaterial(color);
-            consumer.primitive(tri);
-
+			
+			if (_debuglightsphere == null)
+            	_debuglightsphere = new Sphere({material:"#yellow", transformHash:this});
+                    
+            _debuglightsphere._session = session;
+	        _debuglightsphere.primitives(view, consumer);
         }
 		
 		/**

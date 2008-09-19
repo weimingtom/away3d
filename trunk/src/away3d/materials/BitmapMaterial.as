@@ -680,7 +680,7 @@ package away3d.materials
         		_graphics = _session.newLayer.graphics;
         	
 			if (precision) {
-            	focus = tri.projection.focus;
+            	focus = tri.view.camera.focus;
             	
             	map.a = _mapping.a;
 	            map.b = _mapping.b;

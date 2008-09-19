@@ -45,11 +45,6 @@ package away3d.core.render
         private var _screenObjects:Dictionary = new Dictionary(true);
         private var _screenVertices:Dictionary;
         
-        public function get screenVertices():Dictionary
-        {
-        	return _screenVertices;
-        }
-        
         public function clear(view:View3D):void
         {
         	_scStore = _scStore.concat(_scActive);
@@ -65,23 +60,15 @@ package away3d.core.render
         public function createScreenVertex(source:Object3D, vertex:Vertex = null):ScreenVertex
         {
         	if (vertex) {
-	        	if ((_screenVertices = _screenObjects[source])) {
-	            	if ((_sc = _screenVertices[vertex]))
-	            		return _sc;
-	        		
-	        		return _screenVertices[vertex] = new ScreenVertex();
-	   			}
+	        	if ((_screenVertices = _screenObjects[source]))
+	        		return _screenVertices[vertex] || (_screenVertices[vertex] = new ScreenVertex());
 	   			
 	   			_screenVertices = _screenObjects[source] = new Dictionary();
 	   			return _screenVertices[vertex] = new ScreenVertex();
         	}
         	
-        	if ((_screenVertices = _screenObjects[source])) {
-        		if ((_sc = _screenVertices[source]))
-	            	return _sc;
-	            
-        		return _screenVertices[source] = new ScreenVertex();
-   			}
+        	if ((_screenVertices = _screenObjects[source]))
+        		return _screenVertices[source] || (_screenVertices[source] = new ScreenVertex());
    			
    			_screenVertices = _screenObjects[source] = new Dictionary();
    			return _screenVertices[source] = new ScreenVertex();
@@ -95,7 +82,7 @@ package away3d.core.render
    			return _screenObjects[source][source];
         }
         
-		public function createDrawTriangle(view:View3D, source:Object3D, face:Face, material:ITriangleMaterial = null, projection:Projection = null, v0:ScreenVertex = null, v1:ScreenVertex = null, v2:ScreenVertex = null, uv0:UV = null, uv1:UV = null, uv2:UV = null):DrawTriangle
+		public function createDrawTriangle(view:View3D, source:Object3D, face:Face, material:ITriangleMaterial = null, v0:ScreenVertex = null, v1:ScreenVertex = null, v2:ScreenVertex = null, uv0:UV = null, uv1:UV = null, uv2:UV = null):DrawTriangle
 		{
 			if (_dtStore.length) {
             	_dtActive.push(_tri = _dtStore.pop());
@@ -108,8 +95,7 @@ package away3d.core.render
             _tri.face = face;
             _tri.material = material;
             
-            if (projection) {
-	            _tri.projection = projection;
+            if (v0) {
 	            _tri.v0 = v0;
 	            _tri.v1 = v1;
 	            _tri.v2 = v2;
@@ -121,7 +107,7 @@ package away3d.core.render
             return _tri;
 		}
 		
-        public function createDrawSegment(view:View3D, source:Object3D, material:ISegmentMaterial = null, projection:Projection = null, v0:ScreenVertex = null, v1:ScreenVertex = null):DrawSegment
+        public function createDrawSegment(view:View3D, source:Object3D, material:ISegmentMaterial = null, v0:ScreenVertex = null, v1:ScreenVertex = null):DrawSegment
         {
             if (_dsStore.length) {
             	_dsActive.push(_seg = _dsStore.pop());
@@ -134,8 +120,7 @@ package away3d.core.render
             _seg.source = source;
             _seg.material = material;
             
-            if (projection) {
-	            _seg.projection = projection;
+            if (v0) {
 	            _seg.v0 = v0;
 	            _seg.v1 = v1;
 	            _seg.calc();

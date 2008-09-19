@@ -84,7 +84,7 @@ package away3d.core.render
                     }
                     screenZ = z;
                     persp = view.camera.zoom / (1 + screenZ / view.camera.focus);
-                    inv = view.camera.viewTransform;
+                    inv = view.camera.invView;
 					
                     sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;

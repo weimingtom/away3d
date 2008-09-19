@@ -410,13 +410,10 @@
         	if (session.updated) {
 				
 	            _backmat = back || _triangleMaterial;
+				viewTransform = view.camera.viewTransforms[transformHash || this];
 				
-				for each (var vertex:Vertex in _geometry.vertices) {
-					
-					_screenVertex = consumer.createScreenVertex(this, vertex);
-					
-					vertex.project(_screenVertex, projection);
-				}
+				for each (var vertex:Vertex in _geometry.vertices)
+					view.camera.project(viewTransform, vertex, consumer.createScreenVertex(this, vertex));
 				
 	            for each (var face:Face in _geometry.faces)
 	            {
@@ -516,22 +513,21 @@
 	                if (outline != null && !_backface)
 	                {
 	                    _n01 = _geometry.neighbour01(face);
-	                    if (_n01 == null || _n01.front(projection) <= 0)
-	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, projection, _tri.v0, _tri.v1));
+	                    if (_n01 == null || _n01.front(consumer, this) <= 0)
+	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, _tri.v0, _tri.v1));
 						
 	                    _n12 = _geometry.neighbour12(face);
-	                    if (_n12 == null || _n12.front(projection) <= 0)
-	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, projection, _tri.v1, _tri.v2));
+	                    if (_n12 == null || _n12.front(consumer, this) <= 0)
+	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, _tri.v1, _tri.v2));
 						
 	                    _n20 = _geometry.neighbour20(face);
-	                    if (_n20 == null || _n20.front(projection) <= 0)
-	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, projection, _tri.v2, _tri.v0));
+	                    if (_n20 == null || _n20.front(consumer, this) <= 0)
+	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, _tri.v2, _tri.v0));
 						
 	                    if (_tri.material == null)
 	                    	continue;
 	                }
-					
-	                _tri.projection = projection;
+	                
 	                consumer.primitive(_tri);
 	            }
 	            
@@ -561,7 +557,6 @@
 	                if (!_seg.material.visible)
 	                    continue;
 	                
-	                _seg.projection = projection;
 	                consumer.primitive(_seg);
 	            }
 	        }

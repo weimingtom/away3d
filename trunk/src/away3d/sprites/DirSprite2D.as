@@ -17,12 +17,11 @@ package away3d.sprites
     public class DirSprite2D extends Object3D implements IPrimitiveProvider
     {
         private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex = new ScreenVertex();
+		private var _sc:ScreenVertex;
 		private var _persp:Number;
         private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _vertices:Array = [];
         private var _bitmaps:Dictionary = new Dictionary(true);
-        private var _screenVertex:ScreenVertex;
         
         /**
         * Defines the overall scaling of the sprite object
@@ -111,16 +110,16 @@ package away3d.sprites
             var minz:Number = Infinity;
             var bitmap:BitmapData = null;
             
-            for each (var vertex:Vertex in _vertices)
-            {
+            viewTransform = view.camera.viewTransforms[transformHash || this];
+            
+            for each (var vertex:Vertex in _vertices) {
         		
-				_screenVertex = consumer.createScreenVertex(this, vertex);
+				_sc = consumer.createScreenVertex(this, vertex);
 				
-                vertex.project(_screenVertex, projection);
-                var z:Number = _screenVertex.z;
+                view.camera.project(viewTransform, vertex, _sc);
+                var z:Number = _sc.z;
                 
-                if (z < minz)
-                {
+                if (z < minz) {
                     minz = z;
                     bitmap = _bitmaps[vertex];
                 }
@@ -129,12 +128,14 @@ package away3d.sprites
             if (bitmap == null)
                 return;
 
-            _center.project(_sc, projection);
+            _sc = consumer.createScreenVertex(this, _center);
+            
+            view.camera.project(viewTransform, _center, _sc);
             
             if (!_sc.visible)
                 return;
                 
-            _persp = projection.zoom / (1 + _sc.z / projection.focus);
+            _persp = view.camera.zoom / (1 + _sc.z / view.camera.focus);
             _sc.z += deltaZ;
             
             _primitive.screenvertex = _sc;

@@ -272,6 +272,8 @@ package away3d.core.math
             // Normalize the local x, y and z axes to remove scaling.
             if (scaleX != 1 || scaleY != 1 || scaleZ != 1)
             	m1.scale(m, scaleX, scaleY, scaleZ);
+            else
+            	m1.clone(m);
 	
 		    // Extract the first angle, rotationX
 			x = Math.atan2(m1.syz, m1.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);

@@ -46,7 +46,7 @@ package away3d.core.traverse
         {
             if (node is IBlockerProvider)
             {
-                (node as IBlockerProvider).blockers(consumer);
+                (node as IBlockerProvider).blockers(view, consumer);
             }
         }
 

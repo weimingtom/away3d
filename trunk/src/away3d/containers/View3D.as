@@ -292,12 +292,8 @@ package away3d.containers
         	
         	_renderer = val;
         	
-        	if (_renderer) {
-        		if (_session)
-        			_session.renderer = _renderer as IPrimitiveConsumer;
-        	} else {
+        	if (!_renderer)
         		throw new Error("View cannot have renderer set to null");
-        	}
         }
 		
 		/**
@@ -522,7 +518,7 @@ package away3d.containers
             
             //update scene
             notifySceneUpdate();
-	            
+	        
             //clear session
             _session.clear(this);
             
