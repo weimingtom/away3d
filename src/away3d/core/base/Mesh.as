@@ -51,7 +51,8 @@
 		
 		private function onMaterialUpdate(event:MaterialEvent):void
 		{
-			_scene.updatedSessions[session] = session;
+			if (_scene)
+				_scene.updatedSessions[session] = session;
 		}
 		
         private function onFaceMappingChange(event:FaceEvent):void
