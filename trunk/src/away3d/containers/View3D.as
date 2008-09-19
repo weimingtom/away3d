@@ -436,6 +436,7 @@ package away3d.containers
 			x = _ini.getNumber("x", 0);
 			y = _ini.getNumber("y", 0);
 			forceUpdate = _ini.getBoolean("forceUpdate", false);
+			mouseZeroMove = _ini.getBoolean("mouseZeroMove", false);
 			
 			//setup blendmode for hidden interactive layer
             _interactiveLayer.blendMode = BlendMode.ALPHA;

@@ -73,54 +73,45 @@ package away3d.loaders
 		private var _haveClips:Boolean = false;
 		private var _bones:Dictionary = new Dictionary(true);
 		
-		private function buildRootBones(containerData:ContainerData, parent:ObjectContainer3D):void
+		private function buildMeshes(containerData:ContainerData, parent:ObjectContainer3D):void
+		{
+			for each (var _objectData:ObjectData in containerData.children) {
+				if (_objectData is MeshData)
+					buildMesh(_objectData as MeshData, parent);
+				else if (_objectData is ContainerData)
+					buildMeshes(_objectData as ContainerData, (_objectData as ContainerData).container);
+			}
+		}
+		
+		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
 				if (_objectData is BoneData) {
 					var _boneData:BoneData = _objectData as BoneData;
 					var bone:Bone = new Bone({name:_boneData.name});
 					
-					buildBones(_boneData, bone);
+					_bones[bone.name] = bone;
+					
+					//ColladaMaya 3.05B
+					bone.id = _boneData.id;
+					
+					bone.transform = _boneData.transform;
+					
+					bone.joint.transform = _boneData.jointTransform;
+					
+					buildContainers(_boneData, bone);
 					
 					parent.addChild(bone);
-				}
-			}
-		}
-		
-		private function buildBones(boneData:BoneData, parent:Bone):void
-		{
-			_bones[parent.name] = parent;
-			
-			//ColladaMaya 3.05B
-			parent.id = boneData.id;
-			
-			parent.transform = boneData.transform;
-			
-			parent.joint.transform = boneData.jointTransform;
-			
-			Debug.trace(" + Joint : " + parent.joint + " -> " + parent);
-			
-			for each (var _boneData:BoneData in boneData.children) {
-				var bone:Bone = new Bone({name:_boneData.name});
-				
-				buildBones(_boneData, bone);
-				
-				parent.joint.addChild(bone);
-			}
-		}
-		
-		private function buildContainer(containerData:ContainerData, parent:ObjectContainer3D):void
-		{
-			for each (var _objectData:ObjectData in containerData.children) {
-				if (!(_objectData is BoneData) && _objectData is ContainerData) {
+					
+				} else if (_objectData is ContainerData) {
 					var _containerData:ContainerData = _objectData as ContainerData;
-					var objectContainer:ObjectContainer3D = new ObjectContainer3D({name:_containerData.name});
+					var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D({name:_containerData.name});
 					
 					objectContainer.transform = _objectData.transform;
 					
-					buildContainer(_containerData, objectContainer);
+					buildContainers(_containerData, objectContainer);
 					
-					if (centerMeshes && objectContainer.children) {
+					if (centerMeshes && objectContainer.children.length) {
 						//center children in container for better bounding radius calulations
 						_maxX = -Infinity;
 						_minX = Infinity;
@@ -150,8 +141,6 @@ package away3d.loaders
 					
 					parent.addChild(objectContainer);
 					
-				} else if (_objectData is MeshData) {
-					buildMesh(_objectData as MeshData, parent);
 				}
 			}
 		}
@@ -186,7 +175,7 @@ package away3d.loaders
 					var i:int;
 					var joints:Array;
 					var skinController:SkinController;
-					var rootBone:Bone;
+					var rootBone:Bone = (container as ObjectContainer3D).getBoneByName(_meshData.skeleton);
 					
 					geometry.skinVertices = _geometryData.skinVertices;
 					geometry.skinControllers = _geometryData.skinControllers;
@@ -197,8 +186,8 @@ package away3d.loaders
 		                if (bone) {
 		                    skinController.joint = bone.joint;
 		                    
-		                    if (!(bone.parent.parent is Bone))
-		                    	rootBone = bone;
+		                    //if (!(bone.parent.parent is Bone))
+		                    //	rootBone = bone;
 		                } else
 		                	Debug.warning("no joint found for " + skinController.name);
 		   			}
@@ -206,7 +195,7 @@ package away3d.loaders
 		   			geometry.rootBone = rootBone;
 		   			
 		   			for each (skinController in geometry.skinControllers)
-		                skinController.inverseTransform = rootBone.parent.inverseSceneTransform;
+		                skinController.inverseTransform = parent.inverseSceneTransform;
 				}
 				
 				//create faces from face and mesh data
@@ -460,11 +449,11 @@ package away3d.loaders
 	        	//build materials
 				buildMaterials();
 				
-				//build the bones
-				buildRootBones(containerData, container as ObjectContainer3D);
-				
 				//build the containers
-				buildContainer(containerData, container as ObjectContainer3D);
+				buildContainers(containerData, container as ObjectContainer3D);
+				
+				//build the meshes
+				buildMeshes(containerData, container as ObjectContainer3D);
 				
 				//build animations
 				buildAnimations();
@@ -542,13 +531,11 @@ package away3d.loaders
 	    	
 			if (String(node.instance_controller) == "" && String(node.instance_geometry) == "")
 			{
-				if (String(node.node) == "")
-					return;
 				
 				if (String(node.@type) == "JOINT")
 					_objectData = new BoneData();
 				else {
-					if (parent is BoneData)
+					if (String(node.node) == "" || parent is BoneData)
 						return;
 					_objectData = new ContainerData();
 				}
@@ -646,6 +633,7 @@ package away3d.loaders
 						
 	                    (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
 						
+						(_objectData as MeshData).skeleton = getId(child.skeleton);
 						break;
                 }
             }
