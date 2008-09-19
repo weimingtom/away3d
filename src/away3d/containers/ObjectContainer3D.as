@@ -343,7 +343,7 @@
 		            //geometry.rootBone = rootBone;
 		            
 		            for each (skinController in skinControllers)
-		            	skinController.inverseTransform = rootBone.parent.inverseSceneTransform;
+		            	skinController.inverseTransform = child.parent.inverseSceneTransform;
 		            
                 	(child as Mesh).geometry = geometry;
 				}

@@ -1602,6 +1602,7 @@ package away3d.core.base
             object3D.alpha = alpha;
             object3D.pushback = pushback;
             object3D.pushfront = pushfront;
+            object3D._pivotPoint = _pivotPoint.clone();
             object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             
             return object3D;

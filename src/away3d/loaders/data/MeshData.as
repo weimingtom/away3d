@@ -11,5 +11,10 @@ package away3d.loaders.data
 		 * Defines the geometry used by the mesh instance
 		 */
 		 public var geometry:GeometryData;
+		 
+		/**
+		 *
+		 */
+		 public var skeleton:String;
 	}
 }
