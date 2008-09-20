@@ -32,11 +32,11 @@ package away3d.primitives.data
 		 
 		private function notifyMaterialChange(material:ITriangleMaterial, faceString:String):void
 		{
-            if (!hasEventListener(MaterialEvent.CHANGED))
+            if (!hasEventListener(MaterialEvent.MATERIAL_CHANGED))
                 return;
                 
           //if (!_materialchanged)
-            _materialchanged = new MaterialEvent(MaterialEvent.CHANGED, material);
+            _materialchanged = new MaterialEvent(MaterialEvent.MATERIAL_CHANGED, material);
             /*else
             	_materialchanged.material = material; */
             
@@ -177,23 +177,23 @@ package away3d.primitives.data
         }
         
 		/**
-		 * Default method for adding a materialchanged event listener
+		 * Default method for adding a materialChanged event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
         public function addOnMaterialChange(listener:Function):void
         {
-            addEventListener(MaterialEvent.CHANGED, listener, false, 0, false);
+            addEventListener(MaterialEvent.MATERIAL_CHANGED, listener, false, 0, false);
         }
 		
 		/**
-		 * Default method for removing a materialchanged event listener
+		 * Default method for removing a materialChanged event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
         public function removeOnMaterialChange(listener:Function):void
         {
-            removeEventListener(MaterialEvent.CHANGED, listener, false);
+            removeEventListener(MaterialEvent.MATERIAL_CHANGED, listener, false);
         }
 	}
 }

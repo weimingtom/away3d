@@ -171,7 +171,7 @@ package away3d.lights
         		_ls.updateSpecularBitmap(specular);
         	}
         	
-            (parent as ObjectContainer3D).lightarray.directionalLight(_ls);
+            parent.lightarray.directionalLight(_ls);
             
             _colorDirty = false;
             _brightnessDirty = false;

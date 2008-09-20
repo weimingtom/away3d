@@ -10,9 +10,9 @@ package away3d.events
     public class ViewEvent extends Event
     {
     	/**
-    	 * Defines the value of the type property of a updatescene event object.
+    	 * Defines the value of the type property of a updateScene event object.
     	 */
-    	public static const UPDATE_SCENE:String = "updatescene";
+    	public static const UPDATE_SCENE:String = "updateScene";
     	
     	/**
     	 * A reference to the view object that is relevant to the event.

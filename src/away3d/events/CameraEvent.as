@@ -10,9 +10,9 @@ package away3d.events
     public class CameraEvent extends Event
     {
     	/**
-    	 * Defines the value of the type property of a cameraupdated event object.
+    	 * Defines the value of the type property of a cameraUpdated event object.
     	 */
-    	public static const UPDATED:String = "cameraupdated";
+    	public static const CAMERA_UPDATED:String = "cameraUpdated";
     	
     	/**
     	 * A reference to the session object that is relevant to the event.

@@ -99,7 +99,7 @@ package away3d.loaders
 					
 					bone.joint.transform = _boneData.jointTransform;
 					
-					buildContainers(_boneData, bone);
+					buildContainers(_boneData, bone.joint);
 					
 					parent.addChild(bone);
 					

@@ -16,14 +16,14 @@ package away3d.core.base
 	 * 
 	 * @eventType away3d.events.FaceEvent
 	 */
-	[Event(name="mappingchanged",type="away3d.events.FaceEvent")]
+	[Event(name="mappingChanged",type="away3d.events.FaceEvent")]
     
 	 /**
 	 * Dispatched when the material of the face changes.
 	 * 
 	 * @eventType away3d.events.FaceEvent
 	 */
-	[Event(name="materialchanged",type="away3d.events.FaceEvent")]
+	[Event(name="materialChanged",type="away3d.events.FaceEvent")]
 	
     /**
     * A triangle element used in the mesh object
@@ -217,7 +217,7 @@ package away3d.core.base
 			
 			if (_material != null) {
 				if (_material is IUVMaterial)
-					(_material as IUVMaterial).removeOnResize(onMaterialResize);
+					(_material as IUVMaterial).removeOnMaterialResize(onMaterialResize);
 				if (parent)
 					parent.removeMaterial(this, _material);
 			}
@@ -226,7 +226,7 @@ package away3d.core.base
             
 			if (_material != null) {
 				if (_material is IUVMaterial)
-					(_material as IUVMaterial).addOnResize(onMaterialResize);
+					(_material as IUVMaterial).addOnMaterialResize(onMaterialResize);
 				if (parent)
 					parent.addMaterial(this, _material);
 			}

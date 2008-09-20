@@ -125,6 +125,8 @@ package away3d.animators.skin
         public override function cloneAll(object:Object3D = null):Object3D
         {
             var bone:Bone = (object as Bone) || new Bone();
+            bone.removeChild(joint);
+            
             super.cloneAll(bone);
             
             bone.id = id;

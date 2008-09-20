@@ -21,7 +21,7 @@ package away3d.core.base
 	 * @eventType away3d.events.Object3DEvent
 	 * @see	#transform
 	 */
-	[Event(name="transformchanged",type="away3d.events.Object3DEvent")]
+	[Event(name="transformChanged",type="away3d.events.Object3DEvent")]
 	
 	/**
 	 * Dispatched when the scene transform matrix of the 3d object changes.
@@ -29,24 +29,32 @@ package away3d.core.base
 	 * @eventType away3d.events.Object3DEvent
 	 * @see	#sceneTransform
 	 */
-	[Event(name="scenetransformchanged",type="away3d.events.Object3DEvent")]
-			
+	[Event(name="scenetransformChanged",type="away3d.events.Object3DEvent")]
+	
 	/**
-	 * Dispatched when the parent scene of the 3d object changes
+	 * Dispatched when the parent scene of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
 	 * @see	#scene
 	 */
-	[Event(name="scenechanged",type="away3d.events.Object3DEvent")]
-			
+	[Event(name="sceneChanged",type="away3d.events.Object3DEvent")]
+	
 	/**
-	 * Dispatched when the bounding radius of the 3d object changes.
+	 * Dispatched when the render session property of the 3d object changes.
 	 * 
 	 * @eventType away3d.events.Object3DEvent
-	 * @see	#radius
+	 * @see	#session
 	 */
-	[Event(name="radiuschanged",type="away3d.events.Object3DEvent")]
-			
+	[Event(name="sessionChanged",type="away3d.events.Object3DEvent")]
+	
+	/**
+	 * Dispatched when the render session property of the 3d object updates its contents.
+	 * 
+	 * @eventType away3d.events.Object3DEvent
+	 * @see	#session
+	 */
+	[Event(name="sessionUpdated",type="away3d.events.Object3DEvent")]
+	
 	/**
 	 * Dispatched when the bounding dimensions of the 3d object changes.
 	 * 
@@ -58,42 +66,42 @@ package away3d.core.base
 	 * @see	#minZ
 	 * @see	#maxZ
 	 */
-	[Event(name="dimensionschanged",type="away3d.events.Object3DEvent")]
-    			
+	[Event(name="dimensionsChanged",type="away3d.events.Object3DEvent")]
+    
 	/**
 	 * Dispatched when a user moves the cursor while it is over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseMove3D",type="away3d.events.MouseEvent3D")]
-    			
+	[Event(name="mouseMove",type="away3d.events.MouseEvent3D")]
+    
 	/**
-	 * Dispatched when a user presses the let hand mouse button while the cursor is over the 3d object.
+	 * Dispatched when a user presses the left hand mouse button while the cursor is over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseDown3D",type="away3d.events.MouseEvent3D")]
-    			
+	[Event(name="mouseDown",type="away3d.events.MouseEvent3D")]
+    
 	/**
-	 * Dispatched when a user releases the let hand mouse button while the cursor is over the 3d object.
+	 * Dispatched when a user releases the left hand mouse button while the cursor is over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseUp3D",type="away3d.events.MouseEvent3D")]
-    			
+	[Event(name="mouseUp",type="away3d.events.MouseEvent3D")]
+    
 	/**
 	 * Dispatched when a user moves the cursor over the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseOver3D",type="away3d.events.MouseEvent3D")]
-    			
+	[Event(name="mouseOver",type="away3d.events.MouseEvent3D")]
+    
 	/**
 	 * Dispatched when a user moves the cursor away from the 3d object.
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseOut3D",type="away3d.events.MouseEvent3D")]
+	[Event(name="mouseOut",type="away3d.events.MouseEvent3D")]
 	
     /**
      * Base class for all 3d objects.
@@ -232,6 +240,10 @@ package away3d.core.base
         /** @private */
         arcane function notifySessionUpdate():void
         {
+        	//trace("Updated!!!!!!!!");
+        	if (_scene)
+        		_scene.updatedSessions[_session] = _session;
+        	
             if (!hasEventListener(Object3DEvent.SESSION_UPDATED))
                 return;
 			
@@ -289,7 +301,7 @@ package away3d.core.base
         private var _parentradius:Number3D = new Number3D();
         arcane var _scene:Scene3D;
         private var _oldscene:Scene3D;
-        private var _parent:Object3D;
+        private var _parent:ObjectContainer3D;
 		private var _quaternion:Quaternion = new Quaternion();
 		private var _rot:Number3D = new Number3D();
 		private var _sca:Number3D = new Number3D();
@@ -361,7 +373,6 @@ package away3d.core.base
 			}
 	        
 			if (_sessionDirty) {
-	        	_scene.updatedSessions[_session] = _session;
 	        	notifySessionUpdate();
 	        	_sessionDirty = false;
 	  		}
@@ -815,7 +826,7 @@ package away3d.core.base
         		_ownSession.clearChildSessions();
         		_ownSession.renderer = null;
         		_ownSession.internalRemoveOwnSession(this);
-        		_ownSession.removeOnUpdate(onSessionUpdate);
+        		_ownSession.removeOnSessionUpdate(onSessionUpdate);
         	}
         	
         	//set new session
@@ -829,7 +840,7 @@ package away3d.core.base
 	    		_ownSession.alpha = _alpha;
 	    		_ownSession.blendMode = _blendMode;
 	    		_ownSession.internalAddOwnSession(this);
-	    		_ownSession.addOnUpdate(onSessionUpdate);
+	    		_ownSession.addOnSessionUpdate(onSessionUpdate);
         	} else if (this is Scene3D) {
         		throw new Error("Scene cannot have ownSession set to null");
         	}
@@ -1099,15 +1110,15 @@ package away3d.core.base
     	/**
     	 * Defines the parent of the 3d object.
     	 */
-        public function get parent():Object3D
+        public function get parent():ObjectContainer3D
         {
             return _parent;
         }
 		
-        public function set parent(value:Object3D):void
+        public function set parent(value:ObjectContainer3D):void
         {
         	if (this is Scene3D)
-        		 throw new Error("Scene can't be parented");
+        		 throw new Error("Scene cannot be parented");
 			
             if (value == _parent)
                 return;
@@ -1117,9 +1128,9 @@ package away3d.core.base
             if (_parent != null) {
             	_parent.removeOnSessionChange(onParentSessionChange);
                 _parent.removeOnSceneChange(onParentSceneChange);
+                _parent.removeOnSceneTransformChange(onParentTransformChange);
                 
-                if (_parent is ObjectContainer3D)
-                	(_parent as ObjectContainer3D).internalRemoveChild(this);
+                _parent.internalRemoveChild(this);
                 
                 if (_ownSession && _parent.session)
 					_parent.session.removeChildSession(_ownSession);
@@ -1129,9 +1140,8 @@ package away3d.core.base
             _scene = _parent ? _parent.scene : null;
 			
             if (_parent != null) {
-            	if (_parent is ObjectContainer3D)
-                	(_parent as ObjectContainer3D).internalAddChild(this);
-                
+            	_parent.internalAddChild(this);
+            	
                 _parent.addOnSessionChange(onParentSessionChange);
                 _parent.addOnSceneChange(onParentSceneChange);
                 _parent.addOnSceneTransformChange(onParentTransformChange);
@@ -1142,8 +1152,8 @@ package away3d.core.base
 			
             if (_scene != _oldscene)
                 notifySceneChange();
-			
-			if (!_ownSession && _parent && _session != _parent.session)
+            
+			if (!_ownSession && (!_parent || _session != _parent.session))
 				notifySessionChange();
 			
             _sceneTransformDirty = true;

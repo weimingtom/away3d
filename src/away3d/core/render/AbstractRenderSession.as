@@ -14,6 +14,13 @@ package away3d.core.render
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.utils.*;
+    
+	/**
+	 * Dispatched when the render contents of the session require updating.
+	 * 
+	 * @eventType away3d.events.SessionEvent
+	 */
+	[Event(name="sessionUpdated",type="away3d.events.SessionEvent")]
 	
     /**
     * Abstract Drawing session object containing the method used for drawing the view to screen.
@@ -37,11 +44,11 @@ package away3d.core.render
 		/** @private */
 		arcane function notifySessionUpdate():void
 		{
-			if (!hasEventListener(SessionEvent.UPDATED))
+			if (!hasEventListener(SessionEvent.SESSION_UPDATED))
                 return;
 			
             if (!_sessionupdated)
-                _sessionupdated = new SessionEvent(SessionEvent.UPDATED, this);
+                _sessionupdated = new SessionEvent(SessionEvent.SESSION_UPDATED, this);
             
             dispatchEvent(_sessionupdated);
 		}
@@ -49,13 +56,13 @@ package away3d.core.render
         arcane function internalAddViewSession(session:AbstractRenderSession):void
         {
         	sessions = [session];
-        	session.addOnUpdate(onSessionUpdate);
+        	session.addOnSessionUpdate(onSessionUpdate);
         }
 		/** @private */
         arcane function internalRemoveViewSession(session:AbstractRenderSession):void
         {
         	sessions = [];
-        	session.removeOnUpdate(onSessionUpdate);
+        	session.removeOnSessionUpdate(onSessionUpdate);
         }
 		/** @private */
         arcane function internalAddOwnSession(object:Object3D):void
@@ -187,7 +194,7 @@ package away3d.core.render
         public function addChildSession(session:AbstractRenderSession):void
         {
         	sessions.push(session);
-        	session.addOnUpdate(onSessionUpdate);
+        	session.addOnSessionUpdate(onSessionUpdate);
         	session.parent = this;
         }
         
@@ -198,7 +205,7 @@ package away3d.core.render
 		 */
         public function removeChildSession(session:AbstractRenderSession):void
         {
-        	session.removeOnUpdate(onSessionUpdate);
+        	session.removeOnSessionUpdate(onSessionUpdate);
         	
         	var index:int = sessions.indexOf(session);
             if (index == -1)
@@ -210,7 +217,7 @@ package away3d.core.render
         public function clearChildSessions():void
         {
         	for each (_session in sessions)
-        		_session.removeOnUpdate(onSessionUpdate);
+        		_session.removeOnSessionUpdate(onSessionUpdate);
         		
         	sessions = new Array();
         }
@@ -506,23 +513,23 @@ package away3d.core.render
         }
 		
 		/**
-		 * Default method for adding a sessionupdated event listener
+		 * Default method for adding a sessionUpdated event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnUpdate(listener:Function):void
+        public function addOnSessionUpdate(listener:Function):void
         {
-            addEventListener(SessionEvent.UPDATED, listener, false, 0, false);
+            addEventListener(SessionEvent.SESSION_UPDATED, listener, false, 0, false);
         }
 		
 		/**
-		 * Default method for removing a sessionupdated event listener
+		 * Default method for removing a sessionUpdated event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function removeOnUpdate(listener:Function):void
+        public function removeOnSessionUpdate(listener:Function):void
         {
-            removeEventListener(SessionEvent.UPDATED, listener, false);
+            removeEventListener(SessionEvent.SESSION_UPDATED, listener, false);
         }
 	}
 }

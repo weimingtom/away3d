@@ -95,17 +95,17 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnUpdate(listener:Function):void
+        public function addOnMaterialUpdate(listener:Function):void
         {
-        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnUpdate(listener:Function):void
+        public function removeOnMaterialUpdate(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.UPDATED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false);
         }
     }
 }

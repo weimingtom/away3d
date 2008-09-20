@@ -147,7 +147,7 @@ package away3d.materials
 			_bitmapRect = new Rectangle(0, 0, _width, _height);
             
             for each (_material in materials)
-            	_material.addOnUpdate(onMaterialUpdate);
+            	_material.addOnMaterialUpdate(onMaterialUpdate);
 			
 			transparent = ini.getBoolean("transparent", true);
 			cache = ini.getBoolean("cache", true);
@@ -155,7 +155,7 @@ package away3d.materials
 		        
         public function addMaterial(material:ILayerMaterial):void
         {
-        	_material.addOnUpdate(onMaterialUpdate);
+        	_material.addOnMaterialUpdate(onMaterialUpdate);
         	materials.push(_material);
         }
         
@@ -166,7 +166,7 @@ package away3d.materials
         	if (index == -1)
         		return;
         	
-        	material.removeOnUpdate(onMaterialUpdate);
+        	material.removeOnMaterialUpdate(onMaterialUpdate);
         	
         	materials.splice(index, 1);
         }
@@ -190,7 +190,7 @@ package away3d.materials
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
         	if (_colorTransformDirty)
-        		setColorTransform();
+        		updateColorTransform();
         	
         	_blendModeDirty = false;
         	

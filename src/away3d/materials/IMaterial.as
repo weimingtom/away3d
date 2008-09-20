@@ -23,13 +23,13 @@ package away3d.materials
 		 * 
 		 * @param	listener		The listener function
 		 */
-        function addOnUpdate(listener:Function):void;
+        function addOnMaterialUpdate(listener:Function):void;
 		
 		/**
 		 * Default method for removing a materialupdate event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        function removeOnUpdate(listener:Function):void;
+        function removeOnMaterialUpdate(listener:Function):void;
     }
 }

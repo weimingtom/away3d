@@ -11,6 +11,16 @@ package away3d.cameras
     import flash.utils.*;
     
 	/**
+	 * Dispatched when the focus or zoom properties of a camera update.
+	 * 
+	 * @eventType away3d.events.CameraEvent
+	 * 
+	 * @see #focus
+	 * @see #zoom
+	 */
+	[Event(name="cameraUpdated",type="away3d.events.CameraEvent")]
+	
+	/**
 	 * Basic camera used to resolve a view.
 	 * 
 	 * @see	away3d.containers.View3D
@@ -37,11 +47,11 @@ package away3d.cameras
 		
         private function notifyCameraUpdate():void
         {
-            if (!hasEventListener(CameraEvent.UPDATED))
+            if (!hasEventListener(CameraEvent.CAMERA_UPDATED))
                 return;
 			
             if (_cameraupdated == null)
-                _cameraupdated = new CameraEvent(CameraEvent.UPDATED, this);
+                _cameraupdated = new CameraEvent(CameraEvent.CAMERA_UPDATED, this);
                 
             dispatchEvent(_cameraupdated);
         }
@@ -329,23 +339,23 @@ package away3d.cameras
         }
 		
 		/**
-		 * Default method for adding a cameraupdated event listener
+		 * Default method for adding a cameraUpdated event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnUpdate(listener:Function):void
+        public function addOnCameraUpdate(listener:Function):void
         {
-            addEventListener(CameraEvent.UPDATED, listener, false, 0, false);
+            addEventListener(CameraEvent.CAMERA_UPDATED, listener, false, 0, false);
         }
 		
 		/**
-		 * Default method for removing a cameraupdated event listener
+		 * Default method for removing a cameraUpdated event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function removeOnUpdate(listener:Function):void
+        public function removeOnCameraUpdate(listener:Function):void
         {
-            removeEventListener(CameraEvent.UPDATED, listener, false);
+            removeEventListener(CameraEvent.CAMERA_UPDATED, listener, false);
         }
     }
 }
