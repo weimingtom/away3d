@@ -6,7 +6,28 @@ package away3d.materials
 	import flash.display.*;
 	import flash.events.*;
 	import flash.net.*;
-
+    			
+	 /**
+	 * Dispatched when the material completes a file load successfully.
+	 * 
+	 * @eventType away3d.events.LoaderEvent
+	 */
+	[Event(name="loadSuccess",type="away3d.events.LoaderEvent")]
+    			
+	 /**
+	 * Dispatched when the material fails to load a file.
+	 * 
+	 * @eventType away3d.events.LoaderEvent
+	 */
+	[Event(name="loadError",type="away3d.events.LoaderEvent")]
+    			
+	 /**
+	 * Dispatched every frame the material is loading.
+	 * 
+	 * @eventType away3d.events.LoaderEvent
+	 */
+	[Event(name="loadProgress",type="away3d.events.LoaderEvent")]
+	
     /**
     * Bitmap material that loads it's texture from an external bitmapasset file.
     */
@@ -41,7 +62,7 @@ package away3d.materials
 			_renderBitmap = _bitmap = Bitmap(_loader.content).bitmapData;
 			
 			if (_materialresize == null)
-				_materialresize = new MaterialEvent(MaterialEvent.RESIZED, this);
+				_materialresize = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);
 			
 			dispatchEvent(_materialresize);
 			
@@ -69,61 +90,61 @@ package away3d.materials
         }
         
 		/**
-		 * Default method for adding a materialloadsuccess event listener
+		 * Default method for adding a loadSuccess event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnSuccess(listener:Function):void
+        public function addOnLoadSuccess(listener:Function):void
         {
             addEventListener(MaterialEvent.LOAD_SUCCESS, listener, false, 0, true);
         }
 		
 		/**
-		 * Default method for removing a materialloadsuccess event listener
+		 * Default method for removing a loadSuccess event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function removeOnSuccess(listener:Function):void
+        public function removeOnLoadSuccess(listener:Function):void
         {
             removeEventListener(MaterialEvent.LOAD_SUCCESS, listener, false);
         }
 		
 		/**
-		 * Default method for adding a materialloadprogress event listener
+		 * Default method for adding a loadProgress event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnProgress(listener:Function):void
+        public function addOnLaodProgress(listener:Function):void
         {
             addEventListener(MaterialEvent.LOAD_PROGRESS, listener, false, 0, true);
         }
 		
 		/**
-		 * Default method for removing a materialloadprogress event listener
+		 * Default method for removing a loadProgress event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function removeOnProgress(listener:Function):void
+        public function removeOnLoadProgress(listener:Function):void
         {
             removeEventListener(MaterialEvent.LOAD_PROGRESS, listener, false);
         }	
         	
 		/**
-		 * Default method for adding a materialloaderror event listener
+		 * Default method for adding a loadError event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnError(listener:Function):void
+        public function addOnLoadError(listener:Function):void
         {
             addEventListener(MaterialEvent.LOAD_ERROR, listener, false, 0, true);
         }
 		
 		/**
-		 * Default method for removing a materialloaderror event listener
+		 * Default method for removing a loadError event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function removeOnError(listener:Function):void
+        public function removeOnLoadError(listener:Function):void
         {
             removeEventListener(MaterialEvent.LOAD_ERROR, listener, false);
         }

@@ -10,21 +10,21 @@ package away3d.core.base
 	 * 
 	 * @eventType away3d.events.ElementEvent
 	 */
-	[Event(name="vertexchanged",type="away3d.events.ElementEvent")]
+	[Event(name="vertexChanged",type="away3d.events.ElementEvent")]
     
 	 /**
 	 * Dispatched when the vertex value of a 3d element changes.
 	 * 
 	 * @eventType away3d.events.ElementEvent
 	 */
-	[Event(name="vertexvaluechanged",type="away3d.events.ElementEvent")]
+	[Event(name="vertexvalueChanged",type="away3d.events.ElementEvent")]
     
 	 /**
 	 * Dispatched when the visiblity of a 3d element changes.
 	 * 
 	 * @eventType away3d.events.ElementEvent
 	 */
-	[Event(name="visiblechanged",type="away3d.events.ElementEvent")]
+	[Event(name="visibleChanged",type="away3d.events.ElementEvent")]
 	
 	/**
 	 * Basic 3d element object

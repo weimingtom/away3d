@@ -90,11 +90,11 @@ package away3d.materials.shaders
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {	
-            if (!hasEventListener(MaterialEvent.UPDATED))
+            if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
                 return;
 			
             if (_materialupdated == null)
-                _materialupdated = new MaterialEvent(MaterialEvent.UPDATED, this);
+                _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
         }
@@ -322,18 +322,17 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnUpdate(listener:Function):void
+        public function addOnMaterialUpdate(listener:Function):void
         {
-        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnUpdate(listener:Function):void
+        public function removeOnMaterialUpdate(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.UPDATED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false);
         }
-
     }
 }

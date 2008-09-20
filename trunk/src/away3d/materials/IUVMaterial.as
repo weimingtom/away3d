@@ -41,17 +41,17 @@ package away3d.materials
 		function removeFaceDictionary():void;
 		
 		/**
-		 * Default method for adding a materialresize event listener
+		 * Default method for adding a materialResize event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        function addOnResize(listener:Function):void;
+        function addOnMaterialResize(listener:Function):void;
 		
 		/**
-		 * Default method for removing a materialresize event listener
+		 * Default method for removing a materialResize event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        function removeOnResize(listener:Function):void;
+        function removeOnMaterialResize(listener:Function):void;
     }
 }

@@ -5,6 +5,7 @@ package away3d.containers
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
+	import away3d.core.math.Matrix3D;
 	import away3d.core.render.*;
 	import away3d.core.stats.*;
 	import away3d.core.traverse.*;
@@ -25,35 +26,35 @@ package away3d.containers
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseMove3D",type="away3d.events.MouseEvent3D")]
+	[Event(name="mouseMove",type="away3d.events.MouseEvent3D")]
     			
 	 /**
 	 * Dispatched when a user presses the let hand mouse button while the cursor is over a 3d object
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseDown3D",type="away3d.events.MouseEvent3D")]
+	[Event(name="mouseDown",type="away3d.events.MouseEvent3D")]
     			
 	 /**
 	 * Dispatched when a user releases the let hand mouse button while the cursor is over a 3d object
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseUp3D",type="away3d.events.MouseEvent3D")]
+	[Event(name="mouseUp",type="away3d.events.MouseEvent3D")]
     			
 	 /**
 	 * Dispatched when a user moves the cursor over a 3d object
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseOver3D",type="away3d.events.MouseEvent3D")]
+	[Event(name="mouseOver",type="away3d.events.MouseEvent3D")]
     			
 	 /**
 	 * Dispatched when a user moves the cursor away from a 3d object
 	 * 
 	 * @eventType away3d.events.MouseEvent3D
 	 */
-	[Event(name="mouseOut3D",type="away3d.events.MouseEvent3D")]
+	[Event(name="mouseOut",type="away3d.events.MouseEvent3D")]
 	
 	/**
 	 * Sprite container used for storing camera, scene, session, renderer and clip references, and resolving mouse events
@@ -88,6 +89,84 @@ package away3d.containers
         private var _container:DisplayObject;
         private var _sc:ScreenVertex = new ScreenVertex();
         private var _consumer:IPrimitiveConsumer;
+        private var screenX:Number;
+        private var screenY:Number;
+        private var screenZ:Number = Infinity;
+        private var element:Object;
+        private var drawpri:DrawPrimitive;
+        private var material:IUVMaterial;
+        private var object:Object3D;
+        private var uv:UV;
+        private var sceneX:Number;
+        private var sceneY:Number;
+        private var sceneZ:Number;
+        private var primitive:DrawPrimitive;
+        private var inv:Matrix3D = new Matrix3D();
+        private var persp:Number;
+        
+        private function checkSession(session:AbstractRenderSession):void
+        {
+        	if (session.getContainer(this).hitTestPoint(stage.mouseX, stage.mouseY)) {
+	        	for each (primitive in session.getConsumer(this).list())
+	               checkPrimitive(primitive);
+	            
+	        	for each (session in session.sessions)
+	        		checkSession(session);
+	        }
+        }
+        
+        private function checkPrimitive(pri:DrawPrimitive):void
+        {
+        	if (pri is DrawFog)
+        		return;
+        	
+            if (!pri.source || !pri.source._mouseEnabled)
+                return;
+            
+            if (pri.minX > screenX)
+                return;
+            if (pri.maxX < screenX)
+                return;
+            if (pri.minY > screenY)
+                return;
+            if (pri.maxY < screenY)
+                return;
+            
+            if (pri.contains(screenX, screenY))
+            {
+                var z:Number = pri.getZ(screenX, screenY);
+                if (z < screenZ)
+                {
+                    if (pri is DrawTriangle)
+                    {
+                        var tri:DrawTriangle = pri as DrawTriangle;
+                        var testuv:UV = tri.getUV(screenX, screenY);
+                        if (tri.material is IUVMaterial) {
+                            var testmaterial:IUVMaterial = (tri.material as IUVMaterial);
+                            //return if material pixel is transparent
+                            if (!(tri.material is BitmapMaterialContainer) && !(testmaterial.getPixel32(testuv.u, testuv.v) >> 24))
+                                return;
+                            uv = testuv;
+                        }
+                        material = testmaterial;
+                    } else {
+                        uv = null;
+                    }
+                    screenZ = z;
+                    persp = camera.zoom / (1 + screenZ / camera.focus);
+                    inv = camera.invView;
+					
+                    sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
+                    sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
+                    sceneZ = screenX / persp * inv.szx + screenY / persp * inv.szy + screenZ * inv.szz + inv.tz;
+
+                    drawpri = pri;
+                    object = pri.source;
+                    element = null; // TODO face or segment
+
+                }
+            }
+        }
         
 		private function notifySceneUpdate():void
 		{
@@ -152,8 +231,9 @@ package away3d.containers
         
         private function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
-            findhit = new FindHit(this, _scene.session, x, y);
-            var event:MouseEvent3D = findhit.getMouseEvent(type);
+        	findHit(_scene.session, x, y);
+        	
+            var event:MouseEvent3D = getMouseEvent(type);
             var target:Object3D = event.object;
             var targetMaterial:IUVMaterial = event.material;
             event.ctrlKey = ctrlKey;
@@ -167,7 +247,7 @@ package away3d.containers
             //catch rollover/rollout object3d events
             if (mouseObject != target || mouseMaterial != targetMaterial) {
                 if (mouseObject != null) {
-                    event = findhit.getMouseEvent(MouseEvent3D.MOUSE_OUT);
+                    event = getMouseEvent(MouseEvent3D.MOUSE_OUT);
                     event.object = mouseObject;
                     event.material = mouseMaterial;
                     dispatchMouseEvent(event);
@@ -176,7 +256,7 @@ package away3d.containers
                     buttonMode = false;
                 }
                 if (target != null && mouseObject == null) {
-                    event = findhit.getMouseEvent(MouseEvent3D.MOUSE_OVER);
+                    event = getMouseEvent(MouseEvent3D.MOUSE_OVER);
                     event.object = target;
                     event.material = mouseMaterial = targetMaterial;
                     dispatchMouseEvent(event);
@@ -269,14 +349,6 @@ package away3d.containers
         */
         public var clip:Clipping;
         
-
-        /**
-        * Traverser used to find the current object under the mouse.
-        * 
-        * @see #fireMouseEvent
-        */
-        public var findhit:FindHit;
-        
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
         */
@@ -323,14 +395,14 @@ package away3d.containers
         	
         	if (_camera) {
         		_camera.removeOnSceneTransformChange(onCameraTransformChange);
-        		_camera.removeOnUpdate(onCameraUpdated);
+        		_camera.removeOnCameraUpdate(onCameraUpdated);
         	}
         	
         	_camera = val;
         	
         	if (_camera) {
         		_camera.addOnSceneTransformChange(onCameraTransformChange);
-        		_camera.addOnUpdate(onCameraUpdated);
+        		_camera.addOnCameraUpdate(onCameraUpdated);
         	} else {
         		throw new Error("View cannot have camera set to null");
         	}
@@ -389,7 +461,7 @@ package away3d.containers
         		return;
         	
         	if (_session) {
-        		_session.removeOnUpdate(onSessionUpdate);
+        		_session.removeOnSessionUpdate(onSessionUpdate);
         		_session.renderer = null;
 	        	if (_scene)
 	        		_session.internalRemoveViewSession(_scene.ownSession);
@@ -398,7 +470,7 @@ package away3d.containers
         	_session = val;
         	
         	if (_session) {
-        		_session.addOnUpdate(onSessionUpdate);
+        		_session.addOnSessionUpdate(onSessionUpdate);
         		if (_renderer)
         			_session.renderer = _renderer as IPrimitiveConsumer;
 	        	if (_scene)
@@ -459,6 +531,40 @@ package away3d.containers
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);			
 		}
 		
+	    /** 
+	    * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
+	    */
+        public function findHit(sess:AbstractRenderSession, x:Number, y:Number):void
+        {
+            screenX = x;
+            screenY = y;
+            screenZ = Infinity;
+            
+            checkSession(sess);
+        }
+        
+        /**
+        * Returns a 3d mouse event object populated with the properties from the hit point.
+        */
+        public function getMouseEvent(type:String):MouseEvent3D
+        {
+            var event:MouseEvent3D = new MouseEvent3D(type);
+            event.screenX = screenX;
+            event.screenY = screenY;
+            event.screenZ = screenZ;
+            event.sceneX = sceneX;
+            event.sceneY = sceneY;
+            event.sceneZ = sceneZ;
+            event.view = this;
+            event.drawpri = drawpri;
+            event.material = material;
+            event.element = element;
+            event.object = object;
+            event.uv = uv;
+
+            return event;
+        }
+        
         /**
         * Returns the <code>DisplayObject</code> container of the rendered scene.
         * 
@@ -581,7 +687,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for adding a mouseMove3D event listener.
+		 * Default method for adding a mouseMove3d event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -601,7 +707,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for adding a mouseDown3D event listener.
+		 * Default method for adding a mouseDown3d event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -611,7 +717,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for removing a mouseDown3D event listener.
+		 * Default method for removing a mouseDown3d event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -621,7 +727,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for adding a mouseUp3D event listener.
+		 * Default method for adding a mouseUp3d event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -631,7 +737,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for removing a mouseUp3D event listener.
+		 * Default method for removing a 3d mouseUp event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -641,7 +747,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for adding a mouseOver3D event listener.
+		 * Default method for adding a 3d mouseOver event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -651,7 +757,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for removing a mouseOver3D event listener.
+		 * Default method for removing a 3d mouseOver event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -661,7 +767,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for adding a mouseOut3D event listener.
+		 * Default method for adding a 3d mouseOut event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */
@@ -671,7 +777,7 @@ package away3d.containers
         }
 		
 		/**
-		 * Default method for removing a mouseOut3D event listener.
+		 * Default method for removing a 3d mouseOut event listener.
 		 * 
 		 * @param	listener		The listener function.
 		 */

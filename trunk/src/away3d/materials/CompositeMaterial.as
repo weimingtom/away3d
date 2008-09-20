@@ -163,14 +163,14 @@ package away3d.materials
             color = ini.getColor("color", 0xFFFFFF);
             
             for each (_material in materials)
-            	_material.addOnUpdate(onMaterialUpdate);
+            	_material.addOnMaterialUpdate(onMaterialUpdate);
             
             _colorTransformDirty = true;
 		}
         
         public function addMaterial(material:ILayerMaterial):void
         {
-        	_material.addOnUpdate(onMaterialUpdate);
+        	_material.addOnMaterialUpdate(onMaterialUpdate);
         	materials.push(_material);
         }
         
@@ -181,7 +181,7 @@ package away3d.materials
         	if (index == -1)
         		return;
         	
-        	material.removeOnUpdate(onMaterialUpdate);
+        	material.removeOnMaterialUpdate(onMaterialUpdate);
         	
         	materials.splice(index, 1);
         }
@@ -285,17 +285,17 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnUpdate(listener:Function):void
+        public function addOnMaterialUpdate(listener:Function):void
         {
-        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnUpdate(listener:Function):void
+        public function removeOnMaterialUpdate(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.UPDATED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false);
         }
 	}
 }

@@ -9,16 +9,10 @@ package away3d.events
     */
     public class GeometryEvent extends Event
     {
-    	
     	/**
-    	 * Defines the value of the type property of a radiuschanged event object.
+    	 * Defines the value of the type property of a dimensionsChanged event object.
     	 */
-    	public static const RADIUS_CHANGED:String = "radiuschanged";
-    	
-    	/**
-    	 * Defines the value of the type property of a dimensionschanged event object.
-    	 */
-    	public static const DIMENSIONS_CHANGED:String = "dimensionschanged";
+    	public static const DIMENSIONS_CHANGED:String = "dimensionsChanged";
     	
     	/**
     	 * A reference to the 3d object that is relevant to the event.

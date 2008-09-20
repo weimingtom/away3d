@@ -10,19 +10,19 @@ package away3d.events
     public class ElementEvent extends Event
     {
     	/**
-    	 * Defines the value of the type property of a vertexchanged event object.
+    	 * Defines the value of the type property of a vertexChanged event object.
     	 */
-    	public static const VERTEX_CHANGED:String = "vertexchanged";
+    	public static const VERTEX_CHANGED:String = "vertexCchanged";
     	
     	/**
-    	 * Defines the value of the type property of a vertexvaluechanged event object.
+    	 * Defines the value of the type property of a vertexvalueChanged event object.
     	 */
-    	public static const VERTEXVALUE_CHANGED:String = "vertexvaluechanged";
+    	public static const VERTEXVALUE_CHANGED:String = "vertexvalueChanged";
     	
     	/**
-    	 * Defines the value of the type property of a visiblechanged event object.
+    	 * Defines the value of the type property of a visibleChanged event object.
     	 */
-    	public static const VISIBLE_CHANGED:String = "visiblechanged";
+    	public static const VISIBLE_CHANGED:String = "visibleChanged";
     	
     	/**
     	 * A reference to the element object that is relevant to the event.

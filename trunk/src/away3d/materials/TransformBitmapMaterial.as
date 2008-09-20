@@ -87,6 +87,8 @@ package away3d.materials
 		
         private function updateTransform():void
         {
+	        _transformDirty = false;
+	        
         	//check to see if no transformation exists
         	if (_scaleX == 1 && _scaleY == 1 && _offsetX == 0 && _offsetY == 0 && _rotation == 0) {
         		_transform = null;
@@ -96,7 +98,8 @@ package away3d.materials
 	        	_transform.rotate(_rotation);
 	        	_transform.translate(_offsetX, _offsetY);
 	        }
-	        _transformDirty = false;
+	        
+	        _faceDirty = true;
         }
         
 		private function projectUV(tri:DrawTriangle):Matrix
@@ -334,6 +337,7 @@ package away3d.materials
         public function set transform(val:Matrix):void
         {
         	_transform = val;
+        	
         	if (_transform) {
 	        	
 	        	//recalculate rotation
@@ -351,7 +355,7 @@ package away3d.materials
 	        	_offsetX = _offsetY = _rotation = 0;
 	        }
         	
-        	clearFaceDictionary();
+	        //_faceDirty = true;
         }
         
         /**
@@ -557,20 +561,19 @@ package away3d.materials
         	_graphics = null;
         	clearShapeDictionary();
         	
-        	if (_bitmapDirty || _transformDirty || _projectionDirty || _colorTransformDirty || _blendModeDirty)
-        		clearFaceDictionary();
-        	
         	if (_colorTransformDirty)
-        		setColorTransform();
-        	
-        	if (_transformDirty)
-        		updateTransform();
+        		updateColorTransform();
         	
         	if (_bitmapDirty)
         		updateRenderBitmap();
         	
+        	if (_transformDirty)
+        		updateTransform();
+        	
+        	if (_faceDirty || _projectionDirty || _blendModeDirty)
+        		clearFaceDictionary();
+        	
         	_projectionDirty = false;
-        	_bitmapDirty = false;
         	_blendModeDirty = false;
         }
         

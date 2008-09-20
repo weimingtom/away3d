@@ -31,6 +31,8 @@ package away3d.materials
         /** @private */
     	arcane var _bitmap:BitmapData;
         /** @private */
+        arcane var _faceDirty:Boolean;
+        /** @private */
     	arcane var _renderBitmap:BitmapData;
         /** @private */
         arcane var _bitmapDirty:Boolean;
@@ -73,11 +75,11 @@ package away3d.materials
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {
-            if (!hasEventListener(MaterialEvent.UPDATED))
+            if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
                 return;
 			
             if (_materialupdated == null)
-                _materialupdated = new MaterialEvent(MaterialEvent.UPDATED, this);
+                _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
         }
@@ -90,6 +92,8 @@ package away3d.materials
         /** @private */
         arcane function clearFaceDictionary():void
         {
+        	_faceDirty = false;
+        	
         	notifyMaterialUpdate();
         	
         	for each (_faceVO in _faceDictionary) {
@@ -375,9 +379,12 @@ package away3d.materials
     	 * @see color
     	 * @see alpha
     	 */
-    	protected function setColorTransform():void
+    	protected function updateColorTransform():void
         {
         	_colorTransformDirty = false;
+			
+			_bitmapDirty = true;
+			_faceDirty = true;
         	
             if (_alpha == 1 && _color == 0xFFFFFF) {
                 _renderBitmap = _bitmap;
@@ -395,8 +402,6 @@ package away3d.materials
                 _renderBitmap = null;
                 return;
             }
-			
-			_bitmapDirty = true;
         }
     	
     	/**
@@ -421,6 +426,8 @@ package away3d.materials
 	        } else {
 	        	_renderBitmap = _bitmap.clone();
 	        }
+	        
+	        _faceDirty = true;
         }
         
         /**
@@ -614,15 +621,15 @@ package away3d.materials
         {
         	_graphics = null;
         	clearShapeDictionary();
-        	
-        	if (_bitmapDirty || _colorTransformDirty || _blendModeDirty)
-        		clearFaceDictionary();
         		
         	if (_colorTransformDirty)
-        		setColorTransform();
+        		updateColorTransform();
         		
-        	if (_bitmapDirty);
+        	if (_bitmapDirty)
         		updateRenderBitmap();
+        	
+        	if (_faceDirty || _blendModeDirty)
+        		clearFaceDictionary();
         		
         	_blendModeDirty = false;
         }
@@ -746,33 +753,33 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnResize(listener:Function):void
+        public function addOnMaterialResize(listener:Function):void
         {
-        	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnResize(listener:Function):void
+        public function removeOnMaterialResize(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.RESIZED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnUpdate(listener:Function):void
+        public function addOnMaterialUpdate(listener:Function):void
         {
-        	addEventListener(MaterialEvent.UPDATED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnUpdate(listener:Function):void
+        public function removeOnMaterialUpdate(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.UPDATED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false);
         }
     }
 }

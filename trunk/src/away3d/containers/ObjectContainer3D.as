@@ -7,6 +7,7 @@
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.traverse.*;
+    import away3d.core.utils.Debug;
     import away3d.events.*;
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
@@ -28,6 +29,7 @@
             child.addOnDimensionsChange(onChildChange);
 
             notifyDimensionsChange();
+            notifySessionChange();
         }
 		/** @private */
         arcane function internalRemoveChild(child:Object3D):void
@@ -42,6 +44,7 @@
             _children.splice(index, 1);
 
             notifyDimensionsChange();
+            notifySessionChange();
         }
         
         private var consumer:IPrimitiveConsumer;
@@ -307,13 +310,19 @@
             var container:ObjectContainer3D = (object as ObjectContainer3D) || new ObjectContainer3D();
             super.clone(container);
 			
-			var child:Object3D;
-            for each (child in children) {
-            	if (child is ObjectContainer3D) {
-            		var _child:Object3D = (child as ObjectContainer3D).cloneAll();
+			var _child:ObjectContainer3D;
+            for each (var child:Object3D in children) {
+            	if (child is Bone) {
+            		_child = new Bone();
                 	container.addChild(_child);
-            	} else
+                	(child as Bone).cloneAll(_child)
+            	} else if (child is ObjectContainer3D) {
+            		_child = new ObjectContainer3D();
+                	container.addChild(_child);
+                	(child as ObjectContainer3D).cloneAll(_child)
+            	} else {
                 	container.addChild(child.clone());
+             	}
             }
             
             if (animationLibrary) {
@@ -322,34 +331,51 @@
             		_animationData.clone(container);
             }
             
+            //find existing root
+            var root:ObjectContainer3D = container;
+            
+            while (root.parent)
+            	root = root.parent;
+            
+        	if (container == root)
+        		cloneBones(container, root);
+        	
+            return container;
+        }
+        
+        private function cloneBones(container:ObjectContainer3D, root:ObjectContainer3D):void
+        {
         	//wire up new bones to new skincontrollers if available
-            for each (child in container.children) {
-                if (child is Mesh) {
+            for each (var child:Object3D in container.children) {
+            	if (child is ObjectContainer3D) {
+            		(child as ObjectContainer3D).cloneBones(child as ObjectContainer3D, root);
+             	} else if (child is Mesh) {
                 	var geometry:Geometry = (child as Mesh).geometry.clone();
                 	var skinControllers:Array = geometry.skinControllers;
                 	var rootBone:Bone;
                 	var skinController:SkinController;
                 	
 					for each (skinController in skinControllers) {
-						var bone:Bone = container.getBoneByName(skinController.name);
+						var bone:Bone = root.getBoneByName(skinController.name);
 		                if (bone) {
 		                    skinController.joint = bone.joint;
 		                    
 		                    if (!(bone.parent.parent is Bone))
 		                    	rootBone = bone;
-		                }
+		                } else
+		                	Debug.warning("no joint found for " + skinController.name);
 		            }
 		            
 		            //geometry.rootBone = rootBone;
 		            
-		            for each (skinController in skinControllers)
+		            for each (skinController in skinControllers) {
+		            	//skinController.inverseTransform = new Matrix3D();
 		            	skinController.inverseTransform = child.parent.inverseSceneTransform;
+		            }
 		            
                 	(child as Mesh).geometry = geometry;
 				}
             }
-            
-            return container;
-        }
+		}	
     }
 }

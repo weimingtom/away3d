@@ -14,6 +14,20 @@
     
     import flash.utils.Dictionary;
     
+	/**
+	 * Dispatched when a sequence of animations completes.
+	 * 
+	 * @eventType away3d.events.AnimationEvent
+	 */
+	[Event(name="sequenceDone",type="away3d.events.AnimationEvent")]
+    
+	/**
+	 * Dispatched when a single animation in a sequence completes.
+	 * 
+	 * @eventType away3d.events.AnimationEvent
+	 */
+	[Event(name="cycle",type="away3d.events.AnimationEvent")]
+	
     /**
     * 3d object containing face and segment elements 
     */
@@ -51,8 +65,7 @@
 		
 		private function onMaterialUpdate(event:MaterialEvent):void
 		{
-			if (_scene)
-				_scene.updatedSessions[session] = session;
+			notifySessionUpdate();
 		}
 		
         private function onFaceMappingChange(event:FaceEvent):void
@@ -226,11 +239,11 @@
             if (_material != null) {
 	            //remove resize listener and facedictionary references
             	if (_material is IUVMaterial) {
-	            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+	            	(_material as IUVMaterial).removeOnMaterialResize(onMaterialResize);
 	            	(_material as IUVMaterial).removeFaceDictionary();
             	}
 	            //remove update listener
-				_material.removeOnUpdate(onMaterialUpdate);
+				_material.removeOnMaterialUpdate(onMaterialUpdate);
             }
             
 			
@@ -240,10 +253,10 @@
         	if (_material != null) {
 	        	//add resize listener
 	        	if (_material is IUVMaterial)
-	            	(_material as IUVMaterial).addOnResize(onMaterialResize);
+	            	(_material as IUVMaterial).addOnMaterialResize(onMaterialResize);
         		
 	        	//add update listener
-				_material.addOnUpdate(onMaterialUpdate);
+				_material.addOnMaterialUpdate(onMaterialUpdate);
         	}
         	
 	        
@@ -637,7 +650,7 @@
 		}
 		
 		/**
-		 * Default method for adding a sequencedone event listener
+		 * Default method for adding a sequenceDone event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
@@ -647,7 +660,7 @@
         }
 		
 		/**
-		 * Default method for removing a sequencedone event listener
+		 * Default method for removing a sequenceDone event listener
 		 * 
 		 * @param	listener		The listener function
 		 */

@@ -26,7 +26,7 @@ package away3d.materials
     	 * @see away3d.materials.BitmapMaterialContainer#color
     	 * @see away3d.materials.BitmapMaterialContainer#alpha
     	 */
-		protected override function setColorTransform():void
+		protected override function updateColorTransform():void
 		{
 			_phongShader.color = _color;
 			_phongShader.alpha = _alpha;

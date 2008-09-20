@@ -86,7 +86,7 @@ package away3d.lights
             _ls.ambient = ambient*brightness;
             _ls.diffuse = diffuse*brightness;
             _ls.specular = specular*brightness;
-            (parent as ObjectContainer3D).lightarray.pointLight(_ls);
+            parent.lightarray.pointLight(_ls);
         }
         
 		/**

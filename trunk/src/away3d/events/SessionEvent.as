@@ -10,9 +10,9 @@ package away3d.events
     public class SessionEvent extends Event
     {
     	/**
-    	 * Defines the value of the type property of a sessionupdated event object.
+    	 * Defines the value of the type property of a sessionUpdated event object.
     	 */
-    	public static const UPDATED:String = "sessionupdated";
+    	public static const SESSION_UPDATED:String = "sessionUpdated";
     	
     	/**
     	 * A reference to the session object that is relevant to the event.

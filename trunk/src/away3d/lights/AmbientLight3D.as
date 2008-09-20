@@ -92,7 +92,7 @@ package away3d.lights
 	        	_ls.updateAmbientBitmap(_ambient);
         	}
         	
-            (parent as ObjectContainer3D).lightarray.ambientLight(_ls);
+            parent.lightarray.ambientLight(_ls);
         }
         
 		/**

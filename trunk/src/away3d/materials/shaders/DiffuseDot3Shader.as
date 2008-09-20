@@ -247,17 +247,17 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnResize(listener:Function):void
+        public function addOnMaterialResize(listener:Function):void
         {
-        	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnResize(listener:Function):void
+        public function removeOnMaterialResize(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.RESIZED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
         }
     }
 }
