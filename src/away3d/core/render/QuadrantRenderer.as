@@ -185,15 +185,16 @@ package away3d.core.render
 			_scene = view.scene;
 			_camera = view.camera;
 			_clip = view.clip;
-        }
-        
-        public function render(view:View3D):void
-        {
+			
 			_rect = _clip.asRectangleClipping();
 			if (!_root)
 				_root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY, 0);
 			else
 				_root.reset((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY);	
+        }
+        
+        public function render(view:View3D):void
+        {
 			
         	//filter primitives array
 			for each (_filter in _qdrntfilters)

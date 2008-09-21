@@ -380,7 +380,7 @@ package away3d.core.base
 		
         private function onParentSessionChange(event:Object3DEvent):void
         {
-        	if (_ownSession)
+        	if (_ownSession && _parent.session)
         		_parent.session.addChildSession(_ownSession);
         		
             if (!_ownSession && _session != _parent.session)

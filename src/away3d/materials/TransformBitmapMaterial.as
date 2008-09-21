@@ -173,6 +173,7 @@ package away3d.materials
             }
             
             t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
+            t.invert();
             return t;
         }
 		
@@ -275,7 +276,6 @@ package away3d.materials
         		//use projectUV if projection vector detected
         		if (projectionVector) {
         			_faceVO.texturemapping = projectUV(tri);
-        			_faceVO.texturemapping.invert();
         		} else if (!_faceVO.texturemapping) {
         			_faceVO.texturemapping = tri.transformUV(this).clone();
 	        		_faceVO.texturemapping.invert();

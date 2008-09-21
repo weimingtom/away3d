@@ -170,8 +170,8 @@ package away3d.materials
         
         public function addMaterial(material:ILayerMaterial):void
         {
-        	_material.addOnMaterialUpdate(onMaterialUpdate);
-        	materials.push(_material);
+        	material.addOnMaterialUpdate(onMaterialUpdate);
+        	materials.push(material);
         }
         
         public function removeMaterial(material:ILayerMaterial):void
