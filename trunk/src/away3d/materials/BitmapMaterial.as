@@ -722,7 +722,10 @@ package away3d.materials
 				parentFaceVO.resized = false;
 				_faceVO.resized = true;
 			}
-				
+			
+			//pass on invtexturemapping value
+			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			
 			//check to see if face update can be skipped
 			if (parentFaceVO.updated || _faceVO.invalidated) {
 				parentFaceVO.updated = false;

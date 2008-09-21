@@ -84,6 +84,7 @@ package away3d.containers
 		private var _oldclip:Clipping;
 		private var _updatescene:ViewEvent;
 		private var _updated:Boolean;
+		private var _cleared:Boolean;
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
 		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _container:DisplayObject;
@@ -605,7 +606,9 @@ package away3d.containers
         */
         public function clear():void
         {
+        	_updated = true;
         	session.clear(this);
+        	_cleared = true;
         }
         
         /**
@@ -615,7 +618,9 @@ package away3d.containers
         */
         public function render():void
         {
-        	_updated = false;
+        	_updated = _cleared;
+        	
+        	_cleared = false;
         	
         	_oldclip = clip;
             
