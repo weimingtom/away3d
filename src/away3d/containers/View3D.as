@@ -3,6 +3,8 @@ package away3d.containers
 	import away3d.cameras.*;
 	import away3d.core.*;
 	import away3d.core.base.*;
+	import away3d.core.block.BlockerArray;
+	import away3d.core.block.IBlockerConsumer;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.Matrix3D;
@@ -186,7 +188,8 @@ package away3d.containers
 		
 		private function onSessionUpdate(event:SessionEvent):void
 		{
-			_scene.updatedSessions[event.target] = event.target;
+			if (event.target is BitmapRenderSession)
+				_scene.updatedSessions[event.target] = event.target;
 		}
 		
 		private function onCameraTransformChange(e:Object3DEvent):void
@@ -339,7 +342,7 @@ package away3d.containers
         */
         public var forceUpdate:Boolean;
       
-        
+        public var blockerarray:BlockerArray = new BlockerArray();
         /**
         * Clipping area used when rendering.
         * 
@@ -429,7 +432,7 @@ package away3d.containers
         		delete _scene.viewDictionary[this];
         		_scene.removeOnSessionChange(onSessionChange);
         		if (_session)
-        			_session.internalRemoveViewSession(_scene.ownSession);
+        			_session.internalRemoveSceneSession(_scene.ownSession);
 	        }
         	
         	_scene = val;
@@ -439,7 +442,7 @@ package away3d.containers
         		_scene.addOnSessionChange(onSessionChange);
         		_scene.viewDictionary[this] = this;
         		if (_session)
-        			_session.internalAddViewSession(_scene.ownSession);
+        			_session.internalAddSceneSession(_scene.ownSession);
         	} else {
         		throw new Error("View cannot have scene set to null");
         	}
@@ -465,7 +468,7 @@ package away3d.containers
         		_session.removeOnSessionUpdate(onSessionUpdate);
         		_session.renderer = null;
 	        	if (_scene)
-	        		_session.internalRemoveViewSession(_scene.ownSession);
+	        		_session.internalRemoveSceneSession(_scene.ownSession);
         	}
         	
         	_session = val;
@@ -475,7 +478,7 @@ package away3d.containers
         		if (_renderer)
         			_session.renderer = _renderer as IPrimitiveConsumer;
 	        	if (_scene)
-	        		_session.internalAddViewSession(_scene.ownSession);
+	        		_session.internalAddSceneSession(_scene.ownSession);
         	} else {
         		throw new Error("View cannot have session set to null");
         	}
@@ -535,13 +538,13 @@ package away3d.containers
 	    /** 
 	    * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
 	    */
-        public function findHit(sess:AbstractRenderSession, x:Number, y:Number):void
+        public function findHit(session:AbstractRenderSession, x:Number, y:Number):void
         {
             screenX = x;
             screenY = y;
             screenZ = Infinity;
             
-            checkSession(sess);
+            checkSession(session);
         }
         
         /**
@@ -636,9 +639,11 @@ package away3d.containers
             
             //draw scene into view session
             if (_session.updated) {
-	        	_container = _scene.session.getContainer(this);
+            	_ddo.view = this;
+	        	_ddo.displayobject = _scene.session.getContainer(this);
+	        	_ddo.session = _session;
+	        	_ddo.screenvertex = _sc;
 	        	_consumer = _session.getConsumer(this);
-	         	_ddo = _consumer.createDrawDisplayObject(this, _session, _container, _sc);
 	         	_consumer.primitive(_ddo);
             }
             

@@ -13,7 +13,7 @@ package away3d.core.draw
     /**
     * Volume block tree for storing drawing primitives
     */
-    public class PrimitiveVolumeBlock extends AbstractRenderer implements IPrimitiveConsumer
+    public class PrimitiveVolumeBlock implements IPrimitiveConsumer
     {
         private var _blocks:Dictionary = new Dictionary(true);
         private var _block:PrimitiveVolumeBlockNode;
@@ -122,9 +122,8 @@ package away3d.core.draw
             return _result;
         }
                 
-        public override function clear(view:View3D):void
+        public function clear(view:View3D):void
         {
-        	super.clear(view);
 			_scene = view.scene;
 			_camera = view.camera;
 			_clip = view.clip;

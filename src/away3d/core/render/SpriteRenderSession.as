@@ -2,8 +2,9 @@ package away3d.core.render
 {
 	import away3d.containers.*;
 	import away3d.core.*;
-	import away3d.core.clip.Clipping;
+	import away3d.core.clip.*;
 	import away3d.core.draw.*;
+	import away3d.events.*;
 	
 	import flash.display.*;
 	import flash.geom.*;
@@ -18,6 +19,15 @@ package away3d.core.render
 		
         private var _container:Sprite;
         private var _clip:Clipping;
+        
+        protected override function onSessionUpdate(event:SessionEvent):void
+        {
+        	super.onSessionUpdate(event);
+        	
+        	cacheAsBitmap = false;
+        }
+        
+        public var cacheAsBitmap:Boolean;
         
 		/**
 		 * Creates a new <code>SpriteRenderSession</code> object.
@@ -100,8 +110,8 @@ package away3d.core.render
        		
     		_container = getContainer(view) as Sprite;
         	if (updated) {
-	        	graphics = _container.graphics;
-	        	
+	 			graphics = _container.graphics;
+	 			
 	        	//clip the edges of the root container with  scrollRect
 	        	if (this == view.session) {
 		        	_clip = view.clip;
@@ -112,7 +122,7 @@ package away3d.core.render
         		_container.cacheAsBitmap = false;
         		
 	        	//clear base canvas
-	            _container.graphics.clear();
+	            graphics.clear();
 	            
 	            //remove all children
 	            i = _container.numChildren;
@@ -122,13 +132,12 @@ package away3d.core.render
 	            children = new Dictionary(true);
 	            newLayer = null;
 	            
-	 			graphics = _container.graphics;
         	} else {
-        		_container.cacheAsBitmap = true;
+        		_container.cacheAsBitmap = cacheAsBitmap;
         	}
         	
         	_container.filters = filters;
-        	_container.alpha = alpha || 1;
+        	_container.alpha = alpha;
         	_container.blendMode = blendMode || BlendMode.NORMAL;
         }   
         

@@ -6,13 +6,15 @@ package away3d.lights
     import away3d.core.light.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.materials.ColorMaterial;
+    import away3d.primitives.Sphere;
 	
     /**
     * Lightsource that colors all shaded materials proportional to the dot product of the offset vector with the normal vector.
     * The scalar value of distance does not affect the resulting light intensity, it is calulated as if the
     * source is an infinite distance away with an infinite brightness.
     */
-    public class DirectionalLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
+    public class DirectionalLight3D extends Object3D implements ILightProvider, IClonable
     {
         private var _color:int;
         private var _red:int;
@@ -29,12 +31,9 @@ package away3d.lights
     	private var _specularDirty:Boolean;
     	private var _brightnessDirty:Boolean;
 		private var _ls:DirectionalLight = new DirectionalLight();
-		
-        //TODO: add debug graphics for directional light
-        /**
-        * Toggles debug mode: light object is visualised in the scene.
-        */
-        public var debug:Boolean;
+		private var _debugPrimitive:Sphere;
+        private var _debugMaterial:ColorMaterial;
+        private var _debug:Boolean;
 		
 		/**
 		 * Defines the color of the light object.
@@ -117,6 +116,34 @@ package away3d.lights
 			_brightness = val;
             _brightnessDirty = true;
 		}
+        
+        /**
+        * Toggles debug mode: light object is visualised in the scene.
+        */
+        public function get debug():Boolean
+        {
+        	return _debug;
+        }
+        
+        public function set debug(val:Boolean):void
+        {
+        	_debug = val;
+        }
+        
+		public function get debugPrimitive():Object3D
+		{
+			if (!_debugPrimitive)
+				_debugPrimitive = new Sphere();
+			
+			if (!_debugMaterial) {
+				_debugMaterial = new ColorMaterial();
+				_debugPrimitive.material = _debugMaterial;
+			}
+			
+            _debugMaterial.color = color;
+            
+			return _debugPrimitive;
+		}
 		
 		/**
 		 * Creates a new <code>DirectionalLight3D</code> object.
@@ -140,7 +167,7 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        public function light():void
+        public function light(consumeer:ILightConsumer):void
         {
             //update color
 			if (_colorDirty) {
@@ -171,19 +198,10 @@ package away3d.lights
         		_ls.updateSpecularBitmap(specular);
         	}
         	
-            parent.lightarray.directionalLight(_ls);
+            consumeer.directionalLight(_ls);
             
             _colorDirty = false;
             _brightnessDirty = false;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-        	super.primitives(view, consumer);
-
         }
 		
 		/**

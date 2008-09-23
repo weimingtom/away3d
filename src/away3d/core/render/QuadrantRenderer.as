@@ -12,7 +12,7 @@ package away3d.core.render
     
 
     /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
-    public class QuadrantRenderer extends AbstractRenderer implements IPrimitiveConsumer, IRenderer
+    public class QuadrantRenderer implements IPrimitiveConsumer, IRenderer
     {
         private var _qdrntfilters:Array;
         private var _root:PrimitiveQuadrantTreeNode;
@@ -178,9 +178,8 @@ package away3d.core.render
             return _result;
         }
         
-        public override function clear(view:View3D):void
+        public function clear(view:View3D):void
         {
-			super.clear(view);
         	_primitives = [];
 			_scene = view.scene;
 			_camera = view.camera;

@@ -5,6 +5,7 @@ package away3d.core.base
     import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.math.*;
+    import away3d.core.project.*;
     import away3d.core.render.*;
     import away3d.core.traverse.*;
     import away3d.core.utils.*;
@@ -220,14 +221,7 @@ package away3d.core.base
          /** @private */
         arcane function notifySessionChange():void
         {
-        	if (_ownSession)
-        		_session = _ownSession;
-        	else if (_parent)
-        		_session = _parent.session;
-        	else
-        		_session = null;
-        		
-        	_sessionDirty = true;
+        	updateSession();
         	
             if (!hasEventListener(Object3DEvent.SESSION_CHANGED))
                 return;
@@ -318,8 +312,6 @@ package away3d.core.base
         private var _sessionupdated:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
         private var _dispatchedDimensionsChange:Boolean;
-		private var _debugboundingbox:WireCube;
-		private var _debugboundingsphere:WireSphere;
 		arcane var _session:AbstractRenderSession;
 		private var _ownSession:AbstractRenderSession;
 		private var _ownCanvas:Boolean;
@@ -330,11 +322,14 @@ package away3d.core.base
 		private var _ownLights:Boolean;
 		private var _lightsDirty:Boolean;
 		private var _lightarray:ILightConsumer;
+		private var _debugBoundingSphere:WireSphere;
+		private var _debugBoundingBox:WireCube;
+		private var _projector:IPrimitiveProvider;
 		
 		private function onSessionUpdate(event:SessionEvent):void
 		{
-			if (event.session is BitmapRenderSession)
-				_sessionDirty = true;
+			if (event.target is BitmapRenderSession)
+				_scene.updatedSessions[event.target] = event.target;
 		}
 		
         private function updateSceneTransform():void
@@ -364,27 +359,18 @@ package away3d.core.base
             _rotationDirty = false;
         }
 		
-		public function updateObject():void
-		{
-			if (_objectDirty) {
-				_scene.updatedObjects[this] = this;
-				_objectDirty = false;
-				_sessionDirty = true;
-			}
-	        
-			if (_sessionDirty) {
-	        	notifySessionUpdate();
-	        	_sessionDirty = false;
-	  		}
-		}
-		
         private function onParentSessionChange(event:Object3DEvent):void
         {
+    		if (_ownSession && event.object.parent)
+    			event.object.parent.session.removeChildSession(_ownSession);
+    		
         	if (_ownSession && _parent.session)
         		_parent.session.addChildSession(_ownSession);
         		
-            if (!_ownSession && _session != _parent.session)
-	            notifySessionChange();
+            if (!_ownSession && _session != _parent.session) {
+            	updateSession();
+            	dispatchEvent(event);
+            }
         }
         
         private function onParentSceneChange(event:Object3DEvent):void
@@ -412,6 +398,18 @@ package away3d.core.base
         	_lightsDirty = false;
         }
         
+        private function updateSession():void
+        {
+			if (_ownSession)
+        		_session = _ownSession;
+        	else if (_parent)
+        		_session = _parent.session;
+        	else
+        		_session = null;
+        		
+        	_sessionDirty = true;
+        }
+        
         protected var viewTransform:Matrix3D;
         
         /**
@@ -436,44 +434,41 @@ package away3d.core.base
         {
         	_dimensionsDirty = false;
         	
+            _dispatchedDimensionsChange = false;
+        	
         	if (debugbb)
             {
-                if (_debugboundingbox == null)
-                    _debugboundingbox = new WireCube({material:"#333333", transformHash:this});
-                
+            	if (!_debugBoundingBox)
+					_debugBoundingBox = new WireCube({material:"#333333"});
+				
                 if (boundingRadius) {
-                	_debugboundingbox.visible = true;
-	                _debugboundingbox.v000.x = _debugboundingbox.v001.x = _debugboundingbox.v010.x = _debugboundingbox.v011.x = minX;
-	                _debugboundingbox.v100.x = _debugboundingbox.v101.x = _debugboundingbox.v110.x = _debugboundingbox.v111.x = maxX;
-	                _debugboundingbox.v000.y = _debugboundingbox.v001.y = _debugboundingbox.v100.y = _debugboundingbox.v101.y = minY;
-	                _debugboundingbox.v010.y = _debugboundingbox.v011.y = _debugboundingbox.v110.y = _debugboundingbox.v111.y = maxY;
-	                _debugboundingbox.v000.z = _debugboundingbox.v010.z = _debugboundingbox.v100.z = _debugboundingbox.v110.z = minZ;
-	                _debugboundingbox.v001.z = _debugboundingbox.v011.z = _debugboundingbox.v101.z = _debugboundingbox.v111.z = maxZ;
+                	_debugBoundingBox.visible = true;
+	                _debugBoundingBox.v000.x = _debugBoundingBox.v001.x = _debugBoundingBox.v010.x = _debugBoundingBox.v011.x = _minX;
+	                _debugBoundingBox.v100.x = _debugBoundingBox.v101.x = _debugBoundingBox.v110.x = _debugBoundingBox.v111.x = _maxX;
+	                _debugBoundingBox.v000.y = _debugBoundingBox.v001.y = _debugBoundingBox.v100.y = _debugBoundingBox.v101.y = _minY;
+	                _debugBoundingBox.v010.y = _debugBoundingBox.v011.y = _debugBoundingBox.v110.y = _debugBoundingBox.v111.y = _maxY;
+	                _debugBoundingBox.v000.z = _debugBoundingBox.v010.z = _debugBoundingBox.v100.z = _debugBoundingBox.v110.z = _minZ;
+	                _debugBoundingBox.v001.z = _debugBoundingBox.v011.z = _debugBoundingBox.v101.z = _debugBoundingBox.v111.z = _maxZ;
                 } else {
-                	_debugboundingbox.visible = false;
+                	debugBoundingBox.visible = false;
                 }
             }
             
             if (debugbs)
             {
-            	if (_debugboundingsphere == null)
-	                _debugboundingsphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12, transformHash:this});
-	            
+            	if (!_debugBoundingSphere)
+					_debugBoundingSphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
+				
                 if (boundingRadius) {
-                	_debugboundingsphere.visible = true;
-					_debugboundingsphere.radius = boundingRadius;
-					_debugboundingsphere.buildPrimitive();
-					_debugboundingsphere.applyPosition(-_pivotPoint.x, -_pivotPoint.y, -_pivotPoint.z);
+                	_debugBoundingSphere.visible = true;
+					_debugBoundingSphere.radius = _boundingRadius;
+					_debugBoundingSphere.updateObject();
+					_debugBoundingSphere.applyPosition(-_pivotPoint.x, -_pivotPoint.y, -_pivotPoint.z);
             	} else {
-            		_debugboundingsphere.visible = false;
+            		debugBoundingSphere.visible = false;
             	}
             }
         }
-        
-        /**
-        * Defines an alternative value used in the camera's lookup dictionary for the viewtransform matrix of the object. If null, the 3d object instance is used.
-        */
-        public var transformHash:Object3D;
         
 		/**
 		 * Elements use their furthest point from the camera when z-sorting
@@ -554,7 +549,25 @@ package away3d.core.base
         * Indicates whether a debug bounding sphere should be rendered around the 3d object.
         */
         public var debugbs:Boolean;
-    	
+		
+		public var center:Vertex = new Vertex();
+		
+		public function get debugBoundingBox():WireCube
+		{	
+            if (_dimensionsDirty || !_debugBoundingBox)
+            	updateDimensions();
+            
+			return _debugBoundingBox;
+		}
+		
+		public function get debugBoundingSphere():WireSphere
+		{
+            if (_dimensionsDirty || !_debugBoundingSphere)
+            	updateDimensions();
+            
+            return _debugBoundingSphere;
+		}
+		
     	/**
     	 * The render session used by the 3d object
     	 */
@@ -818,7 +831,7 @@ package away3d.core.base
         		return;
         	
         	//remove old session from parent session
-        	if (_ownSession && _parent)
+        	if (_ownSession && _parent && _parent.session)
         		_parent.session.removeChildSession(_ownSession);
         	
         	//reset old session children
@@ -846,7 +859,7 @@ package away3d.core.base
         	}
         	
         	//add new session to parent session
-        	if (_ownSession && _parent)
+        	if (_ownSession && _parent && _parent.session)
         		_parent.session.addChildSession(_ownSession);
         	
         	//update ownCanvas property
@@ -856,6 +869,25 @@ package away3d.core.base
         		_ownCanvas = false;
         	
         	notifySessionChange();
+        }
+        
+        public function get projector():IPrimitiveProvider
+        {
+        	return _projector;
+        }
+        
+        public function set projector(val:IPrimitiveProvider):void
+        {
+        	if (_projector == val)
+        		return;
+        	
+        	if (_projector)
+        		_projector.source = null;
+        	
+        	_projector = val;
+        	
+        	if (_projector)
+        		_projector.source = this;
         }
         
     	/**
@@ -1257,7 +1289,6 @@ package away3d.core.base
             rotationX = ini.getNumber("rotationX", 0);
             rotationY = ini.getNumber("rotationY", 0);
             rotationZ = ini.getNumber("rotationZ", 0);
-            transformHash = ini.getObject3D("transformHash");
             
             extra = ini.getObject("extra");
 			
@@ -1274,6 +1305,20 @@ package away3d.core.base
             scaleZ(init.getNumber("scaleZ", 1) * scaling);
             */
         }
+		
+		public function updateObject():void
+		{
+			if (_objectDirty) {
+				_scene.updatedObjects[this] = this;
+				_objectDirty = false;
+				_sessionDirty = true;
+			}
+	        
+			if (_sessionDirty) {
+	        	notifySessionUpdate();
+	        	_sessionDirty = false;
+	  		}
+		}
 		
     	/**
     	 * Scales the contents of the 3d object.
@@ -1327,40 +1372,6 @@ package away3d.core.base
                 traverser.leave(this);
                
             }
-        }
-        
-    	/**
-    	 * Called from the <code>PrimitiveTraverser</code> when passing <code>DrawPrimitive</code> objects to the primitive consumer object
-    	 * 
-    	 * @param	consumer	The consumer instance
-    	 * @param	session		The render session of the 3d object
-    	 * 
-    	 * @see	away3d.core.traverse.PrimitiveTraverser
-    	 * @see	away3d.core.draw.DrawPrimitive
-    	 */
-        public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-            _dispatchedDimensionsChange = false;
-        	
-        	if (_session.updated) {
-	            if (debugbb) {
-	            	if (_dimensionsDirty || !_debugboundingbox)
-	            		updateDimensions();
-	            	if (_debugboundingbox.visible) {
-	            		_debugboundingbox._session = _session;
-	                	_debugboundingbox.primitives(view, consumer);
-	            	}
-	            }
-	            
-	            if (debugbs) {
-	            	if (_dimensionsDirty || !_debugboundingsphere)
-	            		updateDimensions();
-	            	if (_debugboundingsphere.visible) {
-	            		_debugboundingsphere._session = _session;
-		                _debugboundingsphere.primitives(view, consumer);
-	            	}
-	            }
-	        }
         }
         
         /**
@@ -1604,15 +1615,17 @@ package away3d.core.base
             var object3D:Object3D = object || new Object3D();
             object3D.transform = transform;
             object3D.name = name;
-            object3D.ownCanvas = ownCanvas;
-            object3D.filters = filters;
+            object3D.ownCanvas = _ownCanvas;
+            object3D.renderer = _renderer;
+            object3D.filters = _filters;
+            object3D.alpha = _alpha;
             object3D.visible = visible;
             object3D.mouseEnabled = mouseEnabled;
             object3D.useHandCursor = useHandCursor;
-            object3D.alpha = alpha;
             object3D.pushback = pushback;
             object3D.pushfront = pushfront;
             object3D._pivotPoint = _pivotPoint.clone();
+            object3D.projector = _projector.clone();
             object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             
             return object3D;

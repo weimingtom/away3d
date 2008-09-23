@@ -1,11 +1,11 @@
 ﻿package away3d.containers
 {
-    import away3d.animators.skin.Bone;
-    import away3d.animators.skin.SkinController;
+    import away3d.animators.skin.*;
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
+    import away3d.core.project.*;
     import away3d.core.traverse.*;
     import away3d.core.utils.Debug;
     import away3d.events.*;
@@ -17,7 +17,7 @@
     /**
     * 3d object container node for other 3d objects in a scene
     */
-    public class ObjectContainer3D extends Object3D implements IPrimitiveProvider
+    public class ObjectContainer3D extends Object3D
     {
         use namespace arcane;
 		/** @private */
@@ -29,7 +29,6 @@
             child.addOnDimensionsChange(onChildChange);
 
             notifyDimensionsChange();
-            notifySessionChange();
         }
 		/** @private */
         arcane function internalRemoveChild(child:Object3D):void
@@ -44,15 +43,10 @@
             _children.splice(index, 1);
 
             notifyDimensionsChange();
-            notifySessionChange();
         }
         
-        private var consumer:IPrimitiveConsumer;
         private var _children:Array = new Array();
         private var _radiusChild:Object3D = null;
-		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
-        private var _c:DisplayObject;
-        private var _sc:ScreenVertex;
         
         private function onChildChange(event:Object3DEvent):void
         {
@@ -125,6 +119,11 @@
             		init = object;
             
             super(init);
+            
+            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
+            
+            if (!projector)
+            	projector = new SessionProjector();
             
             for each (var child:Object3D in childarray)
                 addChild(child);
@@ -247,38 +246,6 @@
                     child.traverse(traverser);
                 traverser.leave(this);
             }
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-        	super.primitives(view, consumer);
-        	
-        	if (session.updated) {
-	        	for each (var child:Object3D in children) {
-					if (child.ownCanvas) {
-						_c = child.session.getContainer(view);
-						
-						_sc = consumer.createScreenVertex(child);
-						
-		             	_sc.x = _c.x;
-		             	_sc.y = _c.y;
-		             	_sc.z = view.camera.viewTransforms[child].position.modulo;
-		             	
-		             	if (child.pushback)
-		             		_sc.z += child.boundingRadius;
-		             		
-		             	if (child.pushfront)
-		             		_sc.z -= child.boundingRadius;
-		             	
-		             	_ddo = consumer.createDrawDisplayObject(view, session, _c, _sc);
-		             	
-		             	consumer.primitive(_ddo);
-		   			}
-	        	}
-	        }
         }
         
 		/**

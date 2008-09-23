@@ -4,6 +4,7 @@ package away3d.sprites
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
+    import away3d.core.project.SpriteProjector;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
@@ -13,13 +14,8 @@ package away3d.sprites
 	 * Spherical billboard (always facing the camera) sprite object that uses a bitmapData object as it's texture.
 	 * Draws 2d images inline with z-sorted triangles in a scene.
 	 */
-    public class Sprite2D extends Object3D implements IPrimitiveProvider
+    public class Sprite2D extends Object3D
     {
-        private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex;
-		private var _persp:Number;
-        private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
-		
 		/**
 		 * Defines the bitmapData object to use for the sprite texture.
 		 */
@@ -61,41 +57,10 @@ package away3d.sprites
             rotation = ini.getNumber("rotation", 0);
             smooth = ini.getBoolean("smooth", false);
             deltaZ = ini.getNumber("deltaZ", 0);
+            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
             
-            _primitive.source = this;
-        }
-        
-		/**
-		 * @inheritDoc
-    	 * 
-    	 * @see	away3d.core.traverse.PrimitiveTraverser
-    	 * @see	away3d.core.draw.DrawScaledBitmap
-		 */
-        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-        	super.primitives(view, consumer);
-        	
-        	viewTransform = view.camera.viewTransforms[transformHash || this];
-        	
-			_sc = consumer.createScreenVertex(this, _center);
-            
-            view.camera.project(viewTransform, _center, _sc);
-            
-            if (!_sc.visible)
-                return;
-
-            _persp = view.camera.zoom / (1 + _sc.z / view.camera.focus);
-            
-            _sc.z += deltaZ;
-            
-            _primitive.screenvertex = _sc;
-            _primitive.smooth = smooth;
-            _primitive.bitmap = bitmap;
-            _primitive.scale = _persp*scaling;
-            _primitive.rotation = rotation;
-            _primitive.calc();
-            
-            consumer.primitive(_primitive);
+            if (!projector)
+            	projector = new SpriteProjector();
         }
     }
 }

@@ -54,15 +54,6 @@ package away3d.core.base
 		/** @private */
 		arcane var bitmapRect:Rectangle;
 		/** @private */
-        arcane function front(consumer:IPrimitiveConsumer, object:Object3D):Number
-        {
-            var sv0:ScreenVertex = consumer.getScreenVertex(object, _v0);
-            var sv1:ScreenVertex = consumer.getScreenVertex(object, _v1);
-            var sv2:ScreenVertex = consumer.getScreenVertex(object, _v2);
-                
-            return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
-        }
-		/** @private */
         arcane function notifyMappingChange():void
         {	
             if (!hasEventListener(FaceEvent.MAPPING_CHANGED))

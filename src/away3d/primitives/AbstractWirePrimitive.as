@@ -54,17 +54,6 @@
 		}
 		
 		/**
-		 * @inheritDoc
-		 */
-        public override function get sceneTransform():Matrix3D
-        {
-        	if (_primitiveDirty)
-        		buildPrimitive();
-        	
-        	return super.sceneTransform;
-        }
-		
-		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
 		 *
 		 * @param	init			[optional]	An initialisation object for specifying default instance properties
@@ -74,6 +63,14 @@
 			super(init);
 		}
 		
+		public override function updateObject():void
+    	{
+    		if (_primitiveDirty)
+        		buildPrimitive();
+        	
+        	super.updateObject();
+     	}
+     	
 		/**
 		 * Builds the vertex, face and uv objects that make up the 3d primitive.
 		 */

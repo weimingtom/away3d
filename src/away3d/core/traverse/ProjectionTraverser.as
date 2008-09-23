@@ -5,6 +5,7 @@ package away3d.core.traverse
 	import away3d.core.base.*;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
+	import away3d.core.project.*;
 	import away3d.core.render.*;
 	
 	import flash.utils.*;
@@ -62,20 +63,6 @@ package away3d.core.traverse
             if (node is ILODObject)
                 return (node as ILODObject).matchLOD(_camera);
             
-            //clear light arrays
-            if (node.ownLights)
-            	node.lightarray.clear();
-            
-            if (node is ILightProvider)
-                (node as ILightProvider).light();
-            
-            if ((_mesh = node as Mesh)) {
-            	//add to scene meshes dictionary
-            	_view.scene.meshes[node] = node;
-	            //update elements
-	        	_mesh.geometry.updateElements(_time);
-            }
-            
             return true;
         }
         
@@ -86,6 +73,19 @@ package away3d.core.traverse
         {
         	if (_view.statsOpen && node is Mesh)
         		_view.statsPanel.addObject(node as Mesh);
+        }
+        
+        public override function apply(node:Object3D):void
+        {
+            if (node.projector is ConvexBlockProjector)
+                (node.projector as ConvexBlockProjector).blockers(_view, _camera.viewTransforms[node], _view.blockerarray);
+            
+            if ((_mesh = node as Mesh)) {
+            	//add to scene meshes dictionary
+            	_view.scene.meshes[node] = node;
+	            //update elements
+	        	_mesh.geometry.updateElements(_time);
+            }
         }
         
         public override function leave(node:Object3D):void

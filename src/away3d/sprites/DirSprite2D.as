@@ -4,6 +4,7 @@ package away3d.sprites
     import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
+    import away3d.core.project.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
@@ -14,12 +15,8 @@ package away3d.sprites
 	 * Spherical billboard (always facing the camera) sprite object that uses an array of bitmapData objects defined with viewing direction vectors.
 	 * Draws 2d directional image dependent on viewing angle inline with z-sorted triangles in a scene.
 	 */
-    public class DirSprite2D extends Object3D implements IPrimitiveProvider
+    public class DirSprite2D extends Object3D
     {
-        private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex;
-		private var _persp:Number;
-        private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
         private var _vertices:Array = [];
         private var _bitmaps:Dictionary = new Dictionary(true);
         
@@ -42,6 +39,16 @@ package away3d.sprites
         * An optional offset value added to the z depth used to sort the sprite
         */
         public var deltaZ:Number;
+    	
+    	public function get vertices():Array
+    	{
+    		return _vertices;
+    	}
+    	
+    	public function get bitmaps():Dictionary
+    	{
+    		return _bitmaps;
+    	}
     	
 		/**
 		 * Creates a new <code>DirSprite2D</code> object.
@@ -68,7 +75,10 @@ package away3d.sprites
                 add(x, y, z, b);
             }
             
-            _primitive.source = this;
+            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
+            
+            if (!projector)
+            	projector = new DirSpriteProjector();
         }
 		
 		/**
@@ -92,60 +102,6 @@ package away3d.sprites
             var vertex:Vertex = new Vertex(x, y, z);
             _vertices.push(vertex);
             _bitmaps[vertex] = bitmap;
-        }
-        
-		/**
-		 * @inheritDoc
-    	 * 
-    	 * @see	away3d.core.traverse.PrimitiveTraverser
-    	 * @see	away3d.core.draw.DrawScaledBitmap
-		 */
-        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-        	super.primitives(view, consumer);
-
-            if (_vertices.length == 0)
-                return;
-                
-            var minz:Number = Infinity;
-            var bitmap:BitmapData = null;
-            
-            viewTransform = view.camera.viewTransforms[transformHash || this];
-            
-            for each (var vertex:Vertex in _vertices) {
-        		
-				_sc = consumer.createScreenVertex(this, vertex);
-				
-                view.camera.project(viewTransform, vertex, _sc);
-                var z:Number = _sc.z;
-                
-                if (z < minz) {
-                    minz = z;
-                    bitmap = _bitmaps[vertex];
-                }
-            }
-
-            if (bitmap == null)
-                return;
-
-            _sc = consumer.createScreenVertex(this, _center);
-            
-            view.camera.project(viewTransform, _center, _sc);
-            
-            if (!_sc.visible)
-                return;
-                
-            _persp = view.camera.zoom / (1 + _sc.z / view.camera.focus);
-            _sc.z += deltaZ;
-            
-            _primitive.screenvertex = _sc;
-            _primitive.smooth = smooth;
-            _primitive.bitmap = bitmap;
-            _primitive.scale = _persp*scaling;
-            _primitive.rotation = rotation;
-            _primitive.calc();
-            
-            consumer.primitive(_primitive);
         }
     }
 }

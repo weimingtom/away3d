@@ -5,6 +5,7 @@ package away3d.core.traverse
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
+	import away3d.core.math.*;
 	import away3d.core.render.*;
     
 
@@ -16,9 +17,11 @@ package away3d.core.traverse
     	use namespace arcane;
     	
     	private var _view:View3D;
+    	private var _viewTransform:Matrix3D;
+    	private var _consumer:IPrimitiveConsumer;
     	private var _mouseEnabled:Boolean;
     	private var _mouseEnableds:Array;
-		
+		private var _light:ILightProvider;
 		/**
 		 * Defines the view being used.
 		 */
@@ -65,9 +68,30 @@ package away3d.core.traverse
 		 */
         public override function apply(node:Object3D):void
         {
-            if (node is IPrimitiveProvider)
-                (node as IPrimitiveProvider).primitives(_view, node.session.getConsumer(view));
-            
+        	if (node.session.updated) {
+	        	_viewTransform = _view.camera.viewTransforms[node];
+	        	_consumer = node.session.getConsumer(_view);
+	        	
+	        	if (node.projector)
+	            	node.projector.primitives(_view, _viewTransform, _consumer);
+	            
+	            if (node.debugbb && node.debugBoundingBox.visible) {
+	            	node.debugBoundingBox._session = node.session;
+	            	node.debugBoundingBox.projector.primitives(_view, _viewTransform, _consumer);
+	            }
+	            	
+	            if (node.debugbs && node.debugBoundingSphere.visible) {
+	            	node.debugBoundingSphere._session = node.session;
+	            	node.debugBoundingSphere.projector.primitives(_view, _viewTransform, _consumer);
+	            }
+	            
+	            if (node is ILightProvider) {
+	            	_light = node as ILightProvider;
+	            	if (_light.debug)
+	            		_light.debugPrimitive.projector.primitives(_view, _viewTransform, _consumer);
+	            }
+	        }
+	        
             _mouseEnabled = node._mouseEnabled = (_mouseEnabled && node.mouseEnabled);
         }
         

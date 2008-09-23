@@ -17,17 +17,14 @@ package away3d.lights
     * Lightsource that colors all shaded materials proportional to the dot product of the distance vector with the normal vector.
     * The scalar value of the distance is used to calulate intensity using the inverse square law of attenuation.
     */
-    public class PointLight3D extends Object3D implements ILightProvider, IPrimitiveProvider, IClonable
+    public class PointLight3D extends Object3D implements ILightProvider, IClonable
     {
     	use namespace arcane;
     	
 		private var _ls:PointLight = new PointLight();
-        private var _debuglightsphere:Sphere;
-        
-        /**
-        * Toggles debug mode: light object is visualised in the scene.
-        */
-        public var debug:Boolean;
+        private var _debugPrimitive:Sphere;
+        private var _debugMaterial:ColorMaterial;
+        private var _debug:Boolean;
 		
 		/**
 		 * Defines the color of the light object.
@@ -53,6 +50,34 @@ package away3d.lights
 		 * Defines a coefficient for the overall light intensity.
 		 */
         public var brightness:Number;
+        
+        /**
+        * Toggles debug mode: light object is visualised in the scene.
+        */
+        public function get debug():Boolean
+        {
+        	return _debug;
+        }
+        
+        public function set debug(val:Boolean):void
+        {
+        	_debug = val;
+        }
+        
+		public function get debugPrimitive():Object3D
+		{
+			if (!_debugPrimitive)
+				_debugPrimitive = new Sphere();
+			
+			if (!_debugMaterial) {
+				_debugMaterial = new ColorMaterial();
+				_debugPrimitive.material = _debugMaterial;
+			}
+			
+            _debugMaterial.color = color;
+            
+			return _debugPrimitive;
+		}
 		
 		/**
 		 * Creates a new <code>PointLight3D</code> object.
@@ -74,7 +99,7 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        public function light():void
+        public function light(consumeer:ILightConsumer):void
         {
             _ls.x = scenePosition.x;
             _ls.y = scenePosition.y;
@@ -86,24 +111,7 @@ package away3d.lights
             _ls.ambient = ambient*brightness;
             _ls.diffuse = diffuse*brightness;
             _ls.specular = specular*brightness;
-            parent.lightarray.pointLight(_ls);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-        	super.primitives(view, consumer);
-
-            if (!debug)
-                return;
-			
-			if (_debuglightsphere == null)
-            	_debuglightsphere = new Sphere({material:"#yellow", transformHash:this});
-                    
-            _debuglightsphere._session = session;
-	        _debuglightsphere.primitives(view, consumer);
+            consumeer.pointLight(_ls);
         }
 		
 		/**

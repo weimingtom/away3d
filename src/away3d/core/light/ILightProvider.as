@@ -1,6 +1,6 @@
 package away3d.core.light
 {
-	import away3d.containers.View3D;
+	import away3d.core.base.*;
 	
     /**
     * Interface for objects that provide lighting to the scene
@@ -14,6 +14,10 @@ package away3d.core.light
     	 * @see		away3d.core.light.LightPrimitive
     	 * @see		away3d.core.light.ILightConsumer
     	 */
-        function light():void;
+        function light(consumer:ILightConsumer):void;
+        
+        function get debug():Boolean;
+        
+        function get debugPrimitive():Object3D;
     }
 }

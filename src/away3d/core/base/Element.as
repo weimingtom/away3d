@@ -92,7 +92,7 @@ package away3d.core.base
         }
         
 		/**
-		 * Defines whether the 3d element is visible in the scene.
+		 * Determines whether the 3d element is visible in the scene.
 		 */
         public function get visible():Boolean
         {
