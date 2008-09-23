@@ -19,7 +19,7 @@ package away3d.core.render
     * which resolves the projection, culls any drawing primitives that are occluded or outside the viewport,
     * and then z-sorts and renders them to screen.
     */
-    public class BasicRenderer extends AbstractRenderer implements IRenderer, IPrimitiveConsumer
+    public class BasicRenderer implements IRenderer, IPrimitiveConsumer
     {
     	private var _filters:Array;
     	private var _primitive:DrawPrimitive;
@@ -30,7 +30,7 @@ package away3d.core.render
         private var _clip:Clipping;
         private var _blockers:Array = [];
 		private var _filter:IPrimitiveFilter;
-		
+		private var _blocker:Blocker;
 		/**
 		 * Defines the array of filters to be used on the drawing primitives.
 		 */
@@ -43,19 +43,6 @@ package away3d.core.render
 		{
 			_filters = val;
 			_filters.push(new ZSortFilter());
-		}
-		
-		/**
-		 * Defines the array of blocker primitives to be used on the drawing primitives.
-		 */
-		public function get blockers():Array
-		{
-			return _blockers;
-		}
-		
-		public function set blockers(val:Array):void
-		{
-			_blockers = val;
 		}
 		
 		/**
@@ -74,18 +61,12 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):void
         {
-            if (_clip.check(pri))
-            {
-                var blockercount:int = _blockers.length;
-                var i:int = 0;
-                while (i < blockercount)
-                {          
-                    var blocker:Blocker = _blockers[i];
-                    if (blocker.screenZ > pri.minZ)
+            if (_clip.check(pri)) {
+                for each (_blocker in _blockers) {
+                    if (_blocker.screenZ > pri.minZ)
                         break;
-                    if (blocker.block(pri))
+                    if (_blocker.block(pri))
                         return;
-                    i++;
                 }
                 _primitives.push(pri);
             }
@@ -101,13 +82,13 @@ package away3d.core.render
             return _primitives;
         }
         
-        public override function clear(view:View3D):void
+        public function clear(view:View3D):void
         {
-        	super.clear(view);
         	_primitives = [];
         	_scene = view.scene;
         	_camera = view.camera;
         	_clip = view.clip;
+        	_blockers = view.blockerarray.list();
         }
         
         public function render(view:View3D):void

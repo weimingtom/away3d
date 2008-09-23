@@ -34,6 +34,7 @@ package away3d.containers
         private var _mesh:Mesh;
         private var _autoUpdate:Boolean;
         private var _projtraverser:ProjectionTraverser = new ProjectionTraverser();
+        private var _lighttraverser:LightTraverser = new LightTraverser();
         
         private function onUpdateScene(event:ViewEvent):void
         {
@@ -148,6 +149,9 @@ package away3d.containers
         	//clear updated sessions
         	updatedSessions = new Dictionary(true);
         	
+        	//traverse lights
+			traverse(_lighttraverser);
+				
         	//execute projection traverser on each view
         	for each(_view in viewDictionary) {
         		
@@ -156,6 +160,9 @@ package away3d.containers
 	        	
 	        	//clear camera view transforms
 	        	_view.camera.clearViewTransforms();
+	        	
+	        	//clear blockers
+	        	_view.blockerarray.clip = _view.clip;
 	        	
 	        	//traverse scene
         		_projtraverser.view = _view;

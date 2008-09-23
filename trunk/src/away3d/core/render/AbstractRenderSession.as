@@ -53,13 +53,13 @@ package away3d.core.render
             dispatchEvent(_sessionupdated);
 		}
 		/** @private */
-        arcane function internalAddViewSession(session:AbstractRenderSession):void
+        arcane function internalAddSceneSession(session:AbstractRenderSession):void
         {
         	sessions = [session];
         	session.addOnSessionUpdate(onSessionUpdate);
         }
 		/** @private */
-        arcane function internalRemoveViewSession(session:AbstractRenderSession):void
+        arcane function internalRemoveSceneSession(session:AbstractRenderSession):void
         {
         	sessions = [];
         	session.removeOnSessionUpdate(onSessionUpdate);
@@ -67,12 +67,12 @@ package away3d.core.render
 		/** @private */
         arcane function internalAddOwnSession(object:Object3D):void
         {
-        	object.addEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdated);
+        	object.addEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdate);
         }
 		/** @private */
         arcane function internalRemoveOwnSession(object:Object3D):void
         {
-        	object.addEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdated);
+        	object.removeEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdate);
         }
         
 		private var _renderers:Dictionary = new Dictionary(true);
@@ -103,12 +103,12 @@ package away3d.core.render
         private var primitive:DrawPrimitive;
         private var triangle:DrawTriangle;
         
-        private function onObjectSessionUpdated(object:Object3DEvent):void
+        private function onObjectSessionUpdate(object:Object3DEvent):void
         {
         	notifySessionUpdate();
         }
         
-        private function onSessionUpdate(event:SessionEvent):void
+        protected function onSessionUpdate(event:SessionEvent):void
         {
         	dispatchEvent(event);
         }
@@ -130,7 +130,7 @@ package away3d.core.render
         /**
         * Placeholder for alpha property of containers
         */
-        public var alpha:Number;
+        public var alpha:Number = 1;
         
         /**
         * Placeholder for blendMode property of containers
@@ -193,6 +193,9 @@ package away3d.core.render
 		 */
         public function addChildSession(session:AbstractRenderSession):void
         {
+        	if (sessions.indexOf(session) != -1)
+        		return;
+        	
         	sessions.push(session);
         	session.addOnSessionUpdate(onSessionUpdate);
         	session.parent = this;

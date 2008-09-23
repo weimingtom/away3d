@@ -6,6 +6,7 @@
     import away3d.core.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
+    import away3d.core.project.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.events.*;
@@ -31,7 +32,7 @@
     /**
     * 3d object containing face and segment elements 
     */
-    public class Mesh extends Object3D implements IPrimitiveProvider
+    public class Mesh extends Object3D
     {
         use namespace arcane;
         
@@ -41,17 +42,6 @@
 		private var _segmentMaterial:ISegmentMaterial;
 		private var _scenevertnormalsDirty:Boolean = true;
 		private var _scenevertnormals:Dictionary;
-		private var _n01:Face;
-		private var _n12:Face;
-		private var _n20:Face;
-        private var _screenVertex:ScreenVertex;
-        private var _pri:DrawPrimitive;
-		private var _tri:DrawTriangle;
-		private var _seg:DrawSegment;
-        private var _backmat:ITriangleMaterial;
-        private var _backface:Boolean;
-        private var _uvmaterial:Boolean;
-        private var _vt:ScreenVertex;
         private var _face:Face;
         
 		private function onMaterialResize(event:MaterialEvent):void
@@ -344,9 +334,17 @@
             back = ini.getMaterial("back");
             bothsides = ini.getBoolean("bothsides", false);
             debugbb = ini.getBoolean("debugbb", false);
-
-            if ((material == null) && (outline == null))
+			projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
+			
+            if (!material && !outline)
                 material = new WireColorMaterial();
+            
+            if (!projector) {
+            	if (_triangleMaterial)
+            		projector = new FaceProjector();
+            	if (_segmentMaterial)
+            		projector = new SegmentProjector();
+            }
         }
 		
 		/**
@@ -408,172 +406,6 @@
         public function quarterFaces():void
         {
             _geometry.quarterFaces();
-        }
-        
-		/**
-		 * @inheritDoc
-		 * 
-    	 * @see	away3d.core.traverse.PrimitiveTraverser
-    	 * @see	away3d.core.draw.DrawTriangle
-    	 * @see	away3d.core.draw.DrawSegment
-		 */
-        override public function primitives(view:View3D, consumer:IPrimitiveConsumer):void
-        {
-        	super.primitives(view, consumer);
-        	
-        	if (session.updated) {
-				
-	            _backmat = back || _triangleMaterial;
-				viewTransform = view.camera.viewTransforms[transformHash || this];
-				
-				for each (var vertex:Vertex in _geometry.vertices)
-					view.camera.project(viewTransform, vertex, consumer.createScreenVertex(this, vertex));
-				
-	            for each (var face:Face in _geometry.faces)
-	            {
-	                if (!face._visible)
-	                    continue;
-					
-					//project each Vertex to a ScreenVertex
-					_tri = consumer.createDrawTriangle(view, this, face);
-					
-					_tri.v0 = consumer.getScreenVertex(this, face._v0);
-					_tri.v1 = consumer.getScreenVertex(this, face._v1);
-					_tri.v2 = consumer.getScreenVertex(this, face._v2);					
-					//check each ScreenVertex is visible
-	                if (!_tri.v0.visible)
-	                    continue;
-					
-	                if (!_tri.v1.visible)
-	                    continue;
-					
-	                if (!_tri.v2.visible)
-	                    continue;
-					
-					//calculate Draw_triangle properties
-	                _tri.calc();
-					
-					//check _triangle is not behind the camera
-	                //if (_tri.maxZ < 0)
-	                //    continue;
-					
-					//determine if _triangle is facing towards or away from camera
-	                _backface = _tri.area < 0;
-					
-					//if _triangle facing away, check for backface material
-	                if (_backface) {
-	                    if (!bothsides)
-	                        continue;
-	                    _tri.material = face._back;
-	                    if (_tri.material == null)
-	                    	_tri.material = face._material;
-	                } else
-	                    _tri.material = face._material;
-					
-					//determine the material of the _triangle
-	                if (_tri.material == null)
-	                    if (_backface)
-	                        _tri.material = _backmat;
-	                    else
-	                        _tri.material = _triangleMaterial;
-					
-					//do not draw material if visible is false
-	                if (_tri.material != null)
-	                    if (!_tri.material.visible)
-	                        _tri.material = null;
-					
-					//if there is no material and no outline, continue
-	                if (outline == null)
-	                    if (_tri.material == null)
-	                        continue;
-					
-	                if (pushback)
-	                    _tri.screenZ = _tri.maxZ;
-					
-	                if (pushfront)
-	                    _tri.screenZ = _tri.minZ;
-					
-					_uvmaterial = (_tri.material is IUVMaterial || _tri.material is ILayerMaterial);
-					
-					//swap ScreenVerticies if _triangle facing away from camera
-	                if (_backface) {
-	                    // Make cleaner
-	                    _vt = _tri.v1;
-	                    _tri.v1 = _tri.v2;
-	                    _tri.v2 = _vt;
-						
-	                    _tri.area = -_tri.area;
-	                    
-	                    if (_uvmaterial) {
-							//pass accross uv values
-			                _tri.uv0 = face._uv0;
-			                _tri.uv1 = face._uv2;
-			                _tri.uv2 = face._uv1;
-	                    }
-	                } else if (_uvmaterial) {
-						//pass accross uv values
-		                _tri.uv0 = face._uv0;
-		                _tri.uv1 = face._uv1;
-		                _tri.uv2 = face._uv2;
-	                }
-						
-	                //check if face swapped direction
-	                if (_tri.backface != _backface) {
-	                	_tri.backface = _backface;
-	                	if (_tri.material is IUVMaterial)
-	                		(_tri.material as IUVMaterial).getFaceVO(_tri.face, this, view).texturemapping = null;
-	                }
-					
-	                if (outline != null && !_backface)
-	                {
-	                    _n01 = _geometry.neighbour01(face);
-	                    if (_n01 == null || _n01.front(consumer, this) <= 0)
-	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, _tri.v0, _tri.v1));
-						
-	                    _n12 = _geometry.neighbour12(face);
-	                    if (_n12 == null || _n12.front(consumer, this) <= 0)
-	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, _tri.v1, _tri.v2));
-						
-	                    _n20 = _geometry.neighbour20(face);
-	                    if (_n20 == null || _n20.front(consumer, this) <= 0)
-	                    	consumer.primitive(consumer.createDrawSegment(view, this, outline, _tri.v2, _tri.v0));
-						
-	                    if (_tri.material == null)
-	                    	continue;
-	                }
-	                
-	                consumer.primitive(_tri);
-	            }
-	            
-	            for each (var segment:Segment in geometry.segments)
-	            {
-	            	_seg = consumer.createDrawSegment(view, this);
-	            	
-	            	_seg.v0 = consumer.getScreenVertex(this, segment._v0);
-					_seg.v1 = consumer.getScreenVertex(this, segment._v1);
-	    
-	                if (!_seg.v0.visible)
-	                    continue;
-					
-	                if (!_seg.v1.visible)
-	                    continue;
-					
-	                _seg.calc();
-					
-	                if (_seg.maxZ < 0)
-	                    continue;
-					
-	                _seg.material = segment.material || _segmentMaterial;
-					
-	                if (_seg.material == null)
-	                    continue;
-					
-	                if (!_seg.material.visible)
-	                    continue;
-	                
-	                consumer.primitive(_seg);
-	            }
-	        }
         }
         
         /**

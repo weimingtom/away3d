@@ -30,7 +30,7 @@ package away3d.loaders
         public function CubeLoader(init:Object = null) 
         {
             super(init);
-
+            
             side = new MovieClip();
             var graphics:Graphics = side.graphics;
             graphics.lineStyle(1, 0xFFFFFF);
