@@ -234,7 +234,6 @@ package away3d.core.base
         /** @private */
         arcane function notifySessionUpdate():void
         {
-        	//trace("Updated!!!!!!!!");
         	if (_scene)
         		_scene.updatedSessions[_session] = _session;
         	
@@ -249,7 +248,9 @@ package away3d.core.base
         /** @private */
         arcane function notifyDimensionsChange():void
         {
-            if (_dimensionsDirty || !hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
+            _dimensionsDirty = true;
+            
+            if (_dispatchedDimensionsChange || !hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
                 return;
                 
             if (!_dimensionschanged)
@@ -257,7 +258,7 @@ package away3d.core.base
                 
             dispatchEvent(_dimensionschanged);
             
-            _dimensionsDirty = true;
+            _dispatchedDimensionsChange = true;
         }
         /** @private */
 		arcane function dispatchMouseEvent(event:MouseEvent3D):Boolean
@@ -309,6 +310,7 @@ package away3d.core.base
         private var _sessionchanged:Object3DEvent;
         private var _sessionupdated:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
+        private var _dispatchedDimensionsChange:Boolean;
 		arcane var _session:AbstractRenderSession;
 		private var _ownSession:AbstractRenderSession;
 		private var _ownCanvas:Boolean;
@@ -430,6 +432,8 @@ package away3d.core.base
         protected function updateDimensions():void
         {
         	_dimensionsDirty = false;
+        	
+            _dispatchedDimensionsChange = false;
         	
         	if (debugbb)
             {
@@ -1116,7 +1120,7 @@ package away3d.core.base
 
         public function set transform(value:Matrix3D):void
         {
-            if (value == _transform)
+            if (value.toString() == _transform.toString())
                 return;
 
             _transform.clone(value);

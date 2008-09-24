@@ -12,12 +12,18 @@
         public var bindMatrix:Matrix3D;
         public var sceneTransform:Matrix3D = new Matrix3D();
         public var inverseTransform:Matrix3D;
+        public var updated:Boolean;
         
         public function update():void
         {
-        	if (joint)
-        		sceneTransform.multiply(joint.sceneTransform, bindMatrix);
+        	if (!joint.scene.updatedObjects[joint]) {
+        		updated = false;
+        		return;
+        	} else {
+        		updated = true;
+        	}
         	
+        	sceneTransform.multiply(joint.sceneTransform, bindMatrix);
         	sceneTransform.multiply(inverseTransform, sceneTransform);
         }
         

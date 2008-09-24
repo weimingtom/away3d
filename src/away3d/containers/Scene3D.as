@@ -32,6 +32,7 @@ package away3d.containers
         private var _view:View3D;
         private var _currentView:View3D;
         private var _mesh:Mesh;
+        private var _time:int;
         private var _autoUpdate:Boolean;
         private var _projtraverser:ProjectionTraverser = new ProjectionTraverser();
         private var _lighttraverser:LightTraverser = new LightTraverser();
@@ -168,12 +169,16 @@ package away3d.containers
         		_projtraverser.view = _view;
 				traverse(_projtraverser);
 	        	
+	        	_time = getTimer();
+	        	
 	        	//update materials in meshes
 	        	for each (_mesh in meshes) {
 	        		//update node materials
 		        	_mesh.updateMaterials(_mesh, _view);
 		        	//update geometry materials
 		        	_mesh.geometry.updateMaterials(_mesh, _view);
+		        	//update elements
+	        		_mesh.geometry.updateElements(_time);
 	        	}
         	}
         }
