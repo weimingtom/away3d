@@ -17,7 +17,6 @@ package away3d.core.traverse
     {
         private var _view:View3D;
         private var _mesh:Mesh;
-        private var _time:int;
         private var _camera:Camera3D;
         private var _cameraview:Matrix3D;
 		private var _cameraviewtransforms:Dictionary;
@@ -32,7 +31,6 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
-			_time = getTimer();
 			_camera = _view.camera;
             _cameraview = _camera.view;
             _cameraviewtransforms = _camera.viewTransforms;
@@ -80,12 +78,9 @@ package away3d.core.traverse
             if (node.projector is ConvexBlockProjector)
                 (node.projector as ConvexBlockProjector).blockers(_view, _camera.viewTransforms[node], _view.blockerarray);
             
-            if ((_mesh = node as Mesh)) {
-            	//add to scene meshes dictionary
+        	//add to scene meshes dictionary
+            if ((_mesh = node as Mesh))
             	_view.scene.meshes[node] = node;
-	            //update elements
-	        	_mesh.geometry.updateElements(_time);
-            }
         }
         
         public override function leave(node:Object3D):void
