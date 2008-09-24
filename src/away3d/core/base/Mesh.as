@@ -68,6 +68,7 @@
         
         private function onDimensionsChange(event:GeometryEvent):void
         {
+        	notifySessionUpdate();
         	notifyDimensionsChange();
         }
         
@@ -333,7 +334,6 @@
             outline = ini.getSegmentMaterial("outline");
             back = ini.getMaterial("back");
             bothsides = ini.getBoolean("bothsides", false);
-            debugbb = ini.getBoolean("debugbb", false);
 			projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
 			
             if (!material && !outline)

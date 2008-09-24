@@ -221,15 +221,15 @@ package away3d.containers
 
         private function onMouseOut(e:MouseEvent):void
         {
-        	if (e.eventPhase != EventPhase.AT_TARGET)
-        		return;
+        	//if (e.eventPhase != EventPhase.AT_TARGET)
+        	//	return;
         	fireMouseEvent(MouseEvent3D.MOUSE_OUT, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
         private function onMouseOver(e:MouseEvent):void
         {
-        	if (e.eventPhase != EventPhase.AT_TARGET)
-        		return;
+        	//if (e.eventPhase != EventPhase.AT_TARGET)
+        	//	return;
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
@@ -242,7 +242,7 @@ package away3d.containers
             var targetMaterial:IUVMaterial = event.material;
             event.ctrlKey = ctrlKey;
             event.shiftKey = shiftKey;
-
+			
 			if (type != MouseEvent3D.MOUSE_OUT && type != MouseEvent3D.MOUSE_OVER) {
 	            dispatchMouseEvent(event);
 	            bubbleMouseEvent(event);				
@@ -543,7 +543,8 @@ package away3d.containers
             screenX = x;
             screenY = y;
             screenZ = Infinity;
-            
+            material = null;
+            object = null;
             checkSession(session);
         }
         
@@ -611,7 +612,6 @@ package away3d.containers
         {
         	_updated = true;
         	session.clear(this);
-        	_cleared = true;
         }
         
         /**
@@ -621,18 +621,14 @@ package away3d.containers
         */
         public function render():void
         {
-        	_updated = _cleared;
-        	
-        	_cleared = false;
+            //update scene
+            notifySceneUpdate();
         	
         	_oldclip = clip;
             
             //if clip set to default, determine screen clipping
 			if (clip == _defaultclip)
             	clip = _defaultclip.screen(this);
-            
-            //update scene
-            notifySceneUpdate();
 	        
             //clear session
             _session.clear(this);
@@ -652,6 +648,8 @@ package away3d.containers
             
             //render scene
             _session.render(this);
+        	
+        	_updated = false;
 			
 			//dispatch stats
             if (statsOpen)

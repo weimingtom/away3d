@@ -50,8 +50,6 @@ package away3d.core.base
 		/** @private */
         arcane var _back:ITriangleMaterial;
 		/** @private */
-        //arcane var _dt:DrawTriangle = new DrawTriangle();
-		/** @private */
 		arcane var bitmapRect:Rectangle;
 		/** @private */
         arcane function notifyMappingChange():void
@@ -73,26 +71,12 @@ package away3d.core.base
 		private var _s:Number;
 		private var _mappingchanged:FaceEvent;
 		private var _materialchanged:FaceEvent;
+		private var _index:int;
 		
 		private function onMaterialResize(event:MaterialEvent):void
 		{
 			notifyMappingChange();
 		}
-		
-		//TODO: simplify vertex changed events
-		/*
-        private function onVertexChange(event:Event):void
-        {
-            _normal = null;
-            notifyVertexChange();
-        }
-		*/
-		 
-        private function onVertexValueChange(event:Event):void
-        {
-            _normalDirty = true;
-            notifyVertexValueChange();
-        }
 
         private function onUVChange(event:Event):void
         {
@@ -125,20 +109,20 @@ package away3d.core.base
 
         public function set v0(value:Vertex):void
         {
-            if (value == _v0)
+            if (_v0 == value)
                 return;
-
-            if (_v0 != null)
-                if ((_v0 != _v1) && (_v0 != _v2))
-                    _v0.removeOnChange(onVertexValueChange);
-
-            _v0 = value;
-
-            if (_v0 != null)
-                if ((_v0 != _v1) && (_v0 != _v2))
-                    _v0.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+        	if (_v0) {
+        		_index = _v0.parents.indexOf(this);
+        		if (_index != -1)
+	        		_v0.parents.splice(_index, 1);
+        	}
+        	
+			_v0 = value;
+			
+			_v0.parents.push(this);
+			
+			vertexDirty = true;
         }
 		
 		/**
@@ -151,20 +135,20 @@ package away3d.core.base
 
         public function set v1(value:Vertex):void
         {
-            if (value == _v1)
+            if (_v1 == value)
                 return;
-
-            if (_v1 != null)
-                if ((_v1 != _v0) && (_v1 != _v2))
-                    _v1.removeOnChange(onVertexValueChange);
-
-            _v1 = value;
-
-            if (_v1 != null)
-                if ((_v1 != _v0) && (_v1 != _v2))
-                    _v1.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+        	if (_v1) {
+        		_index = _v1.parents.indexOf(this);
+        		if (_index != -1)
+	        		_v1.parents.splice(_index, 1);
+        	}
+        	
+			_v1 = value;
+			
+			_v1.parents.push(this);
+			
+			vertexDirty = true;
         }
 		
 		/**
@@ -177,20 +161,20 @@ package away3d.core.base
 
         public function set v2(value:Vertex):void
         {
-            if (value == _v2)
+            if (_v2 == value)
                 return;
-
-            if (_v2 != null)
-                if ((_v2 != _v1) && (_v2 != _v0))
-                    _v2.removeOnChange(onVertexValueChange);
-
-            _v2 = value;
-
-            if (_v2 != null)
-                if ((_v2 != _v1) && (_v2 != _v0))
-                    _v2.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+        	if (_v2) {
+        		_index = _v2.parents.indexOf(this);
+        		if (_index != -1)
+	        		_v2.parents.splice(_index, 1);
+        	}
+        	
+			_v2 = value;
+			
+			_v2.parents.push(this);
+			
+			vertexDirty = true;
         }
 		
 		/**
@@ -233,7 +217,7 @@ package away3d.core.base
         {
             return _back;
         }
-
+		
         public function set back(value:ITriangleMaterial):void
         {
             if (value == _back)
@@ -649,6 +633,8 @@ package away3d.core.base
             this.uv0 = uv0;
             this.uv1 = uv1;
             this.uv2 = uv2;
+            
+            vertexDirty = true;
         }
 		
 		/**
