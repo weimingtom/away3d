@@ -73,6 +73,8 @@ package away3d.core.base
 		private var _vertexvaluechanged:ElementEvent;
 		private var _visiblechanged:ElementEvent;
 		
+		public var vertexDirty:Boolean;
+		
     	/**
     	 * An optional untyped object that can contain used-defined properties.
     	 */

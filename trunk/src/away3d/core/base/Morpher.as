@@ -28,9 +28,7 @@ package away3d.core.base
             _vertices = vertices.geometry.vertices;
             for each (var v:Vertex in _vertices)
             {
-                v.x = 0;
-                v.y = 0;
-                v.z = 0;
+                v.reset();
             }
         }
 		

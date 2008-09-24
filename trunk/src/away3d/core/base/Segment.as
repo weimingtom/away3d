@@ -241,6 +241,8 @@ package away3d.core.base
             this.v0 = v0;
             this.v1 = v1;
             this.material = material;
+            
+            vertexDirty = true;
         }
 		
 		/**

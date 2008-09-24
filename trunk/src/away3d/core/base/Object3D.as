@@ -249,9 +249,7 @@ package away3d.core.base
         /** @private */
         arcane function notifyDimensionsChange():void
         {
-            _dimensionsDirty = true;
-            
-            if (_dispatchedDimensionsChange || !hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
+            if (_dimensionsDirty || !hasEventListener(Object3DEvent.DIMENSIONS_CHANGED))
                 return;
                 
             if (!_dimensionschanged)
@@ -259,7 +257,7 @@ package away3d.core.base
                 
             dispatchEvent(_dimensionschanged);
             
-            _dispatchedDimensionsChange = true;
+            _dimensionsDirty = true;
         }
         /** @private */
 		arcane function dispatchMouseEvent(event:MouseEvent3D):Boolean
@@ -311,7 +309,6 @@ package away3d.core.base
         private var _sessionchanged:Object3DEvent;
         private var _sessionupdated:Object3DEvent;
         private var _dimensionschanged:Object3DEvent;
-        private var _dispatchedDimensionsChange:Boolean;
 		arcane var _session:AbstractRenderSession;
 		private var _ownSession:AbstractRenderSession;
 		private var _ownCanvas:Boolean;
@@ -434,8 +431,6 @@ package away3d.core.base
         {
         	_dimensionsDirty = false;
         	
-            _dispatchedDimensionsChange = false;
-        	
         	if (debugbb)
             {
             	if (!_debugBoundingBox)
@@ -443,12 +438,14 @@ package away3d.core.base
 				
                 if (boundingRadius) {
                 	_debugBoundingBox.visible = true;
-	                _debugBoundingBox.v000.x = _debugBoundingBox.v001.x = _debugBoundingBox.v010.x = _debugBoundingBox.v011.x = _minX;
-	                _debugBoundingBox.v100.x = _debugBoundingBox.v101.x = _debugBoundingBox.v110.x = _debugBoundingBox.v111.x = _maxX;
-	                _debugBoundingBox.v000.y = _debugBoundingBox.v001.y = _debugBoundingBox.v100.y = _debugBoundingBox.v101.y = _minY;
-	                _debugBoundingBox.v010.y = _debugBoundingBox.v011.y = _debugBoundingBox.v110.y = _debugBoundingBox.v111.y = _maxY;
-	                _debugBoundingBox.v000.z = _debugBoundingBox.v010.z = _debugBoundingBox.v100.z = _debugBoundingBox.v110.z = _minZ;
-	                _debugBoundingBox.v001.z = _debugBoundingBox.v011.z = _debugBoundingBox.v101.z = _debugBoundingBox.v111.z = _maxZ;
+                	_debugBoundingBox.v000.setValue(_minX, _minY, _minZ);
+                	_debugBoundingBox.v100.setValue(_maxX, _minY, _minZ);
+                	_debugBoundingBox.v010.setValue(_minX, _maxY, _minZ);
+                	_debugBoundingBox.v110.setValue(_maxX, _maxY, _minZ);
+                	_debugBoundingBox.v001.setValue(_minX, _minY, _maxZ);
+                	_debugBoundingBox.v101.setValue(_maxX, _minY, _maxZ);
+                	_debugBoundingBox.v011.setValue(_minX, _maxY, _maxZ);
+                	_debugBoundingBox.v111.setValue(_maxX, _maxY, _maxZ);
                 } else {
                 	debugBoundingBox.visible = false;
                 }
@@ -1281,6 +1278,8 @@ package away3d.core.base
             filters = ini.getArray("filters");
             alpha = ini.getNumber("alpha", 1);
             blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+            debugbb = ini.getBoolean("debugbb", false);
+            debugbs = ini.getBoolean("debugbs", false);
             pushback = ini.getBoolean("pushback", false);
             pushfront = ini.getBoolean("pushfront", false);
             x = ini.getNumber("x", 0);

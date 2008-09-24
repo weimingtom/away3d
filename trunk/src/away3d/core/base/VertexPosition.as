@@ -8,12 +8,6 @@ package away3d.core.base
 	 */
     public class VertexPosition
     {
-        use namespace arcane;
-		
-		private var vx:Number;
-		private var vy:Number;
-		private var vz:Number;
-		
     	/**
     	 * Defines the x coordinate.
     	 */
@@ -51,9 +45,7 @@ package away3d.core.base
 		 */
         public function adjust(k:Number = 1):void
         {
-            vertex._x = vertex._x * (1 - k) + x * k;
-            vertex._y = vertex._y * (1 - k) + y * k;
-            vertex._z = vertex._z * (1 - k) + z * k;
+            vertex.adjust(x, y, z, k);
         }
 		
 		/**
@@ -63,9 +55,7 @@ package away3d.core.base
 		 */
         public function add(value:Number3D):void
         {
-			vertex._x += value.x;
-			vertex._y += value.y;
-			vertex._z += value.z;
+			vertex.add(value);
         }
 		
 		/**
@@ -75,23 +65,15 @@ package away3d.core.base
 		 */
         public function transform(m:Matrix3D):void
         {
-        	vx = vertex._x;
-        	vy = vertex._y;
-        	vz = vertex._z;
-        	
-            vertex._x = vx * m.sxx + vy * m.sxy + vz * m.sxz + m.tx;
-            vertex._y = vx * m.syx + vy * m.syy + vz * m.syz + m.ty;
-            vertex._z = vx * m.szx + vy * m.szy + vz * m.szz + m.tz;
+        	vertex.transform(m);
         }
-        		
+        	
 		/**
 		 * Reset the position of the vertex object by Number3D.
 		 */
         public function reset():void
         {
-			vertex._x = 0;
-			vertex._y = 0;
-			vertex._z = 0;
+			vertex.reset();
         }
     }
 }
