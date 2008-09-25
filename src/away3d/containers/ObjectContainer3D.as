@@ -30,6 +30,9 @@
 
             notifyDimensionsChange();
             
+            if (_session && !child.ownCanvas)
+            	session.internalAddOwnSession(child);
+            
             _sessionDirty = true;
         }
 		/** @private */
@@ -45,6 +48,9 @@
             _children.splice(index, 1);
 
             notifyDimensionsChange();
+            
+            if (session && !child.ownCanvas)
+            	session.internalRemoveOwnSession(child);
             
             _sessionDirty = true;
         }

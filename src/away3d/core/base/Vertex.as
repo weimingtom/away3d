@@ -19,28 +19,23 @@ package away3d.core.base
         arcane var _y:Number;
         /** @private */
         arcane var _z:Number;
-        private var _positionDirty:Boolean;
         private var _position:Number3D = new Number3D();
         private var _persp:Number;
         private var _element:Element;
         
         private function updatePosition():void
         {
+        	positionDirty = false;
+			
+			for each (_element in parents)
+				_element.vertexDirty = true;
+			
         	_position.x = _x;
         	_position.y = _y;
         	_position.z = _z;
         }
         
-        private function notifyPositionUpdate():void
-        {
-        	_positionDirty = true;
-        	
-        	if (geometry)
-				geometry.vertexDirty = true;
-			
-			for each (_element in parents)
-				_element.vertexDirty = true;
-        }
+        public var positionDirty:Boolean;
         
         public var parents:Array = new Array();
         
@@ -52,19 +47,45 @@ package away3d.core.base
         public var extra:Object;
         
     	/**
-    	 * Represents the x coordinate of the vertex relative to the local coordinates of the parent mesh object.
+    	 * Defines the x coordinate of the vertex relative to the local coordinates of the parent mesh object.
     	 */
         public function get x():Number
         {
+        	if (positionDirty)
+        		updatePosition();
+        	
             return _x;
         }
-    	
+        
+        public function set x(val:Number):void
+        {
+        	if (_x == val)
+        		return;
+        	
+        	_x = val;
+        	
+            positionDirty = true;
+        }
+        
     	/**
     	 * Represents the y coordinate of the vertex relative to the local coordinates of the parent mesh object.
     	 */
         public function get y():Number
         {
+        	if (positionDirty)
+        		updatePosition();
+        	
             return _y;
+        }
+        
+        public function set y(val:Number):void
+        {
+        	if (_y == val)
+        		return;
+        	
+        	_y = val;
+        	
+            positionDirty = true;
         }
         
     	/**
@@ -72,7 +93,20 @@ package away3d.core.base
     	 */
         public function get z():Number
         {
+        	if (positionDirty)
+        		updatePosition();
+        	
             return _z;
+        }
+        
+        public function set z(val:Number):void
+        {
+        	if (_z == val)
+        		return;
+        	
+        	_z = val;
+        	
+            positionDirty = true;
         }
         
         /**
@@ -80,7 +114,7 @@ package away3d.core.base
         */
         public function get position():Number3D
         {
-        	if (_positionDirty)
+        	if (positionDirty)
         		updatePosition();
         	
             return _position;
@@ -95,11 +129,9 @@ package away3d.core.base
 		 */
         public function Vertex(x:Number = 0, y:Number = 0, z:Number = 0)
         {
-            _x = x;
-            _y = y;
-            _z = z;
-            
-            _positionDirty = true;
+            _position.x = _x = x;
+            _position.y = _y = y;
+            _position.z = _z = z;
         }
 		
 		/**
@@ -121,7 +153,7 @@ package away3d.core.base
 			_y = 0;
 			_z = 0;
 			
-			notifyPositionUpdate();
+			positionDirty = true;
         }
         
         public function transform(m:Matrix3D):void
@@ -140,7 +172,7 @@ package away3d.core.base
 			_y += value.y;
 			_z += value.z;
 			
-			notifyPositionUpdate();
+			positionDirty = true;
         }
 
 		/**
@@ -175,7 +207,7 @@ package away3d.core.base
             _y = y;
             _z = z;
             
-			notifyPositionUpdate();
+			positionDirty = true;
         }
         
         /**

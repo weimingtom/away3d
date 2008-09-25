@@ -4,7 +4,6 @@ package away3d.containers
 	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.block.BlockerArray;
-	import away3d.core.block.IBlockerConsumer;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.Matrix3D;
@@ -20,7 +19,6 @@ package away3d.containers
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.EventPhase;
 	import flash.events.MouseEvent;
 	
 	 /**
@@ -90,6 +88,8 @@ package away3d.containers
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
 		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _container:DisplayObject;
+        private var _hitPointX:Number;
+        private var _hitPointY:Number;
         private var _sc:ScreenVertex = new ScreenVertex();
         private var _consumer:IPrimitiveConsumer;
         private var screenX:Number;
@@ -109,13 +109,27 @@ package away3d.containers
         
         private function checkSession(session:AbstractRenderSession):void
         {
-        	if (session.getContainer(this).hitTestPoint(stage.mouseX, stage.mouseY)) {
+        	
+        	if (session is BitmapRenderSession) {
+        		_container = session.getContainer(this);
+        		_hitPointX += _container.x;
+        		_hitPointY += _container.y;
+        	}
+        	
+        	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
 	        	for each (primitive in session.getConsumer(this).list())
 	               checkPrimitive(primitive);
 	            
 	        	for each (session in session.sessions)
 	        		checkSession(session);
 	        }
+	        
+        	if (session is BitmapRenderSession) {
+        		_container = session.getContainer(this);
+        		_hitPointX -= _container.x;
+        		_hitPointY -= _container.y;
+        	}
+        	
         }
         
         private function checkPrimitive(pri:DrawPrimitive):void
@@ -245,7 +259,7 @@ package away3d.containers
 			
 			if (type != MouseEvent3D.MOUSE_OUT && type != MouseEvent3D.MOUSE_OVER) {
 	            dispatchMouseEvent(event);
-	            bubbleMouseEvent(event);				
+	            bubbleMouseEvent(event);
 			}
             
             //catch rollover/rollout object3d events
@@ -545,6 +559,16 @@ package away3d.containers
             screenZ = Infinity;
             material = null;
             object = null;
+            
+            _hitPointX = stage.mouseX;
+            _hitPointY = stage.mouseY;
+            
+        	if (this.session is BitmapRenderSession) {
+        		_container = this.session.getContainer(this);
+        		_hitPointX += _container.x;
+        		_hitPointY += _container.y;
+        	}
+        	
             checkSession(session);
         }
         

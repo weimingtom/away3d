@@ -831,23 +831,29 @@ package away3d.core.base
         	if (_ownSession == val)
         		return;
         	
-        	//remove old session from parent session
-        	if (_ownSession && _parent && _parent.session)
-        		_parent.session.removeChildSession(_ownSession);
-        	
-        	//reset old session children
         	if (_ownSession) {
+		    	//remove old session from parent session
+        		if (_parent && _parent.session)
+        			_parent.session.removeChildSession(_ownSession);
+        			
+	        	//reset old session children
         		_ownSession.clearChildSessions();
         		_ownSession.renderer = null;
         		_ownSession.internalRemoveOwnSession(this);
         		_ownSession.removeOnSessionUpdate(onSessionUpdate);
+        	} else if (_parent && _parent.session) {
+        		_parent.session.internalRemoveOwnSession(this);
         	}
         	
         	//set new session
         	_ownSession = val;
         	
-        	//reset new session children and session properties
         	if (_ownSession) {
+	        	//add new session to parent session
+	        	if (_parent && _parent.session)
+	        		_parent.session.addChildSession(_ownSession);
+	        	
+		    	//reset new session children and session properties
         		_ownSession.clearChildSessions();
         		_ownSession.renderer = _renderer;
 	        	_ownSession.filters = _filters;
@@ -857,11 +863,10 @@ package away3d.core.base
 	    		_ownSession.addOnSessionUpdate(onSessionUpdate);
         	} else if (this is Scene3D) {
         		throw new Error("Scene cannot have ownSession set to null");
+        	} else if (_parent && _parent.session) {
+        		_parent.session.internalAddOwnSession(this);
         	}
         	
-        	//add new session to parent session
-        	if (_ownSession && _parent && _parent.session)
-        		_parent.session.addChildSession(_ownSession);
         	
         	//update ownCanvas property
         	if (_ownSession)

@@ -56,6 +56,11 @@
 		private function onMaterialUpdate(event:MaterialEvent):void
 		{
 			notifySessionUpdate();
+			
+			//cancel session update for moviematerials
+			//if (event.material is MovieMaterial && _scene)
+			//	delete _scene.updatedSessions[_session];
+				
 		}
 		
         private function onFaceMappingChange(event:FaceEvent):void

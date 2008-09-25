@@ -72,6 +72,7 @@ package away3d.core.project
             if (!(_drawScaledBitmap = primitiveDictionary[_dirsprite])) {
 				_drawScaledBitmap = primitiveDictionary[_dirsprite] = new DrawScaledBitmap();
 	            _drawScaledBitmap.screenvertex = _screenVertex;
+	            _drawScaledBitmap.source = _dirsprite;
 			}
 			
             _drawScaledBitmap.smooth = _dirsprite.smooth;
