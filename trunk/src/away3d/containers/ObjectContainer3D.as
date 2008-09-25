@@ -29,6 +29,8 @@
             child.addOnDimensionsChange(onChildChange);
 
             notifyDimensionsChange();
+            
+            _sessionDirty = true;
         }
 		/** @private */
         arcane function internalRemoveChild(child:Object3D):void
@@ -43,6 +45,8 @@
             _children.splice(index, 1);
 
             notifyDimensionsChange();
+            
+            _sessionDirty = true;
         }
         
         private var _children:Array = new Array();
