@@ -28,7 +28,7 @@ package away3d.core.project
 				Debug.error("SessionProjector must process an ObjectContainer3D object");
 			
         	for each (_child in _container.children) {
-				if (_child.ownCanvas) {
+				if (_child.ownCanvas && _child.visible) {
 					_center = _child.center;
 					
 					if (_child.ownSession is SpriteRenderSession)
