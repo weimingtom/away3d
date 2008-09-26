@@ -129,9 +129,11 @@ package away3d.core.base
 		 */
         public function Vertex(x:Number = 0, y:Number = 0, z:Number = 0)
         {
-            _position.x = _x = x;
-            _position.y = _y = y;
-            _position.z = _z = z;
+            _x = x;
+            _y = y;
+            _z = z;
+            
+            positionDirty = true;
         }
 		
 		/**
