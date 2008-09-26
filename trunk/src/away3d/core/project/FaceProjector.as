@@ -100,28 +100,30 @@ package away3d.core.project
 				//if _triangle facing away, check for backface material
                 if (_backface) {
                     if (!_mesh.bothsides)
-                        continue;
+                    	continue;
+                    
                     _drawTriangle.material = _face.back;
+                    
                     if (_drawTriangle.material == null)
                     	_drawTriangle.material = _face.material;
-                } else
+                } else {
                     _drawTriangle.material = _face.material;
-				
+                }
+                
 				//determine the material of the _triangle
-                if (_drawTriangle.material == null)
+                if (_drawTriangle.material == null) {
                     if (_backface)
                         _drawTriangle.material = _backmat;
                     else
                         _drawTriangle.material = _triangleMaterial;
-				
+                }
+                
 				//do not draw material if visible is false
-                if (_drawTriangle.material != null)
-                    if (!_drawTriangle.material.visible)
-                        _drawTriangle.material = null;
+                if (_drawTriangle.material != null && !_drawTriangle.material.visible)
+                    _drawTriangle.material = null;
 				
 				//if there is no material and no outline, continue
-                if (_mesh.outline == null)
-                    if (_drawTriangle.material == null)
+                if (_mesh.outline == null && _drawTriangle.material == null)
                         continue;
 				
                 if (_mesh.pushback)
