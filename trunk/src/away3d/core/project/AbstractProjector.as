@@ -17,7 +17,8 @@ package away3d.core.project
         private var _dtActive:Array = new Array();
         private var _dsStore:Array = new Array();
         private var _dsActive:Array = new Array();
-		private var viewDictionary:Dictionary;
+        
+		protected var viewDictionary:Dictionary;
 		
 		protected var primitiveDictionary:Dictionary;
         

@@ -1,6 +1,6 @@
 package away3d.core.project
 {
-	import away3d.blockers.ConvexBlock;
+	import away3d.blockers.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.block.*;
@@ -9,7 +9,8 @@ package away3d.core.project
 	import away3d.core.utils.*;
 	import away3d.materials.*;
 	
-	import flash.display.DisplayObject;
+	import flash.display.*;
+	import flash.utils.*;
 	
 	public class ConvexBlockProjector extends AbstractProjector implements IBlockerProvider, IPrimitiveProvider
 	{
@@ -38,6 +39,9 @@ package away3d.core.project
 		 */
         public function blockers(view:View3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
         {
+			if (!(primitiveDictionary = viewDictionary[view]))
+				primitiveDictionary = viewDictionary[view] = new Dictionary(true);
+			
         	_convexBlock = source as ConvexBlock;
 			
 			if (!_convexBlock)
@@ -107,6 +111,7 @@ package away3d.core.project
             if (o > 0)
                 result.pop();
 			
+			_convexBlocker.source = _convexBlock;
 			_convexBlocker.vertices = result;
 			_convexBlocker.calc();
 			
