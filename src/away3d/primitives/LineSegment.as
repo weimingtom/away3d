@@ -1,6 +1,7 @@
 ﻿package away3d.primitives
 {
     import away3d.core.base.*;
+    import away3d.materials.*;
     
     /**
     * Creates a 3d line segment.
@@ -8,6 +9,11 @@
     public class LineSegment extends Mesh
     {
         private var _segment:Segment;
+		
+		protected override function getDefaultMaterial():IMaterial
+		{
+			return ini.getSegmentMaterial("material") || new WireframeMaterial();
+		}
 		
 		/**
 		 * Defines the starting vertex.
