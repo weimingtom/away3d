@@ -8,9 +8,8 @@ package away3d.core.block
     */
     public class BlockerArray implements IBlockerConsumer
     {
-        private var _blockers:Array;
+        private var _blockers:Array = [];
         private var _clip:Clipping;
-		private var blockers:Array;
 		
 		/**
 		 * Determines the viewport clipping to be used on blocker primitives.

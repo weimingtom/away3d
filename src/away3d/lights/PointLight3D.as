@@ -92,7 +92,7 @@ package away3d.lights
             ambient = ini.getNumber("ambient", 1);
             diffuse = ini.getNumber("diffuse", 1);
             specular = ini.getNumber("specular", 1);
-            brightness = ini.getNumber("brightness", 1);
+            brightness = ini.getNumber("brightness", 1000);
             debug = ini.getBoolean("debug", false);
         }
         

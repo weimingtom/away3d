@@ -117,6 +117,7 @@ package away3d.containers
         	}
         	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
+        		//trace(session.getConsumer(this).list().length);
 	        	for each (primitive in session.getConsumer(this).list())
 	               checkPrimitive(primitive);
 	            
@@ -137,6 +138,7 @@ package away3d.containers
         	if (pri is DrawFog)
         		return;
         	
+            	//trace("sdkfjjdjn");
             if (!pri.source || !pri.source._mouseEnabled)
                 return;
             
