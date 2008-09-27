@@ -1209,7 +1209,6 @@ class WhiteLighting extends ObjectContainer3D
 
         for each (var v:Vertex in sphere.vertices)
         {
-        	trace(sphere.boundingRadius);
             var y:Number = v.y / sphere.boundingRadius;
             y = y + (y*y - 1)*0.2;
             v.y = y * sphere.boundingRadius * 1.1;
