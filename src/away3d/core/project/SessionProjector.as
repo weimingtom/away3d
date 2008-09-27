@@ -17,6 +17,7 @@ package away3d.core.project
 		private var _center:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _drawDisplayObject:DrawDisplayObject;
+		private var _depthPoint:Number3D = new Number3D();
 		
 		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
@@ -37,7 +38,17 @@ package away3d.core.project
 					if (!(_screenVertex = primitiveDictionary[_center]))
 						_screenVertex = primitiveDictionary[_center] = new ScreenVertex();
 					
-	             	_screenVertex.z = view.camera.viewTransforms[_child].position.modulo;
+					if (_child.scenePivotPoint.modulo) {
+						_depthPoint.clone(_child.scenePivotPoint);
+						_depthPoint.rotate(_depthPoint, view.camera.view);
+						_depthPoint.add(view.camera.viewTransforms[_child].position, _depthPoint);
+						
+		             	_screenVertex.z = _depthPoint.modulo;
+						
+					} else {
+						_screenVertex.z = view.camera.viewTransforms[_child].position.modulo;
+					}
+		             
 	             	
 	             	if (_child.pushback)
 	             		_screenVertex.z += _child.boundingRadius;

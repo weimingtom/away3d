@@ -117,10 +117,9 @@ package away3d.containers
         	}
         	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
-        		//trace(session.getConsumer(this).list().length);
+        		var con:IPrimitiveConsumer = session.getConsumer(this);
 	        	for each (primitive in session.getConsumer(this).list())
 	               checkPrimitive(primitive);
-	            
 	        	for each (session in session.sessions)
 	        		checkSession(session);
 	        }
@@ -138,7 +137,6 @@ package away3d.containers
         	if (pri is DrawFog)
         		return;
         	
-            	//trace("sdkfjjdjn");
             if (!pri.source || !pri.source._mouseEnabled)
                 return;
             
@@ -383,6 +381,9 @@ package away3d.containers
         		return;
         	
         	_renderer = val;
+        	
+        	if (_session)
+        		_session.renderer = _renderer as IPrimitiveConsumer;
         	
         	if (!_renderer)
         		throw new Error("View cannot have renderer set to null");
