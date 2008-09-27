@@ -3,10 +3,10 @@
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
-	import away3d.core.math.Number3D;
-	import away3d.core.clip.RectangleClipping;
 	import away3d.core.utils.*;
+	import away3d.events.*;
 	import away3d.loaders.*;
+	import away3d.loaders.data.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
 	
@@ -35,6 +35,18 @@
 		[Embed(source="assets/fskingr.jpg")]
 		private var GreenPaint:Class;
 		
+		//ferrari texture
+		[Embed(source="assets/fskin.jpg")]
+		private var RedPaint:Class;
+				
+		//ferrari texture
+		[Embed(source="assets/fskiny.jpg")]
+		private var YellowPaint:Class;
+				
+		//ferrari texture
+		[Embed(source="assets/fsking.jpg")]
+		private var GreyPaint:Class;
+		
 		//ferrari mesh
 		[Embed(source="assets/f360.3ds", mimeType="application/octet-stream")]
 		private var F360:Class;
@@ -58,6 +70,9 @@
 		private var floorMaterial:TransformBitmapMaterial;
 		private var overlayMaterial:BitmapMaterial;
 		private var skyMaterial:BitmapMaterial;
+		private var materialArray:Array;
+		private var materialIndex:int = 0;
+		private var materialData:MaterialData;
 		
 		//scene objects
 		private var model:ObjectContainer3D;
@@ -135,6 +150,8 @@
 			stage.quality = StageQuality.LOW;
 			skyMirror.draw(skyMirror.clone(), new Matrix(1, 0, 0, -1, 0, sky.height*4-40));
 			skyMaterial = new BitmapMaterial(Cast.bitmap(skyMirror));
+			
+			materialArray = [GreenPaint, RedPaint, YellowPaint, GreyPaint];
 		}
 		
 		/**
@@ -143,19 +160,18 @@
 		private function initObjects():void
 		{
 			//create ferrari model
-			model = (Max3DS.parse(F360, {material:carMaterial, ownCanvas:true, centerMeshes:true}) as ObjectContainer3D);
+			model = (Max3DS.parse(F360, {material:carMaterial, ownCanvas:true, centerMeshes:true, pushfront:true}) as ObjectContainer3D);
+			materialData = model.materialLibrary.getMaterial("fskin");
+			materialData.material = Cast.material(materialArray[materialIndex]);
 			model.blendMode = BlendMode.HARDLIGHT;
 			model.scale(100);
 			model.rotationX = 90;
-			model.y = 0;
+			model.y = -200;
+			model.addOnMouseUp(onClickModel);
 			scene.addChild(model);
 			
-			//re-align contents
-			for each (var object:Object3D in model.children)
-				object.z -= 200;
-			
 			//create floor object
-			floor = new RegularPolygon({material:materialContainer, ownCanvas:true, radius:5000, sides:20, subdivision:20, y:-200, pushback:true});
+			floor = new RegularPolygon({material:materialContainer, ownCanvas:true, radius:5000, sides:20, subdivision:20, y:-200});
 			floor.blendMode = BlendMode.MULTIPLY;
 			scene.addChild( floor );
 			
@@ -165,6 +181,17 @@
 			sky.y = -200;
 			sky.rotationX = 180;
 			scene.addChild( sky );
+		}
+		
+		/**
+		 * Lsitener function for mouse click on car
+		 */
+		private function onClickModel(event:MouseEvent3D):void
+		{
+			materialIndex++;
+			if (materialIndex > materialArray.length - 1)
+				materialIndex = 0;
+			materialData.material = Cast.material(materialArray[materialIndex]);
 		}
 		
 		/**
@@ -190,7 +217,7 @@
 			
 			if (model) {
 				for each (var object:Object3D in model.children) {
-					if (object.maxY - object.minY < 100)
+					if (object.maxY - object.minY < 1)
 						object.rotationX += 40;
 				}
 			}
