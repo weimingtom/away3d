@@ -666,6 +666,7 @@ package away3d.containers
 	        	_ddo.displayobject = _scene.session.getContainer(this);
 	        	_ddo.session = _session;
 	        	_ddo.screenvertex = _sc;
+	        	_ddo.calc();
 	        	_consumer = _session.getConsumer(this);
 	         	_consumer.primitive(_ddo);
             }
