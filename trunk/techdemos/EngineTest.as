@@ -641,8 +641,8 @@ class CanvasSprite extends ObjectContainer3D
     	sphere3 = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFF00, 1, 50, 50)], material:new WireColorMaterial(0xFF00FF), x: 0, y:0, z: 200, radius:20, segmentsW:4, segmentsH:3});
     	sphere4 = new Sphere({ownCanvas:true, filters:[new GlowFilter(0xFFFF00, 1, 50, 50)], material:new WireColorMaterial(0xFF00FF), x: 0, y:0, z: -200, radius:20, segmentsW:4, segmentsH:3});
     	torus = new Torus({material:new WireColorMaterial(0x00FF00), x:0, y:0, z:0, radius:400, tube:100, segmentsR:8, segmentsT:6});
-    	ownCanvas = true;
     	super(torus, sphere, sphere1, sphere2, sphere3, sphere4);
+    	ownCanvas = true;
     	filters = [new BlurFilter()];
     }
 }
@@ -701,10 +701,9 @@ class Transforms extends Primitives
     {
     	var newScaleX:Number = 0.5 * Math.sin(time / 200);
     	var newScaleY:Number = -0.5 * Math.sin(time / 200);
-        cube.scaleX(1 + newScaleX - cubeScaleX);
-        cube.scaleY(1 + newScaleY - cubeScaleY);
-        cubeScaleX = newScaleX;
-        cubeScaleY = newScaleY;
+        cube.scaleX = 1 + newScaleX;
+        cube.scaleY = 1 + newScaleY;
+        cube.rotationZ += 2;
         sphere.rotationY = Math.tan(time / 3000)*90;
         torus.rotationX = time / 20;
         torus.rotationY = time / 30;
@@ -913,6 +912,7 @@ class Drawing extends ObjectContainer3D
 {
     private var plane:Plane;
     private var paintData:BitmapData;
+    private var paintMaterial:BitmapMaterial;
     private var pallete:BitmapData;
     private var drawing:Boolean;
     private var lastx:Number;
@@ -927,9 +927,10 @@ class Drawing extends ObjectContainer3D
     public function Drawing()
     {
         paintData = new BitmapData(400, 400);
-        plane = new Plane({material:new BitmapMaterial(paintData, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
+        paintMaterial = new BitmapMaterial(paintData, {precision:8, smooth:true});
+        plane = new Plane({material:paintMaterial, width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
         wireplane = new WirePlane({material:new WireframeMaterial(0x000000), width:1002, height:1002, y:-20});
-
+		
         plane.addOnMouseDown(onPlaneMouseDown);
         plane.addOnMouseMove(onPlaneMouseMove);
 
@@ -977,6 +978,7 @@ class Drawing extends ObjectContainer3D
                 }
 				*/
             }
+            paintMaterial.bitmap = paintData;
             lastx = x;
             lasty = y;
         }
@@ -1203,10 +1205,11 @@ class WhiteLighting extends ObjectContainer3D
         texture.smooth = true;
 
         sphere = new Sphere({material:texture, radius:200, segmentsW:4*7, segmentsH:3*7});
-        sphere.scaleY(1.2);
+        sphere.scale(1.2);
 
         for each (var v:Vertex in sphere.vertices)
         {
+        	trace(sphere.boundingRadius);
             var y:Number = v.y / sphere.boundingRadius;
             y = y + (y*y - 1)*0.2;
             v.y = y * sphere.boundingRadius * 1.1;
