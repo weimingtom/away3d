@@ -289,7 +289,7 @@ package away3d.core.base
         arcane var _scaleY:Number = 1;
         arcane var _scaleZ:Number = 1;
         arcane var _pivotPoint:Number3D = new Number3D();
-        private var _pivotPointRotate:Number3D = new Number3D();
+        private var _scenePivotPoint:Number3D = new Number3D();
         private var _parentPivot:Number3D;
         private var _parentradius:Number3D = new Number3D();
         arcane var _scene:Scene3D;
@@ -336,10 +336,10 @@ package away3d.core.base
             _sceneTransform.multiply(_parent.sceneTransform, transform);
             
             if (!_pivotZero) {
-            	_pivotPointRotate.rotate(_pivotPoint, _sceneTransform);
-				_sceneTransform.tx -= _pivotPointRotate.x;
-				_sceneTransform.ty -= _pivotPointRotate.y;
-				_sceneTransform.tz -= _pivotPointRotate.z;
+            	_scenePivotPoint.rotate(_pivotPoint, _sceneTransform);
+				_sceneTransform.tx -= _scenePivotPoint.x;
+				_sceneTransform.ty -= _scenePivotPoint.y;
+				_sceneTransform.tz -= _scenePivotPoint.z;
             }
             
             //calulate the inverse transform of the scene (used for lights and bones)
@@ -1268,6 +1268,16 @@ package away3d.core.base
             return _scene;
         }
         
+        public function get pivotPoint():Number3D
+        {
+        	return _pivotPoint;
+        }
+        
+        public function get scenePivotPoint():Number3D
+        {
+        	return _scenePivotPoint;
+        }
+        
     	/**
     	 * @private
     	 */
@@ -1632,7 +1642,7 @@ package away3d.core.base
             object3D.useHandCursor = useHandCursor;
             object3D.pushback = pushback;
             object3D.pushfront = pushfront;
-            object3D._pivotPoint = _pivotPoint.clone();
+            object3D.pivotPoint.clone(pivotPoint);
             object3D.projector = _projector.clone();
             object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             

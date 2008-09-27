@@ -72,9 +72,11 @@ package away3d.core.math
 		 * 
 		 * @return	The new 3d number instance with duplicated properties applied
 		 */
-        public function clone():Number3D
+        public function clone(v:Number3D):void
         {
-            return new Number3D(x, y, z);
+            x = v.x;
+            y = v.y;
+            z = v.z;
         }
 		
     	/**

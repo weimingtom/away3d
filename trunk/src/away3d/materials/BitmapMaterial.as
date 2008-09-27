@@ -18,7 +18,7 @@ package away3d.materials
 	 * 
 	 * @eventType away3d.events.AnimationEvent
 	 */
-	[Event(name="materialresize",type="away3d.events.MaterialEvent")]
+	[Event(name="materialResize",type="away3d.events.MaterialEvent")]
 	
     /**
     * Basic bitmap material
@@ -138,6 +138,9 @@ package away3d.materials
 		}
 		
 		private var _view:View3D;
+		private var _smooth:Boolean;
+		private var _debug:Boolean;
+		private var _repeat:Boolean;
         private var _precision:Number;
         private var _shapeDictionary:Dictionary = new Dictionary(true);
     	private var _shape:Shape;
@@ -451,17 +454,58 @@ package away3d.materials
     	/**
     	 * Determines if texture bitmap is smoothed (bilinearly filtered) when drawn to screen.
     	 */
-        public var smooth:Boolean = false;
+        public function get smooth():Boolean
+        {
+        	return _smooth;
+        }
+        
+        public function set smooth(val:Boolean):void
+        {
+        	if (_smooth == val)
+        		return
+        	
+        	_smooth = val;
+        	
+        	_faceDirty = true;
+        }
+        
         
         /**
         * Toggles debug mode: textured triangles are drawn with white outlines, precision correction triangles are drawn with blue outlines.
         */
-        public var debug:Boolean = false;
+        public function get debug():Boolean
+        {
+        	return _debug;
+        }
+        
+        public function set debug(val:Boolean):void
+        {
+        	if (_debug == val)
+        		return
+        	
+        	_debug = val;
+        	
+        	_faceDirty = true;
+        }
         
         /**
         * Determines if texture bitmap will tile in uv-space
         */
-        public var repeat:Boolean = false;
+        public function get repeat():Boolean
+        {
+        	return _repeat;
+        }
+        
+        public function set repeat(val:Boolean):void
+        {
+        	if (_repeat == val)
+        		return
+        	
+        	_repeat = val;
+        	
+        	_faceDirty = true;
+        }
+        
         
         /**
         * Corrects distortion caused by the affine transformation (non-perpective) of textures.
@@ -476,6 +520,8 @@ package away3d.materials
         public function set precision(val:Number):void
         {
         	_precision = val*val*1.4;
+        	
+        	_faceDirty = true;
         }
         
 		/**
@@ -601,9 +647,9 @@ package away3d.materials
             
             ini = Init.parse(init);
 			
-            smooth = ini.getBoolean("smooth", smooth);
-            debug = ini.getBoolean("debug", debug);
-            repeat = ini.getBoolean("repeat", repeat);
+            smooth = ini.getBoolean("smooth", false);
+            debug = ini.getBoolean("debug", false);
+            repeat = ini.getBoolean("repeat", false);
             precision = ini.getNumber("precision", 0);
             _blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});

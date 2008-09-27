@@ -39,7 +39,7 @@ package away3d.core.render
         {
             if (node.onlysourceFlag && _except == node.onlysource)
                 return;
-
+			
             if (_minX < node.xdiv)
             {
                 if (node.lefttopFlag && _minY < node.ydiv)
