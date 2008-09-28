@@ -10,6 +10,11 @@ package away3d.events
     public class Object3DEvent extends Event
     {
     	/**
+    	 * Defines the value of the type property of a parentUpdated event object.
+    	 */
+    	public static const PARENT_UPDATED:String = "parentUpdated";
+    	
+    	/**
     	 * Defines the value of the type property of a transformChanged event object.
     	 */
     	public static const TRANSFORM_CHANGED:String = "transformChanged";

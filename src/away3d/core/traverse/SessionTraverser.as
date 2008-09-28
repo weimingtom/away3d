@@ -9,12 +9,12 @@ package away3d.core.traverse
     /**
     * Traverser that gathers blocker primitives for occlusion culling.
     */
-    public class LightTraverser extends Traverser
+    public class SessionTraverser extends Traverser
     { 	
 		/**
-		 * Creates a new <code>LightTraverser</code> object.
+		 * Creates a new <code>SessionTraverser</code> object.
 		 */
-        public function LightTraverser()
+        public function SessionTraverser()
         {
         }
         
@@ -33,12 +33,7 @@ package away3d.core.traverse
 		 */
         public override function apply(node:Object3D):void
         {
-            //clear light arrays
-            if (node.ownLights)
-            	node.lightarray.clear();
-            
-            if (node is ILightProvider)
-                (node as ILightProvider).light(node.parent.lightarray);
+            node.updateSession();
         }
 
     }
