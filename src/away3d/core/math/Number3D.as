@@ -225,36 +225,34 @@ package away3d.core.math
         public function matrix2euler(m:Matrix3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
         {
     		/*
-            var d :Number = -Math.asin(Math.max(-1, Math.min(1, sxz))); // Calculate Y-axis angle
+            var d :Number = -Math.asin(Math.max(-1, Math.min(1,m.sxz))); // Calculate Y-axis angle
             var c :Number =  Math.cos(d);
     
-            angle.y = d * toDEGREES;
+            y = d;
     
             var trX:Number, trY:Number;
     
             if (Math.abs(c) > 0.005)  // Gimball lock?
             {
-                trX =  szz / c;  // No, so get X-axis angle
-                trY = -syz / c;
+                trX =  m.szz / c;  // No, so get X-axis angle
+                trY = -m.syz / c;
     
-                angle.x = Math.atan2(trY, trX) * toDEGREES;
+                x = Math.atan2(trY, trX);
     
-                trX =  sxx / c;  // Get Z-axis angle
-                trY = -sxy / c;
+                trX =  m.sxx / c;  // Get Z-axis angle
+                trY = -m.sxy / c;
     
-                angle.z = Math.atan2(trY, trX) * toDEGREES;
+                z = Math.atan2(trY, trX);
             }
             else  // Gimball lock has occurred
             {
-                angle.x = 0;  // Set X-axis angle to zero
+                x = 0;  // Set X-axis angle to zero
     
-                trX = syy;  // And calculate Z-axis angle
-                trY = syx;
+                trX = m.syy;  // And calculate Z-axis angle
+                trY = m.syx;
     
-                angle.z = Math.atan2(trY, trX) * toDEGREES;
+                z = Math.atan2(trY, trX);
             }
-
-            return angle;
             */
             if (!m1)
             	m1 = new Matrix3D();
@@ -282,6 +280,7 @@ package away3d.core.math
 			
 			// Remove the rotationX rotation from m1, so that the remaining
 			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
+			
 			var c :Number   = Math.cos(-x);
 			var s :Number   = Math.sin(-x);
 			m2.sxx = m1.sxx;
@@ -293,7 +292,8 @@ package away3d.core.math
 			m2.szx = m1.szx;
 			m2.szy = m1.szy*c + m1.szz*s;
 			m2.szz = -m1.szy*s + m1.szz*c;
-	
+			//m2.rotationMatrix(1, 0, 0, -x);
+			//m2.multiply3x3(m2, m1);
 			// Extract the other two angles, rot.y and rot.z, from m2.
 			var cy:Number = Math.sqrt(m2.sxx*m2.sxx + m2.syx*m2.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
 			y = Math.atan2(-m2.szx, cy); // rot.y = Math<T>::atan2 (-N[0][2], cy);
