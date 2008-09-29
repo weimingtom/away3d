@@ -180,7 +180,8 @@ package away3d.core.base
         /** @private */
         arcane function notifyParentUpdate():void
         {
-        	_localTransformDirty = false;
+        	if (_ownCanvas && _parent)
+        		_parent._sessionDirty = true;
         	
             if (!hasEventListener(Object3DEvent.PARENT_UPDATED))
                 return;
@@ -440,7 +441,10 @@ package away3d.core.base
 		protected var ini:Init;
         
         protected function updateTransform():void
-        {	
+        {
+            if (_rotationDirty) 
+                updateRotation();
+            
             _quaternion.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
             _transform.quaternion2matrix(_quaternion);
             
