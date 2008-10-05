@@ -292,11 +292,13 @@
             	if (child is Bone) {
             		_child = new Bone();
                 	container.addChild(_child);
-                	(child as Bone).cloneAll(_child)
+                	(child as Bone).cloneAll(_child);
             	} else if (child is ObjectContainer3D) {
             		_child = new ObjectContainer3D();
                 	container.addChild(_child);
                 	(child as ObjectContainer3D).cloneAll(_child)
+            	} else if (child is Mesh) {
+                	container.addChild((child as Mesh).cloneAll());
             	} else {
                 	container.addChild(child.clone());
              	}
@@ -327,7 +329,7 @@
             	if (child is ObjectContainer3D) {
             		(child as ObjectContainer3D).cloneBones(child as ObjectContainer3D, root);
              	} else if (child is Mesh) {
-                	var geometry:Geometry = (child as Mesh).geometry.clone();
+                	var geometry:Geometry = (child as Mesh).geometry;
                 	var skinControllers:Array = geometry.skinControllers;
                 	var rootBone:Bone;
                 	var skinController:SkinController;
@@ -349,8 +351,6 @@
 		            	//skinController.inverseTransform = new Matrix3D();
 		            	skinController.inverseTransform = child.parent.inverseSceneTransform;
 		            }
-		            
-                	(child as Mesh).geometry = geometry;
 				}
             }
 		}	
