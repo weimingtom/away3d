@@ -367,9 +367,9 @@ package away3d.core.base
         private function updateRotation():void
         {
             _rot.matrix2euler(_transform, _scaleX, _scaleY, _scaleZ);
-            _rotationX = _rot.x;
-            _rotationY = _rot.y;
-            _rotationZ = _rot.z;
+            _rotationX = -_rot.x;
+            _rotationY = -_rot.y;
+            _rotationZ = -_rot.z;
     
             _rotationDirty = false;
         }
@@ -442,7 +442,7 @@ package away3d.core.base
         
         protected function updateTransform():void
         {
-            if (_rotationDirty) 
+        	if (_rotationDirty) 
                 updateRotation();
             
             _quaternion.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
@@ -1592,6 +1592,8 @@ package away3d.core.base
         {
         	if (_transformDirty)
         		updateTransform();
+        	
+        	axis.normalize();
         	
             _vector.rotate(axis, _transform);
             _m.rotationMatrix(_vector.x, _vector.y, _vector.z, angle * toRADIANS);
