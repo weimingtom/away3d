@@ -1166,11 +1166,11 @@ package away3d.core.base
 
         public function set transform(value:Matrix3D):void
         {
-            if (value.toString() == _transform.toString())
+            if (_transform.compare(value))
                 return;
-
+			
             _transform.clone(value);
-
+			
             _transformDirty = false;
             _rotationDirty = true;
             _sceneTransformDirty = true;
