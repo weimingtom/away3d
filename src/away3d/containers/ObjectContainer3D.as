@@ -271,7 +271,8 @@
 			
 			var child:Object3D;
             for each (child in children)
-                container.addChild(child.clone());
+            	if (!(child is Bone))
+                	container.addChild(child.clone());
                 
             return container;
         }
