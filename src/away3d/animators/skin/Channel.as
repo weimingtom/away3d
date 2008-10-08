@@ -5,6 +5,11 @@ package away3d.animators.skin
 	
     public class Channel
     {
+    	private var i:int;
+    	private var _index:int;
+    	private var _length:int;
+    	private var _oldlength:int;
+    	
     	public var name:String;
         public var target:Bone;
         
@@ -32,40 +37,38 @@ package away3d.animators.skin
         }
 
         public function update(time:Number):void
-        {
-			var index:uint;
-			var i:uint;
-			
+        {	
             if (!target)
                 return;
+			
+			i = type.length;
 				
             if (time < times[0]) {
-            	i = 0;
-            	while (i < type.length) {
+            	while (i--)
 	                target[type[i]] = param[0][i];
-            		i++;
-            	}
-            } else if (time > times[times.length-1]) {
-            	i = 0;
-            	while (i < type.length) {
-	                target[type[i]] = param[times.length-1][i];
-            		i++;
-            	}
+            } else if (time > times[int(times.length-1)]) {
+            	while (i--)
+	                target[type[i]] = param[int(times.length-1)][i];
             } else {
-				index = 0;
-				for each(var _time:Number in times) {
-					if (_time <= time && time <= times[index + 1]) {
-						i = 0;
-						while (i < type.length) {
-							if (type[i] == "transform") {
-								target.transform = param[index][i];
-							} else {
-								target[type[i]] = ((time - _time) * param[index + 1][i] + (times[index + 1] - time) * param[index][i]) / (times[index + 1] - _time);
-							}
-							i++;
-						}
+				_index = _length = _oldlength = times.length - 1;
+				
+				while (_length > 1)
+				{
+					_oldlength = _length;
+					_length >>= 1;
+					
+					if (times[_index - _length] > time) {
+						_index -= _length;
+						_length = _oldlength - _length;
 					}
-					index++;
+				}
+				
+				while (i--) {
+					if (type[i] == "transform") {
+						target.transform = param[_index][i];
+					} else {
+						target[type[i]] = ((time - times[_index]) * param[int(_index + 1)][i] + (times[int(_index + 1)] - time) * param[_index][i]) / (times[int(_index + 1)] - times[_index]);
+					}
 				}
 			}
         }
