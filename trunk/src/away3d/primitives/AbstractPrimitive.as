@@ -75,6 +75,7 @@
             return _face;
 		}
 		
+		private var _index:int;
 		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
 		 *
@@ -102,8 +103,9 @@
     		_objectDirty = true;
     		
     		//remove all elements from the mesh
-    		for each (_face in faces)
-    			removeFace(_face);
+    		_index = faces.length;
+    		while (_index--)
+    			removeFace(faces[_index]);
     		
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);
