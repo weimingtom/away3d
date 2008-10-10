@@ -11,7 +11,7 @@ package away3d.loaders
 	import away3d.loaders.utils.*;
 	import away3d.materials.*;
 	
-	import flash.utils.Dictionary;
+	import flash.utils.*;
 	
     /**
     * File loader for the Collada file format with animation.
@@ -33,6 +33,7 @@ package away3d.loaders
         private var animationLibrary:AnimationLibrary;
         private var geometryLibrary:GeometryLibrary;
         private var channelLibrary:ChannelLibrary;
+        private var symbolLibrary:Dictionary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
     	private var _meshData:MeshData;
@@ -166,7 +167,7 @@ package away3d.loaders
 				for each (_meshMaterialData in _geometryData.materials) {
 					for each (_faceListIndex in _meshMaterialData.faceList) {
 						_faceData = _geometryData.faces[_faceListIndex] as FaceData;
-						_faceData.materialData = materialLibrary[_meshMaterialData.name];
+						_faceData.materialData = symbolLibrary[_meshMaterialData.symbol];
 					}
 				}
 				
@@ -375,6 +376,7 @@ package away3d.loaders
 			animationLibrary = container.animationLibrary = new AnimationLibrary();
 			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 			channelLibrary = new ChannelLibrary();
+			symbolLibrary = new Dictionary(true);
 			materialLibrary.autoLoadTextures = autoLoadTextures;
 			materialLibrary.texturePath = texturePath;
 			
@@ -645,13 +647,14 @@ package away3d.loaders
 		 * 
 		 * @see away3d.loaders.data.MaterialData
 		 */
-        private function parseMaterial(name:String, target:String):void
+        private function parseMaterial(symbol:String, name:String):void
         {
            	_materialData = materialLibrary.addMaterial(name);
-            if(name == "FrontColorNoCulling") {
+        	symbolLibrary[symbol] = _materialData;
+            if(symbol == "FrontColorNoCulling") {
             	_materialData.materialType = MaterialData.SHADING_MATERIAL;
             } else {
-                _materialData.textureFileName = getTextureFileName(target);
+                _materialData.textureFileName = getTextureFileName(name);
                 
                 if (_materialData.textureFileName) {
             		_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
@@ -661,7 +664,7 @@ package away3d.loaders
                 	else
 	                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
                 	
-                	parseColorMaterial(collada.library_materials.material.(@id == name)[0], _materialData);
+                	parseColorMaterial(name, _materialData);
                 }
             }
         }
@@ -699,10 +702,10 @@ package away3d.loaders
 
                 var data     :Array  = triangles.p.split(' ');
                 var len      :Number = triangles.@count;
-                var material :String = triangles.@material;
+                var symbol :String = triangles.@material;
 				Debug.trace(" + Parse MeshMaterialData");
                 _meshMaterialData = new MeshMaterialData();
-    			_meshMaterialData.name = material;
+    			_meshMaterialData.symbol = symbol;
 				geometryData.materials.push(_meshMaterialData);
 				
 				//if (!materialLibrary[material])
@@ -1162,8 +1165,11 @@ package away3d.loaders
 		/**
 		 * Retrieves the color of a material
 		 */
-		private function parseColorMaterial(material:XML, materialData:MaterialData):void
+		private function parseColorMaterial(name:String, materialData:MaterialData):void
 		{
+			
+			var material:XML = collada.library_materials.material.(@id == name)[0];
+			
 			if (material) {
 				var effectId:String = getId( material.instance_effect.@url );
 				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];

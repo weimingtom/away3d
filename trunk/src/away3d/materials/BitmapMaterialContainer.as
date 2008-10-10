@@ -22,11 +22,10 @@ package away3d.materials
 	{
 		use namespace arcane;
 		
-		private var _cache:Boolean;
 		private var _width:Number;
 		private var _height:Number;
 		private var _containerDictionary:Dictionary = new Dictionary(true);
-		private var _cacheDictionary:Dictionary;
+		private var _cacheDictionary:Dictionary = new Dictionary(true);
 		private var _containerVO:FaceVO;
 		private var _faceWidth:int;
 		private var _faceHeight:int;
@@ -37,6 +36,7 @@ package away3d.materials
         
         private function onMaterialUpdate(event:MaterialEvent):void
         {
+        	_faceDirty = true;
         	dispatchEvent(event);
         }
         
@@ -50,7 +50,8 @@ package away3d.materials
 		 */
 		protected override function updateRenderBitmap():void
         {
-        	update();
+        	_bitmapDirty = false;
+        	_faceDirty = true;
         }
         
 		/**
@@ -61,8 +62,9 @@ package away3d.materials
         	_face = tri.face;
     		_faceVO = getFaceVO(tri.face, tri.source, tri.view);
     		
-        	if (!_cacheDictionary || !_cacheDictionary[_faceVO]) {
-        		
+    		if (_faceVO.invalidated || !_faceVO.texturemapping) {
+        		_faceVO.invalidated = false;
+	    		//_faceVO.backface = tri.backface;
 	    		
 	        	//check to see if face drawtriangle needs updating
 	        	if (!_faceVO.texturemapping) {
@@ -80,15 +82,18 @@ package away3d.materials
 	        		//resize bitmapData for container
 	        		_faceVO.resize(_faceWidth, _faceHeight, transparent);
 	        	}
-	        	
-	        	if (_cacheDictionary)
-	        		_cacheDictionary[_faceVO] = _faceVO;
         		
 	    		//call renderFace on each material
 	    		for each (_material in materials)
 	        		_faceVO = _material.renderBitmapLayer(tri, _bitmapRect, _faceVO);
-	        		
+	        	
+	        	_cacheDictionary[_face] = _faceVO;
+        		
+        		_renderBitmap = _faceVO.bitmap;
+	        	
 	        	_faceVO.updated = false;
+	        } else {
+	        	_renderBitmap = _cacheDictionary[_face].bitmap;
 	        }
         	
         	//check to see if tri texturemapping need updating
@@ -99,11 +104,6 @@ package away3d.materials
         		_faceVO.texturemapping.invert();
         	}
         	
-        	if (_cacheDictionary)
-        		_renderBitmap = _cacheDictionary[_faceVO].bitmap;
-        	else
-        		_renderBitmap = _faceVO.bitmap;
-        	
         	return _faceVO.texturemapping;
         }
 		
@@ -111,24 +111,6 @@ package away3d.materials
 		 * Defines whether the caching bitmapData objects are transparent
 		 */
 		public var transparent:Boolean;
-		
-		/**
-		 * Defines whether each created bitmapData surface is to be cached, or updated every frame.
-		 * Updating all bitmapData surface objects is costly, so needs to be used sparingly.
-		 */
-		public function get cache():Boolean
-		{
-			return _cache;
-		}
-		
-		public function set cache(val:Boolean):void
-		{
-			_cache = val;
-			if (val)
-				_cacheDictionary = new Dictionary(true);
-			else
-				_cacheDictionary = null; 
-		}
     	
 		/**
 		 * Creates a new <code>BitmapMaterialContainer</code> object.
@@ -150,13 +132,14 @@ package away3d.materials
             	_material.addOnMaterialUpdate(onMaterialUpdate);
 			
 			transparent = ini.getBoolean("transparent", true);
-			cache = ini.getBoolean("cache", true);
 		}
 		        
         public function addMaterial(material:ILayerMaterial):void
         {
         	material.addOnMaterialUpdate(onMaterialUpdate);
         	materials.push(material);
+        	
+        	_faceDirty = true;
         }
         
         public function removeMaterial(material:ILayerMaterial):void
@@ -169,20 +152,21 @@ package away3d.materials
         	material.removeOnMaterialUpdate(onMaterialUpdate);
         	
         	materials.splice(index, 1);
+        	
+        	_faceDirty = true;
         }
         
-		/**
-		 * Clear and updates the currrent bitmapData surface on all faces.
-		 */
-		public function update():void
-		{
-			if (_cache)
-				_cacheDictionary = new Dictionary(true);
-		}
+        public function clearMaterials():void
+        {
+        	var i:int = materials.length;
+        	
+        	while (i--)
+        		removeMaterial(materials[i]);
+        }
 		
 		/**
 		 * Creates a new <code>BitmapMaterialContainer</code> object.
-		 *
+		 * 
 		 * @param	width				The containing width of the texture, applied to all child materials.
 		 * @param	height				The containing height of the texture, applied to all child materials.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
@@ -192,10 +176,16 @@ package away3d.materials
         	if (_colorTransformDirty)
         		updateColorTransform();
         	
-        	_blendModeDirty = false;
+        	if (_bitmapDirty)
+        		updateRenderBitmap();
+        	
+        	if (_faceDirty || _blendModeDirty)
+        		clearFaceDictionary();
         	
         	for each (_material in materials)
         		_material.updateMaterial(source, view);
+        	
+        	_blendModeDirty = false;
         }
         
         public override function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
@@ -228,9 +218,7 @@ package away3d.materials
 		 */
         public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{
-			//check to see if faceDictionary exists
-			if (!(_faceVO = _faceDictionary[tri]))
-				_faceVO = _faceDictionary[tri] = new FaceVO();
+			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
 			
 			//get width and height values
 			_faceWidth = tri.face.bitmapRect.width;
