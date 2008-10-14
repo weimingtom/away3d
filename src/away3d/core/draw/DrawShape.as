@@ -14,6 +14,25 @@ package away3d.core.draw
 			
 		}
 		
+		public function addMoveTo(sv:ScreenVertex):void
+		{
+			_screenVertices.push(sv);
+			_drawingCommands.push(0);
+		}
+		
+		public function addLineTo(sv:ScreenVertex):void
+		{
+			_screenVertices.push(sv);
+			_drawingCommands.push(1);
+		}
+		
+		public function addCurveTo(csv:ScreenVertex, tsv:ScreenVertex):void
+		{
+			_screenVertices.push(csv);
+			_screenVertices.push(tsv);
+			_drawingCommands.push(2);
+		}
+		
 		public function addDrawingCommand(type:int):void
 		{
 			_drawingCommands.push(type);

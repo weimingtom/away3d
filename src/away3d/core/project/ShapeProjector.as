@@ -16,8 +16,10 @@ package away3d.core.project
 	public class ShapeProjector extends AbstractProjector implements IPrimitiveProvider
 	{
 		private var _mesh:Mesh;
-		private var _vertex:Vertex;
-		private var _screenVertex:ScreenVertex;
+		private var _vertex1:Vertex;
+		private var _vertex2:Vertex;
+		private var _screenVertex1:ScreenVertex;
+		private var _screenVertex2:ScreenVertex;
 		private var _shapeMaterial:IShapeMaterial;
 		private var _drawShape:DrawShape;
 		private var _command:uint;
@@ -45,46 +47,53 @@ package away3d.core.project
 				Debug.error("ShapeProjector mesh material must be an IShapeMaterial");
 			
 			var i:uint;
-			for each(_shape in _mesh.shapes)
+			var j:uint;
+			var currentVertex:uint;
+			for(i = 0; i<_mesh.shapes.length; i++)
 			{
-				if(_drawShape == null)
-	            	_drawShape = new DrawShape();
-	            else
-	            	_drawShape.clear();
-				
-				_drawShape.source = _mesh;
-				
-				for(i = 0; i<_shape.drawingCommands.length; i++)
+				currentVertex = 0;	
+				_shape = _mesh.shapes[i];
+				_drawShape = new DrawShape();
+				trace("Vertices: " + _shape.vertices.length);
+				for(j = 0; j<_shape.drawingCommands.length; j++)
 				{
-					_command = _shape.drawingCommands[i];
+					trace("Current vertex: " + currentVertex);
+					_command = _shape.drawingCommands[j];
 					
-					_vertex = _mesh.vertices[i];
-					
-					_screenVertex = new ScreenVertex();
-					view.camera.project(viewTransform, _vertex, _screenVertex);
+					_vertex1 = _shape.vertices[currentVertex];
+					_screenVertex1 = new ScreenVertex();
+					view.camera.project(viewTransform, _vertex1, _screenVertex1);
+					currentVertex++
 					
 					switch(_command)
 					{
 						case 0:
-							_drawShape.addDrawingCommand(0);
-							_drawShape.addScreenVertex(_screenVertex);
+							_drawShape.addMoveTo(_screenVertex1);
 							break;
 						case 1:
-							_drawShape.addDrawingCommand(1);
-							_drawShape.addScreenVertex(_screenVertex);
+							_drawShape.addLineTo(_screenVertex1);
 							break;
 						case 2:
-							_drawShape.addDrawingCommand(2);
-							_drawShape.addScreenVertex(_screenVertex);
-							_drawShape.addScreenVertex(_screenVertex);
+						
+							_vertex2 = _shape.vertices[currentVertex];
+							_screenVertex2 = new ScreenVertex();
+							view.camera.project(viewTransform, _vertex2, _screenVertex2);
+							currentVertex++;
+							
+							//_drawShape.addLineTo(_screenVertex1);
+							//_drawShape.addLineTo(_screenVertex2);
+							
+							_drawShape.addCurveTo(_screenVertex1, _screenVertex2); 
+							
 							break;
 					}
 				}
 				
+				_drawShape.material = _shape.material;
+				_drawShape.source = _mesh;
+				
 				if(_drawShape.maxZ < 0)
 					continue;
-					
-				_drawShape.material = _shape.material;
 				
 				if(_drawShape.material != null && !_drawShape.material.visible)
                     _drawShape.material = null;
