@@ -512,29 +512,47 @@ package away3d.core.render
 		public function renderShape(lineColor:int, lineAlpha:Number, lineThickness:Number, fillColor:int, fillAlpha:Number, shp:DrawShape):void
 		{
 			var i:uint;
-			graphics.lineStyle(1, 0xFF0000, 1);
-			graphics.beginFill(0x00FF00, 0.25);
+			//graphics.lineStyle(2, 0xFFFFFF, 1);
+			graphics.beginFill(0x000000, 1);
+			var currentPoint:uint = 0;
 			for(i = 0; i<shp.drawingCommands.length; i++)
 			{
 				var command:int = shp.drawingCommands[i];
-				var vert1:ScreenVertex = shp.screenVertices[i];
-				var vert2:ScreenVertex = shp.screenVertices[i+1];
+				var vert1:ScreenVertex = shp.screenVertices[currentPoint];
+				currentPoint++;
 				
 				var sc:Number = 3; //Temporary.
 				switch(command)
 				{
 					case 0:
+						//trace("moveTo(" + sc*vert1.x + ", " + sc*vert1.y + ")");
 						graphics.moveTo(sc*vert1.x, sc*vert1.y);
+						//debugPoint(sc*vert1.x, sc*vert1.y, 0xFFFFFF);
 						break;
 					case 1:
+						//trace("lineTo(" + sc*vert1.x + ", " + sc*vert1.y + ")");
 						graphics.lineTo(sc*vert1.x, sc*vert1.y);
+						//debugPoint(sc*vert1.x, sc*vert1.y, 0x0000FF);
 						break;
 					case 2:
-						graphics.curveTo(sc*vert2.x, sc*vert2.y, sc*vert1.x, sc*vert1.y);
+						var vert2:ScreenVertex = shp.screenVertices[currentPoint];
+						currentPoint++;
+						//trace("curveTo(" + sc*vert1.x + ", " + sc*vert1.y + ", " + sc*vert2.x + ", " + sc*vert2.y + ")");
+						graphics.curveTo(sc*vert1.x, sc*vert1.y, sc*vert2.x, sc*vert2.y);
+						//debugPoint(sc*vert1.x, sc*vert1.y, 0xFFFFFF);
+						//debugPoint(sc*vert2.x, sc*vert2.y, 0xFF0000);
 						break;
 				}
 			}
-			graphics.endFill();
+			//graphics.endFill();
+		}
+		
+		private function debugPoint(X:Number, Y:Number, color:uint):void
+		{
+			graphics.lineStyle(1, color, 1);
+			//graphics.beginFill(0xFF0000);
+			graphics.drawCircle(X, Y, 1.5);
+			//graphics.endFill();
 		}
 		
 		/**
