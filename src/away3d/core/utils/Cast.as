@@ -483,6 +483,46 @@ package away3d.core.utils {
 
             throw new CastError("Can't cast to wirematerial: "+data);
         }
+        
+        /* Li:mod */
+        public static function shapematerial(data:*):ShapeMaterial
+        {
+            if (data == null)
+                return null;
+
+            if (data is IShapeMaterial)
+                return data;
+
+            if (data is int) 
+                return new ShapeMaterial(data);
+
+            if (data is String)
+            {
+                if (data == "")
+                    return null;
+
+                if ((data as String).indexOf("#") == 0)
+                    data = (data as String).substring(1);
+
+                if ((data as String).indexOf("|") == -1)
+                    return new ShapeMaterial(color(data));
+
+                var line:Array = (data as String).split("|");
+                return new ShapeMaterial(color(line[0])/* , {width:parseFloat(line[1])} */);
+            }
+
+            if (data is Object)
+            {
+                var dat:Init = Init.parse(data);
+                var color:uint = dat.getColor("color", 0);
+                /* var alpha:Number = dat.getNumber("alpha", 1, {min:0, max:1});
+                var width:Number = dat.getNumber("width", 1, {min:0}); */
+
+                return new ShapeMaterial(color/* , {alpha:alpha, width:width} */);
+            }
+
+            throw new CastError("Can't cast to shapematerial: "+data);
+        }
 
     }
 }

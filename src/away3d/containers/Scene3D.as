@@ -35,7 +35,6 @@ package away3d.containers
         private var _time:int;
         private var _autoUpdate:Boolean;
         private var _projtraverser:ProjectionTraverser = new ProjectionTraverser();
-        private var _sessiontraverser:SessionTraverser = new SessionTraverser();
         private var _lighttraverser:LightTraverser = new LightTraverser();
         
         private function onUpdateScene(event:ViewEvent):void
@@ -182,9 +181,6 @@ package away3d.containers
 	        		_mesh.geometry.updateElements(_time);
 	        	}
         	}
-        	
-        	//traverse sesssions
-			traverse(_sessiontraverser);
         }
 		
 		/**

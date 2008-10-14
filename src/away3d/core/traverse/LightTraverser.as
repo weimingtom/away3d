@@ -12,7 +12,7 @@ package away3d.core.traverse
     public class LightTraverser extends Traverser
     { 	
 		/**
-		 * Creates a new <code>LightTraverser</code> object.
+		 * Creates a new <code>BlockerTraverser</code> object.
 		 */
         public function LightTraverser()
         {

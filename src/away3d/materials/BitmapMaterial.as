@@ -441,13 +441,6 @@ package away3d.materials
         */
 		protected function getMapping(tri:DrawTriangle):Matrix
 		{
-			if (tri.generated) {
-				_texturemapping = tri.transformUV(this).clone();
-				_texturemapping.invert();
-				
-				return _texturemapping;
-			}
-			
 			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
 			if (_faceVO.texturemapping)
 				return _faceVO.texturemapping;

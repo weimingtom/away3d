@@ -70,7 +70,6 @@ package away3d.core.project
 	        	_dtActive.push(_tri = new DrawTriangle());
 		        _tri.source = source;
 		        _tri.create = createDrawTriangle;
-		        _tri.generated = true;
 	        }
 	        
 	        _tri.view = view;

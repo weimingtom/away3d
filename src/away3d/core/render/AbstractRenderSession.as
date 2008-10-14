@@ -505,6 +505,38 @@ package away3d.core.render
             graphics.endFill();
         }
 		
+		/* Li:mod */
+		/**
+         * Draws a shape element into the graphics object.
+         */
+		public function renderShape(lineColor:int, lineAlpha:Number, lineThickness:Number, fillColor:int, fillAlpha:Number, shp:DrawShape):void
+		{
+			var i:uint;
+			graphics.lineStyle(1, 0xFF0000, 1);
+			graphics.beginFill(0x00FF00, 0.25);
+			for(i = 0; i<shp.drawingCommands.length; i++)
+			{
+				var command:int = shp.drawingCommands[i];
+				var vert1:ScreenVertex = shp.screenVertices[i];
+				var vert2:ScreenVertex = shp.screenVertices[i+1];
+				
+				var sc:Number = 3; //Temporary.
+				switch(command)
+				{
+					case 0:
+						graphics.moveTo(sc*vert1.x, sc*vert1.y);
+						break;
+					case 1:
+						graphics.lineTo(sc*vert1.x, sc*vert1.y);
+						break;
+					case 2:
+						graphics.curveTo(sc*vert2.x, sc*vert2.y, sc*vert1.x, sc*vert1.y);
+						break;
+				}
+			}
+			graphics.endFill();
+		}
+		
 		/**
 		 * Duplicates the render session's properties to another render session.
 		 * 

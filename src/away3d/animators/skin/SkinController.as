@@ -16,9 +16,6 @@
         
         public function update():void
         {
-        	if (!joint)
-        		return;
-        	
         	if (!joint.scene.updatedObjects[joint]) {
         		updated = false;
         		return;

@@ -266,21 +266,6 @@ package away3d.materials
 		 */
 		protected override function getMapping(tri:DrawTriangle):Matrix
 		{
-			if (tri.generated) {
-				_texturemapping = tri.transformUV(this).clone();
-	        	_texturemapping.invert();
-	        	
-	        	//apply transform matrix if one exists
-        		if (_transform) {
-        			_mapping = _transform.clone();
-	        		_mapping.concat(_texturemapping);
-	        	} else {
-	        		_mapping = _texturemapping;
-	        	}
-	        	
-	        	return _mapping;
-			}
-			
         	_faceVO = getFaceVO(tri.face, tri.source);
         	
         	//check to see if rendering can be skipped

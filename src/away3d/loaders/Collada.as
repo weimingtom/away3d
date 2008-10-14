@@ -89,7 +89,6 @@ package away3d.loaders
 				if (_objectData is BoneData) {
 					var _boneData:BoneData = _objectData as BoneData;
 					var bone:Bone = new Bone({name:_boneData.name});
-					_boneData.container = bone as ObjectContainer3D;
 					
 					_bones[bone.name] = bone;
 					
