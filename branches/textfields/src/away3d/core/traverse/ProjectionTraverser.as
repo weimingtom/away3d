@@ -43,6 +43,7 @@ package away3d.core.traverse
 		 */
         public function ProjectionTraverser()
         {
+        	
         }
         
 		/**

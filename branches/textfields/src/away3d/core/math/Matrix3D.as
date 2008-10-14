@@ -565,14 +565,6 @@ package away3d.core.math
             sxx = syy = szz = 1;
         }
         
-        public function compare(m:Matrix3D):Boolean
-        {
-        	if (sxx != m.sxx || sxy != m.sxy || sxz != m.sxz || tx != m.tx || syx != m.syx || syy != m.syy || syz != m.syz || ty != m.ty || szx != m.szx || szy != m.szy || szz != m.szz || tz != m.tz)
-        		return false;
-        	
-        	return true;
-        }
-        
         /**
          * Fills the 3d matrix with a 4x4 transformation that produces a perspective projection.
 		 * 
