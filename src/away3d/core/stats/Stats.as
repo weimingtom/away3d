@@ -84,7 +84,7 @@ package away3d.core.stats
             menu1 = new ContextMenuItem("View Source", true, true, true); 
             menu2 = new ContextMenuItem(APPLICATION_NAME+"\tv" + VERSION +"."+REVISION, true, true, true);
             
-			var scopeMenuContextMenu = new ContextMenu();
+			var scopeMenuContextMenu:ContextMenu = new ContextMenu();
             scopeMenuContextMenu = new ContextMenu();
             scopeMenuContextMenu.customItems = sourceURL? [menu0, menu1, menu2] : [menu0, menu2];
             
@@ -99,7 +99,7 @@ package away3d.core.stats
         public function addSourceURL(url:String):void
         {
         	sourceURL = url;
-			var scopeMenuContextMenu = new ContextMenu();
+			var scopeMenuContextMenu:ContextMenu = new ContextMenu();
 			scopeMenuContextMenu.customItems = sourceURL? [menu0, menu1, menu2] : [menu0, menu2];
 			scopeMenu.contextMenu = scopeMenuContextMenu;
         }
