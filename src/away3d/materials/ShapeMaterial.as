@@ -12,11 +12,10 @@ package away3d.materials
 	import flash.display.Graphics;
 	import flash.events.EventDispatcher;
 	
-	/* Li */
 	/**
     * Shape material for drawing vector shapes.
     */
-	public class ShapeMaterial extends EventDispatcher implements IShapeMaterial
+	public class ShapeMaterial extends EventDispatcher implements IShapeMaterial, IMaterial
 	{
 		use namespace arcane;
 		
@@ -71,7 +70,7 @@ package away3d.materials
             
             fillAlpha = ini.getNumber("fillAlpha", 1, {min:0, max:1});
             lineColor = ini.getInt("lineColor", 0, {min:0, max:0xFFFFFF});
-            lineAlpha = ini.getNumber("lineAlpha", 1, {min:0, max:1});
+            lineAlpha = ini.getNumber("lineAlpha", 0, {min:0, max:1});
             lineThickness = ini.getNumber("lineThickness", 1, {min:0.75});
 		}
 		
@@ -91,7 +90,7 @@ package away3d.materials
             if(fillAlpha <= 0 && lineAlpha <= 0)
             	return;
 			
-			shp.source.session.renderShape(lineColor, lineAlpha, lineThickness, fillColor, fillAlpha, shp);
+			shp.source.session.renderShape(lineThickness, lineColor, lineAlpha, fillColor, fillAlpha, shp);
         }
 		
 		public function renderTriangle(tri:DrawTriangle):void

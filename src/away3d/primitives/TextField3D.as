@@ -1,6 +1,7 @@
 package away3d.primitives
 {
 	import away3d.core.base.Shape3D;
+	import away3d.materials.ShapeMaterial;
 	import away3d.parsers.ttf.TTFAsParser;
 	import away3d.parsers.ttf.TTFBinaryParser;
 	
@@ -17,6 +18,8 @@ package away3d.primitives
 		
 		public function TextField3D(text:String, fontSource:*, fontRange:String = null)
 		{
+			super();
+			
 			_text = text;
 			
 			if(_fontRange)
@@ -41,14 +44,14 @@ package away3d.primitives
 		private function addGlyf(char:String, X:Number = 0, Y:Number = 0):void
 		{
 			var shp:Shape3D = new Shape3D();
+			shp.material = ShapeMaterial(this.material);
 			
 			var glyf:Object = _glyfData[char];
 			for(var i:uint; i<glyf.instructions.length; i++)
 			{
 				var instruction:Object = glyf.instructions[i];
-				var tempScale:Number = 0.1; //Provisory...
-				var tX:Number = instruction.x*tempScale + _xOffset;
-				var tY:Number = instruction.y*tempScale;
+				var tX:Number = instruction.x + _xOffset;
+				var tY:Number = instruction.y;
 				
 				switch(instruction.type)
 				{	
@@ -59,9 +62,8 @@ package away3d.primitives
 						shp.graphicsLineTo(tX, tY);
 						break;
 					case 2:
-						var cX:Number = instruction.cx*tempScale + _xOffset;
-						var cY:Number = instruction.cy*tempScale;
-						//trace("curve: " + cX + ", " + cY + ", " + tX + ", " + tY);
+						var cX:Number = instruction.cx + _xOffset;
+						var cY:Number = instruction.cy;
 						shp.graphicsCurveTo(cX, cY, tX, tY);  
 						break;
 				}
@@ -69,7 +71,7 @@ package away3d.primitives
 			
 			addChild(shp);
 			
-			_xOffset += glyf.width*tempScale;
+			_xOffset += glyf.width;
 		}
 		
 		public function setFont(fontSource:*):void
