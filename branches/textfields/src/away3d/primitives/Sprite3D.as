@@ -5,15 +5,12 @@ package away3d.primitives
 	import away3d.core.project.ShapeProjector;
 	import away3d.materials.ShapeMaterial;
 	
-	/* Li */
 	public class Sprite3D extends Mesh
 	{
 		public function Sprite3D()
 		{
 			var proj:ShapeProjector = new ShapeProjector(this);
-			var mat:ShapeMaterial = new ShapeMaterial(0xFF0000);
-			
-			this.name = "testSprite3D";
+			var mat:ShapeMaterial = new ShapeMaterial();
 			
 			super({projector:proj, material:mat});
 		}

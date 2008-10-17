@@ -77,11 +77,6 @@ package away3d.parsers.ttf.table
 		        {
 		        	var contourEndPointIndices:Array = findContourEndPointIndices(numberOfContours);
 		        	
-		        	//Debug...
-		        	var str:String = "";
-		        	for(var j:uint; j<contourEndPointIndices.length; j++)
-		        		str += " " + contourEndPointIndices[j];
-		        	
 		        	var instructions:Array = findInstructions();
 		        	var flags:Array = findFlags();
 		        	var xCoords:Array = findXCoords(flags, i);

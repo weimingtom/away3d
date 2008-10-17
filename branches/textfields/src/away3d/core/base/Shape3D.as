@@ -2,10 +2,10 @@ package away3d.core.base
 {
 	import away3d.core.arcane;
 	import away3d.events.ShapeEvent;
+	import away3d.materials.IMaterial;
 	import away3d.materials.IShapeMaterial;
 	import away3d.materials.ShapeMaterial;
 	
-	/* Li */
 	/**
     * A shape element used in vector type primitives.
     * 
@@ -25,7 +25,7 @@ package away3d.core.base
 		
 		public function Shape3D()
 		{
-			_material = new ShapeMaterial(0xFF0000);
+			_material = new ShapeMaterial();
 			
 			graphicsMoveTo(0, 0);
 		}
@@ -63,6 +63,10 @@ package away3d.core.base
 		public function get material():IShapeMaterial
 		{
 			return _material;
+		}
+		public function set material(value:IShapeMaterial):void
+		{
+			_material = value;
 		}
 		
 		public function get drawingCommands():Array
