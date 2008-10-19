@@ -11,16 +11,19 @@ package away3d.primitives
 	public class TextField3D extends Sprite3D
 	{
 		private var _glyfData:Dictionary;
+		private var _effectiveScaling:Number;
+		private var _textSize:Number;
 		private var _fontRange:String;
 		private var _text:String;
 		private var _xOffset:Number = 0;
 		private var _yOffset:Number = 0;
 		
-		public function TextField3D(text:String, fontSource:*, fontRange:String = null)
+		public function TextField3D(text:String, fontSource:*, textSize:Number = 20, fontRange:String = null)
 		{
 			super();
 			
 			_text = text;
+			_textSize = textSize;
 			
 			if(_fontRange)
 				_fontRange = fontRange;
@@ -50,8 +53,8 @@ package away3d.primitives
 			for(var i:uint; i<glyf.instructions.length; i++)
 			{
 				var instruction:Object = glyf.instructions[i];
-				var tX:Number = instruction.x + _xOffset;
-				var tY:Number = instruction.y;
+				var tX:Number = instruction.x*_effectiveScaling + _xOffset;
+				var tY:Number = instruction.y*_effectiveScaling;
 				
 				switch(instruction.type)
 				{	
@@ -62,8 +65,8 @@ package away3d.primitives
 						shp.graphicsLineTo(tX, tY);
 						break;
 					case 2:
-						var cX:Number = instruction.cx + _xOffset;
-						var cY:Number = instruction.cy;
+						var cX:Number = instruction.cx*_effectiveScaling + _xOffset;
+						var cY:Number = instruction.cy*_effectiveScaling;
 						shp.graphicsCurveTo(cX, cY, tX, tY);  
 						break;
 				}
@@ -71,7 +74,7 @@ package away3d.primitives
 			
 			addChild(shp);
 			
-			_xOffset += glyf.width;
+			_xOffset += glyf.width*_effectiveScaling;
 		}
 		
 		public function setFont(fontSource:*):void
@@ -110,12 +113,16 @@ package away3d.primitives
 		{
 			var ttfBinaryParser:TTFBinaryParser = new TTFBinaryParser(fontSource, _fontRange);
 			_glyfData = ttfBinaryParser.glyfs;
+			
+			_effectiveScaling = _textSize*50/ttfBinaryParser.unitsPerEm;
 		}
 		
 		private function parseAsFile(source:Class):void
 		{
 			var ttfAsParser:TTFAsParser = new TTFAsParser(source);
 			_glyfData = ttfAsParser.glyfs;
+			
+			_effectiveScaling = _textSize/10;
 		}
 	}
 }

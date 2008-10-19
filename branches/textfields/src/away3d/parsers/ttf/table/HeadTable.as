@@ -49,5 +49,10 @@ package away3d.parsers.ttf.table
 		{
 			return _indexToLocFormat;
 		}
+		
+		public function get unitsPerEm():int
+		{
+			return _unitsPerEm;
+		}
 	}
 }

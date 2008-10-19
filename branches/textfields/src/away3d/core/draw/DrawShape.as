@@ -6,46 +6,36 @@ package away3d.core.draw
 	public class DrawShape extends DrawPrimitive
 	{
 		private var _screenVertices:Array = [];
-		private var _screenVerticesX:Array = [];
-		private var _screenVerticesY:Array = [];
-		private var _screenVerticesZ:Array = [];
 		private var _drawingCommands:Array = [];
 		private var _material:IShapeMaterial;
 		private var _shape:Shape3D;
+		private var _screenZOffset:Number;
 		
 		public function DrawShape()
 		{
-			
+			minX = 999999;
+			maxX = -999999;
+			minY = 999999;
+			maxY = -999999;
+			minZ = 999999;
+			maxZ = -999999;
 		}
 		
 		public override function calc():void
 		{
-			/* _screenVerticesX.sort(Array.DESCENDING);
-			_screenVerticesY.sort(Array.DESCENDING); */
-			_screenVerticesZ.sort(Array.DESCENDING);
+			//NOTE: Min and Max values are calculated in addScreenVertex();
 			
-			/* minX = _screenVerticesX[_screenVerticesX.length - 1];
-			maxX = _screenVerticesX[0];
-			minY = _screenVerticesY[_screenVerticesY.length - 1];
-			maxY = _screenVerticesY[0]; */
-			minZ = _screenVerticesZ[_screenVerticesZ.length - 1];
-			maxZ = _screenVerticesZ[0];
-			
-			//Short way.
-			screenZ = (maxZ + minZ)/2;
-			
-			//Long way.
-			/* var acumZ:Number = 0;
-			for(var i:uint; i<_screenVerticesZ.length; i++)
-			{
-				acumZ += _screenVerticesZ[i];
-			}
-			screenZ = acumZ/_screenVerticesZ.length; */
+			screenZ = (maxZ + minZ)/2 + _screenZOffset;
 		}
 		
 		public function set shape(value:Shape3D):void
 		{
 			_shape = value;
+		}
+		
+		public function set screenZOffset(value:Number):void
+		{
+			_screenZOffset = value;
 		}
 		
 		public function get material():IShapeMaterial
@@ -65,9 +55,20 @@ package away3d.core.draw
 		{
 			_screenVertices.push(new ScreenVertex(sv.x, sv.y, sv.z));
 			
-			_screenVerticesX.push(sv.x);
-			_screenVerticesY.push(sv.y);
-			_screenVerticesZ.push(sv.z);
+			if(sv.x > maxX)
+				maxX = sv.x;
+			else if(sv.x < minX)
+				minX = sv.x;
+				
+			if(sv.y > maxY)
+				maxY = sv.y;
+			else if(sv.y < minY)
+				minY = sv.y;
+			
+			if(sv.z > maxZ)
+				maxZ = sv.z;
+			else if(sv.z < minZ)
+				minZ = sv.z;
 		}
 		
 		public function get drawingCommands():Array
@@ -87,10 +88,6 @@ package away3d.core.draw
 		public override function clear():void
 		{
 			_screenVertices = [];
-			
-			_screenVerticesX = [];
-			_screenVerticesY = [];
-			_screenVerticesZ = [];
 		}
 		
 		public override function contains(x:Number, y:Number):Boolean

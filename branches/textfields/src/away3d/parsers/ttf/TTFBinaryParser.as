@@ -20,6 +20,7 @@ package away3d.parsers.ttf
 		private var _fontName:String;
 		private var _subFontName:String;
 		private var _glyfs:Dictionary;
+		private var _unitsPerEm:uint;
 		
 		public function TTFBinaryParser(source:ByteArray, range:String)
 		{
@@ -65,6 +66,7 @@ package away3d.parsers.ttf
 	  		//Extract head data.
 	  		var headTable:HeadTable = new HeadTable(_data, _tables["head"].offset);
 	  		var indexToLocFormat:int = headTable.indexToLocFormat;
+	  		_unitsPerEm = headTable.unitsPerEm;
 	  		
 	  		//Extract loca data.
 	  		var locaTable:LocaTable = new LocaTable(_data, _tables["loca"].offset, numGlyfs, indexToLocFormat);
@@ -90,6 +92,11 @@ package away3d.parsers.ttf
 		public function get glyfs():Dictionary
 		{
 			return _glyfs;
+		}
+		
+		public function get unitsPerEm():uint
+		{
+			return _unitsPerEm;
 		}
 	}
 }
