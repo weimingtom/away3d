@@ -270,14 +270,23 @@ package away3d.loaders
 				{
 					case AnimationData.SKIN_ANIMATION:
 						var animation:SkinAnimation = new SkinAnimation();
-						animation.start = _animationData.start;
-						animation.length = _animationData.end - _animationData.start;
 						
 						for each (var channelData:ChannelData in _animationData.channels) {
 							var channel:Channel = channelData.channel;
 							channel.target = _bones[channel.name] as Bone;
 							animation.appendChannel(channel);
+							
+							var times:Array = channel.times;
+							
+							if (_animationData.start > times[0])
+								_animationData.start = times[0];
+							
+							if (_animationData.end < times[times.length-1])
+								_animationData.end = times[times.length - 1];
 						}
+						
+						animation.start = _animationData.start;
+						animation.length = _animationData.end - _animationData.start;
 						
 						_animationData.animation = animation;
 						break;
