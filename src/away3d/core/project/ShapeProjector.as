@@ -26,7 +26,6 @@ package away3d.core.project
 		{
 			this.source = _mesh;
 			
-			//_drawShape = new DrawShape();
 			_vertex = new Vertex();
 			_screenVertex = new ScreenVertex();
 		}
@@ -57,7 +56,7 @@ package away3d.core.project
 	            	_drawShape.view = view;
 	            	_drawShape.source = _mesh;
 	            	_drawShape.shape = _shape;
-	            	//_drawShape.create = createDrawTriangle;
+	            	//_drawShape.create = createDrawShape;
             	}
             	else
             		_drawShape.clear();
@@ -77,7 +76,7 @@ package away3d.core.project
 				
 				_drawShape.material = _shape.material;
 				_drawShape.source = _mesh;
-				
+				_drawShape.screenZOffset = _mesh.screenZOffset;
 				_drawShape.calc();
 				
 				//check drawShape is not behind the camera
