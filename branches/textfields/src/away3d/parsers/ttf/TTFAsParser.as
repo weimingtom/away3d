@@ -28,16 +28,22 @@ package away3d.parsers.ttf
 				for(j = 0; j<motif.length; j++)
 				{
 					var entry:Array = motif[j];
+					
+					var X:Number = entry[1][0];
+					var Y:Number = -entry[1][1] + height;
+					
 					switch(entry[0])
 					{
 						case "M":
-							instructions.push({type:0, x:entry[1][0], y:entry[1][1]});
+							instructions.push({type:0, x:X, y:Y});
 							break;
 						case "L":
-							instructions.push({type:1, x:entry[1][0], y:entry[1][1]});
+							instructions.push({type:1, x:X, y:Y});
 							break;
 						case "C":
-							instructions.push({type:2, cx:entry[1][0], cy:entry[1][1], x:entry[1][2], y:entry[1][3]});
+							var X2:Number = entry[1][2];
+							var Y2:Number = -entry[1][3] + height;
+							instructions.push({type:2, cx:X, cy:Y, x:X2, y:Y2});
 							break;
 					}
 				}

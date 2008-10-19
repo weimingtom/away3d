@@ -7,17 +7,21 @@ package away3d.primitives
 	
 	public class Sprite3D extends Mesh
 	{
-		public function Sprite3D()
+		public function Sprite3D(init:Object)
 		{
-			var proj:ShapeProjector = new ShapeProjector(this);
-			var mat:ShapeMaterial = new ShapeMaterial();
-			
-			super({projector:proj, material:mat});
+			init.projector = new ShapeProjector(this);
+			init.material = new ShapeMaterial();
+			super(init);
 		}
 		
 		public function addChild(shp:Shape3D):void
 		{
 			addShape(shp);
+		}
+		
+		public function removeChild(shp:Shape3D):void
+		{
+			removeShape(shp);
 		}
 	}
 }
