@@ -36,7 +36,7 @@ package away3d.loaders.data
 		/**
 		 * Reference to the time the animation starts.
 		 */
-		public var start:Number = 0;
+		public var start:Number = Infinity;
 		
 		/**
 		 * Reference to the number of seconds the animation ends.
