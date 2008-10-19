@@ -906,11 +906,8 @@ package away3d.loaders
         {
 			var animationClip:AnimationData = animationLibrary.addAnimation(clip.@id);
 			
-			for each (var channel:XML in clip.instance_animation) {
+			for each (var channel:XML in clip.instance_animation)
 				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
-				animationClip.start = channel.@start;
-				animationClip.end = channel.@end;
-			}
         }
 		
 		private function parseChannel(channelData:ChannelData) : void
