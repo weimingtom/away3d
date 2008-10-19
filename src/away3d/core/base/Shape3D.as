@@ -35,13 +35,11 @@ package away3d.core.base
 			addVertex(X, Y, 0);
 			_drawingCommands.push(0);
 		}
-		
 		public function graphicsLineTo(X:Number, Y:Number):void
 		{
 			addVertex(X, Y, 0);
 			_drawingCommands.push(1);
 		}
-		
 		public function graphicsCurveTo(cX:Number, cY:Number, X:Number, Y:Number):void
 		{
 			addVertex(cX, cY, 0);
@@ -49,15 +47,14 @@ package away3d.core.base
 			_drawingCommands.push(2);
 		}
 		
+		public override function get vertices():Array
+		{
+			return _vertices;
+		}
 		private function addVertex(X:Number, Y:Number, Z:Number):void
 		{
 			var vertex:Vertex = new Vertex(X, Y, Z);
 			_vertices.push(vertex);
-		}
-		
-		public override function get vertices():Array
-		{
-			return _vertices;
 		}
 		
 		public function get material():IShapeMaterial
