@@ -1,14 +1,15 @@
 package away3d.loaders
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.events.*;
 	
 	import flash.events.EventDispatcher;
 	
+	use namespace arcane;
+	
 	public class AbstractParser extends EventDispatcher
 	{
-		use namespace arcane;
 		/** @private */
     	arcane var _totalChunks:int = 0;
         /** @private */

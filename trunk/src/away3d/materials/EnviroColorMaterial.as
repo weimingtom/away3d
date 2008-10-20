@@ -1,6 +1,6 @@
 package away3d.materials
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
@@ -9,13 +9,13 @@ package away3d.materials
 	import flash.display.*;
 	import flash.geom.*;
 	
+	use namespace arcane;
+	
 	/**
 	 * Color material with environment shading.
 	 */
 	public class EnviroColorMaterial extends EnviroShader implements ITriangleMaterial
 	{
-    	use namespace arcane;
-		
 		private var _color:uint;
 		private var _red:Number;
 		private var _green:Number;

@@ -1,18 +1,18 @@
 package away3d.materials
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
+	
+	use namespace arcane;
 	
 	/**
 	 * Color material with phong shading.
 	 */
 	public class PhongColorMaterial extends CompositeMaterial
 	{
-		use namespace arcane;
-		
 		private var _shininess:Number;
 		private var _specular:Number;
 		private var _phongShader:CompositeMaterial;

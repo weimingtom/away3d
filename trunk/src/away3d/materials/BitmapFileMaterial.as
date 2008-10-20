@@ -1,12 +1,14 @@
 package away3d.materials
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.events.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.net.*;
     			
+	use namespace arcane;
+	
 	 /**
 	 * Dispatched when the material completes a file load successfully.
 	 * 
@@ -33,8 +35,6 @@ package away3d.materials
     */
     public class BitmapFileMaterial extends TransformBitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-    	use namespace arcane;
-    	
 		private var _loader:Loader;
 		private var _materialresize:MaterialEvent;
 		private var _materialloaderror:MaterialEvent;

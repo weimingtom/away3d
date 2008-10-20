@@ -1,12 +1,14 @@
 package away3d.core.base
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.utils.*;
     import away3d.events.*;
     import away3d.materials.*;
     
     import flash.events.Event;
+    
+    use namespace arcane;
     
 	 /**
 	 * Dispatched when the material of the segment changes.
@@ -23,7 +25,6 @@ package away3d.core.base
     */
     public class Segment extends Element
     {
-        use namespace arcane;
 		/** @private */
         arcane var _v0:Vertex;
 		/** @private */

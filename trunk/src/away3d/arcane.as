@@ -1,4 +1,4 @@
-package away3d.core
+package away3d
 {
     public namespace arcane;
 }

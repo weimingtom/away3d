@@ -1,17 +1,18 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d cone primitive.
     */ 
     public class AbstractWirePrimitive extends Mesh
     {
-    	use namespace arcane;
 		/** @private */
 		arcane var _v:Vertex;
 		/** @private */

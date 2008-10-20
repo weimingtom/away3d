@@ -1,7 +1,7 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -13,6 +13,8 @@ package away3d.materials
     import flash.geom.*;
     import flash.utils.*;
     
+	use namespace arcane;
+	
 	 /**
 	 * Dispatched when the bitmapData used for the material texture is resized.
 	 * 
@@ -25,7 +27,6 @@ package away3d.materials
     */
     public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial
     {
-    	use namespace arcane;
     	/** @private */
     	arcane var _texturemapping:Matrix;
         /** @private */

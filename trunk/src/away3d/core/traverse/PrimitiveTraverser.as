@@ -1,21 +1,20 @@
 package away3d.core.traverse
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
     
-
+	use namespace arcane;
+	
     /**
     * Traverser that gathers drawing primitives to render the scene.
     */
     public class PrimitiveTraverser extends Traverser
     {
-    	use namespace arcane;
-    	
     	private var _view:View3D;
     	private var _viewTransform:Matrix3D;
     	private var _consumer:IPrimitiveConsumer;

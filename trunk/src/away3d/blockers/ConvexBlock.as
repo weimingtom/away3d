@@ -1,7 +1,6 @@
 package away3d.blockers
 {
     import away3d.containers.*;
-    import away3d.core.*;
     import away3d.core.base.*;
     import away3d.core.block.*;
     import away3d.core.draw.*;

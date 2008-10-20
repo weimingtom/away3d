@@ -1,7 +1,7 @@
 package away3d.core.base
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.math.*;
@@ -15,6 +15,8 @@ package away3d.core.base
     
     import flash.display.*;
     import flash.events.EventDispatcher;
+    
+    use namespace arcane;
     
 	/**
 	 * Dispatched when the local transform matrix of the 3d object changes.
@@ -109,7 +111,6 @@ package away3d.core.base
      */
     public class Object3D extends EventDispatcher implements IClonable
     {
-        use namespace arcane;
         /** @private */
         arcane var _mouseEnabled:Boolean = true;
 		/** @private */

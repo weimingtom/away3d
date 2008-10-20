@@ -1,7 +1,7 @@
 package away3d.materials.shaders
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
@@ -15,6 +15,8 @@ package away3d.materials.shaders
 	import flash.geom.*;
 	import flash.utils.*;
 	
+	use namespace arcane;
+	
 	/**
 	 * Diffuse Dot3 shader class for directional lighting.
 	 * 
@@ -22,8 +24,6 @@ package away3d.materials.shaders
 	 */
     public class DiffuseDot3Shader extends AbstractShader implements IUVMaterial
     {
-    	use namespace arcane;
-        
         private var _zeroPoint:Point = new Point(0, 0);
         private var _bitmap:BitmapData;
         private var _sourceDictionary:Dictionary = new Dictionary(true);
