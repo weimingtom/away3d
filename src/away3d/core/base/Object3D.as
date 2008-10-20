@@ -1035,7 +1035,7 @@ package away3d.core.base
     
         public function set rotationX(rot:Number):void
         {
-        	if (_rotationX == -rot*toRADIANS)
+        	if (rotationX == rot)
         		return;
         	
             _rotationX = -rot*toRADIANS;
@@ -1055,7 +1055,7 @@ package away3d.core.base
     
         public function set rotationY(rot:Number):void
         {
-        	if (_rotationY == -rot*toRADIANS)
+        	if (rotationY == rot)
         		return;
         	
             _rotationY = -rot*toRADIANS;
@@ -1075,7 +1075,7 @@ package away3d.core.base
     
         public function set rotationZ(rot:Number):void
         {
-        	if (_rotationZ == -rot*toRADIANS)
+        	if (rotationZ == rot)
         		return;
         	
             _rotationZ = -rot*toRADIANS;
@@ -1546,8 +1546,10 @@ package away3d.core.base
 		 */
         public function translate(axis:Number3D, distance:Number):void
         {
+        	axis.normalize();
+        	
             _vector.rotate(axis, transform);
-    
+            
             x += distance * _vector.x;
             y += distance * _vector.y;
             z += distance * _vector.z;
@@ -1591,18 +1593,16 @@ package away3d.core.base
 		 */
         public function rotate(axis:Number3D, angle:Number):void
         {
-        	if (_transformDirty)
-        		updateTransform();
-        	
         	axis.normalize();
         	
-            _vector.rotate(axis, _transform);
+            _vector.rotate(axis, transform);
+            
             _m.rotationMatrix(_vector.x, _vector.y, _vector.z, angle * toRADIANS);
     		_m.tx = _transform.tx;
     		_m.ty = _transform.ty;
     		_m.tz = _transform.tz;
     		_transform.multiply3x3(_m, _transform);
-    
+    		
             _rotationDirty = true;
             _sceneTransformDirty = true;
             _localTransformDirty = true;
