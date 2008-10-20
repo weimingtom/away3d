@@ -22,12 +22,12 @@ package away3d.containers
 		/** @private */
         arcane function internalRemoveView(view:View3D):void
         {
-        	view.removeEventListener(ViewEvent.UPDATE_SCENE, onUpdateScene);
+        	view.removeEventListener(ViewEvent.UPDATE_SCENE, onUpdate);
         }
 		/** @private */
         arcane function internalAddView(view:View3D):void
         {
-        	view.addEventListener(ViewEvent.UPDATE_SCENE, onUpdateScene);
+        	view.addEventListener(ViewEvent.UPDATE_SCENE, onUpdate);
         }
         
         private var _view:View3D;
@@ -39,16 +39,16 @@ package away3d.containers
         private var _sessiontraverser:SessionTraverser = new SessionTraverser();
         private var _lighttraverser:LightTraverser = new LightTraverser();
         
-        private function onUpdateScene(event:ViewEvent):void
+        private function onUpdate(event:ViewEvent):void
         {
         	if (autoUpdate) {
         		
         		if (_currentView && _currentView != event.view)
-        			Debug.error("Multiple views detected! Should consider switching to manual updateScene");
+        			Debug.warning("Multiple views detected! Should consider switching to manual update");
         		
         		_currentView = event.view;
         		
-        		updateScene();
+        		update();
         	}
         }
         
@@ -144,7 +144,7 @@ package away3d.containers
 		/**
 		 * Calling manually will update scene specific variables
 		 */
-        public function updateScene():void
+        public function update():void
         {
         	//clear updated objects
         	updatedObjects = new Dictionary(true);
