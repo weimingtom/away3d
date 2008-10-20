@@ -63,6 +63,8 @@ package away3d.animators.skin
 					}
 				}
 				
+				_index--;
+				
 				while (i--) {
 					if (type[i] == "transform") {
 						target.transform = param[_index][i];
