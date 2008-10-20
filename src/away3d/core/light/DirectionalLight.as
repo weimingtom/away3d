@@ -1,7 +1,7 @@
 package away3d.core.light
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.events.*;
@@ -12,12 +12,13 @@ package away3d.core.light
 	import flash.geom.*;
 	import flash.utils.Dictionary;
 
+	use namespace arcane;
+	
     /**
     * Directional light primitive.
     */
     public class DirectionalLight extends LightPrimitive
     {
-    	use namespace arcane;
     	
         private var _colorMatrix:ColorMatrixFilter = new ColorMatrixFilter();
         private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();

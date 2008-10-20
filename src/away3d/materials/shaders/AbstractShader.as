@@ -1,7 +1,7 @@
 package away3d.materials.shaders
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
@@ -16,13 +16,14 @@ package away3d.materials.shaders
 	import flash.geom.*;
 	import flash.utils.*;	
 	
+	use namespace arcane;
+	
 	/**
 	 * Base class for shaders.
     * Not intended for direct use - use one of the shading materials in the materials package.
     */
     public class AbstractShader extends EventDispatcher implements ILayerMaterial
     {
-		use namespace arcane;
         /** @private */
 		arcane var _materialupdated:MaterialEvent;
         /** @private */

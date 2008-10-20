@@ -1,7 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
@@ -15,6 +15,8 @@ package away3d.core.render
 	import flash.geom.*;
 	import flash.utils.*;
     
+	use namespace arcane;
+	
 	/**
 	 * Dispatched when the render contents of the session require updating.
 	 * 
@@ -28,7 +30,6 @@ package away3d.core.render
     */
 	public class AbstractRenderSession extends EventDispatcher
 	{
-		use namespace arcane;
 		/** @private */
 		arcane var _containers:Dictionary = new Dictionary(true);
 		/** @private */

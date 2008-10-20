@@ -1,7 +1,7 @@
 package away3d.containers
 {
 	import away3d.cameras.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.block.BlockerArray;
 	import away3d.core.clip.*;
@@ -20,6 +20,8 @@ package away3d.containers
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
+	use namespace arcane;
 	
 	 /**
 	 * Dispatched when a user moves the cursor while it is over a 3d object
@@ -61,7 +63,6 @@ package away3d.containers
 	 */
 	public class View3D extends Sprite
 	{
-		use namespace arcane;
 		/** @private */
 		arcane var _interactiveLayer:Sprite = new Sprite();
 		/** @private */

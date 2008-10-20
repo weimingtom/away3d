@@ -1,7 +1,7 @@
 package away3d.materials
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
@@ -10,6 +10,8 @@ package away3d.materials
 	import flash.display.*;
 	import flash.geom.*;
 	import flash.utils.*;
+	
+	use namespace arcane;
 	
 	/**
 	 * Container for caching multiple bitmapmaterial objects.
@@ -20,8 +22,6 @@ package away3d.materials
 	 */
 	public class BitmapMaterialContainer extends BitmapMaterial implements ITriangleMaterial, ILayerMaterial
 	{
-		use namespace arcane;
-		
 		private var _width:Number;
 		private var _height:Number;
 		private var _containerDictionary:Dictionary = new Dictionary(true);

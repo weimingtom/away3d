@@ -1,7 +1,7 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -13,13 +13,14 @@ package away3d.materials
     import flash.display.*;
     import flash.events.*;
 
+	use namespace arcane;
+	
     /**
     * Abstract class for materials that calculate lighting for the face's center
     * Not intended for direct use - use <code>ShadingColorMaterial</code> or <code>WhiteShadingBitmapMaterial</code>.
     */
     public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial
     {
-    	use namespace arcane;
         /** @private */
         arcane var v0:ScreenVertex;
         /** @private */

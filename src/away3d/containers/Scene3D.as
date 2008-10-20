@@ -1,6 +1,6 @@
 package away3d.containers
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
@@ -12,12 +12,13 @@ package away3d.containers
 	import flash.events.*;
 	import flash.utils.*;
     
+	use namespace arcane;
+	
     /**
     * The root container of all 3d objects in a single scene
     */
     public class Scene3D extends ObjectContainer3D
     {
-    	use namespace arcane;
 		/** @private */
         arcane function internalRemoveView(view:View3D):void
         {

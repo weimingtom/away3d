@@ -1,6 +1,6 @@
 package away3d.cameras
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -10,6 +10,8 @@ package away3d.cameras
     
     import flash.utils.*;
     
+	use namespace arcane;
+	
 	/**
 	 * Dispatched when the focus or zoom properties of a camera update.
 	 * 
@@ -243,8 +245,6 @@ package away3d.cameras
     	 */
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
-            use namespace arcane;
-
             if (vertex == null)
                 vertex = new Vertex(0,0,0);
                 

@@ -1,7 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.events.*;
@@ -10,13 +10,13 @@ package away3d.core.render
 	import flash.geom.*;
 	import flash.utils.*;
 	
+	use namespace arcane;
+	
     /**
     * Drawing session object that renders all drawing primitives into a <code>Sprite</code> container.
     */
 	public class SpriteRenderSession extends AbstractRenderSession
 	{
-		use namespace arcane;
-		
         private var _container:Sprite;
         private var _clip:Clipping;
         

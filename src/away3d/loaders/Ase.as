@@ -1,16 +1,16 @@
 package away3d.loaders
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 
+	use namespace arcane;
+	
     /**
     * File loader for the ASE file format.
     */
     public class Ase extends AbstractParser
     {
-		use namespace arcane;
-    	
         private var mesh:Mesh;
         private var scaling:Number;
 		private var ini:Init;
