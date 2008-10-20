@@ -789,17 +789,13 @@ package away3d.loaders
 			if (!tmp) tmp = skin.source.(@id == jointId).IDREF_array.toString();
             tmp = tmp.replace(/\n/g, " ");
             var nameArray:Array = tmp.split(" ");
-            tmp = skin.bind_shape_matrix[0].toString();
-			
-            var bind_shape_array:Array = tmp.split(" ");
+            
 			var bind_shape:Matrix3D = new Matrix3D();
-			bind_shape.array2matrix(bind_shape_array, yUp, scaling);
+			bind_shape.array2matrix(getArray(skin.bind_shape_matrix[0].toString()), yUp, scaling);
 			
 			var bindMatrixId:String = getId(skin.joints.input.(@semantic == "INV_BIND_MATRIX").@source);
-
-            tmp = skin.source.(@id == bindMatrixId)[0].float_array.toString();
-            tmp = tmp.replace(/\n/g, " ");
-            var float_array:Array = tmp.split(" ");
+            var float_array:Array = getArray(skin.source.(@id == bindMatrixId)[0].float_array.toString());
+            
             var v:Array;
             var matrix:Matrix3D;
             var name:String;
