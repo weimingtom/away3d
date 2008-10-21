@@ -294,7 +294,7 @@ package away3d.core.base
         private static var toDEGREES:Number = 180 / Math.PI;
         private static var toRADIANS:Number = Math.PI / 180;
 		
-		private var _rotation:Number3D = new Number3D();
+		private var _eulers:Number3D = new Number3D();
         private var _rotationDirty:Boolean;
         arcane var _sessionDirty:Boolean;
         arcane var _objectDirty:Boolean;
@@ -1158,23 +1158,20 @@ package away3d.core.base
     	/**
     	 * Defines the rotation of the 3d object as a <code>Number3D</code> object containing euler angles for rotation around x, y and z axis.
     	 */
-        public function get rotation():Number3D
+        public function get eulers():Number3D
         {
         	if (_rotationDirty) 
                 updateRotation();
             
-            _rotation.x = -_rotationX*toDEGREES;
-            _rotation.y = -_rotationY*toDEGREES;
-            _rotation.z = -_rotationZ*toDEGREES;
+            _eulers.x = -_rotationX*toDEGREES;
+            _eulers.y = -_rotationY*toDEGREES;
+            _eulers.z = -_rotationZ*toDEGREES;
             
-            return _rotation;
+            return _eulers;
         }
 		
-        public function set rotation(value:Number3D):void
+        public function set eulers(value:Number3D):void
         {
-        	if (_rotationDirty) 
-                updateRotation();
-            
             _rotationX = -value.x*toRADIANS;
             _rotationY = -value.y*toRADIANS;
             _rotationZ = -value.z*toRADIANS;
