@@ -1,7 +1,7 @@
 package away3d.core.base
 {
-    import away3d.containers.*;
     import away3d.arcane;
+    import away3d.containers.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.math.*;
@@ -294,6 +294,7 @@ package away3d.core.base
         private static var toDEGREES:Number = 180 / Math.PI;
         private static var toRADIANS:Number = Math.PI / 180;
 		
+		private var _rotation:Number3D = new Number3D();
         private var _rotationDirty:Boolean;
         arcane var _sessionDirty:Boolean;
         arcane var _objectDirty:Boolean;
@@ -1155,6 +1156,33 @@ package away3d.core.base
         }
         
     	/**
+    	 * Defines the rotation of the 3d object as a <code>Number3D</code> object containing euler angles for rotation around x, y and z axis.
+    	 */
+        public function get rotation():Number3D
+        {
+        	if (_rotationDirty) 
+                updateRotation();
+            
+            _rotation.x = -_rotationX*toDEGREES;
+            _rotation.y = -_rotationY*toDEGREES;
+            _rotation.z = -_rotationZ*toDEGREES;
+            
+            return _rotation;
+        }
+		
+        public function set rotation(value:Number3D):void
+        {
+        	if (_rotationDirty) 
+                updateRotation();
+            
+            _rotationX = -value.x*toRADIANS;
+            _rotationY = -value.y*toRADIANS;
+            _rotationZ = -value.z*toRADIANS;
+			
+            _transformDirty = true;
+        }
+        
+    	/**
     	 * Defines the transformation of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
         public function get transform():Matrix3D
@@ -1584,6 +1612,20 @@ package away3d.core.base
         {
             rotate(Number3D.FORWARD, angle);
         }
+        
+        /**
+         * Rotates the 3d object directly to a euler angle
+    	 * 
+    	 * @param	ax		The angle in radians of the rotation around the x axis.
+    	 * @param	ay		The angle in radians of the rotation around the y axis.
+    	 * @param	az		The angle in radians of the rotation around the z axis.
+    	 */
+		public function rotateTo(ax:Number, ay:Number, az:Number):void
+		{
+			rotationX = ax;
+            rotationY = ay;
+            rotationZ = az;
+		}
 		
 		/**
 		 * Rotates the 3d object around an axis by a defined angle
