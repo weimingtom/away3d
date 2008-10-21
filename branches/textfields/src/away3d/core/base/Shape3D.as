@@ -27,23 +27,23 @@ package away3d.core.base
 		{
 			_material = new ShapeMaterial();
 			
-			graphicsMoveTo(0, 0);
+			graphicsMoveTo(0, 0, 0);
 		}
 		
-		public function graphicsMoveTo(X:Number, Y:Number):void
+		public function graphicsMoveTo(X:Number, Y:Number, Z:Number):void
 		{
-			addVertex(X, Y, 0);
+			addVertex(X, Y, Z);
 			_drawingCommands.push(0);
 		}
-		public function graphicsLineTo(X:Number, Y:Number):void
+		public function graphicsLineTo(X:Number, Y:Number, Z:Number):void
 		{
-			addVertex(X, Y, 0);
+			addVertex(X, Y, Z);
 			_drawingCommands.push(1);
 		}
-		public function graphicsCurveTo(cX:Number, cY:Number, X:Number, Y:Number):void
+		public function graphicsCurveTo(cX:Number, cY:Number, cZ:Number, X:Number, Y:Number, Z:Number):void
 		{
-			addVertex(cX, cY, 0);
-			addVertex(X, Y, 0);
+			addVertex(cX, cY, cZ);
+			addVertex(X, Y, Z);
 			_drawingCommands.push(2);
 		}
 		
