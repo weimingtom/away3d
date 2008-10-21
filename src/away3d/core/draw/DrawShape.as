@@ -13,26 +13,14 @@ package away3d.core.draw
 		
 		public function DrawShape()
 		{
-			minX = 0;
-			maxX = 0;
-			minY = 0;
-			maxY = 0;
-			minZ = 0;
-			maxZ = 0;
+			minX = minY = minZ = 999999;
+			maxX = maxY = maxZ = -999999;
 		}
 		
 		public override function calc():void
 		{
 			//NOTE: Min and Max values are calculated in addScreenVertex();
-			
-			//Short way.
-			//screenZ = (maxZ + minZ)/2 + _screenZOffset;
-			
-			//Long way.
-			var zAcum:Number = 0;
-			for(var i:uint; i<_screenVertices.length; i++)
-				zAcum += _screenVertices[i].z;
-			screenZ = zAcum/_screenVertices.length + _screenZOffset;
+			screenZ = (maxZ + minZ)/2 + _screenZOffset;
 		}
 		
 		public function get screenVertices():Array
@@ -76,6 +64,9 @@ package away3d.core.draw
 		public override function clear():void
 		{
 			_screenVertices = [];
+			
+			minX = minY = minZ = 999999;
+			maxX = maxY = maxZ = -999999;
 		}
 		
 		public override function contains(x:Number, y:Number):Boolean
