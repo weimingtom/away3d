@@ -66,12 +66,13 @@ package away3d.core.project
 					_drawShape.addScreenVertex(_screenVertex);
 					
 					//check every ScreenVertex is visible
-					if(!_screenVertex.visible)
-						break mainLoop;
+					//Commented because it causes all glyfs in a TextField3D to dissapear when going to the right... weird.
+					//What determines when a ScreenVertex is visible?
+					/* if(!_screenVertex.visible)
+						break mainLoop; */
 				}
 				
 				_drawShape.drawingCommands = _shape.drawingCommands;
-				
 				_drawShape.material = _shape.material;
 				_drawShape.source = _mesh;
 				_drawShape.view = view;
