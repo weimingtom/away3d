@@ -13,38 +13,26 @@ package away3d.core.draw
 		
 		public function DrawShape()
 		{
-			minX = 999999;
-			maxX = -999999;
-			minY = 999999;
-			maxY = -999999;
-			minZ = 999999;
-			maxZ = -999999;
+			minX = 0;
+			maxX = 0;
+			minY = 0;
+			maxY = 0;
+			minZ = 0;
+			maxZ = 0;
 		}
 		
 		public override function calc():void
 		{
 			//NOTE: Min and Max values are calculated in addScreenVertex();
 			
-			screenZ = (maxZ + minZ)/2 + _screenZOffset;
-		}
-		
-		public function set shape(value:Shape3D):void
-		{
-			_shape = value;
-		}
-		
-		public function set screenZOffset(value:Number):void
-		{
-			_screenZOffset = value;
-		}
-		
-		public function get material():IShapeMaterial
-		{
-			return _material;
-		}
-		public function set material(mat:IShapeMaterial):void
-		{
-			_material = mat;
+			//Short way.
+			//screenZ = (maxZ + minZ)/2 + _screenZOffset;
+			
+			//Long way.
+			var zAcum:Number = 0;
+			for(var i:uint; i<_screenVertices.length; i++)
+				zAcum += _screenVertices[i].z;
+			screenZ = zAcum/_screenVertices.length + _screenZOffset;
 		}
 		
 		public function get screenVertices():Array
@@ -94,5 +82,24 @@ package away3d.core.draw
         {   
             return false;
         }
+        
+        public function set shape(value:Shape3D):void
+		{
+			_shape = value;
+		}
+		
+		public function get material():IShapeMaterial
+		{
+			return _material;
+		}
+		public function set material(mat:IShapeMaterial):void
+		{
+			_material = mat;
+		}
+		
+		public function set screenZOffset(value:Number):void
+		{
+			_screenZOffset = value;
+		}
 	}
 }

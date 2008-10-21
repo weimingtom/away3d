@@ -51,19 +51,17 @@ package away3d.core.project
 				_shape = _mesh.shapes[i];
 				
 				if(!(_drawShape = primitiveDictionary[_shape]))
-				{
 					_drawShape = primitiveDictionary[_shape] = new DrawShape();
-	            	_drawShape.view = view;
-	            	_drawShape.source = _mesh;
-	            	_drawShape.shape = _shape;
-	            	//_drawShape.create = createDrawShape;
-            	}
             	else
             		_drawShape.clear();
 				
 				for(j = 0; j < _shape.vertices.length; j++)
 				{
 					_vertex = _shape.vertices[j];
+					
+					if(!(_screenVertex = primitiveDictionary[_vertex]))
+						_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex(); 
+					
 					view.camera.project(viewTransform, _vertex, _screenVertex);
 					_drawShape.addScreenVertex(_screenVertex);
 					
@@ -76,6 +74,8 @@ package away3d.core.project
 				
 				_drawShape.material = _shape.material;
 				_drawShape.source = _mesh;
+				_drawShape.view = view;
+	            _drawShape.shape = _shape;
 				_drawShape.screenZOffset = _mesh.screenZOffset;
 				_drawShape.calc();
 				

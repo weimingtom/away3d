@@ -2,6 +2,7 @@ package away3d.primitives
 {
 	import away3d.core.base.Shape3D;
 	import away3d.loaders.TTFLoader;
+	import away3d.materials.IShapeMaterial;
 	import away3d.materials.ShapeMaterial;
 	import away3d.parsers.ttf.TTFAsParser;
 	import away3d.parsers.ttf.TTFBinaryParser;
@@ -17,14 +18,19 @@ package away3d.primitives
 		private var _glyfData:Dictionary;
 		private var _effectiveScaling:Number;
 		private var _fontRange:String;
-		private var _xOffset:Number = 0;
+		private var _penPosition:Number = 0;
+		private var _xOffset:Number = 0; //Not made accessible yet.
 		private var _yOffset:Number = 0;
+		private var _extrudeMaterial:IShapeMaterial;
+		private var _extrusionDepth:Number = 0;
 		
 		public function TextField3D(text:String, fontSource:*, init:Object = null)
 		{
 			super(init);
 			
 			_textSize = ini.getNumber("textSize", 20, {min:1, max:160});
+			_extrusionDepth = ini.getNumber("extrusionDepth", 0, {min:0});
+			_extrudeMaterial = ini.getShapeMaterial("extrudeMaterial");
 			
 			_text = text;
 			_fontRange = text;
@@ -51,12 +57,23 @@ package away3d.primitives
 			_fontRange = value;
 		}
 		
+		public function get extrusionDepth():Number
+		{
+			return _extrusionDepth;	
+		}
+		public function set extrusionDepth(value:Number):void
+		{
+			_extrusionDepth = value;
+			generateText();
+		}
+		
 		private function generateText():void
 		{
 			var i:uint
-			/* for(i = 0; i<shapes.length; i++)
-				removeChild(shapes[i]); */
+			for(i = 0; i<shapes.length; i++)
+				removeChild(shapes[i]);
 			
+			_penPosition = 0;
 			for(i = 0; i<_text.length; i++)
 				addGlyf(text.charAt(i));
 		}
@@ -94,29 +111,82 @@ package away3d.primitives
 			var shp:Shape3D = new Shape3D();
 			shp.material = ShapeMaterial(this.material);
 			
+			var tX:Number = 0;
+			var tY:Number = 0;
+			var cX:Number = 0;
+			var cY:Number = 0;
+			var memX:Number = 0;
+			var memY:Number = 0;
+			
 			var glyf:Object = _glyfData[char];
 			for(var i:uint; i<glyf.instructions.length; i++)
 			{
 				var instruction:Object = glyf.instructions[i];
-				var tX:Number = instruction.x*_effectiveScaling + _xOffset;
-				var tY:Number = instruction.y*_effectiveScaling;
+				
+				tX = instruction.x*_effectiveScaling + _penPosition + _xOffset;
+				tY = instruction.y*_effectiveScaling + _yOffset;
 				
 				switch(instruction.type)
 				{	
 					case 0:
-						shp.graphicsMoveTo(tX, tY);
+						shp.graphicsMoveTo(tX, tY, 0);
 						break;
 					case 1:
-						shp.graphicsLineTo(tX, tY);
+						shp.graphicsLineTo(tX, tY, 0);
 						break;
 					case 2:
-						var cX:Number = instruction.cx*_effectiveScaling + _xOffset;
-						var cY:Number = instruction.cy*_effectiveScaling;
-						shp.graphicsCurveTo(cX, cY, tX, tY);  
+						cX = instruction.cx*_effectiveScaling + _penPosition + _xOffset;
+						cY = instruction.cy*_effectiveScaling + _yOffset;
+						shp.graphicsCurveTo(cX, cY, 0, tX, tY, 0);  
 						break;
 				}
+				
+				if(_extrusionDepth != 0)
+				{
+					if(instruction.type != 0)
+					{
+						var extShp:Shape3D = new Shape3D();
+						
+						if(_extrudeMaterial == null)
+							extShp.material = ShapeMaterial(this.material);
+						else
+							extShp.material = ShapeMaterial(_extrudeMaterial);
+						
+						extShp.graphicsMoveTo(memX, memY, 0);
+						
+						switch(instruction.type)
+						{	
+							case 1:
+								extShp.graphicsLineTo(tX, tY, 0);
+								break;
+							case 2:
+								extShp.graphicsCurveTo(cX, cY, 0, tX, tY, 0);  
+								break;
+						} 
+						
+						extShp.graphicsMoveTo(memX, memY, 0);
+						extShp.graphicsLineTo(memX, memY, _extrusionDepth);
+						
+						switch(instruction.type)
+						{	
+							case 1:
+								extShp.graphicsLineTo(tX, tY, _extrusionDepth);
+								break;
+							case 2:
+								extShp.graphicsCurveTo(cX, cY, _extrusionDepth, tX, tY, _extrusionDepth);  
+								break;
+						}
+						
+						extShp.graphicsLineTo(tX, tY, 0);
+						
+						addChild(extShp); 
+					}
+				} 
+				
+				memX = tX;
+				memY = tY;
 			}
-			_xOffset += glyf.width*_effectiveScaling;
+			_penPosition += glyf.width*_effectiveScaling;
 			
 			addChild(shp);
 		}
