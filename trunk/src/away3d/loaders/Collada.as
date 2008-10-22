@@ -1186,7 +1186,7 @@ package away3d.loaders
 		
 		private function getColorValue(color:XML):uint
 		{
-			if (color.length() == 0)
+			if (!color || color.length() == 0)
 				return 0xFFFFFF;
 			
 			var colorArray:Array = color.color.split(" ");
