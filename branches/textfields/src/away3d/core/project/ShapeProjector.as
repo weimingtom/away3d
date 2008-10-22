@@ -72,8 +72,12 @@ package away3d.core.project
 						break mainLoop; */
 				}
 				
+				if(_shape.material != null)
+					_drawShape.material = _shape.material;
+				else
+					_drawShape.material = IShapeMaterial(_mesh.material);
+				
 				_drawShape.drawingCommands = _shape.drawingCommands;
-				_drawShape.material = _shape.material;
 				_drawShape.source = _mesh;
 				_drawShape.view = view;
 	            _drawShape.shape = _shape;

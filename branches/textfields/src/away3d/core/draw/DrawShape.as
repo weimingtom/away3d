@@ -2,6 +2,7 @@ package away3d.core.draw
 {
 	import away3d.core.base.Shape3D;
 	import away3d.materials.IShapeMaterial;
+	import away3d.materials.ITriangleMaterial;
 	
 	public class DrawShape extends DrawPrimitive
 	{

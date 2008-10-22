@@ -12,7 +12,7 @@ package away3d.materials
     /**
     * Wire material for face border outlining only
     */
-    public class WireframeMaterial extends EventDispatcher implements ITriangleMaterial, ISegmentMaterial
+    public class WireframeMaterial extends EventDispatcher implements ITriangleMaterial, ISegmentMaterial, IShapeMaterial
     {
         /**
         * Instance of the Init object used to hold and parse default property values
@@ -82,6 +82,17 @@ package away3d.materials
                 return;
 
             tri.source.session.renderTriangleLine(width, color, alpha, tri.v0, tri.v1, tri.v2);
+        }
+        
+        /**
+		 * @inheritDoc
+		 */
+        public function renderShape(shp:DrawShape):void
+        {
+            if(alpha <= 0 || width <= 0)
+            	return;
+			
+			shp.source.session.renderShape(width, color, alpha, 0, 0, shp);
         }
         
 		/**
