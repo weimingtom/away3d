@@ -2,7 +2,6 @@ package away3d.materials
 {
 	import away3d.core.draw.DrawShape;
 	
-	/* Li */
 	/**
     * Interface for materials that are capable of drawing vector shapes.
     */

@@ -13,7 +13,7 @@ package away3d.materials
     /**
     * Material for solid color drawing
     */
-    public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial
+    public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial, IShapeMaterial
     {
     	use namespace arcane;
 		/** @private */
@@ -126,6 +126,17 @@ package away3d.materials
         public function renderFog(fog:DrawFog):void
         {
             fog.source.session.renderFogColor(fog.clip, color, _alpha);
+        }
+        
+        /**
+		 * @inheritDoc
+		 */
+        public function renderShape(shp:DrawShape):void
+        {
+            if(alpha <= 0)
+            	return;
+			
+			shp.source.session.renderShape(1, 0, 0, color, alpha, shp);
         }
         
 		/**

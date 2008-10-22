@@ -512,7 +512,10 @@ package away3d.core.render
 		{
 			var i:uint;
 			graphics.lineStyle(lineThickness, lineColor, lineAlpha);
-			graphics.beginFill(fillColor, fillAlpha);
+			
+			if(fillAlpha >= 0)
+				graphics.beginFill(fillColor, fillAlpha);
+			
 			var currentPoint:uint = 0;
 			for(i = 0; i<shp.drawingCommands.length; i++)
 			{
@@ -535,7 +538,9 @@ package away3d.core.render
 						break;
 				}
 			}
-			graphics.endFill();
+			
+			if(fillAlpha >= 0)
+				graphics.endFill();
 		}
 		
 		/**

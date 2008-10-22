@@ -309,22 +309,6 @@ package away3d.core.utils
         
             return result;
         }
-        
-        /* Li:mod */
-        public function getShapeMaterial(name:String):IShapeMaterial
-        {
-        	if (init == null)
-                return null;
-        
-            if (!init.hasOwnProperty(name))
-                return null;
-                
-            var result:IShapeMaterial = Cast.shapematerial(init[name]);
-            
-           	delete init[name];
-        
-            return result;
-        }
 
         private static var inits:Array = [];
 

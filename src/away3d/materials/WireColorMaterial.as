@@ -13,7 +13,7 @@ package away3d.materials
     /**
     * Wire material for solid color drawing with optional face border outlining
     */
-    public class WireColorMaterial extends EventDispatcher implements ITriangleMaterial
+    public class WireColorMaterial extends EventDispatcher implements ITriangleMaterial, IShapeMaterial
     {
         /**
         * Instance of the Init object used to hold and parse default property values
@@ -81,6 +81,17 @@ package away3d.materials
         public function renderTriangle(tri:DrawTriangle):void
         {
 			tri.source.session.renderTriangleLineFill(width, color, alpha, wirecolor, wirealpha, tri.v0, tri.v1, tri.v2);
+        }
+        
+        /**
+		 * @inheritDoc
+		 */
+        public function renderShape(shp:DrawShape):void
+        {
+            if(alpha <= 0 && wirealpha <= 0)
+            	return;
+			
+			shp.source.session.renderShape(width, wirecolor, wirealpha, color, alpha, shp);
         }
         
 		/**
