@@ -56,6 +56,7 @@ package away3d.primitives
 					else
 					{
 						var extShp:Shape3D = new Shape3D();
+						extShp.layerOffset = this.layerOffset + value;
 						
 						if(_extrudeMaterial == null)
 							extShp.material = new ColorMaterial(0x000000);
