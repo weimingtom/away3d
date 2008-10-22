@@ -13,20 +13,19 @@ package away3d.primitives
 	{
 		private var _text:String;
 		private var _textSize:Number;
+		private var _textSpacing:Number;
 		
 		private var _glyfData:Dictionary;
 		private var _effectiveScaling:Number;
 		private var _fontRange:String;
 		private var _penPosition:Number = 0;
-		private var _xOffset:Number = 0; //Not made accessible yet, necessary?
-		private var _yOffset:Number = 0;
 		
 		public function TextField3D(text:String, fontSource:*, init:Object = null)
 		{
 			super(init);
 			
-			_textSize = ini.getNumber("textSize", 20, {min:1, max:160});
-			//Get _textSpacing.
+			_textSize = ini.getNumber("textSize", 20, {min:1});
+			_textSpacing = ini.getNumber("textSpacing", 0);
 			
 			_text = text;
 			_fontRange = text;
@@ -106,8 +105,8 @@ package away3d.primitives
 			{
 				var instruction:Object = glyf.instructions[i];
 				
-				tX = instruction.x*_effectiveScaling + _penPosition + _xOffset;
-				tY = instruction.y*_effectiveScaling + _yOffset;
+				tX = instruction.x*_effectiveScaling + _penPosition;
+				tY = instruction.y*_effectiveScaling;
 				
 				switch(instruction.type)
 				{	
@@ -118,13 +117,13 @@ package away3d.primitives
 						shp.graphicsLineTo(tX, tY, 0);
 						break;
 					case 2:
-						cX = instruction.cx*_effectiveScaling + _penPosition + _xOffset;
-						cY = instruction.cy*_effectiveScaling + _yOffset;
+						cX = instruction.cx*_effectiveScaling + _penPosition;
+						cY = instruction.cy*_effectiveScaling;
 						shp.graphicsCurveTo(cX, cY, 0, tX, tY, 0);  
 						break;
 				}
 			}
-			_penPosition += glyf.width*_effectiveScaling;
+			_penPosition += glyf.width*_effectiveScaling + _textSpacing;
 			
 			addChild(shp);
 		}

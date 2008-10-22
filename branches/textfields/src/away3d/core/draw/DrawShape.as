@@ -2,59 +2,46 @@ package away3d.core.draw
 {
 	import away3d.core.base.Shape3D;
 	import away3d.materials.IShapeMaterial;
-	import away3d.materials.ITriangleMaterial;
 	
 	public class DrawShape extends DrawPrimitive
 	{
-		private var _screenVertices:Array = [];
-		private var _drawingCommands:Array = [];
-		private var _material:IShapeMaterial;
-		private var _shape:Shape3D;
-		private var _screenZOffset:Number;
+		public var screenVertices:Array = [];
+		public var drawingCommands:Array = [];
+		public var material:IShapeMaterial;
+		public var shape:Shape3D;
+		public var layerOffset:Number;
 		
 		public function DrawShape()
 		{
-			minX = minY = minZ = 999999;
-			maxX = maxY = maxZ = -999999;
+			
 		}
 		
 		public override function calc():void
 		{
-			//NOTE: Min and Max values are calculated in addScreenVertex();
-			screenZ = (maxZ + minZ)/2 + _screenZOffset;
-		}
-		
-		public function get screenVertices():Array
-		{
-			return _screenVertices;
-		}
-		public function addScreenVertex(sv:ScreenVertex):void
-		{
-			_screenVertices.push(new ScreenVertex(sv.x, sv.y, sv.z));
+			minX = minY = minZ = 999999;
+			maxX = maxY = maxZ = -999999;
 			
-			if(sv.x > maxX)
-				maxX = sv.x;
-			else if(sv.x < minX)
-				minX = sv.x;
+			for(var i:uint; i<screenVertices.length; i++)
+			{
+				var sv:ScreenVertex = screenVertices[i];
 				
-			if(sv.y > maxY)
-				maxY = sv.y;
-			else if(sv.y < minY)
-				minY = sv.y;
+				if(sv.x > maxX)
+				maxX = sv.x;
+				else if(sv.x < minX)
+					minX = sv.x;
+					
+				if(sv.y > maxY)
+					maxY = sv.y;
+				else if(sv.y < minY)
+					minY = sv.y;
+				
+				if(sv.z > maxZ)
+					maxZ = sv.z;
+				else if(sv.z < minZ)
+					minZ = sv.z;
+			}
 			
-			if(sv.z > maxZ)
-				maxZ = sv.z;
-			else if(sv.z < minZ)
-				minZ = sv.z;
-		}
-		
-		public function get drawingCommands():Array
-		{
-			return _drawingCommands;
-		}
-		public function set drawingCommands(value:Array):void
-		{
-			_drawingCommands = value;
+			screenZ = (maxZ + minZ)/2 + layerOffset;
 		}
 		
 		public override function render():void
@@ -62,36 +49,9 @@ package away3d.core.draw
             material.renderShape(this);
         }
 		
-		public override function clear():void
-		{
-			_screenVertices = [];
-			
-			minX = minY = minZ = 999999;
-			maxX = maxY = maxZ = -999999;
-		}
-		
 		public override function contains(x:Number, y:Number):Boolean
         {   
             return false;
         }
-        
-        public function set shape(value:Shape3D):void
-		{
-			_shape = value;
-		}
-		
-		public function get material():IShapeMaterial
-		{
-			return _material;
-		}
-		public function set material(mat:IShapeMaterial):void
-		{
-			_material = mat;
-		}
-		
-		public function set screenZOffset(value:Number):void
-		{
-			_screenZOffset = value;
-		}
 	}
 }
