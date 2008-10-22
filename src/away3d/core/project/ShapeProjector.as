@@ -53,7 +53,7 @@ package away3d.core.project
 				if(!(_drawShape = primitiveDictionary[_shape]))
 					_drawShape = primitiveDictionary[_shape] = new DrawShape();
             	else
-            		_drawShape.clear();
+            		_drawShape.screenVertices = [];
 				
 				for(j = 0; j < _shape.vertices.length; j++)
 				{
@@ -63,7 +63,7 @@ package away3d.core.project
 						_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex(); 
 					
 					view.camera.project(viewTransform, _vertex, _screenVertex);
-					_drawShape.addScreenVertex(_screenVertex);
+					_drawShape.screenVertices.push(_screenVertex);
 					
 					//check every ScreenVertex is visible
 					//Commented because it causes all glyfs in a TextField3D to dissapear when going to the right... weird.
@@ -81,7 +81,12 @@ package away3d.core.project
 				_drawShape.source = _mesh;
 				_drawShape.view = view;
 	            _drawShape.shape = _shape;
-				_drawShape.screenZOffset = _mesh.screenZOffset;
+				
+				if(_shape.layerOffset != 0)
+					_drawShape.layerOffset = _shape.layerOffset;
+				else
+					_drawShape.layerOffset = _mesh.layerOffset;
+				
 				_drawShape.calc();
 				
 				//check drawShape is not behind the camera

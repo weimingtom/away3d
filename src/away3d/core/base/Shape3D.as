@@ -3,7 +3,6 @@ package away3d.core.base
 	import away3d.core.arcane;
 	import away3d.events.ShapeEvent;
 	import away3d.materials.IShapeMaterial;
-	import away3d.materials.ITriangleMaterial;
 	
 	/**
     * A shape element used in vector type primitives.
@@ -21,6 +20,8 @@ package away3d.core.base
 		
 		private var _drawingCommands:Array = [];
 		private var _materialchanged:ShapeEvent;
+		
+		public var layerOffset:Number = 0;
 		
 		public function Shape3D()
 		{
@@ -42,6 +43,33 @@ package away3d.core.base
 			addVertex(cX, cY, cZ);
 			addVertex(X, Y, Z);
 			_drawingCommands.push(2);
+		}
+		public function graphicsDrawRect(sX:Number, sY:Number, sZ:Number, W:Number, H:Number):void
+		{
+			graphicsMoveTo(sX, sY, sZ);
+			graphicsLineTo(sX + W, sY, sZ);
+			graphicsLineTo(sX + W, sY + H, sZ);
+			graphicsLineTo(sX, sY + H, sZ);
+			graphicsLineTo(sX, sY, sZ);
+		}
+		public function graphicsDrawRoundRect(sX:Number, sY:Number, sZ:Number, W:Number, H:Number, hR:Number, vR:Number):void
+		{
+			graphicsMoveTo(sX + hR, sY, sZ);
+			graphicsLineTo(sX + W - hR, sY, sZ);
+			graphicsCurveTo(sX + W, sY, sZ, sX + W, sY + vR, sZ);
+			graphicsLineTo(sX + W, sY + H - vR, sZ);
+			graphicsCurveTo(sX + W, sY + H, sZ, sX + W - hR, sY + H, sZ);
+			graphicsLineTo(sX + hR, sY + H, sZ);
+			graphicsCurveTo(sX, sY + H, sZ, sX, sY + H - vR, sZ);
+			graphicsLineTo(sX, sY + vR, sZ);
+			graphicsCurveTo(sX, sY, sZ, sX + hR, sY, sZ);
+		}
+		public function graphicsDrawPolygon(points:Array):void
+		{
+			graphicsMoveTo(points[0].x, points[0].y, points[0].z);
+			
+			for(var i:uint = 1; i<points.length; i++)
+				graphicsLineTo(points[i].x, points[i].y, points[i].z);
 		}
 		
 		public override function get vertices():Array
