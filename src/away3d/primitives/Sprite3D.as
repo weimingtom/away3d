@@ -10,8 +10,11 @@ package away3d.primitives
 	{
 		private var _extrudeMaterial:IShapeMaterial;
 		
-		public function Sprite3D(init:Object)
+		public function Sprite3D(init:Object = null)
 		{
+			if(init == null)
+				init = new Object();
+				
 			init.projector = new ShapeProjector(this);
 			
 			super(init);

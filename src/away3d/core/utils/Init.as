@@ -144,6 +144,28 @@ package away3d.core.utils
 
             return result;
         }
+        
+        public function getFunction(name:String, type:Class = null):Function
+        {
+            if (init == null)
+                return null;
+        
+            if (!init.hasOwnProperty(name))
+                return null;
+        
+            var result:Function = init[name];
+
+            delete init[name];
+
+            if (result == null)
+                return null;
+
+            if (type != null)
+                if (!(result is type))
+                    throw new CastError("Parameter \""+name+"\" is not of class "+type+": "+result);
+
+            return result;
+        }
 
         public function getObjectOrInit(name:String, type:Class = null):Object
         {
