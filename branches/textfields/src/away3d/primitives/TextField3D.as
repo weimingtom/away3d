@@ -2,7 +2,6 @@ package away3d.primitives
 {
 	import away3d.core.base.Shape3D;
 	import away3d.loaders.TTFLoader;
-	import away3d.materials.IShapeMaterial;
 	import away3d.parsers.ttf.TTFAsParser;
 	import away3d.parsers.ttf.TTFBinaryParser;
 	
@@ -19,6 +18,7 @@ package away3d.primitives
 		private var _effectiveScaling:Number;
 		private var _fontRange:String;
 		private var _penPosition:Number = 0;
+		private var _onFontLoaded:Function;
 		
 		public function TextField3D(text:String, fontSource:*, init:Object = null)
 		{
@@ -26,6 +26,7 @@ package away3d.primitives
 			
 			_textSize = ini.getNumber("textSize", 20, {min:1});
 			_textSpacing = ini.getNumber("textSpacing", 0);
+			_onFontLoaded = ini.getFunction("onFontLoaded");
 			
 			_text = text;
 			_fontRange = text;
@@ -39,7 +40,6 @@ package away3d.primitives
 		public function set textSize(value:Number):void
 		{
 			_textSize = value;
-			generateText();
 		}
 		
 		public function get text():String
@@ -52,43 +52,36 @@ package away3d.primitives
 			_fontRange = value;
 		}
 		
-		private function generateText():void
+		public function get textSpacing():Number
+		{
+			return _textSpacing;	
+		}
+		public function set textSpacing(value:Number):void
+		{
+			_textSpacing = value;
+		}
+		
+		public function get onFontLoaded():Function
+		{
+			return _onFontLoaded;	
+		}
+		public function set onFontLoaded(value:Function):void
+		{
+			_onFontLoaded = value;
+		}
+		
+		public function generateText():void
 		{
 			var i:uint
 			for(i = 0; i<shapes.length; i++)
+			{
+				trace("Removing: " + shapes[i]);
 				removeChild(shapes[i]);
+			}
 			
 			_penPosition = 0;
 			for(i = 0; i<_text.length; i++)
 				addGlyf(text.charAt(i));
-		}
-		
-		public function set font(fontSource:*):void
-		{ 
-			_glyfData = new Dictionary();
-			
-			if(typeof(fontSource) == "string")
-			{
-				//Its an external TTF file for loading.
-				var loader:TTFLoader = new TTFLoader(fontSource, parseBinaryFile);
-			}
-			else
-			{
-				var sourceFile:* = new fontSource();
-				
-				//Check to see if the source is a ByteArray.
-				var passed:Boolean;
-				try
-				{
-					var bytes:int = sourceFile.bytesAvailable;
-					passed = true;
-				}
-				catch(error:Error){}
-				if(passed)
-					parseBinaryFile(sourceFile);
-				else
-					parseAsFile(fontSource);
-			}
 		}
 		
 		private function addGlyf(char:String, X:Number = 0, Y:Number = 0):void
@@ -128,6 +121,34 @@ package away3d.primitives
 			addChild(shp);
 		}
 		
+		public function set font(fontSource:*):void
+		{ 
+			_glyfData = new Dictionary();
+			
+			if(typeof(fontSource) == "string")
+			{
+				//Its an external TTF file for loading.
+				var loader:TTFLoader = new TTFLoader(fontSource, parseBinaryFile);
+			}
+			else
+			{
+				var sourceFile:* = new fontSource();
+				
+				//Check to see if the source is a ByteArray.
+				var passed:Boolean;
+				try
+				{
+					var bytes:int = sourceFile.bytesAvailable;
+					passed = true;
+				}
+				catch(error:Error){}
+				if(passed)
+					parseBinaryFile(sourceFile);
+				else
+					parseAsFile(fontSource);
+			}
+		}
+		
 		private function parseBinaryFile(fontSource:ByteArray):void
 		{
 			var ttfBinaryParser:TTFBinaryParser = new TTFBinaryParser(fontSource, _fontRange);
@@ -135,7 +156,8 @@ package away3d.primitives
 			
 			_effectiveScaling = _textSize*50/ttfBinaryParser.unitsPerEm;
 			
-			generateText();
+			if(_onFontLoaded != null)
+				_onFontLoaded();
 		}
 		
 		private function parseAsFile(source:Class):void
@@ -144,8 +166,6 @@ package away3d.primitives
 			_glyfData = ttfAsParser.glyfs;
 			
 			_effectiveScaling = _textSize/2;
-			
-			generateText();
 		}
 	}
 }

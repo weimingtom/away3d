@@ -513,7 +513,7 @@ package away3d.core.render
 			var i:uint;
 			graphics.lineStyle(lineThickness, lineColor, lineAlpha);
 			
-			if(fillAlpha >= 0)
+			if(fillAlpha > 0)
 				graphics.beginFill(fillColor, fillAlpha);
 			
 			var currentPoint:uint = 0;
@@ -539,7 +539,7 @@ package away3d.core.render
 				}
 			}
 			
-			if(fillAlpha >= 0)
+			if(fillAlpha > 0)
 				graphics.endFill();
 		}
 		
