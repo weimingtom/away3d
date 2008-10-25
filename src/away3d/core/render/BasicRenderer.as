@@ -59,17 +59,21 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public function primitive(pri:DrawPrimitive):void
+        public function primitive(pri:DrawPrimitive):Boolean
         {
-            if (_clip.check(pri)) {
-                for each (_blocker in _blockers) {
-                    if (_blocker.screenZ > pri.minZ)
-                        break;
-                    if (_blocker.block(pri))
-                        return;
-                }
-                _primitives.push(pri);
+            if (!_clip.check(pri))
+            	return false;
+            
+            for each (_blocker in _blockers) {
+                if (_blocker.screenZ > pri.minZ)
+                    continue;
+                if (_blocker.block(pri))
+                    return false;
             }
+            
+            _primitives.push(pri);
+            
+            return true;
         }
 		
 		/**

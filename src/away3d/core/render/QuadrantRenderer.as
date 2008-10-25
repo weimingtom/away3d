@@ -39,7 +39,6 @@ package away3d.core.render
         {
             if (node.onlysourceFlag && _except == node.onlysource)
                 return;
-			
             if (_minX < node.xdiv)
             {
                 if (node.lefttopFlag && _minY < node.ydiv)
@@ -117,12 +116,14 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public function primitive(pri:DrawPrimitive):void
+        public function primitive(pri:DrawPrimitive):Boolean
         {
-            if (_clip.check(pri))
-            {
-                _root.push(pri);
-            }
+            if (!_clip.check(pri))
+            	return false;
+            
+            _root.push(pri);
+            
+            return true;
         }
         
         /**

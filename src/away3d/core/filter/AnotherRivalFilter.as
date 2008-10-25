@@ -736,8 +736,8 @@ package away3d.core.filter
                                 for each (part in parts)
                                 {
                                     //part.screenZ = pri.screenZ;
-                                    leftover.push(part);
-                                    tree.primitive(part);
+                                    if (tree.primitive(part))
+	                                    leftover.push(part);
                                 }
                         }
                         else
