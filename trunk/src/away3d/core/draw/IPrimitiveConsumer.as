@@ -17,8 +17,9 @@ package away3d.core.draw
     	 * Adds a drawing primitive to the primitive consumer
     	 *
 		 * @param	pri		The drawing primitive to add.
+		 * @return			Whether the primitive was added.
 		 */
-        function primitive(pri:DrawPrimitive):void;
+        function primitive(pri:DrawPrimitive):Boolean;
         
         function list():Array;
         

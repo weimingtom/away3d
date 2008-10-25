@@ -540,8 +540,8 @@ package away3d.core.filter
                         tree.remove(pri);
                         for each (part in parts)
                         {
-                            leftover.push(part);
-                            tree.primitive(part);
+                        	if (tree.primitive(part))
+                            	leftover.push(part);
                         }
                         break;
                     }
