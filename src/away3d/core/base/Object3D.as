@@ -1613,15 +1613,16 @@ package away3d.core.base
         /**
          * Rotates the 3d object directly to a euler angle
     	 * 
-    	 * @param	ax		The angle in radians of the rotation around the x axis.
-    	 * @param	ay		The angle in radians of the rotation around the y axis.
-    	 * @param	az		The angle in radians of the rotation around the z axis.
+    	 * @param	ax		The angle in degrees of the rotation around the x axis.
+    	 * @param	ay		The angle in degrees of the rotation around the y axis.
+    	 * @param	az		The angle in degrees of the rotation around the z axis.
     	 */
 		public function rotateTo(ax:Number, ay:Number, az:Number):void
 		{
-			rotationX = ax;
-            rotationY = ay;
-            rotationZ = az;
+			_rotationX = -ax*toRADIANS;
+            _rotationY = -ay*toRADIANS;
+            _rotationZ = -az*toRADIANS;
+            _transformDirty = true;
 		}
 		
 		/**
