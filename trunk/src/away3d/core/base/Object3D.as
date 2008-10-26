@@ -1622,6 +1622,7 @@ package away3d.core.base
 			_rotationX = -ax*toRADIANS;
             _rotationY = -ay*toRADIANS;
             _rotationZ = -az*toRADIANS;
+            _rotationDirty = false;
             _transformDirty = true;
 		}
 		
@@ -1635,13 +1636,8 @@ package away3d.core.base
         {
         	axis.normalize();
         	
-            _vector.rotate(axis, transform);
-            
-            _m.rotationMatrix(_vector.x, _vector.y, _vector.z, angle * toRADIANS);
-    		_m.tx = _transform.tx;
-    		_m.ty = _transform.ty;
-    		_m.tz = _transform.tz;
-    		_transform.multiply3x3(_m, _transform);
+            _m.rotationMatrix(axis.x, axis.y, axis.z, angle*toRADIANS);
+    		_transform.multiply3x3(transform, _m);
     		
             _rotationDirty = true;
             _sceneTransformDirty = true;
