@@ -248,45 +248,6 @@ package away3d.containers
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
-        private function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
-        {
-        	findHit(_scene.session, x, y);
-        	
-            var event:MouseEvent3D = getMouseEvent(type);
-            var target:Object3D = event.object;
-            var targetMaterial:IUVMaterial = event.material;
-            event.ctrlKey = ctrlKey;
-            event.shiftKey = shiftKey;
-			
-			if (type != MouseEvent3D.MOUSE_OUT && type != MouseEvent3D.MOUSE_OVER) {
-	            dispatchMouseEvent(event);
-	            bubbleMouseEvent(event);
-			}
-            
-            //catch rollover/rollout object3d events
-            if (mouseObject != target || mouseMaterial != targetMaterial) {
-                if (mouseObject != null) {
-                    event = getMouseEvent(MouseEvent3D.MOUSE_OUT);
-                    event.object = mouseObject;
-                    event.material = mouseMaterial;
-                    dispatchMouseEvent(event);
-                    bubbleMouseEvent(event);
-                    mouseObject = null;
-                    buttonMode = false;
-                }
-                if (target != null && mouseObject == null) {
-                    event = getMouseEvent(MouseEvent3D.MOUSE_OVER);
-                    event.object = target;
-                    event.material = mouseMaterial = targetMaterial;
-                    dispatchMouseEvent(event);
-                    bubbleMouseEvent(event);
-                    buttonMode = target.useHandCursor;
-                }
-                mouseObject = target;
-            }
-            
-        }
-        
         private function bubbleMouseEvent(event:MouseEvent3D):void
         {
             var tar:Object3D = event.object;
@@ -552,7 +513,58 @@ package away3d.containers
             if (stats)
 				addEventListener(Event.ADDED_TO_STAGE, createStatsMenu);			
 		}
-		
+        
+        /**
+        * Collects all information from the given type of 3d mouse event into a <code>MouseEvent3D</code> object that can be accessed from the <code>getMouseEvent()<code> method.
+        * 
+        * @param	type					The type of 3d mouse event being triggered - can be MOUSE_UP, MOUSE_DOWN, MOUSE_OVER, MOUSE_OUT, and MOUSE_MOVE.
+        * @param	x						The x coordinate being used for the 3d mouse event.
+        * @param	y						The y coordinate being used for the 3d mouse event.
+        * @param	ctrlKey		[optional]	The ctrl key value being used for the 3d mouse event.
+        * @param	shiftKey	[optional]	The shift key value being used for the 3d mouse event.
+        * 
+        * @see #getMouseEvent()
+        * @see away3d.events.MouseEvent3D
+        */
+        public function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
+        {
+        	findHit(_scene.session, x, y);
+        	
+            var event:MouseEvent3D = getMouseEvent(type);
+            var target:Object3D = event.object;
+            var targetMaterial:IUVMaterial = event.material;
+            event.ctrlKey = ctrlKey;
+            event.shiftKey = shiftKey;
+			
+			if (type != MouseEvent3D.MOUSE_OUT && type != MouseEvent3D.MOUSE_OVER) {
+	            dispatchMouseEvent(event);
+	            bubbleMouseEvent(event);
+			}
+            
+            //catch rollover/rollout object3d events
+            if (mouseObject != target || mouseMaterial != targetMaterial) {
+                if (mouseObject != null) {
+                    event = getMouseEvent(MouseEvent3D.MOUSE_OUT);
+                    event.object = mouseObject;
+                    event.material = mouseMaterial;
+                    dispatchMouseEvent(event);
+                    bubbleMouseEvent(event);
+                    mouseObject = null;
+                    buttonMode = false;
+                }
+                if (target != null && mouseObject == null) {
+                    event = getMouseEvent(MouseEvent3D.MOUSE_OVER);
+                    event.object = target;
+                    event.material = mouseMaterial = targetMaterial;
+                    dispatchMouseEvent(event);
+                    bubbleMouseEvent(event);
+                    buttonMode = target.useHandCursor;
+                }
+                mouseObject = target;
+            }
+            
+        }
+        
 	    /** 
 	    * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
 	    */
