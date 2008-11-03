@@ -26,11 +26,16 @@ package away3d.primitives
 		{
 			_extrudeMaterial = value;
 		}
+		public function get extrudeMaterial():IShapeMaterial
+		{
+			return _extrudeMaterial;
+		}
 		
 		public function extrude(value:Number):void
-		{
+		{	
 			var i:uint;
 			var j:uint;
+			var k:uint;
 			var aX:Number = 0;
 			var aY:Number = 0;
 			var bX:Number = 0;
@@ -43,9 +48,18 @@ package away3d.primitives
 			var addQueue:Array = [];
 			var shape:Shape3D;
 			var instruction:uint;
+			var tempFrontArr:Array;
+			var tempBackArr:Array;
 			for(i = 0; i<shapes.length; i++)
 			{
 				shape = shapes[i];
+				
+				tempFrontArr = [];
+				tempBackArr = [];
+				
+				for(j = 0; j<shape.vertices.length; j++)
+					tempFrontArr.push(shape.vertices[j]);
+				
 				currentVertex = 0;
 				for(j = 0; j<shape.drawingCommands.length; j++)
 				{
@@ -59,7 +73,7 @@ package away3d.primitives
 					else
 					{
 						var extShp:Shape3D = new Shape3D();
-						extShp.layerOffset = this.layerOffset + value;
+						extShp.layerOffset = this.layerOffset - value;
 						
 						if(_extrudeMaterial == null)
 							extShp.material = new ColorMaterial(0x000000);
@@ -67,7 +81,9 @@ package away3d.primitives
 							extShp.material = _extrudeMaterial; 
 						
 						extShp.graphicsMoveTo(memX, memY, 0);
-						extShp.graphicsLineTo(memX, memY, value);
+						tempFrontArr.push(extShp.lastCreatedVertex);
+						extShp.graphicsLineTo(memX, memY, 0);
+						tempBackArr.push(extShp.lastCreatedVertex);
 						
 						aX = shape.vertices[currentVertex].x;
 						aY = shape.vertices[currentVertex].y;
@@ -78,7 +94,8 @@ package away3d.primitives
 						switch(instruction)
 						{	
 							case 1:
-								extShp.graphicsLineTo(aX, aY, value);
+								extShp.graphicsLineTo(aX, aY, 0);
+								tempBackArr.push(extShp.lastCreatedVertex);
 								break;
 							case 2:
 								bX = shape.vertices[currentVertex].x;
@@ -86,19 +103,25 @@ package away3d.primitives
 								lastX = bX;
 								lastY = bY;
 								currentVertex++;
-								extShp.graphicsCurveTo(aX, aY, value, bX, bY, value);  
+								extShp.graphicsCurveTo(aX, aY, 0, bX, bY, 0);
+								tempBackArr.push(extShp.previousCreatedVertex);
+								tempBackArr.push(extShp.lastCreatedVertex);
 								break;
 						}
 						
 						extShp.graphicsLineTo(lastX, lastY, 0);
+						tempFrontArr.push(extShp.lastCreatedVertex);
 						
 						switch(instruction)
 						{	
 							case 1:
 								extShp.graphicsLineTo(aX, aY, 0);
+								tempFrontArr.push(extShp.lastCreatedVertex);
 								break;
 							case 2:
-								extShp.graphicsCurveTo(aX, aY, 0, memX, memY, 0);  
+								extShp.graphicsCurveTo(aX, aY, 0, memX, memY, 0);
+								tempFrontArr.push(extShp.previousCreatedVertex);
+								tempFrontArr.push(extShp.lastCreatedVertex);
 								break;
 						}
 						
@@ -108,6 +131,10 @@ package away3d.primitives
 						addQueue.push(extShp);
 					}
 				}
+				
+				shape.extrusionFrontVertices = tempFrontArr;
+				shape.extrusionBackVertices = tempBackArr;
+				shape.extrusionDepth = value;
 			}
 			
 			for(i = 0; i<addQueue.length; i++)

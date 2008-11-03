@@ -8,27 +8,28 @@ package away3d.loaders
 	
 	public class TTFLoader
 	{
-		private var loader:URLLoader;
-		private var onComplete:Function;
+		private var _loader:URLLoader;
+		private var _onComplete:Function;
 		
 		public function TTFLoader(source:String, onComplete:Function)
 		{
-			this.onComplete = onComplete;
+			_onComplete = onComplete;
 			
-			loader = new URLLoader(new URLRequest(source));
-			loader.dataFormat = URLLoaderDataFormat.BINARY;
-			loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			loader.addEventListener(Event.COMPLETE, completeHandler);
+			trace("Loading: " + source);
+			_loader = new URLLoader(new URLRequest(source));
+			_loader.dataFormat = URLLoaderDataFormat.BINARY;
+			_loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+			_loader.addEventListener(Event.COMPLETE, completeHandler);
 		}
 		
 		private function progressHandler(event:ProgressEvent):void
 		{
-			var progress:Number = event.bytesLoaded/event.bytesTotal;
+			//var progress:Number = event.bytesLoaded/event.bytesTotal;
 		}
 		
 		private function completeHandler(event:Event):void
 		{
-			onComplete(loader.data);
+			_onComplete(_loader.data);
 		}
 	}
 }
