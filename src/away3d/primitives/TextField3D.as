@@ -61,10 +61,6 @@ package away3d.primitives
 			_textSpacing = value;
 		}
 		
-		public function get onFontLoaded():Function
-		{
-			return _onFontLoaded;	
-		}
 		public function set onFontLoaded(value:Function):void
 		{
 			_onFontLoaded = value;
@@ -74,14 +70,16 @@ package away3d.primitives
 		{
 			var i:uint
 			for(i = 0; i<shapes.length; i++)
-			{
-				trace("Removing: " + shapes[i]);
 				removeChild(shapes[i]);
-			}
 			
 			_penPosition = 0;
 			for(i = 0; i<_text.length; i++)
 				addGlyf(text.charAt(i));
+		}
+		
+		public function get textWidth():Number
+		{
+			return _penPosition;
 		}
 		
 		private function addGlyf(char:String, X:Number = 0, Y:Number = 0):void
@@ -132,16 +130,18 @@ package away3d.primitives
 			}
 			else
 			{
-				var sourceFile:* = new fontSource();
+				var sourceFile:*;
 				
 				//Check to see if the source is a ByteArray.
 				var passed:Boolean;
 				try
 				{
+					sourceFile = new fontSource();
 					var bytes:int = sourceFile.bytesAvailable;
 					passed = true;
 				}
 				catch(error:Error){}
+				
 				if(passed)
 					parseBinaryFile(sourceFile);
 				else
@@ -156,6 +156,8 @@ package away3d.primitives
 			
 			_effectiveScaling = _textSize*50/ttfBinaryParser.unitsPerEm;
 			
+			generateText();
+			
 			if(_onFontLoaded != null)
 				_onFontLoaded();
 		}
@@ -166,6 +168,11 @@ package away3d.primitives
 			_glyfData = ttfAsParser.glyfs;
 			
 			_effectiveScaling = _textSize/2;
+			
+			generateText();
+			
+			if(_onFontLoaded != null)
+				_onFontLoaded();
 		}
 	}
 }

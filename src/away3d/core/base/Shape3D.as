@@ -20,6 +20,42 @@ package away3d.core.base
 		
 		private var _drawingCommands:Array = [];
 		private var _materialchanged:ShapeEvent;
+		private var _extrusionFrontVertices:Array = [];
+		private var _extrusionBackVertices:Array = [];
+		private var _extrusionDepth:Number = 0;
+		private var _lastCreatedVertex:Vertex;
+		private var _previousCreatedVertex:Vertex;
+		
+		public function get lastCreatedVertex():Vertex
+		{
+			return _lastCreatedVertex;
+		}
+		public function get previousCreatedVertex():Vertex
+		{
+			return _previousCreatedVertex;
+		}
+		
+		public function set extrusionDepth(value:Number):void
+		{
+			_extrusionDepth = value;
+			
+			var i:uint;
+			for(i = 0; i<_extrusionFrontVertices.length; i++)
+				_extrusionFrontVertices[i].z = value;
+		}
+		public function get extrusionDepth():Number
+		{
+			return _extrusionDepth;
+		}
+		
+		public function set extrusionFrontVertices(value:Array):void
+		{
+			_extrusionFrontVertices = value;
+		}
+		public function set extrusionBackVertices(value:Array):void
+		{
+			_extrusionBackVertices = value;
+		}
 		
 		public var layerOffset:Number = 0;
 		
@@ -80,6 +116,9 @@ package away3d.core.base
 		{
 			var vertex:Vertex = new Vertex(X, Y, Z);
 			_vertices.push(vertex);
+			
+			_previousCreatedVertex = _lastCreatedVertex;
+			_lastCreatedVertex = vertex;
 		}
 		
 		public function get material():IShapeMaterial
