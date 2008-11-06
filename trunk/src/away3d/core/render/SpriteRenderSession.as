@@ -83,8 +83,8 @@ package away3d.core.render
         protected override function createLayer():void
         {
             //create new canvas for remaining triangles
-            if (doStore.length) {
-            	_shape = doStore.pop();
+            if (_doStore.length) {
+            	_shape = _doStore.pop();
             } else {
             	_shape = new Shape();
             }
@@ -93,7 +93,7 @@ package away3d.core.render
             graphics = _shape.graphics;
             
             //store new canvas
-            doActive.push(_shape);
+            _doActive.push(_shape);
             
             //add new canvas to base canvas
             _container.addChild(_shape);

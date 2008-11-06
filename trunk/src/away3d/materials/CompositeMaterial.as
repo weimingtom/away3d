@@ -210,7 +210,7 @@ package away3d.materials
         	_session = _source.session;
     		var level:int = 0;
         	
-        	if (_session != tri.view.session) {
+        	if (_session != tri.view.scene.session) {
         		//check to see if session sprite exists
 	    		if (!(_sprite = _session.spriteLayers[level]))
 	    			_sprite = _session.spriteLayers[level] = new Sprite();

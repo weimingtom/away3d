@@ -184,7 +184,7 @@ package away3d.containers
 	        	}
         	}
         	
-        	//traverse sesssions
+        	//traverse sessions
 			traverse(_sessiontraverser);
         }
 		
