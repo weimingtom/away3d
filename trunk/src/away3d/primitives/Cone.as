@@ -43,13 +43,13 @@
 			
             for (j = jMin; j < segmentsH; j++)  
             { 
-                var z:Number = -height + 2 * height * (j-1) / (segmentsH-1);
+                var z:Number = -height + 2 * height * (j-jMin) / (segmentsH-jMin);
 
                 grid[j] = new Array(segmentsW);
                 for (i = 0; i < segmentsW; i++) 
                 { 
                     var verangle:Number = 2 * i / segmentsW * Math.PI;
-                    var ringradius:Number = radius * (segmentsH-j)/(segmentsH-1);
+                    var ringradius:Number = radius * (segmentsH-j)/(segmentsH-jMin);
                     var x:Number = ringradius * Math.sin(verangle);
                     var y:Number = ringradius * Math.cos(verangle);
                     
@@ -76,18 +76,18 @@
 					var i2:int = i;
 					if (i == 0) i2 = segmentsW;
 					
-                    var vab:Number = j / (segmentsH + 1);
-                    var vcd:Number = (j-1) / (segmentsH + 1);
+                    var vab:Number = j / segmentsH;
+                    var vcd:Number = (j-1) / segmentsH;
                     var uad:Number = i2 / segmentsW;
                     var ubc:Number = (i2-1) / segmentsW;
                     var uva:UV = createUV(uad,vab);
                     var uvb:UV = createUV(ubc,vab);
                     var uvc:UV = createUV(ubc,vcd);
                     var uvd:UV = createUV(uad,vcd);
-
+                    
                     if (j < segmentsH)
                         addFace(createFace(a,b,c, null, uva,uvb,uvc));
-                    if (j > 1)                
+                    if (j > jMin)                
                         addFace(createFace(a,c,d, null, uva,uvc,uvd));
                 }
         }
