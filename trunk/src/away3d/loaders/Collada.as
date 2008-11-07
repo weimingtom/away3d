@@ -2,8 +2,8 @@ package away3d.loaders
 {
 	import away3d.animators.*;
 	import away3d.animators.skin.*;
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
@@ -612,7 +612,14 @@ package away3d.loaders
 						break;
 						
                     case "node":
-						parseNode(child, _objectData as ContainerData);
+                    	//3dsMax 11 - Feeling ColladaMax v3.05B
+                    	//<node><node/></node>
+                    	if(_objectData is MeshData)
+                    	{
+							parseNode(child, parent as ContainerData);
+                    	}else{
+                    		parseNode(child, _objectData as ContainerData);
+                    	}
                         
                         break;
 
