@@ -264,7 +264,7 @@ package away3d.core.render
         	
 			return _doActives[view];
 		}
-		
+			
 		public function getConsumer(view:View3D):IPrimitiveConsumer
 		{
 			if (_renderers[view])
@@ -276,7 +276,7 @@ package away3d.core.render
 			if (parent)
 				return _renderers[view] = parent.getConsumer(view).clone();
 			
-			return _renderers[view] = (view.renderer as IPrimitiveConsumer).clone();
+			return _renderers[view] = (view.session.renderer as IPrimitiveConsumer).clone();
 		}
 		
         public function getTotalFaces(view:View3D):int
