@@ -110,7 +110,23 @@ package away3d.core.render
         {
         	notifySessionUpdate();
         }
-        
+		
+		private function getDOStore(view:View3D):Array
+		{
+			if (!_doStores[view])
+        		return _doStores[view] = new Array();
+        	
+			return _doStores[view];
+		}
+		
+		private function getDOActive(view:View3D):Array
+		{
+			if (!_doActives[view])
+        		return _doActives[view] = new Array();
+        	
+			return _doActives[view];
+		}
+		
         protected function onSessionUpdate(event:SessionEvent):void
         {
         	dispatchEvent(event);
@@ -247,22 +263,6 @@ package away3d.core.render
 		public function getContainer(view:View3D):DisplayObject
 		{
 			throw new Error("Not implemented");
-		}
-		
-		public function getDOStore(view:View3D):Array
-		{
-			if (!_doStores[view])
-        		return _doStores[view] = new Array();
-        	
-			return _doStores[view];
-		}
-		
-		public function getDOActive(view:View3D):Array
-		{
-			if (!_doActives[view])
-        		return _doActives[view] = new Array();
-        	
-			return _doActives[view];
 		}
 			
 		public function getConsumer(view:View3D):IPrimitiveConsumer
