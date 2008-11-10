@@ -9,6 +9,7 @@ package away3d.core.render
 	import away3d.core.traverse.*;
 	import away3d.events.Object3DEvent;
 	import away3d.events.SessionEvent;
+	import away3d.materials.WireGradientMaterial;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -542,6 +543,51 @@ package away3d.core.render
 			if(fillAlpha > 0)
 				graphics.endFill();
 		}
+		
+		
+		public function renderShapeGradient(lineThickness:Number, lineColor:int, lineAlpha:Number, fillObject:Object, shp:DrawShape):void
+		{
+			var i:uint;
+			graphics.lineStyle(lineThickness, lineColor, lineAlpha);
+			
+			graphics.beginGradientFill(
+										fillObject.gradientType,
+									    fillObject.colors,
+									    fillObject.alphas,
+									    fillObject.ratios,
+									    fillObject.mat,
+									    fillObject.spreadMethod,
+									    fillObject.interpolationMethod,
+									    0
+									  );
+			
+			var currentPoint:uint = 0;
+			for(i = 0; i<shp.drawingCommands.length; i++)
+			{
+				var command:int = shp.drawingCommands[i];
+				var vert1:ScreenVertex = shp.screenVertices[currentPoint];
+				currentPoint++;
+				
+				switch(command)
+				{
+					case 0:
+						graphics.moveTo(vert1.x, vert1.y);
+						break;
+					case 1:
+						graphics.lineTo(vert1.x, vert1.y);
+						break;
+					case 2:
+						var vert2:ScreenVertex = shp.screenVertices[currentPoint];
+						currentPoint++;
+						graphics.curveTo(vert1.x, vert1.y, vert2.x, vert2.y);
+						break;
+				}
+			}
+			
+			graphics.endFill();
+		}
+		
+		new WireGradientMaterial; //DELETE.
 		
 		/**
 		 * Duplicates the render session's properties to another render session.
