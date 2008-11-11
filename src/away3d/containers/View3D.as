@@ -654,7 +654,9 @@ package away3d.containers
         public function clear():void
         {
         	_updated = true;
-        	session.clear(this);
+        	
+        	if (_internalsession)
+        		session.clear(this);
         }
         
         /**
