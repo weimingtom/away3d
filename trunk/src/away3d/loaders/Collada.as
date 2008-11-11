@@ -73,7 +73,7 @@ package away3d.loaders
 		private var _defaultAnimationClip:AnimationData;
 		private var _haveAnimation:Boolean = false;
 		private var _haveClips:Boolean = false;
-		private var _bones:Dictionary = new Dictionary(true);
+		private var _containers:Dictionary = new Dictionary(true);
 		
 		private function buildMeshes(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
@@ -93,7 +93,7 @@ package away3d.loaders
 					var bone:Bone = new Bone({name:_boneData.name});
 					_boneData.container = bone as ObjectContainer3D;
 					
-					_bones[bone.name] = bone;
+					_containers[bone.name] = bone;
 					
 					//ColladaMaya 3.05B
 					bone.id = _boneData.id;
@@ -109,6 +109,8 @@ package away3d.loaders
 				} else if (_objectData is ContainerData) {
 					var _containerData:ContainerData = _objectData as ContainerData;
 					var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D({name:_containerData.name});
+					
+					_containers[objectContainer.name] = objectContainer;
 					
 					objectContainer.transform = _objectData.transform;
 					
@@ -274,7 +276,7 @@ package away3d.loaders
 						
 						for each (var channelData:ChannelData in _animationData.channels) {
 							var channel:Channel = channelData.channel;
-							channel.target = _bones[channel.name] as Bone;
+							channel.target = _containers[channel.name];
 							animation.appendChannel(channel);
 							
 							var times:Array = channel.times;
@@ -1047,14 +1049,18 @@ package away3d.loaders
 						param[0] *= scaling;
      				break;
 				case "rotateX":
-				case "RotX":
      				channel.type = ["jointRotationX"];
      				if (yUp)
 						for each (param in channel.param)
 							param[0] *= -1;
      				break;
+				case "RotX":
+     				channel.type = ["rotationX"];
+     				if (yUp)
+						for each (param in channel.param)
+							param[0] *= -1;
+     				break;
 				case "rotateY":
-				case "RotY":
 					if (yUp)
 						channel.type = ["jointRotationY"];
 					else
@@ -1063,12 +1069,29 @@ package away3d.loaders
 						for each (param in channel.param)
 							param[0] *= -1;
      				break;
+				case "RotY":
+					if (yUp)
+						channel.type = ["rotationY"];
+					else
+						channel.type = ["rotationZ"];
+					if (yUp)
+						for each (param in channel.param)
+							param[0] *= -1;
+     				break;
 				case "rotateZ":
-				case "RotZ":
 					if (yUp)
 						channel.type = ["jointRotationZ"];
 					else
 						channel.type = ["jointRotationY"];
+					if (yUp)
+						for each (param in channel.param)
+							param[0] *= -1;
+            		break;
+				case "RotZ":
+					if (yUp)
+						channel.type = ["rotationZ"];
+					else
+						channel.type = ["rotationY"];
 					if (yUp)
 						for each (param in channel.param)
 							param[0] *= -1;
@@ -1092,6 +1115,7 @@ package away3d.loaders
 						channel.type = ["jointScaleY"];
      				break;
 				case "translate":
+				case "translation":
 					if (yUp) {
 						channel.type = ["x", "y", "z"];
 						for each (param in channel.param)

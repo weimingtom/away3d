@@ -11,7 +11,7 @@ package away3d.animators.skin
     	private var _oldlength:int;
     	
     	public var name:String;
-        public var target:Bone;
+        public var target:ObjectContainer3D;
         
         public var type:Array;
 		
