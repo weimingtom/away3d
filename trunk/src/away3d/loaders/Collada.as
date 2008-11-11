@@ -274,6 +274,14 @@ package away3d.loaders
 					case AnimationData.SKIN_ANIMATION:
 						var animation:SkinAnimation = new SkinAnimation();
 						
+						var param:Array;
+			            var rX:String;
+			            var rY:String;
+			            var rZ:String;
+			            var sX:String;
+			            var sY:String;
+			            var sZ:String;
+						
 						for each (var channelData:ChannelData in _animationData.channels) {
 							var channel:Channel = channelData.channel;
 							channel.target = _containers[channel.name];
@@ -286,6 +294,129 @@ package away3d.loaders
 							
 							if (_animationData.end < times[times.length-1])
 								_animationData.end = times[times.length - 1];
+							
+				            if (channel.target is Bone) {
+				            	rX = "jointRotationX";
+				            	rY = "jointRotationY";
+				            	rZ = "jointRotationZ";
+				            	sX = "jointScaleX";
+				            	sY = "jointScaleY";
+				            	sZ = "jointScaleZ";
+				            } else {
+				            	rX = "rotationX";
+				            	rY = "rotationY";
+				            	rZ = "rotationZ";
+				            	sX = "scaleX";
+				            	sY = "scaleY";
+				            	sZ = "scaleZ";
+				            }
+				            
+				            switch(channelData.type)
+				            {
+				                case "translateX":
+				                	channel.type = ["x"];
+									if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1*scaling;
+				                	break;
+								case "translateY":
+									if (yUp)
+										channel.type = ["y"];
+									else
+										channel.type = ["z"];
+									for each (param in channel.param)
+										param[0] *= scaling;
+				     				break;
+								case "translateZ":
+									if (yUp)
+										channel.type = ["z"];
+									else
+										channel.type = ["y"];
+									for each (param in channel.param)
+										param[0] *= scaling;
+				     				break;
+								case "rotateX":
+								case "RotX":
+				     				channel.type = [rX];
+				     				if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+								case "rotateY":
+								case "RotY":
+									if (yUp)
+										channel.type = [rY];
+									else
+										channel.type = [rZ];
+									if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+								case "rotateZ":
+								case "RotZ":
+									if (yUp)
+										channel.type = [rZ];
+									else
+										channel.type = [rY];
+									if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				            		break;
+								case "scaleX":
+									channel.type = [sX];
+									//if (yUp)
+									//	for each (param in channel.param)
+									//		param[0] *= -1;
+				            		break;
+								case "scaleY":
+									if (yUp)
+										channel.type = [sY];
+									else
+										channel.type = [sZ];
+				     				break;
+								case "scaleZ":
+									if (yUp)
+										channel.type = [sZ];
+									else
+										channel.type = [sY];
+				     				break;
+								case "translate":
+								case "translation":
+									if (yUp) {
+										channel.type = ["x", "y", "z"];
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				} else {
+				     					channel.type = ["x", "z", "y"];
+				     				}
+				     				for each (param in channel.param) {
+										param[0] *= scaling;
+										param[1] *= scaling;
+										param[2] *= scaling;
+				     				}
+									break;
+								case "scale":
+									if (yUp)
+										channel.type = [sX, sY, sZ];
+									else
+										channel.type = [sX, sZ, sY];
+				     				break;
+								case "rotate":
+									if (yUp) {
+										channel.type = [rX, rY, rZ];
+										for each (param in channel.param) {
+											param[0] *= -1;
+											param[1] *= -1;
+											param[2] *= -1;
+										}
+				     				} else {
+										channel.type = [rX, rZ, rY];
+				     				}
+									break;
+								case "transform":
+									channel.type = ["transform"];
+									break;
+				            }
 						}
 						
 						animation.start = _animationData.start;
@@ -1022,135 +1153,8 @@ package away3d.loaders
                         break;
                 }
             }
-            var param:Array;
             
-            switch(type)
-            {
-                case "translateX":
-                	channel.type = ["x"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1*scaling;
-                	break;
-				case "translateY":
-					if (yUp)
-						channel.type = ["y"];
-					else
-						channel.type = ["z"];
-					for each (param in channel.param)
-						param[0] *= scaling;
-     				break;
-				case "translateZ":
-					if (yUp)
-						channel.type = ["z"];
-					else
-						channel.type = ["y"];
-					for each (param in channel.param)
-						param[0] *= scaling;
-     				break;
-				case "rotateX":
-     				channel.type = ["jointRotationX"];
-     				if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-     				break;
-				case "RotX":
-     				channel.type = ["rotationX"];
-     				if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-     				break;
-				case "rotateY":
-					if (yUp)
-						channel.type = ["jointRotationY"];
-					else
-						channel.type = ["jointRotationZ"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-     				break;
-				case "RotY":
-					if (yUp)
-						channel.type = ["rotationY"];
-					else
-						channel.type = ["rotationZ"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-     				break;
-				case "rotateZ":
-					if (yUp)
-						channel.type = ["jointRotationZ"];
-					else
-						channel.type = ["jointRotationY"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-            		break;
-				case "RotZ":
-					if (yUp)
-						channel.type = ["rotationZ"];
-					else
-						channel.type = ["rotationY"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-            		break;
-				case "scaleX":
-					channel.type = ["jointScaleX"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-            		break;
-				case "scaleY":
-					if (yUp)
-						channel.type = ["jointScaleY"];
-					else
-						channel.type = ["jointScaleZ"];
-     				break;
-				case "scaleZ":
-					if (yUp)
-						channel.type = ["jointScaleZ"];
-					else
-						channel.type = ["jointScaleY"];
-     				break;
-				case "translate":
-				case "translation":
-					if (yUp) {
-						channel.type = ["x", "y", "z"];
-						for each (param in channel.param)
-							param[0] *= -1;
-     				} else {
-     					channel.type = ["x", "z", "y"];
-     				}
-     				for each (param in channel.param) {
-						param[0] *= scaling;
-						param[1] *= scaling;
-						param[2] *= scaling;
-     				}
-					break;
-				case "scale":
-					if (yUp)
-						channel.type = ["jointScaleX", "jointScaleY", "jointScaleZ"];
-					else
-						channel.type = ["jointScaleX", "jointScaleZ", "jointScaleY"];
-     				break;
-				case "rotate":
-					if (yUp) {
-						channel.type = ["jointRotationX", "jointRotationY", "jointRotationZ"];
-						for each (param in channel.param) {
-							param[0] *= -1;
-							param[1] *= -1;
-							param[2] *= -1;
-						}
-     				} else {
-						channel.type = ["jointRotationX", "jointRotationZ", "jointRotationY"];
-     				}
-					break;
-				case "transform":
-					channel.type = ["transform"];
-					break;
-            }
+			channelData.type = type;
         }
 		
 		/**
