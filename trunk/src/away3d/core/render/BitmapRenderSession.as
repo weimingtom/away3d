@@ -161,7 +161,7 @@ package away3d.core.render
 	            _layerDirty = true;
 	        }
 	        
-	        if (filters && filters.length)
+	        if ((filters && filters.length) || (_container.filters && _container.filters.length))
         		_container.filters = filters;
         	
         	_container.alpha = alpha || 1;
