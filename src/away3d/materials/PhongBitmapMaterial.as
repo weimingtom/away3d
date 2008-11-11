@@ -12,7 +12,7 @@ package away3d.materials
 	{
 		private var _shininess:Number;
 		private var _specular:Number;
-		private var _bitmapMaterial:BitmapMaterial;
+		private var _bitmapMaterial:TransformBitmapMaterial;
 		private var _phongShader:CompositeMaterial;
 		private var _ambientShader:AmbientShader;
 		private var _diffusePhongShader:DiffusePhongShader;
@@ -71,7 +71,7 @@ package away3d.materials
 			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
 			//create new materials
-			_bitmapMaterial = new BitmapMaterial(bitmap, ini);
+			_bitmapMaterial = new TransformBitmapMaterial(bitmap, ini);
 			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
 			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
 			_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
