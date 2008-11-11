@@ -136,7 +136,9 @@ package away3d.core.render
         		_container.cacheAsBitmap = cacheAsBitmap;
         	}
         	
-        	_container.filters = filters;
+        	if (filters && filters.length)
+        		_container.filters = filters;
+        	
         	_container.alpha = alpha;
         	_container.blendMode = blendMode || BlendMode.NORMAL;
         }   
