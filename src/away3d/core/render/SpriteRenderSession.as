@@ -136,7 +136,7 @@ package away3d.core.render
         		_container.cacheAsBitmap = cacheAsBitmap;
         	}
         	
-        	if (filters && filters.length)
+        	if ((filters && filters.length) || (_container.filters && _container.filters.length))
         		_container.filters = filters;
         	
         	_container.alpha = alpha;
