@@ -37,7 +37,7 @@ package away3d.core.project
 			viewDictionary = new Dictionary(true);
 		}
 		
-		public function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(view:View3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			if (!(primitiveDictionary = viewDictionary[view]))
 				primitiveDictionary = viewDictionary[view] = new Dictionary(true);

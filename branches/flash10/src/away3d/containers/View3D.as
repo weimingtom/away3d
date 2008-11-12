@@ -6,7 +6,7 @@ package away3d.containers
 	import away3d.core.block.BlockerArray;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
-	import away3d.core.math.Matrix3D;
+	import away3d.core.math.MatrixAway3D;
 	import away3d.core.render.*;
 	import away3d.core.stats.*;
 	import away3d.core.traverse.*;
@@ -105,7 +105,7 @@ package away3d.containers
         private var sceneY:Number;
         private var sceneZ:Number;
         private var primitive:DrawPrimitive;
-        private var inv:Matrix3D = new Matrix3D();
+        private var inv:MatrixAway3D = new MatrixAway3D();
         private var persp:Number;
         
         private function checkSession(session:AbstractRenderSession):void

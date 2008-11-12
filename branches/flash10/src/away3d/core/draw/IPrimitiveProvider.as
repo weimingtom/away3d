@@ -21,7 +21,7 @@ package away3d.core.draw
     	 * @see	away3d.core.traverse.PrimitiveTraverser
     	 * @see	away3d.core.draw.DrawPrimitive
     	 */
-        function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void;
+        function primitives(view:View3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void;
         
         function clone():IPrimitiveProvider;
     }

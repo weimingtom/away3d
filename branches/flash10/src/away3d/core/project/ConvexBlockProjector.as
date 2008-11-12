@@ -37,7 +37,7 @@ package away3d.core.project
     	 * @see	away3d.core.traverse.BlockerTraverser
     	 * @see	away3d.core.block.Blocker
 		 */
-        public function blockers(view:View3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
+        public function blockers(view:View3D, viewTransform:MatrixAway3D, consumer:IBlockerConsumer):void
         {
 			if (!(primitiveDictionary = viewDictionary[view]))
 				primitiveDictionary = viewDictionary[view] = new Dictionary(true);
@@ -118,7 +118,7 @@ package away3d.core.project
             consumer.blocker(_convexBlocker);
  		}
  		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(view:View3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			super.primitives(view, viewTransform, consumer);
 			

@@ -116,11 +116,11 @@ package away3d.core.base
 		/** @private */
         arcane var _transformDirty:Boolean;
         /** @private */
-        arcane var _transform:Matrix3D = new Matrix3D();
+        arcane var _transform:MatrixAway3D = new MatrixAway3D();
         /** @private */
         arcane var _sceneTransformDirty:Boolean;
         /** @private */
-        arcane var _sceneTransform:Matrix3D = new Matrix3D();
+        arcane var _sceneTransform:MatrixAway3D = new MatrixAway3D();
         /** @private */
         arcane var _localTransformDirty:Boolean;
         /** @private */
@@ -316,7 +316,7 @@ package away3d.core.base
 		private var _sca:Number3D = new Number3D();
         private var _pivotZero:Boolean;
 		private var _vector:Number3D = new Number3D();
-		private var _m:Matrix3D = new Matrix3D();
+		private var _m:MatrixAway3D = new MatrixAway3D();
     	private var _xAxis:Number3D = new Number3D();
     	private var _yAxis:Number3D = new Number3D();
     	private var _zAxis:Number3D = new Number3D();
@@ -434,7 +434,7 @@ package away3d.core.base
         	_sessionDirty = true;
         }
         
-        protected var viewTransform:Matrix3D;
+        protected var viewTransform:MatrixAway3D;
         
         /**
          * Instance of the Init object used to hold and parse default property values
@@ -514,7 +514,7 @@ package away3d.core.base
     	 * 
     	 * @see #sceneTransform
     	 */
-        public var inverseSceneTransform:Matrix3D = new Matrix3D();
+        public var inverseSceneTransform:MatrixAway3D = new MatrixAway3D();
 		
     	/**
     	 * An optional name string for the 3d object.
@@ -1182,7 +1182,7 @@ package away3d.core.base
     	/**
     	 * Defines the transformation of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
-        public function get transform():Matrix3D
+        public function get transform():MatrixAway3D
         {
             if (_transformDirty) 
                 updateTransform();
@@ -1190,7 +1190,7 @@ package away3d.core.base
             return _transform;
         }
 
-        public function set transform(value:Matrix3D):void
+        public function set transform(value:MatrixAway3D):void
         {
             if (_transform.compare(value))
                 return;
@@ -1270,7 +1270,7 @@ package away3d.core.base
     	/**
     	 * Returns the transformation of the 3d object, relative to the global coordinates of the <code>Scene3D</code> object.
     	 */
-        public function get sceneTransform():Matrix3D
+        public function get sceneTransform():MatrixAway3D
         {
         	//for camera transforms
             if (_scene == null || _scene == this) {
@@ -1432,8 +1432,8 @@ package away3d.core.base
     	 */
         public function distanceTo(obj:Object3D):Number
         {
-            var m1:Matrix3D = _scene == this ? transform : sceneTransform;
-            var m2:Matrix3D = obj.scene == obj ? obj.transform : obj.sceneTransform;
+            var m1:MatrixAway3D = _scene == this ? transform : sceneTransform;
+            var m2:MatrixAway3D = obj.scene == obj ? obj.transform : obj.sceneTransform;
 
             var dx:Number = m1.tx - m2.tx;
             var dy:Number = m1.ty - m2.ty;

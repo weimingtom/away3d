@@ -31,15 +31,15 @@ package away3d.cameras
     {
         private var _aperture:Number = 22;
     	private var _dof:Boolean = false;
-        private var _flipY:Matrix3D = new Matrix3D();
+        private var _flipY:MatrixAway3D = new MatrixAway3D();
         private var _focus:Number;
         private var _zoom:Number;
         private var _fov:Number;
-    	private var _view:Matrix3D = new Matrix3D();
+    	private var _view:MatrixAway3D = new MatrixAway3D();
         private var _screenVertex:ScreenVertex = new ScreenVertex();
         private var _vtActive:Array = new Array();
         private var _vtStore:Array = new Array();
-        private var _vt:Matrix3D;
+        private var _vt:MatrixAway3D;
 		private var _cameraupdated:CameraEvent;
 		private var _x:Number;
 		private var _y:Number;
@@ -58,19 +58,19 @@ package away3d.cameras
             dispatchEvent(_cameraupdated);
         }
         
-    	public var invView:Matrix3D = new Matrix3D();
+    	public var invView:MatrixAway3D = new MatrixAway3D();
     	
         /**
         * Dictionary of all objects transforms calulated from the camera view for the last render frame
         */
         public var viewTransforms:Dictionary;
         
-        public function createViewTransform(node:Object3D):Matrix3D
+        public function createViewTransform(node:Object3D):MatrixAway3D
         {
         	if (_vtStore.length)
         		_vtActive.push(_vt = viewTransforms[node] = _vtStore.pop());
         	else
-        		_vtActive.push(_vt = viewTransforms[node] = new Matrix3D());
+        		_vtActive.push(_vt = viewTransforms[node] = new MatrixAway3D());
         	
         	return _vt
         }
@@ -226,7 +226,7 @@ package away3d.cameras
 		 * 
 		 * @see	away3d.core.traverse.ProjectionTraverser
 		 */
-        public function get view():Matrix3D
+        public function get view():MatrixAway3D
         {
         	invView.multiply(sceneTransform, _flipY);
         	_view.inverse(invView);
@@ -257,7 +257,7 @@ package away3d.cameras
        /**
         * Projects the vertex to the screen space of the view.
         */
-        public function project(viewTransform:Matrix3D, vertex:Vertex, screenvertex:ScreenVertex):void
+        public function project(viewTransform:MatrixAway3D, vertex:Vertex, screenvertex:ScreenVertex):void
         {
         	_x = vertex.x;
         	_y = vertex.y;

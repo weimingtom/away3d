@@ -36,7 +36,7 @@ package away3d.core.geom
 	
 		//arbitrary point on this plane, only avail during closest computation
     	private var _point:Number3D = new Number3D();
-		private var _mt:Matrix3D = new Matrix3D();
+		private var _mt:MatrixAway3D = new MatrixAway3D();
 		
 		/**
 		 * Create a Plane3D with ABCD coefficients
@@ -187,7 +187,7 @@ package away3d.core.geom
 		 * Transform this plane with the 4x4 transform matrix m4x4.
 		 * XXX Untested
 		 */
-		public function transform(m4x4:Matrix3D):void
+		public function transform(m4x4:MatrixAway3D):void
 		{
 			var ta:Number = a;
 			var tb:Number = b;

@@ -18,7 +18,7 @@ package away3d.core.traverse
         private var _view:View3D;
         private var _mesh:Mesh;
         private var _camera:Camera3D;
-        private var _cameraview:Matrix3D;
+        private var _cameraview:MatrixAway3D;
 		private var _cameraviewtransforms:Dictionary;
 		
 		/**

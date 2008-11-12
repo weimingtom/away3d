@@ -19,7 +19,7 @@ package away3d.core.project
 		private var _drawDisplayObject:DrawDisplayObject;
 		private var _depthPoint:Number3D = new Number3D();
 		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(view:View3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			super.primitives(view, viewTransform, consumer);
 			

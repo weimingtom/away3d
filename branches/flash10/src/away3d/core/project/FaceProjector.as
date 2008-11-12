@@ -37,7 +37,7 @@ package away3d.core.project
             return (_sv0.x*(_sv2.y - _sv1.y) + _sv1.x*(_sv0.y - _sv2.y) + _sv2.x*(_sv1.y - _sv0.y));
         }
         
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(view:View3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			super.primitives(view, viewTransform, consumer);
 			

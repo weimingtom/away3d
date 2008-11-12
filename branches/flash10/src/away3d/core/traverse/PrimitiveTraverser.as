@@ -16,7 +16,7 @@ package away3d.core.traverse
     public class PrimitiveTraverser extends Traverser
     {
     	private var _view:View3D;
-    	private var _viewTransform:Matrix3D;
+    	private var _viewTransform:MatrixAway3D;
     	private var _consumer:IPrimitiveConsumer;
     	private var _mouseEnabled:Boolean;
     	private var _mouseEnableds:Array;

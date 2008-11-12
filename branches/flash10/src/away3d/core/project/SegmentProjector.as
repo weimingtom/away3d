@@ -16,7 +16,7 @@ package away3d.core.project
 		private var _segment:Segment;
 		private var _drawSegment:DrawSegment;
 		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(view:View3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			super.primitives(view, viewTransform, consumer);
 			

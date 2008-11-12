@@ -25,7 +25,7 @@ package away3d.core.geom
 		
 		public var planes:Array;
 		
-		private var _matrix:Matrix3D = new Matrix3D();
+		private var _matrix:MatrixAway3D = new MatrixAway3D();
 		
 		/**
 		 * Creates a frustum consisting of 6 planes in 3d space.
@@ -106,7 +106,7 @@ package away3d.core.geom
 		/**
 		 * Extract this frustum's plane from the 4x4 projection matrix m.
 		 */	
-		public function extractFromMatrix(m:Matrix3D):void
+		public function extractFromMatrix(m:MatrixAway3D):void
 		{
 			_matrix = m;
 			
