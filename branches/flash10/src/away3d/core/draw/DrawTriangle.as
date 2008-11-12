@@ -1,5 +1,7 @@
 package away3d.core.draw
 {
+    import __AS3__.vec.Vector;
+    
     import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.render.*;
@@ -222,6 +224,10 @@ package away3d.core.draw
 		 * The uv2 uv coordinate of the triangle primitive.
 		 */
         public var uv2:UV;
+        
+        public var vertices:Vector.<Number> = new Vector.<Number>();
+        
+        public var uvtData:Vector.<Number> = new Vector.<Number>();
         
 		/**
 		 * The calulated area of the triangle primitive.
@@ -547,6 +553,13 @@ package away3d.core.draw
             
             screenZ = (v0.z + v1.z + v2.z) / 3;
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
+            
+            vertices[0] = v0.x;
+            vertices[1] = v0.y;
+            vertices[2] = v1.x;
+            vertices[3] = v1.y;
+            vertices[4] = v2.x;
+            vertices[5] = v2.y;
         }
         
 		/**

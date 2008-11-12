@@ -1,11 +1,12 @@
 package away3d.core.utils
 {
+	import __AS3__.vec.Vector;
+	
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	
-	import flash.display.BitmapData;
-	import flash.geom.Matrix;
-	import flash.utils.Dictionary;
+	import flash.display.*;
+	import flash.geom.*;
 	
 	public class FaceVO
 	{
@@ -14,6 +15,7 @@ package away3d.core.utils
 		public var mapping:Matrix;
 		public var invtexturemapping:Matrix;
 		public var texturemapping:Matrix;
+		public var uvtData:Vector.<Number>;
 		
 		public var width:int;
 		public var height:int;

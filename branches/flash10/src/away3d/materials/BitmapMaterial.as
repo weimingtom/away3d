@@ -1,7 +1,9 @@
 package away3d.materials
 {
-    import away3d.containers.*;
+    import __AS3__.vec.Vector;
+    
     import away3d.arcane;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -29,6 +31,10 @@ package away3d.materials
     {
     	/** @private */
     	arcane var _texturemapping:Matrix;
+    	/** @private */
+    	arcane var _uvtData:Vector.<Number>;
+    	/** @private */
+    	arcane var _focus:Number;
         /** @private */
     	arcane var _bitmap:BitmapData;
         /** @private */
@@ -459,6 +465,17 @@ package away3d.materials
 			return _faceVO.texturemapping = _texturemapping;
 		}
 		
+		protected function getUVData(tri:DrawTriangle):Vector.<Number>
+		{
+			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			
+			if (_faceVO.uvtData)
+				return _faceVO.uvtData;
+			
+			_focus = tri.view.camera.focus;
+			return _faceVO.uvtData = Vector.<Number>([tri.uv0.u, 1 - tri.uv0.v, 1/(_focus + tri.v0.z), tri.uv1.u, 1 - tri.uv1.v, 1/(_focus + tri.v1.z), tri.uv2.u, 1 - tri.uv2.v, 1/(_focus + tri.v2.z)]);
+		}
+		
     	/**
     	 * Determines if texture bitmap is smoothed (bilinearly filtered) when drawn to screen.
     	 */
@@ -733,27 +750,14 @@ package away3d.materials
 		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
-        	_mapping = getMapping(tri);
+        	//_mapping = getMapping(tri);
 			_session = tri.source.session;
         	_view = tri.view;
         	
         	if (!_graphics && _session != tri.view.session && _session.newLayer)
         		_graphics = _session.newLayer.graphics;
         	
-			if (precision) {
-            	focus = tri.view.camera.focus;
-            	
-            	map.a = _mapping.a;
-	            map.b = _mapping.b;
-	            map.c = _mapping.c;
-	            map.d = _mapping.d;
-	            map.tx = _mapping.tx;
-	            map.ty = _mapping.ty;
-	            
-	            renderRec(tri.v0, tri.v1, tri.v2, 0);
-			} else {
-				_session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
-			}
+			_session.renderTriangleBitmapF10(_renderBitmap, tri.vertices, getUVData(tri), smooth, repeat, _graphics);
 			
             if (debug)
                 _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);

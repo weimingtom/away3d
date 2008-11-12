@@ -1,7 +1,9 @@
 package away3d.core.render
 {
-	import away3d.containers.*;
+	import __AS3__.vec.Vector;
+	
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
@@ -76,6 +78,9 @@ package away3d.core.render
         	object.removeEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdate);
         }
         
+        private var fill:GraphicsBitmapFill = new GraphicsBitmapFill();
+        private var path:GraphicsTrianglePath = new GraphicsTrianglePath(new Vector.<Number>(), null, new Vector.<Number>());
+        private var drawing:Vector.<IGraphicsData> = Vector.<IGraphicsData>([fill, path]);
 		private var _renderers:Dictionary = new Dictionary(true);
 		private var _renderer:IPrimitiveConsumer;
         private var _session:AbstractRenderSession;
@@ -430,6 +435,28 @@ package away3d.core.render
 	            graphics.lineTo(v1x, v1y);
 	            graphics.lineTo(v2x, v2y);
 	            graphics.endFill();
+	  		}
+        }
+        
+        /**
+         * Draws a triangle element with a bitmap texture into the graphics object (Flash 10)
+         */
+        public function renderTriangleBitmapF10(bitmap:BitmapData, vertices:Vector.<Number>, uvtData:Vector.<Number>, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+        	fill.bitmapData = bitmap;
+			fill.repeat = repeat;
+			fill.smooth = smooth;
+			
+        	path.vertices = vertices;
+        	path.uvtData = uvtData;
+			
+			if (layerGraphics) {
+				layerGraphics.drawGraphicsData(drawing);
+	  		} else {
+	  			graphics.drawGraphicsData(drawing);
 	  		}
         }
         
