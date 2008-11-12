@@ -450,7 +450,7 @@ package away3d.loaders
             if (yUp) {
                 	rotationMatrix.rotationMatrix(vector[0], -vector[1], -vector[2], vector[3]*toRADIANS);
             } else {
-                	rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], vector[3]*toRADIANS);
+                	rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], -vector[3]*toRADIANS);
             }
             
             return rotationMatrix;
