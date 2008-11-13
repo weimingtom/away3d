@@ -1,6 +1,7 @@
 package away3d.animators.skin
 {
     import away3d.containers.*;
+    import away3d.core.base.*;
     import away3d.core.math.*;
 	
     public class Channel
@@ -11,7 +12,7 @@ package away3d.animators.skin
     	private var _oldlength:int;
     	
     	public var name:String;
-        public var target:ObjectContainer3D;
+        public var target:Object3D;
         
         public var type:Array;
 		
@@ -79,7 +80,7 @@ package away3d.animators.skin
         {
         	var channel:Channel = new Channel(name);
         	
-        	channel.target = object.getBoneByName(name);
+        	channel.target = object.getChildByName(name);
         	channel.type = type.concat();
         	channel.param = param.concat();
         	channel.inTangent = inTangent.concat();
