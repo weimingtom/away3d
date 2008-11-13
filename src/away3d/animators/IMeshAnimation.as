@@ -8,7 +8,7 @@ package away3d.animators
     */
     public interface IMeshAnimation
     {
-    	function update(time:Number):void;
+    	function update(time:Number, interpolate:Boolean = true):void;
     	
     	function clone(object:ObjectContainer3D):IMeshAnimation;
     }

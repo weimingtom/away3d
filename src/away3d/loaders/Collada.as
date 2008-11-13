@@ -335,10 +335,22 @@ package away3d.loaders
 									for each (param in channel.param)
 										param[0] *= scaling;
 				     				break;
+				     			case "jointOrientX":
+				     				channel.type = ["rotationX"];
+				     				if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
 								case "rotateX":
 								case "RotX":
 				     				channel.type = [rX];
 				     				if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+				     			case "jointOrientY":
+				     				channel.type = ["rotationY"];
+				     				//if (yUp)
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
@@ -349,6 +361,12 @@ package away3d.loaders
 									else
 										channel.type = [rZ];
 									//if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+				     			case "jointOrientZ":
+				     				channel.type = ["rotationZ"];
+				     				//if (yUp)
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
@@ -411,6 +429,10 @@ package away3d.loaders
 										}
 				     				} else {
 										channel.type = [rX, rZ, rY];
+										for each (param in channel.param) {
+											param[1] *= -1;
+											param[2] *= -1;
+										}
 				     				}
 									break;
 								case "transform":
