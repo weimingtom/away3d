@@ -338,7 +338,7 @@ package away3d.loaders
 								case "rotateX":
 								case "RotX":
 				     				channel.type = [rX];
-				     				//if (yUp)
+				     				if (yUp)
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
