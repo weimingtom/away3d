@@ -233,7 +233,7 @@ package away3d.core.draw
     	 */
         public var face:Face;
         
-        public var generated:Boolean = true;
+        public var generated:Boolean;
         
     	/**
     	 * Indicates whether the face of the triangle primitive is facing away from the camera.
