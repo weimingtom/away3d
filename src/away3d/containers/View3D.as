@@ -624,7 +624,7 @@ package away3d.containers
         */
 		public function getContainer():DisplayObject
 		{
-			return _internalsession.getContainer(this);
+			return _session.getContainer(this);
 		}
 		
         /**
@@ -640,8 +640,8 @@ package away3d.containers
         */
 		public function getBitmapData():BitmapData
 		{
-			if (_internalsession is BitmapRenderSession)
-				return (_internalsession as BitmapRenderSession).getBitmapData(this);
+			if (_session is BitmapRenderSession)
+				return (_session as BitmapRenderSession).getBitmapData(this);
 			else
 				throw new Error("incorrect session object - require BitmapRenderSession");	
 		}
