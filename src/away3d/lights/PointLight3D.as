@@ -67,7 +67,7 @@ package away3d.lights
 		public function get debugPrimitive():Object3D
 		{
 			if (!_debugPrimitive)
-				_debugPrimitive = new Sphere();
+				_debugPrimitive = new Sphere({radius:10});
 			
 			if (!_debugMaterial) {
 				_debugMaterial = new ColorMaterial();
