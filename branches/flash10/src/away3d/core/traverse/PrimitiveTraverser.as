@@ -86,8 +86,10 @@ package away3d.core.traverse
 	            
 	            if (node is ILightProvider) {
 	            	_light = node as ILightProvider;
-	            	if (_light.debug)
+	            	if (_light.debug) {
+	            		_light.debugPrimitive._session = node.session;
 	            		_light.debugPrimitive.projector.primitives(_view, _viewTransform, _consumer);
+	            	}
 	            }
 	        }
 	        

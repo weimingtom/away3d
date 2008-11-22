@@ -36,9 +36,10 @@ package away3d.animators
 		/**
 		 * Updates all channels in the animation with the given time in seconds.
 		 * 
-		 * @param Defines the time in seconds of the playhead of the animation.
+		 * @param	time						Defines the time in seconds of the playhead of the animation.
+		 * @param	interpolate		[optional]	Defines whether the animation interpolates between channel points Defaults to true.
 		 */
-        public function update(time:Number):void
+        public function update(time:Number, interpolate:Boolean = true):void
         {
 			if (time - start > length ) {
                 if (loop) {
@@ -55,7 +56,7 @@ package away3d.animators
         	}
         	
             for each (var channel:Channel in _channels)
-                channel.update(time);
+                channel.update(time, interpolate);
         }
 		
 		public function clone(object:ObjectContainer3D):IMeshAnimation

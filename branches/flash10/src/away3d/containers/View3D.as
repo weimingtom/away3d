@@ -1,7 +1,7 @@
 package away3d.containers
 {
-	import away3d.cameras.*;
 	import away3d.arcane;
+	import away3d.cameras.*;
 	import away3d.core.base.*;
 	import away3d.core.block.BlockerArray;
 	import away3d.core.clip.*;
@@ -83,6 +83,7 @@ package away3d.containers
         private var _lastmove_mouseX:Number;
         private var _lastmove_mouseY:Number;
 		private var _oldclip:Clipping;
+		private var _internalsession:AbstractRenderSession;
 		private var _updatescene:ViewEvent;
 		private var _updated:Boolean;
 		private var _cleared:Boolean;
@@ -118,7 +119,6 @@ package away3d.containers
         	}
         	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
-        		var con:IPrimitiveConsumer = session.getConsumer(this);
 	        	for each (primitive in session.getConsumer(this).list())
 	               checkPrimitive(primitive);
 	        	for each (session in session.sessions)
@@ -344,9 +344,8 @@ package away3d.containers
         	
         	_renderer = val;
         	
-        	if (_session)
-        		_session.renderer = _renderer as IPrimitiveConsumer;
-        	
+			_updated = true;
+			
         	if (!_renderer)
         		throw new Error("View cannot have renderer set to null");
         }
@@ -416,6 +415,8 @@ package away3d.containers
         	
         	_scene = val;
         	
+			_updated = true;
+			
         	if (_scene) {
         		_scene.internalAddView(this);
         		_scene.addOnSessionChange(onSessionChange);
@@ -445,17 +446,16 @@ package away3d.containers
         	
         	if (_session) {
         		_session.removeOnSessionUpdate(onSessionUpdate);
-        		_session.renderer = null;
 	        	if (_scene)
 	        		_session.internalRemoveSceneSession(_scene.ownSession);
         	}
         	
         	_session = val;
         	
+			_updated = true;
+			
         	if (_session) {
         		_session.addOnSessionUpdate(onSessionUpdate);
-        		if (_renderer)
-        			_session.renderer = _renderer as IPrimitiveConsumer;
 	        	if (_scene)
 	        		_session.internalAddSceneSession(_scene.ownSession);
         	} else {
@@ -528,7 +528,7 @@ package away3d.containers
         */
         public function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
-        	findHit(_scene.session, x, y);
+        	findHit(_internalsession, x, y);
         	
             var event:MouseEvent3D = getMouseEvent(type);
             var target:Object3D = event.object;
@@ -570,6 +570,9 @@ package away3d.containers
 	    */
         public function findHit(session:AbstractRenderSession, x:Number, y:Number):void
         {
+        	if (!session)
+        		return;
+        	
             screenX = x;
             screenY = y;
             screenZ = Infinity;
@@ -651,7 +654,9 @@ package away3d.containers
         public function clear():void
         {
         	_updated = true;
-        	session.clear(this);
+        	
+        	if (_internalsession)
+        		session.clear(this);
         }
         
         /**
@@ -661,6 +666,14 @@ package away3d.containers
         */
         public function render():void
         {
+        	//update session
+        	if (_session != _internalsession)
+        		_internalsession = session;
+        	
+        	//update renderer
+        	if (_session.renderer != _renderer as IPrimitiveConsumer)
+        		_session.renderer = _renderer as IPrimitiveConsumer;
+        	
             //update scene
             notifySceneUpdate();
         	

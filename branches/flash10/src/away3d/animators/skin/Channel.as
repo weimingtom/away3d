@@ -1,6 +1,7 @@
 package away3d.animators.skin
 {
     import away3d.containers.*;
+    import away3d.core.base.*;
     import away3d.core.math.*;
 	
     public class Channel
@@ -11,7 +12,7 @@ package away3d.animators.skin
     	private var _oldlength:int;
     	
     	public var name:String;
-        public var target:Bone;
+        public var target:Object3D;
         
         public var type:Array;
 		
@@ -35,8 +36,14 @@ package away3d.animators.skin
 			
             interpolations = [];
         }
-
-        public function update(time:Number):void
+		
+		/**
+		 * Updates the channel's target with the data point at the given time in seconds.
+		 * 
+		 * @param	time						Defines the time in seconds of the playhead of the animation.
+		 * @param	interpolate		[optional]	Defines whether the animation interpolates between channel points Defaults to true.
+		 */
+        public function update(time:Number, interpolate:Boolean = true):void
         {	
             if (!target)
                 return;
@@ -69,7 +76,10 @@ package away3d.animators.skin
 					if (type[i] == "transform") {
 						target.transform = param[_index][i];
 					} else {
-						target[type[i]] = ((time - times[_index]) * param[int(_index + 1)][i] + (times[int(_index + 1)] - time) * param[_index][i]) / (times[int(_index + 1)] - times[_index]);
+						if (interpolate)
+							target[type[i]] = ((time - times[_index]) * param[int(_index + 1)][i] + (times[int(_index + 1)] - time) * param[_index][i]) / (times[int(_index + 1)] - times[_index]);
+						else
+							target[type[i]] = param[_index][i];
 					}
 				}
 			}
@@ -79,7 +89,7 @@ package away3d.animators.skin
         {
         	var channel:Channel = new Channel(name);
         	
-        	channel.target = object.getBoneByName(name);
+        	channel.target = object.getChildByName(name);
         	channel.type = type.concat();
         	channel.param = param.concat();
         	channel.inTangent = inTangent.concat();
