@@ -128,6 +128,8 @@ package away3d.core.base
         /** @private */
         arcane var _boundingRadius:Number = 0;
         /** @private */
+        arcane var _boundingScale:Number = 1;
+        /** @private */
         arcane var _maxX:Number = 0;
         /** @private */
         arcane var _minX:Number = 0;
@@ -139,15 +141,6 @@ package away3d.core.base
         arcane var _maxZ:Number = 0;
         /** @private */
         arcane var _minZ:Number = 0;
-        /** @private */
-        public function get parentradius():Number
-        {
-            //if (_transformDirty)   ???
-            //    updateTransform();
-			_parentradius.sub(position, _parentPivot);
-            
-            return _parentradius.modulo + boundingRadius*(_scaleX + _scaleY + _scaleZ)/3;
-        }
         /** @private */
         public function get parentmaxX():Number
         {
@@ -608,7 +601,7 @@ package away3d.core.base
             if (_dimensionsDirty)
             	updateDimensions();
            
-           return _boundingRadius;
+           return _boundingRadius*_boundingScale;
         }
         
     	/**
