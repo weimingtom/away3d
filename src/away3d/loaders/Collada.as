@@ -111,28 +111,7 @@ package away3d.loaders
 					
 					if (centerMeshes && objectContainer.children.length) {
 						//center children in container for better bounding radius calulations
-						_maxX = -Infinity;
-						_minX = Infinity;
-						_maxY = -Infinity;
-						_minY = Infinity;
-						_maxZ = -Infinity;
-						_minZ = Infinity;
-						for each (var child:Object3D in objectContainer.children) {
-							if (_maxX < child.x)
-								_maxX = child.x;
-							if (_minX > child.x)
-								_minX = child.x;
-							if (_maxY < child.y)
-								_maxY = child.y;
-							if (_minY > child.y)
-								_minY = child.y;
-							if (_maxZ < child.z)
-								_maxZ = child.z;
-							if (_minZ > child.z)
-								_minZ = child.z;
-						}
-						
-						objectContainer.movePivot(_moveVector.x = (_maxX + _minX)/2, _moveVector.y = (_maxY + _minY)/2, _moveVector.z = (_maxZ + _minZ)/2);
+						objectContainer.movePivot(_moveVector.x = (objectContainer.maxX + objectContainer.minX)/2, _moveVector.y = (objectContainer.maxY + objectContainer.minY)/2, _moveVector.z = (objectContainer.maxZ + objectContainer.minZ)/2);
 						_moveVector.transform(_moveVector, _objectData.transform);
 						objectContainer.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
 					}
