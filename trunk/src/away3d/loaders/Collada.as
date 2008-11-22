@@ -37,6 +37,7 @@ package away3d.loaders
         private var symbolLibrary:Dictionary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
+        private var _skinController:SkinController;
     	private var _meshData:MeshData;
     	private var _geometryData:GeometryData;
         private var _materialData:MaterialData;
@@ -75,20 +76,12 @@ package away3d.loaders
 		private var _haveClips:Boolean = false;
 		private var _containers:Dictionary = new Dictionary(true);
 		
-		private function buildMeshes(containerData:ContainerData, parent:ObjectContainer3D):void
-		{
-			for each (var _objectData:ObjectData in containerData.children) {
-				if (_objectData is MeshData)
-					buildMesh(_objectData as MeshData, parent);
-				else if (_objectData is ContainerData)
-					buildMeshes(_objectData as ContainerData, (_objectData as ContainerData).container);
-			}
-		}
-		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
-				if (_objectData is BoneData) {
+				if (_objectData is MeshData) {
+					buildMesh(_objectData as MeshData, parent);
+				} else if (_objectData is BoneData) {
 					var _boneData:BoneData = _objectData as BoneData;
 					var bone:Bone = new Bone({name:_boneData.name});
 					_boneData.container = bone as ObjectContainer3D;
@@ -176,36 +169,24 @@ package away3d.loaders
 				
 				
 				if (_geometryData.skinVertices.length) {
-					var bone:Bone;
 					var i:int;
 					var joints:Array;
-					var skinController:SkinController;
 					var rootBone:Bone = (container as ObjectContainer3D).getBoneByName(_meshData.skeleton);
 					
 					geometry.skinVertices = _geometryData.skinVertices;
 					geometry.skinControllers = _geometryData.skinControllers;
 					//mesh.bone = container.getChildByName(_meshData.bone) as Bone;
 					
-					for each (skinController in geometry.skinControllers) {
-						bone = (container as ObjectContainer3D).getBoneByName(skinController.name);
-		                if (bone) {
-		                    skinController.joint = bone.joint;
-		                    
-		                    //if (!(bone.parent.parent is Bone))
-		                    //	rootBone = bone;
-		                } else
-		                	Debug.warning("no joint found for " + skinController.name);
-		   			}
-		   			
 		   			geometry.rootBone = rootBone;
 		   			
-		   			for each (skinController in geometry.skinControllers)
-		                skinController.inverseTransform = parent.inverseSceneTransform;
+		   			for each (_skinController in geometry.skinControllers)
+		                _skinController.inverseTransform = parent.inverseSceneTransform;
 				}
 				
 				//create faces from face and mesh data
 				var face:Face;
 				var matData:MaterialData;
+				
 				for each(_faceData in _geometryData.faces) {
 					if (!_faceData.materialData)
 						continue;
@@ -224,6 +205,8 @@ package away3d.loaders
 			}
 			
 			if (centerMeshes) {
+				trace(_geometryData.maxX);
+				trace(_geometryData.minX);
 				mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2, _moveVector.y = (_geometryData.maxY + _geometryData.minY)/2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2);
 				_moveVector.transform(_moveVector, _meshData.transform);
 				mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
@@ -267,6 +250,18 @@ package away3d.loaders
 		
 		private function buildAnimations():void
 		{
+			var bone:Bone;
+			
+			for each (_geometryData in geometryLibrary) {
+				for each (_skinController in _geometryData.geometry.skinControllers) {
+					bone = (container as ObjectContainer3D).getBoneByName(_skinController.name);
+	                if (bone)
+	                    _skinController.joint = bone.joint;
+	                else
+	                	Debug.warning("no joint found for " + _skinController.name);
+	   			}
+	  		}
+		   			
 			for each (_animationData in animationLibrary)
 			{
 				switch (_animationData.animationType)
@@ -621,7 +616,7 @@ package away3d.loaders
 				buildContainers(containerData, container as ObjectContainer3D);
 				
 				//build the meshes
-				buildMeshes(containerData, container as ObjectContainer3D);
+				//buildMeshes(containerData, container as ObjectContainer3D);
 				
 				//build animations
 				buildAnimations();
@@ -849,13 +844,14 @@ package away3d.loaders
 		private function parseGeometry(geometryData:GeometryData):void
 		{
 			Debug.trace(" + Parse Geometry : "+ geometryData.name);
+			var verticesDictionary:Dictionary = new Dictionary(true);
 			
             // Triangles
             for each (var triangles:XML in geometryData.geoXML.mesh.triangles)
             {
                 // Input
                 var field:Array = [];
-
+				
                 for each(var input:XML in triangles.input)
                 {
                 	var semantic:String = input.@semantic;
@@ -874,7 +870,8 @@ package away3d.loaders
 
                 var data     :Array  = triangles.p.split(' ');
                 var len      :Number = triangles.@count;
-                var symbol :String = triangles.@material;
+                var symbol :String = triangles.@material
+                
 				Debug.trace(" + Parse MeshMaterialData");
                 _meshMaterialData = new MeshMaterialData();
     			_meshMaterialData.symbol = symbol;
@@ -904,6 +901,11 @@ package away3d.loaders
                         	}
                         }
                     }
+                    //trace(_faceData.v0);
+                    verticesDictionary[_faceData.v0] = geometryData.vertices[_faceData.v0];
+                    verticesDictionary[_faceData.v1] = geometryData.vertices[_faceData.v1];
+                    verticesDictionary[_faceData.v2] = geometryData.vertices[_faceData.v2];
+                    
                     _meshMaterialData.faceList.push(geometryData.faces.length);
                     geometryData.faces.push(_faceData);
                 }
@@ -917,7 +919,7 @@ package away3d.loaders
 				geometryData.minY = Infinity;
 				geometryData.maxZ = -Infinity;
 				geometryData.minZ = Infinity;
-                for each (_vertex in geometryData.vertices) {
+                for each (_vertex in verticesDictionary) {
 					if (geometryData.maxX < _vertex._x)
 						geometryData.maxX = _vertex._x;
 					if (geometryData.minX > _vertex._x)
