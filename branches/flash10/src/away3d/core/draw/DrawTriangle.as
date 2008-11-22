@@ -560,6 +560,7 @@ package away3d.core.draw
             vertices[3] = v1.y;
             vertices[4] = v2.x;
             vertices[5] = v2.y;
+            
         }
         
 		/**
