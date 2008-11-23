@@ -1,7 +1,7 @@
 package away3d.core.light
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.events.*;
@@ -12,12 +12,13 @@ package away3d.core.light
 	import flash.geom.*;
 	import flash.utils.Dictionary;
 
+	use namespace arcane;
+	
     /**
     * Directional light primitive.
     */
     public class DirectionalLight extends LightPrimitive
     {
-    	use namespace arcane;
     	
         private var _colorMatrix:ColorMatrixFilter = new ColorMatrixFilter();
         private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
@@ -226,7 +227,8 @@ package away3d.core.light
         	if (!diffuseTransform[source])
         		diffuseTransform[source] = new MatrixAway3D();
         	
-        	diffuseTransform[source].multiply3x3(transform, source._sceneTransform);
+        	diffuseTransform[source].multiply3x3(transform, source.sceneTransform);
+        	diffuseTransform[source].normalize(diffuseTransform[source]);
         }
         
         /**
@@ -252,7 +254,8 @@ package away3d.core.light
 			if (!specularTransform[source][view])
 				specularTransform[source][view] = new MatrixAway3D();
 				
-        	specularTransform[source][view].multiply3x3(halfTransform, source._sceneTransform);
+        	specularTransform[source][view].multiply3x3(halfTransform, source.sceneTransform);
+        	specularTransform[source][view].normalize(specularTransform[source][view]);
         }
         
         /**

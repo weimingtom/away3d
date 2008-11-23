@@ -13,29 +13,29 @@ package away3d.events
     public class MouseEvent3D extends Event
     {
     	/**
-    	 * Defines the value of the type property of a mouseOver3D event object.
+    	 * Defines the value of the type property of a mouseOver3d event object.
     	 */
-    	public static const MOUSE_OVER:String = "mouseOver3D";
+    	public static const MOUSE_OVER:String = "mouseOver3d";
     	
     	/**
-    	 * Defines the value of the type property of a mouseOut3D event object.
+    	 * Defines the value of the type property of a mouseOut3d event object.
     	 */
-    	public static const MOUSE_OUT:String = "mouseOut3D";
+    	public static const MOUSE_OUT:String = "mouseOut3d";
     	
     	/**
-    	 * Defines the value of the type property of a mouseUp3D event object.
+    	 * Defines the value of the type property of a mouseUp3d event object.
     	 */
-    	public static const MOUSE_UP:String = "mouseUp3D";
+    	public static const MOUSE_UP:String = "mouseUp3d";
     	
     	/**
-    	 * Defines the value of the type property of a mouseDown3D event object.
+    	 * Defines the value of the type property of a mouseDown3d event object.
     	 */
-    	public static const MOUSE_DOWN:String = "mouseDown3D";
+    	public static const MOUSE_DOWN:String = "mouseDown3d";
     	
     	/**
-    	 * Defines the value of the type property of a mouseMove3D event object.
+    	 * Defines the value of the type property of a mouseMove3d event object.
     	 */
-    	public static const MOUSE_MOVE:String = "mouseMove3D";
+    	public static const MOUSE_MOVE:String = "mouseMove3d";
     	
     	/**
     	 * The horizontal coordinate at which the event occurred in view coordinates.

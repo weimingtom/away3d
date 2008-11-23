@@ -1,8 +1,9 @@
 package away3d.sprites
 {
-    import away3d.core.*;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
+    import away3d.core.project.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
@@ -12,14 +13,8 @@ package away3d.sprites
 	 * Spherical billboard (always facing the camera) sprite object that uses a cached array of bitmapData objects as it's texture.
 	 * A depth of field blur image over a number of different perspecives is drawn and cached for later retrieval and display.
 	 */
-	public class DofSprite2D extends Object3D implements IPrimitiveProvider
+	public class DofSprite2D extends Object3D
     {
-        private var _center:Vertex = new Vertex();
-		private var _sc:ScreenVertex;
-		private var _persp:Number;
-        private var _primitive:DrawScaledBitmap = new DrawScaledBitmap();
-        private var _dofcache:DofCache;
-		
 		/**
 		 * Defines the bitmapData object to use for the sprite texture.
 		 */
@@ -61,37 +56,10 @@ package away3d.sprites
 			rotation = ini.getNumber("rotation", 0);
             smooth = ini.getBoolean("smooth", false);
             deltaZ = ini.getNumber("deltaZ", 0);
+            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
             
-            _dofcache = DofCache.getDofCache(bitmap);
-            
-            _primitive.source = this;
-        }
-        
-		/**
-		 * @inheritDoc
-    	 * 
-    	 * @see	away3d.core.traverse.PrimitiveTraverser
-    	 * @see	away3d.core.draw.DrawScaledBitmap
-		 */
-        override public function primitives(consumer:IPrimitiveConsumer, session:AbstractRenderSession):void
-        {
-        	super.primitives(consumer, session);
-
-            _sc = _center.project(projection);
-            if (!_sc.visible)
-                return;
-                
-            _persp = projection.zoom / (1 + _sc.z / projection.focus);          
-            _sc.z += deltaZ;
-            
-            _primitive.screenvertex = _sc;
-            _primitive.smooth = smooth;
-            _primitive.bitmap = bitmap;
-            _primitive.scale = _persp*scaling;
-            _primitive.rotation = rotation;
-            _primitive.calc();
-            
-            consumer.primitive(_primitive);
+            if (!projector)
+            	projector = new DofSpriteProjector();
         }
     }
 }

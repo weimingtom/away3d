@@ -1,45 +1,38 @@
 package away3d.core.traverse
 {
 	import away3d.containers.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
+	import away3d.core.math.*;
 	import away3d.core.render.*;
     
-
+	use namespace arcane;
+	
     /**
     * Traverser that gathers drawing primitives to render the scene.
     */
     public class PrimitiveTraverser extends Traverser
     {
-    	private var _session:AbstractRenderSession;
-    	
     	private var _view:View3D;
-    	private var _focus:Number;
-    	private var _zoom:Number;
-    	private var _sessions:Array;
-        private var _lights:ILightConsumer;
-		
+    	private var _viewTransform:MatrixAway3D;
+    	private var _consumer:IPrimitiveConsumer;
+    	private var _mouseEnabled:Boolean;
+    	private var _mouseEnableds:Array;
+		private var _light:ILightProvider;
 		/**
-		 * Defines the primitive consumer being used.
+		 * Defines the view being used.
 		 */
-		public var consumer:IPrimitiveConsumer
-		
-		/**
-		 * Defines the render session being used.
-		 */
-		public function get session():AbstractRenderSession
+		public function get view():View3D
 		{
-			return _session;
+			return _view;
 		}
-		public function set session(val:AbstractRenderSession):void
+		public function set view(val:View3D):void
 		{
-			_session = val;
-			_sessions = [];
-			_lights = _session.lightarray;
-			_view = _session.view;
-			_focus = _view.camera.focus;
-			_zoom = _view.camera.zoom;
+			_view = val;
+			_mouseEnabled = true;
+			_mouseEnableds = [];
 		}
 		    	
 		/**
@@ -57,7 +50,7 @@ package away3d.core.traverse
             if (!node.visible)
                 return false;
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(_view);
+                return (node as ILODObject).matchLOD(_view.camera);
             return true;
         }
         
@@ -66,7 +59,7 @@ package away3d.core.traverse
 		 */
         public override function enter(node:Object3D):void
         {
-        	_sessions.push(_session);
+        	_mouseEnableds.push(_mouseEnabled);
         }
         
 		/**
@@ -74,16 +67,33 @@ package away3d.core.traverse
 		 */
         public override function apply(node:Object3D):void
         {
-            if (node is IPrimitiveProvider)
-            {
-                (node as IPrimitiveProvider).primitives(consumer, _session);
-                _session = node.session;
-            }
-
-            if (node is ILightProvider)
-            {
-                (node as ILightProvider).light(_lights);
-            }
+        	if (node.session.updated) {
+	        	_viewTransform = _view.camera.viewTransforms[node];
+	        	_consumer = node.session.getConsumer(_view);
+	        	
+	        	if (node.projector)
+	            	node.projector.primitives(_view, _viewTransform, _consumer);
+	            
+	            if (node.debugbb && node.debugBoundingBox.visible) {
+	            	node.debugBoundingBox._session = node.session;
+	            	node.debugBoundingBox.projector.primitives(_view, _viewTransform, _consumer);
+	            }
+	            	
+	            if (node.debugbs && node.debugBoundingSphere.visible) {
+	            	node.debugBoundingSphere._session = node.session;
+	            	node.debugBoundingSphere.projector.primitives(_view, _viewTransform, _consumer);
+	            }
+	            
+	            if (node is ILightProvider) {
+	            	_light = node as ILightProvider;
+	            	if (_light.debug) {
+	            		_light.debugPrimitive._session = node.session;
+	            		_light.debugPrimitive.projector.primitives(_view, _viewTransform, _consumer);
+	            	}
+	            }
+	        }
+	        
+            _mouseEnabled = node._mouseEnabled = (_mouseEnabled && node.mouseEnabled);
         }
         
 		/**
@@ -91,7 +101,7 @@ package away3d.core.traverse
 		 */
         public override function leave(node:Object3D):void
         {
-        	_session = _sessions.pop();
+        	_mouseEnabled = _mouseEnableds.pop();
         }
 
     }

@@ -1,12 +1,12 @@
 package away3d.core.filter
 {
-    import flash.utils.*;
-
     import away3d.cameras.*;
     import away3d.containers.*;
     import away3d.core.clip.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
+    
+    import flash.utils.*;
 
     /**
     * Corrects triangle z-sorting
@@ -669,7 +669,7 @@ package away3d.core.filter
 		/**
 		 * @inheritDoc
 		 */
-        public function filter(tree:PrimitiveQuadrantTree, scene:Scene3D, camera:Camera3D, clip:Clipping):void
+        public function filter(tree:QuadrantRenderer, scene:Scene3D, camera:Camera3D, clip:Clipping):void
         {
             start = getTimer();
             check = 0;
@@ -736,8 +736,8 @@ package away3d.core.filter
                                 for each (part in parts)
                                 {
                                     //part.screenZ = pri.screenZ;
-                                    leftover.push(part);
-                                    tree.primitive(part);
+                                    if (tree.primitive(part))
+	                                    leftover.push(part);
                                 }
                         }
                         else

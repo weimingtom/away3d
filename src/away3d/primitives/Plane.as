@@ -1,17 +1,17 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d plane primitive.
     */ 
     public class Plane extends AbstractPrimitive
     {
-    	use namespace arcane
-    	
         private var grid:Array;
     	private var _width:Number;
         private var _height:Number;
@@ -148,8 +148,8 @@
         {
             super(init);
 
-            _width = ini.getNumber("width", 0, {min:0});
-            _height = ini.getNumber("height", 0, {min:0});
+            _width = ini.getNumber("width", 100, {min:0});
+            _height = ini.getNumber("height", 100, {min:0});
             var segments:int = ini.getInt("segments", 1, {min:1});
             _segmentsW = ini.getInt("segmentsW", segments, {min:1});
             _segmentsH = ini.getInt("segmentsH", segments, {min:1});

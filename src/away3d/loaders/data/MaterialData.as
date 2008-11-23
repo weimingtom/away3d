@@ -1,6 +1,7 @@
 package away3d.loaders.data
 {
-	import away3d.materials.ITriangleMaterial;
+	import away3d.core.base.*;
+	import away3d.materials.*;
 	
 	import flash.display.BitmapData;
 	
@@ -11,6 +12,9 @@ package away3d.loaders.data
 	 */
 	public class MaterialData
 	{
+		private var _material:IMaterial;
+		private var _element:Element;
+		
 		/**
 		 * String representing a texture material.
 		 */
@@ -20,6 +24,11 @@ package away3d.loaders.data
 		 * String representing a shaded material.
 		 */
 		public static const SHADING_MATERIAL:String = "shadingMaterial";
+		
+		/**
+		 * String representing a color material.
+		 */
+		public static const COLOR_MATERIAL:String = "colorMaterial";
 		
 		/**
 		 * String representing a wireframe material.
@@ -34,17 +43,22 @@ package away3d.loaders.data
 		/**
 		 * Optional ambient color of the material.
 		 */
-		public var ambientColor:int;
+		public var ambientColor:uint;
 		
 		/**
 		 * Optional diffuse color of the material.
 		 */
-		public var diffuseColor:int;
+		public var diffuseColor:uint;
 		
 		/**
 		 * Optional specular color of the material.
 		 */
-		public var specularColor:int;
+		public var specularColor:uint;
+		
+		/**
+		 * Optional shininess of the material.
+		 */
+		public var shininess:Number;
 		
 		/**
 		 * Reference to the filename of the texture image.
@@ -57,18 +71,39 @@ package away3d.loaders.data
 		public var textureBitmap:BitmapData;
 		
 		/**
-		 * Reference to the material object of the resulting material.
+		 * defines the material object of the resulting material.
 		 */
-		public var material:ITriangleMaterial;
+		public function get material():IMaterial
+        {
+        	return _material;
+        }
 		
+		public function set material(val:IMaterial):void
+        {
+        	if (_material == val)
+                return;
+            
+            _material = val;
+            
+            if (_material is IUVMaterial)
+            	textureBitmap = (_material as IUVMaterial).bitmap;
+            
+            if(_material is ITriangleMaterial)
+            	for each(_element in elements)
+            		(_element as Face).material = _material as ITriangleMaterial;		
+			else if(_material is ISegmentMaterial)
+            	for each(_element in elements)
+            		(_element as Segment).material = _material as ISegmentMaterial;
+        }
+        		
 		/**
 		 * String representing the material type.
 		 */
 		public var materialType:String = WIREFRAME_MATERIAL;
 		
 		/**
-		 * Array of indexes representing the faces that use the material.
+		 * Array of indexes representing the elements that use the material.
 		 */
-		public var faces:Array = [];
+		public var elements:Array = [];
 	}
 }

@@ -1,6 +1,6 @@
 package away3d.core.base
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
@@ -11,28 +11,29 @@ package away3d.core.base
     import flash.events.Event;
     import flash.geom.*;
     
+    use namespace arcane;
+    
 	 /**
 	 * Dispatched when the uv mapping of the face changes.
 	 * 
 	 * @eventType away3d.events.FaceEvent
 	 */
-	[Event(name="mappingchanged",type="away3d.events.FaceEvent")]
+	[Event(name="mappingChanged",type="away3d.events.FaceEvent")]
     
 	 /**
 	 * Dispatched when the material of the face changes.
 	 * 
 	 * @eventType away3d.events.FaceEvent
 	 */
-	[Event(name="materialchanged",type="away3d.events.FaceEvent")]
+	[Event(name="materialChanged",type="away3d.events.FaceEvent")]
 	
     /**
     * A triangle element used in the mesh object
     * 
     * @see away3d.core.base.Mesh
     */
-    public class Face extends BaseMeshElement
+    public class Face extends Element
     {
-        use namespace arcane;
 		/** @private */
         arcane var _v0:Vertex;
 		/** @private */
@@ -50,39 +51,13 @@ package away3d.core.base
 		/** @private */
         arcane var _back:ITriangleMaterial;
 		/** @private */
-        arcane var _dt:DrawTriangle = new DrawTriangle();
-		/** @private */
 		arcane var bitmapRect:Rectangle;
 		/** @private */
-        arcane function front(projection:Projection):Number
-        {
-            var sv0:ScreenVertex = _v0.project(projection);
-            var sv1:ScreenVertex = _v1.project(projection);
-            var sv2:ScreenVertex = _v2.project(projection);
-                
-            return (sv0.x*(sv2.y - sv1.y) + sv1.x*(sv0.y - sv2.y) + sv2.x*(sv1.y - sv0.y));
-        }
-		/** @private */
-        arcane function notifyMaterialChange():void
-        {
-        	_dt.texturemapping = null;
-        	
-            if (!hasEventListener(FaceEvent.MATERIAL_CHANGED))
-                return;
-
-            if (_materialchanged == null)
-                _materialchanged = new FaceEvent(FaceEvent.MATERIAL_CHANGED, this);
-                
-            dispatchEvent(_materialchanged);
-        }
-		/** @private */
         arcane function notifyMappingChange():void
-        {
-        	_dt.texturemapping = null;
-			
+        {	
             if (!hasEventListener(FaceEvent.MAPPING_CHANGED))
                 return;
-
+			
             if (_mappingchanged == null)
                 _mappingchanged = new FaceEvent(FaceEvent.MAPPING_CHANGED, this);
                 
@@ -97,41 +72,17 @@ package away3d.core.base
 		private var _s:Number;
 		private var _mappingchanged:FaceEvent;
 		private var _materialchanged:FaceEvent;
+		private var _index:int;
 		
 		private function onMaterialResize(event:MaterialEvent):void
 		{
-			_dt.texturemapping = null;
+			notifyMappingChange();
 		}
-		
-		//TODO: simplify vertex changed events
-		/*
-        private function onVertexChange(event:Event):void
-        {
-            _normal = null;
-            notifyVertexChange();
-        }
-		*/
-		 
-        private function onVertexValueChange(event:Event):void
-        {
-            _normalDirty = true;
-            notifyVertexValueChange();
-        }
 
         private function onUVChange(event:Event):void
         {
             notifyMappingChange();
         }
-        
-    	/**
-    	 * An optional untyped object that can contain used-defined properties.
-    	 */
-        public var extra:Object;
-        
-    	/**
-    	 * Defines the parent 3d object of the face.
-    	 */
-		public var parent:Mesh;
 		
 		/**
 		 * Returns an array of vertex objects that are used by the face.
@@ -159,20 +110,20 @@ package away3d.core.base
 
         public function set v0(value:Vertex):void
         {
-            if (value == _v0)
+            if (_v0 == value)
                 return;
-
-            if (_v0 != null)
-                if ((_v0 != _v1) && (_v0 != _v2))
-                    _v0.removeOnChange(onVertexValueChange);
-
-            _v0 = value;
-
-            if (_v0 != null)
-                if ((_v0 != _v1) && (_v0 != _v2))
-                    _v0.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+        	if (_v0) {
+        		_index = _v0.parents.indexOf(this);
+        		if (_index != -1)
+	        		_v0.parents.splice(_index, 1);
+        	}
+        	
+			_v0 = value;
+			
+			_v0.parents.push(this);
+			
+			vertexDirty = true;
         }
 		
 		/**
@@ -185,20 +136,20 @@ package away3d.core.base
 
         public function set v1(value:Vertex):void
         {
-            if (value == _v1)
+            if (_v1 == value)
                 return;
-
-            if (_v1 != null)
-                if ((_v1 != _v0) && (_v1 != _v2))
-                    _v1.removeOnChange(onVertexValueChange);
-
-            _v1 = value;
-
-            if (_v1 != null)
-                if ((_v1 != _v0) && (_v1 != _v2))
-                    _v1.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+        	if (_v1) {
+        		_index = _v1.parents.indexOf(this);
+        		if (_index != -1)
+	        		_v1.parents.splice(_index, 1);
+        	}
+        	
+			_v1 = value;
+			
+			_v1.parents.push(this);
+			
+			vertexDirty = true;
         }
 		
 		/**
@@ -211,20 +162,20 @@ package away3d.core.base
 
         public function set v2(value:Vertex):void
         {
-            if (value == _v2)
+            if (_v2 == value)
                 return;
-
-            if (_v2 != null)
-                if ((_v2 != _v1) && (_v2 != _v0))
-                    _v2.removeOnChange(onVertexValueChange);
-
-            _v2 = value;
-
-            if (_v2 != null)
-                if ((_v2 != _v1) && (_v2 != _v0))
-                    _v2.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+        	if (_v2) {
+        		_index = _v2.parents.indexOf(this);
+        		if (_index != -1)
+	        		_v2.parents.splice(_index, 1);
+        	}
+        	
+			_v2 = value;
+			
+			_v2.parents.push(this);
+			
+			vertexDirty = true;
         }
 		
 		/**
@@ -240,15 +191,23 @@ package away3d.core.base
             if (value == _material)
                 return;
 			
-			if (_material != null && _material is IUVMaterial)
-            	(_material as IUVMaterial).removeOnResize(onMaterialResize);
+			if (_material != null) {
+				if (_material is IUVMaterial)
+					(_material as IUVMaterial).removeOnMaterialResize(onMaterialResize);
+				if (parent)
+					parent.removeMaterial(this, _material);
+			}
             
             _material = value;
             
-			if (_material != null && _material is IUVMaterial)
-            	(_material as IUVMaterial).addOnResize(onMaterialResize);
+			if (_material != null) {
+				if (_material is IUVMaterial)
+					(_material as IUVMaterial).addOnMaterialResize(onMaterialResize);
+				if (parent)
+					parent.addMaterial(this, _material);
+			}
             
-            notifyMaterialChange();
+            notifyMappingChange();
         }
 		
 		/**
@@ -259,15 +218,21 @@ package away3d.core.base
         {
             return _back;
         }
-
+		
         public function set back(value:ITriangleMaterial):void
         {
             if (value == _back)
                 return;
-
+			
+			if (_back != null)
+				parent.removeMaterial(this, _back);
+            
             _back = value;
-
-            // notifyBackChange(); TODO
+            
+			if (_back != null)
+				parent.addMaterial(this, _back);
+			
+			notifyMappingChange();
         }
 		
 		/**
@@ -651,7 +616,7 @@ package away3d.core.base
 		 * @param	v0						The first vertex object of the triangle
 		 * @param	v1						The second vertex object of the triangle
 		 * @param	v2						The third vertex object of the triangle
-		 * @param	material				The material used by the triangle to render
+		 * @param	material	[optional]	The material used by the triangle to render
 		 * @param	uv0			[optional]	The first uv object of the triangle
 		 * @param	uv1			[optional]	The second uv object of the triangle
 		 * @param	uv2			[optional]	The third uv object of the triangle
@@ -669,7 +634,8 @@ package away3d.core.base
             this.uv0 = uv0;
             this.uv1 = uv1;
             this.uv2 = uv2;
-            _dt.face = this;
+            
+            vertexDirty = true;
         }
 		
 		/**
@@ -710,26 +676,5 @@ package away3d.core.base
         {
             removeEventListener(FaceEvent.MAPPING_CHANGED, listener, false);
         }
-		
-		/**
-		 * Default method for adding a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function addOnMaterialChange(listener:Function):void
-        {
-            addEventListener(FaceEvent.MATERIAL_CHANGED, listener, false, 0, true);
-        }
-		
-		/**
-		 * Default method for removing a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function removeOnMaterialChange(listener:Function):void
-        {
-            removeEventListener(FaceEvent.MATERIAL_CHANGED, listener, false);
-        }
-
     }
 }

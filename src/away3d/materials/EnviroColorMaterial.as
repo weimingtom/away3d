@@ -1,6 +1,7 @@
 package away3d.materials
 {
-	import away3d.core.*;
+	import away3d.arcane;
+	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
@@ -8,13 +9,13 @@ package away3d.materials
 	import flash.display.*;
 	import flash.geom.*;
 	
+	use namespace arcane;
+	
 	/**
 	 * Color material with environment shading.
 	 */
 	public class EnviroColorMaterial extends EnviroShader implements ITriangleMaterial
 	{
-    	use namespace arcane;
-		
 		private var _color:uint;
 		private var _red:Number;
 		private var _green:Number;
@@ -62,10 +63,10 @@ package away3d.materials
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
 		public function EnviroColorMaterial(color:*, enviroMap:BitmapData, init:Object = null)
-		{
-            this.color = Cast.trycolor(color);
-            
+		{            
 			super(enviroMap, init);
+			
+            this.color = Cast.trycolor(color);
 		}
     	
     	/**
@@ -73,7 +74,7 @@ package away3d.materials
     	 */
 		public function renderTriangle(tri:DrawTriangle):void
 		{
-			tri.source.session.renderTriangleBitmap(_colorMap, getMapping(tri.face.parent, tri.face), tri.v0, tri.v1, tri.v2, smooth, false);
+			tri.source.session.renderTriangleBitmap(_colorMap, getMapping(tri.source as Mesh, tri.face), tri.v0, tri.v1, tri.v2, smooth, false);
 			
 			if (debug)
                 tri.source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);

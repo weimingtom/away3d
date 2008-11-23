@@ -16,7 +16,8 @@ package away3d.core.utils
         
         public static function trace(message:Object):void
         {
-            dotrace(message);
+        	if (active)
+           		dotrace(message);
         }
         
         public static function warning(message:Object):void

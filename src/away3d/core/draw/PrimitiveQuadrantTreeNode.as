@@ -1,6 +1,5 @@
 package away3d.core.draw
 {
-    import away3d.core.draw.*;
     import away3d.core.base.*;
     
     /**
@@ -30,7 +29,7 @@ package away3d.core.draw
         /**
         * Array of primitives that lie in the center of the quadrant.
         */
-        public var center:Array;
+        public var center:Array = new Array();
         
         /**
         * The quadrant tree node for the top left quadrant.
@@ -192,8 +191,6 @@ package away3d.core.draw
 			}
 			
 			//no quadrant, store in center array
-            if (center == null)
-                center = new Array();
             center.push(pri);
             pri.quadrant = this;
         }
@@ -212,6 +209,7 @@ package away3d.core.draw
             leftbottomFlag = false;
             righttopFlag = false;
             rightbottomFlag = false;
+            center = new Array();
             
             onlysourceFlag = true;
             onlysource = null;
@@ -226,16 +224,12 @@ package away3d.core.draw
 		 */
         public function render(limit:Number):void
         {
-            if (render_center_length == -1)
-            {
-                if (center != null)
-                {
-                    render_center_length = center.length;
+            if (render_center_length == -1) {
+                render_center_length = center.length;
+                if (render_center_length) {
                     if (render_center_length > 1)
                         center.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
                 }
-                else
-                    render_center_length = 0;
                 render_center_index = 0;
             }
 
@@ -252,9 +246,6 @@ package away3d.core.draw
 
                 render_center_index++;
             }
-            
-            if (render_center_index == render_center_length)
-				center = null;
 			
             render_other(limit);
         }

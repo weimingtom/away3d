@@ -1,15 +1,15 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d wire cube primitive.
     */ 
     public class WireCube extends AbstractWirePrimitive
     {
-    	use namespace arcane
-    	
     	private var _width:Number;
     	private var _height:Number;
     	private var _depth:Number;

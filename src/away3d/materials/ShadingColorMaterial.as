@@ -20,17 +20,17 @@ package away3d.materials
 		/**
 		 * Defines a color value for ambient light.
 		 */
-        public var ambient:int;
+        public var ambient:uint;
 		
 		/**
 		 * Defines a color value for diffuse light.
 		 */
-        public var diffuse:int;
+        public var diffuse:uint;
 		
 		/**
 		 * Defines a color value for specular light.
 		 */
-        public var specular:int;
+        public var specular:uint;
         
         /**
         * Defines an alpha value for the texture.

@@ -19,12 +19,17 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 package nochump.util.zip {
 
-	import flash.system.Security;
+	import flash.events.EventDispatcher;
+	import flash.events.ProgressEvent;
+	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.utils.Endian;
 	import flash.utils.IDataInput;
-	import flash.utils.ByteArray;
-	
+
+	[Event(name="entryParsed",		type="nochump.util.zip.ZipEvent")]
+	[Event(name="entryParseError",	type="nochump.util.zip.ZipErrorEvent")]
+	[Event(name="progress",			type="flash.events.ProgressEvent")]
+
 	/**
 	 * This class represents a Zip archive.  You can ask for the contained
 	 * entries, or get an input stream for a file entry.  The entry is
@@ -32,7 +37,7 @@ package nochump.util.zip {
 	 * 
 	 * @author David Chang
 	 */
-	public class ZipFile {
+	public class ZipFile extends EventDispatcher {
 		
 		private var buf:ByteArray; // data from which zip entries are read.
 		private var entryList:Array;
@@ -108,6 +113,7 @@ package nochump.util.zip {
 					var inflater:Inflater = new Inflater();
 					inflater.setInput(b1);
 					inflater.inflate(b2);
+					dispatchEvent( new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, b2) );
 					return b2;
 					break;
 				default:
@@ -115,7 +121,40 @@ package nochump.util.zip {
 			}
 			return null;
 		}
-		
+
+		public function parseInput(entry:ZipEntry):void {
+			// extra field for local file header may not match one in central directory header
+			buf.position = locOffsetTable[entry.name] + ZipConstants.LOCHDR - 2;
+			var len:uint = buf.readShort(); // extra length
+			buf.position += entry.name.length + len;
+			var b1:ByteArray = new ByteArray();
+			// read compressed data
+			if(entry.compressedSize > 0) buf.readBytes(b1, 0, entry.compressedSize);
+			switch(entry.method) {
+				case ZipConstants.STORED:
+					dispatchEvent( new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, b1) );
+					break;
+				case ZipConstants.DEFLATED:
+					var inflater:Inflater = new Inflater();
+					inflater.addEventListener(ZipEvent.ENTRY_PARSED, onZipEntryParsed);
+					inflater.addEventListener(ProgressEvent.PROGRESS, onZipEntryProgress);
+					var b2:ByteArray = new ByteArray();
+					inflater.setInput(b1);
+					inflater.queuedInflate(b2);
+					break;
+				default:
+					throw new ZipError("invalid compression method");
+			}
+		}
+
+		private function onZipEntryParsed(event:ZipEvent):void {
+			dispatchEvent( new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, event.entry) );
+		}
+
+		private function onZipEntryProgress(event:ProgressEvent):void {
+			dispatchEvent( new ProgressEvent(ProgressEvent.PROGRESS, false, false, event.bytesLoaded, event.bytesTotal ) );
+		}
+
 		/**
 		 * Read the central directory of a zip file and fill the entries
 		 * array.  This is called exactly once when first needed.

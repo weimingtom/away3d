@@ -1,26 +1,29 @@
 package away3d.materials
 {
-	import away3d.core.*;
-    import away3d.core.base.*;
-    import away3d.core.draw.*;
-    import away3d.core.render.*;
-    import away3d.core.utils.*;
-    import away3d.events.*;
-    
-    import flash.display.BitmapData;
-    import flash.filters.ColorMatrixFilter;
-    import flash.geom.Matrix;
-    import flash.geom.Point;
-    import flash.utils.Dictionary;
+	import away3d.containers.*;
+	import away3d.arcane;
+	import away3d.core.base.*;
+	import away3d.core.draw.*;
+	import away3d.core.render.*;
+	import away3d.core.utils.*;
+	import away3d.events.*;
+	
+	import flash.display.*;
+	import flash.filters.*;
+	import flash.geom.*;
+	import flash.utils.*;
 
+    use namespace arcane;
+    
     /**
     * Bitmap material with flat white lighting
     */
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
-        use namespace arcane;
-        
         private var _bitmap:BitmapData;
+        private var _texturemapping:Matrix;
+        private var _faceVO:FaceVO;
+        private var _faceDictionary:Dictionary = new Dictionary(true);
         private var blackrender:Boolean;
         private var whiterender:Boolean;
         private var whitek:Number = 0.2;
@@ -39,14 +42,31 @@ package away3d.materials
                 v = 0xFF;
             return Math.exp(Math.round(Math.log(v)*step)/step);
         }
+        
+        /**
+        * Calculates the mapping matrix required to draw the triangle texture to screen.
+        * 
+        * @param	tri		The data object holding all information about the triangle to be drawn.
+        * @return			The required matrix object.
+        */
+		protected function getMapping(tri:DrawTriangle):Matrix
+		{
+			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			if (_faceVO.texturemapping)
+				return _faceVO.texturemapping;
+			
+			_texturemapping = tri.transformUV(this).clone();
+			_texturemapping.invert();
+			
+			return _faceVO.texturemapping = _texturemapping;
+		}
 		
         /** @private */
         protected override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / (255*3);
 			
-            if (!(mapping = tri.texturemapping))
-            	mapping = tri.transformUV(this);
+            mapping = getMapping(tri);
             	
             v0 = tri.v0;
             v1 = tri.v1;
@@ -119,6 +139,14 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
+        public override function get visible():Boolean
+        {
+            return true;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function getPixel32(u:Number, v:Number):uint
         {
         	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
@@ -152,28 +180,33 @@ package away3d.materials
                 step *= 2;
         }
         
-		/**
-		 * @inheritDoc
-		 */
-        public override function get visible():Boolean
+        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
         {
-            return true;
+        	if ((_faceVO = _faceDictionary[face]))
+        		return _faceVO;
+        	
+        	return _faceDictionary[face] = new FaceVO();
+        }
+        
+        public function removeFaceDictionary():void
+        {
+			_faceDictionary = new Dictionary(true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnResize(listener:Function):void
+        public function addOnMaterialResize(listener:Function):void
         {
-        	addEventListener(MaterialEvent.RESIZED, listener, false, 0, true);
+        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnResize(listener:Function):void
+        public function removeOnMaterialResize(listener:Function):void
         {
-        	removeEventListener(MaterialEvent.RESIZED, listener, false);
+        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
         }
     }
 }

@@ -1,5 +1,7 @@
 package away3d.containers
 {
+	import away3d.cameras.*;
+	
 	
     /**
     * Interface for objects that can toggle their visibily depending on view and distance to camera
@@ -16,6 +18,6 @@ package away3d.containers
     	 * @see	away3d.containers.LODObject#maxp
     	 * @see	away3d.containers.LODObject#minp
     	 */
-        function matchLOD(view:View3D):Boolean;
+        function matchLOD(camera:Camera3D):Boolean;
     }
 }

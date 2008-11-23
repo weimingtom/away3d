@@ -1,6 +1,6 @@
 package away3d.core.utils
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.math.*;
     import away3d.materials.*;
@@ -8,10 +8,13 @@ package away3d.core.utils
     
     import flash.display.BitmapData;
 
+	use namespace arcane;
+	
     /** Convinient object initialization support */
     public class Init
     {
-        private var init:Object;
+		/** @private */
+        arcane var init:Object;
 
         public function Init(init:Object)
         {

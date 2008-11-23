@@ -10,14 +10,9 @@ package away3d.events
     public class FaceEvent extends Event
     {
     	/**
-    	 * Defines the value of the type property of a mappingchanged event object.
+    	 * Defines the value of the type property of a mappingChanged event object.
     	 */
-    	public static const MAPPING_CHANGED:String = "mappingchanged";
-    	
-    	/**
-    	 * Defines the value of the type property of a materialchanged event object.
-    	 */
-    	public static const MATERIAL_CHANGED:String = "materialchanged";
+    	public static const MAPPING_CHANGED:String = "mappingChanged";
     	
     	/**
     	 * A reference to the face object that is relevant to the event.

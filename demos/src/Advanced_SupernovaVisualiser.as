@@ -251,6 +251,8 @@ package
 			backBitmap.draw(transBitmap, mat, col);
 			backBitmap.draw(backShape);
 			
+			tubeMaterial.bitmap = backBitmap;
+			
 			//calculate the sprite offset
 			peak = spheresDistance*(channel.leftPeak + channel.rightPeak)/2;
 			

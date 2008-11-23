@@ -1,7 +1,11 @@
 package away3d.materials
 {
     
-    import flash.display.BitmapData;
+    import away3d.containers.*;
+    import away3d.core.base.*;
+    import away3d.core.utils.*;
+    
+    import flash.display.*;
 	
     /**
     * Interface for materials that use uv texture coordinates
@@ -32,18 +36,22 @@ package away3d.materials
         */
         function getPixel32(u:Number, v:Number):uint;
 		
-		/**
-		 * Default method for adding a materialresize event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        function addOnResize(listener:Function):void;
+		function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO;
+		
+		function removeFaceDictionary():void;
 		
 		/**
-		 * Default method for removing a materialresize event listener
+		 * Default method for adding a materialResize event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
-        function removeOnResize(listener:Function):void;
+        function addOnMaterialResize(listener:Function):void;
+		
+		/**
+		 * Default method for removing a materialResize event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        function removeOnMaterialResize(listener:Function):void;
     }
 }

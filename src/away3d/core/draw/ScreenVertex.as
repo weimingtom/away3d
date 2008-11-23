@@ -31,8 +31,24 @@ package away3d.core.draw
     	 */
         public var z:Number;
         
+        
         /**
-        * A numbder containing user defined properties.
+        * The x position of the vertex in clip space
+        */
+        public var clipX:Number;
+        
+        /**
+        * The y position of the vertex in clip space
+        */
+        public var clipY:Number;
+        
+        /**
+        * The z position of the vertex in clip space
+        */
+        public var clipZ:Number;
+        
+        /**
+        * A number containing user defined properties.
         */
         public var num:Number;
         

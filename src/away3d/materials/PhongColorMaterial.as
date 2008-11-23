@@ -1,18 +1,18 @@
 package away3d.materials
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
+	
+	use namespace arcane;
 	
 	/**
 	 * Color material with phong shading.
 	 */
 	public class PhongColorMaterial extends CompositeMaterial
 	{
-		use namespace arcane;
-		
 		private var _shininess:Number;
 		private var _specular:Number;
 		private var _phongShader:CompositeMaterial;
@@ -66,13 +66,22 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
+			if (_specular == val)
+				return;
+			
 			_specular = val;
 			if (_specular) {
 				_specularPhongShader.shininess = _shininess;
 				_specularPhongShader.specular = _specular;
-				materials = [_phongShader, _specularPhongShader];
+				removeMaterial(_ambientShader);
+				removeMaterial(_diffusePhongShader);
+				addMaterial(_phongShader);
+				addMaterial(_specularPhongShader);
    			} else {
-   				materials = [_ambientShader, _diffusePhongShader];
+   				removeMaterial(_phongShader);
+				removeMaterial(_specularPhongShader);
+   				addMaterial(_ambientShader);
+				addMaterial(_diffusePhongShader);
    			}
             
 			_colorTransformDirty = true;
@@ -86,6 +95,9 @@ package away3d.materials
 		 */
 		public function PhongColorMaterial(color:*, init:Object = null)
 		{
+			if (init && init.materials)
+				delete init.materials;
+			
 			super(init);
 			
 			this.color = Cast.trycolor(color);
@@ -95,15 +107,18 @@ package away3d.materials
 			
 			//create new materials
 			_phongShader = new CompositeMaterial();
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
-			if (_specular)
-				materials = [_phongShader, _specularPhongShader];
-   			else
-   				materials = [_ambientShader, _diffusePhongShader];
+			if (_specular) {
+				addMaterial(_phongShader);
+				addMaterial(_specularPhongShader);
+			} else {
+				addMaterial(_ambientShader);
+				addMaterial(_diffusePhongShader);
+			}
 		}
 		
 	}

@@ -1,5 +1,7 @@
 package away3d.core.light
 {
+	import away3d.core.base.*;
+	
     /**
     * Interface for objects that provide lighting to the scene
     */
@@ -8,12 +10,14 @@ package away3d.core.light
     	/**
     	 * Called from the <code>PrimitiveTraverser</code> when passing <code>LightPrimitive</code> objects to the light consumer object
     	 * 
-    	 * @param	consumer	The consumer instance.
-    	 * 
     	 * @see		away3d.core.traverse.PrimitiveTraverser
     	 * @see		away3d.core.light.LightPrimitive
     	 * @see		away3d.core.light.ILightConsumer
     	 */
         function light(consumer:ILightConsumer):void;
+        
+        function get debug():Boolean;
+        
+        function get debugPrimitive():Object3D;
     }
 }

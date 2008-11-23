@@ -127,6 +127,7 @@ class Drawing extends ObjectContainer3D
 
     private var plane:Plane;
     private var paintData:BitmapData;
+    private var paintMaterial:BitmapMaterial;
     private var pallete:BitmapData;
     private var drawing:Boolean;
     private var lastx:Number;
@@ -140,8 +141,9 @@ class Drawing extends ObjectContainer3D
     public function Drawing()
     {
         paintData = new BitmapData(400, 400);
+        paintMaterial = new BitmapMaterial(paintData, {precision:8, smooth:true});
         pallete = Asset.grad;
-        plane = new Plane({material:new BitmapMaterial(paintData, {precision:8, smooth:true}), width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
+        plane = new Plane({material:paintMaterial, width:1000, height:1000, segmentsW:10, segmentsH:10, y:-20});
 
         sizepickermat = new ColorMaterial(0x808080);
         selectedsizemat = new WireColorMaterial(0x808080);
@@ -250,11 +252,12 @@ class Drawing extends ObjectContainer3D
 
         for each (var vertex:Vertex in plane.vertices)
             vertex.y = 0;
+            
+        paintMaterial.bitmap = paintData;
     }
 
     public function onColorpickerMouseDown(e:MouseEvent3D):void
     {
-    	trace("mousedown");
         drawing = false;
         if (e.uv == null)
             return;
@@ -292,8 +295,9 @@ class Drawing extends ObjectContainer3D
                         vertex.y += 40 * thickness / ((vertex.x-px)*(vertex.x-px) + (vertex.z-py)*(vertex.z-py) + 5000);
                 }
                 */
-
             }
+            
+            paintMaterial.bitmap = paintData;
             lastx = x;
             lasty = y;
         }

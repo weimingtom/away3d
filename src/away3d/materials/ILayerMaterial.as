@@ -24,7 +24,7 @@ package away3d.materials
     	 * 
     	 * @see away3d.materials.BitmapMaterailContainer
     	 */
-        function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO;
+        function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO;
         
         /**
         * Renders a material layer for the specified triangle.

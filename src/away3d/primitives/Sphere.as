@@ -1,16 +1,16 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d sphere primitive.
     */ 
     public class Sphere extends AbstractPrimitive
     {
-    	use namespace arcane
-    	
         private var grid:Array;
         private var _radius:Number;
         private var _segmentsW:int;

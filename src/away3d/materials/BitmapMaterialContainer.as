@@ -1,14 +1,17 @@
 package away3d.materials
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
+	import away3d.events.*;
 	
 	import flash.display.*;
 	import flash.geom.*;
 	import flash.utils.*;
+	
+	use namespace arcane;
 	
 	/**
 	 * Container for caching multiple bitmapmaterial objects.
@@ -17,29 +20,38 @@ package away3d.materials
 	 * 
 	 * @see away3d.materials.CompositeMaterial
 	 */
-	public class BitmapMaterialContainer extends BitmapMaterial implements ITriangleMaterial, IUpdatingMaterial, ILayerMaterial
+	public class BitmapMaterialContainer extends BitmapMaterial implements ITriangleMaterial, ILayerMaterial
 	{
-		use namespace arcane;
-		
-		private var _cache:Boolean;
 		private var _width:Number;
 		private var _height:Number;
 		private var _containerDictionary:Dictionary = new Dictionary(true);
-		private var _cacheDictionary:Dictionary;
+		private var _cacheDictionary:Dictionary = new Dictionary(true);
 		private var _containerVO:FaceVO;
 		private var _faceWidth:int;
 		private var _faceHeight:int;
 		private var _forceRender:Boolean;
 		private var _face:Face;
-		private var _dt:DrawTriangle;
 		private var _material:ILayerMaterial;
+        private var _viewDictionary:Dictionary = new Dictionary(true);
+        
+        private function onMaterialUpdate(event:MaterialEvent):void
+        {
+        	_faceDirty = true;
+        	dispatchEvent(event);
+        }
+        
+		/**
+		 * An array of bitmapmaterial objects to be overlayed sequentially.
+		 */
+		protected var materials:Array;
         
 		/**
 		 * @inheritDoc
 		 */
 		protected override function updateRenderBitmap():void
         {
-        	update();
+        	_bitmapDirty = false;
+        	_faceDirty = true;
         }
         
 		/**
@@ -48,17 +60,14 @@ package away3d.materials
 		protected override function getMapping(tri:DrawTriangle):Matrix
         {
         	_face = tri.face;
-			_dt = _face._dt;
-			
-        	if (!_cacheDictionary || !_cacheDictionary[_face]) {
-        		
-	    		//check to see if faceDictionary exists
-	    		_faceVO = _faceDictionary[_face];
-	    		if (!_faceVO)
-	    			_faceVO = _faceDictionary[_face] = new FaceVO();
+    		_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+    		
+    		if (_faceVO.invalidated || !_faceVO.texturemapping) {
+        		_faceVO.invalidated = false;
+	    		//_faceVO.backface = tri.backface;
 	    		
 	        	//check to see if face drawtriangle needs updating
-	        	if (!_dt.texturemapping) {
+	        	if (!_faceVO.texturemapping) {
 	        		
 	        		//update face bitmapRect
 	        		_face.bitmapRect = new Rectangle(int(_width*_face.minU), int(_height*(1 - _face.maxV)), int(_width*(_face.maxU-_face.minU)+2), int(_height*(_face.maxV-_face.minV)+2));
@@ -66,7 +75,9 @@ package away3d.materials
 	        		_faceHeight = _face.bitmapRect.height;
 	        		
 	        		//update texturemapping
-	        		_dt.transformUV(this);
+	        		_faceVO.invtexturemapping = tri.transformUV(this).clone();
+	        		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
+	        		_faceVO.texturemapping.invert();
 	        		
 	        		//resize bitmapData for container
 	        		_faceVO.resize(_faceWidth, _faceHeight, transparent);
@@ -74,53 +85,32 @@ package away3d.materials
         		
 	    		//call renderFace on each material
 	    		for each (_material in materials)
-	        		_faceVO = _material.renderFace(_face, _bitmapRect, _faceVO);
-	        		
-	        	_faceVO.updated = false;
+	        		_faceVO = _material.renderBitmapLayer(tri, _bitmapRect, _faceVO);
 	        	
-	        	if (_cacheDictionary)
-	        		_cacheDictionary[_face] = _faceVO;
+	        	_cacheDictionary[_face] = _faceVO;
+        		
+        		_renderBitmap = _faceVO.bitmap;
+	        	
+	        	_faceVO.updated = false;
+	        } else {
+	        	_renderBitmap = _cacheDictionary[_face].bitmap;
 	        }
         	
         	//check to see if tri texturemapping need updating
-        	if (!tri.texturemapping)
-        	    tri.transformUV(this);
+        	if (!_faceVO.texturemapping) {
+        		//update texturemapping
+        		_faceVO.invtexturemapping = tri.transformUV(this).clone();
+        		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
+        		_faceVO.texturemapping.invert();
+        	}
         	
-        	if (_cacheDictionary)
-        		_renderBitmap = _cacheDictionary[_face].bitmap;
-        	else
-        		_renderBitmap = _faceVO.bitmap;
-        	
-        	return tri.texturemapping;
+        	return _faceVO.texturemapping;
         }
-        
-		/**
-		 * An array of bitmapmaterial objects to be overlayed sequentially.
-		 */
-		public var materials:Array;
 		
 		/**
 		 * Defines whether the caching bitmapData objects are transparent
 		 */
 		public var transparent:Boolean;
-		
-		/**
-		 * Defines whether each created bitmapData surface is to be cached, or updated every frame.
-		 * Updating all bitmapData surface objects is costly, so needs to be used sparingly.
-		 */
-		public function get cache():Boolean
-		{
-			return _cache;
-		}
-		
-		public function set cache(val:Boolean):void
-		{
-			_cache = val;
-			if (val)
-				_cacheDictionary = new Dictionary(true);
-			else
-				_cacheDictionary = null; 
-		}
     	
 		/**
 		 * Creates a new <code>BitmapMaterialContainer</code> object.
@@ -133,29 +123,50 @@ package away3d.materials
 		{
 			super(new BitmapData(width, height, true, 0x00FFFFFF), init);
 			
+			materials = ini.getArray("materials");
 			_width = width;
 			_height = height;
 			_bitmapRect = new Rectangle(0, 0, _width, _height);
-			
-			if (!materials)
-				materials = ini.getArray("materials");
+            
+            for each (_material in materials)
+            	_material.addOnMaterialUpdate(onMaterialUpdate);
 			
 			transparent = ini.getBoolean("transparent", true);
-			cache = ini.getBoolean("cache", true);
 		}
-		
-		/**
-		 * Clear and updates the currrent bitmapData surface on all faces.
-		 */
-		public function update():void
-		{
-			if (_cache)
-				_cacheDictionary = new Dictionary(true);
-		}
+		        
+        public function addMaterial(material:ILayerMaterial):void
+        {
+        	material.addOnMaterialUpdate(onMaterialUpdate);
+        	materials.push(material);
+        	
+        	_faceDirty = true;
+        }
+        
+        public function removeMaterial(material:ILayerMaterial):void
+        {
+        	var index:int = materials.indexOf(material);
+        	
+        	if (index == -1)
+        		return;
+        	
+        	material.removeOnMaterialUpdate(onMaterialUpdate);
+        	
+        	materials.splice(index, 1);
+        	
+        	_faceDirty = true;
+        }
+        
+        public function clearMaterials():void
+        {
+        	var i:int = materials.length;
+        	
+        	while (i--)
+        		removeMaterial(materials[i]);
+        }
 		
 		/**
 		 * Creates a new <code>BitmapMaterialContainer</code> object.
-		 *
+		 * 
 		 * @param	width				The containing width of the texture, applied to all child materials.
 		 * @param	height				The containing height of the texture, applied to all child materials.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
@@ -163,13 +174,35 @@ package away3d.materials
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
         	if (_colorTransformDirty)
-        		setColorTransform();
+        		updateColorTransform();
         	
-        	_blendModeDirty = false;
+        	if (_bitmapDirty)
+        		updateRenderBitmap();
+        	
+        	if (_faceDirty || _blendModeDirty)
+        		clearFaceDictionary();
         	
         	for each (_material in materials)
-        		if (_material is IUpdatingMaterial)
-        			(_material as IUpdatingMaterial).updateMaterial(source, view);
+        		_material.updateMaterial(source, view);
+        	
+        	_blendModeDirty = false;
+        }
+        
+        public override function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        {
+        	if ((_faceDictionary = _viewDictionary[view])) {
+        		if ((_faceVO = _faceDictionary[face]))
+	        		return _faceVO;
+        	} else {
+        		_faceDictionary = _viewDictionary[view] = new Dictionary(true);
+        	}
+        	
+        	return _faceDictionary[face] = new FaceVO();
+        }
+        
+        public override function removeFaceDictionary():void
+        {
+			_viewDictionary = new Dictionary(true);
         }
         
 		/**
@@ -183,21 +216,17 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public override function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{
-			//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO();
+			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
 			
 			//get width and height values
-			_faceWidth = face.bitmapRect.width;
-    		_faceHeight = face.bitmapRect.height;
+			_faceWidth = tri.face.bitmapRect.width;
+    		_faceHeight = tri.face.bitmapRect.height;
 
 			//check to see if bitmapContainer exists
-			_containerVO = _containerDictionary[face];
-			if (!_containerVO)
-				_containerVO = _containerDictionary[face] = new FaceVO();
+			if (!(_containerVO = _containerDictionary[tri]))
+				_containerVO = _containerDictionary[tri] = new FaceVO();
 			
 			//resize container
 			if (parentFaceVO.resized) {
@@ -207,7 +236,7 @@ package away3d.materials
 			
 			//call renderFace on each material
     		for each (_material in materials)
-        		_containerVO = _material.renderFace(_face, containerRect, _containerVO);
+        		_containerVO = _material.renderBitmapLayer(tri, containerRect, _containerVO);
 			
 			//check to see if face update can be skipped
 			if (parentFaceVO.updated || _containerVO.updated) {

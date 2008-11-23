@@ -2,7 +2,7 @@ package away3d.core.filter
 {
 	import away3d.cameras.*;
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.clip.*;
     import away3d.core.draw.*;
@@ -10,13 +10,13 @@ package away3d.core.filter
     
     import flash.utils.*;
 
+	use namespace arcane;
+	
     /**
     * Splits all intersecting triangles and line segments.
     */
     public class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter
     {
-    	use namespace arcane;
-    	
         private var maxdelay:int;
         
     	private var start:int;
@@ -499,7 +499,7 @@ package away3d.core.filter
 		/**
 		 * @inheritDoc
 		 */
-        public function filter(tree:PrimitiveQuadrantTree, scene:Scene3D, camera:Camera3D, clip:Clipping):void
+        public function filter(tree:QuadrantRenderer, scene:Scene3D, camera:Camera3D, clip:Clipping):void
         {
             start = getTimer();
             check = 0;
@@ -540,8 +540,8 @@ package away3d.core.filter
                         tree.remove(pri);
                         for each (part in parts)
                         {
-                            leftover.push(part);
-                            tree.primitive(part);
+                        	if (tree.primitive(part))
+                            	leftover.push(part);
                         }
                         break;
                     }

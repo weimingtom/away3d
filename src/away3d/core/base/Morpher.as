@@ -6,14 +6,15 @@ package away3d.core.base
     public class Morpher extends Object3D
     {
         private var weight:Number;
-        private var vertices:BaseMesh;
-    	
+        private var vertices:Mesh;
+    	private var _vertices:Array;
+    	private var _verticesComp:Array;
 		/**
 		 * Creates a new <code>Morpher</code> object.
 		 *
 		 * @param	vertices	A mesh object used to define the starting vertices.
 		 */
-        public function Morpher(vertices:BaseMesh)
+        public function Morpher(vertices:Mesh)
         {
             this.vertices = vertices;
         }
@@ -24,11 +25,10 @@ package away3d.core.base
         public function start():void
         {
             weight = 0;
-            for each (var v:Vertex in vertices.vertices)
+            _vertices = vertices.geometry.vertices;
+            for each (var v:Vertex in _vertices)
             {
-                v.x = 0;
-                v.y = 0;
-                v.z = 0;
+                v.reset();
             }
         }
 		
@@ -38,15 +38,18 @@ package away3d.core.base
 		 * @param	comp	The external mesh used for interpolating values
 		 * @param	k		The increment used on the weighting value 
 		 */
-        public function mix(comp:BaseMesh, k:Number):void
+        public function mix(comp:Mesh, k:Number):void
         {
             weight += k;
-            var length:int = vertices.vertices.length;
+            _vertices = vertices.geometry.vertices;
+            _verticesComp = comp.geometry.vertices;
+            
+            var length:int = _vertices.length;
             for (var i:int = 0; i < length; i++)
             {
-                vertices.vertices[i].x += comp.vertices[i].x * k;
-                vertices.vertices[i].y += comp.vertices[i].y * k;
-                vertices.vertices[i].z += comp.vertices[i].z * k;
+                _vertices[i].x += _verticesComp[i].x * k;
+                _vertices[i].y += _verticesComp[i].y * k;
+                _vertices[i].z += _verticesComp[i].z * k;
             }
         }
 		
@@ -55,7 +58,7 @@ package away3d.core.base
 		 * 
 		 * @param	comp	The external mesh used for vertex values
 		 */
-        public function finish(comp:BaseMesh):void
+        public function finish(comp:Mesh):void
         {
             mix(comp, 1 - weight);
             weight = 1;

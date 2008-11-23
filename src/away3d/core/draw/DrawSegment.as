@@ -1,19 +1,20 @@
 package away3d.core.draw
 {
-	import away3d.core.*;
+	import away3d.arcane;
     import away3d.core.render.*;
     import away3d.materials.*;
 
+	use namespace arcane;
+	
     /**
     * Line segment drawing primitive
     */
     public class DrawSegment extends DrawPrimitive
     {
-    	use namespace arcane;
 		/** @private */
 		arcane function onepointcut(v01:ScreenVertex):Array
 		{
-            return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
+            return [create(view, source, material, v0, v01), create(view, source, material, v01, v1)];
     	}
     	
     	private var focus:Number;  
@@ -104,10 +105,7 @@ package away3d.core.draw
 		 */
         public override function getZ(x:Number, y:Number):Number
         {
-            if (projection == null)
-                return screenZ;
-
-            focus = projection.focus;
+            focus = view.camera.focus;
               
             ax = v0.x;
             ay = v0.y;
@@ -156,7 +154,7 @@ package away3d.core.draw
 
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 
-            return [create(material, projection, v0, v01), create(material, projection, v01, v1)];
+            return [create(view, source, material, v0, v01), create(view, source, material, v01, v1)];
         }
 		
 		/**

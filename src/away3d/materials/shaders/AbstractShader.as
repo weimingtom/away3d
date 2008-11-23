@@ -1,13 +1,14 @@
 package away3d.materials.shaders
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
+	import away3d.events.*;
 	import away3d.materials.*;
 	
 	import flash.display.*;
@@ -15,13 +16,16 @@ package away3d.materials.shaders
 	import flash.geom.*;
 	import flash.utils.*;	
 	
+	use namespace arcane;
+	
 	/**
 	 * Base class for shaders.
     * Not intended for direct use - use one of the shading materials in the materials package.
     */
-    public class AbstractShader extends EventDispatcher implements IUpdatingMaterial, ILayerMaterial
+    public class AbstractShader extends EventDispatcher implements ILayerMaterial
     {
-		use namespace arcane;
+        /** @private */
+		arcane var _materialupdated:MaterialEvent;
         /** @private */
         arcane var _faceDictionary:Dictionary = new Dictionary(true);
         /** @private */
@@ -59,7 +63,7 @@ package away3d.materials.shaders
         /** @private */
 		arcane var _face:Face;
         /** @private */
-		arcane var _lights:LightArray;
+		arcane var _lights:ILightConsumer;
         /** @private */
 		arcane var _parentFaceVO:FaceVO;
         /** @private */
@@ -84,6 +88,17 @@ package away3d.materials.shaders
 		arcane var _normal2:Number3D = new Number3D();
         /** @private */
 		arcane var _mapping:Matrix = new Matrix();
+		/** @private */
+        arcane function notifyMaterialUpdate():void
+        {	
+            if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
+                return;
+			
+            if (_materialupdated == null)
+                _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
+                
+            dispatchEvent(_materialupdated);
+        }
         /** @private */
         arcane function clearShapeDictionary():void
         {
@@ -93,6 +108,7 @@ package away3d.materials.shaders
         /** @private */
         arcane function clearLightingShapeDictionary():void
         {
+        	
         	for each (_dict in _shapeDictionary)
         		for each (_shape in _dict)
 	        		_shape.graphics.clear();
@@ -140,7 +156,7 @@ package away3d.materials.shaders
         protected function getShape(layer:Sprite):Shape
         {
         	_session = _source.session;
-        	if (_session != _session.view.session) {
+        	if (_session != _view.scene.session) {
         		//check to see if source shape exists
 	    		if (!(_shape = _shapeDictionary[_session]))
 	    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
@@ -157,7 +173,7 @@ package away3d.materials.shaders
         * 
         * @param	face	The face object being rendered.
         */
-        protected function renderShader(face:Face):void
+        protected function renderShader(tri:DrawTriangle):void
         {
         	throw new Error("Not implemented");
         }
@@ -172,7 +188,7 @@ package away3d.materials.shaders
         protected function getLightingShape(layer:Sprite, light:LightPrimitive):Shape
         {
         	_session = _source.session;
-        	if (_session != _session.view.session) {
+        	if (_session != _view.scene.session) {
     			if (!_shapeDictionary[_session])
     				_shapeDictionary[_session] = new Dictionary(true);
         		//check to see if source shape exists
@@ -232,24 +248,24 @@ package away3d.materials.shaders
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
         {
         	_source = tri.source as Mesh;
-			_view = _source.session.view;
+			_view = tri.view;
 			_face = tri.face;
-			_lights = tri.source.session.lightarray;
+			_lights = tri.source.lightarray;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
         {
-        	_source = face.parent;
-			_view = _source.session.view;
+        	_source = tri.source as Mesh;
+			_view = tri.view;
 			_parentFaceVO = parentFaceVO;
 			
-        	//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO(_source, _view);
+			_faceVO = getFaceVO(tri.face, _source, _view);
+			
+			//pass on inverse texturemapping
+			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {
@@ -262,7 +278,7 @@ package away3d.materials.shaders
 				parentFaceVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = face.bitmapRect;
+				_bitmapRect = tri.face.bitmapRect;
 				
 				//reset booleans
 				if (_faceVO.invalidated)
@@ -274,7 +290,7 @@ package away3d.materials.shaders
 				_faceVO.bitmap = parentFaceVO.bitmap;
 				
 				//draw shader
-				renderShader(face);
+				renderShader(tri);
 			}
 			
 			return _faceVO;
@@ -283,9 +299,41 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
+        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        {
+        	if ((_faceVO = _faceDictionary[face]))
+        		return _faceVO;
+        	
+        	return _faceDictionary[face] = new FaceVO();
+        }
+        
+        public function removeFaceDictionary():void
+        {
+			_faceDictionary = new Dictionary(true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public function get visible():Boolean
         {
             return true;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function addOnMaterialUpdate(listener:Function):void
+        {
+        	addEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnMaterialUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false);
         }
     }
 }

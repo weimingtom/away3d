@@ -1,13 +1,19 @@
 ﻿package away3d.primitives
 {
     import away3d.core.base.*;
+    import away3d.materials.*;
     
     /**
     * Creates a 3d line segment.
     */ 
-    public class LineSegment extends WireMesh
+    public class LineSegment extends Mesh
     {
         private var _segment:Segment;
+		
+		protected override function getDefaultMaterial():IMaterial
+		{
+			return ini.getSegmentMaterial("material") || new WireframeMaterial();
+		}
 		
 		/**
 		 * Defines the starting vertex.
@@ -29,7 +35,7 @@
         {
             return _segment.v1;
         }
-
+		
         public function set end(value:Vertex):void
         {
             _segment.v1 = value;
@@ -43,7 +49,7 @@
         public function LineSegment(init:Object = null)
         {
             super(init);
-
+			
             var edge:Number = ini.getNumber("edge", 100, {min:0}) / 2;
             _segment = new Segment(new Vertex(-edge, 0, 0), new Vertex(edge, 0, 0));
             addSegment(_segment);

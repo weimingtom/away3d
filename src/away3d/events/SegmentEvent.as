@@ -10,9 +10,9 @@ package away3d.events
     public class SegmentEvent extends Event
     {
     	/**
-    	 * Defines the value of the type property of a materialchanged event object.
+    	 * Defines the value of the type property of a materialChanged event object.
     	 */
-    	public static const MATERIAL_CHANGED:String = "materialchanged";
+    	public static const MATERIAL_CHANGED:String = "materialChanged";
     	
     	/**
     	 * A reference to the segment object that is relevant to the event.
