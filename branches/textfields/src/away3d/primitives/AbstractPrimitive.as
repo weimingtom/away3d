@@ -1,17 +1,18 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d cone primitive.
     */ 
     public class AbstractPrimitive extends Mesh
     {
-    	use namespace arcane;
 		/** @private */
 		arcane var _v:Vertex;
 		/** @private */
@@ -75,6 +76,7 @@
             return _face;
 		}
 		
+		private var _index:int;
 		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
 		 *
@@ -102,8 +104,9 @@
     		_objectDirty = true;
     		
     		//remove all elements from the mesh
-    		for each (_face in faces)
-    			removeFace(_face);
+    		_index = faces.length;
+    		while (_index--)
+    			removeFace(faces[_index]);
     		
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);

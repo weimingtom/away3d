@@ -2,8 +2,8 @@ package away3d.loaders
 {
 	import away3d.animators.*;
 	import away3d.animators.skin.*;
+	import away3d.arcane;
 	import away3d.containers.*;
-	import away3d.core.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
@@ -11,14 +11,15 @@ package away3d.loaders
 	import away3d.loaders.utils.*;
 	import away3d.materials.*;
 	
-	import flash.utils.Dictionary;
+	import flash.utils.*;
+	
+	use namespace arcane;
 	
     /**
     * File loader for the Collada file format with animation.
     */
     public class Collada extends AbstractParser
     {
-    	use namespace arcane;
 		/** @private */
     	arcane var ini:Init;
     	
@@ -33,8 +34,10 @@ package away3d.loaders
         private var animationLibrary:AnimationLibrary;
         private var geometryLibrary:GeometryLibrary;
         private var channelLibrary:ChannelLibrary;
+        private var symbolLibrary:Dictionary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
+        private var _skinController:SkinController;
     	private var _meshData:MeshData;
     	private var _geometryData:GeometryData;
         private var _materialData:MaterialData;
@@ -71,26 +74,18 @@ package away3d.loaders
 		private var _defaultAnimationClip:AnimationData;
 		private var _haveAnimation:Boolean = false;
 		private var _haveClips:Boolean = false;
-		private var _bones:Dictionary = new Dictionary(true);
-		
-		private function buildMeshes(containerData:ContainerData, parent:ObjectContainer3D):void
-		{
-			for each (var _objectData:ObjectData in containerData.children) {
-				if (_objectData is MeshData)
-					buildMesh(_objectData as MeshData, parent);
-				else if (_objectData is ContainerData)
-					buildMeshes(_objectData as ContainerData, (_objectData as ContainerData).container);
-			}
-		}
+		private var _containers:Dictionary = new Dictionary(true);
 		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
-				if (_objectData is BoneData) {
+				if (_objectData is MeshData) {
+					buildMesh(_objectData as MeshData, parent);
+				} else if (_objectData is BoneData) {
 					var _boneData:BoneData = _objectData as BoneData;
 					var bone:Bone = new Bone({name:_boneData.name});
 					
-					_bones[bone.name] = bone;
+					_containers[bone.name] = bone;
 					
 					//ColladaMaya 3.05B
 					bone.id = _boneData.id;
@@ -107,34 +102,15 @@ package away3d.loaders
 					var _containerData:ContainerData = _objectData as ContainerData;
 					var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D({name:_containerData.name});
 					
+					_containers[objectContainer.name] = objectContainer;
+					
 					objectContainer.transform = _objectData.transform;
 					
 					buildContainers(_containerData, objectContainer);
 					
 					if (centerMeshes && objectContainer.children.length) {
 						//center children in container for better bounding radius calulations
-						_maxX = -Infinity;
-						_minX = Infinity;
-						_maxY = -Infinity;
-						_minY = Infinity;
-						_maxZ = -Infinity;
-						_minZ = Infinity;
-						for each (var child:Object3D in objectContainer.children) {
-							if (_maxX < child.x)
-								_maxX = child.x;
-							if (_minX > child.x)
-								_minX = child.x;
-							if (_maxY < child.y)
-								_maxY = child.y;
-							if (_minY > child.y)
-								_minY = child.y;
-							if (_maxZ < child.z)
-								_maxZ = child.z;
-							if (_minZ > child.z)
-								_minZ = child.z;
-						}
-						
-						objectContainer.movePivot(_moveVector.x = (_maxX + _minX)/2, _moveVector.y = (_maxY + _minY)/2, _moveVector.z = (_maxZ + _minZ)/2);
+						objectContainer.movePivot(_moveVector.x = (objectContainer.maxX + objectContainer.minX)/2, _moveVector.y = (objectContainer.maxY + objectContainer.minY)/2, _moveVector.z = (objectContainer.maxZ + objectContainer.minZ)/2);
 						_moveVector.transform(_moveVector, _objectData.transform);
 						objectContainer.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
 					}
@@ -165,42 +141,30 @@ package away3d.loaders
 				for each (_meshMaterialData in _geometryData.materials) {
 					for each (_faceListIndex in _meshMaterialData.faceList) {
 						_faceData = _geometryData.faces[_faceListIndex] as FaceData;
-						_faceData.materialData = materialLibrary[_meshMaterialData.name];
+						_faceData.materialData = symbolLibrary[_meshMaterialData.symbol];
 					}
 				}
 				
 				
 				if (_geometryData.skinVertices.length) {
-					var bone:Bone;
 					var i:int;
 					var joints:Array;
-					var skinController:SkinController;
 					var rootBone:Bone = (container as ObjectContainer3D).getBoneByName(_meshData.skeleton);
 					
 					geometry.skinVertices = _geometryData.skinVertices;
 					geometry.skinControllers = _geometryData.skinControllers;
 					//mesh.bone = container.getChildByName(_meshData.bone) as Bone;
 					
-					for each (skinController in geometry.skinControllers) {
-						bone = (container as ObjectContainer3D).getBoneByName(skinController.name);
-		                if (bone) {
-		                    skinController.joint = bone.joint;
-		                    
-		                    //if (!(bone.parent.parent is Bone))
-		                    //	rootBone = bone;
-		                } else
-		                	Debug.warning("no joint found for " + skinController.name);
-		   			}
-		   			
 		   			geometry.rootBone = rootBone;
 		   			
-		   			for each (skinController in geometry.skinControllers)
-		                skinController.inverseTransform = parent.inverseSceneTransform;
+		   			for each (_skinController in geometry.skinControllers)
+		                _skinController.inverseTransform = parent.inverseSceneTransform;
 				}
 				
 				//create faces from face and mesh data
 				var face:Face;
 				var matData:MaterialData;
+				
 				for each(_faceData in _geometryData.faces) {
 					if (!_faceData.materialData)
 						continue;
@@ -219,6 +183,8 @@ package away3d.loaders
 			}
 			
 			if (centerMeshes) {
+				trace(_geometryData.maxX);
+				trace(_geometryData.minX);
 				mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2, _moveVector.y = (_geometryData.maxY + _geometryData.minY)/2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2);
 				_moveVector.transform(_moveVector, _meshData.transform);
 				mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
@@ -262,20 +228,194 @@ package away3d.loaders
 		
 		private function buildAnimations():void
 		{
+			var bone:Bone;
+			
+			for each (_geometryData in geometryLibrary) {
+				for each (_skinController in _geometryData.geometry.skinControllers) {
+					bone = (container as ObjectContainer3D).getBoneByName(_skinController.name);
+	                if (bone)
+	                    _skinController.joint = bone.joint;
+	                else
+	                	Debug.warning("no joint found for " + _skinController.name);
+	   			}
+	  		}
+		   			
 			for each (_animationData in animationLibrary)
 			{
 				switch (_animationData.animationType)
 				{
 					case AnimationData.SKIN_ANIMATION:
 						var animation:SkinAnimation = new SkinAnimation();
-						animation.start = _animationData.start;
-						animation.length = _animationData.end - _animationData.start;
+						
+						var param:Array;
+			            var rX:String;
+			            var rY:String;
+			            var rZ:String;
+			            var sX:String;
+			            var sY:String;
+			            var sZ:String;
 						
 						for each (var channelData:ChannelData in _animationData.channels) {
 							var channel:Channel = channelData.channel;
-							channel.target = _bones[channel.name] as Bone;
+							channel.target = _containers[channel.name];
 							animation.appendChannel(channel);
+							
+							var times:Array = channel.times;
+							
+							if (_animationData.start > times[0])
+								_animationData.start = times[0];
+							
+							if (_animationData.end < times[times.length-1])
+								_animationData.end = times[times.length - 1];
+							
+				            if (channel.target is Bone) {
+				            	rX = "jointRotationX";
+				            	rY = "jointRotationY";
+				            	rZ = "jointRotationZ";
+				            	sX = "jointScaleX";
+				            	sY = "jointScaleY";
+				            	sZ = "jointScaleZ";
+				            } else {
+				            	rX = "rotationX";
+				            	rY = "rotationY";
+				            	rZ = "rotationZ";
+				            	sX = "scaleX";
+				            	sY = "scaleY";
+				            	sZ = "scaleZ";
+				            }
+				            
+				            switch(channelData.type)
+				            {
+				                case "translateX":
+				                	channel.type = ["x"];
+									if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1*scaling;
+				                	break;
+								case "translateY":
+									if (yUp)
+										channel.type = ["y"];
+									else
+										channel.type = ["z"];
+									for each (param in channel.param)
+										param[0] *= scaling;
+				     				break;
+								case "translateZ":
+									if (yUp)
+										channel.type = ["z"];
+									else
+										channel.type = ["y"];
+									for each (param in channel.param)
+										param[0] *= scaling;
+				     				break;
+				     			case "jointOrientX":
+				     				channel.type = ["rotationX"];
+				     				if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+								case "rotateX":
+								case "RotX":
+				     				channel.type = [rX];
+				     				if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+				     			case "jointOrientY":
+				     				channel.type = ["rotationY"];
+				     				//if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+								case "rotateY":
+								case "RotY":
+									if (yUp)
+										channel.type = [rY];
+									else
+										channel.type = [rZ];
+									//if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+				     			case "jointOrientZ":
+				     				channel.type = ["rotationZ"];
+				     				//if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				break;
+								case "rotateZ":
+								case "RotZ":
+									if (yUp)
+										channel.type = [rZ];
+									else
+										channel.type = [rY];
+									//if (yUp)
+										for each (param in channel.param)
+											param[0] *= -1;
+				            		break;
+								case "scaleX":
+									channel.type = [sX];
+									//if (yUp)
+									//	for each (param in channel.param)
+									//		param[0] *= -1;
+				            		break;
+								case "scaleY":
+									if (yUp)
+										channel.type = [sY];
+									else
+										channel.type = [sZ];
+				     				break;
+								case "scaleZ":
+									if (yUp)
+										channel.type = [sZ];
+									else
+										channel.type = [sY];
+				     				break;
+								case "translate":
+								case "translation":
+									if (yUp) {
+										channel.type = ["x", "y", "z"];
+										for each (param in channel.param)
+											param[0] *= -1;
+				     				} else {
+				     					channel.type = ["x", "z", "y"];
+				     				}
+				     				for each (param in channel.param) {
+										param[0] *= scaling;
+										param[1] *= scaling;
+										param[2] *= scaling;
+				     				}
+									break;
+								case "scale":
+									if (yUp)
+										channel.type = [sX, sY, sZ];
+									else
+										channel.type = [sX, sZ, sY];
+				     				break;
+								case "rotate":
+									if (yUp) {
+										channel.type = [rX, rY, rZ];
+										for each (param in channel.param) {
+											param[0] *= -1;
+											param[1] *= -1;
+											param[2] *= -1;
+										}
+				     				} else {
+										channel.type = [rX, rZ, rY];
+										for each (param in channel.param) {
+											param[1] *= -1;
+											param[2] *= -1;
+										}
+				     				}
+									break;
+								case "transform":
+									channel.type = ["transform"];
+									break;
+				            }
 						}
+						
+						animation.start = _animationData.start;
+						animation.length = _animationData.end - _animationData.start;
 						
 						_animationData.animation = animation;
 						break;
@@ -305,7 +445,7 @@ package away3d.loaders
             if (yUp) {
                 	rotationMatrix.rotationMatrix(vector[0], -vector[1], -vector[2], vector[3]*toRADIANS);
             } else {
-                	rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], vector[3]*toRADIANS);
+                	rotationMatrix.rotationMatrix(vector[0], vector[2], vector[1], -vector[3]*toRADIANS);
             }
             
             return rotationMatrix;
@@ -374,6 +514,7 @@ package away3d.loaders
 			animationLibrary = container.animationLibrary = new AnimationLibrary();
 			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 			channelLibrary = new ChannelLibrary();
+			symbolLibrary = new Dictionary(true);
 			materialLibrary.autoLoadTextures = autoLoadTextures;
 			materialLibrary.texturePath = texturePath;
 			
@@ -453,7 +594,7 @@ package away3d.loaders
 				buildContainers(containerData, container as ObjectContainer3D);
 				
 				//build the meshes
-				buildMeshes(containerData, container as ObjectContainer3D);
+				//buildMeshes(containerData, container as ObjectContainer3D);
 				
 				//build animations
 				buildAnimations();
@@ -535,7 +676,7 @@ package away3d.loaders
 				if (String(node.@type) == "JOINT")
 					_objectData = new BoneData();
 				else {
-					if (String(node.node) == "" || parent is BoneData)
+					if (String(node.instance_node.@url) == "" && (String(node.node) == "" || parent is BoneData))
 						return;
 					_objectData = new ContainerData();
 				}
@@ -599,7 +740,14 @@ package away3d.loaders
 						break;
 						
                     case "node":
-						parseNode(child, _objectData as ContainerData);
+                    	//3dsMax 11 - Feeling ColladaMax v3.05B
+                    	//<node><node/></node>
+                    	if(_objectData is MeshData)
+                    	{
+							parseNode(child, parent as ContainerData);
+                    	}else{
+                    		parseNode(child, _objectData as ContainerData);
+                    	}
                         
                         break;
 
@@ -644,13 +792,14 @@ package away3d.loaders
 		 * 
 		 * @see away3d.loaders.data.MaterialData
 		 */
-        private function parseMaterial(name:String, target:String):void
+        private function parseMaterial(symbol:String, name:String):void
         {
            	_materialData = materialLibrary.addMaterial(name);
-            if(name == "FrontColorNoCulling") {
+        	symbolLibrary[symbol] = _materialData;
+            if(symbol == "FrontColorNoCulling") {
             	_materialData.materialType = MaterialData.SHADING_MATERIAL;
             } else {
-                _materialData.textureFileName = getTextureFileName(target);
+                _materialData.textureFileName = getTextureFileName(name);
                 
                 if (_materialData.textureFileName) {
             		_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
@@ -660,7 +809,7 @@ package away3d.loaders
                 	else
 	                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
                 	
-                	parseColorMaterial(collada.library_materials.material.(@id == name)[0], _materialData);
+                	parseColorMaterial(name, _materialData);
                 }
             }
         }
@@ -673,13 +822,14 @@ package away3d.loaders
 		private function parseGeometry(geometryData:GeometryData):void
 		{
 			Debug.trace(" + Parse Geometry : "+ geometryData.name);
+			var verticesDictionary:Dictionary = new Dictionary(true);
 			
             // Triangles
             for each (var triangles:XML in geometryData.geoXML.mesh.triangles)
             {
                 // Input
                 var field:Array = [];
-
+				
                 for each(var input:XML in triangles.input)
                 {
                 	var semantic:String = input.@semantic;
@@ -698,10 +848,11 @@ package away3d.loaders
 
                 var data     :Array  = triangles.p.split(' ');
                 var len      :Number = triangles.@count;
-                var material :String = triangles.@material;
+                var symbol :String = triangles.@material
+                
 				Debug.trace(" + Parse MeshMaterialData");
                 _meshMaterialData = new MeshMaterialData();
-    			_meshMaterialData.name = material;
+    			_meshMaterialData.symbol = symbol;
 				geometryData.materials.push(_meshMaterialData);
 				
 				//if (!materialLibrary[material])
@@ -728,6 +879,11 @@ package away3d.loaders
                         	}
                         }
                     }
+                    //trace(_faceData.v0);
+                    verticesDictionary[_faceData.v0] = geometryData.vertices[_faceData.v0];
+                    verticesDictionary[_faceData.v1] = geometryData.vertices[_faceData.v1];
+                    verticesDictionary[_faceData.v2] = geometryData.vertices[_faceData.v2];
+                    
                     _meshMaterialData.faceList.push(geometryData.faces.length);
                     geometryData.faces.push(_faceData);
                 }
@@ -741,7 +897,7 @@ package away3d.loaders
 				geometryData.minY = Infinity;
 				geometryData.maxZ = -Infinity;
 				geometryData.minZ = Infinity;
-                for each (_vertex in geometryData.vertices) {
+                for each (_vertex in verticesDictionary) {
 					if (geometryData.maxX < _vertex._x)
 						geometryData.maxX = _vertex._x;
 					if (geometryData.minX > _vertex._x)
@@ -775,17 +931,13 @@ package away3d.loaders
 			if (!tmp) tmp = skin.source.(@id == jointId).IDREF_array.toString();
             tmp = tmp.replace(/\n/g, " ");
             var nameArray:Array = tmp.split(" ");
-            tmp = skin.bind_shape_matrix[0].toString();
-			
-            var bind_shape_array:Array = tmp.split(" ");
+            
 			var bind_shape:Matrix3D = new Matrix3D();
-			bind_shape.array2matrix(bind_shape_array, yUp, scaling);
+			bind_shape.array2matrix(getArray(skin.bind_shape_matrix[0].toString()), yUp, scaling);
 			
 			var bindMatrixId:String = getId(skin.joints.input.(@semantic == "INV_BIND_MATRIX").@source);
-
-            tmp = skin.source.(@id == bindMatrixId)[0].float_array.toString();
-            tmp = tmp.replace(/\n/g, " ");
-            var float_array:Array = tmp.split(" ");
+            var float_array:Array = getArray(skin.source.(@id == bindMatrixId)[0].float_array.toString());
+            
             var v:Array;
             var matrix:Matrix3D;
             var name:String;
@@ -893,11 +1045,8 @@ package away3d.loaders
         {
 			var animationClip:AnimationData = animationLibrary.addAnimation(clip.@id);
 			
-			for each (var channel:XML in clip.instance_animation) {
+			for each (var channel:XML in clip.instance_animation)
 				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
-				animationClip.start = channel.@start;
-				animationClip.end = channel.@end;
-			}
         }
 		
 		private function parseChannel(channelData:ChannelData) : void
@@ -1006,113 +1155,8 @@ package away3d.loaders
                         break;
                 }
             }
-            var param:Array;
             
-            switch(type)
-            {
-                case "translateX":
-                	channel.type = ["x"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1*scaling;
-                	break;
-				case "translateY":
-					if (yUp)
-						channel.type = ["y"];
-					else
-						channel.type = ["z"];
-					for each (param in channel.param)
-						param[0] *= scaling;
-     				break;
-				case "translateZ":
-					if (yUp)
-						channel.type = ["z"];
-					else
-						channel.type = ["y"];
-					for each (param in channel.param)
-						param[0] *= scaling;
-     				break;
-				case "rotateX":
-				case "RotX":
-     				channel.type = ["jointRotationX"];
-     				if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-     				break;
-				case "rotateY":
-				case "RotY":
-					if (yUp)
-						channel.type = ["jointRotationY"];
-					else
-						channel.type = ["jointRotationZ"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-     				break;
-				case "rotateZ":
-				case "RotZ":
-					if (yUp)
-						channel.type = ["jointRotationZ"];
-					else
-						channel.type = ["jointRotationY"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-            		break;
-				case "scaleX":
-					channel.type = ["jointScaleX"];
-					if (yUp)
-						for each (param in channel.param)
-							param[0] *= -1;
-            		break;
-				case "scaleY":
-					if (yUp)
-						channel.type = ["jointScaleY"];
-					else
-						channel.type = ["jointScaleZ"];
-     				break;
-				case "scaleZ":
-					if (yUp)
-						channel.type = ["jointScaleZ"];
-					else
-						channel.type = ["jointScaleY"];
-     				break;
-				case "translate":
-					if (yUp) {
-						channel.type = ["x", "y", "z"];
-						for each (param in channel.param)
-							param[0] *= -1;
-     				} else {
-     					channel.type = ["x", "z", "y"];
-     				}
-     				for each (param in channel.param) {
-						param[0] *= scaling;
-						param[1] *= scaling;
-						param[2] *= scaling;
-     				}
-					break;
-				case "scale":
-					if (yUp)
-						channel.type = ["jointScaleX", "jointScaleY", "jointScaleZ"];
-					else
-						channel.type = ["jointScaleX", "jointScaleZ", "jointScaleY"];
-     				break;
-				case "rotate":
-					if (yUp) {
-						channel.type = ["jointRotationX", "jointRotationY", "jointRotationZ"];
-						for each (param in channel.param) {
-							param[0] *= -1;
-							param[1] *= -1;
-							param[2] *= -1;
-						}
-     				} else {
-						channel.type = ["jointRotationX", "jointRotationZ", "jointRotationY"];
-     				}
-					break;
-				case "transform":
-					channel.type = ["transform"];
-					break;
-            }
+			channelData.type = type;
         }
 		
 		/**
@@ -1161,8 +1205,11 @@ package away3d.loaders
 		/**
 		 * Retrieves the color of a material
 		 */
-		private function parseColorMaterial(material:XML, materialData:MaterialData):void
+		private function parseColorMaterial(name:String, materialData:MaterialData):void
 		{
+			
+			var material:XML = collada.library_materials.material.(@id == name)[0];
+			
 			if (material) {
 				var effectId:String = getId( material.instance_effect.@url );
 				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
@@ -1176,7 +1223,7 @@ package away3d.loaders
 		
 		private function getColorValue(color:XML):uint
 		{
-			if (color.length() == 0)
+			if (!color || color.length() == 0)
 				return 0xFFFFFF;
 			
 			var colorArray:Array = color.color.split(" ");

@@ -1,7 +1,7 @@
 ﻿package away3d.containers
 {
     import away3d.animators.skin.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -14,12 +14,13 @@
     
     import flash.display.*;
     
+    use namespace arcane;
+    
     /**
     * 3d object container node for other 3d objects in a scene
     */
     public class ObjectContainer3D extends Object3D
     {
-        use namespace arcane;
 		/** @private */
         arcane function internalAddChild(child:Object3D):void
         {
@@ -70,12 +71,21 @@
         	
         	if (children.length) {
 	        	
+	        	_boundingScale = _scaleX;
+            	
+            	if (_boundingScale < _scaleY)
+            		_boundingScale = _scaleY;
+            	
+            	if (_boundingScale < _scaleZ)
+            		_boundingScale = _scaleZ;
+            	
 	        	var mradius:Number = 0;
 	        	var cradius:Number;
 	            var num:Number3D = new Number3D();
 	            for each (var child:Object3D in children) {
-	            	child.setParentPivot(_pivotPoint);
-	                cradius = child.parentradius;
+	            	num.sub(child.position, _pivotPoint);
+	            	
+	                cradius = num.modulo + child.boundingRadius;
 	                if (mradius < cradius)
 	                    mradius = cradius;
 	            }

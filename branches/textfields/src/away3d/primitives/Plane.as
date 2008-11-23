@@ -1,17 +1,17 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d plane primitive.
     */ 
     public class Plane extends AbstractPrimitive
     {
-    	use namespace arcane
-    	
         private var grid:Array;
     	private var _width:Number;
         private var _height:Number;

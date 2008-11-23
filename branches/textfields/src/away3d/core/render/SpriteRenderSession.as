@@ -1,7 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.events.*;
@@ -10,13 +10,13 @@ package away3d.core.render
 	import flash.geom.*;
 	import flash.utils.*;
 	
+	use namespace arcane;
+	
     /**
     * Drawing session object that renders all drawing primitives into a <code>Sprite</code> container.
     */
 	public class SpriteRenderSession extends AbstractRenderSession
 	{
-		use namespace arcane;
-		
         private var _container:Sprite;
         private var _clip:Clipping;
         
@@ -83,8 +83,8 @@ package away3d.core.render
         protected override function createLayer():void
         {
             //create new canvas for remaining triangles
-            if (doStore.length) {
-            	_shape = doStore.pop();
+            if (_doStore.length) {
+            	_shape = _doStore.pop();
             } else {
             	_shape = new Shape();
             }
@@ -93,7 +93,7 @@ package away3d.core.render
             graphics = _shape.graphics;
             
             //store new canvas
-            doActive.push(_shape);
+            _doActive.push(_shape);
             
             //add new canvas to base canvas
             _container.addChild(_shape);
@@ -136,7 +136,9 @@ package away3d.core.render
         		_container.cacheAsBitmap = cacheAsBitmap;
         	}
         	
-        	_container.filters = filters;
+        	if ((filters && filters.length) || (_container.filters && _container.filters.length))
+        		_container.filters = filters;
+        	
         	_container.alpha = alpha;
         	_container.blendMode = blendMode || BlendMode.NORMAL;
         }   

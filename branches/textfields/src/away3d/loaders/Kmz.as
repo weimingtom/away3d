@@ -1,7 +1,7 @@
 package away3d.loaders
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.utils.*;
     import away3d.events.LoaderEvent;
@@ -16,13 +16,13 @@ package away3d.loaders
     
     import nochump.util.zip.*;
 
+	use namespace arcane;
+	
     /**
     * File loader for the KMZ 4 file format (exported from Google Sketchup).
     */
     public class Kmz extends AbstractParser
     {
-		use namespace arcane;
-    	
         private var collada:XML;
         private var _materialData:MaterialData;
         private var _face:Face;

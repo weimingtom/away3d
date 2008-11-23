@@ -1,8 +1,10 @@
 package away3d.core.base
 {
-	import away3d.core.arcane;
+	import away3d.arcane;
 	import away3d.events.ShapeEvent;
 	import away3d.materials.IShapeMaterial;
+	
+	use namespace arcane;
 	
 	/**
     * A shape element used in vector type primitives.
@@ -11,8 +13,6 @@ package away3d.core.base
     */
 	public class Shape3D extends Element
 	{
-		use namespace arcane;
-		
 		/** @private */
         arcane var _vertices:Array = [];
         /** @private */

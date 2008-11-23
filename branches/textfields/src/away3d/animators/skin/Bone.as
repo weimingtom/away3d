@@ -2,15 +2,15 @@ package away3d.animators.skin
 {
 	import away3d.animators.*;
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
 	
+	use namespace arcane;
+	
     public class Bone extends ObjectContainer3D
     {
-    	use namespace arcane;
-    	
     	public var joint:ObjectContainer3D;
     	
 		//Collada 3.05B

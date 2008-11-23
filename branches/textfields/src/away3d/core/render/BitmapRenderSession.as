@@ -1,20 +1,20 @@
 package away3d.core.render
 {
 	import away3d.containers.View3D;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.draw.*;
 	
 	import flash.display.*;
 	import flash.geom.Matrix;
 	import flash.utils.Dictionary;
 	
+	use namespace arcane;
+	
     /**
     * Drawing session object that renders all drawing primitives into a <code>Bitmap</code> container.
     */
 	public class BitmapRenderSession extends AbstractRenderSession
 	{
-		use namespace arcane;
-		
 		private var _container:Bitmap;
 		private var _width:int;
 		private var _height:int;
@@ -110,8 +110,8 @@ package away3d.core.render
         protected override function createLayer():void
         {
             //create new canvas for remaining triangles
-            if (doStore.length) {
-            	_shape = doStore.pop();
+            if (_doStore.length) {
+            	_shape = _doStore.pop();
             } else {
             	_shape = new Shape();
             }
@@ -120,7 +120,7 @@ package away3d.core.render
             graphics = _shape.graphics;
             
             //store new canvas
-            doActive.push(_shape);
+            _doActive.push(_shape);
             
             //add new canvas to layers
             layers.push(_shape);
@@ -161,7 +161,9 @@ package away3d.core.render
 	            _layerDirty = true;
 	        }
 	        
-        	_container.filters = filters;
+	        if ((filters && filters.length) || (_container.filters && _container.filters.length))
+        		_container.filters = filters;
+        	
         	_container.alpha = alpha || 1;
         	_container.blendMode = blendMode || BlendMode.NORMAL;
         }

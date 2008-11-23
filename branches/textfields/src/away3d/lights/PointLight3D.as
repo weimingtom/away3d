@@ -1,7 +1,7 @@
 package away3d.lights
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -13,14 +13,14 @@ package away3d.lights
     
     import flash.display.*;
 	
+	use namespace arcane;
+	
     /**
     * Lightsource that colors all shaded materials proportional to the dot product of the distance vector with the normal vector.
     * The scalar value of the distance is used to calulate intensity using the inverse square law of attenuation.
     */
     public class PointLight3D extends Object3D implements ILightProvider, IClonable
     {
-    	use namespace arcane;
-    	
 		private var _ls:PointLight = new PointLight();
         private var _debugPrimitive:Sphere;
         private var _debugMaterial:ColorMaterial;
@@ -67,7 +67,7 @@ package away3d.lights
 		public function get debugPrimitive():Object3D
 		{
 			if (!_debugPrimitive)
-				_debugPrimitive = new Sphere();
+				_debugPrimitive = new Sphere({radius:10});
 			
 			if (!_debugMaterial) {
 				_debugMaterial = new ColorMaterial();

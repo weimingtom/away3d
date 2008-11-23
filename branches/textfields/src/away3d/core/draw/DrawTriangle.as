@@ -1,6 +1,6 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.render.*;
     import away3d.materials.*;
@@ -8,12 +8,13 @@ package away3d.core.draw
     import flash.display.*;
     import flash.geom.Matrix;
     
+    use namespace arcane;
+    
     /**
     * Triangle drawing primitive
     */
     public class DrawTriangle extends DrawPrimitive
     {
-        use namespace arcane;
 		/** @private */
         arcane final function acuteAngled():Boolean
         {
@@ -231,6 +232,8 @@ package away3d.core.draw
     	 * A reference to the face object used by the triangle primitive.
     	 */
         public var face:Face;
+        
+        public var generated:Boolean;
         
     	/**
     	 * Indicates whether the face of the triangle primitive is facing away from the camera.
