@@ -1,24 +1,26 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
+    import away3d.events.*;
     
     import flash.display.*;
     import flash.events.*;
 
+	use namespace arcane;
+	
     /**
     * Abstract class for materials that calculate lighting for the face's center
     * Not intended for direct use - use <code>ShadingColorMaterial</code> or <code>WhiteShadingBitmapMaterial</code>.
     */
-    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial, IUpdatingMaterial
+    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial
     {
-    	use namespace arcane;
         /** @private */
         arcane var v0:ScreenVertex;
         /** @private */
@@ -31,7 +33,6 @@ package away3d.materials
 		private var point:PointLight;
 		private var directional:DirectionalLight;
 		private var global:AmbientLight;
-        private var projection:Projection;
         private var focus:Number;
         private var zoom:Number;
         private var v0z:Number;
@@ -86,6 +87,7 @@ package away3d.materials
         private var rfy:Number;
         private var rfz:Number;
         private var spec:Number;
+        private var rf:Number;
         private var graphics:Graphics;
         private var cz:Number;
         private var cx:Number;
@@ -141,7 +143,7 @@ package away3d.materials
         /**
         * Coefficient for shininess level
         */
-        public var ak:Number = 20;
+        public var shininess:Number = 20;
 		
 		/**
 		 * @private
@@ -150,7 +152,7 @@ package away3d.materials
         {
             ini = Init.parse(init);
 
-            ak = ini.getNumber("ak", 20);
+            shininess = ini.getColor("shininess", 20);
         }
         
 		/**
@@ -158,8 +160,8 @@ package away3d.materials
 		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (directional in source.session.lightarray.directionals) {
-        		if (!directional.diffuseTransform[source] || source.sceneTransformed) {
+        	for each (directional in source.lightarray.directionals) {
+        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         		}
         	}
@@ -174,9 +176,8 @@ package away3d.materials
             v0 = tri.v0;
             v1 = tri.v1;
             v2 = tri.v2;
-            projection = tri.projection;
-            focus = projection.focus;
-            zoom = projection.zoom;
+            focus = tri.view.camera.focus;
+            zoom = tri.view.camera.zoom;
 
             v0z = v0.z;
             v0p = (1 + v0z / focus) / zoom;
@@ -218,14 +219,14 @@ package away3d.materials
 			
 			_source = tri.source as Mesh;
 			
-			for each (directional in session.lightarray.directionals)
+			for each (directional in tri.source.lightarray.directionals)
             {
             	_diffuseTransform = directional.diffuseTransform[_source];
             	
                 red = directional.red;
                 green = directional.green;
                 blue = directional.blue;
-
+				
                 dfx = _diffuseTransform.szx;
 				dfy = _diffuseTransform.szy;
 				dfz = _diffuseTransform.szz;
@@ -235,38 +236,36 @@ package away3d.materials
                 nz = tri.face.normal.z;
                 
                 amb = directional.ambient * ambient_brightness;
-
+				
                 kar += red * amb;
                 kag += green * amb;
                 kab += blue * amb;
                 
                 nf = dfx*nx + dfy*ny + dfz*nz;
-
+				
                 if (nf < 0)
                     continue;
-
+				
                 diff = directional.diffuse * nf * diffuse_brightness;
                 
                 kdr += red * diff;
                 kdg += green * diff;
                 kdb += blue * diff;
                 
-                rfz = dfz - 2*nf*nz;
-
-                if (rfz < 0)
-                    continue;
+                rfx = _diffuseTransform.szx;
+				rfy = _diffuseTransform.szy;
+				rfz = _diffuseTransform.szz;
+				
+				rf = rfx*nx + rfy*ny + rfz*nz;
+				
+                spec = directional.specular * Math.pow(rf, shininess) * specular_brightness;
                 
-                rfx = dfx - 2*nf*nx;
-                rfy = dfy - 2*nf*ny;
-
-                spec = directional.specular * Math.pow(rfz, ak) * specular_brightness;
-
                 ksr += red * spec;
                 ksg += green * spec;
                 ksb += blue * spec;
             }
             
-            for each (point in session.lightarray.points)
+            for each (point in tri.source.lightarray.points)
             {
                 red = point.red;
                 green = point.green;
@@ -306,15 +305,15 @@ package away3d.materials
                 rfx = dfx - 2*nf*pa;
                 rfy = dfy - 2*nf*pb;
                 
-                spec = point.specular * fade * Math.pow(rfz, ak) * specular_brightness;
+                spec = point.specular * fade * Math.pow(rfz, shininess) * specular_brightness;
 
                 ksr += red * spec;
                 ksg += green * spec;
                 ksb += blue * spec;
             }
-
+			
             renderTri(tri, session, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
-
+			
             if (draw_fall || draw_reflect || draw_normal)
             {
                 graphics = session.graphics,
@@ -336,7 +335,7 @@ package away3d.materials
                 }
 
                 if (draw_fall || draw_reflect)
-                    for each (point in session.lightarray.points)
+                    for each (point in tri.source.lightarray.points)
                     {
                         red = point.red;
                         green = point.green;
@@ -399,6 +398,22 @@ package away3d.materials
         public function get visible():Boolean
         {
             throw new Error("Not implemented");
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function addOnMaterialUpdate(listener:Function):void
+        {
+        	addEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false, 0, true);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function removeOnMaterialUpdate(listener:Function):void
+        {
+        	removeEventListener(MaterialEvent.MATERIAL_UPDATED, listener, false);
         }
     }
 }

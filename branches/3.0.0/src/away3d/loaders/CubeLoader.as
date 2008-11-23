@@ -1,14 +1,13 @@
 package away3d.loaders
 {
-    import away3d.materials.*;
     import away3d.core.utils.*;
+    import away3d.events.ParserEvent;
+    import away3d.materials.*;
     import away3d.primitives.*;
-
-    import flash.display.MovieClip;
-    import flash.display.Graphics;
-    import flash.text.TextField;
-    import flash.events.ProgressEvent;
-    import flash.events.IOErrorEvent;
+    
+    import flash.display.*;
+    import flash.events.*;
+    import flash.text.*;
  
 	/**
 	 * Default loader class used as a placeholder for loading 3d content
@@ -17,8 +16,10 @@ package away3d.loaders
     {
         private var side:MovieClip;
         private var info:TextField;
+        private var tf:TextFormat;
         private var geometryTitle:String;
 		private var textureTitle:String;
+		private var parsingTitle:String;
         
 		/**
 		 * Creates a new <code>CubeLoader</code> object.
@@ -29,18 +30,25 @@ package away3d.loaders
         public function CubeLoader(init:Object = null) 
         {
             super(init);
-
+            
             side = new MovieClip();
             var graphics:Graphics = side.graphics;
             graphics.lineStyle(1, 0xFFFFFF);
-            graphics.drawCircle(50, 50, 50);
+            graphics.drawCircle(100, 100, 100);
             info = new TextField();
+            info.width = 200;
+            info.height = 200;
+            tf = new TextFormat();
+            tf.size = 24;
+            tf.color = 0x00FFFF;
+            tf.bold = true;
             info.wordWrap = true;
             side.addChild(info);
             
             var size:Number = ini.getNumber("loadersize", 200);
             geometryTitle = ini.getString("geometrytitle", "Loading Geometry...");
             textureTitle = ini.getString("texturetitle", "Loading Texture...");
+            parsingTitle = ini.getString("parsingtitle", "Parsing Geometry...");
 
             addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
         }
@@ -48,25 +56,51 @@ package away3d.loaders
 		/**
 		 * Listener function for an error event.
 		 */
-        protected override function onError(event:IOErrorEvent):void 
+        protected override function notifyError(event:Event):void 
         {
-            super.onError(event);
-            info.text = ((mode == LOADING_GEOMETRY)? geometryTitle : textureTitle) + "\n" + event.text;
+        	
+        	//write message
+        	if (mode == LOADING_GEOMETRY)
+        		info.text = geometryTitle + "\n" + (event as IOErrorEvent).text;
+        	else if (mode == PARSING_GEOMETRY)
+        		info.text = parsingTitle + "\n" + (event as ParserEvent).parser;
+        	else if (mode == LOADING_TEXTURES)
+        		info.text = textureTitle + "\n" + (event as IOErrorEvent).text;
+        	
+        	info.setTextFormat(tf);
+        	
+        	//draw background
             var graphics:Graphics = side.graphics;
             graphics.beginFill(0xFF0000);
-            graphics.drawRect(0, 0, 100, 100);
+            graphics.drawRect(0, 0, 200, 200);
             graphics.endFill();
+            
+        	super.notifyError(event);
         }
 		
 		/**
 		 * Listener function for a progress event.
 		 */
-        protected override function onProgress(event:ProgressEvent):void 
+        protected override function notifyProgress(event:Event):void 
         {
-            info.text = ((mode == LOADING_GEOMETRY)? geometryTitle : textureTitle) + "\n" + event.bytesLoaded + " of\n" + event.bytesTotal + " bytes";
-            var graphics:Graphics = side.graphics;
-            graphics.lineStyle(1, 0x808080);
-            graphics.drawCircle(50, 50, 50*event.bytesLoaded/event.bytesTotal);
+        	super.notifyProgress(event);
+        	
+        	//write message
+        	if (mode == LOADING_GEOMETRY)
+        		info.text = geometryTitle + "\n" + (event as ProgressEvent).bytesLoaded + " of " + (event as ProgressEvent).bytesTotal + " bytes";
+        	else if (mode == PARSING_GEOMETRY)
+        		info.text = parsingTitle + "\n" + (event as ParserEvent).parser.parsedChunks + " of " + (event as ParserEvent).parser.totalChunks + " chunks";
+        	else if (mode == LOADING_TEXTURES)
+        		info.text = textureTitle + "\n" + (event as ProgressEvent).bytesLoaded + " of " + (event as ProgressEvent).bytesTotal + " bytes";
+        	
+            info.setTextFormat(tf);
+            
+            //draw background
+            if (mode == LOADING_GEOMETRY || mode == LOADING_TEXTURES) {
+	            var graphics:Graphics = side.graphics;
+	            graphics.lineStyle(1, 0x808080);
+	            graphics.drawCircle(100, 100, 100*(event as ProgressEvent).bytesLoaded/(event as ProgressEvent).bytesTotal);
+	        }
         }
     }
 }

@@ -5,9 +5,18 @@ package away3d.core.math
     */
     public final class Number3D
     {
+    	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
         private var num:Number3D;
+        private var vx:Number;
+        private var vy:Number;
+        private var vz:Number;
+        private var nx:Number;
+        private var ny:Number;
+        private var nz:Number;
+        private var m1:MatrixAway3D;
+        private var m2:MatrixAway3D;
         
         /**
         * The horizontal coordinate of the 3d number object.
@@ -63,9 +72,11 @@ package away3d.core.math
 		 * 
 		 * @return	The new 3d number instance with duplicated properties applied
 		 */
-        public function clone():Number3D
+        public function clone(v:Number3D):void
         {
-            return new Number3D(x, y, z);
+            x = v.x;
+            y = v.y;
+            z = v.z;
         }
 		
     	/**
@@ -175,27 +186,117 @@ package away3d.core.math
     	/**
     	 * Fills the 3d number object with the result of a 3d matrix rotation performed on a 3d number.
     	 * 
-    	 * @param	The 3d number object to use in the calculation.
-    	 * @param	The 3d matrix object representing the rotation.
+    	 * @param	v	The 3d number object to use in the calculation.
+    	 * @param	m	The 3d matrix object representing the rotation.
     	 */
         public function rotate(v:Number3D, m:MatrixAway3D):void
         {
-            x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz;
-            y = v.x * m.syx + v.y * m.syy + v.z * m.syz;
-            z = v.x * m.szx + v.y * m.szy + v.z * m.szz;
+        	vx = v.x;
+        	vy = v.y;
+        	vz = v.z;
+        	
+            x = vx * m.sxx + vy * m.sxy + vz * m.sxz;
+            y = vx * m.syx + vy * m.syy + vz * m.syz;
+            z = vx * m.szx + vy * m.szy + vz * m.szz;
         }
     	
     	/**
     	 * Fills the 3d number object with the result of a 3d matrix tranformation performed on a 3d number.
     	 * 
-    	 * @param	The 3d number object to use in the calculation.
-    	 * @param	The 3d matrix object representing the tranformation.
+    	 * @param	v	The 3d number object to use in the calculation.
+    	 * @param	m	The 3d matrix object representing the tranformation.
     	 */
         public function transform(v:Number3D, m:MatrixAway3D):void
         {
-            x = v.x * m.sxx + v.y * m.sxy + v.z * m.sxz + m.tx;
-            y = v.x * m.syx + v.y * m.syy + v.z * m.syz + m.ty;
-            z = v.x * m.szx + v.y * m.szy + v.z * m.szz + m.tz;
+        	vx = v.x;
+        	vy = v.y;
+        	vz = v.z;
+        	
+            x = vx * m.sxx + vy * m.sxy + vz * m.sxz + m.tx;
+            y = vx * m.syx + vy * m.syy + vz * m.syz + m.ty;
+            z = vx * m.szx + vy * m.szy + vz * m.szz + m.tz;
+        }
+            	
+    	/**
+    	 * Fill the 3d number object with the euler angles represented by the 3x3 matrix rotation.
+    	 * 
+    	 * @param	m	The 3d matrix object to use in the calculation.
+    	 */
+        public function matrix2euler(m:MatrixAway3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
+        {
+            if (!m1)
+            	m1 = new MatrixAway3D();
+	
+		    // Extract the first angle, rotationX
+			x = Math.atan2(m.syz, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
+			
+			// Remove the rotationX rotation from m1, so that the remaining
+			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
+			var c :Number   = Math.cos(x);
+			var s :Number   = Math.sin(x);
+			m1.sxx = m.sxx;
+			m1.sxy = m.sxy*c + m.sxz*s;
+			m1.sxz = -m.sxy*s + m.sxz*c;
+			m1.syx = m.syx;
+			m1.syy = m.syy*c + m.syz*s;
+			m1.syz = -m.syy*s + m.syz*c;
+			m1.szx = m.szx;
+			m1.szy = m.szy*c + m.szz*s;
+			m1.szz = -m.szy*s + m.szz*c;
+			
+			// Extract the other two angles, rot.y and rot.z, from m1.
+			var cy:Number = Math.sqrt(m1.sxx*m1.sxx + m1.syx*m1.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
+			y = Math.atan2(-m1.szx, cy); // rot.y = Math<T>::atan2 (-N[0][2], cy);
+			z = Math.atan2(-m1.sxy, m1.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);
+	
+			// Fix angles
+			if(x == Math.PI) {
+				if(y > 0)
+					y -= Math.PI;
+				else
+					y += Math.PI;
+	
+				x = 0;
+				z += Math.PI;
+			}
+        }
+        
+        public function quaternion2euler(quarternion:Quaternion):void
+		{
+			
+			var test :Number = quarternion.x*quarternion.y + quarternion.z*quarternion.w;
+			if (test > 0.499) { // singularity at north pole
+				x = 2 * Math.atan2(quarternion.x,quarternion.w);
+				y = Math.PI/2;
+				z = 0;
+				return;
+			}
+			if (test < -0.499) { // singularity at south pole
+				x = -2 * Math.atan2(quarternion.x,quarternion.w);
+				y = - Math.PI/2;
+				z = 0;
+				return;
+			}
+		    
+		    var sqx	:Number = quarternion.x*quarternion.x;
+		    var sqy	:Number = quarternion.y*quarternion.y;
+		    var sqz	:Number = quarternion.z*quarternion.z;
+		    
+		    x = Math.atan2(2*quarternion.y*quarternion.w - 2*quarternion.x*quarternion.z , 1 - 2*sqy - 2*sqz);
+			y = Math.asin(2*test);
+			z = Math.atan2(2*quarternion.x*quarternion.w-2*quarternion.y*quarternion.z , 1 - 2*sqx - 2*sqz);
+		}
+		
+    	/**
+    	 * Fill the 3d number object with the scale values represented by the 3x3 matrix.
+    	 * 
+    	 * @param	m	The 3d matrix object to use in the calculation.
+    	 */
+        public function matrix2scale(m:MatrixAway3D):void
+        {
+            x = Math.sqrt(m.sxx*m.sxx + m.syx*m.syx + m.szx*m.szx);
+            y = Math.sqrt(m.sxy*m.sxy + m.syy*m.syy + m.szy*m.szy);
+            z = Math.sqrt(m.sxz*m.sxz + m.syz*m.syz + m.szz*m.szz);
         }
         
         /**

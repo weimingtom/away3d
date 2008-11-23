@@ -12,7 +12,7 @@ package away3d.materials
 	{
 		private var _shininess:Number;
 		private var _specular:Number;
-		private var _bitmapMaterial:BitmapMaterial;
+		private var _bitmapMaterial:TransformBitmapMaterial;
 		private var _phongShader:CompositeMaterial;
 		private var _ambientShader:AmbientShader;
 		private var _diffusePhongShader:DiffusePhongShader;
@@ -42,13 +42,16 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
+			if (_specular == val)
+				return;
+			
 			_specular = val;
 			_specularPhongShader.specular = val;
 			
 			if (_specular && materials.length < 3)
-        		materials.push(_specularPhongShader);
+        		addMaterial(_specularPhongShader);
    			else if (materials.length > 2)
-            	materials.pop();
+            	removeMaterial(_specularPhongShader);
 		}
 		
 		/**
@@ -59,24 +62,27 @@ package away3d.materials
 		 */
 		public function PhongBitmapMaterial(bitmap:BitmapData, init:Object = null)
 		{
+			if (init && init.materials)
+				delete init.materials;
+			
 			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
 			//create new materials
-			_bitmapMaterial = new BitmapMaterial(bitmap, ini);
+			_bitmapMaterial = new TransformBitmapMaterial(bitmap, ini);
 			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_bitmapMaterial);
-			materials.push(_phongShader);
+			addMaterial(_bitmapMaterial);
+			addMaterial(_phongShader);
+			
 			if (_specular)
-				materials.push(_specularPhongShader);
+				addMaterial(_specularPhongShader);
 		}
 	}
 }

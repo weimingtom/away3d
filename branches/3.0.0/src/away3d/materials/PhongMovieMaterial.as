@@ -42,13 +42,16 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
+			if (_specular == val)
+				return;
+			
 			_specular = val;
 			_specularPhongShader.specular = val;
 			
 			if (_specular && materials.length < 3)
-        		materials.push(_specularPhongShader);
+        		addMaterial(_specularPhongShader);
    			else if (materials.length > 2)
-            	materials.pop();
+            	removeMaterial(_specularPhongShader);
 		}
 		
 		/**
@@ -59,24 +62,27 @@ package away3d.materials
 		 */
 		public function PhongMovieMaterial(movie:Sprite, init:Object=null)
 		{
+			if (init && init.materials)
+				delete init.materials;
+			
 			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
-			specular = ini.getNumber("specular", 0.7, {min:0, max:1});
+			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
 			//create new materials
 			_movieMaterial = new MovieMaterial(movie, ini);
 			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_movieMaterial);
-			materials.push(_phongShader);
+			addMaterial(_movieMaterial);
+			addMaterial(_phongShader);
+			
 			if (_specular)
-				materials.push(_specularPhongShader);
+				addMaterial(_specularPhongShader);
 		}
 	}
 }

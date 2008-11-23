@@ -1,12 +1,14 @@
 package away3d.core.base
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.utils.*;
     import away3d.events.*;
     import away3d.materials.*;
     
     import flash.events.Event;
+    
+    use namespace arcane;
     
 	 /**
 	 * Dispatched when the material of the segment changes.
@@ -21,9 +23,8 @@ package away3d.core.base
     * @see away3d.core.base.WireMesh
     * @see away3d.core.base.Mesh
     */
-    public class Segment extends BaseMeshElement
+    public class Segment extends Element
     {
-        use namespace arcane;
 		/** @private */
         arcane var _v0:Vertex;
 		/** @private */
@@ -31,7 +32,7 @@ package away3d.core.base
 		/** @private */
         arcane var _material:ISegmentMaterial;
 		/** @private */
-        arcane var _ds:DrawSegment = new DrawSegment();
+        //arcane var _ds:DrawSegment = new DrawSegment();
 		/** @private */
         arcane function notifyMaterialChange():void
         {
@@ -58,16 +59,6 @@ package away3d.core.base
         {
             notifyVertexValueChange();
         }
-		
-    	/**
-    	 * An optional untyped object that can contain used-defined properties.
-    	 */
-        public var extra:Object;
-        
-    	/**
-    	 * Defines the parent 3d object of the segment.
-    	 */
-		public var parent:BaseMesh;
 		
 		/**
 		 * Returns an array of vertex objects that are used by the segment.
@@ -240,15 +231,19 @@ package away3d.core.base
         }
     	
 		/**
-		 * Creates a new <code>Face</code> object.
+		 * Creates a new <code>Segment</code> object.
 		 *
-		 * @param	init			[optional]	An initialisation object for specifying default instance properties
+		 * @param	v0						The first vertex object of the segment
+		 * @param	v1						The second vertex object of the segment
+		 * @param	material	[optional]	The material used by the segment to render
 		 */
         public function Segment(v0:Vertex, v1:Vertex, material:ISegmentMaterial = null)
         {
             this.v0 = v0;
             this.v1 = v1;
             this.material = material;
+            
+            vertexDirty = true;
         }
 		
 		/**

@@ -1,5 +1,8 @@
 package away3d.core.block
 {
+	import away3d.containers.*;
+	import away3d.core.math.*;
+	
 
     /**
     * Interface for objects that provide blocker instances for occlusion culling in the renderer.
@@ -14,6 +17,6 @@ package away3d.core.block
     	 * @see	away3d.core.traverse.BlockerTraverser
     	 * @see	away3d.core.block.Blocker
     	 */
-        function blockers(consumer:IBlockerConsumer):void;
+        function blockers(view:View3D, viewTransform:MatrixAway3D, consumer:IBlockerConsumer):void;
     }
 }

@@ -1,17 +1,18 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d cone primitive.
     */ 
-    public class AbstractWirePrimitive extends WireMesh
+    public class AbstractWirePrimitive extends Mesh
     {
-    	use namespace arcane;
 		/** @private */
 		arcane var _v:Vertex;
 		/** @private */
@@ -31,9 +32,9 @@
 		{
 			if (_vStore.length) {
             	_vActive.push(_v = _vStore.pop());
-	            _v.x = x;
-	            _v.y = y;
-	            _v.z = z;
+	            _v._x = x;
+	            _v._y = y;
+	            _v._z = z;
    			} else {
             	_vActive.push(_v = new Vertex(x, y, z));
       		}
@@ -53,16 +54,12 @@
             return _segment;
 		}
 		
-		/**
-		 * @inheritDoc
-		 */
-        public override function get sceneTransform():MatrixAway3D
-        {
-        	if (_primitiveDirty)
-        		buildPrimitive();
-        	
-        	return super.sceneTransform;
-        }
+		private var _index:int;
+		
+		protected override function getDefaultMaterial():IMaterial
+		{
+			return ini.getSegmentMaterial("material") || new WireframeMaterial();
+		}
 		
 		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
@@ -74,6 +71,14 @@
 			super(init);
 		}
 		
+		public override function updateObject():void
+    	{
+    		if (_primitiveDirty)
+        		buildPrimitive();
+        	
+        	super.updateObject();
+     	}
+     	
 		/**
 		 * Builds the vertex, face and uv objects that make up the 3d primitive.
 		 */
@@ -82,8 +87,9 @@
     		_primitiveDirty = false;
     		
     		//remove all elements from the mesh
-    		for each (_segment in segments)
-    			removeSegment(_segment);
+    		_index = segments.length;
+    		while (_index--)
+    			removeSegment(segments[_index]);
     		
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);

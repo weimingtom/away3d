@@ -19,9 +19,18 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 package nochump.util.zip {
 	
-	import flash.utils.Endian;
+	import flash.events.EventDispatcher;
+	import flash.events.TimerEvent;
+	import flash.events.ProgressEvent;
+
 	import flash.utils.ByteArray;
-	
+	import flash.utils.Endian;
+	import flash.utils.Timer;
+
+	[Event(name="entryParseError",	type="nochump.util.zip.ZipErrorEvent")]
+	[Event(name="entryParsed",		type="nochump.util.zip.ZipEvent")]
+	[Event(name="progress",			type="flash.events.ProgressEvent")]
+
 	/**
 	 * Inflater is used to decompress data that has been compressed according 
 	 * to the "deflate" standard described in rfc1950.
@@ -39,8 +48,8 @@ package nochump.util.zip {
 	 * 
 	 * @author dchang
 	 */
-	public class Inflater {
-		
+	public class Inflater extends EventDispatcher {
+
 		private static const MAXBITS:int = 15; // maximum bits in a code
 		private static const MAXLCODES:int = 286; // maximum number of literal/length codes
 		private static const MAXDCODES:int = 30; // maximum number of distance codes
@@ -54,15 +63,22 @@ package nochump.util.zip {
 		private static const DISTS:Array = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
 		// Extra bits for distance codes 0..29
 		private static const DEXT:Array = [ 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+		
+		// Duration between parsing of each chunk of data
+		private const TIMER_INTERVAL:int = 20;
 
 		private var inbuf:ByteArray; // input buffer
+		private var currentBuf:ByteArray; // current buffer being decoded
+
 		private var incnt:uint; // bytes read so far
 		private var bitbuf:int; // bit buffer
 		private var bitcnt:int; // number of bits in bit buffer
+
 		// Huffman code decoding tables
 		private var lencode:Object;
 		private var distcode:Object;
-		
+		private var inflateTimer:Timer;
+
 		/**
 		 * Sets the input.
 		 * 
@@ -71,6 +87,12 @@ package nochump.util.zip {
 		public function setInput(buf:ByteArray):void {
 			inbuf = buf;
 			inbuf.endian = Endian.LITTLE_ENDIAN;
+			if (inflateTimer) {
+				inflateTimer.stop();
+				inflateTimer.removeEventListener(TimerEvent.TIMER, inflateNextChunk);
+			}
+			inflateTimer = new Timer(TIMER_INTERVAL);
+            inflateTimer.addEventListener(TimerEvent.TIMER, inflateNextChunk);
 		}
 		
 		/**
@@ -99,7 +121,42 @@ package nochump.util.zip {
 			} while(!last);
 			return err;
 		}
-		
+
+		public function queuedInflate(buf:ByteArray):void {
+			incnt = bitbuf = bitcnt = 0;
+			currentBuf = buf;
+			inflateTimer.start();
+		}
+
+		private function inflateNextChunk(event:TimerEvent):void {
+			var err:int = 0;
+			var last:int = bits(1); // one if last block
+			var type:int = bits(2); // block type 0..3
+			//trace('	block type ' + type);
+			if(type == 0) stored(currentBuf); // uncompressed block
+			else if(type == 3) throw new Error('invalid block type (type == 3)', -1);
+			else { // compressed block
+				lencode = {count:[], symbol:[]};
+				distcode = {count:[], symbol:[]};
+				if(type == 1) constructFixedTables();
+				else if(type == 2) err = constructDynamicTables();
+				if(err != 0) {
+					inflateTimer.stop();
+					dispatchEvent( new ZipErrorEvent(ZipErrorEvent.PARSE_ERROR, false, false, err) );
+				}
+				err = codes(currentBuf); // decode data until end-of-block code
+			}
+			if(err != 0) {
+				inflateTimer.stop();
+				dispatchEvent( new ZipErrorEvent(ZipErrorEvent.PARSE_ERROR, false, false, err) );
+			}
+			if (last) {
+				inflateTimer.stop();
+				dispatchEvent( new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, currentBuf) );
+			}
+			dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, incnt, currentBuf.length) );
+		}
+
 		private function bits(need:int):int {
 			// bit accumulator (can use up to 20 bits)
 			// load at least need bits into val
@@ -115,7 +172,7 @@ package nochump.util.zip {
 			// return need bits, zeroing the bits above that
 			return val & ((1 << need) - 1);
 		}
-		
+
 		private function construct(h:Object, length:Array, n:int):int {
 			var offs:Array = []; // offsets in symbol table for each length
 			// count number of codes of each length

@@ -1,24 +1,25 @@
 package
 {
+    import away3d.cameras.*;
+    import away3d.containers.*;
+    import away3d.core.*;
+    import away3d.core.base.*;
+    import away3d.core.draw.*;
+    import away3d.core.render.*;
+    import away3d.lights.*;
+    import away3d.loaders.*;
+    import away3d.materials.*;
+    import away3d.primitives.*;
+    import away3d.test.*;
+    
     import flash.display.*;
     import flash.events.*;
     import flash.text.*;
     import flash.utils.*;
-
+    
     import mx.core.BitmapAsset;
     
-    import away3d.containers.*;
-    import away3d.cameras.*;
-    import away3d.core.*;
-    import away3d.core.base.*
-    import away3d.core.draw.*;
-    import away3d.core.render.*;
-    import away3d.loaders.*;
-    import away3d.materials.*;
-    import away3d.primitives.*
-    import away3d.test.*;
-    
-    [SWF(backgroundColor="#222266", frameRate="60", width="800", height="600")]
+    [SWF(backgroundColor="#222266", frameRate="60")]
     public class SculptTest extends BaseDemo
     {
     	public var session:SpriteRenderSession = new SpriteRenderSession();
@@ -56,6 +57,7 @@ package
     import away3d.materials.*;
     import away3d.primitives.*
     import away3d.events.*;
+    import away3d.lights.*;
 
 class Asset
 {
@@ -70,20 +72,21 @@ class Sculpt extends ObjectContainer3D
                        
     public function Sculpt(n:int = 1)
     {
-        light1 = new PointLight3D(0xFFFFFF, 1, 1, 0, {x:900, z:900, y:900});
-        light2 = new PointLight3D(0x555500, 1, 1, 0, {x:-900, z:900, y:900});
-        light3 = new PointLight3D(0x999999, 1, 1, 0, {x:900, z:-900, y:900});
-        light4 = new PointLight3D(0xFFFFFF, 1, 1, 0, {x:-900, z:-900, y:900});
+        light1 = new PointLight3D({color:0xFFFFFF, ambient:1, diffuse:1, specular:0, x:900, z:900, y:900});
+        light2 = new PointLight3D({color:0x555500, ambient:1, diffuse:1, specular:0, x:-900, z:900, y:900});
+        light3 = new PointLight3D({color:0x999999, ambient:1, diffuse:1, specular:0, x:900, z:-900, y:900});
+        light4 = new PointLight3D({color:0xFFFFFF, ambient:1, diffuse:1, specular:0, x:-900, z:-900, y:900});
 
         super(light1, light4);
 
         build(n);
 
-        events.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        addOnMouseUp(onMouseDown);
     }
 
     public function onMouseDown(e:MouseEvent3D):void
     {
+    	trace("removingt");
         if (e.drawpri is DrawTriangle)
         {
             var tri:DrawTriangle = e.drawpri as DrawTriangle;
@@ -118,7 +121,7 @@ class Sculpt extends ObjectContainer3D
 
     public function build(n:int):void
     {
-        var white:IMaterial = new WhiteShadingBitmapMaterial({alpha:20});
+        var white:IMaterial = new ShadingColorMaterial({alpha:20});
         var i:int;
         var j:int;
         var h:int;
@@ -224,28 +227,28 @@ class Sculpt extends ObjectContainer3D
 
         var face:Face;
         var mesh:Mesh = new Mesh({material:white, parent:this, bothsides:true});
-        mesh.vertices = vertices.concat(centers);
+        
         for (i = 0; i < n; i++)
             for (j = 0; j < n; j++)
                 for (h = 0; h < n; h++)
                     for each (face in centerfaces[i][j][h])
-                        mesh.faces.push(face);
+                        mesh.addFace(face);
 
         for (i = 0; i <= n; i++)
             for (j = 0; j < n; j++)
                 for (h = 0; h < n; h++)
                     for each (face in ifaces[i][j][h])
-                        mesh.faces.push(face);
+                        mesh.addFace(face);
         for (i = 0; i < n; i++)
             for (j = 0; j <= n; j++)
                 for (h = 0; h < n; h++)
                     for each (face in jfaces[i][j][h])
-                        mesh.faces.push(face);
+                        mesh.addFace(face);
         for (i = 0; i < n; i++)
             for (j = 0; j < n; j++)
                 for (h = 0; h <= n; h++)
                     for each (face in hfaces[i][j][h])
-                        mesh.faces.push(face);
+                        mesh.addFace(face);
 
         for each (face in mesh.faces)
             face.extra = {cavities:new Array(), viscount:0};

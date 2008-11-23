@@ -24,6 +24,7 @@ package away3d.cameras
         */
         public var distance:Number = 800;
         
+        public var wrappanangle:Boolean;
         /**
         * Rotation of the camera in degrees around the y axis. Defaults to 0.
         */
@@ -83,6 +84,7 @@ package away3d.cameras
 
             yfactor = ini.getNumber("yfactor", yfactor);
 			distance = ini.getNumber("distance", distance);
+			wrappanangle = ini.getBoolean("wrappanangle", false);
 			panangle = ini.getNumber("panangle", panangle);
 			tiltangle = ini.getNumber("tiltangle", tiltangle);
 			targetpanangle = ini.getNumber("targetpanangle", targetpanangle);
@@ -114,6 +116,19 @@ package away3d.cameras
                 return update();
 
             targettiltangle = Math.max(mintiltangle, Math.min(maxtiltangle, targettiltangle));
+            
+            if (wrappanangle) {
+	            if (targetpanangle < 0)
+	            	targetpanangle = (targetpanangle % 360) + 360;
+	            else
+	            	targetpanangle = targetpanangle % 360;
+	            
+	            if (targetpanangle - panangle < -180)
+	            	targetpanangle += 360;
+	            else if (targetpanangle - panangle > 180)
+	            	targetpanangle -= 360;
+            }
+            
             tiltangle += (targettiltangle - tiltangle) / (steps + 1);
             panangle += (targetpanangle - panangle) / (steps + 1);
 

@@ -1,21 +1,20 @@
 package away3d.core.draw
 {
-    import away3d.core.*;
-    import away3d.materials.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.render.*;
-
+    import away3d.materials.*;
     
     import flash.display.*;
     import flash.geom.Matrix;
-    import flash.geom.Rectangle;
+    
+    use namespace arcane;
     
     /**
     * Triangle drawing primitive
     */
     public class DrawTriangle extends DrawPrimitive
     {
-        use namespace arcane;
 		/** @private */
         arcane final function acuteAngled():Boolean
         {
@@ -62,16 +61,16 @@ package away3d.core.draw
             if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
             {
                 return [
-                    create(face, material, projection,  v0, v01, v12,  uv0, uv01, uv12),
-                    create(face, material, projection, v01,  v1, v12, uv01,  uv1, uv12),
-                    create(face, material, projection,  v0, v12 , v2,  uv0, uv12, uv2)];
+                    create(view, source, face, material,  v0, v01, v12,  uv0, uv01, uv12),
+                    create(view, source, face, material, v01,  v1, v12, uv01,  uv1, uv12),
+                    create(view, source, face, material,  v0, v12 , v2,  uv0, uv12, uv2)];
             }
             else
             {
                 return [
-                    create(face, material, projection,   v0, v01,  v2,  uv0, uv01, uv2),
-                    create(face, material, projection,  v01,  v1, v12, uv01,  uv1, uv12),
-                    create(face, material, projection,  v01, v12,  v2, uv01, uv12, uv2)];
+                    create(view, source, face, material,   v0, v01,  v2,  uv0, uv01, uv2),
+                    create(view, source, face, material,  v01,  v1, v12, uv01,  uv1, uv12),
+                    create(view, source, face, material,  v01, v12,  v2, uv01, uv12, uv2)];
             }
         }
 		/** @private */
@@ -157,6 +156,7 @@ package away3d.core.draw
         private var uv01:UV;
         private var uv12:UV;
         private var uv20:UV;
+        private var _invtexmapping:Matrix = new Matrix();
         
         private function num(n:Number):Number
         {
@@ -168,8 +168,8 @@ package away3d.core.draw
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
                 uv01:UV = UV.median(uv0, uv1);
             return [
-                create(face, material, projection, v2, v0, v01, uv2, uv0, uv01),
-                create(face, material, projection, v01, v1, v2, uv01, uv1, uv2) 
+                create(view, source, face, material, v2, v0, v01, uv2, uv0, uv01),
+                create(view, source, face, material, v01, v1, v2, uv01, uv1, uv2) 
             ];
         }
 
@@ -178,8 +178,8 @@ package away3d.core.draw
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
                 uv12:UV = UV.median(uv1, uv2);
             return [
-                create(face, material, projection, v0, v1, v12, uv0, uv1, uv12),
-                create(face, material, projection, v12, v2, v0, uv12, uv2, uv0) 
+                create(view, source, face, material, v0, v1, v12, uv0, uv1, uv12),
+                create(view, source, face, material, v12, v2, v0, uv12, uv2, uv0) 
             ];
         }
 
@@ -188,8 +188,8 @@ package away3d.core.draw
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
                 uv20:UV = UV.median(uv2, uv0);
             return [
-                create(face, material, projection, v1, v2, v20, uv1, uv2, uv20),
-                create(face, material, projection, v20, v0, v1, uv20, uv0, uv1) 
+                create(view, source, face, material, v1, v2, v20, uv1, uv2, uv20),
+                create(view, source, face, material, v20, v0, v1, uv20, uv0, uv1) 
             ];                                                
         }
         
@@ -233,6 +233,8 @@ package away3d.core.draw
     	 */
         public var face:Face;
         
+        public var generated:Boolean;
+        
     	/**
     	 * Indicates whether the face of the triangle primitive is facing away from the camera.
     	 */
@@ -242,16 +244,6 @@ package away3d.core.draw
     	 * The bitmapData object used as the triangle primitive texture.
     	 */
         public var material:ITriangleMaterial;
-        
-    	/**
-    	 * The inverse texturemapping matrix of the triangle primitive texture.
-    	 */
-        public var invtexturemapping:Matrix;
-        
-    	/**
-    	 * The texturemapping matrix of the triangle primitive texture.
-    	 */
-        public var texturemapping:Matrix;
         
 		/**
 		 * @inheritDoc
@@ -264,7 +256,6 @@ package away3d.core.draw
             uv0 = null;
             uv1 = null;
             uv2 = null;
-            texturemapping = null;
         }
         
 		/**
@@ -294,8 +285,7 @@ package away3d.core.draw
             _v2 = materialHeight * (1 - uv2._v);
       
             // Fix perpendicular projections
-            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
-            {
+            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2)) {
             	if (_u0 > 0.05)
                 	_u0 -= 0.05;
                 else
@@ -307,8 +297,7 @@ package away3d.core.draw
                 	_v0 += 0.07;
             }
     
-            if (_u2 == _u1 && _v2 == _v1)
-            {
+            if (_u2 == _u1 && _v2 == _v1) {
             	if (_u2 > 0.04)
                 	_u2 -= 0.04;
                 else
@@ -320,17 +309,20 @@ package away3d.core.draw
                 	_v2 += 0.06;
             }
             
-            if (material is BitmapMaterialContainer)
-            {
-            	invtexturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0 - face.bitmapRect.x, _v0 - face.bitmapRect.y);
-            	texturemapping = invtexturemapping.clone();
-            	texturemapping.invert();
-            	return texturemapping;
+        	_invtexmapping.a = _u1 - _u0;
+        	_invtexmapping.b = _v1 - _v0;
+        	_invtexmapping.c = _u2 - _u0;
+        	_invtexmapping.d = _v2 - _v0;
+        	
+            if (material is BitmapMaterialContainer) {
+            	_invtexmapping.tx = _u0 - face.bitmapRect.x;
+            	_invtexmapping.ty = _v0 - face.bitmapRect.y;
+            } else {
+            	_invtexmapping.tx = _u0;
+            	_invtexmapping.ty = _v0;
             }
             
-            texturemapping = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
-            texturemapping.invert();
-            return texturemapping;
+            return _invtexmapping;
         }
         
 		/**
@@ -338,10 +330,7 @@ package away3d.core.draw
 		 */
         public override final function getZ(x:Number, y:Number):Number
         {
-            if (projection == null)
-                return screenZ;
-
-            focus = projection.focus;
+            focus = view.camera.focus;
 
             ax = v0.x;
             ay = v0.y;
@@ -411,7 +400,7 @@ package away3d.core.draw
             cu = uv2._u;
             cv = uv2._v;
 
-            focus = projection.focus;
+            focus = view.camera.focus;
 
             ax = v0.x;
             ay = v0.y;
@@ -471,10 +460,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(face, material, projection, v0, v01, v20, uv0, uv01, uv20),
-                create(face, material, projection, v1, v12, v01, uv1, uv12, uv01),
-                create(face, material, projection, v2, v20, v12, uv2, uv20, uv12),
-                create(face, material, projection, v01, v12, v20, uv01, uv12, uv20)
+                create(view, source, face, material, v0, v01, v20, uv0, uv01, uv20),
+                create(view, source, face, material, v1, v12, v01, uv1, uv12, uv01),
+                create(view, source, face, material, v2, v20, v12, uv2, uv20, uv12),
+                create(view, source, face, material, v01, v12, v20, uv01, uv12, uv20)
             ];
         }
         

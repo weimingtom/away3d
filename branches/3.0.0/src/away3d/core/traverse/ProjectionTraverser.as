@@ -1,20 +1,25 @@
 package away3d.core.traverse
 {
+	import away3d.cameras.Camera3D;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.light.*;
 	import away3d.core.math.*;
+	import away3d.core.project.*;
 	import away3d.core.render.*;
 	
-	import flash.utils.getTimer;
+	import flash.utils.*;
 	
     /**
     * Traverser that resolves the transform tree in a scene, ready for rendering.
     */
     public class ProjectionTraverser extends Traverser
     {
-		private var _projection:Projection;
         private var _view:View3D;
+        private var _mesh:Mesh;
+        private var _camera:Camera3D;
         private var _cameraview:MatrixAway3D;
+		private var _cameraviewtransforms:Dictionary;
 		
 		/**
 		 * Defines the view being used.
@@ -26,7 +31,9 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
-            _cameraview = _view.camera.view;
+			_camera = _view.camera;
+            _cameraview = _camera.view;
+            _cameraviewtransforms = _camera.viewTransforms;
 			if (_view.statsOpen)
 				_view.statsPanel.clearObjects();
 		}
@@ -46,20 +53,14 @@ package away3d.core.traverse
         	//check if node is visible
             if (!node.visible)
                 return false;
-                
-            //compute viewTransform matrix
-            node.viewTransform.multiply(_cameraview, node.sceneTransform);
             
-            //update projection object
-            _projection = node.projection;
-            _projection.view = node.viewTransform;
-            _projection.focus = _view.camera.focus;
-            _projection.zoom = _view.camera.zoom;
-            _projection.time = getTimer();
+            //compute viewTransform matrix
+            _camera.createViewTransform(node).multiply(_cameraview, node.sceneTransform);
             
             //check which LODObject is visible
             if (node is ILODObject)
-                return (node as ILODObject).matchLOD(_view);
+                return (node as ILODObject).matchLOD(_camera);
+            
             return true;
         }
         
@@ -68,8 +69,24 @@ package away3d.core.traverse
 		 */
         public override function enter(node:Object3D):void
         {
-        	if (_view.statsOpen && node is BaseMesh)
-        		_view.statsPanel.addObject(node as BaseMesh);
+        	if (_view.statsOpen && node is Mesh)
+        		_view.statsPanel.addObject(node as Mesh);
+        }
+        
+        public override function apply(node:Object3D):void
+        {
+            if (node.projector is ConvexBlockProjector)
+                (node.projector as ConvexBlockProjector).blockers(_view, _camera.viewTransforms[node], _view.blockerarray);
+            
+        	//add to scene meshes dictionary
+            if ((_mesh = node as Mesh))
+            	_view.scene.meshes[node] = node;
+        }
+        
+        public override function leave(node:Object3D):void
+        {
+            //update object
+            node.updateObject();
         }
     }
 }

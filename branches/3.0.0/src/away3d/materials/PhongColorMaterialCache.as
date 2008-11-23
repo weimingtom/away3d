@@ -1,18 +1,18 @@
 package away3d.materials
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
 	
 	import flash.display.*;
+	
+	use namespace arcane;
 	
 	/**
 	 * Color material with cached phong shading.
 	 */
 	public class PhongColorMaterialCache extends BitmapMaterialContainer
 	{
-		use namespace arcane;
-		
 		private var _shininess:Number;
 		private var _specular:Number;
 		private var _phongShader:BitmapMaterialContainer;
@@ -26,7 +26,7 @@ package away3d.materials
     	 * @see away3d.materials.BitmapMaterialContainer#color
     	 * @see away3d.materials.BitmapMaterialContainer#alpha
     	 */
-		protected override function setColorTransform():void
+		protected override function updateColorTransform():void
 		{
 			_phongShader.color = _color;
 			_phongShader.alpha = _alpha;
@@ -56,13 +56,16 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
+			if (_specular == val)
+				return;
+			
 			_specular = val;
 			_specularPhongShader.specular = val;
 			
 			if (_specular && materials.length < 3)
-        		materials.push(_specularPhongShader);
+        		addMaterial(_specularPhongShader);
    			else if (materials.length > 2)
-            	materials.pop();
+            	removeMaterial(_specularPhongShader);
 		}
 		
 		/**
@@ -73,24 +76,27 @@ package away3d.materials
 		 */
 		public function PhongColorMaterialCache(color:*, init:Object=null)
 		{
-			this.color = Cast.trycolor(color);
+			if (init && init.materials)
+				delete init.materials;
 			
 			super(512, 512, init);
+			
+			this.color = Cast.trycolor(color);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 			
 			//create new materials
 			_phongShader = new BitmapMaterialContainer(512, 512, {transparent:false});
-			_phongShader.materials.push(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.materials.push(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+			_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
 			_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
-			materials = new Array();
-			materials.push(_phongShader);
+			addMaterial(_phongShader);
+			
 			if (_specular)
-				materials.push(_specularPhongShader);
+				addMaterial(_specularPhongShader);
 		}
 		
 	}

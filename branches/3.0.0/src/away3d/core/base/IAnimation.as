@@ -7,12 +7,10 @@ package away3d.core.base
     {
 		
 		/**
-		 * Updates the positions of vertex objects in the mesh to the current frame values
-		 * 
-		 * @param	mesh	The mesh on which the animation object acts
+		 * Updates the positions of vertex objects in the geometry to the current frame values
 		 * 
 		 * @see away3d.core.base.Frame
 		 */
-        function update(mesh:BaseMesh):void;
+        function update():void;
     }
 }

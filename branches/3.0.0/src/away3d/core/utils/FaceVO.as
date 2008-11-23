@@ -5,12 +5,15 @@ package away3d.core.utils
 	
 	import flash.display.BitmapData;
 	import flash.geom.Matrix;
+	import flash.utils.Dictionary;
 	
 	public class FaceVO
 	{
 		public var source:Object3D;
 		public var view:View3D;
 		public var mapping:Matrix;
+		public var invtexturemapping:Matrix;
+		public var texturemapping:Matrix;
 		
 		public var width:int;
 		public var height:int;
@@ -24,7 +27,7 @@ package away3d.core.utils
 		public var backface:Boolean = false;
 		public var resized:Boolean;
 		
-		public function FaceVO(source:Object3D= null, view:View3D = null)
+		public function FaceVO(source:Object3D = null, view:View3D = null)
 		{
 			this.source = source;
 			this.view = view;

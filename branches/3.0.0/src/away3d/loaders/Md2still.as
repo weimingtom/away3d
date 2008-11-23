@@ -1,19 +1,20 @@
 package away3d.loaders
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.utils.*;
+    
     import flash.utils.*;
 
+	use namespace arcane;
+	
     /**
     * File loader for the Md2 file format (non-animated version).
     * 
     * @author Philippe Ajoux (philippe.ajoux@gmail.com)
     */
-    public class Md2still
+    public class Md2still extends AbstractParser
     {
-		use namespace arcane;
-    	
     	private var ini:Init;
         private var ident:int;
         private var version:int;
@@ -140,15 +141,15 @@ package away3d.loaders
 		 * @see away3d.loaders.Md2Still#parse()
 		 * @see away3d.loaders.Md2Still#load()
 		 */
-        public function Md2still(data:ByteArray, init:Object = null)
+        public function Md2still(data:*, init:Object = null)
         {
             ini = Init.parse(init);
 
             scaling = ini.getNumber("scaling", 1) * 100;
 
-            mesh = new Mesh(ini);
+            mesh = (container = new Mesh(ini)) as Mesh;
 
-            parseMd2still(data);
+            parseMd2still(Cast.bytearray(data));
         }
 
 		/**
@@ -156,13 +157,12 @@ package away3d.loaders
 		 * 
 		 * @param	data				The binary data of a loaded file.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-		 * @param	loader	[optional]	Not intended for direct use.
 		 * 
 		 * @return						A 3d mesh object representation of the md2 file.
 		 */
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
+        public static function parse(data:*, init:Object = null):Mesh
         {
-            return new Md2still(Cast.bytearray(data), init).mesh;
+            return Object3DLoader.parseGeometry(data, Md2still, init).handle as Mesh;
         }
     	
     	/**
@@ -174,7 +174,7 @@ package away3d.loaders
     	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.loadGeometry(url, parse, true, init);
+            return Object3DLoader.loadGeometry(url, Md2still, true, init);
         }
     }
 }

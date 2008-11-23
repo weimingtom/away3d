@@ -6,33 +6,50 @@ package away3d.core.light
     */
     public class LightArray implements ILightConsumer
     {
+    	private var _ambients:Array;
+    	private var _directionals:Array;
+    	private var _points:Array;
+    	private var _numLights:int;
+    	
     	/**
     	 * The ambient light primitives stored in the consumer.
     	 */
-        public var ambients:Array;
+        public function get ambients():Array
+        {
+        	return _ambients;
+        }
         
     	/**
     	 * The directional light primitives stored in the consumer.
     	 */
-        public var directionals:Array;
+        public function get directionals():Array
+        {
+        	return _directionals;
+        }
         
     	/**
     	 * The point light primitives stored in the consumer.
     	 */
-        public var points:Array;
+        public function get points():Array
+        {
+        	return _points;
+        }
         
     	/**
     	 * The total number of light primitives stored in the consumer.
     	 */
-		public var numLights:int;
+		public function get numLights():int
+		{
+			return _numLights;
+		}
         
 		/**
 		 * @inheritDoc
 		 */
         public function ambientLight(ambient:AmbientLight):void
         {
-            ambients.push(ambient);
-            numLights++;
+            _ambients.push(ambient);
+            _numLights++;
         }
         
 		/**
@@ -40,8 +57,8 @@ package away3d.core.light
 		 */
         public function directionalLight(directional:DirectionalLight):void
         {
-            directionals.push(directional);
-            numLights++;
+            _directionals.push(directional);
+            _numLights++;
         }
         
 		/**
@@ -49,8 +66,8 @@ package away3d.core.light
 		 */
         public function pointLight(point:PointLight):void
         {
-            points.push(point);
-            numLights++;
+            _points.push(point);
+            _numLights++;
         }
         
         /**
@@ -58,10 +75,10 @@ package away3d.core.light
         */
         public function clear():void
         {
-        	ambients = [];
-	        directionals = [];
-	        points = [];
-	        numLights = 0;
+        	_ambients = [];
+	        _directionals = [];
+	        _points = [];
+	        _numLights = 0;
         }
     }
 }

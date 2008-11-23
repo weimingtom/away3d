@@ -1,7 +1,7 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -10,10 +10,11 @@ package away3d.materials
     import flash.display.*;
     import flash.geom.*;
 
+	use namespace arcane;
+	
     /** Basic bitmap texture material */
     public class TransformBitmapMaterial extends BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-    	use namespace arcane;
         /** @private */
         arcane var _transform:Matrix = new Matrix();
         
@@ -31,9 +32,11 @@ package away3d.materials
         private var _transformDirty:Boolean;
         private var _throughProjection:Boolean;
         private var _globalProjection:Boolean;
-		private var x:Number;
-		private var y:Number;
         private var face:Face;
+        private var x:Number;
+		private var y:Number;
+		private var px:Number;
+		private var py:Number;
         private var w:Number;
         private var h:Number;
         private var normalR:Number3D = new Number3D();
@@ -85,6 +88,8 @@ package away3d.materials
 		
         private function updateTransform():void
         {
+	        _transformDirty = false;
+	        
         	//check to see if no transformation exists
         	if (_scaleX == 1 && _scaleY == 1 && _offsetX == 0 && _offsetY == 0 && _rotation == 0) {
         		_transform = null;
@@ -94,7 +99,8 @@ package away3d.materials
 	        	_transform.rotate(_rotation);
 	        	_transform.translate(_offsetX, _offsetY);
 	        }
-	        _transformDirty = false;
+	        
+	        _faceDirty = true;
         }
         
 		private function projectUV(tri:DrawTriangle):Matrix
@@ -261,29 +267,42 @@ package away3d.materials
 		 */
 		protected override function getMapping(tri:DrawTriangle):Matrix
 		{
-        	//check to see if faceDictionary value exists
-        	_faceVO = _faceDictionary[face = tri.face];
-        	if (!_faceVO)
-        		_faceVO = _faceDictionary[face] = new FaceVO();
+			if (tri.generated) {
+				_texturemapping = tri.transformUV(this).clone();
+	        	_texturemapping.invert();
+	        	
+	        	//apply transform matrix if one exists
+        		if (_transform) {
+        			_mapping = _transform.clone();
+	        		_mapping.concat(_texturemapping);
+	        	} else {
+	        		_mapping = _texturemapping;
+	        	}
+	        	
+	        	return _mapping;
+			}
+			
+        	_faceVO = getFaceVO(tri.face, tri.source);
         	
         	//check to see if rendering can be skipped
-        	if (_faceVO.invalidated || !tri.texturemapping || _faceVO.backface != tri.backface) {
+        	if (_faceVO.invalidated || !_faceVO.texturemapping || _faceVO.backface != tri.backface) {
         		_faceVO.invalidated = false;
         		_faceVO.backface = tri.backface;
         		
         		//use projectUV if projection vector detected
-        		if (projectionVector)
-        			_faceVO.mapping = projectUV(tri);
-        		else if (!tri.texturemapping)
-        			_faceVO.mapping = tri.transformUV(this);
-        		else
-        			_faceVO.mapping = tri.texturemapping;
+        		if (projectionVector) {
+        			_faceVO.texturemapping = projectUV(tri);
+        		} else if (!_faceVO.texturemapping) {
+        			_faceVO.texturemapping = tri.transformUV(this).clone();
+	        		_faceVO.texturemapping.invert();
+        		}
         		
         		//apply transform matrix if one exists
         		if (_transform) {
-	        		_mapping = _transform.clone();
-	        		_mapping.concat(_faceVO.mapping);
-	        		return _faceVO.mapping = _mapping;
+        			_faceVO.mapping = _transform.clone();
+	        		_faceVO.mapping.concat(_faceVO.texturemapping);
+	        	} else {
+	        		_faceVO.mapping = _faceVO.texturemapping;
 	        	}
         	}
         	return _faceVO.mapping;
@@ -334,6 +353,7 @@ package away3d.materials
         public function set transform(val:Matrix):void
         {
         	_transform = val;
+        	
         	if (_transform) {
 	        	
 	        	//recalculate rotation
@@ -351,7 +371,7 @@ package away3d.materials
 	        	_offsetX = _offsetY = _rotation = 0;
 	        }
         	
-        	clearFaceDictionary();
+	        //_faceDirty = true;
         }
         
         /**
@@ -508,35 +528,24 @@ package away3d.materials
 		 */
         public override function getPixel32(u:Number, v:Number):uint
         {
-        	x = u*_bitmap.width;
-			y = (1 - v)*_bitmap.height;
 			if (_transform) {
+	        	x = u*_bitmap.width;
+				y = (1 - v)*_bitmap.height;
+				
 				t = _transform.clone();
 				t.invert();
-        		return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
+				if (repeat) {
+					px = (x*t.a + y*t.c + t.tx)%_bitmap.width;
+					py = (x*t.b + y*t.d + t.ty)%_bitmap.height;
+					if (px < 0)
+						px += _bitmap.width;
+					if (py < 0)
+						py += _bitmap.height;
+        			return _bitmap.getPixel32(px, py);
+    			} else
+        			return _bitmap.getPixel32(x*t.a + y*t.c + t.tx, x*t.b + y*t.d + t.ty);
    			}
-        	return _bitmap.getPixel32(x, y);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function updateMaterial(source:Object3D, view:View3D):void
-        {
-        	_graphics = null;
-        	clearShapeDictionary();
-        	
-        	if (_transformDirty || _projectionDirty || _colorTransformDirty || _blendModeDirty)
-        		clearFaceDictionary();
-        	
-        	if (_colorTransformDirty)
-        		setColorTransform();
-        	
-        	if (_transformDirty)
-        		updateTransform();
-        		
-        	_projectionDirty = false;
-        	_blendModeDirty = false;
+        	return super.getPixel32(u, v);
         }
         
 		/**
@@ -563,6 +572,30 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
+        public override function updateMaterial(source:Object3D, view:View3D):void
+        {
+        	_graphics = null;
+        	clearShapeDictionary();
+        	
+        	if (_colorTransformDirty)
+        		updateColorTransform();
+        	
+        	if (_bitmapDirty)
+        		updateRenderBitmap();
+        	
+        	if (_transformDirty)
+        		updateTransform();
+        	
+        	if (_faceDirty || _projectionDirty || _blendModeDirty)
+        		clearFaceDictionary();
+        	
+        	_projectionDirty = false;
+        	_blendModeDirty = false;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
         public override function renderTriangle(tri:DrawTriangle):void
         {
         	if (_projectionVector && !throughProjection) {
@@ -581,7 +614,7 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-		public override function renderFace(face:Face, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+		public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{	
 			//retrieve the transform
 			if (_transform)
@@ -591,12 +624,11 @@ package away3d.materials
 			
 			//if not projected, draw the source bitmap once
 			if (!_projectionVector)
-				renderSource(face.parent, containerRect, _mapping);
+				renderSource(tri.source, containerRect, _mapping);
 			
 			//check to see if faceDictionary exists
-			_faceVO = _faceDictionary[face];
-			if (!_faceVO)
-				_faceVO = _faceDictionary[face] = new FaceVO();
+			if (!(_faceVO = _faceDictionary[tri]))
+				_faceVO = _faceDictionary[tri] = new FaceVO();
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {
@@ -604,12 +636,15 @@ package away3d.materials
 				_faceVO.resized = true;
 			}
 			
+			//pass on invtexturemapping value
+			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			
 			//check to see if rendering can be skipped
 			if (parentFaceVO.updated || _faceVO.invalidated) {
 				parentFaceVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = face.bitmapRect;
+				_bitmapRect = tri.face.bitmapRect;
 				
 				//reset booleans
 				if (_faceVO.invalidated)
@@ -624,12 +659,12 @@ package away3d.materials
 				if (_projectionVector) {
 					
 					//calulate mapping
-					_invtexturemapping = face._dt.invtexturemapping;
-					_mapping.concat(projectUV(face._dt));
+					_invtexturemapping = _faceVO.invtexturemapping;
+					_mapping.concat(projectUV(tri));
 					_mapping.concat(_invtexturemapping);
 					
 					//check to see if the bitmap (non repeating) lies inside the drawtriangle area
-					if ((throughProjection || face.normal.dot(_projectionVector) >= 0) && (repeat || !findSeparatingAxis(getFacePoints(_invtexturemapping), getMappingPoints(_mapping)))) {
+					if ((throughProjection || tri.face.normal.dot(_projectionVector) >= 0) && (repeat || !findSeparatingAxis(getFacePoints(_invtexturemapping), getMappingPoints(_mapping)))) {
 						
 						//store a clone
 						if (_faceVO.cleared)

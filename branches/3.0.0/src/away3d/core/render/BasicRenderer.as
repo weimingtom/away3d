@@ -19,40 +19,32 @@ package away3d.core.render
     * which resolves the projection, culls any drawing primitives that are occluded or outside the viewport,
     * and then z-sorts and renders them to screen.
     */
-    public class BasicRenderer implements IRenderer
+    public class BasicRenderer implements IRenderer, IPrimitiveConsumer
     {
-        private var filters:Array;
-        private var filter:IPrimitiveFilter;
-        private var scene:Scene3D;
-        private var camera:Camera3D;
-        private var projtraverser:ProjectionTraverser = new ProjectionTraverser();
-        private var blockerarray:BlockerArray = new BlockerArray();
-        private var blocktraverser:BlockerTraverser = new BlockerTraverser();
-        private var blockers:Array;
-        private var priarray:PrimitiveArray = new PrimitiveArray();
-        private var lightarray:LightArray = new LightArray();
-        private var pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
-        private var primitives:Array;
-        private var materials:Dictionary;
-        private var primitive:DrawPrimitive;
-        private var triangle:DrawTriangle;
-        private var object:Object;
-        private var clip:Clipping;
-        private var _session:AbstractRenderSession;
-        
+    	private var _filters:Array;
+    	private var _primitive:DrawPrimitive;
+        private var _primitives:Array = [];
+        private var _view:View3D;
+        private var _scene:Scene3D;
+        private var _camera:Camera3D;
+        private var _clip:Clipping;
+        private var _blockers:Array = [];
+		private var _filter:IPrimitiveFilter;
+		private var _blocker:Blocker;
 		/**
-		 * @inheritDoc
+		 * Defines the array of filters to be used on the drawing primitives.
 		 */
-        public function get session():AbstractRenderSession
-        {
-        	return _session;
-        }
-        
-        public function set session(value:AbstractRenderSession):void
-        {
-        	_session = value;
-        }
-
+		public function get filters():Array
+		{
+			return _filters.slice(0, _filters.length - 1);
+		}
+		
+		public function set filters(val:Array):void
+		{
+			_filters = val;
+			_filters.push(new ZSortFilter());
+		}
+		
 		/**
 		 * Creates a new <code>BasicRenderer</code> object.
 		 *
@@ -60,73 +52,59 @@ package away3d.core.render
 		 */
         public function BasicRenderer(...filters)
         {
-            this.filters = filters;
-            this.filters.push(new ZSortFilter());
+            _filters = filters;
+            _filters.push(new ZSortFilter());
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function render(view:View3D):Array
+        public function primitive(pri:DrawPrimitive):Boolean
         {
-            scene = view.scene;
-            camera = view.camera;
-            clip = view.clip;
-            // resolve projection
-            projtraverser.view = view;
-            scene.traverse(projtraverser);
-                    
-            // get blockers for occlusion culling
-            blockerarray.clip = clip;
-            blocktraverser.consumer = blockerarray;
-            blocktraverser.view = view;
-            scene.traverse(blocktraverser);
-            blockers = blockerarray.list();
+            if (!_clip.check(pri))
+            	return false;
             
-            // clear lights
-            lightarray.clear();
-            _session.lightarray = lightarray;
-			
-			//setup primitives consumer
-            priarray.clip = clip;
-            priarray.blockers = blockers;
+            for each (_blocker in _blockers) {
+                if (_blocker.screenZ > pri.minZ)
+                    continue;
+                if (_blocker.block(pri))
+                    return false;
+            }
             
-            //traverse primitives
-            pritraverser.consumer = priarray;
-            pritraverser.session = _session;
-            scene.traverse(pritraverser);
-            primitives = priarray.list();
+            _primitives.push(pri);
             
-            // apply filters
-            for each (filter in filters)
-                primitives = filter.filter(primitives, scene, camera, clip);
-
-			//update materials
-			materials = new Dictionary(true);
-			for each (primitive in primitives)
-				if(primitive is DrawTriangle) {
-					triangle = primitive as DrawTriangle;
-					if (!materials[triangle.source])
-						materials[triangle.source] = new Dictionary(true);
-					if (triangle.material is IUpdatingMaterial && !materials[triangle.source][triangle.material]) {
-						(materials[triangle.source][triangle.material] = triangle.material as IUpdatingMaterial).updateMaterial(triangle.source, view);
-					}
-				}
-			
-			
-            // render all primitives
-            for each (primitive in primitives)
-                primitive.render();
-			/*
-			//reset materials
-			for (object in materials)
-				materials[object].resetMaterial(object as Mesh);
-			*/
-            //dispatch stats
-            if (view.statsOpen)
-            	view.statsPanel.updateStats(primitives.length, camera);
-            
-            return primitives;
+            return true;
+        }
+		
+		/**
+		 * A list of primitives that have been clipped and blocked.
+		 * 
+		 * @return	An array containing the primitives to be rendered.
+		 */
+        public function list():Array
+        {
+            return _primitives;
+        }
+        
+        public function clear(view:View3D):void
+        {
+        	_primitives = [];
+        	_scene = view.scene;
+        	_camera = view.camera;
+        	_clip = view.clip;
+        	_blockers = view.blockerarray.list();
+        }
+        
+        public function render(view:View3D):void
+        {
+        	
+        	//filter primitives array
+			for each (_filter in _filters)
+        		_primitives = _filter.filter(_primitives, _scene, _camera, _clip);
+        	
+    		// render all primitives
+            for each (_primitive in _primitives)
+                _primitive.render();
         }
         
 		/**
@@ -134,7 +112,14 @@ package away3d.core.render
 		 */
         public function toString():String
         {
-            return "Basic ["+filters.join("+")+"]";
+            return "Basic [" + _filters.join("+") + "]";
+        }
+        
+        public function clone():IPrimitiveConsumer
+        {
+        	var renderer:BasicRenderer = new BasicRenderer();
+        	renderer.filters = filters;
+        	return renderer;
         }
     }
 }
