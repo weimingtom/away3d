@@ -13,7 +13,7 @@ package away3d.core.draw
     /**
     * Volume block tree for storing drawing primitives
     */
-    public class PrimitiveVolumeBlock implements IPrimitiveConsumer
+    public class PrimitiveVolumeBlock
     {
         private var _blocks:Dictionary = new Dictionary(true);
         private var _block:PrimitiveVolumeBlockNode;
@@ -129,12 +129,12 @@ package away3d.core.draw
 			_clip = view.clip;
         	_result = [];
         }
-        
+        /*
         public function clone():IPrimitiveConsumer
         {
         	return new PrimitiveVolumeBlock();
         }
-        
+        */
         public function render(view:View3D):void
         {
     		// render all primitives
