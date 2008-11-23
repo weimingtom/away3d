@@ -1,19 +1,19 @@
 package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	import away3d.materials.*;
 	import away3d.primitives.data.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d cube primitive.
     */ 
     public class Cube extends AbstractPrimitive
-    {
-    	use namespace arcane
-    	
+    {	
     	private var _width:Number;
     	private var _height:Number;
     	private var _depth:Number;

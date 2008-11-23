@@ -1,21 +1,20 @@
 package away3d.core.traverse
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
     
-
+	use namespace arcane;
+	
     /**
     * Traverser that gathers drawing primitives to render the scene.
     */
     public class PrimitiveTraverser extends Traverser
     {
-    	use namespace arcane;
-    	
     	private var _view:View3D;
     	private var _viewTransform:Matrix3D;
     	private var _consumer:IPrimitiveConsumer;
@@ -87,8 +86,10 @@ package away3d.core.traverse
 	            
 	            if (node is ILightProvider) {
 	            	_light = node as ILightProvider;
-	            	if (_light.debug)
+	            	if (_light.debug) {
+	            		_light.debugPrimitive._session = node.session;
 	            		_light.debugPrimitive.projector.primitives(_view, _viewTransform, _consumer);
+	            	}
 	            }
 	        }
 	        

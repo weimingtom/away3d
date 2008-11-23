@@ -1,6 +1,5 @@
 package away3d.primitives.data
 {
-	import away3d.core.*;
 	import away3d.core.utils.Init;
 	import away3d.events.*;
 	import away3d.materials.*;

@@ -1,11 +1,13 @@
 package away3d.loaders
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.utils.*;
     
     import flash.utils.*;
 
+	use namespace arcane;
+	
     /**
     * File loader for the Md2 file format (non-animated version).
     * 
@@ -13,8 +15,6 @@ package away3d.loaders
     */
     public class Md2still extends AbstractParser
     {
-		use namespace arcane;
-    	
     	private var ini:Init;
         private var ident:int;
         private var version:int;

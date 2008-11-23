@@ -1,17 +1,18 @@
 ﻿package away3d.primitives
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
     
+	use namespace arcane;
+	
     /**
     * Creates a 3d cone primitive.
     */ 
     public class AbstractWirePrimitive extends Mesh
     {
-    	use namespace arcane;
 		/** @private */
 		arcane var _v:Vertex;
 		/** @private */
@@ -53,6 +54,8 @@
             return _segment;
 		}
 		
+		private var _index:int;
+		
 		protected override function getDefaultMaterial():IMaterial
 		{
 			return ini.getSegmentMaterial("material") || new WireframeMaterial();
@@ -84,8 +87,9 @@
     		_primitiveDirty = false;
     		
     		//remove all elements from the mesh
-    		for each (_segment in segments)
-    			removeSegment(_segment);
+    		_index = segments.length;
+    		while (_index--)
+    			removeSegment(segments[_index]);
     		
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);

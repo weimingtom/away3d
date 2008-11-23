@@ -1,12 +1,18 @@
 package away3d.animators.skin
 {
     import away3d.containers.*;
+    import away3d.core.base.*;
     import away3d.core.math.*;
 	
     public class Channel
     {
+    	private var i:int;
+    	private var _index:int;
+    	private var _length:int;
+    	private var _oldlength:int;
+    	
     	public var name:String;
-        public var target:Bone;
+        public var target:Object3D;
         
         public var type:Array;
 		
@@ -30,42 +36,51 @@ package away3d.animators.skin
 			
             interpolations = [];
         }
-
-        public function update(time:Number):void
-        {
-			var index:uint;
-			var i:uint;
-			
+		
+		/**
+		 * Updates the channel's target with the data point at the given time in seconds.
+		 * 
+		 * @param	time						Defines the time in seconds of the playhead of the animation.
+		 * @param	interpolate		[optional]	Defines whether the animation interpolates between channel points Defaults to true.
+		 */
+        public function update(time:Number, interpolate:Boolean = true):void
+        {	
             if (!target)
                 return;
+			
+			i = type.length;
 				
             if (time < times[0]) {
-            	i = 0;
-            	while (i < type.length) {
+            	while (i--)
 	                target[type[i]] = param[0][i];
-            		i++;
-            	}
-            } else if (time > times[times.length-1]) {
-            	i = 0;
-            	while (i < type.length) {
-	                target[type[i]] = param[times.length-1][i];
-            		i++;
-            	}
+            } else if (time > times[int(times.length-1)]) {
+            	while (i--)
+	                target[type[i]] = param[int(times.length-1)][i];
             } else {
-				index = 0;
-				for each(var _time:Number in times) {
-					if (_time <= time && time <= times[index + 1]) {
-						i = 0;
-						while (i < type.length) {
-							if (type[i] == "transform") {
-								target.transform = param[index][i];
-							} else {
-								target[type[i]] = ((time - _time) * param[index + 1][i] + (times[index + 1] - time) * param[index][i]) / (times[index + 1] - _time);
-							}
-							i++;
-						}
+				_index = _length = _oldlength = times.length - 1;
+				
+				while (_length > 1)
+				{
+					_oldlength = _length;
+					_length >>= 1;
+					
+					if (times[_index - _length] > time) {
+						_index -= _length;
+						_length = _oldlength - _length;
 					}
-					index++;
+				}
+				
+				_index--;
+				
+				while (i--) {
+					if (type[i] == "transform") {
+						target.transform = param[_index][i];
+					} else {
+						if (interpolate)
+							target[type[i]] = ((time - times[_index]) * param[int(_index + 1)][i] + (times[int(_index + 1)] - time) * param[_index][i]) / (times[int(_index + 1)] - times[_index]);
+						else
+							target[type[i]] = param[_index][i];
+					}
 				}
 			}
         }
@@ -74,7 +89,7 @@ package away3d.animators.skin
         {
         	var channel:Channel = new Channel(name);
         	
-        	channel.target = object.getBoneByName(name);
+        	channel.target = object.getChildByName(name);
         	channel.type = type.concat();
         	channel.param = param.concat();
         	channel.inTangent = inTangent.concat();

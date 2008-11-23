@@ -1,7 +1,7 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -10,10 +10,11 @@ package away3d.materials
     import flash.display.*;
     import flash.geom.*;
 
+	use namespace arcane;
+	
     /** Basic bitmap texture material */
     public class TransformBitmapMaterial extends BitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
-    	use namespace arcane;
         /** @private */
         arcane var _transform:Matrix = new Matrix();
         

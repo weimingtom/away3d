@@ -17,6 +17,8 @@ package away3d.loaders.data
 		 */
 		public var channel:Channel;
 		
+		public var type:String;
+		
 		/**
 		 * The xml object
 		 */

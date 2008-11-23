@@ -1,7 +1,7 @@
 package away3d.materials
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.render.*;
@@ -13,13 +13,13 @@ package away3d.materials
 	import flash.geom.*;
 	import flash.utils.*;
 
+    use namespace arcane;
+    
     /**
     * Bitmap material with flat white lighting
     */
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
-        use namespace arcane;
-        
         private var _bitmap:BitmapData;
         private var _texturemapping:Matrix;
         private var _faceVO:FaceVO;

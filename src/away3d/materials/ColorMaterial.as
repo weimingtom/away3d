@@ -1,7 +1,7 @@
 package away3d.materials
 {
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -10,12 +10,13 @@ package away3d.materials
     
     import flash.events.*;
 	
+	use namespace arcane;
+	
     /**
     * Material for solid color drawing
     */
     public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial, IShapeMaterial
     {
-    	use namespace arcane;
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {

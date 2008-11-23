@@ -1,7 +1,7 @@
 package away3d.core.render
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
@@ -16,6 +16,8 @@ package away3d.core.render
 	import flash.geom.*;
 	import flash.utils.*;
     
+	use namespace arcane;
+	
 	/**
 	 * Dispatched when the render contents of the session require updating.
 	 * 
@@ -29,7 +31,6 @@ package away3d.core.render
     */
 	public class AbstractRenderSession extends EventDispatcher
 	{
-		use namespace arcane;
 		/** @private */
 		arcane var _containers:Dictionary = new Dictionary(true);
 		/** @private */
@@ -39,9 +40,9 @@ package away3d.core.render
 		/** @private */
         arcane var _layerDirty:Boolean;
 		/** Array for storing old displayobjects to the canvas */
-		arcane var doStore:Array = new Array();
+		arcane var _doStore:Array = new Array();
 		/** Array for storing added displayobjects to the canvas */
-		arcane var doActive:Array = new Array();
+		arcane var _doActive:Array = new Array();
 		/** @private */
 		arcane function notifySessionUpdate():void
 		{
@@ -75,7 +76,9 @@ package away3d.core.render
         {
         	object.removeEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdate);
         }
-        
+        private var _consumer:IPrimitiveConsumer;
+        private var _doStores:Dictionary = new Dictionary(true);
+        private var _doActives:Dictionary = new Dictionary(true);
 		private var _renderers:Dictionary = new Dictionary(true);
 		private var _renderer:IPrimitiveConsumer;
         private var _session:AbstractRenderSession;
@@ -108,7 +111,23 @@ package away3d.core.render
         {
         	notifySessionUpdate();
         }
-        
+		
+		private function getDOStore(view:View3D):Array
+		{
+			if (!_doStores[view])
+        		return _doStores[view] = new Array();
+        	
+			return _doStores[view];
+		}
+		
+		private function getDOActive(view:View3D):Array
+		{
+			if (!_doActives[view])
+        		return _doActives[view] = new Array();
+        	
+			return _doActives[view];
+		}
+		
         protected function onSessionUpdate(event:SessionEvent):void
         {
         	dispatchEvent(event);
@@ -246,7 +265,7 @@ package away3d.core.render
 		{
 			throw new Error("Not implemented");
 		}
-		
+			
 		public function getConsumer(view:View3D):IPrimitiveConsumer
 		{
 			if (_renderers[view])
@@ -258,7 +277,7 @@ package away3d.core.render
 			if (parent)
 				return _renderers[view] = parent.getConsumer(view).clone();
 			
-			return _renderers[view] = (view.renderer as IPrimitiveConsumer).clone();
+			return _renderers[view] = (view.session.renderer as IPrimitiveConsumer).clone();
 		}
 		
         public function getTotalFaces(view:View3D):int
@@ -294,16 +313,20 @@ package away3d.core.render
 	        		}
 	        	}
 	        	
+	        	_consumer = getConsumer(view);
+	        	
+	        	_doStore = getDOStore(view);
+	        	_doActive = getDOActive(view);
 	        	//clear child canvases
-	            i = doActive.length;
+	            i = _doActive.length;
 	            while (i--) {
-	            	cont = doActive.pop();
+	            	cont = _doActive.pop();
 	            	cont.graphics.clear();
-	            	doStore.push(cont);
+	            	_doStore.push(cont);
 	            }
 	            
 	            //clear primitives consumer
-	            getConsumer(view).clear(view);
+	            _consumer.clear(view);
 			}
         }
         

@@ -1,6 +1,6 @@
 package away3d.containers
 {
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
@@ -12,21 +12,22 @@ package away3d.containers
 	import flash.events.*;
 	import flash.utils.*;
     
+	use namespace arcane;
+	
     /**
     * The root container of all 3d objects in a single scene
     */
     public class Scene3D extends ObjectContainer3D
     {
-    	use namespace arcane;
 		/** @private */
         arcane function internalRemoveView(view:View3D):void
         {
-        	view.removeEventListener(ViewEvent.UPDATE_SCENE, onUpdateScene);
+        	view.removeEventListener(ViewEvent.UPDATE_SCENE, onUpdate);
         }
 		/** @private */
         arcane function internalAddView(view:View3D):void
         {
-        	view.addEventListener(ViewEvent.UPDATE_SCENE, onUpdateScene);
+        	view.addEventListener(ViewEvent.UPDATE_SCENE, onUpdate);
         }
         
         private var _view:View3D;
@@ -35,18 +36,19 @@ package away3d.containers
         private var _time:int;
         private var _autoUpdate:Boolean;
         private var _projtraverser:ProjectionTraverser = new ProjectionTraverser();
+        private var _sessiontraverser:SessionTraverser = new SessionTraverser();
         private var _lighttraverser:LightTraverser = new LightTraverser();
         
-        private function onUpdateScene(event:ViewEvent):void
+        private function onUpdate(event:ViewEvent):void
         {
         	if (autoUpdate) {
         		
         		if (_currentView && _currentView != event.view)
-        			Debug.error("Multiple views detected! Should consider switching to manual updateScene");
+        			Debug.warning("Multiple views detected! Should consider switching to manual update");
         		
         		_currentView = event.view;
         		
-        		updateScene();
+        		update();
         	}
         }
         
@@ -142,7 +144,7 @@ package away3d.containers
 		/**
 		 * Calling manually will update scene specific variables
 		 */
-        public function updateScene():void
+        public function update():void
         {
         	//clear updated objects
         	updatedObjects = new Dictionary(true);
@@ -181,6 +183,9 @@ package away3d.containers
 	        		_mesh.geometry.updateElements(_time);
 	        	}
         	}
+        	
+        	//traverse sessions
+			traverse(_sessiontraverser);
         }
 		
 		/**

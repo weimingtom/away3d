@@ -1,9 +1,11 @@
 package away3d.core.base
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.events.*;
     
     import flash.events.EventDispatcher;
+    
+    use namespace arcane;
     
 	 /**
 	 * Dispatched when the vertex of a 3d element changes.
@@ -32,7 +34,6 @@ package away3d.core.base
 	 */
     public class Element extends EventDispatcher
     {
-        use namespace arcane;
 		/** @private */
         arcane var _visible:Boolean = true;
 		/** @private */

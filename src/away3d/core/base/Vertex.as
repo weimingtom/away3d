@@ -1,18 +1,19 @@
 package away3d.core.base
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
 
+    use namespace arcane;
+    
     /**
     * A vertex coordinate value object.
     * Properties x, y and z represent a 3d point in space.
     */
     public class Vertex extends ValueObject
     {
-        use namespace arcane;
 		/** @private */
         arcane var _x:Number;
         /** @private */

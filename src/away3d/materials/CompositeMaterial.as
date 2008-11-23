@@ -1,7 +1,7 @@
 package away3d.materials
 {
 	import away3d.containers.*;
-	import away3d.core.*;
+	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.render.AbstractRenderSession;
@@ -13,6 +13,8 @@ package away3d.materials
 	import flash.geom.*;
 	import flash.utils.*;
 	
+	use namespace arcane;
+	
 	/**
 	 * Container for layering multiple material objects.
 	 * Renders each material by drawing one triangle per meterial layer.
@@ -22,7 +24,6 @@ package away3d.materials
 	 */
 	public class CompositeMaterial extends EventDispatcher implements ITriangleMaterial, ILayerMaterial
 	{
-		use namespace arcane;
         /** @private */
 		arcane var _color:uint;
         /** @private */

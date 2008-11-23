@@ -1,6 +1,6 @@
 package away3d.core.base
 {
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
@@ -10,6 +10,8 @@ package away3d.core.base
     
     import flash.events.Event;
     import flash.geom.*;
+    
+    use namespace arcane;
     
 	 /**
 	 * Dispatched when the uv mapping of the face changes.
@@ -32,7 +34,6 @@ package away3d.core.base
     */
     public class Face extends Element
     {
-        use namespace arcane;
 		/** @private */
         arcane var _v0:Vertex;
 		/** @private */
