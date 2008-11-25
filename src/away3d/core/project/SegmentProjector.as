@@ -34,7 +34,7 @@ package away3d.core.project
 				if (!(_screenVertex = primitiveDictionary[_vertex]))
 					_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex();
 				
-				view.camera.project(viewTransform, _vertex, _screenVertex);
+				view.camera.lens.project(viewTransform, _vertex, _screenVertex);
 			}
 			
             for each (_segment in _mesh.segments)

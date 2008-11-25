@@ -1,7 +1,9 @@
 package away3d.cameras
 {
     import away3d.arcane;
+    import away3d.cameras.lenses.*;
     import away3d.core.base.*;
+    import away3d.core.clip.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.render.*;
@@ -29,12 +31,20 @@ package away3d.cameras
 	 */
     public class Camera3D extends Object3D
     {
+    	private var _fovDirty:Boolean;
+    	private var _zoomDirty:Boolean;
         private var _aperture:Number = 22;
     	private var _dof:Boolean = false;
         private var _flipY:Matrix3D = new Matrix3D();
         private var _focus:Number;
         private var _zoom:Number;
+        private var _lens:AbstractLens;
         private var _fov:Number;
+        private var _clipTop:Number;
+        private var _clipBottom:Number;
+        private var _clipLeft:Number;
+        private var _clipRight:Number;
+        private var _fovRatio:Number;
     	private var _view:Matrix3D = new Matrix3D();
         private var _screenVertex:ScreenVertex = new ScreenVertex();
         private var _vtActive:Array = new Array();
@@ -58,6 +68,9 @@ package away3d.cameras
             dispatchEvent(_cameraupdated);
         }
         
+        protected const toRADIANS:Number = Math.PI/180;
+		protected const toDEGREES:Number = 180/Math.PI;
+		
     	public var invView:Matrix3D = new Matrix3D();
     	
         /**
@@ -146,6 +159,24 @@ package away3d.cameras
 		}
 		
 		/**
+		 * Defines a lens object used in vertex projection
+		 */
+		public function get lens():AbstractLens
+		{
+			return _lens;
+		}
+		
+		public function set lens(value:AbstractLens):void
+		{
+			_lens = value;
+			
+			if (_lens)
+				_lens.camera = this;
+			
+			notifyCameraUpdate();
+		}
+		
+		/**
 		 * Defines the field of view of the camera in a vertical direction.
 		 */
 		public function get fov():Number
@@ -183,6 +214,7 @@ package away3d.cameras
             
             zoom = ini.getNumber("zoom", 10);
             focus = ini.getNumber("focus", 100);
+            lens = ini.getObject("lens", AbstractLens) as AbstractLens;
             aperture = ini.getNumber("aperture", 22);
             maxblur = ini.getNumber("maxblur", 150);
 	        doflevels = ini.getNumber("doflevels", 16);
@@ -192,8 +224,11 @@ package away3d.cameras
 			
 			_flipY.syy = -1;
 			
-            if (lookat != null)
+            if (lookat)
                 lookAt(lookat);
+            
+            if (!lens)
+            	lens = new PerspectiveLens();
         }
         
         /**
@@ -249,56 +284,43 @@ package away3d.cameras
                 vertex = new Vertex(0,0,0);
                 
 			createViewTransform(object).multiply(view, object.sceneTransform);
-            project(viewTransforms[object], vertex, _screenVertex);
+            lens.project(viewTransforms[object], vertex, _screenVertex);
             
             return _screenVertex
         }
-        
-       /**
-        * Projects the vertex to the screen space of the view.
-        */
-        public function project(viewTransform:Matrix3D, vertex:Vertex, screenvertex:ScreenVertex):void
+    	        
+		/**
+		 * Updates the transformation matrix used to resolve the scene to the view.
+		 * Used in the <code>BasicRender</code> class
+		 * 
+		 * @see	away3d.core.render.BasicRender
+		 */
+        public function update(clip:Clipping):void
         {
-        	_x = vertex.x;
-        	_y = vertex.y;
-        	_z = vertex.z;
         	
-            _sz = _x * viewTransform.szx + _y * viewTransform.szy + _z * viewTransform.szz + viewTransform.tz;
-    		/*/
-    		//modified
-    		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
-    		var wy:Number = x * view.syx + y * view.syy + z * view.syz + view.ty;
-    		var wz:Number = x * view.szx + y * view.szy + z * view.szz + view.tz;
-			var wx2:Number = Math.pow(wx, 2);
-			var wy2:Number = Math.pow(wy, 2);
-    		var c:Number = Math.sqrt(wx2 + wy2 + wz*wz);
-			var c2:Number = (wx2 + wy2);
-			persp = c2? projection.focus*(c - wz)/c2 : 0;
-			sz = (c != 0 && wz != -c)? c*Math.sqrt(0.5 + 0.5*wz/c) : 0;
-			//*/
-    		//end modified
-    		
-            if (isNaN(_sz))
-                throw new Error("isNaN(sz)");
-            
-            if (_sz*2 <= -focus) {
-                screenvertex.visible = false;
-                return;
-            } else {
-                screenvertex.visible = true;
-            }
-
-         	_persp = zoom / (1 + _sz / focus);
-
-            screenvertex.x = (_x * viewTransform.sxx + _y * viewTransform.sxy + _z * viewTransform.sxz + viewTransform.tx) * _persp;
-            screenvertex.y = (_x * viewTransform.syx + _y * viewTransform.syy + _z * viewTransform.syz + viewTransform.ty) * _persp;
-            screenvertex.z = _sz;
-            /*
-            projected.x = wx * persp;
-            projected.y = wy * persp;
-			*/
+        	if (_clipTop != clip.maxY || _clipBottom != clip.minY || _clipLeft != clip.minX || _clipRight != clip.maxX)
+        		_fovDirty = true;
+        	
+        	_clipTop = clip.maxY;
+        	_clipBottom = clip.minY;
+        	_clipLeft = clip.minX;
+        	_clipRight = clip.maxX;
+        	
+        	if (_fovDirty) {
+        		_fovRatio = clip.maxY - clip.minY;
+        		_fov = (Math.atan2(_clipTop, _focus*_zoom)*_clipTop/_fovRatio - Math.atan2(_clipBottom, _focus*_zoom)*_clipBottom/_fovRatio)*toDEGREES;
+        	}
+        	
+        	if (_zoomDirty) {
+        		_fovRatio = _clipTop - _clipBottom;
+        		_zoom = (_clipTop/Math.tan(_fov*toRADIANS*_clipTop/_fovRatio) + _clipBottom/Math.tan(_fov*toRADIANS*_clipBottom/_fovRatio))/_focus;
+        	}
+        	
+        	lens.clip = clip;
+        		
+        	//lens.updateView(clip, _zoom, _focus, _near, _far, sceneTransform, _flipY);
         }
-    	
+        
 		/**
 		 * Rotates the camera in its vertical plane.
 		 * 
@@ -335,6 +357,7 @@ package away3d.cameras
             super.clone(camera);
             camera.zoom = zoom;
             camera.focus = focus;
+            camera.lens = lens;
             return camera;
         }
 		
