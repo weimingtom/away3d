@@ -25,6 +25,11 @@ package away3d.core.clip
         public var minY:Number = -1000000;
     	
     	/**
+    	 * Minimum allowed z value for primitives
+    	 */
+        public var minZ:Number;
+        
+    	/**
     	 * Maximum allowed x value for primitives
     	 */
         public var maxX:Number = 1000000;
@@ -33,6 +38,12 @@ package away3d.core.clip
     	 * Maximum allowed y value for primitives
     	 */
         public var maxY:Number = 1000000;
+    	
+    	/**
+    	 * Maximum allowed z value for primitives
+    	 */
+        public var maxZ:Number;
+		
 		
 		/**
 		 * Checks a drawing primitive for clipping.
@@ -40,9 +51,9 @@ package away3d.core.clip
 		 * @param	pri	The drawing primitive being checked.
 		 * @return		The clipping result - false for clipped, true for non-clipped.
 		 */
-        public function check(pri:DrawPrimitive):Boolean
+        public function check(pri:DrawPrimitive):Array
         {
-            return true;
+            return [pri];
         }
 		
 		/**

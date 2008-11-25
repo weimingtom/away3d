@@ -60,10 +60,7 @@ package away3d.core.render
 		 * @inheritDoc
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
-        {
-            if (!_clip.check(pri))
-            	return false;
-            
+        {   
             for each (_blocker in _blockers) {
                 if (_blocker.screenZ > pri.minZ)
                     continue;

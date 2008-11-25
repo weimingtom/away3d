@@ -28,6 +28,7 @@ package away3d.core.render
 		private var _children:Array;
 		private var i:int;
 		private var _primitives:Array;
+		private var _clippedPrimitives:Array;
         private var _view:View3D;
         private var _scene:Scene3D;
         private var _camera:Camera3D;
@@ -118,10 +119,12 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
         {
-            if (!_clip.check(pri))
+        	_clippedPrimitives = _clip.check(pri);
+            if (!_clippedPrimitives.length)
             	return false;
             
-            _root.push(pri);
+            for each (pri in _clippedPrimitives)
+            	_root.push(pri);
             
             return true;
         }

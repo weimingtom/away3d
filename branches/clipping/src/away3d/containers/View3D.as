@@ -83,6 +83,7 @@ package away3d.containers
         private var _lastmove_mouseX:Number;
         private var _lastmove_mouseY:Number;
 		private var _oldclip:Clipping;
+		private var _oldminZ:Number;
 		private var _internalsession:AbstractRenderSession;
 		private var _updatescene:ViewEvent;
 		private var _updated:Boolean;
@@ -683,6 +684,15 @@ package away3d.containers
 			if (clip == _defaultclip)
             	clip = _defaultclip.screen(this);
 	        
+	        _oldminZ = clip.minZ;
+	        
+	        //check minZ is set
+	        if (!clip.minZ)
+	        	clip.minZ = -camera.focus/2;
+	        
+	        //update camera
+	        camera.update(clip);
+	        
             //clear session
             _session.clear(this);
             
@@ -708,6 +718,9 @@ package away3d.containers
 			//dispatch stats
             if (statsOpen)
             	statsPanel.updateStats(_session.getTotalFaces(this), camera);
+            
+            //revert clip minZ value
+            clip.minZ = _oldminZ;
             
 			//revert clip value
 			clip = _oldclip;

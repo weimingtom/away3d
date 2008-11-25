@@ -30,7 +30,7 @@ package away3d.core.project
 			if (!(_screenVertex = primitiveDictionary[_center]))
 				_screenVertex = primitiveDictionary[_center] = new ScreenVertex();
             
-            view.camera.project(viewTransform, _center, _screenVertex);
+            view.camera.lens.project(viewTransform, _center, _screenVertex);
             
             if (!_screenVertex.visible)
                 return;

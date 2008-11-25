@@ -67,8 +67,8 @@ package away3d.core.project
 				if (!(_screenVertex = primitiveDictionary[_vertex]))
 					_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex();
 				
-                view.camera.project(viewTransform, _vertex, _screenVertex);
-
+                view.camera.lens.project(viewTransform, _vertex, _screenVertex);
+				
                 if (_base == null)
                     _base = _screenVertex;
                 else
@@ -78,13 +78,13 @@ package away3d.core.project
                 if (_base.y == _screenVertex.y)
                     if (_base.x > _screenVertex.x)
                         _base = _screenVertex;
-
+				
                 _points.push(_screenVertex);
                 _p += _screenVertex.toString() + "\n";
             }
-
+			
 //            throw new Error(s + p);
-
+			
             for each (_screenVertex in _points)
                 _screenVertex.num = (_screenVertex.x - _base.x) / (_screenVertex.y - _base.y);
             
