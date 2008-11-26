@@ -1,0 +1,1 @@
+package awaybuilder.interfaces{	import awaybuilder.vo.SceneCameraVO;				/**	 * @author andreasengstrom	 */	public interface ICameraController	{		function navigateTo ( vo : SceneCameraVO ) : void		function teleportTo ( vo : SceneCameraVO ) : void	}}
