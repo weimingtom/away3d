@@ -706,10 +706,10 @@ package away3d.loaders
 			var arrayChild:Array
 			var boneData:BoneData = (_objectData as BoneData);
 			
-            for each (var child:XML in node.children())
+            for each (var childNode:XML in node.children())
             {
-                arrayChild = getArray(child);
-				switch (child.name().localName)
+                arrayChild = getArray(childNode);
+				switch (childNode.name().localName)
                 {
 					case "translate":
                         _transform.multiply(_transform, translateMatrix(arrayChild));
@@ -717,7 +717,7 @@ package away3d.loaders
                         break;
 
                     case "rotate":
-                    	sid = child.@sid;
+                    	sid = childNode.@sid;
                         if (_objectData is BoneData && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ"))
 							boneData.jointTransform.multiply(boneData.jointTransform, rotateMatrix(arrayChild));
                         else
@@ -745,26 +745,26 @@ package away3d.loaders
                     	//<node><node/></node>
                     	if(_objectData is MeshData)
                     	{
-							parseNode(child, parent as ContainerData);
+							parseNode(childNode, parent as ContainerData);
                     	}else{
-                    		parseNode(child, _objectData as ContainerData);
+                    		parseNode(childNode, _objectData as ContainerData);
                     	}
                         
                         break;
 
     				case "instance_node":
-    					parseNode(collada.library_nodes.node.(@id == getId(child.@url))[0], _objectData as ContainerData);
+    					parseNode(collada.library_nodes.node.(@id == getId(childNode.@url))[0], _objectData as ContainerData);
     					
     					break;
 
                     case "instance_geometry":
-                    	if(String(child).indexOf("lines") == -1) {
+                    	if(String(childNode).indexOf("lines") == -1) {
 							
 							//add materials to materialLibrary
-	                        for each (instance_material in child..instance_material)
+	                        for each (instance_material in childNode..instance_material)
 	                        	parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 							
-							geo = collada.library_geometries.geometry.(@id == getId(child.@url))[0];
+							geo = collada.library_geometries.geometry.(@id == getId(childNode.@url))[0];
 							
 	                        (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo);
 	                    }
@@ -774,15 +774,15 @@ package away3d.loaders
                     case "instance_controller":
 						
 						//add materials to materialLibrary
-						for each (instance_material in child..instance_material)
+						for each (instance_material in childNode..instance_material)
 							parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 						
-						ctrlr = collada.library_controllers.controller.(@id == getId(child.@url))[0];
+						ctrlr = collada.library_controllers.controller.(@id == getId(childNode.@url))[0];
 						geo = collada.library_geometries.geometry.(@id == getId(ctrlr.skin[0].@source))[0];
 						
 	                    (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
 						
-						(_objectData as MeshData).skeleton = getId(child.skeleton);
+						(_objectData as MeshData).skeleton = getId(childNode.skeleton);
 						break;
                 }
             }
