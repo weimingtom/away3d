@@ -1,1 +1,1 @@
-package project.scenebuilder{	/**	 * @author andreasengstrom	 */	public class CoordinateSystem	{		public static const AFTER_EFFECTS : String = "afterEffects" ;		public static const MAYA : String = "maya" ;								public function CoordinateSystem ( )		{		}	}}
+package awaybuilder{	/**	 * @author andreasengstrom	 */	public class CoordinateSystem	{		public static const AFTER_EFFECTS : String = "afterEffects" ;		public static const MAYA : String = "maya" ;								public function CoordinateSystem ( )		{		}	}}

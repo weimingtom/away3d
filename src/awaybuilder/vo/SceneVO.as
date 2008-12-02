@@ -4,11 +4,9 @@ package awaybuilder.vo
 	
 	import away3d.containers.View3D;
 	
-	import project.vo.IValueObject;
 	
 	
-	
-	public class SceneVO implements IValueObject	{
+	public class SceneVO	{
 		public var id : String ;
 		public var name : String ;
 		public var container : Sprite ;
@@ -25,19 +23,6 @@ package awaybuilder.vo
 		
 		
 		public function SceneVO ( )
-		{
-			this.initialize ( ) ;
-		}
-		
-		
-		
-		/////////////////////
-		// PRIVATE METHODS //
-		/////////////////////
-		
-		
-		
-		private function initialize ( ) : void
 		{
 			this.cameras = new Array ( ) ;
 			this.geometry = new Array ( ) ;

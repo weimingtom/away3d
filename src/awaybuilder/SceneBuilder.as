@@ -1,4 +1,4 @@
-package project.scenebuilder
+package awaybuilder
 {
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
@@ -421,7 +421,7 @@ package project.scenebuilder
 						var loader : Object3DLoader = Collada.load ( vo.assetFile ) ;
 						
 						vo.mesh = ( loader.handle ) ;
-						loader.data = vo ;
+						loader.extra = vo ;
 						loader.addOnSuccess ( this.onColladaLoadSuccess ) ;
 						section.pivot.addChild ( loader ) ;
 					}
@@ -443,7 +443,7 @@ package project.scenebuilder
 		{
 			var loader : Object3DLoader = event.target as Object3DLoader ;
 			var handle : Object3D = loader.handle ;
-			var vo : SceneGeometryVO = loader.data as SceneGeometryVO ;
+			var vo : SceneGeometryVO = loader.extra as SceneGeometryVO ;
 			
 			this.applyColladaValues ( handle , vo.values ) ;
 			this.dispatchEvent ( new SceneEvent ( SceneEvent.RENDER ) ) ;
