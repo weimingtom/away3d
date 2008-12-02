@@ -114,7 +114,7 @@ package away3d.materials
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnLaodProgress(listener:Function):void
+        public function addOnLoadProgress(listener:Function):void
         {
             addEventListener(MaterialEvent.LOAD_PROGRESS, listener, false, 0, true);
         }

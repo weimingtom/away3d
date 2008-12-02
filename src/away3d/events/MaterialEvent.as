@@ -15,7 +15,7 @@ package away3d.events
     	public static const LOAD_ERROR:String = "loadError";
     	
     	/**
-    	 * Defines the value of the type property of a laodProgress event object.
+    	 * Defines the value of the type property of a loadProgress event object.
     	 */
     	public static const LOAD_PROGRESS:String = "loadProgress";
     	
