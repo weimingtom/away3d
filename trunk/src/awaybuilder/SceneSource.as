@@ -1,1 +1,1 @@
-package project.scenebuilder{	/**	 * @author andreasengstrom	 */	public class SceneSource	{		public static const MAYA : String = "SceneSource.MAYA" ;								public function SceneSource ( )		{		}	}}
+package awaybuilder{	/**	 * @author andreasengstrom	 */	public class SceneSource	{		public static const MAYA : String = "SceneSource.MAYA" ;								public function SceneSource ( )		{		}	}}
