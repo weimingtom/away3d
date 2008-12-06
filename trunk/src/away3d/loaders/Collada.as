@@ -184,8 +184,6 @@ package away3d.loaders
 			}
 			
 			if (centerMeshes) {
-				trace(_geometryData.maxX);
-				trace(_geometryData.minX);
 				mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2, _moveVector.y = (_geometryData.maxY + _geometryData.minY)/2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2);
 				_moveVector.transform(_moveVector, _meshData.transform);
 				mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
