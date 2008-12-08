@@ -41,13 +41,19 @@ package away3d.animators
 		 */
         public function update(time:Number, interpolate:Boolean = true):void
         {
-        	if (loop)
-            	time = start + (time - start) % length;
-            
-			if (time > start + length )
-                time = start + length;
-            else if (time < start)
-                time = start;
+			if (time > start + length ) {
+                if (loop) {
+                    time = start + (time - start) % length;
+                }else{
+                    time = start + length;
+                }
+            } else if (time < start) {
+                if (loop) {
+                    time = start + (time - start) % length + length;
+                }else{
+                    time = start;
+                }
+        	}
         	
             for each (var channel:Channel in _channels)
                 channel.update(time, interpolate);
