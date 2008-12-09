@@ -150,6 +150,9 @@ package away3d.containers
             if (pri.maxY < screenY)
                 return;
             
+            if (pri is DrawDisplayObject && !(pri as DrawDisplayObject).displayobject.hitTestPoint(_hitPointX, _hitPointY, true))
+            	return;
+            
             if (pri.contains(screenX, screenY))
             {
                 var z:Number = pri.getZ(screenX, screenY);
