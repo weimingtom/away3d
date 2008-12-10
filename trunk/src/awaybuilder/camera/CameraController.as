@@ -1,52 +1,47 @@
 package awaybuilder.camera
 {
-	import away3d.cameras.Camera3D;
-	import away3d.core.base.Object3D;
+	import awaybuilder.utils.EasingUtil;			import gs.TweenLite;	
 	
-	import caurina.transitions.Tweener;
-	
-	import awaybuilder.SceneUpdate;
-	import awaybuilder.abstracts.AbstractCameraController;
-	import awaybuilder.events.CameraEvent;
-	import awaybuilder.events.SceneEvent;
-	import awaybuilder.interfaces.ICameraController;
-	import awaybuilder.utils.CoordinateCopy;
-	import awaybuilder.vo.SceneCameraVO;
-	
+	import away3d.cameras.Camera3D;	import away3d.core.base.Object3D;		import awaybuilder.SceneUpdate;	import awaybuilder.abstracts.AbstractCameraController;	import awaybuilder.events.CameraEvent;	import awaybuilder.events.SceneEvent;	import awaybuilder.interfaces.ICameraController;	import awaybuilder.utils.CoordinateCopy;	import awaybuilder.vo.SceneCameraVO;	
 	
 	
 	public class CameraController extends AbstractCameraController implements ICameraController
 	{
-		private var camera : Camera3D ;
-		private var origin : Object3D ;
-		private var target : Object3D ;
-		private var targetCamera : SceneCameraVO ;
-		private var animating : Boolean ;
+		protected var camera : Camera3D ;
+		protected var origin : Object3D ;
+		protected var target : Object3D ;
+		protected var targetCamera : SceneCameraVO ;
+		//protected var animating : Boolean ;
 
 		
 		
 		public function CameraController ( camera : Camera3D )
 		{
 			super ( ) ;
-			this.initialize ( camera ) ;
+			this.camera = camera ;
+			this.origin = new Object3D ( ) ;
+			this.target = new Object3D ( ) ;
 		}
 		
 		
 		
-		////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Override Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
 		override public function navigateTo ( vo : SceneCameraVO ) : void
 		{
-			if ( ! this.animating )
-			{
+			// FIXME: Remove animating property?
+			/*if ( ! this.animating )
+			{*/
 				if ( vo != this.targetCamera )
 				{
 					this.targetCamera = vo ;
-					this.animating = true ;
+					//this.animating = true ;
 					
 					this.copyCoordinates ( this.camera , this.origin ) ;
 					this.copyCoordinates ( vo.camera , this.target ) ;
@@ -65,9 +60,9 @@ package awaybuilder.camera
 					var aDistY : Number ;
 					var aDistZ : Number ;
 					
-					( aDiffX < 180 ) ? aDistX = aDiffX : aDistX = 360 - aDiffX ;
-					( aDiffY < 180 ) ? aDistY = aDiffY : aDistY = 360 - aDiffY ;
-					( aDiffZ < 180 ) ? aDistZ = aDiffZ : aDistZ = 360 - aDiffZ ;
+					aDiffX < 180 ? aDistX = aDiffX : aDistX = 360 - aDiffX ;
+					aDiffY < 180 ? aDistY = aDiffY : aDistY = 360 - aDiffY ;
+					aDiffZ < 180 ? aDistZ = aDiffZ : aDistZ = 360 - aDiffZ ;
 					
 					// rotationX
 					if ( aDiffX < 180 )
@@ -109,12 +104,12 @@ package awaybuilder.camera
 				}
 				else
 				{
-					if ( this.mainCamera != null )
+					if ( this.startCamera != null )
 					{
-						this.navigateTo ( this.mainCamera ) ;
+						this.navigateTo ( this.startCamera ) ;
 					}
 				}
-			}
+			//}
 		}
 		
 		
@@ -122,34 +117,20 @@ package awaybuilder.camera
 		override public function teleportTo ( vo : SceneCameraVO ) : void
 		{
 			this.copyCoordinates ( vo.camera , this.target ) ;
-			this.onCameraFinished ( ) ;
+			this.cameraComplete ( ) ;
 		}
 		
 		
 		
-		override public function toString ( ) : String
-		{
-			return "CameraController" ;
-		}
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Protected Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
-		/////////////////////
-		// PRIVATE METHODS //
-		/////////////////////
-		
-		
-		
-		private function initialize ( camera : Camera3D ) : void
-		{
-			this.camera = camera ;
-			this.origin = new Object3D ( ) ;
-			this.target = new Object3D ( ) ;
-		}
-		
-		
-		
-		private function copyCoordinates ( source : Object3D , target : Object3D ) : void
+		protected function copyCoordinates ( source : Object3D , target : Object3D ) : void
 		{
 			CoordinateCopy.position ( source , target ) ;
 			CoordinateCopy.rotation ( source , target ) ;
@@ -157,7 +138,7 @@ package awaybuilder.camera
 		
 		
 		
-		private function animateCamera ( vo : SceneCameraVO ) : void
+		protected function animateCamera ( vo : SceneCameraVO ) : void
 		{
 			var init : Object = new Object ( ) ;
 			var cameraEvent : CameraEvent = new CameraEvent ( CameraEvent.ANIMATION_START ) ;
@@ -165,24 +146,27 @@ package awaybuilder.camera
 			CoordinateCopy.position ( this.target , init ) ;
 			CoordinateCopy.rotation ( this.target , init ) ;
 			
-			// TODO: Cleanup.
-			init[ "time" ] = vo.transitionTime ;
-			init[ "transition" ] = vo.transitionType ;
-			init[ "onUpdate" ] = this.onCameraUpdate ;
-			init[ "onComplete" ] = this.onCameraFinished ;
-			
-			Tweener.addTween ( this.camera , init ) ;
+			switch ( this.animationControl )
+			{
+				case AnimationControl.INTERNAL :
+				{
+					init[ "ease" ] = EasingUtil.stringToFunction ( vo.transitionType ) ;
+					init[ "onUpdate" ] = this.cameraUpdate ;
+					init[ "onComplete" ] = this.cameraComplete ;
+					TweenLite.to ( this.camera , vo.transitionTime , init ) ;
+					break ;
+				}
+				case AnimationControl.EXTERNAL :
+				{
+					// TODO: Does external animation control need additional implementation?
+					break ;
+				}
+			}
 			
 			cameraEvent.targetCamera = vo ;
 			this.dispatchEvent ( cameraEvent ) ;
 		}
-						////////////////////
-		// EVENT HANDLERS //
-		////////////////////
-		
-		
-		
-		private function onCameraUpdate ( ) : void
+								protected function cameraUpdate ( ) : void
 		{
 			switch ( this.update )
 			{
@@ -193,12 +177,12 @@ package awaybuilder.camera
 				}
 			}
 		}
-						private function onCameraFinished ( ) : void
+						protected function cameraComplete ( ) : void
 		{
 			var cameraEvent : CameraEvent = new CameraEvent ( CameraEvent.ANIMATION_COMPLETE ) ;
 			
 			this.copyCoordinates ( this.target , this.camera ) ;
-			this.animating = false ;
+			//this.animating = false ;
 			
 			cameraEvent.targetCamera = this.targetCamera ;
 			

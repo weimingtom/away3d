@@ -4,14 +4,14 @@ package awaybuilder.vo
 	
 	
 	
-	/**	 * @author andreasengstrom	 */	public class SceneCameraVO
+	public class SceneCameraVO
 	{		public var id : String = "" ;
 		public var name : String = "" ;
 		public var camera : Camera3D ;
 		public var values : SceneObjectVO ;
 		public var extras : Array ;
 		public var transitionTime : Number = 2 ;
-		public var transitionType : String = "easeInOutCubic" ;
+		public var transitionType : String = "Cubic.easeInOut" ;
 		public var parentSection : SceneSectionVO ;
 		public var positionContainer : ObjectContainer3D ;
 		
