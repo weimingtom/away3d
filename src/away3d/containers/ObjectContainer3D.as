@@ -392,6 +392,14 @@
             		_animationData.clone(container);
             }
             
+            if (materialLibrary) {
+        		container.materialLibrary = new MaterialLibrary();
+            	for each (var _materialData:MaterialData in materialLibrary)
+            	{
+            		_materialData.clone(container);
+            	}
+            }
+            
             //find existing root
             var root:ObjectContainer3D = container;
             

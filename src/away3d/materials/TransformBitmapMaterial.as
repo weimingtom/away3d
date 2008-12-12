@@ -1,7 +1,7 @@
 package away3d.materials
 {
-    import away3d.containers.*;
     import away3d.arcane;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -197,8 +197,8 @@ package away3d.materials
         private function getMappingPoints(map:Matrix):Array
         {
         	mapa = map.a*width;
-        	mapb = map.b*height;
-        	mapc = map.c*width;
+        	mapb = map.b*width;
+        	mapc = map.c*height;
         	mapd = map.d*height;
         	maptx = map.tx;
         	mapty = map.ty;
@@ -653,7 +653,7 @@ package away3d.materials
 					_faceVO.updated = true;
 				
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap;
+				_faceVO.bitmap = parentFaceVO.bitmap.clone();
 				
 				//update the transform based on scaling or projection vector
 				if (_projectionVector) {
@@ -663,8 +663,13 @@ package away3d.materials
 					_mapping.concat(projectUV(tri));
 					_mapping.concat(_invtexturemapping);
 					
+					normalR.clone(tri.face.normal);
+					
+					if (_globalProjection)
+						normalR.rotate(normalR, tri.source.sceneTransform);
+					
 					//check to see if the bitmap (non repeating) lies inside the drawtriangle area
-					if ((throughProjection || tri.face.normal.dot(_projectionVector) >= 0) && (repeat || !findSeparatingAxis(getFacePoints(_invtexturemapping), getMappingPoints(_mapping)))) {
+					if ((throughProjection || normalR.dot(_projectionVector) >= 0) && (repeat || !findSeparatingAxis(getFacePoints(_invtexturemapping), getMappingPoints(_mapping)))) {
 						
 						//store a clone
 						if (_faceVO.cleared)
@@ -672,7 +677,7 @@ package away3d.materials
 						
 						_faceVO.cleared = false;
 						_faceVO.updated = true;
-							
+						
 						//draw into faceBitmap
 						_graphics = _s.graphics;
 						_graphics.clear();

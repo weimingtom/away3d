@@ -104,7 +104,7 @@ package away3d.core.draw
 		 */
         public function quarter(focus:Number):Array
         {
-            throw new Error("Not implemented");
+            return [this];
         }
 		
 		/**
