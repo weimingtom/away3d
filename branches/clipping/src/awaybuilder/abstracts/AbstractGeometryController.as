@@ -1,0 +1,3 @@
+package awaybuilder.abstracts{	import flash.events.EventDispatcher;
+	
+	import awaybuilder.interfaces.IGeometryController;				/**	 * @author andreasengstrom	 */	public class AbstractGeometryController extends EventDispatcher implements IGeometryController	{		public function AbstractGeometryController ( )		{		}								////////////////////		// PUBLIC METHODS //		////////////////////								public function enableInteraction ( ) : void		{		}								public function disableInteraction ( ) : void		{		}	}}

@@ -62,12 +62,12 @@ package away3d.materials
         	_face = tri.face;
     		_faceVO = getFaceVO(tri.face, tri.source, tri.view);
     		
-    		if (_faceVO.invalidated || !_faceVO.texturemapping) {
+    		if (_faceVO.invalidated || !_faceVO.texturemapping || _faceVO.backface != tri.backface) {
         		_faceVO.invalidated = false;
-	    		//_faceVO.backface = tri.backface;
 	    		
 	        	//check to see if face drawtriangle needs updating
-	        	if (!_faceVO.texturemapping) {
+	        	if (!_faceVO.texturemapping || _faceVO.backface != tri.backface) {
+		    		_faceVO.backface = tri.backface;
 	        		
 	        		//update face bitmapRect
 	        		_face.bitmapRect = new Rectangle(int(_width*_face.minU), int(_height*(1 - _face.maxV)), int(_width*(_face.maxU-_face.minU)+2), int(_height*(_face.maxV-_face.minV)+2));
@@ -97,7 +97,8 @@ package away3d.materials
 	        }
         	
         	//check to see if tri texturemapping need updating
-        	if (!_faceVO.texturemapping) {
+        	if (!_faceVO.texturemapping || _faceVO.backface != tri.backface) {
+        		_faceVO.backface = tri.backface;
         		//update texturemapping
         		_faceVO.invtexturemapping = tri.transformUV(this).clone();
         		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
