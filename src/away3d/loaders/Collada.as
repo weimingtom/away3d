@@ -182,7 +182,7 @@ package away3d.loaders
 												_geometryData.uvs[_faceData.uv2]);
 					geometry.addFace(_face);
 					
-					if (_faceMaterial)
+					if (_faceData.materialData)
 						_faceData.materialData.elements.push(_face);
 				}
 			} else {
