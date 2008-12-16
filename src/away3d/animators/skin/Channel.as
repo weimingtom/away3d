@@ -2,6 +2,7 @@ package away3d.animators.skin
 {
     import away3d.containers.*;
     import away3d.core.base.*;
+    import away3d.core.base.*;
     import away3d.core.math.*;
 	
     public class Channel
