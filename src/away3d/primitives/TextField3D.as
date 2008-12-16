@@ -1,37 +1,50 @@
 package away3d.primitives
 {
 	import away3d.core.base.Shape3D;
-	import away3d.loaders.TTFLoader;
-	import away3d.parsers.ttf.TTFAsParser;
-	import away3d.parsers.ttf.TTFBinaryParser;
+	import away3d.loaders.data.FontData;
 	
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
+	import flash.geom.Point;
 	
 	public class TextField3D extends Sprite3D
 	{
+		/////////////////////////////////////////////////////////////////////////////////////
+		//Private variables.
+		/////////////////////////////////////////////////////////////////////////////////////
+		
+		//Have getters and/or setters.
 		private var _text:String;
+		private var _font:FontData;
 		private var _textSize:Number;
-		private var _textSpacing:Number;
+		private var _letterSpacing:Number;
+		private var _lineSpacing:Number;
+		private var _width:Number;
 		
-		private var _glyfData:Dictionary;
-		private var _effectiveScaling:Number;
-		private var _fontRange:String;
-		private var _penPosition:Number = 0;
-		private var _onFontLoaded:Function;
+		private var _penPosition:Point = new Point();
+		private var _fontScaling:Number = 0.02;
+		private var _lineCount:uint;
 		
-		public function TextField3D(text:String, fontSource:*, init:Object = null)
+		/////////////////////////////////////////////////////////////////////////////////////
+		//Constructor.
+		/////////////////////////////////////////////////////////////////////////////////////
+		
+		public function TextField3D(text:String, font:FontData, init:Object = null)
 		{
 			super(init);
 			
 			_textSize = ini.getNumber("textSize", 20, {min:1});
-			_textSpacing = ini.getNumber("textSpacing", 0);
-			_onFontLoaded = ini.getFunction("onFontLoaded");
+			_letterSpacing = ini.getNumber("letterSpacing", 0);
+			_lineSpacing = ini.getNumber("lineSpacing", 0);
+			_width = ini.getNumber("width", 500);
 			
 			_text = text;
-			_fontRange = text;
-			this.font = fontSource;
+			_font = font;
+			
+			generateText();
 		}
+		
+		/////////////////////////////////////////////////////////////////////////////////////
+		//Setters and getters.
+		/////////////////////////////////////////////////////////////////////////////////////
 		
 		public function get textSize():Number
 		{
@@ -39,7 +52,12 @@ package away3d.primitives
 		}
 		public function set textSize(value:Number):void
 		{
+			if(value == _textSize)
+				return;
+			
 			_textSize = value;
+			
+			generateText();
 		}
 		
 		public function get text():String
@@ -48,42 +66,107 @@ package away3d.primitives
 		}
 		public function set text(value:String):void
 		{
-			_text = value;
-			_fontRange = value;
-		}
-		
-		public function get textSpacing():Number
-		{
-			return _textSpacing;	
-		}
-		public function set textSpacing(value:Number):void
-		{
-			_textSpacing = value;
-		}
-		
-		public function set onFontLoaded(value:Function):void
-		{
-			_onFontLoaded = value;
-		}
-		
-		public function generateText():void
-		{
-			var i:uint
-			for(i = 0; i<shapes.length; i++)
-				removeChild(shapes[i]);
+			if(value == _text)
+				return;
 			
-			_penPosition = 0;
-			for(i = 0; i<_text.length; i++)
+			_text = value;
+			
+			generateText();
+		}
+		
+		public function get letterSpacing():Number
+		{
+			return _letterSpacing;	
+		}
+		public function set letterSpacing(value:Number):void
+		{
+			if(value == _letterSpacing)
+				return;
+			
+			_letterSpacing = value;
+			
+			generateText();
+		}
+		
+		public function get lineSpacing():Number
+		{
+			return _lineSpacing;	
+		}
+		public function set lineSpacing(value:Number):void
+		{
+			if(value == _lineSpacing)
+				return;
+			
+			_lineSpacing = value;
+			
+			generateText();
+		}
+		
+		public function get font():FontData
+		{ 
+			return _font;
+		}
+		public function set font(value:FontData):void
+		{
+			if(value == _font)
+				return;
+		
+			_font = value;
+			
+			generateText();
+		}
+		
+		//MMmmm....
+		public function get textWidth():Number
+		{
+			return _penPosition.x;
+		}
+		public function get textHeight():Number
+		{
+			return _penPosition.y;
+		}
+		
+		public function get width():Number
+		{
+			return _width;
+		}
+		public function set width(value:Number):void
+		{
+			if(value == _width)
+				return;
+			
+			_width = value;
+			
+			generateText();
+		}
+		
+		/////////////////////////////////////////////////////////////////////////////////////
+		//Private methods.
+		/////////////////////////////////////////////////////////////////////////////////////
+		
+		private function generateText():void
+		{
+			resetText();
+			
+			for(var i:uint; i<_text.length; i++)
 				addGlyf(text.charAt(i));
 		}
 		
-		public function get textWidth():Number
+		private function resetText():void
 		{
-			return _penPosition;
+			_penPosition = new Point();
+			_lineCount = 0;
+			
+			var shapeCount:uint = shapes.length;
+			for(var i:uint; i<shapeCount; i++)
+				removeChild(shapes[0]);
 		}
 		
 		private function addGlyf(char:String, X:Number = 0, Y:Number = 0):void
 		{
+			if(char == " " && _penPosition.x == 0 && _lineCount != 0)
+				return;
+			
 			var shp:Shape3D = new Shape3D();
 			
 			var tX:Number = 0;
@@ -91,88 +174,46 @@ package away3d.primitives
 			var cX:Number = 0;
 			var cY:Number = 0;
 			
-			var glyf:Object = _glyfData[char];
-			for(var i:uint; i<glyf.instructions.length; i++)
+			if(_font.glyfs[char])
+				var glyf:Array = _font.glyfs[char];
+			else
+				throw new Error("Used font does not contain the character '" + char + "'.");
+			
+			for(var i:uint; i<glyf.length; i++)
 			{
-				var instruction:Object = glyf.instructions[i];
+				var instructionType:String = glyf[i][0];
 				
-				tX = instruction.x*_effectiveScaling + _penPosition;
-				tY = instruction.y*_effectiveScaling;
+				tX = glyf[i][1]*_textSize*_fontScaling + _penPosition.x;
+				tY = glyf[i][2]*_textSize*_fontScaling + _penPosition.y;
 				
-				switch(instruction.type)
+				switch(instructionType)
 				{	
-					case 0:
+					case 'M':
 						shp.graphicsMoveTo(tX, tY, 0);
 						break;
-					case 1:
+					case 'L':
 						shp.graphicsLineTo(tX, tY, 0);
 						break;
-					case 2:
-						cX = instruction.cx*_effectiveScaling + _penPosition;
-						cY = instruction.cy*_effectiveScaling;
+					case 'C':
+						cX = glyf[i][3]*_textSize*_fontScaling + _penPosition.x;
+						cY = glyf[i][4]*_textSize*_fontScaling + _penPosition.y;
 						shp.graphicsCurveTo(cX, cY, 0, tX, tY, 0);  
 						break;
 				}
 			}
-			_penPosition += glyf.width*_effectiveScaling + _textSpacing;
 			
-			addChild(shp);
-		}
-		
-		public function set font(fontSource:*):void
-		{ 
-			_glyfData = new Dictionary();
-			
-			if(typeof(fontSource) == "string")
-			{
-				//Its an external TTF file for loading.
-				var loader:TTFLoader = new TTFLoader(fontSource, parseBinaryFile);
-			}
+			var penDeltaX:Number = _font.dims[char][0]*_textSize*_fontScaling + _letterSpacing;
+			if(_penPosition.x + penDeltaX < _width)
+				_penPosition.x += penDeltaX;
 			else
 			{
-				var sourceFile:*;
-				
-				//Check to see if the source is a ByteArray.
-				var passed:Boolean;
-				try
-				{
-					sourceFile = new fontSource();
-					var bytes:int = sourceFile.bytesAvailable;
-					passed = true;
-				}
-				catch(error:Error){}
-				
-				if(passed)
-					parseBinaryFile(sourceFile);
-				else
-					parseAsFile(fontSource);
+				_penPosition.x = 0;
+				_penPosition.y -= _font.dims[" "][1]*_textSize*_fontScaling + _lineSpacing;
+				_lineCount++;
 			}
-		}
-		
-		private function parseBinaryFile(fontSource:ByteArray):void
-		{
-			var ttfBinaryParser:TTFBinaryParser = new TTFBinaryParser(fontSource, _fontRange);
-			_glyfData = ttfBinaryParser.glyfs;
 			
-			_effectiveScaling = _textSize*50/ttfBinaryParser.unitsPerEm;
 			
-			generateText();
-			
-			if(_onFontLoaded != null)
-				_onFontLoaded();
-		}
-		
-		private function parseAsFile(source:Class):void
-		{
-			var ttfAsParser:TTFAsParser = new TTFAsParser(source);
-			_glyfData = ttfAsParser.glyfs;
-			
-			_effectiveScaling = _textSize/2;
-			
-			generateText();
-			
-			if(_onFontLoaded != null)
-				_onFontLoaded();
+			addChild(shp);
 		}
 	}
 }

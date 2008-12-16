@@ -1,6 +1,7 @@
 package away3d.core.base
 {
 	import away3d.arcane;
+	import away3d.core.math.Number3D;
 	import away3d.events.ShapeEvent;
 	import away3d.materials.IShapeMaterial;
 	
@@ -26,10 +27,13 @@ package away3d.core.base
 		private var _lastCreatedVertex:Vertex;
 		private var _previousCreatedVertex:Vertex;
 		
+		public var layerOffset:Number = 0;
+		
 		public function get lastCreatedVertex():Vertex
 		{
 			return _lastCreatedVertex;
 		}
+		
 		public function get previousCreatedVertex():Vertex
 		{
 			return _previousCreatedVertex;
@@ -56,8 +60,6 @@ package away3d.core.base
 		{
 			_extrusionBackVertices = value;
 		}
-		
-		public var layerOffset:Number = 0;
 		
 		public function Shape3D()
 		{
