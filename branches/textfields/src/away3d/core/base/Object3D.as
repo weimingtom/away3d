@@ -1682,6 +1682,22 @@ package away3d.core.base
         }
 		
 		/**
+ 		* Apply the local rotations to the object without altering the apperance of child objects
+ 		*/
+		public function applyRotations():void
+		{
+			throw new Error("Not implemented in Object3D - Use Mesh or ObjectContainer3D");
+		}
+		
+		/**
+ 		* Apply the given position to the object without altering the apperance of child objects
+ 		*/
+		public function applyPosition(dx:Number, dy:Number, dz:Number):void
+		{
+			throw new Error("Not implemented in Object3D - Use Mesh or ObjectContainer3D");
+		}
+		
+		/**
 		 * Used to trace the values of a 3d object.
 		 * 
 		 * @return A string representation of the 3d object.

@@ -1,5 +1,4 @@
-package away3d.core.base
-{
+﻿package away3d.core.base{
     import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.math.*;
@@ -85,7 +84,7 @@ package away3d.core.base
         }
 		
 		/**
-		 * Returns an array of vertex objects that are used by the face.
+		 * Forces the recalculation of the face normal		 * @param bool      Boolean, forces the refresh of the normal calculation		 */        public  function set normalDirty(bool:Boolean):void        {           _normalDirty = true;		   _normal = normal;        }				/**		 * Returns an array of vertex objects that are used by the face.
 		 */
         public override function get vertices():Array
         {

@@ -49,6 +49,7 @@ package away3d.core.project
 			if (!(_drawDisplayObject = primitiveDictionary[_child])) {
 				_drawDisplayObject = primitiveDictionary[_child] = new DrawDisplayObject();
 				_drawDisplayObject.view = view;
+				_drawDisplayObject.source = _movieClipSprite;
 				_drawDisplayObject.screenvertex = _screenVertex;
 			}
 			
