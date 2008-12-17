@@ -33,7 +33,7 @@ package away3d.core.traverse
 		 */
         public override function apply(node:Object3D):void
         {
-            //node.updateSession();
+            node.updateSession();
         }
 
     }
