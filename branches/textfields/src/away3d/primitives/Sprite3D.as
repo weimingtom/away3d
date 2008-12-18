@@ -31,6 +31,14 @@ package away3d.primitives
 			return _extrudeMaterial;
 		}
 		
+		public function centerShapes():void
+		{
+			for each(var shp:Shape3D in this.shapes)
+			{
+				shp.centerVertices();
+			}
+		}
+		
 		public function extrude(value:Number):void
 		{	
 			var i:uint;

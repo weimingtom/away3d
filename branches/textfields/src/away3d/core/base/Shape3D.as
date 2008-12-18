@@ -28,6 +28,7 @@ package away3d.core.base
 		private var _previousCreatedVertex:Vertex;
 		
 		public var layerOffset:Number = 0;
+		public var name:String;
 		
 		public function get lastCreatedVertex():Vertex
 		{
@@ -135,6 +136,34 @@ package away3d.core.base
 		public function get drawingCommands():Array
 		{
 			return _drawingCommands;
+		}
+		
+		public function centerVertices():Number3D
+		{
+			var vertex:Vertex;	
+			var deltaX:Number = 0;
+			var deltaY:Number = 0;
+			var deltaZ:Number = 0;
+			
+			for each(vertex in vertices)
+			{
+				deltaX += vertex.x;
+				deltaY += vertex.y;
+				deltaZ += vertex.z;
+			}
+			
+			deltaX = deltaX/vertices.length;
+			deltaY = deltaY/vertices.length;
+			deltaZ = deltaZ/vertices.length;
+			
+			for each(vertex in vertices)
+			{
+				vertex.x -= deltaX;
+				vertex.y -= deltaY;
+				vertex.z -= deltaZ;
+			}
+			
+			return new Number3D(deltaX, deltaY, deltaZ);
 		}
 		
 		/** @private */

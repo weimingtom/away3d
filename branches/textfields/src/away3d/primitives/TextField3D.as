@@ -19,9 +19,11 @@ package away3d.primitives
 		private var _lineSpacing:Number;
 		private var _width:Number;
 		
-		private var _penPosition:Point = new Point();
+		private var _penPosition:Point;
 		private var _fontScaling:Number = 0.02;
 		private var _lineCount:uint;
+		private var _maxPosition:Point;
+		private var _minPosition:Point;
 		
 		/////////////////////////////////////////////////////////////////////////////////////
 		//Constructor.
@@ -116,14 +118,14 @@ package away3d.primitives
 			generateText();
 		}
 		
-		//MMmmm....
 		public function get textWidth():Number
 		{
-			return _penPosition.x;
+			//trace(_maxPosition.x + ", " + _minPosition.x);
+			return _maxPosition.x - _minPosition.x;
 		}
 		public function get textHeight():Number
 		{
-			return _penPosition.y;
+			return _maxPosition.y - _minPosition.y;
 		}
 		
 		public function get width():Number
@@ -156,6 +158,8 @@ package away3d.primitives
 		{
 			_penPosition = new Point();
 			_lineCount = 0;
+			_minPosition = new Point();
+			_maxPosition = new Point();
 			
 			var shapeCount:uint = shapes.length;
 			for(var i:uint; i<shapeCount; i++)
@@ -168,6 +172,7 @@ package away3d.primitives
 				return;
 			
 			var shp:Shape3D = new Shape3D();
+			shp.name = char;
 			
 			var tX:Number = 0;
 			var tY:Number = 0;
@@ -185,6 +190,7 @@ package away3d.primitives
 				
 				tX = glyf[i][1]*_textSize*_fontScaling + _penPosition.x;
 				tY = glyf[i][2]*_textSize*_fontScaling + _penPosition.y;
+				analyseDimensionsForPoint(tX, tY);
 				
 				switch(instructionType)
 				{	
@@ -197,6 +203,7 @@ package away3d.primitives
 					case 'C':
 						cX = glyf[i][3]*_textSize*_fontScaling + _penPosition.x;
 						cY = glyf[i][4]*_textSize*_fontScaling + _penPosition.y;
+						analyseDimensionsForPoint(cX, cY);
 						shp.graphicsCurveTo(cX, cY, 0, tX, tY, 0);  
 						break;
 				}
@@ -212,8 +219,20 @@ package away3d.primitives
 				_lineCount++;
 			}
 			
-			
 			addChild(shp);
+		}
+		
+		private function analyseDimensionsForPoint(X:Number, Y:Number):void
+		{
+			if(X > _maxPosition.x)
+				_maxPosition.x = X;
+			if(Y > _maxPosition.y)
+				_maxPosition.y = Y;
+				
+			if(X < _minPosition.x)
+				_minPosition.x = X;
+			if(Y < _minPosition.y)
+				_minPosition.y = Y;
 		}
 	}
 }
