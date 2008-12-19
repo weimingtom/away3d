@@ -205,7 +205,7 @@ package away3d.materials
             cy = c.y;
             cz = c.z;
             
-            if (!_view.clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!_view.clipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
             if ((az <= 0) && (bz <= 0) && (cz <= 0))

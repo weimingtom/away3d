@@ -94,7 +94,7 @@ package away3d.core.project
 	            _drawTriangle.uv1 = _face.uv1;
 	            _drawTriangle.uv2 = _face.uv2;
 	            
-				_clippedTriangles = view.clip.check(_drawTriangle);
+				_clippedTriangles = view.clipping.check(_drawTriangle);
 				
 				for each (_tri in _clippedTriangles)
 					_triangles.push(_tri);

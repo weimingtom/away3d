@@ -165,7 +165,7 @@ package away3d.containers
 	        	_view.camera.clearViewTransforms();
 	        	
 	        	//clear blockers
-	        	_view.blockerarray.clip = _view.clip;
+	        	_view.blockerarray.clip = _view.clipping;
 	        	
 	        	//traverse scene
         		_projtraverser.view = _view;

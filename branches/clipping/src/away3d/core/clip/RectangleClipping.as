@@ -26,20 +26,9 @@ package away3d.core.clip
     	private var _uv20:UV;
     	private var _singleTriangle:Boolean;
     	
-        public function RectangleClipping(minX:Number = -1000000, minY:Number = -1000000, maxX:Number = 1000000, maxY:Number = 1000000)
+        public function RectangleClipping(init:Object = null)
         {
-            this.minX = minX;
-            this.maxX = maxX;
-            this.minY = minY;
-            this.maxY = maxY;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function asRectangleClipping():RectangleClipping
-        {
-            return this;
+            super(init);
         }
         
 		/**
@@ -139,7 +128,7 @@ package away3d.core.clip
 		 * 
 		 * @return A string representation of the rectangle clipping object.
 		 */
-        public function toString():String
+        public override function toString():String
         {
         	return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + "}";
         }
