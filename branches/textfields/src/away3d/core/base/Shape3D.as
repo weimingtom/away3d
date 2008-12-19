@@ -135,7 +135,6 @@ package away3d.core.base
 			
 			_material = value;
 			
-			trace("MATERIAL CHANGED");
 			dispatchEvent(new ShapeEvent(ShapeEvent.MATERIAL_CHANGED, this));
 		}
 		
