@@ -469,10 +469,11 @@ package away3d.materials
 		{
 			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
 			
-			if (_faceVO.uvtData)
-				return _faceVO.uvtData;
+			//if (_faceVO.uvtData)
+			//	return _faceVO.uvtData;
 			
 			_focus = tri.view.camera.focus;
+			var _zoom:Number = tri.view.camera.zoom;
 			return _faceVO.uvtData = Vector.<Number>([tri.uv0.u, 1 - tri.uv0.v, 1/(_focus + tri.v0.z), tri.uv1.u, 1 - tri.uv1.v, 1/(_focus + tri.v1.z), tri.uv2.u, 1 - tri.uv2.v, 1/(_focus + tri.v2.z)]);
 		}
 		

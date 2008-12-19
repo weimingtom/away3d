@@ -280,6 +280,7 @@ package away3d.cameras
     		
             if (isNaN(_sz))
                 throw new Error("isNaN(sz)");
+            screenvertex.z = _sz;
             
             if (_sz*2 <= -focus) {
                 screenvertex.visible = false;
@@ -292,7 +293,6 @@ package away3d.cameras
 
             screenvertex.x = (_x * viewTransform.sxx + _y * viewTransform.sxy + _z * viewTransform.sxz + viewTransform.tx) * _persp;
             screenvertex.y = (_x * viewTransform.syx + _y * viewTransform.syy + _z * viewTransform.syz + viewTransform.ty) * _persp;
-            screenvertex.z = _sz;
             /*
             projected.x = wx * persp;
             projected.y = wy * persp;

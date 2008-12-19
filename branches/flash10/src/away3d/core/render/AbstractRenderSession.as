@@ -82,7 +82,7 @@ package away3d.core.render
         private var _doStores:Dictionary = new Dictionary(true);
         private var _doActives:Dictionary = new Dictionary(true);
         private var fill:GraphicsBitmapFill = new GraphicsBitmapFill();
-        private var path:GraphicsTrianglePath = new GraphicsTrianglePath();
+        private var path:GraphicsTrianglePath = new GraphicsTrianglePath(new Vector.<Number>(3), null, new Vector.<Number>(3));
         private var drawing:Vector.<IGraphicsData> = Vector.<IGraphicsData>([fill, path]);
 		private var _renderers:Dictionary = new Dictionary(true);
 		private var _renderer:IPrimitiveConsumer;
@@ -482,31 +482,19 @@ package away3d.core.render
         	if (_layerDirty)
         		createLayer();
         	
-        	if (fill.bitmapData != bitmap || _layerGraphics != layerGraphics) {
-        		if (fill.bitmapData)
-        			drawBitmapTriangles();
-		  		path.vertices = new Vector.<Number>();
-        		path.uvtData = new Vector.<Number>();
-        		fill.bitmapData = bitmap;
-				fill.repeat = repeat;
-				fill.smooth = smooth;
-        	}
         	
-        	path.vertices.push(vertices[0]);
-        	path.vertices.push(vertices[1]);
-        	path.vertices.push(vertices[2]);
-        	path.vertices.push(vertices[3]);
-        	path.vertices.push(vertices[4]);
-        	path.vertices.push(vertices[5]);
-        	path.uvtData.push(uvtData[0]);
-        	path.uvtData.push(uvtData[1]);
-        	path.uvtData.push(uvtData[2]);
-        	path.uvtData.push(uvtData[3]);
-        	path.uvtData.push(uvtData[4]);
-        	path.uvtData.push(uvtData[5]);
-        	path.uvtData.push(uvtData[6]);
-        	path.uvtData.push(uvtData[7]);
-        	path.uvtData.push(uvtData[8]);
+        	fill.bitmapData = bitmap;
+			fill.repeat = repeat;
+			fill.smooth = smooth;
+			
+        	path.vertices = vertices;
+        	path.uvtData = uvtData;
+			
+			if (layerGraphics) {
+				layerGraphics.drawGraphicsData(drawing);
+	  		} else {
+	  			graphics.drawGraphicsData(drawing);
+	  		}
         }
         
         /**
