@@ -130,8 +130,23 @@ package away3d.core.base
 		}
 		public function set material(value:IShapeMaterial):void
 		{
+			if(value == _material)
+				return;
+			
 			_material = value;
+			
+			trace("MATERIAL CHANGED");
+			dispatchEvent(new ShapeEvent(ShapeEvent.MATERIAL_CHANGED, this));
 		}
+		
+		public function addOnMaterialChange(listener:Function):void
+        {	
+            addEventListener(ShapeEvent.MATERIAL_CHANGED, listener, false, 0, true);
+        }
+        public function removeOnMaterialChange(listener:Function):void
+        {	
+            removeEventListener(ShapeEvent.MATERIAL_CHANGED, listener);
+        }
 		
 		public function get drawingCommands():Array
 		{
