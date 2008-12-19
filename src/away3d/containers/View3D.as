@@ -75,9 +75,10 @@ package away3d.containers
         }
         private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
+		private var _clipping:Clipping;
+		private var _screenClip:Clipping;
 		private var _camera:Camera3D;
 		private var _renderer:IRenderer;
-        private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
 		private var _mousedown:Boolean;
         private var _lastmove_mouseX:Number;
@@ -221,6 +222,11 @@ package away3d.containers
 			_updated = true;
 		}
 		
+		private function onClippingUpdated(e:ClippingEvent):void
+		{
+			_updated = true;
+		}
+		
 		private function onSessionChange(e:Object3DEvent):void
 		{
 			_session.sessions = [e.object.session];
@@ -323,15 +329,6 @@ package away3d.containers
         public var forceUpdate:Boolean;
       
         public var blockerarray:BlockerArray = new BlockerArray();
-        /**
-        * Clipping area used when rendering.
-        * 
-        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
-        * 
-        * @see #render()
-        * @see away3d.core.render.Clipping.scene()
-        */
-        public var clip:Clipping;
         
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
@@ -362,6 +359,36 @@ package away3d.containers
         public function get updated():Boolean
         {
         	return _updated;
+        }
+        
+        /**
+        * Clipping area used when rendering.
+        * 
+        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
+        * 
+        * @see #render()
+        * @see away3d.core.render.Clipping.scene()
+        */
+        public function get clipping():Clipping
+        {
+        	return _clipping;
+        }
+    	
+        public function set clipping(val:Clipping):void
+        {
+        	if (_clipping == val)
+        		return;
+        	
+        	if (_clipping)
+        		_clipping.removeOnClippingUpdate(onClippingUpdated);
+        		
+        	_clipping = val;
+        	
+        	if (_clipping) {
+        		_clipping.addOnClippingUpdate(onClippingUpdated);
+        	} else {
+        		throw new Error("View cannot have clip set to null");
+        	}
         }
         
         /**
@@ -491,7 +518,7 @@ package away3d.containers
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
             camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
 			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
-			clip = _ini.getObject("clip", Clipping) as Clipping;
+			clipping = _ini.getObject("clipping", Clipping) as Clipping || new RectangleClipping();
 			x = _ini.getNumber("x", 0);
 			y = _ini.getNumber("y", 0);
 			forceUpdate = _ini.getBoolean("forceUpdate", false);
@@ -508,10 +535,6 @@ package away3d.containers
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			
-			//setup default clip value
-            if (!clip)
-            	clip = _defaultclip;
             
             //setup stats panel creation
             if (stats)
@@ -680,21 +703,18 @@ package away3d.containers
         	
             //update scene
             notifySceneUpdate();
-        	
-        	_oldclip = clip;
             
-            //if clip set to default, determine screen clipping
-			if (clip == _defaultclip)
-            	clip = _defaultclip.screen(this);
+            //determine screen clipping
+			_screenClip = _clipping.screen(this);
 	        
-	        _oldminZ = clip.minZ;
+	        _oldminZ = _screenClip.minZ;
 	        
 	        //check minZ is set
-	        if (!clip.minZ)
-	        	clip.minZ = -camera.focus/2;
+	        if (_screenClip.minZ == -Infinity)
+	        	_screenClip.minZ = -camera.focus/2;
 	        
 	        //update camera
-	        camera.update(clip);
+	        camera.update(_screenClip);
 	        
             //clear session
             _session.clear(this);
@@ -723,10 +743,7 @@ package away3d.containers
             	statsPanel.updateStats(_session.getTotalFaces(this), camera);
             
             //revert clip minZ value
-            clip.minZ = _oldminZ;
-            
-			//revert clip value
-			clip = _oldclip;
+            _screenClip.minZ = _oldminZ;
         	
         	//debug check
             Init.checkUnusedArguments();

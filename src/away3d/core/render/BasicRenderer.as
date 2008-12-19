@@ -88,7 +88,7 @@ package away3d.core.render
         	_primitives = [];
         	_scene = view.scene;
         	_camera = view.camera;
-        	_clip = view.clip;
+        	_clip = view.clipping;
         	_blockers = view.blockerarray.list();
         }
         

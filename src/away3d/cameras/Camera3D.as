@@ -1,6 +1,6 @@
 package away3d.cameras
 {
-    import away3d.arcane;
+	import away3d.arcane;
     import away3d.cameras.lenses.*;
     import away3d.core.base.*;
     import away3d.core.clip.*;
@@ -37,14 +37,13 @@ package away3d.cameras
     	private var _dof:Boolean = false;
         private var _flipY:Matrix3D = new Matrix3D();
         private var _focus:Number;
-        private var _zoom:Number;
+        private var _zoom:Number = 10;
         private var _lens:AbstractLens;
-        private var _fov:Number;
+        private var _fov:Number = 0;
         private var _clipTop:Number;
         private var _clipBottom:Number;
         private var _clipLeft:Number;
         private var _clipRight:Number;
-        private var _fovRatio:Number;
     	private var _view:Matrix3D = new Matrix3D();
         private var _screenVertex:ScreenVertex = new ScreenVertex();
         private var _vtActive:Array = new Array();
@@ -56,6 +55,7 @@ package away3d.cameras
 		private var _z:Number;
 		private var _sz:Number;
 		private var _persp:Number;
+		private var _fixedZoom:Boolean = true;
 		
         private function notifyCameraUpdate():void
         {
@@ -154,7 +154,14 @@ package away3d.cameras
 		
 		public function set zoom(value:Number):void
 		{
+			if (_zoom == value)
+				return;
+			
 			_zoom = value;
+			
+			_fovDirty = true;
+			_fixedZoom = true;
+			
 			notifyCameraUpdate();
 		}
 		
@@ -168,6 +175,9 @@ package away3d.cameras
 		
 		public function set lens(value:AbstractLens):void
 		{
+			if (_lens == value)
+				return;
+			
 			_lens = value;
 			
 			if (_lens)
@@ -186,7 +196,15 @@ package away3d.cameras
 		
 		public function set fov(value:Number):void
 		{
+			if (_fov == value)
+				return;
+			
 			_fov = value;
+			
+			_zoomDirty = true;
+			_fixedZoom = false;
+			
+			notifyCameraUpdate();
 		}
 		
 		/**
@@ -212,7 +230,8 @@ package away3d.cameras
         {
             super(init);
             
-            zoom = ini.getNumber("zoom", 10);
+            zoom = ini.getNumber("zoom", _zoom);
+            fov = ini.getNumber("fov", _fov);
             focus = ini.getNumber("focus", 100);
             lens = ini.getObject("lens", AbstractLens) as AbstractLens;
             aperture = ini.getNumber("aperture", 22);
@@ -297,9 +316,12 @@ package away3d.cameras
 		 */
         public function update(clip:Clipping):void
         {
-        	
-        	if (_clipTop != clip.maxY || _clipBottom != clip.minY || _clipLeft != clip.minX || _clipRight != clip.maxX)
-        		_fovDirty = true;
+        	if (_clipTop != clip.maxY || _clipBottom != clip.minY || _clipLeft != clip.minX || _clipRight != clip.maxX) {
+        		if (_fixedZoom)
+	        		_fovDirty = true;
+	        	else
+	        		_zoomDirty = true;
+        	}
         	
         	_clipTop = clip.maxY;
         	_clipBottom = clip.minY;
@@ -307,17 +329,17 @@ package away3d.cameras
         	_clipRight = clip.maxX;
         	
         	if (_fovDirty) {
-        		_fovRatio = clip.maxY - clip.minY;
-        		_fov = (Math.atan2(_clipTop, _focus*_zoom)*_clipTop/_fovRatio - Math.atan2(_clipBottom, _focus*_zoom)*_clipBottom/_fovRatio)*toDEGREES;
+        		_fovDirty = false;
+        		_fov = (Math.atan2(_clipTop, _focus*_zoom) - Math.atan2(_clipBottom, _focus*_zoom))*toDEGREES;
         	}
         	
         	if (_zoomDirty) {
-        		_fovRatio = _clipTop - _clipBottom;
-        		_zoom = (_clipTop/Math.tan(_fov*toRADIANS*_clipTop/_fovRatio) + _clipBottom/Math.tan(_fov*toRADIANS*_clipBottom/_fovRatio))/_focus;
+        		_zoomDirty = false;
+        		_zoom = _clipTop/(Math.tan(_fov*toRADIANS*_clipTop/(_clipTop - _clipBottom))*_focus);
         	}
         	
         	lens.clip = clip;
-        		
+        	
         	//lens.updateView(clip, _zoom, _focus, _near, _far, sceneTransform, _flipY);
         }
         

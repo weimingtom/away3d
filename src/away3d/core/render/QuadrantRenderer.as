@@ -16,7 +16,6 @@ package away3d.core.render
     {
         private var _qdrntfilters:Array;
         private var _root:PrimitiveQuadrantTreeNode;
-		private var _rect:RectangleClipping;
 		private var _center:Array;
 		private var _result:Array;
 		private var _except:Object3D;
@@ -119,12 +118,7 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
         {
-        	_clippedPrimitives = _clip.check(pri);
-            if (!_clippedPrimitives.length)
-            	return false;
-            
-            for each (pri in _clippedPrimitives)
-            	_root.push(pri);
+            _root.push(pri);
             
             return true;
         }
@@ -187,13 +181,12 @@ package away3d.core.render
         	_primitives = [];
 			_scene = view.scene;
 			_camera = view.camera;
-			_clip = view.clip;
+			_clip = view.clipping;
 			
-			_rect = _clip.asRectangleClipping();
 			if (!_root)
-				_root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY, 0);
+				_root = new PrimitiveQuadrantTreeNode((_clip.minX + _clip.maxX)/2, (_clip.minY + _clip.maxY)/2, _clip.maxX - _clip.minX, _clip.maxY - _clip.minY, 0);
 			else
-				_root.reset((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY);	
+				_root.reset((_clip.minX + _clip.maxX)/2, (_clip.minY + _clip.maxY)/2, _clip.maxX - _clip.minX, _clip.maxY - _clip.minY);	
         }
         
         public function render(view:View3D):void

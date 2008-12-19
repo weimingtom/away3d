@@ -65,8 +65,8 @@ package away3d.core.render
 			_container = getContainer(view) as Bitmap;
 			
 			if (!_container.bitmapData) {
-				_bitmapwidth = int((_width = view.clip.maxX - view.clip.minX)/_scale);
-	        	_bitmapheight = int((_height = view.clip.maxY - view.clip.minY)/_scale);
+				_bitmapwidth = int((_width = view.clipping.maxX - view.clipping.minX)/_scale);
+	        	_bitmapheight = int((_height = view.clipping.maxY - view.clipping.minY)/_scale);
 	        	
 	        	return _container.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
 			}
@@ -139,14 +139,14 @@ package away3d.core.render
         		_container = getContainer(view) as Bitmap;
 	        	_base = getBitmapData(view);
 	        	
-	        	_cx = _container.x = view.clip.minX;
-				_cy = _container.y = view.clip.minY;
+	        	_cx = _container.x = view.clipping.minX;
+				_cy = _container.y = view.clipping.minY;
 				_container.scaleX = _scale;
 				_container.scaleY = _scale;
 	        	
 	        	_cm = new Matrix();
 	        	_cm.scale(1/_scale, 1/_scale);
-				_cm.translate(-view.clip.minX/_scale, -view.clip.minY/_scale);
+				_cm.translate(-view.clipping.minX/_scale, -view.clipping.minY/_scale);
 				
 	        	//clear base canvas
 	        	_base.lock();
