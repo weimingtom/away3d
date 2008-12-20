@@ -488,7 +488,7 @@ package away3d.containers
             var stats:Boolean = _ini.getBoolean("stats", true);
 			session = _ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
-            camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
+            camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
 			clip = _ini.getObject("clip", Clipping) as Clipping;
 			x = _ini.getNumber("x", 0);
