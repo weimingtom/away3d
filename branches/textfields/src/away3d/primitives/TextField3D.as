@@ -1,6 +1,7 @@
 package away3d.primitives
 {
 	import away3d.core.base.Shape3D;
+	import away3d.core.base.Vertex;
 	import away3d.loaders.data.FontData;
 	
 	import flash.geom.Point;
@@ -18,10 +19,13 @@ package away3d.primitives
 		private var _letterSpacing:Number;
 		private var _lineSpacing:Number;
 		private var _paragraphWidth:Number;
-		
+		private var _useWordWrapping:Boolean;
 		private var _penPosition:Point;
 		private var _fontScaling:Number = 0.02;
 		private var _lineCount:uint;
+		private var _words:Array;
+		private var _currentWord:Array;
+		private var _lastWordStartPenPositionX:Number;
 		
 		/////////////////////////////////////////////////////////////////////////////////////
 		//Constructor.
@@ -35,6 +39,7 @@ package away3d.primitives
 			_letterSpacing = ini.getNumber("letterSpacing", 0);
 			_lineSpacing = ini.getNumber("lineSpacing", 0);
 			_paragraphWidth = ini.getNumber("paragraphWidth", 1000);
+			_useWordWrapping = ini.getBoolean("useWordWrapping", true);
 			
 			_text = text;
 			_font = font;
@@ -130,6 +135,11 @@ package away3d.primitives
 			generateText();
 		}
 		
+		public function get words():Array
+		{
+			return _words;
+		}
+		
 		/////////////////////////////////////////////////////////////////////////////////////
 		//Private methods.
 		/////////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +155,10 @@ package away3d.primitives
 		private function resetText():void
 		{
 			_penPosition = new Point();
+			_words = [];
+			_currentWord = [];
 			_lineCount = 0;
+			_lastWordStartPenPositionX = 0;
 			
 			var shapeCount:uint = shapes.length;
 			for(var i:uint; i<shapeCount; i++)
@@ -170,7 +183,8 @@ package away3d.primitives
 			else
 				throw new Error("Used font does not contain the character '" + char + "'.");
 			
-			for(var i:uint; i<glyf.length; i++)
+			var i:uint;
+			for(i = 0; i<glyf.length; i++)
 			{
 				var instructionType:String = glyf[i][0];
 				
@@ -193,14 +207,44 @@ package away3d.primitives
 				}
 			}
 			
+			if(_currentWord.length == 0)
+				_lastWordStartPenPositionX = _penPosition.x;
+			
+			_currentWord.push(shp);
+			
 			var penDeltaX:Number = _font.dims[char][0]*_textSize*_fontScaling + _letterSpacing;
 			if(_penPosition.x + penDeltaX < _paragraphWidth)
 				_penPosition.x += penDeltaX;
 			else
 			{
-				_penPosition.x = 0;
-				_penPosition.y -= _font.dims[" "][1]*_textSize*_fontScaling + _lineSpacing;
+				var deltaX:Number = _penPosition.x - _lastWordStartPenPositionX;
+				var deltaY:Number = _font.dims[" "][1]*_textSize*_fontScaling + _lineSpacing
+				
+				if(_useWordWrapping)
+				{
+					for(i = 0; i<_currentWord.length; i++)
+					{
+						var wordShape:Shape3D = _currentWord[i];
+						for each(var vertex:Vertex in wordShape.vertices)
+						{
+							vertex.x -= _lastWordStartPenPositionX;
+							vertex.y -= deltaY;
+						}
+					}
+					
+					_penPosition.x = deltaX + penDeltaX;
+				}
+				else
+					_penPosition.x = 0;
+				
+				_penPosition.y -= deltaY;
 				_lineCount++;
+			}
+			
+			if(char == " ")
+			{
+				_words.push(_currentWord);
+				_currentWord = [];
 			}
 			
 			addChild(shp);
