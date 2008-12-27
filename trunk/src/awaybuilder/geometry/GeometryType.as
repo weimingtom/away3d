@@ -1,5 +1,5 @@
 package awaybuilder.geometry
-{	/**	 * @author andreasengstrom	 */	public class GeometryType
+{	public class GeometryType
 	{
 		public static const COLLADA : String = "Collada" ;
 		public static const CONE : String = "Cone" ;

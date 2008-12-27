@@ -36,40 +36,37 @@ package awaybuilder
 	
 	
 	
-	/**
-	 * @author andreasengstrom
-	 */
 	public class SceneBuilder extends AbstractBuilder implements IBuilder , IAssetContainer , ISceneContainer
 	{
-		private var view : View3D ;
-		private var cameras : Array ;
-		private var geometry : Array ;
-		private var sections : Array ;
-		private var mainSections : Array ;
-		private var cameraFactory : CameraFactory ;
-		private var materialFactory : MaterialFactory ;
-		private var geometryFactory : GeometryFactory ;
-		private var bitmapDataAssets : Array ;
-		private var displayObjectAssets : Array ;
-		private var colladaAssets : Array ;
-
-		// getters and setters
-		private var _coordinateSystem : String ;
-		private var _precision : uint ;
+		public var coordinateSystem : String ;
+		public var precision : uint ;
+		
+		protected var view : View3D ;
+		protected var cameras : Array = [ ] ;
+		protected var geometry : Array = [ ] ;
+		protected var sections : Array = [ ] ;
+		protected var mainSections : Array ;
+		protected var cameraFactory : CameraFactory ;
+		protected var materialFactory : MaterialFactory ;
+		protected var geometryFactory : GeometryFactory ;
+		protected var bitmapDataAssets : Array = [ ] ;
+		protected var displayObjectAssets : Array = [ ] ;
+		protected var colladaAssets : Array = [ ] ;
 		
 		
 		
 		public function SceneBuilder ( )
 		{
 			super ( ) ;
-			this.initialize ( ) ;
 		}
 		
 		
 		
-		////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -155,39 +152,22 @@ package awaybuilder
 		
 		
 		
-		override public function toString ( ) : String
-		{
-			return "SceneBuilder" ;
-		}
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Protected Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
-		/////////////////////
-		// PRIVATE METHODS //
-		/////////////////////
-		
-		
-		
-		private function initialize ( ) : void
-		{
-			this.cameras = new Array ( ) ;
-			this.geometry = new Array ( ) ;
-			this.sections = new Array ( ) ;
-			this.bitmapDataAssets = new Array ( ) ;
-			this.displayObjectAssets = new Array ( ) ;
-			this.colladaAssets = new Array ( ) ;
-		}
-
-		
-		
-		private function createCameraFactory ( ) : void
+		protected function createCameraFactory ( ) : void
 		{
 			this.cameraFactory = new CameraFactory ( ) ;
 		}
 
 		
 		
-		private function createGeometryFactory ( ) : void
+		protected function createGeometryFactory ( ) : void
 		{
 			this.geometryFactory = new GeometryFactory ( ) ;
 			this.geometryFactory.coordinateSystem = this.coordinateSystem ;
@@ -196,14 +176,14 @@ package awaybuilder
 		
 		
 		
-		private function createMaterialFactory ( ) : void
+		protected function createMaterialFactory ( ) : void
 		{
 			this.materialFactory = new MaterialFactory ( ) ;
 		}
 		
 		
 		
-		private function createSections ( ) : void
+		protected function createSections ( ) : void
 		{
 			for each ( var section : SceneSectionVO in this.mainSections )
 			{
@@ -213,23 +193,21 @@ package awaybuilder
 		
 		
 		
-		private function createSection ( section : SceneSectionVO ) : void
+		protected function createSection ( section : SceneSectionVO ) : void
 		{
 			if ( section.enabled )
 			{
 				this.view.scene.addChild ( section.pivot ) ;
-				
 				this.createCameras ( section ) ;
 				this.createGeometry ( section ) ;
 				this.createSubSections ( section ) ;
-				
 				this.sections.push ( section ) ;
 			}
 		}
 		
 		
 		
-		private function createSubSections ( section : SceneSectionVO ) : void
+		protected function createSubSections ( section : SceneSectionVO ) : void
 		{
 			for each ( var subSection : SceneSectionVO in section.sections )
 			{
@@ -239,7 +217,7 @@ package awaybuilder
 		
 		
 		
-		private function applyValues ( ) : void
+		protected function applyValues ( ) : void
 		{
 			this.dispatchEvent ( new SceneEvent ( SceneEvent.RENDER ) ) ;
 			
@@ -260,10 +238,11 @@ package awaybuilder
 				}
 			}
 			
+			// FIXME: Implement group position and scale conversion.
 			for each ( var sectionVO : SceneSectionVO in this.mainSections )
 			{
 				this.applyPosition ( sectionVO.pivot , sectionVO.values ) ;
-				this.applyColladaRotation ( sectionVO.pivot , sectionVO.values ) ;
+				this.applyGroupRotation ( sectionVO.pivot , sectionVO.values ) ;
 				this.applyPivotScale ( sectionVO.pivot , sectionVO.values ) ;
 			}
 			
@@ -285,7 +264,7 @@ package awaybuilder
 		
 		
 		
-		private function applyColladaValues ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyColladaValues ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			this.applyPosition ( target , values ) ;
 			this.applyColladaRotation ( target , values ) ;
@@ -294,7 +273,7 @@ package awaybuilder
 		
 		
 		
-		private function createCameras ( section : SceneSectionVO ) : void
+		protected function createCameras ( section : SceneSectionVO ) : void
 		{
 			for each ( var vo : SceneCameraVO in section.cameras )
 			{
@@ -312,7 +291,7 @@ package awaybuilder
 		
 		
 		
-		private function createGeometry ( section : SceneSectionVO ) : void
+		protected function createGeometry ( section : SceneSectionVO ) : void
 		{
 			for each ( var geometry : SceneGeometryVO in section.geometry )
 			{
@@ -341,7 +320,7 @@ package awaybuilder
 		
 		
 		
-		private function createMaterial ( geometry : SceneGeometryVO ) : void
+		protected function createMaterial ( geometry : SceneGeometryVO ) : void
 		{
 			var useDefaultMaterial : Boolean = true ;
 			
@@ -366,7 +345,7 @@ package awaybuilder
 		
 		
 		
-		private function applyExternalAssets ( section : SceneSectionVO , vo : SceneGeometryVO ) : void
+		protected function applyExternalAssets ( section : SceneSectionVO , vo : SceneGeometryVO ) : void
 		{
 			switch ( vo.materialType )
 			{
@@ -379,7 +358,6 @@ package awaybuilder
 					vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
 					vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 					Mesh ( vo.mesh ).material = vo.material as BitmapMaterial ;
-					
 					break ;
 				}
 				case MaterialType.BITMAP_FILE_MATERIAL :
@@ -388,6 +366,14 @@ package awaybuilder
 					vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
 					vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 					Mesh ( vo.mesh ).material = vo.material as BitmapFileMaterial ;
+					
+					if ( vo.assetFileBack )
+					{
+						vo.materialBack = new BitmapFileMaterial ( vo.assetFileBack ) ;
+						vo.materialBack[ MaterialAttributes.SMOOTH ] = vo.smooth ;
+						vo.materialBack[ MaterialAttributes.PRECISION ] = vo.precision ;
+						Mesh ( vo.mesh ).back = vo.materialBack as BitmapFileMaterial ;
+					}
 					
 					break ;
 				}
@@ -398,7 +384,6 @@ package awaybuilder
 					vo.materialData = movieClip ;
 					vo.material = new MovieMaterial ( movieClip ) ;
 					Mesh ( vo.mesh ).material = vo.material as MovieMaterial ;
-					
 					break ;
 				}
 			}
@@ -439,7 +424,7 @@ package awaybuilder
 			
 			this.geometry.push ( vo ) ;
 		}
-						private function onColladaLoadSuccess ( event : Event ) : void
+						protected function onColladaLoadSuccess ( event : Event ) : void
 		{
 			var loader : Object3DLoader = event.target as Object3DLoader ;
 			var handle : Object3D = loader.handle ;
@@ -451,7 +436,7 @@ package awaybuilder
 
 		
 		
-		private function applyPosition ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyPosition ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			var s : uint = this.precision ;
 			var c : String = this.coordinateSystem ;
@@ -463,7 +448,7 @@ package awaybuilder
 		
 		
 		
-		private function applyMeshRotation ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyMeshRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			var c : String = this.coordinateSystem ;
 			
@@ -474,7 +459,18 @@ package awaybuilder
 		
 		
 		
-		private function applyColladaRotation ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyGroupRotation ( target : Object3D , values : SceneObjectVO ) : void
+		{
+			var c : String = this.coordinateSystem ;
+			
+			target.rotationX = ConvertCoordinates.groupRotationX ( values.rotationX , c ) ;
+			target.rotationY = ConvertCoordinates.groupRotationY ( values.rotationY , c ) ;
+			target.rotationZ = ConvertCoordinates.groupRotationZ ( values.rotationZ , c ) ;
+		}
+		
+		
+		
+		protected function applyColladaRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			var c : String = this.coordinateSystem ;
 			
@@ -485,7 +481,7 @@ package awaybuilder
 		
 		
 		
-		private function applyCameraRotation ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyCameraRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			var c : String = this.coordinateSystem ;
 			
@@ -496,7 +492,7 @@ package awaybuilder
 		
 		
 		
-		private function applyScale ( target : Mesh , values : SceneObjectVO ) : void
+		protected function applyScale ( target : Mesh , values : SceneObjectVO ) : void
 		{
 			// NOTE: Input Y and Z are switched. This is due to differences in creation plane.
 			target.scaleX = values.scaleX ;
@@ -506,54 +502,20 @@ package awaybuilder
 		
 		
 		
-		private function applyPivotScale ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyPivotScale ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			target.scale ( values.scaleX ) ;
 		}
 
 		
 		
-		private function applyColladaScale ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyColladaScale ( target : Object3D , values : SceneObjectVO ) : void
 		{
 			// NOTE: The divider is due to the Collada class having an internal scaling multiplier of 100.
 			var multiplier : uint = this.precision / 100 ;
 			
 			// FIXME: Use custom geometry scaling property instead of geometry x scale value?
 			target.scale ( multiplier * values.scaleX ) ;
-		}
-		
-		
-		
-		/////////////////////////
-		// GETTERS AND SETTERS //
-		/////////////////////////
-		
-		
-		
-		public function set coordinateSystem ( value : String ) : void
-		{
-			this._coordinateSystem = value ;
-		}
-		
-		
-		
-		public function get coordinateSystem ( ) : String
-		{
-			return this._coordinateSystem ;
-		}
-		
-		
-		
-		public function set precision ( value : uint ) : void
-		{
-			this._precision = value ;
-		}
-		
-		
-		
-		public function get precision ( ) : uint
-		{
-			return this._precision ;
 		}
 	}
 }

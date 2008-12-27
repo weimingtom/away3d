@@ -9,7 +9,7 @@ package awaybuilder.vo
 		public var name : String = "" ;
 		public var camera : Camera3D ;
 		public var values : SceneObjectVO ;
-		public var extras : Array ;
+		public var extras : Array = [ ] ;
 		public var transitionTime : Number = 2 ;
 		public var transitionType : String = "Cubic.easeInOut" ;
 		public var parentSection : SceneSectionVO ;
@@ -20,6 +20,5 @@ package awaybuilder.vo
 		public function SceneCameraVO ( )
 		{
 			this.camera = new Camera3D ( ) ;
-			this.extras = new Array ( ) ;
 		}
 	}}

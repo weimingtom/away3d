@@ -3,25 +3,26 @@ package awaybuilder.geometry
 	
 	
 	
-	/**	 * @author andreasengstrom	 */	public class GeometryFactory
+	public class GeometryFactory
 	{
-		private var propertyFactory : GeometryPropertyFactory ;
+		public var coordinateSystem : String ;
 		
-		// getters and setters
-		private var _coordinateSystem : String ;
-		private var _precision : uint ;
+		protected var propertyFactory : GeometryPropertyFactory ;
+		protected var _precision : uint ;
 		
 		
 		
 		public function GeometryFactory ( )
 		{
-			this.initialize ( ) ;
+			this.propertyFactory = new GeometryPropertyFactory ( ) ;
 		}
 		
 		
-				////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+				////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -92,6 +93,8 @@ package awaybuilder.geometry
 					plane.height = s ;
 					plane.material = vo.material as ITriangleMaterial ;
 					
+					if ( vo.assetFileBack ) plane.back = vo.materialBack as ITriangleMaterial ;
+					
 					vo.mesh = plane ;
 					vo = this.propertyFactory.build ( vo ) ;
 					
@@ -152,43 +155,11 @@ package awaybuilder.geometry
 		
 		
 		
-		public function toString ( ) : String
-		{
-			return "GeometryFactory" ;
-		}
-		
-		
-		
-		/////////////////////
-		// PRIVATE METHODS //
-		/////////////////////
-		
-		
-		
-		private function initialize ( ) : void
-		{
-			this.propertyFactory = new GeometryPropertyFactory ( ) ;
-		}
-
-		
-		
-		/////////////////////////
-		// GETTERS AND SETTERS //
-		/////////////////////////
-		
-		
-		
-		public function set coordinateSystem ( value : String ) : void
-		{
-			this._coordinateSystem = value ;
-		}
-		
-		
-		
-		public function get coordinateSystem ( ) : String
-		{
-			return this._coordinateSystem ;
-		}
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Getters and Setters
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		

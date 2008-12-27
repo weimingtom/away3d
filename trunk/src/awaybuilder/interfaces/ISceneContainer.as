@@ -4,7 +4,7 @@ package awaybuilder.interfaces
 	
 	
 	
-	/**	 * @author andreasengstrom	 */	public interface ISceneContainer
+	public interface ISceneContainer
 	{
 		function getCameras ( ) : Array
 		function getGeometry ( ) : Array

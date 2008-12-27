@@ -12,45 +12,41 @@ package awaybuilder.collada
 	
 	
 	
-	/**
-	 * @author andreasengstrom
-	 */
 	public class ColladaParser extends AbstractParser implements IParser
 	{
 		public static const GROUP_IDENTIFIER : String = "NODE" ;
 		public static const GROUP_CAMERA : uint = 0 ;
 		public static const GROUP_GEOMETRY : uint = 1 ;
 		public static const GROUP_SECTION : uint = 2 ;
-		
 		public static const PREFIX_CAMERA : String = "camera" ;
 		public static const PREFIX_GEOMETRY : String = "geometry" ;
 		public static const PREFIX_MATERIAL : String = "material" ;
 		
-		private var xml : XML ;
-		private var worldId : String ;
-		private var worldName : String ;
+		public var cameraZoom : uint ;
+		public var cameraFocus : uint ;
 		
-		// getters and setters
-		private var _cameraZoom : uint ;
-		private var _cameraFocus : uint ;
-		private var _mainSections : Array ;
-		private var _geometry : Array ;
-		private var _cameras : Array ;
-		private var _sections : Array ;
+		protected var xml : XML ;
+		protected var worldId : String ;
+		protected var worldName : String ;
+		protected var _mainSections : Array = [ ] ;
+		protected var _geometry : Array = [ ] ;
+		protected var _cameras : Array = [ ] ;
+		protected var _sections : Array = [ ] ;
 		
 		
 		
 		public function ColladaParser ( )
 		{
 			super ( ) ;
-			this.initialize ( ) ;
 		}
 		
 		
 		
-		////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -59,9 +55,7 @@ package awaybuilder.collada
 			this.xml = xml ;
 			this.worldId = xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].@id ;
 			this.worldName = xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].@name ;
-			
 			this.extractMainSections ( ) ;
-			
 			this.dispatchEvent ( new Event ( Event.COMPLETE ) ) ;
 		}
 		
@@ -74,30 +68,15 @@ package awaybuilder.collada
 		
 		
 		
-		override public function toString ( ) : String
-		{
-			return "ColladaParser" ;
-		}
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Protected Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
-		/////////////////////
-		// PRIVATE METHODS //
-		/////////////////////
-		
-		
-		
-		private function initialize ( ) : void
-		{
-			this._mainSections = new Array ( ) ;
-			this._geometry = new Array ( ) ;
-			this._sections = new Array ( ) ;
-			this._cameras = new Array ( ) ;
-		}
-		
-		
-		
-		private function extractMainSections ( ) : void
+		protected function extractMainSections ( ) : void
 		{
 			var list : XMLList = this.xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].node as XMLList ;
 			
@@ -120,7 +99,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractPivot ( xml : XML ) : SceneObjectVO
+		protected function extractPivot ( xml : XML ) : SceneObjectVO
 		{
 			var positions : Array = this.extractValues ( ColladaNode.VALUE_TYPE_POSITION , xml[ ColladaNode.TRANSLATE ] ) ;
 			var rotations : Array = this.extractValues ( ColladaNode.VALUE_TYPE_ROTATION , xml[ ColladaNode.ROTATE ] ) ;
@@ -136,7 +115,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractGroup ( group : uint , section : SceneSectionVO , list : XMLList ) : Array
+		protected function extractGroup ( group : uint , section : SceneSectionVO , list : XMLList ) : Array
 		{
 			var a : Array = new Array ( ) ;
 			var counter : uint = 0 ;
@@ -175,7 +154,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractSection ( /*section : SceneSectionVO ,*/ xml : XML ) : Array
+		protected function extractSection ( /*section : SceneSectionVO ,*/ xml : XML ) : Array
 		{
 			var a : Array = new Array ( ) ;
 			
@@ -201,7 +180,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractCameras ( section : SceneSectionVO , list : XMLList ) : Array
+		protected function extractCameras ( section : SceneSectionVO , list : XMLList ) : Array
 		{
 			var cameras : Array = new Array ( ) ;
 			
@@ -238,7 +217,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractCameraExtras ( vo : SceneCameraVO , extras : XMLList ) : SceneCameraVO
+		protected function extractCameraExtras ( vo : SceneCameraVO , extras : XMLList ) : SceneCameraVO
 		{
 			for each ( var node : XML in extras )
 			{
@@ -267,7 +246,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractGeometry ( section : SceneSectionVO , list : XMLList ) : Array
+		protected function extractGeometry ( section : SceneSectionVO , list : XMLList ) : Array
 		{
 			var geometry : Array = new Array ( ) ;
 			
@@ -306,7 +285,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractGeometryExtras ( vo : SceneGeometryVO , extras : XMLList ) : SceneGeometryVO
+		protected function extractGeometryExtras ( vo : SceneGeometryVO , extras : XMLList ) : SceneGeometryVO
 		{
 			for each ( var node : XML in extras )
 			{
@@ -340,7 +319,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractValues ( type : String , list : XMLList ) : Array
+		protected function extractValues ( type : String , list : XMLList ) : Array
 		{
 			var sList : String = list.toString ( ) ;
 			var positions : Array = new Array ( 0 , 0 , 0 ) ;
@@ -410,7 +389,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function extractLastEntry ( sNode : String ) : Number
+		protected function extractLastEntry ( sNode : String ) : Number
 		{
 			var values : Array = sNode.split ( " " ) ;
 			var last : Number = values[ values.length - 1 ] ;
@@ -420,7 +399,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function applyPosition ( target : SceneObjectVO , values : Array ) : void
+		protected function applyPosition ( target : SceneObjectVO , values : Array ) : void
 		{
 			target.x = values[ 0 ] ;
 			target.y = values[ 1 ] ;
@@ -429,7 +408,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function applyRotation ( target : SceneObjectVO , values : Array ) : void
+		protected function applyRotation ( target : SceneObjectVO , values : Array ) : void
 		{
 			target.rotationX = values[ 0 ] ;
 			target.rotationY = values[ 1 ] ;
@@ -438,7 +417,7 @@ package awaybuilder.collada
 		
 		
 		
-		private function applyScale ( target : SceneObjectVO , values : Array ) : void
+		protected function applyScale ( target : SceneObjectVO , values : Array ) : void
 		{
 			target.scaleX = values[ 0 ] ;
 			target.scaleY = values[ 1 ] ;
@@ -447,37 +426,11 @@ package awaybuilder.collada
 		
 		
 		
-		/////////////////////////
-		// GETTERS AND SETTERS //
-		/////////////////////////
-		
-		
-		
-		public function set cameraZoom ( value : uint ) : void
-		{
-			this._cameraZoom = value ;
-		}
-		
-		
-		
-		public function get cameraZoom ( ) : uint
-		{
-			return this._cameraZoom ;
-		}
-		
-		
-		
-		public function set cameraFocus ( value : uint ) : void
-		{
-			this._cameraFocus = value ;
-		}
-		
-		
-		
-		public function get cameraFocus ( ) : uint
-		{
-			return this._cameraFocus ;
-		}
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Getters and Setters
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		

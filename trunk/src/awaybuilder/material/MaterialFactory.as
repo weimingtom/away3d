@@ -9,9 +9,9 @@ package awaybuilder.material
 	
 	
 	
-	/**	 * @author andreasengstrom	 */	public class MaterialFactory
+	public class MaterialFactory
 	{
-		private var propertyFactory : MaterialPropertyFactory ;
+		protected var propertyFactory : MaterialPropertyFactory ;
 		
 		
 		
@@ -21,9 +21,11 @@ package awaybuilder.material
 		}		
 		
 		
-		////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -80,18 +82,10 @@ package awaybuilder.material
 			var wireColorMaterial : WireColorMaterial = new WireColorMaterial ( ) ;
 			
 			wireColorMaterial.color = 0x00FF00 ;
-			
 			vo.material = wireColorMaterial ;
 			vo.materialType = MaterialType.WIRE_COLOR_MATERIAL ;
 			
 			return vo ;
-		}
-
-		
-		
-		public function toString ( ) : String
-		{
-			return "MaterialFactory" ;
 		}
 	}
 }

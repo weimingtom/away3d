@@ -1,1 +1,1 @@
-package awaybuilder.camera{	/**	 * @author andreasengstrom	 */	public class CameraFocus	{		public static const MAYA : Number = 5 ;								public function CameraFocus ( )		{		}	}}
+package awaybuilder.camera{	public class CameraFocus	{		public static const MAYA : Number = 5 ;								public function CameraFocus ( )		{		}	}}

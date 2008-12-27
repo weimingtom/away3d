@@ -3,14 +3,14 @@ package awaybuilder.vo
 	
 	
 	
-	/**	 * @author andreasengstrom	 */	public class SceneSectionVO 
+	public class SceneSectionVO 
 	{		public var id : String = "" ;
 		public var name : String = "" ;
 		public var values : SceneObjectVO ;
 		public var pivot : ObjectContainer3D ;
-		public var cameras : Array ;
-		public var geometry : Array ;
-		public var sections : Array ;
+		public var cameras : Array = [ ] ;
+		public var geometry : Array = [ ] ;
+		public var sections : Array = [ ] ;
 		public var enabled : Boolean = true ;
 		
 		
@@ -19,8 +19,5 @@ package awaybuilder.vo
 		{
 			this.values = new SceneObjectVO ( ) ;
 			this.pivot = new ObjectContainer3D ( ) ;
-			this.cameras = new Array ( ) ;
-			this.geometry = new Array ( ) ;
-			this.sections = new Array ( ) ;
 		}
 	}}

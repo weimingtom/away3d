@@ -1,5 +1,5 @@
 package awaybuilder.vo
-{	/**	 * @author andreasengstrom	 */	public class SceneObjectVO
+{	public class SceneObjectVO
 	{
 		public var x : Number = 0 ;
 		public var y : Number = 0 ;
