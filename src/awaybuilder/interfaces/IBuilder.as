@@ -1,1 +1,1 @@
-package awaybuilder.interfaces{	import away3d.containers.View3D;				/**	 * @author andreasengstrom	 */	public interface IBuilder	{		function build ( view : View3D , sections : Array ) : void	}}
+package awaybuilder.interfaces{	import away3d.containers.View3D;				public interface IBuilder	{		function build ( view : View3D , sections : Array ) : void	}}

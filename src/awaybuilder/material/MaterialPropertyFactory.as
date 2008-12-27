@@ -5,9 +5,6 @@ package awaybuilder.material
 	
 	
 	
-	/**
-	 * @author andreasengstrom
-	 */
 	public class MaterialPropertyFactory
 	{
 		public function MaterialPropertyFactory ( )
@@ -16,9 +13,11 @@ package awaybuilder.material
 		
 		
 		
-		////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -46,6 +45,11 @@ package awaybuilder.material
 						break ;
 					}
 					case MaterialAttributes.ASSET_FILE :
+					{
+						vo[ attribute.key ] = attribute.value ;
+						break ;
+					}
+					case MaterialAttributes.ASSET_FILE_BACK :
 					{
 						vo[ attribute.key ] = attribute.value ;
 						break ;
@@ -95,13 +99,6 @@ package awaybuilder.material
 			}
 			
 			return vo ;
-		}
-		
-		
-		
-		public function toString ( ) : String
-		{
-			return "MaterialPropertyFactory" ;
 		}
 	}
 }

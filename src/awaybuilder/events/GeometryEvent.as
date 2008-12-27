@@ -14,31 +14,10 @@ package awaybuilder.events
 		static public const OVER : String = "GeometryInteractionEvent.OVER" ;
 		static public const UP : String = "GeometryInteractionEvent.UP" ;
 		
-		// getters and setters
-		private var _geometry : SceneGeometryVO ;
+		public var geometry : SceneGeometryVO ;
 								public function GeometryEvent ( type : String , bubbles : Boolean = true , cancelable : Boolean = false )
 		{
 			super ( type , bubbles , cancelable ) ;
-		}
-		
-		
-		
-		/////////////////////////
-		// GETTERS AND SETTERS //
-		/////////////////////////
-		
-		
-		
-		public function set geometry ( value : SceneGeometryVO ) : void
-		{
-			this._geometry = value ;
-		}
-		
-		
-		
-		public function get geometry ( ) : SceneGeometryVO
-		{
-			return this._geometry ;
 		}
 	}
 }

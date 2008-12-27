@@ -3,10 +3,9 @@ package awaybuilder.geometry
 	import awaybuilder.vo.DynamicAttributeVO;
 	
 	
-		/**	 * @author andreasengstrom	 */	public class GeometryPropertyFactory
+		public class GeometryPropertyFactory
 	{
-		// getters and setters
-		private var _precision : uint ;
+		public var precision : uint ;
 		
 		
 		
@@ -15,9 +14,11 @@ package awaybuilder.geometry
 		}
 		
 		
-				////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+				////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -37,6 +38,11 @@ package awaybuilder.geometry
 					case GeometryAttributes.ASSET_FILE :
 					{
 						vo.assetFile = attribute.value ;
+						break ;
+					}
+					case GeometryAttributes.ASSET_FILE_BACK :
+					{
+						vo.assetFileBack = attribute.value ;
 						break ;
 					}
 					case GeometryAttributes.BOTHSIDES :
@@ -153,32 +159,5 @@ package awaybuilder.geometry
 			}
 			
 			return vo ;
-		}
-		
-		
-		
-		public function toString ( ) : String
-		{
-			return "GeometryPropertyFactory" ;
-		}
-		
-		
-		
-		/////////////////////////
-		// GETTERS AND SETTERS //
-		/////////////////////////
-		
-		
-		
-		public function set precision ( value : uint ) : void
-		{
-			this._precision = value ;
-		}
-		
-		
-		
-		public function get precision ( ) : uint
-		{
-			return this._precision ;
 		}
 	}}

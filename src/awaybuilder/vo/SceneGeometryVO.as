@@ -3,13 +3,14 @@ package awaybuilder.vo
 	import away3d.materials.IMaterial;
 	
 	
-		/**	 * @author andreasengstrom	 */	public class SceneGeometryVO
+		public class SceneGeometryVO
 	{		public var id : String ;
 		public var name : String ;
 		public var values : SceneObjectVO ;
-		public var geometryExtras : Array ;
-		public var materialExtras : Array ;
+		public var geometryExtras : Array = [ ] ;
+		public var materialExtras : Array = [ ] ;
 		public var material : IMaterial ;
+		public var materialBack : IMaterial ;
 		public var smooth : Boolean ;
 		public var precision : Number = 0 ;
 		public var mesh : Object3D ;
@@ -24,23 +25,23 @@ package awaybuilder.vo
 		public var materialData : Object ;
 		public var targetCamera : String ;
 		
-		// getters and setters
-		private var _assetClass : String ;
-		private var _assetFile : String ;
+		protected var _assetClass : String ;
+		protected var _assetFile : String ;
+		protected var _assetFileBack : String ;
 		
 		
 		
 		public function SceneGeometryVO ( )
 		{
-			this.geometryExtras = new Array ( ) ;
-			this.materialExtras = new Array ( ) ;
 		}
 		
 		
 		
-		/////////////////////////
-		// GETTERS AND SETTERS //
-		/////////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Getters and Setters
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -70,5 +71,20 @@ package awaybuilder.vo
 		public function get assetFile ( ) : String
 		{
 			return this._assetFile ;
+		}
+		
+		
+		
+		public function set assetFileBack ( value : String ) : void
+		{
+			this._assetFileBack = value ;
+			this._assetClass = null ;
+		}
+		
+		
+		
+		public function get assetFileBack ( ) : String
+		{
+			return this._assetFileBack ;
 		}
 	}}

@@ -1,11 +1,9 @@
 package awaybuilder.camera
 {
-	import awaybuilder.utils.EasingUtil;			import gs.TweenLite;	
-	
-	import away3d.cameras.Camera3D;	import away3d.core.base.Object3D;		import awaybuilder.SceneUpdate;	import awaybuilder.abstracts.AbstractCameraController;	import awaybuilder.events.CameraEvent;	import awaybuilder.events.SceneEvent;	import awaybuilder.interfaces.ICameraController;	import awaybuilder.utils.CoordinateCopy;	import awaybuilder.vo.SceneCameraVO;	
+	import away3d.cameras.Camera3D;	import away3d.core.base.Object3D;		import awaybuilder.SceneUpdate;	import awaybuilder.abstracts.AbstractCameraController;	import awaybuilder.events.CameraEvent;	import awaybuilder.events.SceneEvent;	import awaybuilder.interfaces.ICameraController;	import awaybuilder.utils.CoordinateCopy;	import awaybuilder.utils.EasingUtil;	import awaybuilder.vo.SceneCameraVO;		import gs.TweenLite;
 	
 	
-	public class CameraController extends AbstractCameraController implements ICameraController
+		public class CameraController extends AbstractCameraController implements ICameraController
 	{
 		protected var camera : Camera3D ;
 		protected var origin : Object3D ;

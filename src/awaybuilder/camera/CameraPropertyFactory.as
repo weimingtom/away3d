@@ -5,9 +5,6 @@ package awaybuilder.camera
 	
 	
 	
-	/**
-	 * @author andreasengstrom
-	 */
 	public class CameraPropertyFactory
 	{
 		public function CameraPropertyFactory ( )
@@ -16,9 +13,11 @@ package awaybuilder.camera
 		
 		
 		
-		////////////////////
-		// PUBLIC METHODS //
-		////////////////////
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		// Public Methods
+		//
+		////////////////////////////////////////////////////////////////////////////////
 		
 		
 		
@@ -42,13 +41,6 @@ package awaybuilder.camera
 			}
 			
 			return vo ;
-		}
-		
-		
-		
-		public function toString ( ) : String
-		{
-			return "CameraPropertyFactory" ;
 		}
 	}
 }
