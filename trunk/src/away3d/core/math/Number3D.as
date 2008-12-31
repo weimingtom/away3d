@@ -300,6 +300,50 @@ package away3d.core.math
         }
         
         /**
+         * Fills the 3d number object with values representing a point between the current and the
+         * 3d number specified in parameter v. The f parameter defines the degree of interpolation 
+         * between the two endpoints, where 0 represents the unmodified current values, and 1.0 
+         * those of the v parameter.
+         * 
+         * @param w The target point.
+         * @param f The level of interpolation between the current 3d number and the parameter v. 
+         * 
+         * @see flash.geom.Point.interpolate()
+        */
+        public function interpolate(w:Number3D, f:Number):void
+        {
+        	var d:Number3D = new Number3D;
+        	
+        	d.sub(w, this);
+        	d.scale(d, f);
+        	add(this, d);
+        }
+        
+        /**
+         * Returns a 3d number object representing a point between the two 3d number parameters w 
+         * and v. The f parameter defines the degree of interpolation between the two ednpoints, 
+         * where 0 or 1 will return 3d number objects equal to v and w respectively.
+         * 
+         * @param w The target point.
+         * @param v The zero point.
+         * @param f The level of interpolation where 0.0 will return a 3d number object equal to v,
+         * and 1.0 will return a 3d number object equal to w.
+         * 
+         * @see flash.geom.Point.interpolate()
+        */
+        public static function interpolate(w:Number3D, v:Number3D, f:Number):Number3D
+        {
+        	var d:Number3D = new Number3D;
+        	
+        	d.sub(w, v);
+        	d.scale(d, f);
+        	d.add(d, v);
+        	
+        	return d;
+        }
+        
+        
+        /**
         * A 3d number object representing a relative direction forward.
         */
         public static var FORWARD :Number3D = new Number3D( 0,  0,  1);
