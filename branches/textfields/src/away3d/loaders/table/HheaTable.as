@@ -1,4 +1,4 @@
-package away3d.parsers.ttf.table
+package away3d.loaders.table
 {
 	import flash.utils.ByteArray;
 	

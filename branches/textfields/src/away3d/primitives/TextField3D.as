@@ -4,6 +4,7 @@ package away3d.primitives
 	import away3d.core.base.Vertex;
 	import away3d.loaders.data.FontData;
 	
+	import flash.events.Event;
 	import flash.geom.Point;
 	
 	public class TextField3D extends Sprite3D
@@ -21,11 +22,12 @@ package away3d.primitives
 		private var _paragraphWidth:Number;
 		private var _useWordWrapping:Boolean;
 		private var _penPosition:Point;
-		private var _fontScaling:Number = 0.02;
 		private var _lineCount:uint;
 		private var _words:Array;
 		private var _currentWord:Array;
 		private var _lastWordStartPenPositionX:Number;
+		
+		private var _fontScaling:Number = 0.02;
 		
 		/////////////////////////////////////////////////////////////////////////////////////
 		//Constructor.
@@ -42,7 +44,7 @@ package away3d.primitives
 			_useWordWrapping = ini.getBoolean("useWordWrapping", true);
 			
 			_text = text;
-			_font = font;
+			this.font = font;
 			
 			generateText();
 		}
@@ -117,6 +119,7 @@ package away3d.primitives
 				return;
 		
 			_font = value;
+			_font.addEventListener(Event.CHANGE, refreshFont);
 			
 			generateText();
 		}
@@ -141,10 +144,19 @@ package away3d.primitives
 		}
 		
 		/////////////////////////////////////////////////////////////////////////////////////
+		//Event handlers.
+		/////////////////////////////////////////////////////////////////////////////////////
+		
+		private function refreshFont(evt:Event):void
+		{
+			generateText();
+		}
+		
+		/////////////////////////////////////////////////////////////////////////////////////
 		//Private methods.
 		/////////////////////////////////////////////////////////////////////////////////////
 		
-		private function generateText():void
+		private function generateText(evt:Event = null):void
 		{
 			resetText();
 			
@@ -178,10 +190,24 @@ package away3d.primitives
 			var cX:Number = 0;
 			var cY:Number = 0;
 			
+			var glyf:Array;
+			var dim:Array;
 			if(_font.glyfs[char])
-				var glyf:Array = _font.glyfs[char];
+			{
+				glyf = _font.glyfs[char];
+				dim = _font.dims[char];
+			}
 			else
-				throw new Error("Used font does not contain the character '" + char + "'.");
+			{
+				glyf = _font.glyfs['nochar'];
+				dim = _font.dims['nochar'];
+			}
+			
+			var spaceDim:Array;
+			if(_font.dims[' '])
+				spaceDim = _font.dims[' '];
+			else
+				spaceDim = _font.dims['nochar'];
 			
 			var i:uint;
 			for(i = 0; i<glyf.length; i++)
@@ -212,13 +238,13 @@ package away3d.primitives
 			
 			_currentWord.push(shp);
 			
-			var penDeltaX:Number = _font.dims[char][0]*_textSize*_fontScaling + _letterSpacing;
+			var penDeltaX:Number = dim[0]*_textSize*_fontScaling + _letterSpacing;
 			if(_penPosition.x + penDeltaX < _paragraphWidth)
 				_penPosition.x += penDeltaX;
 			else
 			{
 				var deltaX:Number = _penPosition.x - _lastWordStartPenPositionX;
-				var deltaY:Number = _font.dims[" "][1]*_textSize*_fontScaling + _lineSpacing
+				var deltaY:Number = spaceDim[1]*_textSize*_fontScaling + _lineSpacing
 				
 				if(_useWordWrapping)
 				{
