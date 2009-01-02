@@ -1,4 +1,4 @@
-package away3d.parsers.ttf.table
+package away3d.loaders.table
 {
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
@@ -100,7 +100,7 @@ package away3d.parsers.ttf.table
 	        else
 	            advanceWidth = _metrics[_metrics.length - 1] >> 16;
 			
-			glyfs[_currentChar] = {instructions:pointArray, width:advanceWidth, height:yMax - yMin};
+			glyfs[_currentChar] = {instructions:pointArray, width:advanceWidth, height:yMax - yMin, char:_currentChar};
 		}
 		
 		private function buildGlyfMotifs(xCoords:Array, yCoords:Array, flags:Array, contourEndPointIndices:Array):Array
