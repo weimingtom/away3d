@@ -24,6 +24,8 @@ package away3d.loaders
 		private static var _data:ByteArray;
 		private static var _characters:String;
 		
+		private static var _fontScaling:Number = 0.1;
+		
 		public function TTF()
 		{
 			
@@ -138,8 +140,8 @@ package away3d.loaders
 	  			var instructionsArray:Array = [];
 	  			
 	  			var instructions:Array = element.instructions;
-	  			var width:Number = element.width;
-	  			var height:Number = element.height;
+	  			var width:Number = _fontScaling*element.width;
+	  			var height:Number = _fontScaling*element.height;
 	  			var char:String = element.char;
 	  			for(i = 0; i<instructions.length; i++)
 	  			{
@@ -149,13 +151,13 @@ package away3d.loaders
 	  				switch(type)
 					{
 						case 0:
-							elementArray = ['M', instructions[i].x, instructions[i].y];
+							elementArray = ['M', _fontScaling*instructions[i].x, _fontScaling*instructions[i].y];
 							break;
 						case 1:
-							elementArray = ['L', instructions[i].x, instructions[i].y];
+							elementArray = ['L', _fontScaling*instructions[i].x, _fontScaling*instructions[i].y];
 							break;
 						case 2:
-							elementArray = ['C', instructions[i].x, instructions[i].y, instructions[i].cx, instructions[i].cy];
+							elementArray = ['C', _fontScaling*instructions[i].x, _fontScaling*instructions[i].y, _fontScaling*instructions[i].cx, _fontScaling*instructions[i].cy];
 							break;
 					}
 					instructionsArray.push(elementArray);
