@@ -1,18 +1,10 @@
 package awaybuilder.collada
 {
-	import flash.events.Event;
-	
-	import awaybuilder.abstracts.AbstractParser;
-	import awaybuilder.interfaces.IParser;
-	import awaybuilder.vo.DynamicAttributeVO;
-	import awaybuilder.vo.SceneCameraVO;
-	import awaybuilder.vo.SceneGeometryVO;
-	import awaybuilder.vo.SceneObjectVO;
-	import awaybuilder.vo.SceneSectionVO;
+	import awaybuilder.abstracts.AbstractParser;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.events.Event;
 	
 	
 	
-	public class ColladaParser extends AbstractParser implements IParser
+	public class ColladaParser extends AbstractParser
 	{
 		public static const GROUP_IDENTIFIER : String = "NODE" ;
 		public static const GROUP_CAMERA : uint = 0 ;
@@ -22,16 +14,11 @@ package awaybuilder.collada
 		public static const PREFIX_GEOMETRY : String = "geometry" ;
 		public static const PREFIX_MATERIAL : String = "material" ;
 		
-		public var cameraZoom : uint ;
-		public var cameraFocus : uint ;
-		
 		protected var xml : XML ;
-		protected var worldId : String ;
-		protected var worldName : String ;
-		protected var _mainSections : Array = [ ] ;
-		protected var _geometry : Array = [ ] ;
-		protected var _cameras : Array = [ ] ;
-		protected var _sections : Array = [ ] ;
+		protected var mainSections : Array = [ ] ;
+		protected var geometry : Array = [ ] ;
+		protected var cameras : Array = [ ] ;
+		protected var allSections : Array = [ ] ;
 		
 		
 		
@@ -50,20 +37,14 @@ package awaybuilder.collada
 		
 		
 		
-		override public function parse ( xml : XML ) : void
+		override public function parse ( data : * ) : void
 		{
+			var xml : XML = data as XML ;
+			
 			this.xml = xml ;
-			this.worldId = xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].@id ;
-			this.worldName = xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].@name ;
 			this.extractMainSections ( ) ;
+			this._sections = this.mainSections ;
 			this.dispatchEvent ( new Event ( Event.COMPLETE ) ) ;
-		}
-		
-		
-		
-		override public function getSections ( ) : Array
-		{
-			return this.mainSections ;
 		}
 		
 		
@@ -172,7 +153,7 @@ package awaybuilder.collada
 				vo.sections = this.extractGroup ( ColladaParser.GROUP_SECTION , vo , children ) ;
 				
 				a.push ( vo ) ;
-				this.sections.push ( vo ) ;
+				this.allSections.push ( vo ) ;
 			}
 			
 			return a ;
@@ -422,42 +403,6 @@ package awaybuilder.collada
 			target.scaleX = values[ 0 ] ;
 			target.scaleY = values[ 1 ] ;
 			target.scaleZ = values[ 2 ] ;
-		}
-		
-		
-		
-		////////////////////////////////////////////////////////////////////////////////
-		//
-		// Getters and Setters
-		//
-		////////////////////////////////////////////////////////////////////////////////
-		
-		
-		
-		public function get mainSections ( ) : Array
-		{
-			return this._mainSections ;
-		}
-		
-		
-		
-		public function get geometry ( ) : Array
-		{
-			return this._geometry ;
-		}
-		
-		
-		
-		public function get cameras ( ) : Array
-		{
-			return this._cameras ;
-		}
-		
-		
-		
-		public function get sections ( ) : Array
-		{
-			return this._sections ;
 		}
 	}
 }
