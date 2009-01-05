@@ -1,1 +1,1 @@
-package awaybuilder.interfaces{	public interface IParser	{		function parse ( xml : XML ) : void		function getSections ( ) : Array	}}
+package awaybuilder.interfaces{	public interface IParser	{		function parse ( data : * ) : void	}}
