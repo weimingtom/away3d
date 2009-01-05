@@ -64,7 +64,7 @@ package away3d.core.base
 		
 		public function Shape3D()
 		{
-			graphicsMoveTo(0, 0, 0);
+			
 		}
 		
 		public function graphicsMoveTo(X:Number, Y:Number, Z:Number):void
