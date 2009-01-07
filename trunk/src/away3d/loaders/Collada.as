@@ -506,7 +506,7 @@ package away3d.loaders
 			autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
             scaling = ini.getNumber("scaling", 1)*100;
             shading = ini.getBoolean("shading", false);
-            material = ini.getMaterial("material");
+            material = ini.getMaterial("material") as ITriangleMaterial;
             centerMeshes = ini.getBoolean("centerMeshes", false);
 
             var materials:Object = ini.getObject("materials") || {};

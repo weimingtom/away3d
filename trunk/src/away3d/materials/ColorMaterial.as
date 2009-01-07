@@ -1,7 +1,7 @@
 package away3d.materials
 {
-    import away3d.containers.*;
     import away3d.arcane;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -15,7 +15,7 @@ package away3d.materials
     /**
     * Material for solid color drawing
     */
-    public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial
+    public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial, IBillboardMaterial
     {
 		/** @private */
         arcane function notifyMaterialUpdate():void
@@ -118,7 +118,15 @@ package away3d.materials
 		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
-            tri.source.session.renderTriangleColor(color, _alpha, tri.v0, tri.v1, tri.v2);
+            tri.source.session.renderTriangleColor(_color, _alpha, tri.v0, tri.v1, tri.v2);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function renderBillboard(bill:DrawBillboard):void
+        {
+            bill.source.session.renderBillboardColor(_color, _alpha, bill);
         }
         
 		/**
@@ -126,7 +134,7 @@ package away3d.materials
 		 */
         public function renderFog(fog:DrawFog):void
         {
-            fog.source.session.renderFogColor(fog.clip, color, _alpha);
+            fog.source.session.renderFogColor(fog.clip, _color, _alpha);
         }
         
 		/**
@@ -134,7 +142,7 @@ package away3d.materials
 		 */
         public function clone():IFogMaterial
         {
-        	return new ColorMaterial(color, {alpha:alpha});
+        	return new ColorMaterial(_color, {alpha:_alpha});
         }
         
 		/**

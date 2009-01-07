@@ -12,17 +12,13 @@ package away3d.core.project
 		private var _sprite:Sprite2D;
 		private var _center:Vertex;
 		private var _screenVertex:ScreenVertex;
-		private var _persp:Number;
 		private var _drawScaledBitmap:DrawScaledBitmap;
 		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-        	super.primitives(view, viewTransform, consumer);
+        	super.primitives(source, viewTransform, consumer);
         	
 			_sprite = source as Sprite2D;
-			
-			if (!_sprite)
-				Debug.error("Sprite2D must process a Sprite2D object");
 			
 			_center = _sprite.center;
 			
@@ -33,28 +29,22 @@ package away3d.core.project
             
             if (!_screenVertex.visible)
                 return;
-                
-            _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);          
+                   
             _screenVertex.z += _sprite.deltaZ;
             
             if (!(_drawScaledBitmap = primitiveDictionary[_sprite])) {
 				_drawScaledBitmap = primitiveDictionary[_sprite] = new DrawScaledBitmap();
 	            _drawScaledBitmap.screenvertex = _screenVertex;
-	            _drawScaledBitmap.source = _sprite;
+	            _drawScaledBitmap.source = source;
 			}
             _drawScaledBitmap.screenvertex = _screenVertex;
             _drawScaledBitmap.smooth = _sprite.smooth;
             _drawScaledBitmap.bitmap = _sprite.bitmap;
-            _drawScaledBitmap.scale = _persp*_sprite.scaling;
+            _drawScaledBitmap.scale = _sprite.scaling*view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
             _drawScaledBitmap.rotation = _sprite.rotation;
             _drawScaledBitmap.calc();
             
             consumer.primitive(_drawScaledBitmap);
-		}
-		
-		public function clone():IPrimitiveProvider
-		{
-			return new DirSpriteProjector();
 		}
 	}
 }

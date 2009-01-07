@@ -63,7 +63,7 @@ package away3d.core.stats
 		private var defautTFBold:TextFormat = new TextFormat("Verdana", 10, 0x000000, true);
         //
         private const VERSION:String = "2";
-        private const REVISION:String = "2.5";
+        private const REVISION:String = "2.6";
         private const APPLICATION_NAME:String = "Away3D.com";
         
         public var sourceURL:String;
@@ -656,7 +656,7 @@ package away3d.core.stats
         public function addObject(node:Mesh):void
         {
         	type = node.type;
-        	elementcount = node.faces.length + node.segments.length;
+        	elementcount = node.elements.length;
         	url = node.url;
             if (type != null && elementcount != 0) {
                 stats += " - " + type + " , elements: " + elementcount + ", url: " + url + "\n";

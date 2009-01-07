@@ -1,7 +1,7 @@
 package away3d.core.render
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
@@ -447,7 +447,7 @@ package away3d.core.render
 	            layerGraphics.endFill();
 	  		} else {
 	  			graphics.lineStyle();
-	            graphics.moveTo(v0x, v0y);       
+	            graphics.moveTo(v0x, v0y);
 	            graphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
 	            graphics.lineTo(v1x, v1y);
 	            graphics.lineTo(v2x, v2y);
@@ -512,6 +512,52 @@ package away3d.core.render
     
             if (alpha > 0)
                 graphics.endFill();
+        }
+        
+        /**
+         * Draws a billboard element with a fill color into the graphics object.
+         */
+        public function renderBillboardColor(color:int, alpha:Number, primitive:DrawBillboard):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+            if (primitive.rotation != 0) {
+	            graphics.beginFill(color, alpha);
+	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
+	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
+	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
+	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.endFill();
+            } else {
+	            graphics.beginFill(color, alpha);
+	            graphics.drawRect(primitive.minX, primitive.minY, primitive.maxX-primitive.minX, primitive.maxY-primitive.minY);
+            	graphics.endFill();
+            }
+        }
+        
+        /**
+         * Draws a billboard element with a fill bitmap into the graphics object.
+         */
+        public function renderBillboardBitmap(bitmap:BitmapData, primitive:DrawBillboard, smooth:Boolean):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+            if (primitive.rotation != 0) {
+	            graphics.beginBitmapFill(bitmap, primitive.mapping, false, smooth);
+	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
+	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
+	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
+	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.endFill();
+            } else {
+	            graphics.beginBitmapFill(bitmap, primitive.mapping, false, smooth);
+	            graphics.drawRect(primitive.minX, primitive.minY, primitive.maxX-primitive.minX, primitive.maxY-primitive.minY);
+            	graphics.endFill();
+            }
         }
         
         /**

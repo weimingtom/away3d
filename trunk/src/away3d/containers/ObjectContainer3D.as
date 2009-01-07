@@ -140,10 +140,7 @@
             
             super(init);
             
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
-            
-            if (!projector)
-            	projector = new SessionProjector();
+            projectorType = ProjectorType.OBJECT_CONTAINER;
             
             for each (var child:Object3D in childarray)
                 addChild(child);
