@@ -61,16 +61,16 @@ package away3d.core.draw
             if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
             {
                 return [
-                    create(view, source, face, material,  v0, v01, v12,  uv0, uv01, uv12),
-                    create(view, source, face, material, v01,  v1, v12, uv01,  uv1, uv12),
-                    create(view, source, face, material,  v0, v12 , v2,  uv0, uv12, uv2)];
+                    create(source, face, material,  v0, v01, v12,  uv0, uv01, uv12),
+                    create(source, face, material, v01,  v1, v12, uv01,  uv1, uv12),
+                    create(source, face, material,  v0, v12 , v2,  uv0, uv12, uv2)];
             }
             else
             {
                 return [
-                    create(view, source, face, material,   v0, v01,  v2,  uv0, uv01, uv2),
-                    create(view, source, face, material,  v01,  v1, v12, uv01,  uv1, uv12),
-                    create(view, source, face, material,  v01, v12,  v2, uv01, uv12, uv2)];
+                    create(source, face, material,   v0, v01,  v2,  uv0, uv01, uv2),
+                    create(source, face, material,  v01,  v1, v12, uv01,  uv1, uv12),
+                    create(source, face, material,  v01, v12,  v2, uv01, uv12, uv2)];
             }
         }
 		/** @private */
@@ -168,8 +168,8 @@ package away3d.core.draw
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
                 uv01:UV = UV.median(uv0, uv1);
             return [
-                create(view, source, face, material, v2, v0, v01, uv2, uv0, uv01),
-                create(view, source, face, material, v01, v1, v2, uv01, uv1, uv2) 
+                create(source, face, material, v2, v0, v01, uv2, uv0, uv01),
+                create(source, face, material, v01, v1, v2, uv01, uv1, uv2) 
             ];
         }
 
@@ -178,8 +178,8 @@ package away3d.core.draw
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
                 uv12:UV = UV.median(uv1, uv2);
             return [
-                create(view, source, face, material, v0, v1, v12, uv0, uv1, uv12),
-                create(view, source, face, material, v12, v2, v0, uv12, uv2, uv0) 
+                create(source, face, material, v0, v1, v12, uv0, uv1, uv12),
+                create(source, face, material, v12, v2, v0, uv12, uv2, uv0) 
             ];
         }
 
@@ -188,8 +188,8 @@ package away3d.core.draw
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
                 uv20:UV = UV.median(uv2, uv0);
             return [
-                create(view, source, face, material, v1, v2, v20, uv1, uv2, uv20),
-                create(view, source, face, material, v20, v0, v1, uv20, uv0, uv1) 
+                create(source, face, material, v1, v2, v20, uv1, uv2, uv20),
+                create(source, face, material, v20, v0, v1, uv20, uv0, uv1) 
             ];                                                
         }
         
@@ -241,7 +241,7 @@ package away3d.core.draw
         public var backface:Boolean = false;
         
     	/**
-    	 * The bitmapData object used as the triangle primitive texture.
+    	 * The material object used as the triangle primitive's texture.
     	 */
         public var material:ITriangleMaterial;
         
@@ -460,10 +460,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(view, source, face, material, v0, v01, v20, uv0, uv01, uv20),
-                create(view, source, face, material, v1, v12, v01, uv1, uv12, uv01),
-                create(view, source, face, material, v2, v20, v12, uv2, uv20, uv12),
-                create(view, source, face, material, v01, v12, v20, uv01, uv12, uv20)
+                create(source, face, material, v0, v01, v20, uv0, uv01, uv20),
+                create(source, face, material, v1, v12, v01, uv1, uv12, uv01),
+                create(source, face, material, v2, v20, v12, uv2, uv20, uv12),
+                create(source, face, material, v01, v12, v20, uv01, uv12, uv20)
             ];
         }
         

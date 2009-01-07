@@ -25,7 +25,7 @@ package away3d.materials
     /**
     * Basic bitmap material
     */
-    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial
+    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial
     {
     	/** @private */
     	arcane var _texturemapping:Matrix;
@@ -757,6 +757,14 @@ package away3d.materials
 			
             if (debug)
                 _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function renderBillboard(bill:DrawBillboard):void
+        {
+            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);
         }
         
 		/**

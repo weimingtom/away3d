@@ -167,12 +167,12 @@ package away3d.primitives.data
         {
         	ini = Init.parse(init);
         	
-        	_left = ini.getMaterial("left");
-        	_right = ini.getMaterial("right");
-        	_bottom = ini.getMaterial("bottom");
-        	_top = ini.getMaterial("top");
-        	_front = ini.getMaterial("front");
-        	_back = ini.getMaterial("back");
+        	_left = ini.getMaterial("left") as ITriangleMaterial;
+        	_right = ini.getMaterial("right") as ITriangleMaterial;
+        	_bottom = ini.getMaterial("bottom") as ITriangleMaterial;;
+        	_top = ini.getMaterial("top") as ITriangleMaterial;
+        	_front = ini.getMaterial("front") as ITriangleMaterial;
+        	_back = ini.getMaterial("back") as ITriangleMaterial;
         }
         
 		/**

@@ -1,12 +1,19 @@
 package away3d.core.traverse
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
+	import away3d.core.project.*;
 	import away3d.core.render.*;
+	import away3d.sprites.DirSprite2D;
+	import away3d.sprites.DofSprite2D;
+	import away3d.sprites.MovieClipSprite;
+	import away3d.sprites.Sprite2D;
+	
+	import flash.utils.*;
     
 	use namespace arcane;
 	
@@ -20,6 +27,8 @@ package away3d.core.traverse
     	private var _consumer:IPrimitiveConsumer;
     	private var _mouseEnabled:Boolean;
     	private var _mouseEnableds:Array;
+    	private var _projectorDictionary:Dictionary = new Dictionary(true);
+    	
 		private var _light:ILightProvider;
 		/**
 		 * Defines the view being used.
@@ -33,6 +42,15 @@ package away3d.core.traverse
 			_view = val;
 			_mouseEnabled = true;
 			_mouseEnableds = [];
+			
+        	//setup the projector dictionary
+        	_projectorDictionary[ProjectorType.CONVEX_BLOCK] = view._convexBlockProjector;
+			_projectorDictionary[ProjectorType.DIR_SPRITE] = view._dirSpriteProjector;
+			_projectorDictionary[ProjectorType.DOF_SPRITE] = view._dofSpriteProjector;
+			_projectorDictionary[ProjectorType.MESH] = view._meshProjector;
+			_projectorDictionary[ProjectorType.MOVIE_CLIP_SPRITE] = view._movieClipSpriteProjector;
+			_projectorDictionary[ProjectorType.OBJECT_CONTAINER] = view._objectContainerProjector;
+			_projectorDictionary[ProjectorType.SPRITE] = view._spriteProjector;
 		}
 		    	
 		/**
@@ -71,24 +89,25 @@ package away3d.core.traverse
 	        	_viewTransform = _view.camera.viewTransforms[node];
 	        	_consumer = node.session.getConsumer(_view);
 	        	
-	        	if (node.projector)
-	            	node.projector.primitives(_view, _viewTransform, _consumer);
+	        	
+	        	if (node.projectorType)
+	        		(_projectorDictionary[node.projectorType] as IPrimitiveProvider).primitives(node, _viewTransform, _consumer);
 	            
 	            if (node.debugbb && node.debugBoundingBox.visible) {
 	            	node.debugBoundingBox._session = node.session;
-	            	node.debugBoundingBox.projector.primitives(_view, _viewTransform, _consumer);
+	            	_view._meshProjector.primitives(node.debugBoundingBox, _viewTransform, _consumer);
 	            }
-	            	
+	            
 	            if (node.debugbs && node.debugBoundingSphere.visible) {
 	            	node.debugBoundingSphere._session = node.session;
-	            	node.debugBoundingSphere.projector.primitives(_view, _viewTransform, _consumer);
+	            	_view._meshProjector.primitives(node.debugBoundingSphere, _viewTransform, _consumer);
 	            }
 	            
 	            if (node is ILightProvider) {
 	            	_light = node as ILightProvider;
 	            	if (_light.debug) {
 	            		_light.debugPrimitive._session = node.session;
-	            		_light.debugPrimitive.projector.primitives(_view, _viewTransform, _consumer);
+	            		_view._meshProjector.primitives(_light.debugPrimitive, _viewTransform, _consumer);
 	            	}
 	            }
 	        }

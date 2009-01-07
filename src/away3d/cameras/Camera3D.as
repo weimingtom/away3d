@@ -259,11 +259,7 @@ package away3d.cameras
         */
         public function project(viewTransform:Matrix3D, vertex:Vertex, screenvertex:ScreenVertex):void
         {
-        	_x = vertex.x;
-        	_y = vertex.y;
-        	_z = vertex.z;
-        	
-            _sz = _x * viewTransform.szx + _y * viewTransform.szy + _z * viewTransform.szz + viewTransform.tz;
+            _sz = (_x = vertex.x) * viewTransform.szx + (_y = vertex.y) * viewTransform.szy + (_z = vertex.z) * viewTransform.szz + viewTransform.tz;
     		/*/
     		//modified
     		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
