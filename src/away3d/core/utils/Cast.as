@@ -302,7 +302,7 @@ package away3d.core.utils {
             return name;
         }
 
-        public static function material(data:*):ITriangleMaterial
+        public static function material(data:*):IMaterial
         {
             if (data == null)
                 return null;

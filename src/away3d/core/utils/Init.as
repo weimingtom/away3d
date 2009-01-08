@@ -281,7 +281,7 @@ package away3d.core.utils
             return result;
         }
 
-        public function getMaterial(name:String):ITriangleMaterial
+        public function getMaterial(name:String):IMaterial
         {
             if (init == null)
                 return null;
@@ -289,7 +289,7 @@ package away3d.core.utils
             if (!init.hasOwnProperty(name))
                 return null;
         
-            var result:ITriangleMaterial = Cast.material(init[name]);
+            var result:IMaterial = Cast.material(init[name]);
 
             delete init[name];
         

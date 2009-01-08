@@ -299,22 +299,22 @@ package away3d.core.clip
             if (minX == -Infinity)
             	_clippingClone.minX = _miX;
             else
-            	_clippingClone.minX = minX;
+            	_clippingClone.minX = _minX;
             
             if (maxX == Infinity)
             	_clippingClone.maxX = _maX;
             else
-            	_clippingClone.maxX = maxX;
+            	_clippingClone.maxX = _maxX;
             
             if (minY == -Infinity)
             	_clippingClone.minY = _miY;
             else
-            	_clippingClone.minY = minY;
+            	_clippingClone.minY = _minY;
             
             if (maxY == Infinity)
             	_clippingClone.maxY = _maY;
             else
-            	_clippingClone.maxY = maxY;
+            	_clippingClone.maxY = _maxY;
             	
             return _clippingClone;
         }

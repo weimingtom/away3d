@@ -3,7 +3,7 @@ package away3d.sprites
     import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
-    import away3d.core.project.SpriteProjector;
+    import away3d.core.project.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     
@@ -56,10 +56,8 @@ package away3d.sprites
             rotation = ini.getNumber("rotation", 0);
             smooth = ini.getBoolean("smooth", false);
             deltaZ = ini.getNumber("deltaZ", 0);
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
             
-            if (!projector)
-            	projector = new SpriteProjector();
+            projectorType = ProjectorType.SPRITE;
         }
     }
 }

@@ -38,10 +38,8 @@ package away3d.blockers
             this.vertices = vertices;
 			
             debug = ini.getBoolean("debug", false);
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
             
-            if (!projector)
-            	projector = new ConvexBlockProjector();
+            projectorType = ProjectorType.CONVEX_BLOCK;
         }
     }
 }

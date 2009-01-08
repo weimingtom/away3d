@@ -37,10 +37,10 @@ package away3d.core.project
     	 * @see	away3d.core.traverse.BlockerTraverser
     	 * @see	away3d.core.block.Blocker
 		 */
-        public function blockers(view:View3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
+        public function blockers(source:Object3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
         {
-			if (!(primitiveDictionary = viewDictionary[view]))
-				primitiveDictionary = viewDictionary[view] = new Dictionary(true);
+        	if (!(primitiveDictionary = sourceDictionary[source]))
+				primitiveDictionary = sourceDictionary[source] = new Dictionary(true);
 			
         	_convexBlock = source as ConvexBlock;
 			
@@ -118,22 +118,16 @@ package away3d.core.project
             consumer.blocker(_convexBlocker);
  		}
  		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(view, viewTransform, consumer);
+			super.primitives(source, viewTransform, consumer);
 			
 			_convexBlock = source as ConvexBlock;
 			
-			if (!_convexBlock)
-				Debug.error("ConvexBlockProjector must process a ConvexBlock object");
+			_convexBlocker = sourceDictionary[source][source];
 			
         	if (_convexBlock.debug)
                 consumer.primitive(_convexBlocker);
-		}
-		
-		public function clone():IPrimitiveProvider
-		{
-			return new ConvexBlockProjector();
 		}
 	}
 }
