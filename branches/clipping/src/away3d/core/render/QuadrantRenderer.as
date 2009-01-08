@@ -181,7 +181,7 @@ package away3d.core.render
         	_primitives = [];
 			_scene = view.scene;
 			_camera = view.camera;
-			_clip = view.clipping;
+			_clip = view.screenClip;
 			
 			if (!_root)
 				_root = new PrimitiveQuadrantTreeNode((_clip.minX + _clip.maxX)/2, (_clip.minY + _clip.maxY)/2, _clip.maxX - _clip.minX, _clip.maxY - _clip.minY, 0);

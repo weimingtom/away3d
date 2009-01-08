@@ -1,5 +1,4 @@
-package away3d.materials
-{
+﻿package away3d.materials{
     import away3d.containers.*;
     import away3d.arcane;
     import away3d.core.base.*;
@@ -7,7 +6,7 @@ package away3d.materials
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.events.*;
-    
+	import away3d.core.math.Number3D;	import away3d.core.math.Matrix3D;    
     import flash.display.*;
     import flash.events.*;
     import flash.geom.*;
@@ -25,8 +24,7 @@ package away3d.materials
     /**
     * Basic bitmap material
     */
-    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial
-    {
+    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial    {
     	/** @private */
     	arcane var _texturemapping:Matrix;
         /** @private */
@@ -183,7 +181,7 @@ package away3d.materials
         private var cx:Number;
         private var cy:Number;
         private var cz:Number;
-        
+		private var _showNormals:Boolean;		private var _nn:Number3D;		private var _sv0:ScreenVertex;		private var _sv1:ScreenVertex;        
         private function createVertexArray():void
         {
             var index:Number = 100;
@@ -205,7 +203,7 @@ package away3d.materials
             cy = c.y;
             cz = c.z;
             
-            if (!_view.clipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!_view.screenClip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
             if ((az <= 0) && (bz <= 0) && (cz <= 0))
@@ -642,8 +640,8 @@ package away3d.materials
         	_blendMode = val;
         	_blendModeDirty = true;
         }
-        
-		/**
+				 /**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }        
+        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return        	        	_showNormals = val;        	        	_faceDirty = true;        }        		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
 		 * @param	bitmap				The bitmapData object to be used as the material's texture.
@@ -662,8 +660,7 @@ package away3d.materials
             _blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
             color = ini.getColor("color", _color);
-            
-            _colorTransformDirty = true;
+            showNormals = ini.getBoolean("showNormals", false);            _colorTransformDirty = true;
             
             createVertexArray();
         }
@@ -757,7 +754,7 @@ package away3d.materials
 			
             if (debug)
                 _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-        }
+							if(showNormals){				if( _nn == null){					_nn = new Number3D();					_sv0 = new ScreenVertex();					_sv1 = new ScreenVertex();				}				        		var t:Matrix3D = tri.view.camera.viewTransforms[tri.source];				_nn.rotate(tri.face.normal, t);				 				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;				_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;				_sv0.z = (tri.v0.z + tri.v1.z + tri.v2.z) / 3;				 				_sv1.x = (_sv0.x - (30*_nn.x));				_sv1.y = (_sv0.y - (30*_nn.y));				_sv1.z = (_sv0.z - (30*_nn.z));				 				_session.renderLine(_sv0, _sv1, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
         
 		/**
 		 * @inheritDoc

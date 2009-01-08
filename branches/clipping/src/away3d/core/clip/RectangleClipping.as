@@ -123,6 +123,15 @@ package away3d.core.clip
             return true;
         }
 		
+		public override function clone(object:Clipping = null):Clipping
+        {
+        	var clipping:RectangleClipping = (object as RectangleClipping) || new RectangleClipping();
+        	
+        	super.clone(clipping);
+        	
+        	return clipping;
+        }
+        
 		/**
 		 * Used to trace the values of a rectangle clipping object.
 		 * 

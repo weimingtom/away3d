@@ -52,6 +52,7 @@ package away3d.loaders
 		private var _minZ:Number;
     	private var _faceListIndex:int;
     	private var _faceData:FaceData;
+    	private var _faceMaterial:ITriangleMaterial;
     	private var _face:Face;
     	private var _vertex:Vertex;
     	private var _moveVector:Number3D = new Number3D();
@@ -167,17 +168,22 @@ package away3d.loaders
 				var matData:MaterialData;
 				
 				for each(_faceData in _geometryData.faces) {
-					if (!_faceData.materialData)
-						continue;
+					if (_faceData.materialData)
+						_faceMaterial = _faceData.materialData.material as ITriangleMaterial;
+					else
+						_faceMaterial = null;
+					
 					_face = new Face(_geometryData.vertices[_faceData.v0],
 												_geometryData.vertices[_faceData.v1],
 												_geometryData.vertices[_faceData.v2],
-												_faceData.materialData.material as ITriangleMaterial,
+												_faceMaterial,
 												_geometryData.uvs[_faceData.uv0],
 												_geometryData.uvs[_faceData.uv1],
 												_geometryData.uvs[_faceData.uv2]);
 					geometry.addFace(_face);
-					_faceData.materialData.elements.push(_face);
+					
+					if (_faceData.materialData)
+						_faceData.materialData.elements.push(_face);
 				}
 			} else {
 				mesh.geometry = geometry;
@@ -500,7 +506,7 @@ package away3d.loaders
 			autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
             scaling = ini.getNumber("scaling", 1)*100;
             shading = ini.getBoolean("shading", false);
-            material = ini.getMaterial("material");
+            material = ini.getMaterial("material") as ITriangleMaterial;
             centerMeshes = ini.getBoolean("centerMeshes", false);
 
             var materials:Object = ini.getObject("materials") || {};

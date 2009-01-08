@@ -10,7 +10,6 @@ package away3d.core.project
 	
 	public class AbstractProjector
 	{
-		private var _source:Object3D;
 		private var _seg:DrawSegment;
 		private var _tri:DrawTriangle;
 		private var _dtStore:Array = new Array();
@@ -18,42 +17,29 @@ package away3d.core.project
         private var _dsStore:Array = new Array();
         private var _dsActive:Array = new Array();
         
-		protected var viewDictionary:Dictionary;
+		protected var sourceDictionary:Dictionary = new Dictionary(true);
 		
 		protected var primitiveDictionary:Dictionary;
         
-		public function get source():Object3D
+        public var view:View3D
+		
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			return _source;
+			if (!(primitiveDictionary = sourceDictionary[source]))
+				primitiveDictionary = sourceDictionary[source] = new Dictionary(true);
 		}
 		
-		public function set source(val:Object3D):void
-		{
-			if (_source == val)
-				return;
-			
-			_source = val;
-			
-			viewDictionary = new Dictionary(true);
-		}
-		
-		public function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
-		{
-			if (!(primitiveDictionary = viewDictionary[view]))
-				primitiveDictionary = viewDictionary[view] = new Dictionary(true);
-		}
-		
-	    public function createDrawSegment(view:View3D, source:Object3D, material:ISegmentMaterial, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
+	    public function createDrawSegment(source:Object3D, material:ISegmentMaterial, v0:ScreenVertex, v1:ScreenVertex):DrawSegment
 	    {
 	        if (_dsStore.length) {
 	        	_dsActive.push(_seg = _dsStore.pop());
 	    	} else {
 	        	_dsActive.push(_seg = new DrawSegment());
-	            _seg.source = source;
+	            _seg.view = view;
 	            _seg.create = createDrawSegment;
 	        }
 	        
-	        _seg.view = view;
+	        _seg.source = source;
 	        _seg.material = material;
 	        _seg.v0 = v0;
 	        _seg.v1 = v1;
@@ -62,18 +48,18 @@ package away3d.core.project
 	        return _seg;
 	    }
 	    
-		public function createDrawTriangle(view:View3D, source:Object3D, face:Face, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
+		public function createDrawTriangle(source:Object3D, face:Face, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV):DrawTriangle
 		{
 			if (_dtStore.length) {
 	        	_dtActive.push(_tri = _dtStore.pop());
 	   		} else {
 	        	_dtActive.push(_tri = new DrawTriangle());
-		        _tri.source = source;
+		        _tri.view = view;
 		        _tri.create = createDrawTriangle;
 		        _tri.generated = true;
 	        }
 	        
-	        _tri.view = view;
+	        _tri.source = source;
 	        _tri.face = face;
 	        _tri.material = material;
 	        _tri.v0 = v0;

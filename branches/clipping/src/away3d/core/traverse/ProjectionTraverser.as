@@ -1,5 +1,6 @@
 package away3d.core.traverse
 {
+	import away3d.arcane;
 	import away3d.cameras.Camera3D;
 	import away3d.containers.*;
 	import away3d.core.base.*;
@@ -9,6 +10,8 @@ package away3d.core.traverse
 	import away3d.core.render.*;
 	
 	import flash.utils.*;
+	
+	use namespace arcane;
 	
     /**
     * Traverser that resolves the transform tree in a scene, ready for rendering.
@@ -75,8 +78,8 @@ package away3d.core.traverse
         
         public override function apply(node:Object3D):void
         {
-            if (node.projector is ConvexBlockProjector)
-                (node.projector as ConvexBlockProjector).blockers(_view, _camera.viewTransforms[node], _view.blockerarray);
+            if (node.projectorType == ProjectorType.CONVEX_BLOCK)
+                _view._convexBlockProjector.blockers(node, _camera.viewTransforms[node], _view.blockerarray);
             
         	//add to scene meshes dictionary
             if ((_mesh = node as Mesh))

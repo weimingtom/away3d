@@ -7,6 +7,7 @@ package away3d.containers
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.Matrix3D;
+	import away3d.core.project.*;
 	import away3d.core.render.*;
 	import away3d.core.stats.*;
 	import away3d.core.traverse.*;
@@ -65,6 +66,20 @@ package away3d.containers
 	{
 		/** @private */
 		arcane var _interactiveLayer:Sprite = new Sprite();
+		/** @private */
+		arcane var _convexBlockProjector:ConvexBlockProjector = new ConvexBlockProjector();
+		/** @private */
+    	arcane var _dirSpriteProjector:DirSpriteProjector = new DirSpriteProjector();
+    	/** @private */
+    	arcane var _dofSpriteProjector:DofSpriteProjector = new DofSpriteProjector();
+    	/** @private */
+    	arcane var _meshProjector:MeshProjector = new MeshProjector();
+    	/** @private */
+    	arcane var _movieClipSpriteProjector:MovieClipSpriteProjector = new MovieClipSpriteProjector();
+    	/** @private */
+    	arcane var _objectContainerProjector:ObjectContainerProjector = new ObjectContainerProjector();
+    	/** @private */
+    	arcane var _spriteProjector:SpriteProjector = new SpriteProjector();
 		/** @private */
         arcane function dispatchMouseEvent(event:MouseEvent3D):void
         {
@@ -504,6 +519,11 @@ package away3d.containers
             addChild(hud);
         }
         
+        public function get screenClip():Clipping
+        {
+        	return _screenClip;
+        }
+        
 		/**
 		 * Creates a new <code>View3D</code> object.
 		 * 
@@ -516,7 +536,7 @@ package away3d.containers
             var stats:Boolean = _ini.getBoolean("stats", true);
 			session = _ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
-            camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
+            camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
 			clipping = _ini.getObject("clipping", Clipping) as Clipping || new RectangleClipping();
 			x = _ini.getNumber("x", 0);
@@ -527,7 +547,14 @@ package away3d.containers
 			//setup blendmode for hidden interactive layer
             _interactiveLayer.blendMode = BlendMode.ALPHA;
             
-            //setup view property on traverser
+            //setup the view property on child classes
+            _convexBlockProjector.view = this;
+			_dirSpriteProjector.view = this;
+			_dofSpriteProjector.view = this;
+			_meshProjector.view = this;
+			_movieClipSpriteProjector.view = this;
+			_objectContainerProjector.view = this;
+			_spriteProjector.view = this;
             _pritraverser.view = this;
             
             //setup events on view
@@ -721,6 +748,8 @@ package away3d.containers
             
             //draw scene into view session
             if (_session.updated) {
+            	if (_scene.ownSession is SpriteRenderSession)
+					(_scene.ownSession as SpriteRenderSession).cacheAsBitmap = true;
             	_ddo.view = this;
 	        	_ddo.displayobject = _scene.session.getContainer(this);
 	        	_ddo.session = _session;
