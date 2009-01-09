@@ -2,6 +2,7 @@ package away3d.materials
 {
     import away3d.core.base.*;
     import away3d.core.draw.*;
+    import away3d.core.math.Number3D;
     import away3d.core.render.*;
     import away3d.core.utils.*;
 	
@@ -70,16 +71,7 @@ package away3d.materials
         protected override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
 
-            fr = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
-            fg = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
-            fb = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
-            
-            if (fr > 0xFF)
-                fr = 0xFF;
-            if (fg > 0xFF)
-                fg = 0xFF;
-            if (fb > 0xFF)
-                fb = 0xFF;
+        	calculateResultingColor(kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
 
             session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, tri.v0, tri.v1, tri.v2);
 
@@ -101,6 +93,19 @@ package away3d.materials
                 }
         }
         
+        /**
+		 * @inheritDoc
+		 */
+        protected override function renderShp(shp:DrawShape, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        {
+        	if(alpha <= 0)
+            	return;
+        	
+        	calculateResultingColor(kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
+			
+			shp.source.session.renderShape(1, 0, 0, fr << 16 | fg << 8 | fb, alpha, shp);
+        }
+        
 		/**
     	 * Indicates whether the material is visible
     	 */
@@ -109,5 +114,18 @@ package away3d.materials
             return true;
         }
  
+ 		private function calculateResultingColor(kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+ 		{
+ 			fr = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
+            fg = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
+            fb = int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
+            
+            if(fr > 0xFF)
+            	fr = 0xFF;
+            if(fg > 0xFF)
+            	fg = 0xFF;
+            if(fb > 0xFF)
+            	fb = 0xFF;
+ 		}
     }
 }

@@ -13,7 +13,7 @@ package away3d.materials
     /**
     * Wire material for gradient color drawing with optional face border outlining
     */
-    public class WireGradientMaterial extends EventDispatcher implements ITriangleMaterial, IShapeMaterial
+    public class GradientMaterial extends EventDispatcher implements ITriangleMaterial, IShapeMaterial
     {
         /**
         * Instance of the Init object used to hold and parse default property values
@@ -41,32 +41,17 @@ package away3d.materials
         public var interpolationMethod:String;
         
         public var rotation:Number;
-        
-    	/**
-    	 * Determines the wire width
-    	 */
-        public var width:Number;
-        
-    	/**
-    	 * Determines the color value of the border wire
-    	 */
-        public var wirecolor:int;
-        
-    	/**
-    	 * Determines the alpha value of the border wire
-    	 */
-        public var wirealpha:Number;
     	
 		/**
-		 * Creates a new <code>WireGradientMaterial</code> object.
+		 * Creates a new <code>GradientMaterial</code> object.
 		 * 
 		 * @param	color1				A string, hex value or colorname representing the color1 of the material.
 		 * @param	color2				A string, hex value or colorname representing the color2 of the material.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
-        public function WireGradientMaterial(color1:* = null, color2:* = null, init:Object = null)
+        public function GradientMaterial(color1:* = null, color2:* = null, init:Object = null)
         {
-            if(color1 == null)
+        	if(color1 == null)
             	color1 = "random";
             	
             if(color2 == null)
@@ -85,9 +70,6 @@ package away3d.materials
         	spreadMethod = ini.getString("spreadMethod", SpreadMethod.PAD);
         	interpolationMethod = ini.getString("interpolationMethod", InterpolationMethod.RGB);
             rotation = ini.getNumber("rotation", 0);
-            wirecolor = ini.getColor("wirecolor", 0x000000);
-            width = ini.getNumber("width", 1, {min:0});
-            wirealpha = ini.getNumber("wirealpha", 1, {min:0, max:1});
         }
         
 		/**
@@ -112,12 +94,12 @@ package away3d.materials
 		 */
         public function renderShape(shp:DrawShape):void
         {
-            if(alpha1 <= 0 && alpha2 <= 0 && wirealpha <= 0)
+            if(alpha1 <= 0 && alpha2 <= 0)
             	return;
 			
 			var gradientObj:Object = {gradientType:gradientType, rotation:rotation, colors:[color1, color2], alphas:[alpha1, alpha2], ratios:[ratio1, ratio2], spreadMethod:spreadMethod, interpolationMethod:interpolationMethod};
 			
-			shp.source.session.renderShapeGradient(width, wirecolor, wirealpha, gradientObj, shp);
+			shp.source.session.renderShapeGradient(1, 0xFF00FF, 0, gradientObj, shp);
         }
         
 		/**
@@ -125,7 +107,7 @@ package away3d.materials
 		 */
         public function get visible():Boolean
         {
-            return (alpha1 > 0) || (alpha2 > 0) || (wirealpha > 0);
+            return (alpha1 > 0) || (alpha2 > 0);
         }
         
 		/**

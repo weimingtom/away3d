@@ -1,7 +1,8 @@
 package away3d.materials
 {
-    import away3d.containers.*;
     import away3d.arcane;
+    import away3d.cameras.Camera3D;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -19,7 +20,7 @@ package away3d.materials
     * Abstract class for materials that calculate lighting for the face's center
     * Not intended for direct use - use <code>ShadingColorMaterial</code> or <code>WhiteShadingBitmapMaterial</code>.
     */
-    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial
+    public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial, IShapeMaterial
     {
         /** @private */
         arcane var v0:ScreenVertex;
@@ -125,6 +126,12 @@ package away3d.materials
             throw new Error("Not implemented");
         }
         
+        /** @private */
+        protected function renderShp(shp:DrawShape, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
+        {
+            throw new Error("Not implemented");
+        }
+        
         /**
         * Coefficient for ambient light level
         */
@@ -173,11 +180,11 @@ package away3d.materials
         public function renderTriangle(tri:DrawTriangle):void
         {
         	session = tri.source.session;
-            v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
-            focus = tri.view.camera.focus;
-            zoom = tri.view.camera.zoom;
+        	focus = tri.view.camera.focus;
+        	zoom = tri.view.camera.zoom;
+        	v0 = tri.v0;
+        	v1 = tri.v1;
+        	v2 = tri.v2;
 
             v0z = v0.z;
             v0p = (1 + v0z / focus) / zoom;
@@ -193,7 +200,7 @@ package away3d.materials
             v2p = (1 + v2z / focus) / zoom;
             v2x = v2.x * v2p;
             v2y = v2.y * v2p;
-            
+
             d1x = v1x - v0x;
             d1y = v1y - v0y;
             d1z = v1z - v0z;
@@ -206,20 +213,20 @@ package away3d.materials
             pb = d1z*d2x - d1x*d2z;
             pc = d1x*d2y - d1y*d2x;
             pdd = Math.sqrt(pa*pa + pb*pb + pc*pc);
-            
-            pa /= pdd;
-            pb /= pdd;
-            pc /= pdd;
+
+			pa /= (pdd+1);
+            pb /= (pdd+1);
+            pc /= (pdd+1);
 
             c0x = (v0x + v1x + v2x) / 3;
             c0y = (v0y + v1y + v2y) / 3;
             c0z = (v0z + v1z + v2z) / 3;
 
             kar = kag = kab = kdr = kdg = kdb = ksr = ksg = ksb = 0;
-			
-			_source = tri.source as Mesh;
-			
-			for each (directional in tri.source.lightarray.directionals)
+        	
+        	_source = tri.source as Mesh;
+        	
+        	for each(directional in _source.lightarray.directionals)
             {
             	_diffuseTransform = directional.diffuseTransform[_source];
             	
@@ -264,8 +271,8 @@ package away3d.materials
                 ksg += green * spec;
                 ksb += blue * spec;
             }
-            
-            for each (point in tri.source.lightarray.points)
+        	
+        	for each(point in _source.lightarray.points)
             {
                 red = point.red;
                 green = point.green;
@@ -275,6 +282,7 @@ package away3d.materials
                 dfy = point.y - c0y;
                 dfz = point.z - c0z;
                 df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz);
+                
                 dfx /= df;
                 dfy /= df;
                 dfz /= df;
@@ -288,8 +296,8 @@ package away3d.materials
                 
                 nf = dfx*pa + dfy*pb + dfz*pc;
 
-                if (nf < 0)
-                    continue;
+                if(nf < 0)
+                	continue;
 
                 diff = point.diffuse * fade * nf * diffuse_brightness;
 
@@ -299,8 +307,8 @@ package away3d.materials
                 
                 rfz = dfz - 2*nf*pc;
 
-                if (rfz < 0)
-                    continue;
+                if(rfz < 0)
+					continue;
 
                 rfx = dfx - 2*nf*pa;
                 rfy = dfy - 2*nf*pb;
@@ -390,6 +398,116 @@ package away3d.materials
                         }
                     }
             }
+        }
+        
+        /**
+		 * @inheritDoc
+		 */
+        public function renderShape(shp:DrawShape):void
+        {
+        	session = shp.source.session;
+        	focus = shp.view.camera.focus;
+        	zoom = shp.view.camera.zoom;
+        	v0 = shp.screenVertices[0];
+        	v1 = shp.screenVertices[1];
+        	v2 = shp.screenVertices[2];
+
+            v0z = v0.z;
+            v0p = (1 + v0z / focus) / zoom;
+            v0x = v0.x * v0p;
+            v0y = v0.y * v0p;
+
+            v1z = v1.z;
+            v1p = (1 + v1z / focus) / zoom;
+            v1x = v1.x * v1p;
+            v1y = v1.y * v1p;
+
+            v2z = v2.z;
+            v2p = (1 + v2z / focus) / zoom;
+            v2x = v2.x * v2p;
+            v2y = v2.y * v2p;
+
+            d1x = v1x - v0x;
+            d1y = v1y - v0y;
+            d1z = v1z - v0z;
+
+            d2x = v2x - v0x;
+            d2y = v2y - v0y;
+            d2z = v2z - v0z;
+
+            pa = d1y*d2z - d1z*d2y;
+            pb = d1z*d2x - d1x*d2z;
+            pc = d1x*d2y - d1y*d2x;
+            pdd = Math.sqrt(pa*pa + pb*pb + pc*pc) + 1;
+
+			pa /= pdd;
+            pb /= pdd;
+            pc /= pdd;
+
+            c0x = (v0x + v1x + v2x) / 3;
+            c0y = (v0y + v1y + v2y) / 3;
+            c0z = (v0z + v1z + v2z) / 3;
+
+            kar = kag = kab = kdr = kdg = kdb = ksr = ksg = ksb = 0;
+        	
+        	_source = shp.source as Mesh;
+        	
+        	for each(point in _source.lightarray.points)
+            {
+                red = point.red;
+                green = point.green;
+                blue = point.blue;
+
+                dfx = point.x - c0x;
+                dfy = point.y - c0y;
+                dfz = point.z - c0z;
+                df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz) + 1;
+                
+                dfx /= -df;
+                dfy /= -df;
+                dfz /= -df;
+                fade = 1 / df / df;
+                
+                amb = point.ambient * fade * ambient_brightness;
+
+                kar += red * amb;
+                kag += green * amb;
+                kab += blue * amb;
+                
+                nf = dfx*pa + dfy*pb + dfz*pc;
+				//nf *= -1;
+
+                if(nf < 0)
+                	continue;
+
+                diff = point.diffuse * fade * nf * diffuse_brightness;
+
+                kdr += red * diff;
+                kdg += green * diff;
+                kdb += blue * diff;
+                
+                //nf *= -1;
+                rfz = dfz - 2*nf*pc;
+				
+                if(rfz < 0)
+					continue;
+
+                rfx = dfx - 2*nf*pa;
+                rfy = dfy - 2*nf*pb;
+                
+                spec = point.specular * fade * Math.pow(rfz, shininess) * specular_brightness;
+
+                ksr += red * spec;
+                ksg += green * spec;
+                ksb += blue * spec;
+            }
+			
+			renderShp(shp, session, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
+        }
+        
+        private function calculateColorNumbers(camera:Camera3D, source:Object3D, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, nx:Number = 0, ny:Number = 0, nz:Number = 0):void
+        {
+        	
         }
         
 		/**
