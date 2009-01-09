@@ -41,7 +41,12 @@ package away3d.core.draw
 					minZ = sv.z;
 			}
 			
-			screenZ = (maxZ + minZ)/2 + layerOffset;
+			//screenZ = (maxZ + minZ)/2 + layerOffset;;
+			
+			screenZ = 0;
+			for each(var vertex:ScreenVertex in screenVertices)
+				screenZ += vertex.z;
+			screenZ = screenZ/screenVertices.length + layerOffset;
 		}
 		
 		public override function render():void
