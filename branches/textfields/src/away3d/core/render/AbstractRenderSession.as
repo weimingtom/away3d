@@ -1,7 +1,7 @@
 package away3d.core.render
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
@@ -532,13 +532,21 @@ package away3d.core.render
 		/**
          * Draws a shape element into the graphics object.
          */
+        private var debugTextfields:Boolean = false;
 		public function renderShape(lineThickness:Number, lineColor:int, lineAlpha:Number, fillColor:int, fillAlpha:Number, shp:DrawShape):void
 		{
 			var i:uint;
-			graphics.lineStyle(lineThickness, lineColor, lineAlpha);
 			
-			if(fillAlpha > 0)
-				graphics.beginFill(fillColor, fillAlpha);
+			if(debugTextfields)
+				graphics.lineStyle(1, 0xFFFFFF, 1);
+			else
+				graphics.lineStyle(lineThickness, lineColor, lineAlpha);
+			
+			if(!debugTextfields)
+			{
+				if(fillAlpha > 0)
+					graphics.beginFill(fillColor, fillAlpha);
+			}
 			
 			var currentPoint:uint = 0;
 			for(i = 0; i<shp.drawingCommands.length; i++)
@@ -551,26 +559,56 @@ package away3d.core.render
 				{
 					case 0:
 						graphics.moveTo(vert1.x, vert1.y);
+						
+						if(debugTextfields)
+							tracePoint(vert1.x, vert1.y, 0xFFFFFF, 10);
+						
 						break;
 					case 1:
 						graphics.lineTo(vert1.x, vert1.y);
+						
+						if(debugTextfields)
+							tracePoint(vert1.x, vert1.y, 0xFF0000, 2);
+						
 						break;
 					case 2:
 						var vert2:ScreenVertex = shp.screenVertices[currentPoint];
 						currentPoint++;
 						graphics.curveTo(vert1.x, vert1.y, vert2.x, vert2.y);
+						
+						if(debugTextfields)
+						{
+							tracePoint(vert1.x, vert1.y, 0x00FF00, 2);
+							tracePoint(vert2.x, vert2.y, 0x0000FF, 2);
+						}
+						
 						break;
 				}
 			}
 			
-			if(fillAlpha > 0)
-				graphics.endFill();
+			if(!debugTextfields)
+			{
+				if(fillAlpha > 0)
+					graphics.endFill();
+			}
+		}
+		private function tracePoint(X:Number, Y:Number, color:uint, size:Number):void
+		{
+			graphics.lineStyle(0, 0, 0);
+			graphics.beginFill(color);
+			graphics.drawCircle(X, Y, size);
+			graphics.endFill();
+			graphics.lineStyle(1, 0xFFFFFF, 1);
 		}
 		
 		
 		public function renderShapeGradient(lineThickness:Number, lineColor:int, lineAlpha:Number, fillObject:Object, shp:DrawShape):void
 		{
 			var i:uint;
+			
+			var mat:Matrix = new Matrix();
+			mat.createGradientBox(shp.maxX - shp.minX, shp.maxY - shp.minY, fillObject.rotation, shp.minX, shp.minY);
+			
 			graphics.lineStyle(lineThickness, lineColor, lineAlpha);
 			
 			graphics.beginGradientFill(
@@ -578,7 +616,7 @@ package away3d.core.render
 									    fillObject.colors,
 									    fillObject.alphas,
 									    fillObject.ratios,
-									    fillObject.mat,
+									    mat,
 									    fillObject.spreadMethod,
 									    fillObject.interpolationMethod,
 									    0
