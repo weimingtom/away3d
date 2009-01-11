@@ -1,1 +1,1 @@
-package awaybuilder{	public class CoordinateSystem	{		public static const AFTER_EFFECTS : String = "afterEffects" ;		public static const MAYA : String = "maya" ;								public function CoordinateSystem ( )		{		}	}}
+package awaybuilder{	public class CoordinateSystem	{		public static const AFTER_EFFECTS : String = "CoordinateSystem.AFTER_EFFECTS" ;		public static const MAYA : String = "CoordinateSystem.MAYA" ;		public static const NATIVE : String = "CoordinateSystem.NATIVE" ;	}}

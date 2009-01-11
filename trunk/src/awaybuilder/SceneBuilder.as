@@ -1,38 +1,6 @@
 package awaybuilder
 {
-	import flash.display.BitmapData;
-	import flash.display.DisplayObject;
-	import flash.display.MovieClip;
-	import flash.events.Event;
-	
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.View3D;
-	import away3d.core.base.Mesh;
-	import away3d.core.base.Object3D;
-	import away3d.loaders.Collada;
-	import away3d.loaders.Object3DLoader;
-	import away3d.materials.BitmapFileMaterial;
-	import away3d.materials.BitmapMaterial;
-	import away3d.materials.MovieMaterial;
-	
-	import awaybuilder.abstracts.AbstractBuilder;
-	import awaybuilder.camera.CameraFactory;
-	import awaybuilder.events.SceneEvent;
-	import awaybuilder.geometry.GeometryAttributes;
-	import awaybuilder.geometry.GeometryFactory;
-	import awaybuilder.geometry.GeometryType;
-	import awaybuilder.interfaces.IAssetContainer;
-	import awaybuilder.interfaces.IBuilder;
-	import awaybuilder.interfaces.ISceneContainer;
-	import awaybuilder.material.MaterialAttributes;
-	import awaybuilder.material.MaterialFactory;
-	import awaybuilder.material.MaterialType;
-	import awaybuilder.utils.ConvertCoordinates;
-	import awaybuilder.vo.DynamicAttributeVO;
-	import awaybuilder.vo.SceneCameraVO;
-	import awaybuilder.vo.SceneGeometryVO;
-	import awaybuilder.vo.SceneObjectVO;
-	import awaybuilder.vo.SceneSectionVO;
+	import away3d.containers.ObjectContainer3D;	import away3d.containers.View3D;	import away3d.core.base.Mesh;	import away3d.core.base.Object3D;	import away3d.loaders.Collada;	import away3d.loaders.Object3DLoader;	import away3d.materials.BitmapFileMaterial;	import away3d.materials.BitmapMaterial;	import away3d.materials.MovieMaterial;		import awaybuilder.abstracts.AbstractBuilder;	import awaybuilder.camera.CameraFactory;	import awaybuilder.events.SceneEvent;	import awaybuilder.geometry.GeometryAttributes;	import awaybuilder.geometry.GeometryFactory;	import awaybuilder.geometry.GeometryType;	import awaybuilder.interfaces.IAssetContainer;	import awaybuilder.interfaces.IBuilder;	import awaybuilder.interfaces.ISceneContainer;	import awaybuilder.material.MaterialAttributes;	import awaybuilder.material.MaterialFactory;	import awaybuilder.material.MaterialType;	import awaybuilder.utils.ConvertCoordinates;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.display.BitmapData;	import flash.display.DisplayObject;	import flash.display.MovieClip;	import flash.events.Event;
 	
 	
 	
@@ -135,7 +103,14 @@ package awaybuilder
 				if ( vo.id == id ) return vo ;
 			}
 			
-			throw new Error ( "id must be a valid camera id" ) ;
+			if ( this.cameras.length == 0 )
+			{
+				throw new Error ( "no cameras available" ) ;
+			}
+			else
+			{
+				throw new Error ( "camera with id [" + id + "] not found" ) ;
+			}
 		}
 		
 		
@@ -147,7 +122,14 @@ package awaybuilder
 				if ( vo.id == id ) return vo ;
 			}
 			
-			throw new Error ( "id must be a valid geometry id" ) ;
+			if ( this.geometry.length == 0 )
+			{
+				throw new Error ( "no geometry available" ) ;
+			}
+			else
+			{
+				throw new Error ( "geometry with id [" + id + "] not found" ) ;
+			}
 		}
 		
 		
@@ -511,9 +493,22 @@ package awaybuilder
 		
 		protected function applyColladaScale ( target : Object3D , values : SceneObjectVO ) : void
 		{
-			// NOTE: The divider is due to the Collada class having an internal scaling multiplier of 100.
-			var multiplier : uint = this.precision / 100 ;
+			var multiplier : uint ;
 			
+			switch ( this.coordinateSystem )
+			{
+				case CoordinateSystem.MAYA :
+				{
+					// NOTE: The divider is due to the Collada class having an internal scaling multiplier of 100.
+					multiplier = this.precision / 100 ;
+					break ;
+				}
+				case CoordinateSystem.NATIVE :
+				{
+					multiplier = 1 ;
+					break ;
+				}
+			}
 			// FIXME: Use custom geometry scaling property instead of geometry x scale value?
 			target.scale ( multiplier * values.scaleX ) ;
 		}

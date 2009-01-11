@@ -33,8 +33,9 @@ package awaybuilder.vo
 		
 		public function SceneGeometryVO ( )
 		{
+			this.values = new SceneObjectVO ( ) ;
 		}
-		
+
 		
 		
 		////////////////////////////////////////////////////////////////////////////////
