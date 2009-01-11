@@ -1,1 +1,1 @@
-package awaybuilder{	public class SceneSource	{		public static const MAYA : String = "SceneSource.MAYA" ;								public function SceneSource ( )		{		}	}}
+package awaybuilder{	public class SceneSource	{		public static const MAYA : String = "SceneSource.MAYA" ;		public static const NATIVE : String = "SceneSource.NATIVE" ;	}}

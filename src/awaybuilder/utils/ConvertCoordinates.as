@@ -25,6 +25,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -40,6 +41,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -58,6 +60,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -73,6 +76,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -91,6 +95,7 @@ package awaybuilder.utils
 					return -n ;
 				}
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -104,14 +109,15 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
-				case CoordinateSystem.AFTER_EFFECTS :
-				default :
-				{
-					return n ;
-				}
 				case CoordinateSystem.MAYA :
 				{
 					return n * -1 ;
+				}
+				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
+				default :
+				{
+					return n ;
 				}
 			}
 		}
@@ -127,6 +133,7 @@ package awaybuilder.utils
 					return n / 100 ;
 				}
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -142,6 +149,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -160,6 +168,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -175,6 +184,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -193,6 +203,7 @@ package awaybuilder.utils
 				{
 					return n + 90 ;
 				}
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -211,6 +222,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -226,6 +238,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -244,6 +257,7 @@ package awaybuilder.utils
 					return n + 90 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -262,6 +276,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -277,6 +292,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -292,6 +308,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -307,6 +324,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -325,6 +343,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -340,6 +359,7 @@ package awaybuilder.utils
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -358,6 +378,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;
@@ -376,6 +397,7 @@ package awaybuilder.utils
 					return n * -1 ;
 				}
 				case CoordinateSystem.MAYA :
+				case CoordinateSystem.NATIVE :
 				default :
 				{
 					return n ;

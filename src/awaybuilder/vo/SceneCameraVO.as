@@ -20,5 +20,6 @@ package awaybuilder.vo
 		public function SceneCameraVO ( )
 		{
 			this.camera = new Camera3D ( ) ;
+			this.values = new SceneObjectVO ( ) ;
 		}
 	}}
