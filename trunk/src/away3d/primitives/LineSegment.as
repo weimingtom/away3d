@@ -2,6 +2,7 @@
 {
     import away3d.core.base.*;
     import away3d.materials.*;
+    import away3d.core.math.Number3D;
     
     /**
     * Creates a 3d line segment.
@@ -51,7 +52,9 @@
             super(init);
 			
             var edge:Number = ini.getNumber("edge", 100, {min:0}) / 2;
-            _segment = new Segment(new Vertex(-edge, 0, 0), new Vertex(edge, 0, 0));
+            var v1:Vertex = ini.getObjectOrInit("start", Vertex) as Vertex || new Vertex(-edge, 0, 0);
+            var v2:Vertex = ini.getObjectOrInit("end", Vertex) as Vertex || new Vertex(edge, 0, 0);
+            _segment = new Segment(v1, v2);
             addSegment(_segment);
 			
 			type = "LineSegment";
