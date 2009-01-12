@@ -20,9 +20,9 @@ package away3d.core.project
 		private var _persp:Number;
 		private var _drawDisplayObject:DrawDisplayObject;
 		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(view, viewTransform, consumer);
+			super.primitives(source, viewTransform, consumer);
 			
 			_movieClipSprite = source as MovieClipSprite;
 			
@@ -49,6 +49,7 @@ package away3d.core.project
 			if (!(_drawDisplayObject = primitiveDictionary[_child])) {
 				_drawDisplayObject = primitiveDictionary[_child] = new DrawDisplayObject();
 				_drawDisplayObject.view = view;
+				_drawDisplayObject.source = _movieClipSprite;
 				_drawDisplayObject.screenvertex = _screenVertex;
 			}
 			
@@ -57,11 +58,6 @@ package away3d.core.project
 			_drawDisplayObject.calc();
 			
             consumer.primitive(_drawDisplayObject);
-		}
-		
-		public function clone():IPrimitiveProvider
-		{
-			return new SessionProjector();
 		}
 	}
 }

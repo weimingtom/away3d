@@ -140,10 +140,7 @@
             
             super(init);
             
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
-            
-            if (!projector)
-            	projector = new SessionProjector();
+            projectorType = ProjectorType.OBJECT_CONTAINER;
             
             for each (var child:Object3D in childarray)
                 addChild(child);
@@ -267,7 +264,78 @@
                 traverser.leave(this);
             }
         }
-        
+		
+		/**
+ 		* Apply the local rotations to child objects without altering the appearance of the object container
+ 		*/
+		public override function applyRotations():void
+		{
+			var x:Number;
+			var y:Number;
+			var z:Number;
+			var x1:Number;
+			var y1:Number;
+			var z1:Number;
+			
+			var rad:Number = Math.PI / 180;
+			var rotx:Number = rotationX * rad;
+			var roty:Number = rotationY * rad;
+			var rotz:Number = rotationZ * rad;
+			var sinx:Number = Math.sin(rotx);
+			var cosx:Number = Math.cos(rotx);
+			var siny:Number = Math.sin(roty);
+			var cosy:Number = Math.cos(roty);
+			var sinz:Number = Math.sin(rotz);
+			var cosz:Number = Math.cos(rotz);
+
+			for each (var child:Object3D in children) {
+				 
+				x = child.x;
+				y = child.y;
+				z = child.z;
+
+				y1 = y
+				y = y1*cosx+z*-sinx;
+				z = y1*sinx+z*cosx;
+				
+				x1 = x
+				x = x1*cosy+z*siny;
+				z = x1*-siny+z*cosy;
+			
+				x1 = x;
+				x = x1*cosz+y*-sinz;
+				y = x1*sinz+y*cosz;
+ 				
+ 				child.moveTo(x, y, z);
+			}
+			
+            rotationX = 0;
+            rotationY = 0;
+            rotationZ = 0;
+		}
+		
+		/**
+ 		* Apply the given position to child objects without altering the appearance of the object container
+ 		*/
+		public override function applyPosition(dx:Number, dy:Number, dz:Number):void
+		{
+			var x:Number;
+			var y:Number;
+			var z:Number;
+			
+			for each (var child:Object3D in children) {
+				x = child.x;
+				y = child.y;
+				z = child.z;
+				child.moveTo(x - dx, y - dy, z - dz);
+			}
+			
+			var dV:Number3D = new Number3D(dx, dy, dz);
+            dV.rotate(dV, _transform);
+            dV.add(dV, position);
+            moveTo(dV.x, dV.y, dV.z);  
+		}
+		
 		/**
 		 * Duplicates the 3d object's properties to another <code>ObjectContainer3D</code> object
 		 * 
@@ -319,6 +387,14 @@
         		container.animationLibrary = new AnimationLibrary();
             	for each (var _animationData:AnimationData in animationLibrary) 
             		_animationData.clone(container);
+            }
+            
+            if (materialLibrary) {
+        		container.materialLibrary = new MaterialLibrary();
+            	for each (var _materialData:MaterialData in materialLibrary)
+            	{
+            		_materialData.clone(container);
+            	}
             }
             
             //find existing root

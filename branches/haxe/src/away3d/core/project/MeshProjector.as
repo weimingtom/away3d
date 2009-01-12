@@ -1,5 +1,6 @@
 package away3d.core.project
 {
+	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
@@ -7,14 +8,27 @@ package away3d.core.project
 	import away3d.core.utils.*;
 	import away3d.materials.*;
 	
-	public class FaceProjector extends AbstractProjector implements IPrimitiveProvider
+	public class MeshProjector extends AbstractProjector implements IPrimitiveProvider
 	{
 		private var _mesh:Mesh;
-		private var _triangleMaterial:ITriangleMaterial;
+		private var _vertices:Array;
+		private var _faces:Array;
+		private var _segments:Array;
+		private var _billboards:Array;
+		private var _camera:Camera3D;
+		private var _focus:Number;
+		private var _zoom:Number;
+		private var _faceMaterial:ITriangleMaterial;
+		private var _segmentMaterial:ISegmentMaterial;
+		private var _billboardMaterial:IBillboardMaterial;
 		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _face:Face;
+		private var _segment:Segment;
+		private var _billboard:Billboard;
 		private var _drawTriangle:DrawTriangle;
+		private var _drawSegment:DrawSegment;
+		private var _drawBillBoard:DrawBillboard;
 		private var _backmat:ITriangleMaterial;
         private var _backface:Boolean;
         private var _uvmaterial:Boolean;
@@ -37,38 +51,43 @@ package away3d.core.project
             return (_sv0.x*(_sv2.y - _sv1.y) + _sv1.x*(_sv0.y - _sv2.y) + _sv2.x*(_sv1.y - _sv0.y));
         }
         
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(view, viewTransform, consumer);
+			super.primitives(source, viewTransform, consumer);
 			
 			_mesh = source as Mesh;
+			_vertices = _mesh.vertices;
+			_faces = _mesh.faces;
+			_segments = _mesh.segments;
+			_billboards = _mesh.billboards;
 			
-			if (!_mesh)
-				Debug.error("FaceProjector must process a Mesh object");
+			_camera = view.camera;
+        	_focus = _camera.focus;
+        	_zoom = _camera.zoom;
+        	
+			_faceMaterial = _mesh.faceMaterial;
+			_segmentMaterial = _mesh.segmentMaterial;
+			_billboardMaterial = _mesh.billboardMaterial;
 			
-			_triangleMaterial = _mesh.material as ITriangleMaterial;
-			
-			if (!_triangleMaterial && _mesh.material)
-				Debug.error("FaceProjector mesh material must be an ITriangleMaterial");
-			
-			for each (_vertex in _mesh.vertices) {
+			for each (_vertex in _vertices) {
 				if (!(_screenVertex = primitiveDictionary[_vertex]))
 					_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex();
 				
-				view.camera.project(viewTransform, _vertex, _screenVertex);
+				_camera.project(viewTransform, _vertex, _screenVertex);
 			}
 			
-			_backmat = _mesh.back || _triangleMaterial;
+			_backmat = _mesh.back || _faceMaterial;
 			
-            for each (_face in _mesh.faces)
+			//loop throigh all faces
+            for each (_face in _faces)
             {
                 if (!_face.visible)
                     continue;
 				
             	if (!(_drawTriangle = primitiveDictionary[_face])) {
 					_drawTriangle = primitiveDictionary[_face] = new DrawTriangle();
+	            	_drawTriangle.source = source;
 	            	_drawTriangle.view = view;
-	            	_drawTriangle.source = _mesh;
 	            	_drawTriangle.face = _face;
 	            	_drawTriangle.create = createDrawTriangle;
             	}
@@ -115,7 +134,7 @@ package away3d.core.project
                     if (_backface)
                         _drawTriangle.material = _backmat;
                     else
-                        _drawTriangle.material = _triangleMaterial;
+                        _drawTriangle.material = _faceMaterial;
                 }
                 
 				//do not draw material if visible is false
@@ -167,15 +186,15 @@ package away3d.core.project
                 {
                     _n01 = _mesh.geometry.neighbour01(_face);
                     if (_n01 == null || front(_n01) <= 0)
-                    	consumer.primitive(createDrawSegment(view, _mesh, _mesh.outline, _drawTriangle.v0, _drawTriangle.v1));
+                    	consumer.primitive(createDrawSegment(_mesh, _mesh.outline, _drawTriangle.v0, _drawTriangle.v1));
 					
                     _n12 = _mesh.geometry.neighbour12(_face);
                     if (_n12 == null || front(_n12) <= 0)
-                    	consumer.primitive(createDrawSegment(view, _mesh, _mesh.outline, _drawTriangle.v1, _drawTriangle.v2));
+                    	consumer.primitive(createDrawSegment(_mesh, _mesh.outline, _drawTriangle.v1, _drawTriangle.v2));
 					
                     _n20 = _mesh.geometry.neighbour20(_face);
                     if (_n20 == null || front(_n20) <= 0)
-                    	consumer.primitive(createDrawSegment(view, _mesh, _mesh.outline, _drawTriangle.v2, _drawTriangle.v0));
+                    	consumer.primitive(createDrawSegment(_mesh, _mesh.outline, _drawTriangle.v2, _drawTriangle.v0));
 					
                     if (_drawTriangle.material == null)
                     	continue;
@@ -183,11 +202,66 @@ package away3d.core.project
                 
                 consumer.primitive(_drawTriangle);
             }
-		}
-		
-		public function clone():IPrimitiveProvider
-		{
-			return new FaceProjector();
+            
+            //loop through all segments
+            for each (_segment in _segments)
+            {
+            	if (!(_drawSegment = primitiveDictionary[_segment])) {
+					_drawSegment = primitiveDictionary[_segment] = new DrawSegment();
+	            	_drawSegment.view = view;
+	            	_drawSegment.source = _mesh;
+	            	_drawSegment.create = createDrawSegment;
+            	}
+            	
+            	_drawSegment.v0 = primitiveDictionary[_segment.v0];
+				_drawSegment.v1 = primitiveDictionary[_segment.v1];
+    
+                if (!_drawSegment.v0.visible)
+                    continue;
+				
+                if (!_drawSegment.v1.visible)
+                    continue;
+				
+                _drawSegment.calc();
+				
+                _drawSegment.material = _segment.material || _segmentMaterial;
+				
+                if (_drawSegment.material == null)
+                    continue;
+				
+                if (!_drawSegment.material.visible)
+                    continue;
+                
+                consumer.primitive(_drawSegment);
+            }
+            
+            //loop through all billboards
+            for each (_billboard in _billboards)
+            {
+                if (!_billboard.visible)
+                    continue;
+				
+            	if (!(_drawBillBoard = primitiveDictionary[_billboard])) {
+					_drawBillBoard = primitiveDictionary[_billboard] = new DrawBillboard();
+	            	_drawBillBoard.view = view;
+	            	_drawBillBoard.source = _mesh;
+            	}
+            	
+		        _drawBillBoard.screenvertex = _screenVertex = primitiveDictionary[_billboard.vertex];
+		        
+            	if (!_drawBillBoard.screenvertex.visible)
+                    continue;
+                
+		        _drawBillBoard.width = _billboard.width;
+		        _drawBillBoard.height = _billboard.height;
+		        _drawBillBoard.scale = _billboard.scaling*_zoom / (1 + _screenVertex.z / _focus);
+		        _drawBillBoard.rotation = _billboard.rotation;
+		        _drawBillBoard.calc();
+		        
+		        _drawBillBoard.material = _billboard.material || _billboardMaterial;
+		        
+	            consumer.primitive(_drawBillBoard);
+            }
 		}
 	}
 }

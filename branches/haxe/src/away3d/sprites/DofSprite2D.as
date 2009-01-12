@@ -56,10 +56,8 @@ package away3d.sprites
 			rotation = ini.getNumber("rotation", 0);
             smooth = ini.getBoolean("smooth", false);
             deltaZ = ini.getNumber("deltaZ", 0);
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
             
-            if (!projector)
-            	projector = new DofSpriteProjector();
+            projectorType = ProjectorType.DOF_SPRITE;
         }
     }
 }

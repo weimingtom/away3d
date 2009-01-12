@@ -21,14 +21,11 @@ package away3d.core.project
 		private var _persp:Number;
 		private var _drawScaledBitmap:DrawScaledBitmap;
 		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-        	super.primitives(view, viewTransform, consumer);
+        	super.primitives(source, viewTransform, consumer);
         	
 			_dirsprite = source as DirSprite2D;
-			
-			if (!_dirsprite)
-				Debug.error("DirSpriteProjector must process a DirSprite2D object");
 			
 			_vertices = _dirsprite.vertices;
 			_bitmaps = _dirsprite.bitmaps;
@@ -72,7 +69,7 @@ package away3d.core.project
             if (!(_drawScaledBitmap = primitiveDictionary[_dirsprite])) {
 				_drawScaledBitmap = primitiveDictionary[_dirsprite] = new DrawScaledBitmap();
 	            _drawScaledBitmap.screenvertex = _screenVertex;
-	            _drawScaledBitmap.source = _dirsprite;
+	            _drawScaledBitmap.source = source;
 			}
 			
             _drawScaledBitmap.smooth = _dirsprite.smooth;
@@ -82,11 +79,6 @@ package away3d.core.project
             _drawScaledBitmap.calc();
             
             consumer.primitive(_drawScaledBitmap);
-		}
-		
-		public function clone():IPrimitiveProvider
-		{
-			return new DirSpriteProjector();
 		}
 	}
 }

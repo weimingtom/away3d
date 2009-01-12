@@ -105,5 +105,28 @@ package away3d.loaders.data
 		 * Array of indexes representing the elements that use the material.
 		 */
 		public var elements:Array = [];
+		
+		public function clone(targetObj:Object3D):MaterialData
+		{
+			var cloneMatData:MaterialData = targetObj.materialLibrary.addMaterial(name);
+			
+    		cloneMatData.materialType = materialType;
+    		cloneMatData.ambientColor = ambientColor;
+    		cloneMatData.diffuseColor = diffuseColor;
+    		cloneMatData.shininess = shininess;
+    		cloneMatData.specularColor = specularColor;
+    		cloneMatData.textureBitmap = textureBitmap;
+    		cloneMatData.textureFileName = textureFileName;
+    		cloneMatData.material = material;
+    		
+    		for each(var element:Element in elements)
+    		{
+    			var parentGeometry:Geometry = element.parent;
+    			var correspondingElement:Element = parentGeometry.cloneElementDictionary[element];
+    			cloneMatData.elements.push(correspondingElement);
+    		}
+    		
+    		return cloneMatData;
+		}
 	}
 }

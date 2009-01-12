@@ -139,7 +139,7 @@ package away3d.core.base
         }
 		
 		/**
-		 * Returns the squared bounding radius of the face.
+		 * Returns the squared bounding radius of the segment.
 		 */
         public override function get radius2():Number
         {

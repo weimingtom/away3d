@@ -8,7 +8,7 @@ package away3d.core.utils
 	
 	/**
 	 * Provides static pre-blurred bitmap images for depth of field-effect
-	 * when used together with billboarded sprites, such as particles.
+	 * when used together with billboarded sprites, such as Billboards.
 	 */
 	public class DofCache
 	{
