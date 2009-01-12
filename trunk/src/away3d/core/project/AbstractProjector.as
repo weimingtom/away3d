@@ -21,7 +21,7 @@ package away3d.core.project
 		
 		protected var primitiveDictionary:Dictionary;
         
-        public var view:View3D
+        public var view:View3D;
 		
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
