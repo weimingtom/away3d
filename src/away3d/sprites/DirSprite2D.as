@@ -74,10 +74,7 @@ package away3d.sprites
                 add(x, y, z, b);
             }
             
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
-            
-            if (!projector)
-            	projector = new DirSpriteProjector();
+            projectorType = ProjectorType.DIR_SPRITE;
         }
 		
 		/**

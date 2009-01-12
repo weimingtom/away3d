@@ -10,7 +10,7 @@ package away3d.core.project
 	
 	import flash.display.*;
 	
-	public class SessionProjector extends AbstractProjector implements IPrimitiveProvider
+	public class ObjectContainerProjector extends AbstractProjector implements IPrimitiveProvider
 	{
 		private var _container:ObjectContainer3D;
 		private var _child:Object3D;
@@ -19,9 +19,9 @@ package away3d.core.project
 		private var _drawDisplayObject:DrawDisplayObject;
 		private var _depthPoint:Number3D = new Number3D();
 		
-		public override function primitives(view:View3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(view, viewTransform, consumer);
+			super.primitives(source, viewTransform, consumer);
 			
 			_container = source as ObjectContainer3D;
 			
@@ -69,11 +69,6 @@ package away3d.core.project
 	             	consumer.primitive(_drawDisplayObject);
 	   			}
         	}
-		}
-		
-		public function clone():IPrimitiveProvider
-		{
-			return new SessionProjector();
 		}
 	}
 }

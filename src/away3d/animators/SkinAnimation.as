@@ -41,15 +41,15 @@ package away3d.animators
 		 */
         public function update(time:Number, interpolate:Boolean = true):void
         {
-			if (time - start > length ) {
+			if (time > start + length ) {
                 if (loop) {
-                    time = (time - start) % length;
+                    time = start + (time - start) % length;
                 }else{
-                    time = length;
+                    time = start + length;
                 }
             } else if (time < start) {
                 if (loop) {
-                    time = length - (time - start) % length;
+                    time = start + (time - start) % length + length;
                 }else{
                     time = start;
                 }

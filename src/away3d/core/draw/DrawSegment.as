@@ -14,7 +14,7 @@ package away3d.core.draw
 		/** @private */
 		arcane function onepointcut(v01:ScreenVertex):Array
 		{
-            return [create(view, source, material, v0, v01), create(view, source, material, v01, v1)];
+            return [create(source, material, v0, v01), create(source, material, v01, v1)];
     	}
     	
     	private var focus:Number;  
@@ -154,7 +154,7 @@ package away3d.core.draw
 
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 
-            return [create(view, source, material, v0, v01), create(view, source, material, v01, v1)];
+            return [create(source, material, v0, v01), create(source, material, v01, v1)];
         }
 		
 		/**
