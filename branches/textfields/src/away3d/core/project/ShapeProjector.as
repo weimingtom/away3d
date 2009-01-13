@@ -89,7 +89,11 @@ package away3d.core.project
 				
 				_drawShape.calc();
 				
-				//check drawShape is not behind the camera
+				//trace(_drawShape.area);
+				//Why 150??
+				if(_drawShape.area < -150)
+					continue;
+				
 				if(_drawShape.maxZ < 0)
 					continue;
 				
