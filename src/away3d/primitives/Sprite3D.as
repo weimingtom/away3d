@@ -1,5 +1,6 @@
 package away3d.primitives
 {
+	import away3d.core.base.DrawingCommand;
 	import away3d.core.base.Mesh;
 	import away3d.core.base.Shape3D;
 	import away3d.core.project.ShapeProjector;
@@ -55,7 +56,7 @@ package away3d.primitives
 			var lastY:Number = 0;
 			var addQueue:Array = [];
 			var shape:Shape3D;
-			var instruction:uint;
+			var instruction:String;
 			var tempFrontArr:Array;
 			var tempBackArr:Array;
 			for(i = 0; i<shapes.length; i++)
@@ -71,8 +72,8 @@ package away3d.primitives
 				currentVertex = 0;
 				for(j = 0; j<shape.drawingCommands.length; j++)
 				{
-					instruction = shape.drawingCommands[j];
-					if(instruction == 0)
+					instruction = shape.drawingCommands[j].type;
+					if(instruction == DrawingCommand.MOVE)
 					{
 						memX = shape.vertices[currentVertex].x;
 						memY = shape.vertices[currentVertex].y;
@@ -101,11 +102,11 @@ package away3d.primitives
 						
 						switch(instruction)
 						{	
-							case 1:
+							case DrawingCommand.LINE:
 								extShp.graphicsLineTo(aX, aY, 0);
 								tempBackArr.push(extShp.lastCreatedVertex);
 								break;
-							case 2:
+							case DrawingCommand.CURVE:
 								bX = shape.vertices[currentVertex].x;
 								bY = shape.vertices[currentVertex].y;
 								lastX = bX;
@@ -122,11 +123,11 @@ package away3d.primitives
 						
 						switch(instruction)
 						{	
-							case 1:
+							case DrawingCommand.LINE:
 								extShp.graphicsLineTo(aX, aY, 0);
 								tempFrontArr.push(extShp.lastCreatedVertex);
 								break;
-							case 2:
+							case DrawingCommand.CURVE:
 								extShp.graphicsCurveTo(aX, aY, 0, memX, memY, 0);
 								tempFrontArr.push(extShp.previousCreatedVertex);
 								tempFrontArr.push(extShp.lastCreatedVertex);

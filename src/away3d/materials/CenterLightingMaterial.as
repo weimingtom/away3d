@@ -445,6 +445,13 @@ package away3d.materials
             pb /= pdd;
             pc /= pdd;
 
+			/* if(shp.orientation)
+			{
+				pa *= -1;
+				pb *= -1;
+				pc *= -1;
+			} */
+
             c0x = 100*(v0x + v1x + v2x) / 3;
             c0y = 100*(v0y + v1y + v2y) / 3;
             c0z = 100*(v0z + v1z + v2z) / 3;
