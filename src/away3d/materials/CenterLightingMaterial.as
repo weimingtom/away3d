@@ -408,9 +408,10 @@ package away3d.materials
         	session = shp.source.session;
         	focus = shp.view.camera.focus;
         	zoom = shp.view.camera.zoom;
-        	v0 = shp.screenVertices[0];
+       		
+        	v0 = shp.screenVertices[2];
         	v1 = shp.screenVertices[1];
-        	v2 = shp.screenVertices[2];
+        	v2 = shp.screenVertices[0];
 
             v0z = v0.z;
             v0p = (1 + v0z / focus) / zoom;
@@ -444,9 +445,9 @@ package away3d.materials
             pb /= pdd;
             pc /= pdd;
 
-            c0x = (v0x + v1x + v2x) / 3;
-            c0y = (v0y + v1y + v2y) / 3;
-            c0z = (v0z + v1z + v2z) / 3;
+            c0x = 100*(v0x + v1x + v2x) / 3;
+            c0y = 100*(v0y + v1y + v2y) / 3;
+            c0z = 100*(v0z + v1z + v2z) / 3;
 
             kar = kag = kab = kdr = kdg = kdb = ksr = ksg = ksb = 0;
         	
@@ -463,9 +464,9 @@ package away3d.materials
                 dfz = point.z - c0z;
                 df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz) + 1;
                 
-                dfx /= -df;
-                dfy /= -df;
-                dfz /= -df;
+                dfx /= df;
+                dfy /= df;
+                dfz /= df;
                 fade = 1 / df / df;
                 
                 amb = point.ambient * fade * ambient_brightness;
@@ -475,18 +476,16 @@ package away3d.materials
                 kab += blue * amb;
                 
                 nf = dfx*pa + dfy*pb + dfz*pc;
-				//nf *= -1;
 
                 if(nf < 0)
                 	continue;
 
-                diff = point.diffuse * fade * nf * diffuse_brightness;
+                diff = point.diffuse * 15000 * fade * nf * diffuse_brightness;
 
                 kdr += red * diff;
                 kdg += green * diff;
                 kdb += blue * diff;
                 
-                //nf *= -1;
                 rfz = dfz - 2*nf*pc;
 				
                 if(rfz < 0)
@@ -495,7 +494,7 @@ package away3d.materials
                 rfx = dfx - 2*nf*pa;
                 rfy = dfy - 2*nf*pb;
                 
-                spec = point.specular * fade * Math.pow(rfz, shininess) * specular_brightness;
+                spec = point.specular * 1000000 * fade * Math.pow(rfz, shininess) * specular_brightness;
 
                 ksr += red * spec;
                 ksg += green * spec;
