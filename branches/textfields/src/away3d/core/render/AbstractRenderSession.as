@@ -551,27 +551,27 @@ package away3d.core.render
 			var currentPoint:uint = 0;
 			for(i = 0; i<shp.drawingCommands.length; i++)
 			{
-				var command:int = shp.drawingCommands[i];
+				var command:String = shp.drawingCommands[i].type;
 				var vert1:ScreenVertex = shp.screenVertices[currentPoint];
 				currentPoint++;
 				
 				switch(command)
 				{
-					case 0:
+					case DrawingCommand.MOVE:
 						graphics.moveTo(vert1.x, vert1.y);
 						
 						if(debugTextfields)
 							tracePoint(vert1.x, vert1.y, 0xFFFFFF, 10);
 						
 						break;
-					case 1:
+					case DrawingCommand.LINE:
 						graphics.lineTo(vert1.x, vert1.y);
 						
 						if(debugTextfields)
 							tracePoint(vert1.x, vert1.y, 0xFF0000, 2);
 						
 						break;
-					case 2:
+					case DrawingCommand.CURVE:
 						var vert2:ScreenVertex = shp.screenVertices[currentPoint];
 						currentPoint++;
 						graphics.curveTo(vert1.x, vert1.y, vert2.x, vert2.y);
@@ -625,19 +625,19 @@ package away3d.core.render
 			var currentPoint:uint = 0;
 			for(i = 0; i<shp.drawingCommands.length; i++)
 			{
-				var command:int = shp.drawingCommands[i];
+				var command:String = shp.drawingCommands[i].type;
 				var vert1:ScreenVertex = shp.screenVertices[currentPoint];
 				currentPoint++;
 				
 				switch(command)
 				{
-					case 0:
+					case DrawingCommand.MOVE:
 						graphics.moveTo(vert1.x, vert1.y);
 						break;
-					case 1:
+					case DrawingCommand.LINE:
 						graphics.lineTo(vert1.x, vert1.y);
 						break;
-					case 2:
+					case DrawingCommand.CURVE:
 						var vert2:ScreenVertex = shp.screenVertices[currentPoint];
 						currentPoint++;
 						graphics.curveTo(vert1.x, vert1.y, vert2.x, vert2.y);

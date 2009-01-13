@@ -19,6 +19,10 @@ package away3d.core.base
         /** @private */
         arcane var _material:IShapeMaterial;
 		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Private variables.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		private var _drawingCommands:Array = [];
 		private var _materialchanged:ShapeEvent;
 		private var _extrusionFrontVertices:Array = [];
@@ -27,8 +31,103 @@ package away3d.core.base
 		private var _lastCreatedVertex:Vertex;
 		private var _previousCreatedVertex:Vertex;
 		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Public variables.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		public var layerOffset:Number = 0;
 		public var name:String;
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Constructor.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		public function Shape3D()
+		{
+			
+		}
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Setters & getters.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		public function get orientation():Boolean
+		{
+			var v0:Vertex = vertices[0];
+			var v1:Vertex = vertices[1];
+			var v2:Vertex = vertices[2];
+			
+			var p0:Number3D = new Number3D(v0.x, v0.y, v0.z);
+			var p1:Number3D = new Number3D(v1.x, v1.y, v1.z);
+			var p2:Number3D = new Number3D(v2.x, v2.y, v2.z);
+			
+			var d0:Number3D = new Number3D();
+			d0.sub(p1, p0);
+			var d1:Number3D = new Number3D();
+			d1.sub(p2, p0);
+			
+			var dot:Number = d0.dot(d1);
+			trace("Shape: " + dot);
+			
+			return dot < 0;
+		}
+		
+		public function get firstTriSurface():Number
+		{
+			var v0:Vertex = vertices[0];
+			var v1:Vertex = vertices[1];
+			var v2:Vertex = vertices[2];
+			
+			var p0:Number3D = new Number3D(v0.x, v0.y, v0.z);
+			var p1:Number3D = new Number3D(v1.x, v1.y, v1.z);
+			var p2:Number3D = new Number3D(v2.x, v2.y, v2.z);
+			
+			var d0:Number3D = new Number3D();
+			d0.sub(p1, p0);
+			var d1:Number3D = new Number3D();
+			d1.sub(p2, p0);
+			
+			var cross:Number3D = new Number3D();
+			cross.cross(d0, d1);
+			
+			var surface:Number = cross.modulo/2;
+			
+			return surface;
+		}
+		
+		public function get normal():Number3D
+		{
+			var v0x:Number = vertices[0].x;
+			var v0y:Number = vertices[0].y;
+			var v0z:Number = vertices[0].z;
+			
+			var v1x:Number = vertices[1].x;
+			var v1y:Number = vertices[1].y;
+			var v1z:Number = vertices[1].z;
+			
+			var v2x:Number = vertices[2].x;
+			var v2y:Number = vertices[2].y;
+			var v2z:Number = vertices[2].z;
+			
+			var d0x:Number = v1x - v0x;
+			var d0y:Number = v1y - v0y;
+			var d0z:Number = v1z - v0z;
+			
+			var d1x:Number = v2x - v0x;
+			var d1y:Number = v2y - v0y;
+			var d1z:Number = v2z - v0z;
+			
+			var nx:Number = d0y*d1z - d0z*d1y;
+            var ny:Number = d0z*d1x - d0x*d1z;
+            var nz:Number = d0x*d1y - d0y*d1x;
+            var len:Number = Math.sqrt(nx*nx + ny*ny + nz*nz);
+
+			nx /= len;
+            ny /= len;
+            nz /= len;
+			
+			return new Number3D(nx, ny, nz);
+		}
 		
 		public function get lastCreatedVertex():Vertex
 		{
@@ -62,26 +161,48 @@ package away3d.core.base
 			_extrusionBackVertices = value;
 		}
 		
-		public function Shape3D()
+		public function get drawingCommands():Array
 		{
-			
+			return _drawingCommands;
 		}
+		
+		public override function get vertices():Array
+		{
+			return _vertices;
+		}
+		
+		public function get material():IShapeMaterial
+		{
+			return _material;
+		}
+		public function set material(value:IShapeMaterial):void
+		{
+			if(value == _material)
+				return;
+			
+			_material = value;
+			
+			dispatchEvent(new ShapeEvent(ShapeEvent.MATERIAL_CHANGED, this));
+		}
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Public methods.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		public function graphicsMoveTo(X:Number, Y:Number, Z:Number):void
 		{
-			addVertex(X, Y, Z);
-			_drawingCommands.push(0);
+			var command:DrawingCommand = new DrawingCommand(DrawingCommand.MOVE, null, null, addVertex(X, Y, Z));
+			_drawingCommands.push(command);
 		}
 		public function graphicsLineTo(X:Number, Y:Number, Z:Number):void
 		{
-			addVertex(X, Y, Z);
-			_drawingCommands.push(1);
+			var command:DrawingCommand = new DrawingCommand(DrawingCommand.LINE, _previousCreatedVertex, null, addVertex(X, Y, Z));
+			_drawingCommands.push(command);
 		}
 		public function graphicsCurveTo(cX:Number, cY:Number, cZ:Number, X:Number, Y:Number, Z:Number):void
 		{
-			addVertex(cX, cY, cZ);
-			addVertex(X, Y, Z);
-			_drawingCommands.push(2);
+			var command:DrawingCommand = new DrawingCommand(DrawingCommand.CURVE, _previousCreatedVertex, addVertex(cX, cY, cZ), addVertex(X, Y, Z));
+			_drawingCommands.push(command);
 		}
 		public function graphicsDrawRect(sX:Number, sY:Number, sZ:Number, W:Number, H:Number):void
 		{
@@ -103,53 +224,13 @@ package away3d.core.base
 			graphicsLineTo(sX, sY + vR, sZ);
 			graphicsCurveTo(sX, sY, sZ, sX + hR, sY, sZ);
 		}
+		
 		public function graphicsDrawPolygon(points:Array):void
 		{
 			graphicsMoveTo(points[0].x, points[0].y, points[0].z);
 			
 			for(var i:uint = 1; i<points.length; i++)
 				graphicsLineTo(points[i].x, points[i].y, points[i].z);
-		}
-		
-		public override function get vertices():Array
-		{
-			return _vertices;
-		}
-		private function addVertex(X:Number, Y:Number, Z:Number):void
-		{
-			var vertex:Vertex = new Vertex(X, Y, Z);
-			_vertices.push(vertex);
-			
-			_previousCreatedVertex = _lastCreatedVertex;
-			_lastCreatedVertex = vertex;
-		}
-		
-		public function get material():IShapeMaterial
-		{
-			return _material;
-		}
-		public function set material(value:IShapeMaterial):void
-		{
-			if(value == _material)
-				return;
-			
-			_material = value;
-			
-			dispatchEvent(new ShapeEvent(ShapeEvent.MATERIAL_CHANGED, this));
-		}
-		
-		public function addOnMaterialChange(listener:Function):void
-        {	
-            addEventListener(ShapeEvent.MATERIAL_CHANGED, listener, false, 0, true);
-        }
-        public function removeOnMaterialChange(listener:Function):void
-        {	
-            removeEventListener(ShapeEvent.MATERIAL_CHANGED, listener);
-        }
-		
-		public function get drawingCommands():Array
-		{
-			return _drawingCommands;
 		}
 		
 		public function centerVertices():Number3D
@@ -179,6 +260,30 @@ package away3d.core.base
 			
 			return new Number3D(deltaX, deltaY, deltaZ);
 		}
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Private methods.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		private function addVertex(X:Number, Y:Number, Z:Number):Vertex
+		{
+			var vertex:Vertex = new Vertex(X, Y, Z);
+			_vertices.push(vertex);
+			
+			_previousCreatedVertex = _lastCreatedVertex;
+			_lastCreatedVertex = vertex;
+			
+			return vertex;
+		}
+		
+		public function addOnMaterialChange(listener:Function):void
+        {	
+            addEventListener(ShapeEvent.MATERIAL_CHANGED, listener, false, 0, true);
+        }
+        public function removeOnMaterialChange(listener:Function):void
+        {	
+            removeEventListener(ShapeEvent.MATERIAL_CHANGED, listener);
+        }
 		
 		/** @private */
         arcane function notifyMaterialChange():void

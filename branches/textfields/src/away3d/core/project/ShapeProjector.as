@@ -89,10 +89,9 @@ package away3d.core.project
 				
 				_drawShape.calc();
 				
-				//trace(_drawShape.area);
-				//Why 150??
-				if(_drawShape.area < -150)
-					continue;
+				/* trace(_shape.orientation + ", " + _drawShape.orientation);
+				if(_shape.orientation != _drawShape.orientation)
+					continue; */
 				
 				if(_drawShape.maxZ < 0)
 					continue;
@@ -101,10 +100,10 @@ package away3d.core.project
 				if(_drawShape.material != null && !_drawShape.material.visible)
                     _drawShape.material = null;
                     
-                if (_mesh.pushback)
+                if(_mesh.pushback)
                     _drawShape.screenZ = _drawShape.maxZ;
 				
-                if (_mesh.pushfront)
+                if(_mesh.pushfront)
                     _drawShape.screenZ = _drawShape.minZ;
                 	
                 consumer.primitive(_drawShape);

@@ -1,6 +1,7 @@
 package away3d.core.draw
 {
 	import away3d.core.base.Shape3D;
+	import away3d.core.math.Number3D;
 	import away3d.materials.IShapeMaterial;
 	
 	public class DrawShape extends DrawPrimitive
@@ -10,7 +11,6 @@ package away3d.core.draw
 		public var material:IShapeMaterial;
 		public var shape:Shape3D;
 		public var layerOffset:Number;
-		public var area:Number;
 		
 		public function DrawShape()
 		{
@@ -52,11 +52,30 @@ package away3d.core.draw
 			var meanZ:Number = (maxZ + minZ)/2;
 			var modulo:Number = Math.sqrt(meanX*meanX + meanY*meanY + meanZ*meanZ);
 			screenZ = modulo + layerOffset;
+		}
+		
+		public function get orientation():Boolean
+		{
+			var sv0:ScreenVertex = screenVertices[0];
+			var sv1:ScreenVertex = screenVertices[1];
+			var sv2:ScreenVertex = screenVertices[2];
+			/* sv0.deperspective(view.camera.focus);
+			sv1.deperspective(view.camera.focus);
+			sv2.deperspective(view.camera.focus); */
 			
-			var v0:ScreenVertex = screenVertices[0];
-			var v1:ScreenVertex = screenVertices[1];
-			var v2:ScreenVertex = screenVertices[2];
-			area = -0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
+			var p0:Number3D = new Number3D(sv0.x, sv0.y, sv0.z);
+			var p1:Number3D = new Number3D(sv1.x, sv1.y, sv1.z);
+			var p2:Number3D = new Number3D(sv2.x, sv2.y, sv2.z);
+			
+			var d0:Number3D = new Number3D();
+			d0.sub(p1, p0);
+			var d1:Number3D = new Number3D();
+			d1.sub(p2, p0);
+			
+			var dot:Number = d0.dot(d1);
+			trace("DrawShape: " + dot);
+			
+			return dot < 0;
 		}
 		
 		public override function render():void
