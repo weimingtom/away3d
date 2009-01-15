@@ -626,9 +626,8 @@ package away3d.materials
 			if (!_projectionVector)
 				renderSource(tri.source, containerRect, _mapping);
 			
-			//check to see if faceDictionary exists
-			if (!(_faceVO = _faceDictionary[tri]))
-				_faceVO = _faceDictionary[tri] = new FaceVO();
+			//get the correct faceVO
+			_faceVO = getFaceVO(face);
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {

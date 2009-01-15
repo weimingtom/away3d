@@ -88,6 +88,8 @@ package away3d.containers
 
             dispatchEvent(event);
         }
+		
+		private var _drawPrimitiveStore:DrawPrimitiveStore = new DrawPrimitiveStore();
         private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
 		private var _clipping:Clipping;
@@ -192,7 +194,7 @@ package away3d.containers
                     }
                     screenZ = z;
                     persp = camera.zoom / (1 + screenZ / camera.focus);
-                    inv = camera.invView;
+                    inv = camera.invViewMatrix;
 					
                     sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
@@ -422,11 +424,13 @@ package away3d.containers
         		return;
         	
         	if (_camera) {
+        		_camera.view = null;
         		_camera.removeOnSceneTransformChange(onCameraTransformChange);
         		_camera.removeOnCameraUpdate(onCameraUpdated);
         	}
         	
         	_camera = val;
+        	_camera.view = this;
         	
         	if (_camera) {
         		_camera.addOnSceneTransformChange(onCameraTransformChange);
@@ -524,6 +528,11 @@ package away3d.containers
         	return _screenClip;
         }
         
+        public function get drawPrimitiveStore():DrawPrimitiveStore
+        {
+        	return _drawPrimitiveStore;
+        }
+        
 		/**
 		 * Creates a new <code>View3D</code> object.
 		 * 
@@ -555,6 +564,7 @@ package away3d.containers
 			_movieClipSpriteProjector.view = this;
 			_objectContainerProjector.view = this;
 			_spriteProjector.view = this;
+			_drawPrimitiveStore.view = this;
             _pritraverser.view = this;
             
             //setup events on view
@@ -758,6 +768,8 @@ package away3d.containers
 	        	_consumer = _session.getConsumer(this);
 	         	_consumer.primitive(_ddo);
             }
+            
+            _drawPrimitiveStore.reset();
             
             //traverse scene
             _scene.traverse(_pritraverser);

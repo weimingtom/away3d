@@ -1,6 +1,8 @@
 package away3d.core.project
 {
 	import away3d.blockers.*;
+	import away3d.cameras.*;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.block.*;
@@ -12,15 +14,19 @@ package away3d.core.project
 	import flash.display.*;
 	import flash.utils.*;
 	
-	public class ConvexBlockProjector extends AbstractProjector implements IBlockerProvider, IPrimitiveProvider
+	public class ConvexBlockProjector implements IBlockerProvider, IPrimitiveProvider
 	{
+		private var _view:View3D;
+		private var _vertexDictionary:Dictionary;
+		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _convexBlock:ConvexBlock;
+		private var _camera:Camera3D;
+		private var _lens:AbstractLens;
 		private var _vertices:Array;
 		private var _displayObject:DisplayObject;
 		private var _segmentMaterial:ISegmentMaterial;
 		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
-		private var _convexBlocker:ConvexBlocker;
         private var _points:Array;
         private var _base:ScreenVertex;
         private var _s:String;
@@ -31,6 +37,16 @@ package away3d.core.project
             return (b.x - a.x)*(c.y - a.y) - (c.x - a.x)*(b.y - a.y);
         }
         
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	_drawPrimitiveStore = _view.drawPrimitiveStore;
+        }
+        
 		/**
 		 * @inheritDoc
 		 * 
@@ -39,18 +55,17 @@ package away3d.core.project
 		 */
         public function blockers(source:Object3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
         {
-        	if (!(primitiveDictionary = sourceDictionary[source]))
-				primitiveDictionary = sourceDictionary[source] = new Dictionary(true);
+			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			
         	_convexBlock = source as ConvexBlock;
+			
+			_camera = _view.camera;
+			_lens = _camera.lens;
 			
 			if (!_convexBlock)
 				Debug.error("FaceProjector must process a Mesh object");
 			
 			_vertices = _convexBlock.vertices;
-			
-            if (!(_convexBlocker = primitiveDictionary[source]))
-				_convexBlocker = primitiveDictionary[source] = new ConvexBlocker();
             
         	if (_vertices.length < 3)
                 return;
@@ -63,11 +78,8 @@ package away3d.core.project
             for each (_vertex in _vertices)
             {
                 _s += _vertex.toString() + "\n";
-				
-				if (!(_screenVertex = primitiveDictionary[_vertex]))
-					_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex();
-				
-                view.camera.lens.project(viewTransform, _vertex, _screenVertex);
+                
+				_screenVertex = _lens.project(viewTransform, _vertex, _vertexDictionary);
 				
                 if (_base == null)
                     _base = _screenVertex;
@@ -110,24 +122,18 @@ package away3d.core.project
             o = cross(result[result.length-2], result[result.length-1], result[0]);
             if (o > 0)
                 result.pop();
-			
-			_convexBlocker.source = _convexBlock;
-			_convexBlocker.vertices = result;
-			_convexBlocker.calc();
-			
-            consumer.blocker(_convexBlocker);
+						
+            consumer.blocker(_drawPrimitiveStore.createConvexBlocker(source, result));
  		}
  		
-		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
 			super.primitives(source, viewTransform, consumer);
 			
 			_convexBlock = source as ConvexBlock;
 			
-			_convexBlocker = sourceDictionary[source][source];
-			
         	if (_convexBlock.debug)
-                consumer.primitive(_convexBlocker);
+                consumer.primitive(_drawPrimitiveStore.blockerDictionary[source]);
 		}
 	}
 }

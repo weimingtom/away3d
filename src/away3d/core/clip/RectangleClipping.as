@@ -79,7 +79,7 @@ package away3d.core.clip
             		_v20 = new ScreenVertex((_v0.vx*_v0w + _v2.vx*_v2w)*_p, (_v0.vy*_v0w + _v2.vy*_v2w)*_p, minZ);
             		_uv20 = _uv0? new UV((_uv0.u*_v0w + _uv2.u*_v2w)/_d, (_uv0.v*_v0w + _uv2.v*_v2w)/_d) : null;
             		
-            		return [tri.create(tri.view, tri.source, tri.face, tri.material,  _v0, _v01, _v20,  _uv0, _uv01, _uv20)];
+            		return [tri.create(tri.source, tri.face, tri.material,  _v0, _v01, _v20,  _uv0, _uv01, _uv20, true)];
             	} else {
             		_v2w = (minZ - _v1.z);
             		_v1w = (_v2.z - minZ);
@@ -88,8 +88,8 @@ package away3d.core.clip
             		_v12 = new ScreenVertex((_v2.vx*_v2w + _v1.vx*_v1w)*_p, (_v2.vy*_v2w + _v1.vy*_v1w)*_p, minZ);
             		_uv12 = _uv0? new UV((_uv1.u*_v1w + _uv2.u*_v2w)/_d, (_uv1.v*_v1w + _uv2.v*_v2w)/_d) : null;
             		
-            		return [tri.create(tri.view, tri.source, tri.face, tri.material,  _v0, _v01, _v2,  _uv0, _uv01, _uv2),
-            				tri.create(tri.view, tri.source, tri.face, tri.material,  _v01, _v12, _v2,  _uv01, _uv12, _uv2)];
+            		return [tri.create(tri.source, tri.face, tri.material,  _v0, _v01, _v2,  _uv0, _uv01, _uv2, true),
+            				tri.create(tri.source, tri.face, tri.material,  _v01, _v12, _v2,  _uv01, _uv12, _uv2, true)];
             	}
         		return [pri];
             } else {

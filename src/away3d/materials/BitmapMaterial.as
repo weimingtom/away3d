@@ -1,16 +1,4 @@
-﻿package away3d.materials{
-    import away3d.containers.*;
-    import away3d.arcane;
-    import away3d.core.base.*;
-    import away3d.core.draw.*;
-    import away3d.core.render.*;
-    import away3d.core.utils.*;
-    import away3d.events.*;
-	import away3d.core.math.Number3D;	import away3d.core.math.Matrix3D;    
-    import flash.display.*;
-    import flash.events.*;
-    import flash.geom.*;
-    import flash.utils.*;
+﻿package away3d.materials{	import away3d.arcane;	import away3d.containers.*;	import away3d.core.base.*;	import away3d.core.draw.*;	import away3d.core.math.*;	import away3d.core.render.*;	import away3d.core.utils.*;	import away3d.events.*;		import flash.display.*;	import flash.events.*;	import flash.geom.*;	import flash.utils.*;
     
 	use namespace arcane;
 	
@@ -81,26 +69,13 @@
                 _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
-        }
+        }		/** @private */        arcane function notifyMaterialResize():void        {        	if (!hasEventListener(MaterialEvent.MATERIAL_RESIZED))                return;                        clearFaceDictionary();                    	if (_materialresized == null)				_materialresized = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);						dispatchEvent(_materialresized);        }
         /** @private */
         arcane function clearShapeDictionary():void
         {
         	for each (_shape in _shapeDictionary)
 	        	_shape.graphics.clear();
-        }
-        /** @private */
-        arcane function clearFaceDictionary():void
-        {
-        	_faceDirty = false;
-        	
-        	notifyMaterialUpdate();
-        	
-        	for each (_faceVO in _faceDictionary) {
-        		if (!_faceVO.cleared)
-        			_faceVO.clear();
-        		_faceVO.invalidated = true;
-        	}
-        }
+        }        
         /** @private */
 		arcane function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):void
 		{
@@ -143,7 +118,7 @@
         private var _precision:Number;
         private var _shapeDictionary:Dictionary = new Dictionary(true);
     	private var _shape:Shape;
-    	private var _materialupdated:MaterialEvent;
+    	private var _materialupdated:MaterialEvent;    	private var _materialresized:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
         private var triangle:DrawTriangle = new DrawTriangle(); 
@@ -439,15 +414,14 @@
         * @return			The required matrix object.
         */
 		protected function getMapping(tri:DrawTriangle):Matrix
-		{
-			if (tri.generated) {
+		{			if (tri.generated) {
 				_texturemapping = tri.transformUV(this).clone();
 				_texturemapping.invert();
 				
 				return _texturemapping;
 			}
 			
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			_faceVO = getFaceVO(tri.face);
 			if (_faceVO.texturemapping)
 				return _faceVO.texturemapping;
 			
@@ -680,24 +654,19 @@
         		updateRenderBitmap();
         	
         	if (_faceDirty || _blendModeDirty)
-        		clearFaceDictionary();
+        		clearFaceDictionary(source, view);
         		
         	_blendModeDirty = false;
         }
         
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
-        {
+        public function getFaceVO(face:Face, source:Object3D = null, view:View3D = null):FaceVO
+        {        	//check to see if faceVO exists
         	if ((_faceVO = _faceDictionary[face]))
         		return _faceVO;
         	
         	return _faceDictionary[face] = new FaceVO();
         }
-        
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
-        }
-        
+        		/**		 * @inheritDoc		 */        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void        {        	_faceDirty = false;        	        	notifyMaterialUpdate();        	        	for each (_faceVO in _faceDictionary) {        		if (!_faceVO.cleared)        			_faceVO.clear();        		_faceVO.invalidated = true;        	}        }        
 		/**
 		 * @inheritDoc
 		 */
@@ -764,9 +733,7 @@
 			//draw the bitmap once
 			renderSource(tri.source, containerRect, new Matrix());
 			
-			//check to see if faceDictionary exists
-			if (!(_faceVO = _faceDictionary[tri]))
-				_faceVO = _faceDictionary[tri] = new FaceVO();
+			//get the correct faceVO			_faceVO = getFaceVO(tri.face);
 			
 			//pass on resize value
 			if (parentFaceVO.resized) {
