@@ -9,7 +9,15 @@ package away3d.primitives
 	
 	public class Sprite3D extends Mesh
 	{
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Private  variables.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		private var _extrudeMaterial:IShapeMaterial;
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Constructor.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		public function Sprite3D(init:Object = null)
 		{
@@ -20,8 +28,14 @@ package away3d.primitives
 			
 			super(init);
 			
+			//this.bothsides = true;
+			
 			extrudeMaterial = IShapeMaterial(ini.getMaterial("extrudeMaterial")); 
 		}
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Setters & getters.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		public function set extrudeMaterial(value:IShapeMaterial):void
 		{
@@ -39,6 +53,10 @@ package away3d.primitives
 				shp.centerVertices();
 			}
 		}
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		//Public methods.
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		public function extrude(value:Number):void
 		{	
@@ -82,7 +100,8 @@ package away3d.primitives
 					else
 					{
 						var extShp:Shape3D = new Shape3D();
-						extShp.layerOffset = this.layerOffset - value;
+						extShp.contourOrientation = shape.contourOrientation;
+						extShp.layerOffset = layerOffset;
 						
 						if(_extrudeMaterial == null)
 							extShp.material = new ColorMaterial(0x000000);
@@ -144,6 +163,26 @@ package away3d.primitives
 				shape.extrusionFrontVertices = tempFrontArr;
 				shape.extrusionBackVertices = tempBackArr;
 				shape.extrusionDepth = value;
+				
+				var backShape:Shape3D = new Shape3D();
+				backShape.material = shape.material;
+				for each(var command:DrawingCommand in shape.drawingCommands)
+				{
+					switch(command.type)
+					{
+						case DrawingCommand.MOVE:
+							backShape.graphicsMoveTo(command.p2.x, command.p2.y, command.p2.z - value);
+							break;
+						case DrawingCommand.LINE:
+							backShape.graphicsLineTo(command.p2.x, command.p2.y, command.p2.z - value);
+							break;
+						case DrawingCommand.CURVE:
+							backShape.graphicsCurveTo(command.p1.x, command.p1.y, command.p1.z - value, command.p2.x, command.p2.y, command.p2.z - value);
+							break;
+					}
+				}
+				backShape.contourOrientation = !shape.contourOrientation;
+				addQueue.push(backShape);
 			}
 			
 			for(i = 0; i<addQueue.length; i++)
