@@ -134,19 +134,6 @@ package away3d.materials.shaders
         */
         protected var ini:Init;
         
-        /**
-        * Clears face value objects when shader requires updating
-        * 
-        * @param	source		The parent 3d object of the face.
-        * @param	view		The view rendering the draw triangle.
-        * 
-        * @see away3d.core.utils.FaceVO
-        */
-        protected function clearFaceDictionary(source:Object3D, view:View3D):void
-        {
-        	throw new Error("Not implemented");
-        }
-        
 		/**
 		 * Returns a shape object for use by environment shaders.
 		 * 
@@ -299,17 +286,12 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceVO(face:Face, source:Object3D = null, view:View3D = null):FaceVO
         {
         	if ((_faceVO = _faceDictionary[face]))
         		return _faceVO;
         	
         	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
         }
         
 		/**

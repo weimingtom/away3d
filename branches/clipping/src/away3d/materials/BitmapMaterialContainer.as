@@ -189,23 +189,6 @@ package away3d.materials
         	_blendModeDirty = false;
         }
         
-        public override function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
-        {
-        	if ((_faceDictionary = _viewDictionary[view])) {
-        		if ((_faceVO = _faceDictionary[face]))
-	        		return _faceVO;
-        	} else {
-        		_faceDictionary = _viewDictionary[view] = new Dictionary(true);
-        	}
-        	
-        	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public override function removeFaceDictionary():void
-        {
-			_viewDictionary = new Dictionary(true);
-        }
-        
 		/**
 		 * @private
 		 */
@@ -219,7 +202,7 @@ package away3d.materials
 		 */
         public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
 		{
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			_faceVO = getFaceVO(tri.face);
 			
 			//get width and height values
 			_faceWidth = tri.face.bitmapRect.width;

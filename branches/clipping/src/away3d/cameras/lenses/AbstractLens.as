@@ -6,6 +6,7 @@ package away3d.cameras.lenses
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
+	import away3d.core.utils.*;
 	
 	import flash.utils.*;
 	
@@ -14,6 +15,7 @@ package away3d.cameras.lenses
     */
     public class AbstractLens
     {
+    	protected var _screenVertex:ScreenVertex;
     	protected var _sx:Number;
     	protected var _sy:Number;
     	protected var _sz:Number;
@@ -43,6 +45,8 @@ package away3d.cameras.lenses
 		 * reference back to clipping object of view.
 		 */
 		public var clip:Clipping;
+		
+		public var drawPrimitiveStore:DrawPrimitiveStore;
 		
 		/**
 		 * store for visible scene nodes in the lens.
@@ -100,7 +104,7 @@ package away3d.cameras.lenses
        /**
         * Projects the vertex to the screen space of the view.
         */
-        public function project(viewTransform:Matrix3D, vertex:Vertex, screenvertex:ScreenVertex):void
+        public function project(viewTransform:Matrix3D, vertex:Vertex, vertexDictionary:Dictionary):ScreenVertex
         {
         	throw new Error("Not implemented");
         }

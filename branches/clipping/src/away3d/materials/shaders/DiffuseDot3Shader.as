@@ -1,7 +1,7 @@
 package away3d.materials.shaders
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
@@ -66,7 +66,7 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        protected override function clearFaceDictionary(source:Object3D, view:View3D):void
+        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
         {
         	notifyMaterialUpdate();
         	

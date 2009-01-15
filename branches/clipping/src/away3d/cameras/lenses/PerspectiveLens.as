@@ -72,13 +72,18 @@ package away3d.cameras.lenses
        /**
         * Projects the vertex to the screen space of the view.
         */
-        public override function project(viewTransform:Matrix3D, vertex:Vertex, screenvertex:ScreenVertex):void
+        public override function project(viewTransform:Matrix3D, vertex:Vertex, vertexDictionary:Dictionary):ScreenVertex
         {
+        	if ((_screenVertex = vertexDictionary[vertex]))
+        		return _screenVertex;
+        		
+        	_screenVertex = drawPrimitiveStore.createScreenVertex(vertex);
+        	
         	_vx = vertex.x;
         	_vy = vertex.y;
         	_vz = vertex.z;
         	
-            screenvertex.z = _sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
+            _screenVertex.z = _sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
     		/*/
     		//modified
     		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
@@ -96,29 +101,30 @@ package away3d.cameras.lenses
             if (isNaN(_sz))
                 throw new Error("isNaN(sz)");
             
-            screenvertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)*camera.zoom
-            screenvertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)*camera.zoom
+            _screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)*camera.zoom
+            _screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)*camera.zoom
             
             if (_sz < clip.minZ) {
-                screenvertex.visible = false;
-                return;
+                _screenVertex.visible = false;
+                return _screenVertex;
             }
             
          	_persp = 1 / (1 + _sz / camera.focus);
 			
-            screenvertex.x = _sx = screenvertex.vx * _persp;
-            screenvertex.y = _sy = screenvertex.vy * _persp;
+            _screenVertex.x = _sx = _screenVertex.vx * _persp;
+            _screenVertex.y = _sy = _screenVertex.vy * _persp;
             /*
             if (_sx < clip.minX || _sx > clip.maxX || _sy < clip.minY || _sy > clip.maxY) {
-                screenvertex.visible = false;
+                _screenVertex.visible = false;
                 return;
             }
             */
-            screenvertex.visible = true;
+            _screenVertex.visible = true;
             /*
             projected.x = wx * persp;
             projected.y = wy * persp;
 			*/
+			return _screenVertex;
         }
 	}
 }

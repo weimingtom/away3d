@@ -1,18 +1,16 @@
 package away3d.cameras
 {
-	import away3d.arcane;
-    import away3d.cameras.lenses.*;
-    import away3d.core.base.*;
-    import away3d.core.clip.*;
-    import away3d.core.draw.*;
-    import away3d.core.math.*;
-    import away3d.core.render.*;
-    import away3d.core.utils.*;
-    import away3d.events.CameraEvent;
-    
-    import flash.utils.*;
-    
-	use namespace arcane;
+	import away3d.cameras.lenses.*;
+	import away3d.containers.*;
+	import away3d.core.base.*;
+	import away3d.core.clip.*;
+	import away3d.core.draw.*;
+	import away3d.core.math.*;
+	import away3d.core.render.*;
+	import away3d.core.utils.*;
+	import away3d.events.CameraEvent;
+	
+	import flash.utils.*;
 	
 	/**
 	 * Dispatched when the focus or zoom properties of a camera update.
@@ -44,8 +42,9 @@ package away3d.cameras
         private var _clipBottom:Number;
         private var _clipLeft:Number;
         private var _clipRight:Number;
-    	private var _view:Matrix3D = new Matrix3D();
-        private var _screenVertex:ScreenVertex = new ScreenVertex();
+    	private var _viewMatrix:Matrix3D = new Matrix3D();
+    	private var _view:View3D;
+    	private var _drawPrimitiveStore:DrawPrimitiveStore;
         private var _vtActive:Array = new Array();
         private var _vtStore:Array = new Array();
         private var _vt:Matrix3D;
@@ -71,7 +70,7 @@ package away3d.cameras
         protected const toRADIANS:Number = Math.PI/180;
 		protected const toDEGREES:Number = 180/Math.PI;
 		
-    	public var invView:Matrix3D = new Matrix3D();
+    	public var invViewMatrix:Matrix3D = new Matrix3D();
     	
         /**
         * Dictionary of all objects transforms calulated from the camera view for the last render frame
@@ -220,6 +219,33 @@ package away3d.cameras
 		 * @see	away3d.sprites.DofSprite2D
 		 */
         public var doflevels:Number = 16;
+        
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	if (_view == val)
+        		return;
+        		
+        	_view = val;
+        	_drawPrimitiveStore = val.drawPrimitiveStore;
+        	trace(_drawPrimitiveStore);
+        }
+        
+		/**
+		 * Returns the transformation matrix used to resolve the scene to the view.
+		 * Used in the <code>ProjectionTraverser</code> class
+		 * 
+		 * @see	away3d.core.traverse.ProjectionTraverser
+		 */
+        public function get viewMatrix():Matrix3D
+        {
+        	invViewMatrix.multiply(sceneTransform, _flipY);
+        	_viewMatrix.inverse(invViewMatrix);
+        	return _viewMatrix;
+        }
     	
 		/**
 		 * Creates a new <code>Camera3D</code> object.
@@ -273,19 +299,6 @@ package away3d.cameras
         {
         	DofCache.resetDof(false);
         }
-        
-		/**
-		 * Returns the transformation matrix used to resolve the scene to the view.
-		 * Used in the <code>ProjectionTraverser</code> class
-		 * 
-		 * @see	away3d.core.traverse.ProjectionTraverser
-		 */
-        public function get view():Matrix3D
-        {
-        	invView.multiply(sceneTransform, _flipY);
-        	_view.inverse(invView);
-        	return _view;
-        }
     	
 
     	
@@ -300,12 +313,11 @@ package away3d.cameras
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
             if (vertex == null)
-                vertex = new Vertex(0,0,0);
-                
-			createViewTransform(object).multiply(view, object.sceneTransform);
-            lens.project(viewTransforms[object], vertex, _screenVertex);
+                vertex = center;
             
-            return _screenVertex
+            createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
+            
+            return lens.project(viewTransforms[object], vertex, _drawPrimitiveStore.sourceDictionary[object]);
         }
     	        
 		/**
@@ -314,19 +326,19 @@ package away3d.cameras
 		 * 
 		 * @see	away3d.core.render.BasicRender
 		 */
-        public function update(clip:Clipping):void
+        public function update(clipping:Clipping):void
         {
-        	if (_clipTop != clip.maxY || _clipBottom != clip.minY || _clipLeft != clip.minX || _clipRight != clip.maxX) {
+        	if (_clipTop != clipping.maxY || _clipBottom != clipping.minY || _clipLeft != clipping.minX || _clipRight != clipping.maxX) {
         		if (_fixedZoom)
 	        		_fovDirty = true;
 	        	else
 	        		_zoomDirty = true;
         	}
         	
-        	_clipTop = clip.maxY;
-        	_clipBottom = clip.minY;
-        	_clipLeft = clip.minX;
-        	_clipRight = clip.maxX;
+        	_clipTop = clipping.maxY;
+        	_clipBottom = clipping.minY;
+        	_clipLeft = clipping.minX;
+        	_clipRight = clipping.maxX;
         	
         	if (_fovDirty) {
         		_fovDirty = false;
@@ -338,8 +350,8 @@ package away3d.cameras
         		_zoom = _clipTop/(Math.tan(_fov*toRADIANS*_clipTop/(_clipTop - _clipBottom))*_focus);
         	}
         	
-        	lens.clip = clip;
-        	
+        	lens.clip = clipping;
+        	lens.drawPrimitiveStore = _drawPrimitiveStore;
         	//lens.updateView(clip, _zoom, _focus, _near, _far, sceneTransform, _flipY);
         }
         

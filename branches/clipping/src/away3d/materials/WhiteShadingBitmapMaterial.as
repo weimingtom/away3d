@@ -180,7 +180,7 @@ package away3d.materials
                 step *= 2;
         }
         
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceVO(face:Face, source:Object3D = null, view:View3D = null):FaceVO
         {
         	if ((_faceVO = _faceDictionary[face]))
         		return _faceVO;
@@ -188,9 +188,16 @@ package away3d.materials
         	return _faceDictionary[face] = new FaceVO();
         }
         
-        public function removeFaceDictionary():void
+		/**
+		 * @inheritDoc
+		 */
+        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
         {
-			_faceDictionary = new Dictionary(true);
+        	for each (_faceVO in _faceDictionary) {
+        		if (!_faceVO.cleared)
+        			_faceVO.clear();
+        		_faceVO.invalidated = true;
+        	}
         }
         
 		/**

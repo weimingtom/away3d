@@ -21,8 +21,8 @@ package away3d.core.traverse
         private var _view:View3D;
         private var _mesh:Mesh;
         private var _camera:Camera3D;
-        private var _cameraview:Matrix3D;
-		private var _cameraviewtransforms:Dictionary;
+        private var _cameraViewMatrix:Matrix3D;
+		private var _cameraViewTransforms:Dictionary;
 		
 		/**
 		 * Defines the view being used.
@@ -35,8 +35,7 @@ package away3d.core.traverse
 		{
 			_view = val;
 			_camera = _view.camera;
-            _cameraview = _camera.view;
-            _cameraviewtransforms = _camera.viewTransforms;
+            _cameraViewMatrix = _camera.viewMatrix;
 			if (_view.statsOpen)
 				_view.statsPanel.clearObjects();
 		}
@@ -58,7 +57,7 @@ package away3d.core.traverse
                 return false;
             
             //compute viewTransform matrix
-            _camera.createViewTransform(node).multiply(_cameraview, node.sceneTransform);
+            _camera.createViewTransform(node).multiply(_cameraViewMatrix, node.sceneTransform);
             
             //check which LODObject is visible
             if (node is ILODObject)
