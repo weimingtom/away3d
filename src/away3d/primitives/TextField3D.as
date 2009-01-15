@@ -233,6 +233,8 @@ package away3d.primitives
 				}
 			}
 			
+			shp.calculateContourOrientation();
+			
 			if(_currentWord.length == 0)
 				_lastWordStartPenPositionX = _penPosition.x;
 			

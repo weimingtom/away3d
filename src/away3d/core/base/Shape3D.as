@@ -5,6 +5,8 @@ package away3d.core.base
 	import away3d.events.ShapeEvent;
 	import away3d.materials.IShapeMaterial;
 	
+	import flash.geom.Point;
+	
 	use namespace arcane;
 	
 	/**
@@ -30,6 +32,9 @@ package away3d.core.base
 		private var _extrusionDepth:Number = 0;
 		private var _lastCreatedVertex:Vertex;
 		private var _previousCreatedVertex:Vertex;
+		private var _lastCreatedVertexIndex:uint;
+		private var _previousCreatedVertexIndex:uint;
+		private var _contourOrientation:Boolean = true;
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Public variables.
@@ -51,82 +56,13 @@ package away3d.core.base
 		//Setters & getters.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		public function get orientation():Boolean
+		public function get contourOrientation():Boolean
 		{
-			var v0:Vertex = vertices[0];
-			var v1:Vertex = vertices[1];
-			var v2:Vertex = vertices[2];
-			
-			var p0:Number3D = new Number3D(v0.x, v0.y, v0.z);
-			var p1:Number3D = new Number3D(v1.x, v1.y, v1.z);
-			var p2:Number3D = new Number3D(v2.x, v2.y, v2.z);
-			
-			var d0:Number3D = new Number3D();
-			d0.sub(p1, p0);
-			var d1:Number3D = new Number3D();
-			d1.sub(p2, p0);
-			
-			var dot:Number = d0.dot(d1);
-			trace("Shape: " + dot);
-			
-			return dot < 0;
+			return _contourOrientation;
 		}
-		
-		public function get firstTriSurface():Number
+		public function set contourOrientation(value:Boolean):void
 		{
-			var v0:Vertex = vertices[0];
-			var v1:Vertex = vertices[1];
-			var v2:Vertex = vertices[2];
-			
-			var p0:Number3D = new Number3D(v0.x, v0.y, v0.z);
-			var p1:Number3D = new Number3D(v1.x, v1.y, v1.z);
-			var p2:Number3D = new Number3D(v2.x, v2.y, v2.z);
-			
-			var d0:Number3D = new Number3D();
-			d0.sub(p1, p0);
-			var d1:Number3D = new Number3D();
-			d1.sub(p2, p0);
-			
-			var cross:Number3D = new Number3D();
-			cross.cross(d0, d1);
-			
-			var surface:Number = cross.modulo/2;
-			
-			return surface;
-		}
-		
-		public function get normal():Number3D
-		{
-			var v0x:Number = vertices[0].x;
-			var v0y:Number = vertices[0].y;
-			var v0z:Number = vertices[0].z;
-			
-			var v1x:Number = vertices[1].x;
-			var v1y:Number = vertices[1].y;
-			var v1z:Number = vertices[1].z;
-			
-			var v2x:Number = vertices[2].x;
-			var v2y:Number = vertices[2].y;
-			var v2z:Number = vertices[2].z;
-			
-			var d0x:Number = v1x - v0x;
-			var d0y:Number = v1y - v0y;
-			var d0z:Number = v1z - v0z;
-			
-			var d1x:Number = v2x - v0x;
-			var d1y:Number = v2y - v0y;
-			var d1z:Number = v2z - v0z;
-			
-			var nx:Number = d0y*d1z - d0z*d1y;
-            var ny:Number = d0z*d1x - d0x*d1z;
-            var nz:Number = d0x*d1y - d0y*d1x;
-            var len:Number = Math.sqrt(nx*nx + ny*ny + nz*nz);
-
-			nx /= len;
-            ny /= len;
-            nz /= len;
-			
-			return new Number3D(nx, ny, nz);
+			_contourOrientation = value;
 		}
 		
 		public function get lastCreatedVertex():Vertex
@@ -189,19 +125,36 @@ package away3d.core.base
 		//Public methods.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
+		public function calculateContourOrientation():void
+		{
+			var acum:Number = 0;
+			var pointer:uint;
+			while(Math.abs(acum) < 360 && pointer + 2 < vertices.length - 1)
+			{
+				var delta:Number = getTurningAngleAtIndex(pointer);
+				
+				if(Math.abs(delta) < 180)
+					acum += delta;
+				
+				pointer++;
+			}
+			
+			_contourOrientation = acum < 0 ? true : false;
+		}
+		
 		public function graphicsMoveTo(X:Number, Y:Number, Z:Number):void
 		{
-			var command:DrawingCommand = new DrawingCommand(DrawingCommand.MOVE, null, null, addVertex(X, Y, Z));
+			var command:DrawingCommand = new DrawingCommand(DrawingCommand.MOVE, null, null, addVertex(X, Y, Z), 999999, 999999, vertices.length-1);
 			_drawingCommands.push(command);
 		}
 		public function graphicsLineTo(X:Number, Y:Number, Z:Number):void
 		{
-			var command:DrawingCommand = new DrawingCommand(DrawingCommand.LINE, _previousCreatedVertex, null, addVertex(X, Y, Z));
+			var command:DrawingCommand = new DrawingCommand(DrawingCommand.LINE, _previousCreatedVertex, null, addVertex(X, Y, Z), _previousCreatedVertexIndex, 999999, vertices.length-1);
 			_drawingCommands.push(command);
 		}
 		public function graphicsCurveTo(cX:Number, cY:Number, cZ:Number, X:Number, Y:Number, Z:Number):void
 		{
-			var command:DrawingCommand = new DrawingCommand(DrawingCommand.CURVE, _previousCreatedVertex, addVertex(cX, cY, cZ), addVertex(X, Y, Z));
+			var command:DrawingCommand = new DrawingCommand(DrawingCommand.CURVE, _previousCreatedVertex, addVertex(cX, cY, cZ), addVertex(X, Y, Z), _previousCreatedVertexIndex, vertices.length-2, vertices.length-1);
 			_drawingCommands.push(command);
 		}
 		public function graphicsDrawRect(sX:Number, sY:Number, sZ:Number, W:Number, H:Number):void
@@ -265,6 +218,20 @@ package away3d.core.base
 		//Private methods.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
+		private function getTurningAngleAtIndex(index:uint):Number
+		{
+			var p0:Point = new Point(vertices[index].x, vertices[index].y);
+			var p1:Point = new Point(vertices[index + 1].x, vertices[index + 1].y);
+			var p2:Point = new Point(vertices[index + 2].x, vertices[index + 2].y);
+			
+			var d0:Point = p1.subtract(p0);
+			var d1:Point = p2.subtract(p1);
+			
+			var angle:Number = Math.atan2(d1.y, d1.x) - Math.atan2(d0.y, d0.x);
+			
+			return angle*180/Math.PI;
+		}
+		
 		private function addVertex(X:Number, Y:Number, Z:Number):Vertex
 		{
 			var vertex:Vertex = new Vertex(X, Y, Z);
@@ -272,6 +239,8 @@ package away3d.core.base
 			
 			_previousCreatedVertex = _lastCreatedVertex;
 			_lastCreatedVertex = vertex;
+			_previousCreatedVertexIndex = _lastCreatedVertexIndex;
+			_lastCreatedVertexIndex = vertices.length-1;
 			
 			return vertex;
 		}

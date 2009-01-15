@@ -89,9 +89,12 @@ package away3d.core.project
 				
 				_drawShape.calc();
 				
-				/* trace(_shape.orientation + ", " + _drawShape.orientation);
-				if(_shape.orientation != _drawShape.orientation)
-					continue; */
+				if(!_mesh.bothsides)
+				{
+					_drawShape.calculateContourOrientation();
+					if(!_drawShape.contourOrientation)
+						continue;
+				}
 				
 				if(_drawShape.maxZ < 0)
 					continue;

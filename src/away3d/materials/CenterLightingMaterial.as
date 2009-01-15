@@ -403,105 +403,81 @@ package away3d.materials
         /**
 		 * @inheritDoc
 		 */
+		private var d0:Number3D;
+		private var d1:Number3D;
+		private var p0:Number3D;
+		private var p1:Number3D;
+		private var p2:Number3D;
+		private var n:Number3D;
+		private var disVector:Number3D;
+		private var dis:Number;
+		private var dot:Number;
         public function renderShape(shp:DrawShape):void
         {
-        	session = shp.source.session;
-        	focus = shp.view.camera.focus;
-        	zoom = shp.view.camera.zoom;
-       		
-        	v0 = shp.screenVertices[2];
+        	v0 = shp.screenVertices[0];
         	v1 = shp.screenVertices[1];
-        	v2 = shp.screenVertices[0];
+        	v2 = shp.screenVertices[2];
+			v0.deperspective(focus);
+			v1.deperspective(focus);
+			v2.deperspective(focus);
 
-            v0z = v0.z;
-            v0p = (1 + v0z / focus) / zoom;
-            v0x = v0.x * v0p;
-            v0y = v0.y * v0p;
+			p0 = new Number3D(v0.x, v0.y, v0.z);
+			p1 = new Number3D(v1.x, v1.y, v1.z);
+			p2 = new Number3D(v2.x, v2.y, v2.z);
 
-            v1z = v1.z;
-            v1p = (1 + v1z / focus) / zoom;
-            v1x = v1.x * v1p;
-            v1y = v1.y * v1p;
+            d0 = new Number3D();
+            d0.sub(p1, p0);
+            d1 = new Number3D();
+            d1.sub(p2, p0);
 
-            v2z = v2.z;
-            v2p = (1 + v2z / focus) / zoom;
-            v2x = v2.x * v2p;
-            v2y = v2.y * v2p;
-
-            d1x = v1x - v0x;
-            d1y = v1y - v0y;
-            d1z = v1z - v0z;
-
-            d2x = v2x - v0x;
-            d2y = v2y - v0y;
-            d2z = v2z - v0z;
-
-            pa = d1y*d2z - d1z*d2y;
-            pb = d1z*d2x - d1x*d2z;
-            pc = d1x*d2y - d1y*d2x;
-            pdd = Math.sqrt(pa*pa + pb*pb + pc*pc) + 1;
-
-			pa /= pdd;
-            pb /= pdd;
-            pc /= pdd;
-
-			/* if(shp.orientation)
-			{
-				pa *= -1;
-				pb *= -1;
-				pc *= -1;
-			} */
-
-            c0x = 100*(v0x + v1x + v2x) / 3;
-            c0y = 100*(v0y + v1y + v2y) / 3;
-            c0z = 100*(v0z + v1z + v2z) / 3;
+			n = new Number3D();
+			n.cross(d0, d1);
+			
+			var nScale:int = shp.shape.contourOrientation ? 1 : -1;
+				
+			n.normalize(nScale);
 
             kar = kag = kab = kdr = kdg = kdb = ksr = ksg = ksb = 0;
         	
         	_source = shp.source as Mesh;
-        	
         	for each(point in _source.lightarray.points)
             {
                 red = point.red;
                 green = point.green;
                 blue = point.blue;
-
-                dfx = point.x - c0x;
-                dfy = point.y - c0y;
-                dfz = point.z - c0z;
-                df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz) + 1;
+				
+				disVector = new Number3D(red, green, blue);
+               	disVector.sub(disVector, p0);
+                dis = disVector.modulo;
+                disVector.normalize();
                 
-                dfx /= df;
-                dfy /= df;
-                dfz /= df;
-                fade = 1 / df / df;
+                fade = 1/(dis*dis);
                 
-                amb = point.ambient * fade * ambient_brightness;
+                amb = point.ambient*fade*ambient_brightness;
 
                 kar += red * amb;
                 kag += green * amb;
                 kab += blue * amb;
                 
-                nf = dfx*pa + dfy*pb + dfz*pc;
-
-                if(nf < 0)
+                dot = disVector.dot(n);
+                if(dot < 0)
                 	continue;
 
-                diff = point.diffuse * 15000 * fade * nf * diffuse_brightness;
+                diff = point.diffuse * fade * dot * diffuse_brightness;
 
                 kdr += red * diff;
                 kdg += green * diff;
                 kdb += blue * diff;
                 
-                rfz = dfz - 2*nf*pc;
+                rfz = disVector.z - 2*dot*n.z;
 				
                 if(rfz < 0)
 					continue;
 
-                rfx = dfx - 2*nf*pa;
-                rfy = dfy - 2*nf*pb;
+                rfx = disVector.x - 2*dot*n.x;
+                rfy = disVector.y - 2*dot*n.y;
                 
-                spec = point.specular * 1000000 * fade * Math.pow(rfz, shininess) * specular_brightness;
+                spec = point.specular * 5 * fade * Math.pow(rfz, shininess) * specular_brightness;
 
                 ksr += red * spec;
                 ksg += green * spec;

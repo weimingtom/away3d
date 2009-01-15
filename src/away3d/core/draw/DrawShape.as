@@ -1,8 +1,9 @@
 package away3d.core.draw
 {
 	import away3d.core.base.Shape3D;
-	import away3d.core.math.Number3D;
 	import away3d.materials.IShapeMaterial;
+	
+	import flash.geom.Point;
 	
 	public class DrawShape extends DrawPrimitive
 	{
@@ -11,6 +12,7 @@ package away3d.core.draw
 		public var material:IShapeMaterial;
 		public var shape:Shape3D;
 		public var layerOffset:Number;
+		public var contourOrientation:Boolean;
 		
 		public function DrawShape()
 		{
@@ -54,28 +56,37 @@ package away3d.core.draw
 			screenZ = modulo + layerOffset;
 		}
 		
-		public function get orientation():Boolean
+		public function calculateContourOrientation():void
 		{
-			var sv0:ScreenVertex = screenVertices[0];
-			var sv1:ScreenVertex = screenVertices[1];
-			var sv2:ScreenVertex = screenVertices[2];
-			/* sv0.deperspective(view.camera.focus);
-			sv1.deperspective(view.camera.focus);
-			sv2.deperspective(view.camera.focus); */
+			var acum:Number = 0;
+			var pointer:uint;
+			while(Math.abs(acum) < 360 && pointer + 2 < screenVertices.length - 1)
+			{
+				var delta:Number = getTurningAngleAtIndex(pointer);
+				
+				if(Math.abs(delta) < 180)
+					acum += delta;
+				
+				pointer++;
+			}
 			
-			var p0:Number3D = new Number3D(sv0.x, sv0.y, sv0.z);
-			var p1:Number3D = new Number3D(sv1.x, sv1.y, sv1.z);
-			var p2:Number3D = new Number3D(sv2.x, sv2.y, sv2.z);
+			contourOrientation = acum < 0 ? true : false;
 			
-			var d0:Number3D = new Number3D();
-			d0.sub(p1, p0);
-			var d1:Number3D = new Number3D();
-			d1.sub(p2, p0);
+			if(shape.contourOrientation)
+				contourOrientation = !contourOrientation;
+		}
+		private function getTurningAngleAtIndex(index:uint):Number
+		{
+			var p0:Point = new Point(screenVertices[index].x, screenVertices[index].y);
+			var p1:Point = new Point(screenVertices[index + 1].x, screenVertices[index + 1].y);
+			var p2:Point = new Point(screenVertices[index + 2].x, screenVertices[index + 2].y);
 			
-			var dot:Number = d0.dot(d1);
-			trace("DrawShape: " + dot);
+			var d0:Point = p1.subtract(p0);
+			var d1:Point = p2.subtract(p1);
 			
-			return dot < 0;
+			var angle:Number = Math.atan2(d1.y, d1.x) - Math.atan2(d0.y, d0.x);
+			
+			return angle*180/Math.PI;
 		}
 		
 		public override function render():void
