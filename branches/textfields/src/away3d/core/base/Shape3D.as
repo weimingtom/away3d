@@ -147,7 +147,7 @@ package away3d.core.base
 			
 			var area:Number = calculateTriArea(p0, p1, p2);
 			
-			_contourOrientation = area < 0 ? 1 : -1;
+			_contourOrientation = area > 0 ? 1 : -1;
 		}
 		public function calculateOrientationYZ():void
 		{
@@ -155,13 +155,13 @@ package away3d.core.base
 			var v1:Vertex = vertices[1];
 			var v2:Vertex = vertices[2];
 			
-			var p0:Point = new Point(v0.y, v0.z);
-			var p1:Point = new Point(v1.y, v1.z);
-			var p2:Point = new Point(v2.y, v2.z);
+			var p0:Point = new Point(v0.z, v0.y);
+			var p1:Point = new Point(v1.z, v1.y);
+			var p2:Point = new Point(v2.z, v2.y);
 			
 			var area:Number = calculateTriArea(p0, p1, p2);
 			
-			_contourOrientation = area < 0 ? 1 : -1;
+			_contourOrientation = area > 0 ? 1 : -1;
 		}
 		public function calculateOrientationXZ():void
 		{
@@ -175,7 +175,7 @@ package away3d.core.base
 			
 			var area:Number = calculateTriArea(p0, p1, p2);
 			
-			_contourOrientation = area < 0 ? 1 : -1;
+			_contourOrientation = area > 0 ? 1 : -1;
 		}
 		private function calculateTriArea(p0:Point, p1:Point, p2:Point):Number
 		{
