@@ -44,7 +44,7 @@ package away3d.primitives
 		}
 		public function set cullingTolerance(value:Number):void
 		{
-			_cullingTolerance = value;
+			_cullingTolerance = Math.abs(value);
 			
 			for each(var shp:Shape3D in shapes)
 			{
@@ -198,7 +198,7 @@ package away3d.primitives
 					}
 				}
 				
-				backShape.contourOrientation = !shape.contourOrientation;
+				backShape.contourOrientation = -shape.contourOrientation;
 				
 				addQueue.push(backShape);
 			}
@@ -210,6 +210,9 @@ package away3d.primitives
 		public function addChild(shp:Shape3D):void
 		{
 			shp.cullingTolerance = _cullingTolerance;
+			
+			if(shp.contourOrientation == 0)
+				shp.calculateOrientationXY();
 			
 			addShape(shp);
 		}

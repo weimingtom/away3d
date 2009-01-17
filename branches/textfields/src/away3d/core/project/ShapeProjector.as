@@ -92,7 +92,7 @@ package away3d.core.project
 				if(!_mesh.bothsides)
 				{
 					_drawShape.calculateOrientation();
-					if(!_drawShape.contourOrientation)
+					if(!_drawShape.isShowingFrontFace)
 						continue;
 				}
 				

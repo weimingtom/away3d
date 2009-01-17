@@ -3,8 +3,6 @@ package away3d.core.draw
 	import away3d.core.base.Shape3D;
 	import away3d.materials.IShapeMaterial;
 	
-	import flash.geom.Point;
-	
 	public class DrawShape extends DrawPrimitive
 	{
 		public var screenVertices:Array = [];
@@ -12,7 +10,7 @@ package away3d.core.draw
 		public var material:IShapeMaterial;
 		public var shape:Shape3D;
 		public var layerOffset:Number;
-		public var contourOrientation:Boolean;
+		public var isShowingFrontFace:Boolean;
 		
 		public function DrawShape()
 		{
@@ -66,12 +64,13 @@ package away3d.core.draw
 			v2.deperspective(view.camera.focus);
 			
 			var area:Number = (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y))/2;
+			area *= shape.contourOrientation;
+			area -= shape.contourOrientation*shape.cullingTolerance
 			
-			var offsetMultiplyer:int = shape.contourOrientation ? -1 : 1;
-			if(area - offsetMultiplyer*shape.cullingTolerance > 0 == shape.contourOrientation)
-				contourOrientation = true;
+			if(area > 0)
+				isShowingFrontFace = true;
 			else
-				contourOrientation = false;
+				isShowingFrontFace = false;
 		}
 		
 		public override function render():void
