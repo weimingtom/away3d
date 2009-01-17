@@ -34,7 +34,7 @@ package away3d.core.base
 		private var _previousCreatedVertex:Vertex;
 		private var _lastCreatedVertexIndex:uint;
 		private var _previousCreatedVertexIndex:uint;
-		private var _contourOrientation:Boolean = true;
+		private var _contourOrientation:int = 0;
 		private var _cullingTolerance:Number = 0;
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,11 +66,11 @@ package away3d.core.base
 			_cullingTolerance = value;
 		}
 		
-		public function get contourOrientation():Boolean
+		public function get contourOrientation():int
 		{
 			return _contourOrientation;
 		}
-		public function set contourOrientation(value:Boolean):void
+		public function set contourOrientation(value:int):void
 		{
 			_contourOrientation = value;
 		}
@@ -147,7 +147,7 @@ package away3d.core.base
 			
 			var area:Number = calculateTriArea(p0, p1, p2);
 			
-			_contourOrientation = area < 0 ? true : false;
+			_contourOrientation = area < 0 ? 1 : -1;
 		}
 		public function calculateOrientationYZ():void
 		{
@@ -161,7 +161,7 @@ package away3d.core.base
 			
 			var area:Number = calculateTriArea(p0, p1, p2);
 			
-			_contourOrientation = area < 0 ? true : false;
+			_contourOrientation = area < 0 ? 1 : -1;
 		}
 		public function calculateOrientationXZ():void
 		{
@@ -175,7 +175,7 @@ package away3d.core.base
 			
 			var area:Number = calculateTriArea(p0, p1, p2);
 			
-			_contourOrientation = area < 0 ? true : false;
+			_contourOrientation = area < 0 ? 1 : -1;
 		}
 		private function calculateTriArea(p0:Point, p1:Point, p2:Point):Number
 		{
