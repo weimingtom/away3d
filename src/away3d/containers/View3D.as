@@ -183,8 +183,8 @@ package away3d.containers
                             if (!(tri.material is BitmapMaterialContainer) && !(testmaterial.getPixel32(testuv.u, testuv.v) >> 24))
                                 return;
                             uv = testuv;
-                        }
                         material = testmaterial;
+                        }
                     } else {
                         uv = null;
                     }
