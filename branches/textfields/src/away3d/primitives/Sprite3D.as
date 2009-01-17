@@ -14,6 +14,7 @@ package away3d.primitives
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		private var _extrudeMaterial:IShapeMaterial;
+		private var _cullingTolerance:Number = 0;
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Constructor.
@@ -36,6 +37,20 @@ package away3d.primitives
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Setters & getters.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		public function get cullingTolerance():Number
+		{
+			return _cullingTolerance;
+		}
+		public function set cullingTolerance(value:Number):void
+		{
+			_cullingTolerance = value;
+			
+			for each(var shp:Shape3D in shapes)
+			{
+				shp.cullingTolerance = _cullingTolerance;
+			}
+		}
 		
 		public function set extrudeMaterial(value:IShapeMaterial):void
 		{
@@ -100,7 +115,6 @@ package away3d.primitives
 					else
 					{
 						var extShp:Shape3D = new Shape3D();
-						extShp.contourOrientation = shape.contourOrientation;
 						extShp.layerOffset = layerOffset;
 						
 						if(_extrudeMaterial == null)
@@ -156,6 +170,8 @@ package away3d.primitives
 						memX = lastX;
 						memY = lastY;
 						
+						extShp.calculateOrientationYZ();
+						
 						addQueue.push(extShp);
 					}
 				}
@@ -181,7 +197,9 @@ package away3d.primitives
 							break;
 					}
 				}
+				
 				backShape.contourOrientation = !shape.contourOrientation;
+				
 				addQueue.push(backShape);
 			}
 			
@@ -191,6 +209,8 @@ package away3d.primitives
 		
 		public function addChild(shp:Shape3D):void
 		{
+			shp.cullingTolerance = _cullingTolerance;
+			
 			addShape(shp);
 		}
 		

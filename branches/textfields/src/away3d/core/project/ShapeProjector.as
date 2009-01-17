@@ -91,7 +91,7 @@ package away3d.core.project
 				
 				if(!_mesh.bothsides)
 				{
-					_drawShape.calculateContourOrientation();
+					_drawShape.calculateOrientation();
 					if(!_drawShape.contourOrientation)
 						continue;
 				}
