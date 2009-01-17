@@ -63,9 +63,9 @@ package away3d.core.draw
 			v1.deperspective(view.camera.focus);
 			v2.deperspective(view.camera.focus);
 			
-			var area:Number = (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y))/2;
+			var area:Number = -(v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y))/2;
 			area *= shape.contourOrientation;
-			area -= shape.contourOrientation*shape.cullingTolerance
+			area -= shape.contourOrientation*shape.cullingTolerance;
 			
 			if(area > 0)
 				isShowingFrontFace = true;
