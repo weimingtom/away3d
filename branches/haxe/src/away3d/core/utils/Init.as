@@ -42,8 +42,8 @@ package away3d.core.utils
         
             var result:int = init[name];
 
-            if (bounds != null)
-            {
+             if (bounds != null)
+           {
                 if (bounds.hasOwnProperty("min"))
                 {
                     var min:int = bounds["min"];
@@ -191,7 +191,7 @@ package away3d.core.utils
             if (value is Object3D)
             {
                 var o:Object3D = value as Object3D;
-                return o.scene ? o.scenePosition : o.position;
+                return (o.scene != null) ? o.scenePosition : o.position;
             }
 
             if (value is String)
