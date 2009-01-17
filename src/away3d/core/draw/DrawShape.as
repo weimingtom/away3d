@@ -56,37 +56,22 @@ package away3d.core.draw
 			screenZ = modulo + layerOffset;
 		}
 		
-		public function calculateContourOrientation():void
+		public function calculateOrientation():void
 		{
-			var acum:Number = 0;
-			var pointer:uint;
-			while(Math.abs(acum) < 360 && pointer + 2 < screenVertices.length - 1)
-			{
-				var delta:Number = getTurningAngleAtIndex(pointer);
-				
-				if(Math.abs(delta) < 180)
-					acum += delta;
-				
-				pointer++;
-			}
+			var v0:ScreenVertex = screenVertices[0];
+			var v1:ScreenVertex = screenVertices[1];
+			var v2:ScreenVertex = screenVertices[2];
+			v0.deperspective(view.camera.focus);
+			v1.deperspective(view.camera.focus);
+			v2.deperspective(view.camera.focus);
 			
-			contourOrientation = acum < 0 ? true : false;
+			var area:Number = (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y))/2;
 			
-			if(shape.contourOrientation)
-				contourOrientation = !contourOrientation;
-		}
-		private function getTurningAngleAtIndex(index:uint):Number
-		{
-			var p0:Point = new Point(screenVertices[index].x, screenVertices[index].y);
-			var p1:Point = new Point(screenVertices[index + 1].x, screenVertices[index + 1].y);
-			var p2:Point = new Point(screenVertices[index + 2].x, screenVertices[index + 2].y);
-			
-			var d0:Point = p1.subtract(p0);
-			var d1:Point = p2.subtract(p1);
-			
-			var angle:Number = Math.atan2(d1.y, d1.x) - Math.atan2(d0.y, d0.x);
-			
-			return angle*180/Math.PI;
+			var offsetMultiplyer:int = shape.contourOrientation ? -1 : 1;
+			if(area - offsetMultiplyer*shape.cullingTolerance > 0 == shape.contourOrientation)
+				contourOrientation = true;
+			else
+				contourOrientation = false;
 		}
 		
 		public override function render():void

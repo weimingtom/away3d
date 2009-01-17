@@ -35,6 +35,7 @@ package away3d.core.base
 		private var _lastCreatedVertexIndex:uint;
 		private var _previousCreatedVertexIndex:uint;
 		private var _contourOrientation:Boolean = true;
+		private var _cullingTolerance:Number = 0;
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Public variables.
@@ -55,6 +56,15 @@ package away3d.core.base
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Setters & getters.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		public function get cullingTolerance():Number
+		{
+			return _cullingTolerance;
+		}
+		public function set cullingTolerance(value:Number):void
+		{
+			_cullingTolerance = value;
+		}
 		
 		public function get contourOrientation():Boolean
 		{
@@ -125,21 +135,51 @@ package away3d.core.base
 		//Public methods.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		public function calculateContourOrientation():void
+		public function calculateOrientationXY():void
 		{
-			var acum:Number = 0;
-			var pointer:uint;
-			while(Math.abs(acum) < 360 && pointer + 2 < vertices.length - 1)
-			{
-				var delta:Number = getTurningAngleAtIndex(pointer);
-				
-				if(Math.abs(delta) < 180)
-					acum += delta;
-				
-				pointer++;
-			}
+			var v0:Vertex = vertices[0];
+			var v1:Vertex = vertices[1];
+			var v2:Vertex = vertices[2];
 			
-			_contourOrientation = acum < 0 ? true : false;
+			var p0:Point = new Point(v0.x, v0.y);
+			var p1:Point = new Point(v1.x, v1.y);
+			var p2:Point = new Point(v2.x, v2.y);
+			
+			var area:Number = calculateTriArea(p0, p1, p2);
+			
+			_contourOrientation = area < 0 ? true : false;
+		}
+		public function calculateOrientationYZ():void
+		{
+			var v0:Vertex = vertices[0];
+			var v1:Vertex = vertices[1];
+			var v2:Vertex = vertices[2];
+			
+			var p0:Point = new Point(v0.y, v0.z);
+			var p1:Point = new Point(v1.y, v1.z);
+			var p2:Point = new Point(v2.y, v2.z);
+			
+			var area:Number = calculateTriArea(p0, p1, p2);
+			
+			_contourOrientation = area < 0 ? true : false;
+		}
+		public function calculateOrientationXZ():void
+		{
+			var v0:Vertex = vertices[0];
+			var v1:Vertex = vertices[1];
+			var v2:Vertex = vertices[2];
+			
+			var p0:Point = new Point(v0.x, v0.z);
+			var p1:Point = new Point(v1.x, v1.z);
+			var p2:Point = new Point(v2.x, v2.z);
+			
+			var area:Number = calculateTriArea(p0, p1, p2);
+			
+			_contourOrientation = area < 0 ? true : false;
+		}
+		private function calculateTriArea(p0:Point, p1:Point, p2:Point):Number
+		{
+			 return (p0.x*(p2.y - p1.y) + p1.x*(p0.y - p2.y) + p2.x*(p1.y - p0.y))/2;
 		}
 		
 		public function graphicsMoveTo(X:Number, Y:Number, Z:Number):void
