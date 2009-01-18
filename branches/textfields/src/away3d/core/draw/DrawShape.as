@@ -56,6 +56,9 @@ package away3d.core.draw
 		
 		public function calculateOrientation():void
 		{
+			if(screenVertices.length < 3)
+				return;
+			
 			var v0:ScreenVertex = screenVertices[0];
 			var v1:ScreenVertex = screenVertices[1];
 			var v2:ScreenVertex = screenVertices[2];

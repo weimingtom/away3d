@@ -137,6 +137,9 @@ package away3d.core.base
 		
 		public function calculateOrientationXY():void
 		{
+			if(vertices.length < 3)
+				return;
+			
 			var v0:Vertex = vertices[0];
 			var v1:Vertex = vertices[1];
 			var v2:Vertex = vertices[2];
@@ -151,6 +154,9 @@ package away3d.core.base
 		}
 		public function calculateOrientationYZ():void
 		{
+			if(vertices.length < 3)
+				return;
+			
 			var v0:Vertex = vertices[0];
 			var v1:Vertex = vertices[1];
 			var v2:Vertex = vertices[2];
@@ -165,6 +171,9 @@ package away3d.core.base
 		}
 		public function calculateOrientationXZ():void
 		{
+			if(vertices.length < 3)
+				return;
+			
 			var v0:Vertex = vertices[0];
 			var v1:Vertex = vertices[1];
 			var v2:Vertex = vertices[2];
