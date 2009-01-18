@@ -29,7 +29,7 @@ package away3d.primitives
 			
 			super(init);
 			
-			//this.bothsides = true;
+			this.bothsides = true;
 			
 			extrudeMaterial = IShapeMaterial(ini.getMaterial("extrudeMaterial")); 
 		}
@@ -170,7 +170,8 @@ package away3d.primitives
 						memX = lastX;
 						memY = lastY;
 						
-						extShp.calculateOrientationYZ();
+						//extShp.calculateOrientationYZ();
+						extShp.contourOrientation = shape.contourOrientation;
 						
 						addQueue.push(extShp);
 					}
