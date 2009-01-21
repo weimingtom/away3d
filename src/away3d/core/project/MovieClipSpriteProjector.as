@@ -36,9 +36,6 @@ package away3d.core.project
 			
 			_movieClipSprite = source as MovieClipSprite;
 			
-			if (!_movieClipSprite)
-				Debug.error("MovieClipSpriteProjector must process a MovieClipSprite object");
-			
 			_movieclip = _movieClipSprite.movieclip;
 			
 			_screenVertex = _view.camera.lens.project(viewTransform, _movieClipSprite.center, _vertexDictionary);

@@ -1,12 +1,14 @@
 package away3d.core.clip
 {
-    import away3d.core.draw.*;
-    import away3d.core.utils.*;
-    import away3d.events.*;
-    
-    import flash.display.*;
-    import flash.events.*;
-    import flash.geom.*;
+	import away3d.arcane;
+	import away3d.containers.*;
+	import away3d.core.draw.*;
+	import away3d.core.utils.*;
+	import away3d.events.*;
+	
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
 	
 	/**
 	 * Dispatched when the clipping properties of a clipping object update.
@@ -22,11 +24,22 @@ package away3d.core.clip
 	 */
 	[Event(name="clipUpdated",type="away3d.events.ClipEvent")]
 	
+	use namespace arcane;
     /**
     * Base clipping class for no clipping.
     */
     public class Clipping extends EventDispatcher
     {
+    	/** @private */
+        arcane function internalRemoveView(view:View3D):void
+        {
+        	view.removeEventListener(ViewEvent.UPDATE_CLIPPING, onUpdate);
+        }
+		/** @private */
+        arcane function internalAddView(view:View3D):void
+        {
+        	view.addEventListener(ViewEvent.UPDATE_CLIPPING, onUpdate);
+        }
     	private var _clippingClone:Clipping;
     	private var _zeroPoint:Point = new Point(0, 0);
 		private var _globalPoint:Point;
@@ -42,6 +55,13 @@ package away3d.core.clip
 		private var _maY:Number;
 		
 		private var _clippingupdated:ClippingEvent;
+		
+		private function onUpdate(event:ViewEvent):void
+		{
+			//determine screen clipping
+			if (event.view.stage)
+				event.view._screenClip = screen(event.view);
+		}
 		
         private function notifyClippingUpdate():void
         {

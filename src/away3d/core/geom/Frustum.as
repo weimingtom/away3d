@@ -1,7 +1,6 @@
 package away3d.core.geom
 {
 	import away3d.core.base.*;
-	import away3d.core.geom.*;
 	import away3d.core.math.*;
 	
 	/** b at turbulent dot ca */
@@ -19,13 +18,15 @@ package away3d.core.geom
 		public var planeNames:Array = ['NEAR','LEFT','RIGHT','TOP','BOTTOM','FAR'];
 		
 		//clasification
+		public static const OUT:int = 0;
 		public static const IN:int = 1;
-		public static const OUT:int = -1;
-		public static const INTERSECT:int = 0;
+		public static const INTERSECT:int = 2;
 		
 		public var planes:Array;
 		
 		private var _matrix:Matrix3D = new Matrix3D();
+		private var _plane:Plane3D;
+		private var _distance:Number;
 		
 		/**
 		 * Creates a frustum consisting of 6 planes in 3d space.
@@ -56,23 +57,41 @@ package away3d.core.geom
 		 */
 		public function classifySphere(center:Number3D, radius:Number):int
 		{
-			var dist:Number;
-			for(var p:int = 0; p < 6; p++)
-			{
-				dist = Plane3D(planes[p]).distance(center);
-				if(dist < -radius)
-				{
-					return OUT;
-				}
-				if(Math.abs(dist) < radius)
-				{
-					return INTERSECT;	
-				}
+			for each(_plane in planes) {
+				_distance = _plane.distance(center);
 				
+				if(_distance < -radius)
+					return OUT;
+				
+				if(Math.abs(_distance) < radius)
+					return INTERSECT;
 			}
+			
 			return IN;
 		}
 		
+		/**
+		 * Classify this radius against this frustum
+		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
+		 */
+		public function classifyRadius(radius:Number):int
+		{
+			
+			//trace("classifyRadius");
+			//_plane = planes[FAR];
+			for each(_plane in planes) {
+				//trace("_plane.d: " + _plane.d);
+				//trace("radius: " + radius);
+				if(_plane.d < -radius)
+					return OUT;
+				
+				if(Math.abs(_plane.d) < radius)
+					return INTERSECT;	
+				
+			}
+			
+			return IN;
+		}
 		/**
 		 * Classify this axis aligned bounding box against this frustum
 		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT

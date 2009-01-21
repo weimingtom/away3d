@@ -62,9 +62,6 @@ package away3d.core.project
 			_camera = _view.camera;
 			_lens = _camera.lens;
 			
-			if (!_convexBlock)
-				Debug.error("FaceProjector must process a Mesh object");
-			
 			_vertices = _convexBlock.vertices;
             
         	if (_vertices.length < 3)
