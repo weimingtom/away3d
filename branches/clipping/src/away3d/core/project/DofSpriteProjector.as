@@ -39,9 +39,6 @@ package away3d.core.project
 			
 			_lens = _view.camera.lens;
 			
-			if (!_dofsprite)
-				Debug.error("DofSpriteProjector must process a DofSprite2D object");
-			
 			_screenVertex = _lens.project(viewTransform, _dofsprite.center, _vertexDictionary);
             
             if (!_screenVertex.visible)

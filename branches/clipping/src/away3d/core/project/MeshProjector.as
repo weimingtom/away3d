@@ -93,6 +93,9 @@ package away3d.core.project
 			
 			_triangles = new Array();
 			
+			//setup frustum planes for the mesh
+			
+			
 			//loop through all faces
             for each (_face in _faces)
             {
@@ -208,7 +211,7 @@ package away3d.core.project
             	_sv0 = _lens.project(viewTransform, _segment.v0, _vertexDictionary);
             	_sv1 = _lens.project(viewTransform, _segment.v1, _vertexDictionary);
     
-                if (!_sv0.visible && !_sv1.visible)
+                if (!_sv0.visible || !_sv1.visible)
                     continue;
             	
             	_smaterial = _segment.material || _segmentMaterial;
@@ -216,9 +219,7 @@ package away3d.core.project
                 if (!_smaterial.visible)
                     continue;
                 
-            	_drawSegment = _drawPrimitiveStore.createDrawSegment(source, _smaterial, _sv0, _sv1)
-                
-                consumer.primitive(_drawSegment);
+                consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _smaterial, _sv0, _sv1));
             }
             
             //loop through all billboards
@@ -236,10 +237,8 @@ package away3d.core.project
                 
                 if (!_bmaterial.visible)
                     continue;
-                    
-				_drawBillBoard = _drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling*_zoom / (1 + _screenVertex.z / _focus), _billboard.rotation);
 		        
-	            consumer.primitive(_drawBillBoard);
+	            consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling*_zoom / (1 + _screenVertex.z / _focus), _billboard.rotation));
             }
 		}
 	}

@@ -5,6 +5,8 @@ package away3d.cameras.lenses
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
+	import away3d.core.geom.Frustum;
+	import away3d.core.geom.Plane3D;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	
@@ -15,6 +17,18 @@ package away3d.cameras.lenses
     */
     public class AbstractLens
     {
+    	protected const toRADIANS:Number = Math.PI/180;
+		protected const toDEGREES:Number = 180/Math.PI;
+		
+		protected var _clipTop:Number;
+        protected var _clipBottom:Number;
+        protected var _clipLeft:Number;
+        protected var _clipRight:Number;
+        protected var _near:Number;
+        protected var _far:Number;
+        protected var _plane:Plane3D;
+        protected var _len:Number;
+        
     	protected var _screenVertex:ScreenVertex;
     	protected var _sx:Number;
     	protected var _sy:Number;
@@ -41,11 +55,6 @@ package away3d.cameras.lenses
 		 */
 		public var camera:Camera3D;
 		
-		/**
-		 * reference back to clipping object of view.
-		 */
-		public var clip:Clipping;
-		
 		public var drawPrimitiveStore:DrawPrimitiveStore;
 		
 		/**
@@ -58,6 +67,35 @@ package away3d.cameras.lenses
 		 */
 		public var nodeTransform:Dictionary;
 		
+		public function setClipping(val:Clipping):void
+		{
+			_clipTop = val.maxY;
+        	_clipBottom = val.minY;
+        	_clipLeft = val.minX;
+        	_clipRight = val.maxX;
+        	
+        	_far = val.maxZ;
+        	
+        	if (val.minZ == -Infinity)
+        		_near = -camera.focus/2;
+        	else
+        		_near = val.minZ;
+		}
+		
+		public function getFrustum(frustum:Frustum, viewTransform:Matrix3D):Frustum
+		{
+			throw new Error("Not implemented");
+		}
+		
+		public function getFOV():Number
+		{
+			throw new Error("Not implemented");
+		}
+		
+		public function getZoom():Number
+		{
+			throw new Error("Not implemented");
+		}
 		
 		/**
 		 * Returns the transformation matrix used to resolve the scene to the view.

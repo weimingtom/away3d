@@ -4,6 +4,7 @@ package away3d.cameras.lenses
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
+	import away3d.core.geom.Frustum;
 	import away3d.core.math.*;
 	
 	import flash.utils.Dictionary;
@@ -11,7 +12,64 @@ package away3d.cameras.lenses
 	public class PerspectiveLens extends AbstractLens
 	{
 		
-        
+        public override function getFrustum(frustum:Frustum, viewTransform:Matrix3D):Frustum
+		{
+			_plane = frustum.planes[Frustum.NEAR];
+			_plane.a = 0;
+			_plane.b = 0;
+			_plane.c = 1;
+			_plane.d = -_near;
+			_plane.transform(viewTransform);
+			
+			_plane = frustum.planes[Frustum.FAR];
+			_plane.a = 0;
+			_plane.b = 0;
+			_plane.c = -1;
+			_plane.d = _far;
+			_plane.transform(viewTransform);
+			
+			_plane = frustum.planes[Frustum.LEFT];
+			_plane.a = (_clipTop - _clipBottom)*camera.focus/camera.zoom;
+			_plane.b = 0;
+			_plane.c = (_clipBottom - _clipTop)*_clipLeft/(camera.zoom*camera.zoom);
+			_plane.d = _plane.c*camera.focus;
+			_plane.transform(viewTransform);
+			
+			_plane = frustum.planes[Frustum.RIGHT];
+			_plane.a = -(_clipTop - _clipBottom)*camera.focus/camera.zoom;
+			_plane.b = 0;
+			_plane.c = -(_clipBottom - _clipTop)*_clipRight/(camera.zoom*camera.zoom);
+			_plane.d = _plane.c*camera.focus;
+			_plane.transform(viewTransform);
+			
+			_plane = frustum.planes[Frustum.TOP];
+			_plane.a = 0;
+			_plane.b = (_clipRight - _clipLeft)*camera.focus/camera.zoom;
+			_plane.c = -(_clipLeft - _clipRight)*_clipTop/(camera.zoom*camera.zoom);
+			_plane.d = _plane.c*camera.focus;
+			_plane.transform(viewTransform);
+			
+			_plane = frustum.planes[Frustum.BOTTOM];
+			_plane.a = 0;
+			_plane.b = -(_clipRight - _clipLeft)*camera.focus/camera.zoom;
+			_plane.c = (_clipLeft - _clipRight)*_clipBottom/(camera.zoom*camera.zoom);
+			_plane.d = _plane.c*camera.focus;
+			_plane.transform(viewTransform);
+			
+			return frustum;
+			//(cameraVarsStore.viewTransformDictionary[node] as Matrix3D).perspectiveProjectionMatrix(camera.fov, camera.aspect, camera.near, camera.far);
+		}
+		
+		public override function getFOV():Number
+		{
+			return Math.atan2(_clipTop - _clipBottom, camera.focus*camera.zoom + _clipTop*_clipBottom)*toDEGREES;
+		}
+		
+		public override function getZoom():Number
+		{
+			return ((_clipTop - _clipBottom)/Math.tan(camera.fov*toRADIANS) - _clipTop*_clipBottom)/camera.focus;
+		}
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -104,7 +162,7 @@ package away3d.cameras.lenses
             _screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)*camera.zoom
             _screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)*camera.zoom
             
-            if (_sz < clip.minZ) {
+            if (_sz < _near) {
                 _screenVertex.visible = false;
                 return _screenVertex;
             }

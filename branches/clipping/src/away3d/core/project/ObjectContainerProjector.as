@@ -17,6 +17,8 @@ package away3d.core.project
 		private var _view:View3D;
 		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
+		private var _cameraViewMatrix:Matrix3D;
+		private var _viewTransformDictionary:Dictionary;
 		private var _container:ObjectContainer3D;
 		private var _camera:Camera3D;
 		private var _child:Object3D;
@@ -39,10 +41,8 @@ package away3d.core.project
 			
 			_container = source as ObjectContainer3D;
 			
-			_camera = _view.camera;
-			
-			if (!_container)
-				Debug.error("SessionProjector must process an ObjectContainer3D object");
+			_cameraViewMatrix = _view.camera.viewMatrix;
+			_viewTransformDictionary = _view.cameraVarsStore.viewTransformDictionary;
 			
         	for each (_child in _container.children) {
 				if (_child.ownCanvas && _child.visible) {
@@ -56,13 +56,13 @@ package away3d.core.project
 					
 					if (_child.scenePivotPoint.modulo) {
 						_depthPoint.clone(_child.scenePivotPoint);
-						_depthPoint.rotate(_depthPoint, _camera.viewMatrix);
-						_depthPoint.add(view.camera.viewTransforms[_child].position, _depthPoint);
+						_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
+						_depthPoint.add(_viewTransformDictionary[_child].position, _depthPoint);
 						
 		             	_screenVertex.z = _depthPoint.modulo;
 						
 					} else {
-						_screenVertex.z = view.camera.viewTransforms[_child].position.modulo;
+						_screenVertex.z = _viewTransformDictionary[_child].position.modulo;
 					}
 		             
 	             	

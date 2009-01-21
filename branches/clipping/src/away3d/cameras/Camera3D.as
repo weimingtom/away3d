@@ -38,6 +38,7 @@ package away3d.cameras
         private var _zoom:Number = 10;
         private var _lens:AbstractLens;
         private var _fov:Number = 0;
+        private var _clipping:Clipping;
         private var _clipTop:Number;
         private var _clipBottom:Number;
         private var _clipLeft:Number;
@@ -45,8 +46,7 @@ package away3d.cameras
     	private var _viewMatrix:Matrix3D = new Matrix3D();
     	private var _view:View3D;
     	private var _drawPrimitiveStore:DrawPrimitiveStore;
-        private var _vtActive:Array = new Array();
-        private var _vtStore:Array = new Array();
+    	private var _cameraVarsStore:CameraVarsStore;
         private var _vt:Matrix3D;
 		private var _cameraupdated:CameraEvent;
 		private var _x:Number;
@@ -54,7 +54,6 @@ package away3d.cameras
 		private var _z:Number;
 		private var _sz:Number;
 		private var _persp:Number;
-		private var _fixedZoom:Boolean = true;
 		
         private function notifyCameraUpdate():void
         {
@@ -71,29 +70,11 @@ package away3d.cameras
 		protected const toDEGREES:Number = 180/Math.PI;
 		
     	public var invViewMatrix:Matrix3D = new Matrix3D();
-    	
-        /**
-        * Dictionary of all objects transforms calulated from the camera view for the last render frame
-        */
-        public var viewTransforms:Dictionary;
         
-        public function createViewTransform(node:Object3D):Matrix3D
-        {
-        	if (_vtStore.length)
-        		_vtActive.push(_vt = viewTransforms[node] = _vtStore.pop());
-        	else
-        		_vtActive.push(_vt = viewTransforms[node] = new Matrix3D());
-        	
-        	return _vt
-        }
+        public var frustumClipping:Boolean;
         
-        public function clearViewTransforms():void
-        {
-        	viewTransforms = new Dictionary(true);
-        	_vtStore = _vtStore.concat(_vtActive);
-        	_vtActive = new Array();
-        }
-        
+		public var fixedZoom:Boolean;
+		
 		/**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
@@ -158,8 +139,8 @@ package away3d.cameras
 			
 			_zoom = value;
 			
+			_zoomDirty = false;
 			_fovDirty = true;
-			_fixedZoom = true;
 			
 			notifyCameraUpdate();
 		}
@@ -200,8 +181,8 @@ package away3d.cameras
 			
 			_fov = value;
 			
+			_fovDirty = false;
 			_zoomDirty = true;
-			_fixedZoom = false;
 			
 			notifyCameraUpdate();
 		}
@@ -228,10 +209,10 @@ package away3d.cameras
         {
         	if (_view == val)
         		return;
-        		
+        	
         	_view = val;
         	_drawPrimitiveStore = val.drawPrimitiveStore;
-        	trace(_drawPrimitiveStore);
+        	_cameraVarsStore = val.cameraVarsStore;
         }
         
 		/**
@@ -256,10 +237,12 @@ package away3d.cameras
         {
             super(init);
             
-            zoom = ini.getNumber("zoom", _zoom);
             fov = ini.getNumber("fov", _fov);
             focus = ini.getNumber("focus", 100);
+            zoom = ini.getNumber("zoom", _zoom);
+            fixedZoom = ini.getBoolean("fixedZoom", true);
             lens = ini.getObject("lens", AbstractLens) as AbstractLens;
+            frustumClipping = ini.getBoolean("frustumClipping", false);
             aperture = ini.getNumber("aperture", 22);
             maxblur = ini.getNumber("maxblur", 150);
 	        doflevels = ini.getNumber("doflevels", 16);
@@ -315,9 +298,9 @@ package away3d.cameras
             if (vertex == null)
                 vertex = center;
             
-            createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
+            _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
             
-            return lens.project(viewTransforms[object], vertex, _drawPrimitiveStore.sourceDictionary[object]);
+            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex, _drawPrimitiveStore.sourceDictionary[object]);
         }
     	        
 		/**
@@ -326,31 +309,37 @@ package away3d.cameras
 		 * 
 		 * @see	away3d.core.render.BasicRender
 		 */
-        public function update(clipping:Clipping):void
+        public function update():void
         {
-        	if (_clipTop != clipping.maxY || _clipBottom != clipping.minY || _clipLeft != clipping.minX || _clipRight != clipping.maxX) {
-        		if (_fixedZoom)
-	        		_fovDirty = true;
-	        	else
-	        		_zoomDirty = true;
-        	}
+        	_clipping  = _view.screenClip;
         	
-        	_clipTop = clipping.maxY;
-        	_clipBottom = clipping.minY;
-        	_clipLeft = clipping.minX;
-        	_clipRight = clipping.maxX;
+        	if (_clipTop != _clipping.maxY || _clipBottom != _clipping.minY || _clipLeft != _clipping.minX || _clipRight != _clipping.maxX) {
+        		
+        		if (!_fovDirty && !_zoomDirty) {
+	        		if (fixedZoom)
+		        		_fovDirty = true;
+		        	else
+		        		_zoomDirty = true;
+		        }
+		        
+	        	_clipTop = _clipping.maxY;
+	        	_clipBottom = _clipping.minY;
+	        	_clipLeft = _clipping.minX;
+	        	_clipRight = _clipping.maxX;
+	        	
+	        	lens.setClipping(_clipping);
+        	}
         	
         	if (_fovDirty) {
         		_fovDirty = false;
-        		_fov = (Math.atan2(_clipTop, _focus*_zoom) - Math.atan2(_clipBottom, _focus*_zoom))*toDEGREES;
+        		_fov = lens.getFOV();
         	}
         	
         	if (_zoomDirty) {
         		_zoomDirty = false;
-        		_zoom = _clipTop/(Math.tan(_fov*toRADIANS*_clipTop/(_clipTop - _clipBottom))*_focus);
+        		_zoom = lens.getZoom();
         	}
         	
-        	lens.clip = clipping;
         	lens.drawPrimitiveStore = _drawPrimitiveStore;
         	//lens.updateView(clip, _zoom, _focus, _near, _far, sceneTransform, _flipY);
         }

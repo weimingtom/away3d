@@ -158,11 +158,14 @@ package away3d.containers
         	//execute projection traverser on each view
         	for each(_view in viewDictionary) {
         		
+        		//update camera
+	        	_view.camera.update();
+	        	
 	        	//clear meshes
 	        	meshes = new Dictionary(true);
 	        	
 	        	//clear camera view transforms
-	        	_view.camera.clearViewTransforms();
+	        	_view.cameraVarsStore.reset();
 	        	
 	        	//clear blockers
 	        	_view.blockerarray.clip = _view.screenClip;

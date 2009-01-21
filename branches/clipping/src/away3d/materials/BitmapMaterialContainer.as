@@ -62,7 +62,7 @@ package away3d.materials
         	_face = tri.face;
     		_faceVO = getFaceVO(tri.face, tri.source, tri.view);
     		
-    		if (_faceVO.invalidated || !_faceVO.texturemapping || _faceVO.backface != tri.backface) {
+    		if (tri.generated || _faceVO.invalidated || !_faceVO.texturemapping || _faceVO.backface != tri.backface) {
         		_faceVO.invalidated = false;
 	    		
 	        	//check to see if face drawtriangle needs updating
