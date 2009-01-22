@@ -49,7 +49,6 @@ package away3d.core.utils
 			
 			this.width = width;
 			this.height = height;
-			this.color = color;
 			
 			if (bitmap)
 				bitmap.dispose();
