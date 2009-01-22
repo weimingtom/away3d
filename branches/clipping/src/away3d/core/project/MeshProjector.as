@@ -30,7 +30,6 @@ package away3d.core.project
 		private var _segmentMaterial:ISegmentMaterial;
 		private var _billboardMaterial:IBillboardMaterial;
 		private var _vertex:Vertex;
-		private var _screenVertex:ScreenVertex;
 		private var _face:Face;
 		private var _tri:DrawTriangle;
 		private var _uvt:UV;
@@ -118,6 +117,8 @@ package away3d.core.project
             }
 
             for each (_tri in _triangles) {
+            	
+				_face = _tri.face;
 				
 				//calculate Draw_triangle properties
                 _tri.calc();
@@ -238,7 +239,7 @@ package away3d.core.project
                 if (!_bmaterial.visible)
                     continue;
 		        
-	            consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling*_zoom / (1 + _screenVertex.z / _focus), _billboard.rotation));
+	            consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling*_zoom / (1 + _sv0.z / _focus), _billboard.rotation));
             }
 		}
 	}
