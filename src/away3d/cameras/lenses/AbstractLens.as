@@ -77,7 +77,7 @@ package away3d.cameras.lenses
         	_far = val.maxZ;
         	
         	if (val.minZ == -Infinity)
-        		_near = -camera.focus/2;
+        		_near = val.minZ = -camera.focus/2;
         	else
         		_near = val.minZ;
 		}

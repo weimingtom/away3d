@@ -131,15 +131,5 @@ package away3d.core.clip
         	
         	return clipping;
         }
-        
-		/**
-		 * Used to trace the values of a rectangle clipping object.
-		 * 
-		 * @return A string representation of the rectangle clipping object.
-		 */
-        public override function toString():String
-        {
-        	return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + "}";
-        }
     }
 }

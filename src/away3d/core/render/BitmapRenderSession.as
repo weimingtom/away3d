@@ -153,14 +153,14 @@ package away3d.core.render
         	if (updated) {
 	        	_base = getBitmapData(view);
 	        	
-	        	_cx = _bitmapContainer.x = view.clipping.minX;
-				_cy = _bitmapContainer.y = view.clipping.minY;
+	        	_cx = _bitmapContainer.x = view.screenClip.minX;
+				_cy = _bitmapContainer.y = view.screenClip.minY;
 				_bitmapContainer.scaleX = _scale;
 				_bitmapContainer.scaleY = _scale;
 	        	
 	        	_cm = new Matrix();
 	        	_cm.scale(1/_scale, 1/_scale);
-				_cm.translate(-view.clipping.minX/_scale, -view.clipping.minY/_scale);
+				_cm.translate(-view.screenClip.minX/_scale, -view.screenClip.minY/_scale);
 				
 	        	//clear base canvas
 	        	_base.lock();
