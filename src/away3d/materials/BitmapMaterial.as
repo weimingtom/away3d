@@ -46,7 +46,7 @@
         /** @private */
     	arcane var _zeroPoint:Point = new Point(0, 0);
         /** @private */
-        arcane var _faceVO:FaceVO;
+        arcane var _faceMaterialVO:FaceMaterialVO;
         /** @private */
         arcane var _mapping:Matrix;
         /** @private */
@@ -56,7 +56,7 @@
         /** @private */
 		arcane var _bitmapRect:Rectangle;
         /** @private */
-		arcane var _sourceVO:FaceVO;
+		arcane var _sourceVO:FaceMaterialVO;
         /** @private */
         arcane var _session:AbstractRenderSession;
 		/** @private */
@@ -81,7 +81,7 @@
 		{
 			//check to see if sourceDictionary exists
 			if (!(_sourceVO = _faceDictionary[source]))
-				_sourceVO = _faceDictionary[source] = new FaceVO();
+				_sourceVO = _faceDictionary[source] = new FaceMaterialVO();
 			
 			_sourceVO.resize(containerRect.width, containerRect.height);
 			
@@ -421,14 +421,14 @@
 				return _texturemapping;
 			}
 			
-			_faceVO = getFaceVO(tri.face);
-			if (_faceVO.texturemapping)
-				return _faceVO.texturemapping;
+			_faceMaterialVO = getFaceMaterialVO(tri.face);
+			if (_faceMaterialVO.texturemapping)
+				return _faceMaterialVO.texturemapping;
 			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
-			return _faceVO.texturemapping = _texturemapping;
+			return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
     	/**
@@ -659,14 +659,14 @@
         	_blendModeDirty = false;
         }
         
-        public function getFaceVO(face:Face, source:Object3D = null, view:View3D = null):FaceVO
-        {        	//check to see if faceVO exists
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        public function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO
+        {        	//check to see if faceMaterialVO exists
+        	if ((_faceMaterialVO = _faceDictionary[face]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
+        	return _faceDictionary[face] = new FaceMaterialVO();
         }
-        		/**		 * @inheritDoc		 */        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void        {        	_faceDirty = false;        	        	notifyMaterialUpdate();        	        	for each (_faceVO in _faceDictionary) {        		if (!_faceVO.cleared)        			_faceVO.clear();        		_faceVO.invalidated = true;        	}        }        
+        		/**		 * @inheritDoc		 */        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void        {        	_faceDirty = false;        	        	notifyMaterialUpdate();        	        	for each (_faceMaterialVO in _faceDictionary) {        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        		_faceMaterialVO.invalidated = true;        	}        }        
 		/**
 		 * @inheritDoc
 		 */
@@ -728,39 +728,39 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+		public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
 		{
 			//draw the bitmap once
 			renderSource(tri.source, containerRect, new Matrix());
 			
-			//get the correct faceVO			_faceVO = getFaceVO(tri.face);
+			//get the correct faceMaterialVO			_faceMaterialVO = getFaceMaterialVO(tri.face);
 			
 			//pass on resize value
-			if (parentFaceVO.resized) {
-				parentFaceVO.resized = false;
-				_faceVO.resized = true;
+			if (parentFaceMaterialVO.resized) {
+				parentFaceMaterialVO.resized = false;
+				_faceMaterialVO.resized = true;
 			}
 			
 			//pass on invtexturemapping value
-			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//check to see if face update can be skipped
-			if (parentFaceVO.updated || _faceVO.invalidated) {
-				parentFaceVO.updated = false;
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated) {
+				parentFaceMaterialVO.updated = false;
 				
 				//reset booleans
-				_faceVO.invalidated = false;
-				_faceVO.cleared = false;
-				_faceVO.updated = true;
+				_faceMaterialVO.invalidated = false;
+				_faceMaterialVO.cleared = false;
+				_faceMaterialVO.updated = true;
 				
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap.clone();
+				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap.clone();
 				
 				//draw into faceBitmap
-				_faceVO.bitmap.copyPixels(_sourceVO.bitmap, tri.face.bitmapRect, _zeroPoint, null, null, true);
+				_faceMaterialVO.bitmap.copyPixels(_sourceVO.bitmap, tri.face.bitmapRect, _zeroPoint, null, null, true);
 			}
 			
-			return _faceVO;
+			return _faceMaterialVO;
 		}
         
 		/**

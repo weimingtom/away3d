@@ -278,7 +278,7 @@ package away3d.materials
 		/**
 		 * @private
 		 */
-        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
 		{
 			throw new Error("Not implemented");
 		}

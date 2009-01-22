@@ -12,51 +12,53 @@ package away3d.cameras.lenses
 	public class PerspectiveLens extends AbstractLens
 	{
 		
-        public override function getFrustum(frustum:Frustum, viewTransform:Matrix3D):Frustum
+        public override function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum
 		{
-			_plane = frustum.planes[Frustum.NEAR];
+			_frustum = cameraVarsStore.createFrustum(node)
+			
+			_plane = _frustum.planes[Frustum.NEAR];
 			_plane.a = 0;
 			_plane.b = 0;
 			_plane.c = 1;
 			_plane.d = -_near;
 			_plane.transform(viewTransform);
 			
-			_plane = frustum.planes[Frustum.FAR];
+			_plane = _frustum.planes[Frustum.FAR];
 			_plane.a = 0;
 			_plane.b = 0;
 			_plane.c = -1;
 			_plane.d = _far;
 			_plane.transform(viewTransform);
 			
-			_plane = frustum.planes[Frustum.LEFT];
+			_plane = _frustum.planes[Frustum.LEFT];
 			_plane.a = (_clipTop - _clipBottom)*camera.focus/camera.zoom;
 			_plane.b = 0;
 			_plane.c = (_clipBottom - _clipTop)*_clipLeft/(camera.zoom*camera.zoom);
 			_plane.d = _plane.c*camera.focus;
 			_plane.transform(viewTransform);
 			
-			_plane = frustum.planes[Frustum.RIGHT];
+			_plane = _frustum.planes[Frustum.RIGHT];
 			_plane.a = -(_clipTop - _clipBottom)*camera.focus/camera.zoom;
 			_plane.b = 0;
 			_plane.c = -(_clipBottom - _clipTop)*_clipRight/(camera.zoom*camera.zoom);
 			_plane.d = _plane.c*camera.focus;
 			_plane.transform(viewTransform);
 			
-			_plane = frustum.planes[Frustum.TOP];
+			_plane = _frustum.planes[Frustum.TOP];
 			_plane.a = 0;
 			_plane.b = (_clipRight - _clipLeft)*camera.focus/camera.zoom;
 			_plane.c = -(_clipLeft - _clipRight)*_clipTop/(camera.zoom*camera.zoom);
 			_plane.d = _plane.c*camera.focus;
 			_plane.transform(viewTransform);
 			
-			_plane = frustum.planes[Frustum.BOTTOM];
+			_plane = _frustum.planes[Frustum.BOTTOM];
 			_plane.a = 0;
 			_plane.b = -(_clipRight - _clipLeft)*camera.focus/camera.zoom;
 			_plane.c = (_clipLeft - _clipRight)*_clipBottom/(camera.zoom*camera.zoom);
 			_plane.d = _plane.c*camera.focus;
 			_plane.transform(viewTransform);
 			
-			return frustum;
+			return _frustum;
 			//(cameraVarsStore.viewTransformDictionary[node] as Matrix3D).perspectiveProjectionMatrix(camera.fov, camera.aspect, camera.near, camera.far);
 		}
 		

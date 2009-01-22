@@ -20,18 +20,18 @@ package away3d.materials
     	 * 
     	 * @param	face			The face object onto which the rendered sufrace is applied.
     	 * @param	containerRect	The rectangle object defining the bounds of the face in uv-space.
-    	 * @param	parentFaceVO	The value object of the preceeding surface.
+    	 * @param	parentFaceMaterialVO	The value object of the preceeding surface.
     	 * 
     	 * @see away3d.materials.BitmapMaterailContainer
     	 */
-        function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO;
+        function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO;
         
         /**
         * Renders a material layer for the specified triangle.
         * 
     	 * @param	tri				The drawtriangle used for render information.
     	 * @param	layer			The parent layer into which the triangle is drawn.
-    	 * @param	parentFaceVO	Defines the sprite level for the layer.
+    	 * @param	parentFaceMaterialVO	Defines the sprite level for the layer.
     	 */
         function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void;
     }

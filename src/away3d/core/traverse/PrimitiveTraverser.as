@@ -64,7 +64,7 @@ package away3d.core.traverse
 		 */
 		public override function match(node:Object3D):Boolean
         {
-            if (!node.visible || !_cameraVarsStore.nodeClassificationDictionary[node])
+            if (!node.visible || (_view.camera.frustumClipping && !_cameraVarsStore.nodeClassificationDictionary[node]))
                 return false;
             if (node is ILODObject)
                 return (node as ILODObject).matchLOD(_view.camera);
@@ -94,11 +94,15 @@ package away3d.core.traverse
 	            
 	            if (node.debugbb && node.debugBoundingBox.visible) {
 	            	node.debugBoundingBox._session = node.session;
+	            	if (_view.camera.frustumClipping)
+	            		_cameraVarsStore.frustumDictionary[node.debugBoundingBox] = _cameraVarsStore.frustumDictionary[node];
 	            	_view._meshProjector.primitives(node.debugBoundingBox, _viewTransform, _consumer);
 	            }
 	            
 	            if (node.debugbs && node.debugBoundingSphere.visible) {
 	            	node.debugBoundingSphere._session = node.session;
+	            	if (_view.camera.frustumClipping)
+	            		_cameraVarsStore.frustumDictionary[node.debugBoundingSphere] = _cameraVarsStore.frustumDictionary[node];
 	            	_view._meshProjector.primitives(node.debugBoundingSphere, _viewTransform, _consumer);
 	            }
 	            
@@ -106,6 +110,8 @@ package away3d.core.traverse
 	            	_light = node as ILightProvider;
 	            	if (_light.debug) {
 	            		_light.debugPrimitive._session = node.session;
+	            		if (_view.camera.frustumClipping)
+	            			_cameraVarsStore.frustumDictionary[_light.debugPrimitive] = _cameraVarsStore.frustumDictionary[_light];
 	            		_view._meshProjector.primitives(_light.debugPrimitive, _viewTransform, _consumer);
 	            	}
 	            }

@@ -31,7 +31,7 @@ package away3d.core.render
         private var _view:View3D;
         private var _scene:Scene3D;
         private var _camera:Camera3D;
-        private var _clip:Clipping;
+        private var _screenClip:Clipping;
         private var _blockers:Array;
 		private var _filter:IPrimitiveQuadrantFilter;
 		
@@ -118,6 +118,9 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
         {
+        	if (!_camera.frustumClipping && _screenClip.check(pri))
+        		return false;
+			
             _root.push(pri);
             
             return true;
@@ -181,12 +184,12 @@ package away3d.core.render
         	_primitives = [];
 			_scene = view.scene;
 			_camera = view.camera;
-			_clip = view.screenClip;
+			_screenClip = view.screenClip;
 			
 			if (!_root)
-				_root = new PrimitiveQuadrantTreeNode((_clip.minX + _clip.maxX)/2, (_clip.minY + _clip.maxY)/2, _clip.maxX - _clip.minX, _clip.maxY - _clip.minY, 0);
+				_root = new PrimitiveQuadrantTreeNode((_screenClip.minX + _screenClip.maxX)/2, (_screenClip.minY + _screenClip.maxY)/2, _screenClip.maxX - _screenClip.minX, _screenClip.maxY - _screenClip.minY, 0);
 			else
-				_root.reset((_clip.minX + _clip.maxX)/2, (_clip.minY + _clip.maxY)/2, _clip.maxX - _clip.minX, _clip.maxY - _clip.minY);	
+				_root.reset((_screenClip.minX + _screenClip.maxX)/2, (_screenClip.minY + _screenClip.maxY)/2, _screenClip.maxX - _screenClip.minX, _screenClip.maxY - _screenClip.minY);	
         }
         
         public function render(view:View3D):void
@@ -194,7 +197,7 @@ package away3d.core.render
 			
         	//filter primitives array
 			for each (_filter in _qdrntfilters)
-        		_filter.filter(this, _scene, _camera, _clip);
+        		_filter.filter(this, _scene, _camera, _screenClip);
         	
     		// render all primitives
             _root.render(-Infinity);
