@@ -5,8 +5,7 @@ package away3d.cameras.lenses
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
-	import away3d.core.geom.Frustum;
-	import away3d.core.geom.Plane3D;
+	import away3d.core.geom.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	
@@ -24,6 +23,7 @@ package away3d.cameras.lenses
         protected var _clipBottom:Number;
         protected var _clipLeft:Number;
         protected var _clipRight:Number;
+        protected var _frustum:Frustum;
         protected var _near:Number;
         protected var _far:Number;
         protected var _plane:Plane3D;
@@ -57,6 +57,7 @@ package away3d.cameras.lenses
 		
 		public var drawPrimitiveStore:DrawPrimitiveStore;
 		
+		public var cameraVarsStore:CameraVarsStore;
 		/**
 		 * store for visible scene nodes in the lens.
 		 */
@@ -82,7 +83,7 @@ package away3d.cameras.lenses
         		_near = val.minZ;
 		}
 		
-		public function getFrustum(frustum:Frustum, viewTransform:Matrix3D):Frustum
+		public function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum
 		{
 			throw new Error("Not implemented");
 		}

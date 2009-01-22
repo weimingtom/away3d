@@ -25,6 +25,8 @@ package away3d.core.utils
         
         public var nodeClassificationDictionary:Dictionary;
         
+        public var vertexClassificationDictionary:Dictionary;
+        
         public var frustumDictionary:Dictionary;
         
 		public function createViewTransform(node:Object3D):Matrix3D
@@ -52,6 +54,7 @@ package away3d.core.utils
         	viewTransformDictionary = new Dictionary(true);
         	frustumDictionary = new Dictionary(true);
         	nodeClassificationDictionary = new Dictionary(true);
+        	vertexClassificationDictionary = new Dictionary(true);
         	
         	_vtStore = _vtStore.concat(_vtActive);
         	_vtActive = new Array();

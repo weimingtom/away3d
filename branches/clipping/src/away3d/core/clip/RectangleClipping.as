@@ -34,8 +34,9 @@ package away3d.core.clip
 		/**
 		 * @inheritDoc
 		 */
-        public override function check(pri:DrawPrimitive):Array
+        public override function check(pri:DrawPrimitive):Boolean
         {
+        	/*
             if (pri is DrawTriangle) {
             	tri = pri as DrawTriangle;
             	if (!tri.v1.visible && tri.v0.visible) {
@@ -92,18 +93,19 @@ package away3d.core.clip
             				tri.create(tri.source, tri.face, tri.material,  _v01, _v12, _v2,  _uv01, _uv12, _uv2, true)];
             	}
         		return [pri];
-            } else {
+        		*/
+            //} else {
 	            if (pri.maxX < minX)
-	                return [];
+	                return false;
 	            if (pri.minX > maxX)
-	                return [];
+	                return false;
 	            if (pri.maxY < minY)
-	                return [];
+	                return false;
 	            if (pri.minY > maxY)
-	                return [];
-            }
+	                return false;
+            //}
 
-            return [pri];
+            return true;
         }
         
 		/**

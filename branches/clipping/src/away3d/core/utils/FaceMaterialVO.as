@@ -7,7 +7,7 @@ package away3d.core.utils
 	import flash.geom.Matrix;
 	import flash.utils.Dictionary;
 	
-	public class FaceVO
+	public class FaceMaterialVO
 	{
 		public var source:Object3D;
 		public var view:View3D;
@@ -27,7 +27,7 @@ package away3d.core.utils
 		public var backface:Boolean = false;
 		public var resized:Boolean;
 		
-		public function FaceVO(source:Object3D = null, view:View3D = null)
+		public function FaceMaterialVO(source:Object3D = null, view:View3D = null)
 		{
 			this.source = source;
 			this.view = view;

@@ -27,7 +27,7 @@ package away3d.core.render
         private var _view:View3D;
         private var _scene:Scene3D;
         private var _camera:Camera3D;
-        private var _clip:Clipping;
+        private var _screenClip:Clipping;
         private var _blockers:Array = [];
 		private var _filter:IPrimitiveFilter;
 		private var _blocker:Blocker;
@@ -60,7 +60,10 @@ package away3d.core.render
 		 * @inheritDoc
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
-        {   
+        {
+        	if (!_camera.frustumClipping && !_screenClip.check(pri))
+        		return false;
+        	
             for each (_blocker in _blockers) {
                 if (_blocker.screenZ > pri.minZ)
                     continue;
@@ -88,7 +91,7 @@ package away3d.core.render
         	_primitives = [];
         	_scene = view.scene;
         	_camera = view.camera;
-        	_clip = view.screenClip;
+        	_screenClip = view.screenClip;
         	_blockers = view.blockerarray.list();
         }
         
@@ -97,7 +100,7 @@ package away3d.core.render
         	
         	//filter primitives array
 			for each (_filter in _filters)
-        		_primitives = _filter.filter(_primitives, _scene, _camera, _clip);
+        		_primitives = _filter.filter(_primitives, _scene, _camera, _screenClip);
         	
     		// render all primitives
             for each (_primitive in _primitives)

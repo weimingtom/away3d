@@ -69,19 +69,22 @@ package away3d.core.traverse
             _viewTransform = _cameraVarsStore.createViewTransform(node);
             _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform)
             
-            if ((node is Scene3D || _cameraVarsStore.nodeClassificationDictionary[node.parent] == Frustum.INTERSECT)) {
-            	_frustum = _lens.getFrustum(_cameraVarsStore.createFrustum(node), _viewTransform);
-            	if (node.pivotZero)
-            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifyRadius(node.boundingRadius);
-            	else
-            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
-            } else {
-            	_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _cameraVarsStore.nodeClassificationDictionary[node.parent];
-            }
-            
-            if (_nodeClassification == Frustum.OUT) {
-            	node.updateObject();
-            	return false;
+            if (_camera.frustumClipping) {
+	        	_frustum = _lens.getFrustum(node, _viewTransform);
+	        	
+	            if ((node is Scene3D || _cameraVarsStore.nodeClassificationDictionary[node.parent] == Frustum.INTERSECT)) {
+	            	if (node.pivotZero)
+	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifyRadius(node.boundingRadius);
+	            	else
+	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
+	            } else {
+	            	_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _cameraVarsStore.nodeClassificationDictionary[node.parent];
+	            }
+	            
+	            if (_nodeClassification == Frustum.OUT) {
+	            	node.updateObject();
+	            	return false;
+	            }
             }
             
             //check which LODObject is visible

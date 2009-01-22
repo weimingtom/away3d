@@ -341,6 +341,7 @@ package away3d.cameras
         	}
         	
         	lens.drawPrimitiveStore = _drawPrimitiveStore;
+        	lens.cameraVarsStore = _cameraVarsStore;
         	//lens.updateView(clip, _zoom, _focus, _near, _far, sceneTransform, _flipY);
         }
         

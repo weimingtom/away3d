@@ -37,7 +37,7 @@ package away3d.materials
         */
         function getPixel32(u:Number, v:Number):uint;
 		
-		function getFaceVO(face:Face, source:Object3D = null, view:View3D = null):FaceVO;
+		function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO;
 		
 		/**
         * Clears face value objects when material requires updating
@@ -45,7 +45,7 @@ package away3d.materials
         * @param	source		[optional]	The parent 3d object of the face.
         * @param	view		[optional]	The view rendering the draw triangle.
         * 
-        * @see away3d.core.utils.FaceVO
+        * @see away3d.core.utils.FaceMaterialVO
         */
         function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
 		

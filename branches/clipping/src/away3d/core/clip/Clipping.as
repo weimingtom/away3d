@@ -207,9 +207,9 @@ package away3d.core.clip
 		 * @param	pri	The drawing primitive being checked.
 		 * @return		The clipping result - false for clipped, true for non-clipped.
 		 */
-        public function check(pri:DrawPrimitive):Array
+        public function check(pri:DrawPrimitive):Boolean
         {
-            return [pri];
+            return true;
         }
 		
 		/**
