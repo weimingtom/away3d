@@ -3,6 +3,7 @@ package away3d.materials
     
     import away3d.containers.*;
     import away3d.core.base.*;
+    import away3d.core.draw.*;
     import away3d.core.utils.*;
     
     import flash.display.*;
@@ -36,19 +37,27 @@ package away3d.materials
         */
         function getPixel32(u:Number, v:Number):uint;
 		
-		function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO;
-		
-		function removeFaceDictionary():void;
+		function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO;
 		
 		/**
-		 * Default method for adding a materialResize event listener
+        * Clears face value objects when material requires updating
+        * 
+        * @param	source		[optional]	The parent 3d object of the face.
+        * @param	view		[optional]	The view rendering the draw triangle.
+        * 
+        * @see away3d.core.utils.FaceMaterialVO
+        */
+        function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
+		
+		/**
+		 * Default method for adding a materialResized event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
         function addOnMaterialResize(listener:Function):void;
 		
 		/**
-		 * Default method for removing a materialResize event listener
+		 * Default method for removing a materialResized event listener
 		 * 
 		 * @param	listener		The listener function
 		 */

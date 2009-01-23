@@ -85,7 +85,7 @@
 	            for each (var child:Object3D in children) {
 	            	num.sub(child.position, _pivotPoint);
 	            	
-	                cradius = num.modulo + child.boundingRadius;
+	                cradius = num.modulo + child.parentBoundingRadius;
 	                if (mradius < cradius)
 	                    mradius = cradius;
 	            }

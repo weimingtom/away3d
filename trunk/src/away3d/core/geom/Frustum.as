@@ -1,8 +1,8 @@
 package away3d.core.geom
 {
 	import away3d.core.base.*;
-	import away3d.core.geom.*;
 	import away3d.core.math.*;
+	import away3d.core.utils.*;
 	
 	/** b at turbulent dot ca */
 	/* based on Tim Knip and Don Picco's frustum works */
@@ -19,13 +19,18 @@ package away3d.core.geom
 		public var planeNames:Array = ['NEAR','LEFT','RIGHT','TOP','BOTTOM','FAR'];
 		
 		//clasification
+		public static const OUT:int = 0;
 		public static const IN:int = 1;
-		public static const OUT:int = -1;
-		public static const INTERSECT:int = 0;
+		public static const INTERSECT:int = 2;
 		
 		public var planes:Array;
 		
 		private var _matrix:Matrix3D = new Matrix3D();
+		private var _plane:Plane3D;
+		private var _distance:Number;
+		private var _v0Classification:Plane3D;
+		private var _v1Classification:Plane3D;
+		private var _v2Classification:Plane3D;
 		
 		/**
 		 * Creates a frustum consisting of 6 planes in 3d space.
@@ -56,21 +61,77 @@ package away3d.core.geom
 		 */
 		public function classifySphere(center:Number3D, radius:Number):int
 		{
-			var dist:Number;
-			for(var p:int = 0; p < 6; p++)
-			{
-				dist = Plane3D(planes[p]).distance(center);
-				if(dist < -radius)
-				{
+			for each(_plane in planes) {
+				_distance = _plane.distance(center);
+				
+				if(_distance < -radius)
 					return OUT;
-				}
-				if(Math.abs(dist) < radius)
-				{
+				
+				if(Math.abs(_distance) < radius)
+					return INTERSECT;
+			}
+			
+			return IN;
+		}
+		
+		/**
+		 * Classify this radius against this frustum
+		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
+		 */
+		public function classifyRadius(radius:Number):int
+		{
+			
+			//trace("classifyRadius");
+			//_plane = planes[FAR];
+			for each(_plane in planes) {
+				//trace("_plane.d: " + _plane.d);
+				//trace("radius: " + radius);
+				if(_plane.d < -radius)
+					return OUT;
+				
+				if(Math.abs(_plane.d) < radius)
 					return INTERSECT;	
-				}
 				
 			}
+			
 			return IN;
+		}
+		
+				
+		/**
+		 * Classify this vertex against this frustum
+		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
+		 */
+		public function classifyVertex(vertex:Vertex):Plane3D
+		{
+			for each(_plane in planes) {
+				_distance = _plane.distance(vertex.position);
+				
+				if (_distance < 0)
+					return _plane;
+			}
+			
+			return null;
+		}
+		
+		public function getClippedFaces(faceVO:FaceVO):Array
+		{
+			/*
+			_v0Classification = _cameraVarsStore.vertexClassificationDictionary[faceVO.v0];
+			_v1Classification = _cameraVarsStore.vertexClassificationDictionary[faceVO.v1];
+			_v2Classification = _cameraVarsStore.vertexClassificationDictionary[faceVO.v2];
+			*/
+			
+			//check if vertices all have no classification
+			if (_v0Classification == null && _v1Classification == null && _v2Classification == null)
+                return [faceVO];
+            
+			//check if vertices all have same classification
+			if (_v0Classification == _v1Classification == _v2Classification)
+                return [];
+            
+            //return sliced face
+            return [];
 		}
 		
 		/**

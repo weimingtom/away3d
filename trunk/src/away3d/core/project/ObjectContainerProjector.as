@@ -1,5 +1,6 @@
 package away3d.core.project
 {
+	import away3d.cameras.Camera3D;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
@@ -9,44 +10,59 @@ package away3d.core.project
 	import away3d.sprites.*;
 	
 	import flash.display.*;
+	import flash.utils.*;
 	
-	public class ObjectContainerProjector extends AbstractProjector implements IPrimitiveProvider
+	public class ObjectContainerProjector implements IPrimitiveProvider
 	{
+		private var _view:View3D;
+		private var _vertexDictionary:Dictionary;
+		private var _drawPrimitiveStore:DrawPrimitiveStore;
+		private var _cameraViewMatrix:Matrix3D;
+		private var _viewTransformDictionary:Dictionary;
 		private var _container:ObjectContainer3D;
+		private var _camera:Camera3D;
 		private var _child:Object3D;
-		private var _center:Vertex;
 		private var _screenVertex:ScreenVertex;
-		private var _drawDisplayObject:DrawDisplayObject;
 		private var _depthPoint:Number3D = new Number3D();
 		
-		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	_drawPrimitiveStore = view.drawPrimitiveStore;
+        }
+        
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(source, viewTransform, consumer);
+			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			
 			_container = source as ObjectContainer3D;
 			
-			if (!_container)
-				Debug.error("SessionProjector must process an ObjectContainer3D object");
+			_cameraViewMatrix = _view.camera.viewMatrix;
+			_viewTransformDictionary = _view.cameraVarsStore.viewTransformDictionary;
 			
         	for each (_child in _container.children) {
 				if (_child.ownCanvas && _child.visible) {
-					_center = _child.center;
 					
 					if (_child.ownSession is SpriteRenderSession)
 						(_child.ownSession as SpriteRenderSession).cacheAsBitmap = true;
 					
-					if (!(_screenVertex = primitiveDictionary[_center]))
-						_screenVertex = primitiveDictionary[_center] = new ScreenVertex();
+					_screenVertex = _drawPrimitiveStore.createScreenVertex(_child.center);
+					_screenVertex.x = 0;
+					_screenVertex.y = 0;
 					
 					if (_child.scenePivotPoint.modulo) {
 						_depthPoint.clone(_child.scenePivotPoint);
-						_depthPoint.rotate(_depthPoint, view.camera.view);
-						_depthPoint.add(view.camera.viewTransforms[_child].position, _depthPoint);
+						_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
+						_depthPoint.add(_viewTransformDictionary[_child].position, _depthPoint);
 						
 		             	_screenVertex.z = _depthPoint.modulo;
 						
 					} else {
-						_screenVertex.z = view.camera.viewTransforms[_child].position.modulo;
+						_screenVertex.z = _viewTransformDictionary[_child].position.modulo;
 					}
 		             
 	             	
@@ -55,18 +71,8 @@ package away3d.core.project
 	             		
 	             	if (_child.pushfront)
 	             		_screenVertex.z -= _child.boundingRadius;
-	             	
-	            	if (!(_drawDisplayObject = primitiveDictionary[_child])) {
-						_drawDisplayObject = primitiveDictionary[_child] = new DrawDisplayObject();
-		            	_drawDisplayObject.view = view;
-		            	_drawDisplayObject.screenvertex = _screenVertex;
-		            }
-	             	
-	            	_drawDisplayObject.displayobject = _child.session.getContainer(view);
-	            	_drawDisplayObject.session = _container.session;
-	            	_drawDisplayObject.calc();
 	            	
-	             	consumer.primitive(_drawDisplayObject);
+	             	consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(source, _screenVertex, _container.session, _child.session.getContainer(view)));
 	   			}
         	}
 		}

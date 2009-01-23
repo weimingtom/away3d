@@ -1,29 +1,47 @@
 package away3d.core.project
 {
 	import away3d.cameras.*;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
+	import away3d.core.geom.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	import away3d.materials.*;
 	
-	public class MeshProjector extends AbstractProjector implements IPrimitiveProvider
+	import flash.utils.*;
+	
+	public class MeshProjector implements IPrimitiveProvider
 	{
+		private var _view:View3D;
+		private var _vertexDictionary:Dictionary;
+		private var _drawPrimitiveStore:DrawPrimitiveStore;
+		private var _cameraVarsStore:CameraVarsStore;
 		private var _mesh:Mesh;
+		private var _frustumClipping:Boolean;
+		private var _frustum:Frustum;
 		private var _vertices:Array;
 		private var _faces:Array;
+		private var _triangles:Array;
+		private var _clippedTriangles:Array;
+		private var _clippedFaceVOs:Array;
 		private var _segments:Array;
 		private var _billboards:Array;
 		private var _camera:Camera3D;
+		private var _lens:AbstractLens;
 		private var _focus:Number;
 		private var _zoom:Number;
 		private var _faceMaterial:ITriangleMaterial;
 		private var _segmentMaterial:ISegmentMaterial;
 		private var _billboardMaterial:IBillboardMaterial;
 		private var _vertex:Vertex;
-		private var _screenVertex:ScreenVertex;
 		private var _face:Face;
+		private var _faceVO:FaceVO;
+		private var _tri:DrawTriangle;
+		private var _uvt:UV;
+		private var _smaterial:ISegmentMaterial;
+		private var _bmaterial:IBillboardMaterial;
 		private var _segment:Segment;
 		private var _billboard:Billboard;
 		private var _drawTriangle:DrawTriangle;
@@ -33,27 +51,37 @@ package away3d.core.project
         private var _backface:Boolean;
         private var _uvmaterial:Boolean;
         private var _vt:ScreenVertex;
-        private var _dtStore:Array = new Array();
-        private var _dtActive:Array = new Array();
 		private var _n01:Face;
 		private var _n12:Face;
 		private var _n20:Face;
+		
 		private var _sv0:ScreenVertex;
 		private var _sv1:ScreenVertex;
 		private var _sv2:ScreenVertex;
 		
-        private function front(face:Face):Number
+        private function front(face:Face, viewTransform:Matrix3D, vertexDictionary:Dictionary):Number
         {
-            _sv0 = primitiveDictionary[face.v0];
-            _sv1 = primitiveDictionary[face.v1];
-            _sv2 = primitiveDictionary[face.v2];
+            _sv0 = _lens.project(viewTransform, face.v0, vertexDictionary);
+			_sv1 = _lens.project(viewTransform, face.v1, vertexDictionary);
+			_sv2 = _lens.project(viewTransform, face.v2, vertexDictionary);
                 
             return (_sv0.x*(_sv2.y - _sv1.y) + _sv1.x*(_sv0.y - _sv2.y) + _sv2.x*(_sv1.y - _sv0.y));
         }
         
-		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	_drawPrimitiveStore = view.drawPrimitiveStore;
+        	_cameraVarsStore = view.cameraVarsStore;
+        }
+        
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(source, viewTransform, consumer);
+			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			
 			_mesh = source as Mesh;
 			_vertices = _mesh.vertices;
@@ -61,7 +89,8 @@ package away3d.core.project
 			_segments = _mesh.segments;
 			_billboards = _mesh.billboards;
 			
-			_camera = view.camera;
+			_camera = _view.camera;
+			_lens = _camera.lens;
         	_focus = _camera.focus;
         	_zoom = _camera.zoom;
         	
@@ -69,170 +98,160 @@ package away3d.core.project
 			_segmentMaterial = _mesh.segmentMaterial;
 			_billboardMaterial = _mesh.billboardMaterial;
 			
-			for each (_vertex in _vertices) {
-				if (!(_screenVertex = primitiveDictionary[_vertex]))
-					_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex();
-				
-				_camera.project(viewTransform, _vertex, _screenVertex);
-			}
-			
 			_backmat = _mesh.back || _faceMaterial;
 			
-			//loop throigh all faces
+			//_triangles = new Array();
+			_clippedFaceVOs = new Array();
+			
+			//check if we are clipping
+			if (_camera.frustumClipping && _cameraVarsStore.nodeClassificationDictionary[source] == Frustum.INTERSECT)
+				_frustumClipping = true;
+			else
+				_frustumClipping = false;
+			
+			if (_frustumClipping) {
+				_frustum = _cameraVarsStore.frustumDictionary[source];
+				
+				//check vertices against the frustum planes for the mesh
+				for each (_vertex in _vertices)
+					_cameraVarsStore.vertexClassificationDictionary[_vertex] = _frustum.classifyVertex(_vertex);
+			}
+			
+			
+			//loop through all faces
             for each (_face in _faces)
             {
-                if (!_face.visible)
-                    continue;
-				
-            	if (!(_drawTriangle = primitiveDictionary[_face])) {
-					_drawTriangle = primitiveDictionary[_face] = new DrawTriangle();
-	            	_drawTriangle.source = source;
-	            	_drawTriangle.view = view;
-	            	_drawTriangle.face = _face;
-	            	_drawTriangle.create = createDrawTriangle;
-            	}
-				
-				_drawTriangle.v0 = primitiveDictionary[_face.v0];
-				_drawTriangle.v1 = primitiveDictionary[_face.v1];
-				_drawTriangle.v2 = primitiveDictionary[_face.v2];
-				
-				//check each ScreenVertex is visible
-                if (!_drawTriangle.v0.visible)
-                    continue;
-				
-                if (!_drawTriangle.v1.visible)
-                    continue;
-				
-                if (!_drawTriangle.v2.visible)
-                    continue;
-				
-				//calculate Draw_triangle properties
-                _drawTriangle.calc();
-				
-				//check _triangle is not behind the camera
-                if (_drawTriangle.maxZ < 0)
+                 if (!_face.visible)
                     continue;
                 
+                //check if a face needs clipping
+                if (_frustumClipping)
+                	_clippedFaceVOs.concat(_frustum.getClippedFaces(_face.faceVO));
+                else
+                	_clippedFaceVOs.push(_face.faceVO);
+                
+				//if (vertexClassificationDictionary[_vertex]
+
+				/*
+				_drawTriangle = _drawPrimitiveStore.createDrawTriangle(source, _face, null, _sv0, _sv1, _sv2, _face.uv0, _face.uv1, _face.uv2);
+	            
+				_clippedTriangles = _view.screenClip.check(_drawTriangle);
+				
+				for each (_tri in _clippedTriangles)
+					_triangles.push(_tri);
+				*/
+            }
+
+            for each (_faceVO in _clippedFaceVOs) {
+				_sv0 = _lens.project(viewTransform, _faceVO.v0, _vertexDictionary);
+				_sv1 = _lens.project(viewTransform, _faceVO.v1, _vertexDictionary);
+				_sv2 = _lens.project(viewTransform, _faceVO.v2, _vertexDictionary);
+				
+                if (!_frustumClipping && (!_sv0.visible || !_sv1.visible || !_sv2.visible))
+                    continue;
+                
+            	_face = _faceVO.face;
+                
+            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _face, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2);
+                
 				//determine if _triangle is facing towards or away from camera
-                _backface = _drawTriangle.area < 0;
+                _backface = _tri.area < 0;
 				
 				//if _triangle facing away, check for backface material
                 if (_backface) {
                     if (!_mesh.bothsides)
                     	continue;
                     
-                    _drawTriangle.material = _face.back;
+                    _tri.material = _faceVO.back;
                     
-                    if (_drawTriangle.material == null)
-                    	_drawTriangle.material = _face.material;
+                    if (!_tri.material)
+                    	_tri.material = _faceVO.material;
                 } else {
-                    _drawTriangle.material = _face.material;
+                    _tri.material = _faceVO.material;
                 }
                 
 				//determine the material of the _triangle
-                if (_drawTriangle.material == null) {
+                if (!_tri.material) {
                     if (_backface)
-                        _drawTriangle.material = _backmat;
+                        _tri.material = _backmat;
                     else
-                        _drawTriangle.material = _faceMaterial;
+                        _tri.material = _faceMaterial;
                 }
                 
 				//do not draw material if visible is false
-                if (_drawTriangle.material != null && !_drawTriangle.material.visible)
-                    _drawTriangle.material = null;
+                if (_tri.material && !_tri.material.visible)
+                    _tri.material = null;
 				
 				//if there is no material and no outline, continue
-                if (_mesh.outline == null && _drawTriangle.material == null)
+                if (!_mesh.outline && !_tri.material)
                         continue;
+                
+                //check whether screenclip removes triangle
+                if (!consumer.primitive(_tri))
+                	continue;
 				
                 if (_mesh.pushback)
-                    _drawTriangle.screenZ = _drawTriangle.maxZ;
+                    _tri.screenZ = _tri.maxZ;
 				
                 if (_mesh.pushfront)
-                    _drawTriangle.screenZ = _drawTriangle.minZ;
+                    _tri.screenZ = _tri.minZ;
 				
-				_uvmaterial = (_drawTriangle.material is IUVMaterial || _drawTriangle.material is ILayerMaterial);
+				_uvmaterial = (_tri.material is IUVMaterial || _tri.material is ILayerMaterial);
 				
 				//swap ScreenVerticies if _triangle facing away from camera
                 if (_backface) {
-                    // Make cleaner
-                    _vt = _drawTriangle.v1;
-                    _drawTriangle.v1 = _drawTriangle.v2;
-                    _drawTriangle.v2 = _vt;
+                    _vt = _tri.v1;
+                    _tri.v1 = _tri.v2;
+                    _tri.v2 = _vt;
 					
-                    _drawTriangle.area = -_drawTriangle.area;
+                    _tri.area = -_tri.area;
                     
                     if (_uvmaterial) {
 						//pass accross uv values
-		                _drawTriangle.uv0 = _face.uv0;
-		                _drawTriangle.uv1 = _face.uv2;
-		                _drawTriangle.uv2 = _face.uv1;
+						_uvt = _tri.uv1;
+						_tri.uv1 = _tri.uv2;
+                    	_tri.uv2 = _uvt;
                     }
-                } else if (_uvmaterial) {
-					//pass accross uv values
-	                _drawTriangle.uv0 = _face.uv0;
-	                _drawTriangle.uv1 = _face.uv1;
-	                _drawTriangle.uv2 = _face.uv2;
-                }
-					
-                //check if face swapped direction
-                if (_drawTriangle.backface != _backface) {
-                	_drawTriangle.backface = _backface;
-                	if (_drawTriangle.material is IUVMaterial)
-                		(_drawTriangle.material as IUVMaterial).getFaceVO(_drawTriangle.face, _mesh, view).texturemapping = null;
                 }
 				
-                if (_mesh.outline != null && !_backface)
+                //check if face swapped direction
+                if (_tri.backface != _backface) {
+                	_tri.backface = _backface;
+                	if (_tri.material is IUVMaterial)
+                		(_tri.material as IUVMaterial).getFaceMaterialVO(_face).texturemapping = null;
+                }
+				
+                if (_mesh.outline && !_backface)
                 {
                     _n01 = _mesh.geometry.neighbour01(_face);
-                    if (_n01 == null || front(_n01) <= 0)
-                    	consumer.primitive(createDrawSegment(_mesh, _mesh.outline, _drawTriangle.v0, _drawTriangle.v1));
+                    if (_n01 == null || front(_n01, viewTransform, _vertexDictionary) <= 0)
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v0, _tri.v1));
 					
                     _n12 = _mesh.geometry.neighbour12(_face);
-                    if (_n12 == null || front(_n12) <= 0)
-                    	consumer.primitive(createDrawSegment(_mesh, _mesh.outline, _drawTriangle.v1, _drawTriangle.v2));
+                    if (_n12 == null || front(_n12, viewTransform, _vertexDictionary) <= 0)
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v1, _tri.v2));
 					
                     _n20 = _mesh.geometry.neighbour20(_face);
-                    if (_n20 == null || front(_n20) <= 0)
-                    	consumer.primitive(createDrawSegment(_mesh, _mesh.outline, _drawTriangle.v2, _drawTriangle.v0));
-					
-                    if (_drawTriangle.material == null)
-                    	continue;
+                    if (_n20 == null || front(_n20, viewTransform, _vertexDictionary) <= 0)
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v2, _tri.v0));
                 }
-                
-                consumer.primitive(_drawTriangle);
             }
             
             //loop through all segments
             for each (_segment in _segments)
             {
-            	if (!(_drawSegment = primitiveDictionary[_segment])) {
-					_drawSegment = primitiveDictionary[_segment] = new DrawSegment();
-	            	_drawSegment.view = view;
-	            	_drawSegment.source = _mesh;
-	            	_drawSegment.create = createDrawSegment;
-            	}
-            	
-            	_drawSegment.v0 = primitiveDictionary[_segment.v0];
-				_drawSegment.v1 = primitiveDictionary[_segment.v1];
+            	_sv0 = _lens.project(viewTransform, _segment.v0, _vertexDictionary);
+            	_sv1 = _lens.project(viewTransform, _segment.v1, _vertexDictionary);
     
-                if (!_drawSegment.v0.visible)
+                if (!_sv0.visible || !_sv1.visible)
                     continue;
+            	
+            	_smaterial = _segment.material || _segmentMaterial;
 				
-                if (!_drawSegment.v1.visible)
-                    continue;
-				
-                _drawSegment.calc();
-				
-                _drawSegment.material = _segment.material || _segmentMaterial;
-				
-                if (_drawSegment.material == null)
-                    continue;
-				
-                if (!_drawSegment.material.visible)
+                if (!_smaterial.visible)
                     continue;
                 
-                consumer.primitive(_drawSegment);
+                consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _smaterial, _sv0, _sv1));
             }
             
             //loop through all billboards
@@ -241,26 +260,17 @@ package away3d.core.project
                 if (!_billboard.visible)
                     continue;
 				
-            	if (!(_drawBillBoard = primitiveDictionary[_billboard])) {
-					_drawBillBoard = primitiveDictionary[_billboard] = new DrawBillboard();
-	            	_drawBillBoard.view = view;
-	            	_drawBillBoard.source = _mesh;
-            	}
-            	
-		        _drawBillBoard.screenvertex = _screenVertex = primitiveDictionary[_billboard.vertex];
-		        
-            	if (!_drawBillBoard.screenvertex.visible)
+				_sv0 = _lens.project(viewTransform, _billboard.vertex, _vertexDictionary);
+				
+            	if (!_sv0.visible)
                     continue;
                 
-		        _drawBillBoard.width = _billboard.width;
-		        _drawBillBoard.height = _billboard.height;
-		        _drawBillBoard.scale = _billboard.scaling*_zoom / (1 + _screenVertex.z / _focus);
-		        _drawBillBoard.rotation = _billboard.rotation;
-		        _drawBillBoard.calc();
+                _bmaterial = _billboard.material || _billboardMaterial;
+                
+                if (!_bmaterial.visible)
+                    continue;
 		        
-		        _drawBillBoard.material = _billboard.material || _billboardMaterial;
-		        
-	            consumer.primitive(_drawBillBoard);
+	            consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling*_zoom / (1 + _sv0.z / _focus), _billboard.rotation));
             }
 		}
 	}

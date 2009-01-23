@@ -187,19 +187,21 @@ package away3d.core.geom
 		 * Transform this plane with the 4x4 transform matrix m4x4.
 		 * XXX Untested
 		 */
-		public function transform(m4x4:Matrix3D):void
+		public function transform(mat:Matrix3D):void
 		{
 			var ta:Number = a;
 			var tb:Number = b;
 			var tc:Number = c;
 			var td:Number = d;
 			
-			_mt.inverse4x4(m4x4);
+			//_mt.inverse4x4(m4x4);
 			
-			a = ta * _mt.sxx + tb * _mt.sxy + tc * _mt.sxz + _mt.tx;
-			b = ta * _mt.syx + tb * _mt.syy + tc * _mt.syz + _mt.ty;
-			c = ta * _mt.szx + tb * _mt.syz + tc * _mt.szz + _mt.tz;
-			d = ta * _mt.swx + tb * _mt.swy + tc * _mt.swz + _mt.tw;
+			a = ta*mat.sxx + tb*mat.syx + tc*mat.szx + td*mat.swx;
+			b = ta*mat.sxy + tb*mat.syy + tc*mat.szy + td*mat.swy;
+			c = ta*mat.sxz + tb*mat.syz + tc*mat.szz + td*mat.swz;
+			d = ta*mat.tx + tb*mat.ty + tc*mat.tz + td*mat.tw;
+			
+			normalize();
 		}
     }
 }

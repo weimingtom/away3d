@@ -20,6 +20,11 @@ package away3d.core.draw
         public var source:Object3D;
         
         /**
+         * Indicator of whether primitive is the produce of a generator algorithm
+         */
+        public var generated:Boolean;
+        
+        /**
         * Placeholder function for creating new drawing primitives from a cache of objects.
         * Saves recreating objects and GC problems.
         */

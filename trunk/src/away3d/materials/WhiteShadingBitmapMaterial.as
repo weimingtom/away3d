@@ -22,7 +22,7 @@ package away3d.materials
     {
         private var _bitmap:BitmapData;
         private var _texturemapping:Matrix;
-        private var _faceVO:FaceVO;
+        private var _faceMaterialVO:FaceMaterialVO;
         private var _faceDictionary:Dictionary = new Dictionary(true);
         private var blackrender:Boolean;
         private var whiterender:Boolean;
@@ -51,14 +51,14 @@ package away3d.materials
         */
 		protected function getMapping(tri:DrawTriangle):Matrix
 		{
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
-			if (_faceVO.texturemapping)
-				return _faceVO.texturemapping;
+			_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
+			if (_faceMaterialVO.texturemapping)
+				return _faceMaterialVO.texturemapping;
 			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
-			return _faceVO.texturemapping = _texturemapping;
+			return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
         /** @private */
@@ -180,17 +180,24 @@ package away3d.materials
                 step *= 2;
         }
         
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        	if ((_faceMaterialVO = _faceDictionary[face]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
+        	return _faceDictionary[face] = new FaceMaterialVO();
         }
         
-        public function removeFaceDictionary():void
+		/**
+		 * @inheritDoc
+		 */
+        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
         {
-			_faceDictionary = new Dictionary(true);
+        	for each (_faceMaterialVO in _faceDictionary) {
+        		if (!_faceMaterialVO.cleared)
+        			_faceMaterialVO.clear();
+        		_faceMaterialVO.invalidated = true;
+        	}
         }
         
 		/**

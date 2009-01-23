@@ -1,13 +1,16 @@
 package away3d.core.traverse
 {
 	import away3d.arcane;
-	import away3d.cameras.Camera3D;
+	import away3d.cameras.*;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.geom.*;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.project.*;
 	import away3d.core.render.*;
+	import away3d.core.utils.*;
 	
 	import flash.utils.*;
 	
@@ -19,10 +22,14 @@ package away3d.core.traverse
     public class ProjectionTraverser extends Traverser
     {
         private var _view:View3D;
+        private var _frustum:Frustum;
         private var _mesh:Mesh;
+        private var _cameraVarsStore:CameraVarsStore;
         private var _camera:Camera3D;
-        private var _cameraview:Matrix3D;
-		private var _cameraviewtransforms:Dictionary;
+        private var _lens:AbstractLens;
+        private var _cameraViewMatrix:Matrix3D;
+        private var _viewTransform:Matrix3D;
+        private var _nodeClassification:int;
 		
 		/**
 		 * Defines the view being used.
@@ -34,9 +41,10 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
+			_cameraVarsStore = _view.cameraVarsStore;
 			_camera = _view.camera;
-            _cameraview = _camera.view;
-            _cameraviewtransforms = _camera.viewTransforms;
+			_lens = _camera.lens;
+            _cameraViewMatrix = _camera.viewMatrix;
 			if (_view.statsOpen)
 				_view.statsPanel.clearObjects();
 		}
@@ -58,7 +66,26 @@ package away3d.core.traverse
                 return false;
             
             //compute viewTransform matrix
-            _camera.createViewTransform(node).multiply(_cameraview, node.sceneTransform);
+            _viewTransform = _cameraVarsStore.createViewTransform(node);
+            _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform)
+            
+            if (_camera.frustumClipping) {
+	        	_frustum = _lens.getFrustum(node, _viewTransform);
+	        	
+	            if ((node is Scene3D || _cameraVarsStore.nodeClassificationDictionary[node.parent] == Frustum.INTERSECT)) {
+	            	if (node.pivotZero)
+	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifyRadius(node.boundingRadius);
+	            	else
+	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
+	            } else {
+	            	_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _cameraVarsStore.nodeClassificationDictionary[node.parent];
+	            }
+	            
+	            if (_nodeClassification == Frustum.OUT) {
+	            	node.updateObject();
+	            	return false;
+	            }
+            }
             
             //check which LODObject is visible
             if (node is ILODObject)
@@ -79,7 +106,7 @@ package away3d.core.traverse
         public override function apply(node:Object3D):void
         {
             if (node.projectorType == ProjectorType.CONVEX_BLOCK)
-                _view._convexBlockProjector.blockers(node, _camera.viewTransforms[node], _view.blockerarray);
+                _view._convexBlockProjector.blockers(node, _viewTransform, _view.blockerarray);
             
         	//add to scene meshes dictionary
             if ((_mesh = node as Mesh))

@@ -7,44 +7,41 @@ package away3d.core.project
 	import away3d.core.utils.*;
 	import away3d.sprites.*;
 	
-	public class SpriteProjector extends AbstractProjector implements IPrimitiveProvider
+	import flash.utils.*;
+	
+	public class SpriteProjector implements IPrimitiveProvider
 	{
+		private var _view:View3D;
+		private var _vertexDictionary:Dictionary;
+		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _sprite:Sprite2D;
-		private var _center:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _drawScaledBitmap:DrawScaledBitmap;
 		
-		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	_drawPrimitiveStore = view.drawPrimitiveStore;
+        }
+        
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-        	super.primitives(source, viewTransform, consumer);
+        	_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
         	
 			_sprite = source as Sprite2D;
 			
-			_center = _sprite.center;
-			
-			if (!(_screenVertex = primitiveDictionary[_center]))
-				_screenVertex = primitiveDictionary[_center] = new ScreenVertex();
-            
-            view.camera.project(viewTransform, _center, _screenVertex);
+			_screenVertex = _view.camera.lens.project(viewTransform, _sprite.center, _vertexDictionary);
             
             if (!_screenVertex.visible)
                 return;
                    
             _screenVertex.z += _sprite.deltaZ;
             
-            if (!(_drawScaledBitmap = primitiveDictionary[_sprite])) {
-				_drawScaledBitmap = primitiveDictionary[_sprite] = new DrawScaledBitmap();
-	            _drawScaledBitmap.screenvertex = _screenVertex;
-	            _drawScaledBitmap.source = source;
-			}
-            _drawScaledBitmap.screenvertex = _screenVertex;
-            _drawScaledBitmap.smooth = _sprite.smooth;
-            _drawScaledBitmap.bitmap = _sprite.bitmap;
-            _drawScaledBitmap.scale = _sprite.scaling*view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
-            _drawScaledBitmap.rotation = _sprite.rotation;
-            _drawScaledBitmap.calc();
-            
-            consumer.primitive(_drawScaledBitmap);
+            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertex, _sprite.smooth, _sprite.bitmap, _sprite.scaling*_view.camera.zoom / (1 + _screenVertex.z / _view.camera.focus), _sprite.rotation));
 		}
 	}
 }

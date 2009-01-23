@@ -61,10 +61,7 @@ package away3d.materials
 		{
 			_renderBitmap = _bitmap = Bitmap(_loader.content).bitmapData;
 			
-			if (_materialresize == null)
-				_materialresize = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);
-			
-			dispatchEvent(_materialresize);
+			notifyMaterialResize();
 			
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);

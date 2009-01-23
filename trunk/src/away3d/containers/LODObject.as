@@ -46,7 +46,7 @@ package away3d.containers
 		 */
         public function matchLOD(camera:Camera3D):Boolean
         {
-            var z:Number = camera.viewTransforms[this].tz;
+            var z:Number = camera.view.cameraVarsStore.viewTransformDictionary[this].tz;
             var persp:Number = camera.zoom / (1 + z / camera.focus);
 
             if (persp < minp)

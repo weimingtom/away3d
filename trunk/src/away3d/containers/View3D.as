@@ -3,7 +3,7 @@ package away3d.containers
 	import away3d.arcane;
 	import away3d.cameras.*;
 	import away3d.core.base.*;
-	import away3d.core.block.BlockerArray;
+	import away3d.core.block.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.Matrix3D;
@@ -65,6 +65,8 @@ package away3d.containers
 	public class View3D extends Sprite
 	{
 		/** @private */
+		arcane var _screenClip:Clipping;
+		/** @private */
 		arcane var _interactiveLayer:Sprite = new Sprite();
 		/** @private */
 		arcane var _convexBlockProjector:ConvexBlockProjector = new ConvexBlockProjector();
@@ -88,18 +90,23 @@ package away3d.containers
 
             dispatchEvent(event);
         }
+		
+		private var _x:Number;
+		private var _y:Number;
+		private var _drawPrimitiveStore:DrawPrimitiveStore = new DrawPrimitiveStore();
+		private var _cameraVarsStore:CameraVarsStore = new CameraVarsStore();
         private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
+		private var _clipping:Clipping;
 		private var _camera:Camera3D;
 		private var _renderer:IRenderer;
-        private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
 		private var _mousedown:Boolean;
         private var _lastmove_mouseX:Number;
         private var _lastmove_mouseY:Number;
-		private var _oldclip:Clipping;
 		private var _internalsession:AbstractRenderSession;
 		private var _updatescene:ViewEvent;
+		private var _updateclipping:ViewEvent;
 		private var _updated:Boolean;
 		private var _cleared:Boolean;
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
@@ -191,7 +198,7 @@ package away3d.containers
                     }
                     screenZ = z;
                     persp = camera.zoom / (1 + screenZ / camera.focus);
-                    inv = camera.invView;
+                    inv = camera.invViewMatrix;
 					
                     sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
@@ -214,10 +221,28 @@ package away3d.containers
 			dispatchEvent(_updatescene);
 		}
 		
+		private function notifyClippingUpdate():void
+		{
+			_updated = true;
+			
+			//dispatch event
+			if (!_updateclipping)
+				_updateclipping = new ViewEvent(ViewEvent.UPDATE_CLIPPING, this);
+				
+			dispatchEvent(_updateclipping);
+		}
+		
 		private function createStatsMenu(event:Event):void
 		{
 			statsPanel = new Stats(this, stage.frameRate); 
 			statsOpen = false;
+			
+			stage.addEventListener(Event.RESIZE, onStageResized);
+		}
+		
+		private function onStageResized(event:Event):void
+		{
+			notifyClippingUpdate();
 		}
 		
 		private function onSessionUpdate(event:SessionEvent):void
@@ -234,6 +259,11 @@ package away3d.containers
 		private function onCameraUpdated(e:CameraEvent):void
 		{
 			_updated = true;
+		}
+		
+		private function onClippingUpdated(e:ClippingEvent):void
+		{
+			notifyClippingUpdate();
 		}
 		
 		private function onSessionChange(e:Object3DEvent):void
@@ -355,15 +385,6 @@ package away3d.containers
         public var forceUpdate:Boolean;
       
         public var blockerarray:BlockerArray = new BlockerArray();
-        /**
-        * Clipping area used when rendering.
-        * 
-        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
-        * 
-        * @see #render()
-        * @see away3d.core.render.Clipping.scene()
-        */
-        public var clip:Clipping;
         
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
@@ -397,6 +418,41 @@ package away3d.containers
         }
         
         /**
+        * Clipping area used when rendering.
+        * 
+        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
+        * 
+        * @see #render()
+        * @see away3d.core.render.Clipping.scene()
+        */
+        public function get clipping():Clipping
+        {
+        	return _clipping;
+        }
+    	
+        public function set clipping(val:Clipping):void
+        {
+        	if (_clipping == val)
+        		return;
+        	
+        	if (_clipping) {
+        		_clipping.removeOnClippingUpdate(onClippingUpdated);
+        		_clipping.internalRemoveView(this);
+        	}
+        		
+        	_clipping = val;
+        	
+        	if (_clipping) {
+        		_clipping.addOnClippingUpdate(onClippingUpdated);
+        		_clipping.internalAddView(this);
+        	} else {
+        		throw new Error("View cannot have clip set to null");
+        	}
+        	
+        	notifyClippingUpdate();
+        }
+        
+        /**
         * Camera used when rendering.
         * 
         * @see #render()
@@ -412,11 +468,15 @@ package away3d.containers
         		return;
         	
         	if (_camera) {
+        		_camera.view = null;
         		_camera.removeOnSceneTransformChange(onCameraTransformChange);
         		_camera.removeOnCameraUpdate(onCameraUpdated);
         	}
         	
         	_camera = val;
+        	_camera.view = this;
+        	
+        	_updated = true;
         	
         	if (_camera) {
         		_camera.addOnSceneTransformChange(onCameraTransformChange);
@@ -509,6 +569,21 @@ package away3d.containers
             addChild(hud);
         }
         
+        public function get screenClip():Clipping
+        {
+        	return _screenClip;
+        }
+        
+        public function get drawPrimitiveStore():DrawPrimitiveStore
+        {
+        	return _drawPrimitiveStore;
+        }
+        
+        public function get cameraVarsStore():CameraVarsStore
+        {
+        	return _cameraVarsStore;
+        }
+        
 		/**
 		 * Creates a new <code>View3D</code> object.
 		 * 
@@ -523,7 +598,7 @@ package away3d.containers
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
             camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
-			clip = _ini.getObject("clip", Clipping) as Clipping;
+			clipping = _ini.getObject("clipping", Clipping) as Clipping || new RectangleClipping();
 			x = _ini.getNumber("x", 0);
 			y = _ini.getNumber("y", 0);
 			forceUpdate = _ini.getBoolean("forceUpdate", false);
@@ -540,6 +615,8 @@ package away3d.containers
 			_movieClipSpriteProjector.view = this;
 			_objectContainerProjector.view = this;
 			_spriteProjector.view = this;
+			_drawPrimitiveStore.view = this;
+			_cameraVarsStore.view = this;
             _pritraverser.view = this;
             
             //setup events on view
@@ -547,10 +624,6 @@ package away3d.containers
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
             addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			
-			//setup default clip value
-            if (!clip)
-            	clip = _defaultclip;
             
             //setup stats panel creation
             if (stats)
@@ -709,6 +782,16 @@ package away3d.containers
         */
         public function render():void
         {
+        	//check for view movement
+        	if (_x != x || _y != y) {
+        		_x = x;
+        		_y = y;
+        		notifyClippingUpdate();
+        	}
+        	
+            //update scene
+            notifySceneUpdate();
+            
         	//update session
         	if (_session != _internalsession)
         		_internalsession = session;
@@ -716,15 +799,6 @@ package away3d.containers
         	//update renderer
         	if (_session.renderer != _renderer as IPrimitiveConsumer)
         		_session.renderer = _renderer as IPrimitiveConsumer;
-        	
-            //update scene
-            notifySceneUpdate();
-        	
-        	_oldclip = clip;
-            
-            //if clip set to default, determine screen clipping
-			if (clip == _defaultclip)
-            	clip = _defaultclip.screen(this);
 	        
             //clear session
             _session.clear(this);
@@ -753,9 +827,6 @@ package away3d.containers
 			//dispatch stats
             if (statsOpen)
             	statsPanel.updateStats(_session.getTotalFaces(this), camera);
-            
-			//revert clip value
-			clip = _oldclip;
         	
         	//debug check
             Init.checkUnusedArguments();
