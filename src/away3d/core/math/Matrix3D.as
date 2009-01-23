@@ -619,7 +619,7 @@ package away3d.core.math
 			tx = (right+left)/(right-left);
 			
 			
-			syy = 2/(top-bottom)
+			syy = 2/(top-bottom);
 			syx = syz = 0;
 			ty = (top+bottom)/(top-bottom);
 			

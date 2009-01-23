@@ -110,15 +110,12 @@
     		
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);
-        	_vActive = new Array();
-    		
+        	_vActive = [];    		
     		//clear uv objects
     		_uvStore = _uvStore.concat(_uvActive);
-        	_uvActive = new Array();
-        	
+        	_uvActive = [];        	
         	//clear face objects
     		_faceStore = _faceStore.concat(_faceActive);
-        	_faceActive = new Array();
-    	}
+        	_faceActive = [];    	}
     }
 }

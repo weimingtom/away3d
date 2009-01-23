@@ -91,6 +91,8 @@ package away3d.containers
             dispatchEvent(event);
         }
 		
+		private var _x:Number;
+		private var _y:Number;
 		private var _drawPrimitiveStore:DrawPrimitiveStore = new DrawPrimitiveStore();
 		private var _cameraVarsStore:CameraVarsStore = new CameraVarsStore();
         private var _scene:Scene3D;
@@ -128,6 +130,7 @@ package away3d.containers
         private var primitive:DrawPrimitive;
         private var inv:Matrix3D = new Matrix3D();
         private var persp:Number;
+        private var _mouseIsOverView:Boolean;
         
         private function checkSession(session:AbstractRenderSession):void
         {
@@ -285,13 +288,30 @@ package away3d.containers
         {
         	//if (e.eventPhase != EventPhase.AT_TARGET)
         	//	return;
+        	
+        	_mouseIsOverView = false;
+        	
         	fireMouseEvent(MouseEvent3D.MOUSE_OUT, mouseX, mouseY, e.ctrlKey, e.shiftKey);
+        	
+			if (mouseObject != null)
+			{
+				var event:MouseEvent3D = getMouseEvent(MouseEvent3D.MOUSE_OUT);
+				event.object = mouseObject;
+				event.material = mouseMaterial;
+				dispatchMouseEvent(event);
+				bubbleMouseEvent(event);
+				mouseObject = null;
+				buttonMode = false;
+			}
         }
         
         private function onMouseOver(e:MouseEvent):void
         {
         	//if (e.eventPhase != EventPhase.AT_TARGET)
         	//	return;
+        	
+        	_mouseIsOverView = true;
+        	
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
@@ -763,6 +783,13 @@ package away3d.containers
         */
         public function render():void
         {
+        	//check for view movement
+        	if (_x != x || _y != y) {
+        		_x = x;
+        		_y = y;
+        		notifyClippingUpdate();
+        	}
+        	
             //update scene
             notifySceneUpdate();
             
@@ -789,8 +816,6 @@ package away3d.containers
 	        	_consumer = _session.getConsumer(this);
 	         	_consumer.primitive(_ddo);
             }
-            
-            _drawPrimitiveStore.reset();
             
             //traverse scene
             _scene.traverse(_pritraverser);
@@ -830,6 +855,9 @@ package away3d.containers
         */
         public function fireMouseMoveEvent(force:Boolean = false):void
         {
+        	if(!_mouseIsOverView)
+        		return;
+        	
             if (!(mouseZeroMove || force))
                 if ((mouseX == _lastmove_mouseX) && (mouseY == _lastmove_mouseY))
                     return;

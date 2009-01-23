@@ -125,7 +125,7 @@ package away3d.loaders
 		
 		private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
 		{
-			Debug.trace(" + Build Mesh : "+_meshData.name)
+			Debug.trace(" + Build Mesh : "+_meshData.name);
 			
 			var mesh:Mesh = new Mesh({name:_meshData.name});
 			mesh.transform = _meshData.transform;
@@ -203,7 +203,7 @@ package away3d.loaders
 		{
 			for each (_materialData in materialLibrary)
 			{
-				Debug.trace(" + Build Material : "+_materialData.name)
+				Debug.trace(" + Build Material : "+_materialData.name);
 				
 				//overridden by the material property in constructor
 				if (material)
@@ -707,7 +707,7 @@ package away3d.loaders
            	var ctrlr:XML;
            	var sid:String;
 			var instance_material:XML;
-			var arrayChild:Array
+			var arrayChild:Array;
 			var boneData:BoneData = (_objectData as BoneData);
 			
             for each (var childNode:XML in node.children())
@@ -853,7 +853,7 @@ package away3d.loaders
 
                 var data     :Array  = triangles.p.split(' ');
                 var len      :Number = triangles.@count;
-                var symbol :String = triangles.@material
+                var symbol :String = triangles.@material;
                 
 				Debug.trace(" + Parse MeshMaterialData");
                 _meshMaterialData = new MeshMaterialData();
@@ -1086,14 +1086,14 @@ package away3d.loaders
 			
             for each (var input:XML in sampler.input)
             {
-				var src:XML = node.source.(@id == getId(input.@source))[0]
+				var src:XML = node.source.(@id == getId(input.@source))[0];
                 var count:int = int(src.float_array.@count);
                 var list:Array = String(src.float_array).split(" ");
                 var len:int = int(src.technique_common.accessor.@count);
                 var stride:int = int(src.technique_common.accessor.@stride);
                 var semantic:String = input.@semantic;
 				
-				var p:String
+				var p:String;
 				var sign:int = (type.charAt(type.length - 1) == "X")? -1 : 1;
                 switch(semantic) {
                     case "INPUT":
@@ -1108,13 +1108,13 @@ package away3d.loaders
                         
                         break;
                     case "OUTPUT":
-                        i=0
+                        i=0;
                         while (i < len) {
                             channel.param[i] = new Array();
                             
                             if (stride == 16) {
 		                    	var m:Matrix3D = new Matrix3D();
-		                    	m.array2matrix(list.slice(i*stride, i*stride + 16), yUp, scaling)
+		                    	m.array2matrix(list.slice(i*stride, i*stride + 16), yUp, scaling);
 		                    	channel.param[i].push(m);
                             } else {
 	                            j = 0;

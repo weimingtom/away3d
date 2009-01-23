@@ -676,8 +676,7 @@
         		_graphics = layer.graphics;
         	} else {
         		_session = tri.source.session;
-	        	if (_session != tri.view.session) {
-	        		//check to see if source shape exists
+	        	if (_session != tri.source.scene.session) {	        		//check to see if source shape exists
 		    		if (!(_shape = _shapeDictionary[_session]))
 		    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
 	        	} else {
@@ -703,8 +702,7 @@
 			_session = tri.source.session;
         	_view = tri.view;
         	
-        	if (!_graphics && _session != tri.view.session && _session.newLayer)
-        		_graphics = _session.newLayer.graphics;
+        	if (!_graphics && _session != tri.source.scene.session && _session.newLayer)        		_graphics = _session.newLayer.graphics;
         	
 			if (precision) {
             	focus = tri.view.camera.focus;

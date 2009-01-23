@@ -118,7 +118,7 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
         {
-        	if (!_camera.frustumClipping && _screenClip.check(pri))
+        	if (!_camera.frustumClipping && !_screenClip.check(pri))
         		return false;
 			
             _root.push(pri);

@@ -59,11 +59,11 @@ package away3d.core.project
 		private var _sv1:ScreenVertex;
 		private var _sv2:ScreenVertex;
 		
-        private function front(face:Face):Number
+        private function front(face:Face, viewTransform:Matrix3D, vertexDictionary:Dictionary):Number
         {
-            _sv0 = _vertexDictionary[face.v0];
-            _sv1 = _vertexDictionary[face.v1];
-            _sv2 = _vertexDictionary[face.v2];
+            _sv0 = _lens.project(viewTransform, face.v0, vertexDictionary);
+			_sv1 = _lens.project(viewTransform, face.v1, vertexDictionary);
+			_sv2 = _lens.project(viewTransform, face.v2, vertexDictionary);
                 
             return (_sv0.x*(_sv2.y - _sv1.y) + _sv1.x*(_sv0.y - _sv2.y) + _sv2.x*(_sv1.y - _sv0.y));
         }
@@ -224,15 +224,15 @@ package away3d.core.project
                 if (_mesh.outline && !_backface)
                 {
                     _n01 = _mesh.geometry.neighbour01(_face);
-                    if (_n01 == null || front(_n01) <= 0)
+                    if (_n01 == null || front(_n01, viewTransform, _vertexDictionary) <= 0)
                     	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v0, _tri.v1));
 					
                     _n12 = _mesh.geometry.neighbour12(_face);
-                    if (_n12 == null || front(_n12) <= 0)
+                    if (_n12 == null || front(_n12, viewTransform, _vertexDictionary) <= 0)
                     	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v1, _tri.v2));
 					
                     _n20 = _mesh.geometry.neighbour20(_face);
-                    if (_n20 == null || front(_n20) <= 0)
+                    if (_n20 == null || front(_n20, viewTransform, _vertexDictionary) <= 0)
                     	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v2, _tri.v0));
                 }
             }
