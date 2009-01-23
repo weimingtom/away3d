@@ -65,7 +65,7 @@ package away3d.materials.shaders
         /** @private */
 		arcane var _lights:ILightConsumer;
         /** @private */
-		arcane var _parentFaceVO:FaceVO;
+		arcane var _parentFaceMaterialVO:FaceMaterialVO;
         /** @private */
 		arcane var _n0:Number3D;
         /** @private */
@@ -79,7 +79,7 @@ package away3d.materials.shaders
         /** @private */
 		arcane var directional:DirectionalLight;
         /** @private */
-		arcane var _faceVO:FaceVO;
+		arcane var _faceMaterialVO:FaceMaterialVO;
         /** @private */
 		arcane var _normal0:Number3D = new Number3D();
         /** @private */
@@ -133,19 +133,6 @@ package away3d.materials.shaders
         * specified by the initialiser object in the 3d object constructor.
         */
         protected var ini:Init;
-        
-        /**
-        * Clears face value objects when shader requires updating
-        * 
-        * @param	source		The parent 3d object of the face.
-        * @param	view		The view rendering the draw triangle.
-        * 
-        * @see away3d.core.utils.FaceVO
-        */
-        protected function clearFaceDictionary(source:Object3D, view:View3D):void
-        {
-        	throw new Error("Not implemented");
-        }
         
 		/**
 		 * Returns a shape object for use by environment shaders.
@@ -256,60 +243,55 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
         {
         	_source = tri.source as Mesh;
 			_view = tri.view;
-			_parentFaceVO = parentFaceVO;
+			_parentFaceMaterialVO = parentFaceMaterialVO;
 			
-			_faceVO = getFaceVO(tri.face, _source, _view);
+			_faceMaterialVO = getFaceMaterialVO(tri.face, _source, _view);
 			
 			//pass on inverse texturemapping
-			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//pass on resize value
-			if (parentFaceVO.resized) {
-				parentFaceVO.resized = false;
-				_faceVO.resized = true;
+			if (parentFaceMaterialVO.resized) {
+				parentFaceMaterialVO.resized = false;
+				_faceMaterialVO.resized = true;
 			}
 			
 			//check to see if rendering can be skipped
-			if (parentFaceVO.updated || _faceVO.invalidated) {
-				parentFaceVO.updated = false;
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated) {
+				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect
 				_bitmapRect = tri.face.bitmapRect;
 				
 				//reset booleans
-				if (_faceVO.invalidated)
-					_faceVO.invalidated = false;
+				if (_faceMaterialVO.invalidated)
+					_faceMaterialVO.invalidated = false;
 				else 
-					_faceVO.updated = true;
+					_faceMaterialVO.updated = true;
 				
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap;
+				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap;
 				
 				//draw shader
 				renderShader(tri);
 			}
 			
-			return _faceVO;
+			return _faceMaterialVO;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        	if ((_faceMaterialVO = _faceDictionary[face]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
+        	return _faceDictionary[face] = new FaceMaterialVO();
         }
         
 		/**

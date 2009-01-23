@@ -8,10 +8,7 @@ package away3d.core.traverse
 	import away3d.core.math.*;
 	import away3d.core.project.*;
 	import away3d.core.render.*;
-	import away3d.sprites.DirSprite2D;
-	import away3d.sprites.DofSprite2D;
-	import away3d.sprites.MovieClipSprite;
-	import away3d.sprites.Sprite2D;
+	import away3d.core.utils.*;
 	
 	import flash.utils.*;
     
@@ -24,6 +21,7 @@ package away3d.core.traverse
     {
     	private var _view:View3D;
     	private var _viewTransform:Matrix3D;
+    	private var _cameraVarsStore:CameraVarsStore;
     	private var _consumer:IPrimitiveConsumer;
     	private var _mouseEnabled:Boolean;
     	private var _mouseEnableds:Array;
@@ -42,15 +40,16 @@ package away3d.core.traverse
 			_view = val;
 			_mouseEnabled = true;
 			_mouseEnableds = [];
+			_cameraVarsStore = _view.cameraVarsStore;
 			
         	//setup the projector dictionary
-        	_projectorDictionary[ProjectorType.CONVEX_BLOCK] = view._convexBlockProjector;
-			_projectorDictionary[ProjectorType.DIR_SPRITE] = view._dirSpriteProjector;
-			_projectorDictionary[ProjectorType.DOF_SPRITE] = view._dofSpriteProjector;
-			_projectorDictionary[ProjectorType.MESH] = view._meshProjector;
-			_projectorDictionary[ProjectorType.MOVIE_CLIP_SPRITE] = view._movieClipSpriteProjector;
-			_projectorDictionary[ProjectorType.OBJECT_CONTAINER] = view._objectContainerProjector;
-			_projectorDictionary[ProjectorType.SPRITE] = view._spriteProjector;
+        	_projectorDictionary[ProjectorType.CONVEX_BLOCK] = _view._convexBlockProjector;
+			_projectorDictionary[ProjectorType.DIR_SPRITE] = _view._dirSpriteProjector;
+			_projectorDictionary[ProjectorType.DOF_SPRITE] = _view._dofSpriteProjector;
+			_projectorDictionary[ProjectorType.MESH] = _view._meshProjector;
+			_projectorDictionary[ProjectorType.MOVIE_CLIP_SPRITE] = _view._movieClipSpriteProjector;
+			_projectorDictionary[ProjectorType.OBJECT_CONTAINER] = _view._objectContainerProjector;
+			_projectorDictionary[ProjectorType.SPRITE] = _view._spriteProjector;
 		}
 		    	
 		/**
@@ -65,7 +64,7 @@ package away3d.core.traverse
 		 */
 		public override function match(node:Object3D):Boolean
         {
-            if (!node.visible)
+            if (!node.visible || (_view.camera.frustumClipping && !_cameraVarsStore.nodeClassificationDictionary[node]))
                 return false;
             if (node is ILODObject)
                 return (node as ILODObject).matchLOD(_view.camera);
@@ -86,7 +85,7 @@ package away3d.core.traverse
         public override function apply(node:Object3D):void
         {
         	if (node.session.updated) {
-	        	_viewTransform = _view.camera.viewTransforms[node];
+	        	_viewTransform = _cameraVarsStore.viewTransformDictionary[node];
 	        	_consumer = node.session.getConsumer(_view);
 	        	
 	        	
@@ -95,11 +94,15 @@ package away3d.core.traverse
 	            
 	            if (node.debugbb && node.debugBoundingBox.visible) {
 	            	node.debugBoundingBox._session = node.session;
+	            	if (_view.camera.frustumClipping)
+	            		_cameraVarsStore.frustumDictionary[node.debugBoundingBox] = _cameraVarsStore.frustumDictionary[node];
 	            	_view._meshProjector.primitives(node.debugBoundingBox, _viewTransform, _consumer);
 	            }
 	            
 	            if (node.debugbs && node.debugBoundingSphere.visible) {
 	            	node.debugBoundingSphere._session = node.session;
+	            	if (_view.camera.frustumClipping)
+	            		_cameraVarsStore.frustumDictionary[node.debugBoundingSphere] = _cameraVarsStore.frustumDictionary[node];
 	            	_view._meshProjector.primitives(node.debugBoundingSphere, _viewTransform, _consumer);
 	            }
 	            
@@ -107,6 +110,8 @@ package away3d.core.traverse
 	            	_light = node as ILightProvider;
 	            	if (_light.debug) {
 	            		_light.debugPrimitive._session = node.session;
+	            		if (_view.camera.frustumClipping)
+	            			_cameraVarsStore.frustumDictionary[_light.debugPrimitive] = _cameraVarsStore.frustumDictionary[_light];
 	            		_view._meshProjector.primitives(_light.debugPrimitive, _viewTransform, _consumer);
 	            	}
 	            }

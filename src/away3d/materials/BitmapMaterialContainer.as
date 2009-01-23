@@ -26,7 +26,7 @@ package away3d.materials
 		private var _height:Number;
 		private var _containerDictionary:Dictionary = new Dictionary(true);
 		private var _cacheDictionary:Dictionary = new Dictionary(true);
-		private var _containerVO:FaceVO;
+		private var _containerVO:FaceMaterialVO;
 		private var _faceWidth:int;
 		private var _faceHeight:int;
 		private var _forceRender:Boolean;
@@ -60,14 +60,14 @@ package away3d.materials
 		protected override function getMapping(tri:DrawTriangle):Matrix
         {
         	_face = tri.face;
-    		_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+    		_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
     		
-    		if (_faceVO.invalidated || !_faceVO.texturemapping || _faceVO.backface != tri.backface) {
-        		_faceVO.invalidated = false;
+    		if (tri.generated || _faceMaterialVO.invalidated || !_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
+        		_faceMaterialVO.invalidated = false;
 	    		
 	        	//check to see if face drawtriangle needs updating
-	        	if (!_faceVO.texturemapping || _faceVO.backface != tri.backface) {
-		    		_faceVO.backface = tri.backface;
+	        	if (!_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
+		    		_faceMaterialVO.backface = tri.backface;
 	        		
 	        		//update face bitmapRect
 	        		_face.bitmapRect = new Rectangle(int(_width*_face.minU), int(_height*(1 - _face.maxV)), int(_width*(_face.maxU-_face.minU)+2), int(_height*(_face.maxV-_face.minV)+2));
@@ -75,37 +75,37 @@ package away3d.materials
 	        		_faceHeight = _face.bitmapRect.height;
 	        		
 	        		//update texturemapping
-	        		_faceVO.invtexturemapping = tri.transformUV(this).clone();
-	        		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
-	        		_faceVO.texturemapping.invert();
+	        		_faceMaterialVO.invtexturemapping = tri.transformUV(this).clone();
+	        		_faceMaterialVO.texturemapping = _faceMaterialVO.invtexturemapping.clone();
+	        		_faceMaterialVO.texturemapping.invert();
 	        		
 	        		//resize bitmapData for container
-	        		_faceVO.resize(_faceWidth, _faceHeight, transparent);
+	        		_faceMaterialVO.resize(_faceWidth, _faceHeight, transparent);
 	        	}
         		
 	    		//call renderFace on each material
 	    		for each (_material in materials)
-	        		_faceVO = _material.renderBitmapLayer(tri, _bitmapRect, _faceVO);
+	        		_faceMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _faceMaterialVO);
 	        	
-	        	_cacheDictionary[_face] = _faceVO;
+	        	_cacheDictionary[_face] = _faceMaterialVO;
         		
-        		_renderBitmap = _faceVO.bitmap;
+        		_renderBitmap = _faceMaterialVO.bitmap;
 	        	
-	        	_faceVO.updated = false;
+	        	_faceMaterialVO.updated = false;
 	        } else {
 	        	_renderBitmap = _cacheDictionary[_face].bitmap;
 	        }
         	
         	//check to see if tri texturemapping need updating
-        	if (!_faceVO.texturemapping || _faceVO.backface != tri.backface) {
-        		_faceVO.backface = tri.backface;
+        	if (!_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
+        		_faceMaterialVO.backface = tri.backface;
         		//update texturemapping
-        		_faceVO.invtexturemapping = tri.transformUV(this).clone();
-        		_faceVO.texturemapping = _faceVO.invtexturemapping.clone();
-        		_faceVO.texturemapping.invert();
+        		_faceMaterialVO.invtexturemapping = tri.transformUV(this).clone();
+        		_faceMaterialVO.texturemapping = _faceMaterialVO.invtexturemapping.clone();
+        		_faceMaterialVO.texturemapping.invert();
         	}
         	
-        	return _faceVO.texturemapping;
+        	return _faceMaterialVO.texturemapping;
         }
 		
 		/**
@@ -189,23 +189,6 @@ package away3d.materials
         	_blendModeDirty = false;
         }
         
-        public override function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
-        {
-        	if ((_faceDictionary = _viewDictionary[view])) {
-        		if ((_faceVO = _faceDictionary[face]))
-	        		return _faceVO;
-        	} else {
-        		_faceDictionary = _viewDictionary[view] = new Dictionary(true);
-        	}
-        	
-        	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public override function removeFaceDictionary():void
-        {
-			_viewDictionary = new Dictionary(true);
-        }
-        
 		/**
 		 * @private
 		 */
@@ -217,9 +200,9 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
 		{
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			_faceMaterialVO = getFaceMaterialVO(tri.face);
 			
 			//get width and height values
 			_faceWidth = tri.face.bitmapRect.width;
@@ -227,11 +210,11 @@ package away3d.materials
 
 			//check to see if bitmapContainer exists
 			if (!(_containerVO = _containerDictionary[tri]))
-				_containerVO = _containerDictionary[tri] = new FaceVO();
+				_containerVO = _containerDictionary[tri] = new FaceMaterialVO();
 			
 			//resize container
-			if (parentFaceVO.resized) {
-				parentFaceVO.resized = false;
+			if (parentFaceMaterialVO.resized) {
+				parentFaceMaterialVO.resized = false;
 				_containerVO.resize(_faceWidth, _faceHeight, transparent);
 			}
 			
@@ -240,31 +223,31 @@ package away3d.materials
         		_containerVO = _material.renderBitmapLayer(tri, containerRect, _containerVO);
 			
 			//check to see if face update can be skipped
-			if (parentFaceVO.updated || _containerVO.updated) {
-				parentFaceVO.updated = false;
+			if (parentFaceMaterialVO.updated || _containerVO.updated) {
+				parentFaceMaterialVO.updated = false;
 				_containerVO.updated = false;
 				
 				//reset booleans
-				_faceVO.invalidated = false;
-				_faceVO.cleared = false;
-				_faceVO.updated = true;
+				_faceMaterialVO.invalidated = false;
+				_faceMaterialVO.cleared = false;
+				_faceMaterialVO.updated = true;
         		
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap.clone();
-				_faceVO.bitmap.lock();
+				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap.clone();
+				_faceMaterialVO.bitmap.lock();
 				
-				_sourceVO = _faceVO;
+				_sourceVO = _faceMaterialVO;
 	        	
 	        	//draw into faceBitmap
 	        	if (_blendMode == BlendMode.NORMAL && !_colorTransform)
-	        		_faceVO.bitmap.copyPixels(_containerVO.bitmap, _containerVO.bitmap.rect, _zeroPoint, null, null, true);
+	        		_faceMaterialVO.bitmap.copyPixels(_containerVO.bitmap, _containerVO.bitmap.rect, _zeroPoint, null, null, true);
 	        	else
-					_faceVO.bitmap.draw(_containerVO.bitmap, null, _colorTransform, _blendMode);
+					_faceMaterialVO.bitmap.draw(_containerVO.bitmap, null, _colorTransform, _blendMode);
 	  		}
 	  		
 	  		_containerVO.updated = false;
 	  		
-	  		return _faceVO;        	
+	  		return _faceMaterialVO;        	
 		}
 	}
 }

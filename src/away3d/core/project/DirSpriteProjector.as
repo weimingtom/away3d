@@ -1,5 +1,6 @@
 package away3d.core.project
 {
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
@@ -10,25 +11,39 @@ package away3d.core.project
 	import flash.display.*;
 	import flash.utils.*;
 	
-	public class DirSpriteProjector extends AbstractProjector implements IPrimitiveProvider
+	public class DirSpriteProjector implements IPrimitiveProvider
 	{
+		private var _view:View3D;
+		private var _vertexDictionary:Dictionary;
+		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _dirsprite:DirSprite2D;
 		private var _vertices:Array;
-		private var _vertex:Vertex;
 		private var _bitmaps:Dictionary;
-		private var _center:Vertex;
+		private var _lens:AbstractLens;
+		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _persp:Number;
-		private var _drawScaledBitmap:DrawScaledBitmap;
-		
-		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+        
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	_drawPrimitiveStore = view.drawPrimitiveStore;
+        }
+        
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-        	super.primitives(source, viewTransform, consumer);
-        	
+			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+			
 			_dirsprite = source as DirSprite2D;
 			
 			_vertices = _dirsprite.vertices;
 			_bitmaps = _dirsprite.bitmaps;
+			
+			_lens = _view.camera.lens;
 			
             if (_vertices.length == 0)
                 return;
@@ -37,11 +52,8 @@ package away3d.core.project
             var bitmap:BitmapData = null;
             
             for each (_vertex in _vertices) {
-        		
-				if (!(_screenVertex = primitiveDictionary[_vertex]))
-					_screenVertex = primitiveDictionary[_vertex] = new ScreenVertex();
-				
-                view.camera.project(viewTransform, _vertex, _screenVertex);
+            	
+                _screenVertex = _lens.project(viewTransform, _vertex, _vertexDictionary);
                 var z:Number = _screenVertex.z;
                 
                 if (z < minz) {
@@ -53,12 +65,7 @@ package away3d.core.project
             if (bitmap == null)
                 return;
             
-            _center = _dirsprite.center;
-            
-			if (!(_screenVertex = primitiveDictionary[_center]))
-				_screenVertex = primitiveDictionary[_center] = new ScreenVertex();
-            
-            view.camera.project(viewTransform, _center, _screenVertex);
+            _screenVertex = _lens.project(viewTransform, _dirsprite.center, _vertexDictionary);
             
             if (!_screenVertex.visible)
                 return;
@@ -66,19 +73,7 @@ package away3d.core.project
             _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
             _screenVertex.z += _dirsprite.deltaZ;
             
-            if (!(_drawScaledBitmap = primitiveDictionary[_dirsprite])) {
-				_drawScaledBitmap = primitiveDictionary[_dirsprite] = new DrawScaledBitmap();
-	            _drawScaledBitmap.screenvertex = _screenVertex;
-	            _drawScaledBitmap.source = source;
-			}
-			
-            _drawScaledBitmap.smooth = _dirsprite.smooth;
-            _drawScaledBitmap.bitmap = bitmap;
-            _drawScaledBitmap.scale = _persp*_dirsprite.scaling;
-            _drawScaledBitmap.rotation = _dirsprite.rotation;
-            _drawScaledBitmap.calc();
-            
-            consumer.primitive(_drawScaledBitmap);
+            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertex, _dirsprite.smooth, bitmap, _persp*_dirsprite.scaling, _dirsprite.rotation));
 		}
 	}
 }

@@ -8,34 +8,37 @@ package away3d.core.project
 	import away3d.sprites.*;
 	
 	import flash.display.*;
+	import flash.utils.*;
 	
-	public class MovieClipSpriteProjector extends AbstractProjector implements IPrimitiveProvider
+	public class MovieClipSpriteProjector implements IPrimitiveProvider
 	{
+		private var _view:View3D;
+		private var _vertexDictionary:Dictionary;
+		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _movieClipSprite:MovieClipSprite;
 		private var _movieclip:DisplayObject;
-		private var _child:Object3D;
-		private var _displayObject:DisplayObject;
-		private var _center:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _persp:Number;
-		private var _drawDisplayObject:DrawDisplayObject;
-		
-		public override function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+        
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	_view = val;
+        	_drawPrimitiveStore = view.drawPrimitiveStore;
+        }
+        
+		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(source, viewTransform, consumer);
+			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			
 			_movieClipSprite = source as MovieClipSprite;
 			
-			if (!_movieClipSprite)
-				Debug.error("MovieClipSpriteProjector must process a MovieClipSprite object");
-			
 			_movieclip = _movieClipSprite.movieclip;
-			_center = _movieClipSprite.center;
 			
-			if (!(_screenVertex = primitiveDictionary[_center]))
-				_screenVertex = primitiveDictionary[_center] = new ScreenVertex();
-            
-            view.camera.project(viewTransform, _center, _screenVertex);
+			_screenVertex = _view.camera.lens.project(viewTransform, _movieClipSprite.center, _vertexDictionary);
 			
             _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
             
@@ -46,18 +49,7 @@ package away3d.core.project
 			if(_movieClipSprite.rescale)
 				_movieclip.scaleX = _movieclip.scaleY = _persp*_movieClipSprite.scaling;
 			
-			if (!(_drawDisplayObject = primitiveDictionary[_child])) {
-				_drawDisplayObject = primitiveDictionary[_child] = new DrawDisplayObject();
-				_drawDisplayObject.view = view;
-				_drawDisplayObject.source = _movieClipSprite;
-				_drawDisplayObject.screenvertex = _screenVertex;
-			}
-			
-			_drawDisplayObject.session = _movieClipSprite.session;
-			_drawDisplayObject.displayobject = _movieclip;
-			_drawDisplayObject.calc();
-			
-            consumer.primitive(_drawDisplayObject);
+            consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(source, _screenVertex, _movieClipSprite.session, _movieclip));
 		}
 	}
 }

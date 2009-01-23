@@ -93,7 +93,7 @@ package away3d.cameras
 			maxtiltangle = ini.getNumber("maxtiltangle", maxtiltangle);
 			steps = ini.getNumber("steps", steps);
 			
-            update();
+            moveCamera();
         }
         
         /**
@@ -113,7 +113,7 @@ package away3d.cameras
         public function hover():Boolean
         {
             if ((targettiltangle == tiltangle) && (targetpanangle == panangle))
-                return update();
+                return moveCamera();
 
             targettiltangle = Math.max(mintiltangle, Math.min(maxtiltangle, targettiltangle));
             
@@ -138,7 +138,7 @@ package away3d.cameras
                 panangle = targetpanangle;
             }
 			
-            return update();
+            return moveCamera();
         }
 
         /**
@@ -153,7 +153,7 @@ package away3d.cameras
         * @see	#distance
         * @see	#yfactor
         */
-        public function update():Boolean
+        public function moveCamera():Boolean
         {
             var gx:Number = distance * Math.sin(panangle * toRADIANS) * Math.cos(tiltangle * toRADIANS);
             var gz:Number = distance * Math.cos(panangle * toRADIANS) * Math.cos(tiltangle * toRADIANS);
