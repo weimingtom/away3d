@@ -1,5 +1,6 @@
 package away3d.core.clip
 {
+	import away3d.arcane;
 	import away3d.containers.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
