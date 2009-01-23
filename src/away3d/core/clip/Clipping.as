@@ -243,12 +243,6 @@ package away3d.core.clip
 	                
 	                _maX = (_miX = _globalPoint.x) + container.stage.stageWidth;
 	                _maY = (_miY = _globalPoint.y) + container.stage.stageHeight;
-	                trace("container.x: " + container.x);
-	                trace("container.y: " + container.y);
-	                trace("_miX: " + _miX);
-	                trace("_miY: " + _maX);
-	                trace("_maX: " + _miY);
-	                trace("_maY: " + _maY);
 	                break;
 	            case StageAlign.TOP_RIGHT:
 	            	_zeroPoint.x = container.stage.stageWidth;
