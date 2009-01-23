@@ -64,7 +64,7 @@ package
 		private var sound:Sound = new Sound();
 		private var channel:SoundChannel;
 		private var peak:Number;
-		private var audioURL:String = "assets/insertyourmp3here.mp3";
+		private var audioURL:String = "assets/03_The_Number_Song.mp3";
 		/**
 		 * Constructor
 		 */
