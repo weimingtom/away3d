@@ -15,12 +15,9 @@ package away3d.containers
 	import away3d.events.*;
 	import away3d.materials.*;
 	
-	import flash.display.BitmapData;
-	import flash.display.BlendMode;
-	import flash.display.DisplayObject;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.MouseEvent;
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
 	
 	use namespace arcane;
 	
@@ -91,8 +88,11 @@ package away3d.containers
             dispatchEvent(event);
         }
 		
+		private var _viewZero:Point = new Point();
 		private var _x:Number;
 		private var _y:Number;
+		private var _stageWidth:Number;
+		private var _stageHeight:Number;
 		private var _drawPrimitiveStore:DrawPrimitiveStore = new DrawPrimitiveStore();
 		private var _cameraVarsStore:CameraVarsStore = new CameraVarsStore();
         private var _scene:Scene3D;
@@ -223,8 +223,6 @@ package away3d.containers
 		
 		private function notifyClippingUpdate():void
 		{
-			_updated = true;
-			
 			//dispatch event
 			if (!_updateclipping)
 				_updateclipping = new ViewEvent(ViewEvent.UPDATE_CLIPPING, this);
@@ -263,7 +261,7 @@ package away3d.containers
 		
 		private function onClippingUpdated(e:ClippingEvent):void
 		{
-			notifyClippingUpdate();
+			_updated = true;
 		}
 		
 		private function onSessionChange(e:Object3DEvent):void
@@ -448,6 +446,8 @@ package away3d.containers
         	} else {
         		throw new Error("View cannot have clip set to null");
         	}
+        	
+        	_updated = true;
         	
         	notifyClippingUpdate();
         }
@@ -782,10 +782,15 @@ package away3d.containers
         */
         public function render():void
         {
-        	//check for view movement
-        	if (_x != x || _y != y) {
-        		_x = x;
-        		_y = y;
+        	//check for global view movement
+        	_viewZero.x = 0;
+        	_viewZero.y = 0;
+        	localToGlobal(_viewZero);
+        	if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
+        		_x = _viewZero.x;
+        		_y = _viewZero.y;
+        		_stageWidth = stage.stageWidth;
+        		_stageHeight = stage.stageHeight;
         		notifyClippingUpdate();
         	}
         	

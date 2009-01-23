@@ -42,6 +42,9 @@ package away3d.core.clip
         }
     	private var _clippingClone:Clipping;
     	private var _loaderInfo:LoaderInfo;
+    	private var _stage:Stage;
+    	private var _stageWidth:Number;
+    	private var _stageHeight:Number;
     	private var _zeroPoint:Point = new Point(0, 0);
 		private var _globalPoint:Point;
 		private var _minX:Number;
@@ -62,6 +65,11 @@ package away3d.core.clip
 			//determine screen clipping
 			if (event.view.stage)
 				event.view._screenClip = screen(event.view);
+		}
+		
+		private function onScreenUpdate(event:ClippingEvent):void
+		{
+			dispatchEvent(event);
 		}
 		
         private function notifyClippingUpdate():void
@@ -232,90 +240,116 @@ package away3d.core.clip
 		 */
         public function screen(container:Sprite):Clipping
         {
-        	if (!_clippingClone)
+        	if (!_clippingClone) {
         		_clippingClone = clone();
+        		_clippingClone.addOnClippingUpdate(onScreenUpdate);
+        	}
+        	_stage = container.stage;
+        	_loaderInfo = LoaderInfo.getLoaderInfoByDefinition(_stage) as LoaderInfo;
         	
-        	_loaderInfo = LoaderInfo.getLoaderInfoByDefinition(container.stage) as LoaderInfo;
+        	if (_stage.scaleMode == StageScaleMode.NO_SCALE) {
+        		_stageWidth = _stage.stageWidth;
+        		_stageHeight = _stage.stageHeight;
+        	} else if (_stage.scaleMode == StageScaleMode.EXACT_FIT) {
+        		_stageWidth = _loaderInfo.width;
+        		_stageHeight = _loaderInfo.height;
+        	} else if (_stage.scaleMode == StageScaleMode.SHOW_ALL) {
+        		if (_stage.stageWidth/_loaderInfo.width < _stage.stageHeight/_loaderInfo.height) {
+        			_stageWidth = _loaderInfo.width;
+        			_stageHeight = _stage.stageHeight*_stageWidth/_stage.stageWidth;
+        		} else {
+        			_stageHeight = _loaderInfo.height;
+        			_stageWidth = _stage.stageWidth*_stageHeight/_stage.stageHeight;
+        		}
+        	} else if (_stage.scaleMode == StageScaleMode.NO_BORDER) {
+        		if (_stage.stageWidth/_loaderInfo.width > _stage.stageHeight/_loaderInfo.height) {
+        			_stageWidth = _loaderInfo.width;
+        			_stageHeight = _stage.stageHeight*_stageWidth/_stage.stageWidth;
+        		} else {
+        			_stageHeight = _loaderInfo.height;
+        			_stageWidth = _stage.stageWidth*_stageHeight/_stage.stageHeight;
+        		}
+        	}
+        		
         	
-        	switch(container.stage.align)
+        	switch(_stage.align)
         	{
         		case StageAlign.TOP_LEFT:
 	            	_zeroPoint.x = 0;
 	            	_zeroPoint.y = 0;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _maX = (_miX = _globalPoint.x) + container.stage.stageWidth;
-	                _maY = (_miY = _globalPoint.y) + container.stage.stageHeight;
+	                _maX = (_miX = _globalPoint.x) + _stageWidth;
+	                _maY = (_miY = _globalPoint.y) + _stageHeight;
 	                break;
 	            case StageAlign.TOP_RIGHT:
 	            	_zeroPoint.x = _loaderInfo.width;
 	            	_zeroPoint.y = 0;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _miX = (_maX = _globalPoint.x) - container.stage.stageWidth;
-	                _maY = (_miY = _globalPoint.y) + container.stage.stageHeight;
+	                _miX = (_maX = _globalPoint.x) - _stageWidth;
+	                _maY = (_miY = _globalPoint.y) + _stageHeight;
 	                break;
 	            case StageAlign.BOTTOM_LEFT:
 	            	_zeroPoint.x = 0;
 	            	_zeroPoint.y = _loaderInfo.height;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _maX = (_miX = _globalPoint.x) + container.stage.stageWidth;
-	                _miY = (_maY = _globalPoint.y) - container.stage.stageHeight;
+	                _maX = (_miX = _globalPoint.x) + _stageWidth;
+	                _miY = (_maY = _globalPoint.y) - _stageHeight;
 	                break;
 	            case StageAlign.BOTTOM_RIGHT:
 	            	_zeroPoint.x = _loaderInfo.width;
 	            	_zeroPoint.y = _loaderInfo.height;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _miX = (_maX = _globalPoint.x) - container.stage.stageWidth;
-	                _miY = (_maY = _globalPoint.y) - container.stage.stageHeight;
+	                _miX = (_maX = _globalPoint.x) - _stageWidth;
+	                _miY = (_maY = _globalPoint.y) - _stageHeight;
 	                break;
 	            case StageAlign.TOP:
 	            	_zeroPoint.x = _loaderInfo.width/2;
 	            	_zeroPoint.y = 0;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _miX = _globalPoint.x - container.stage.stageWidth/2;
-	                _maX = _globalPoint.x + container.stage.stageWidth/2;
-	                _maY = (_miY = _globalPoint.y) + container.stage.stageHeight;
+	                _miX = _globalPoint.x - _stageWidth/2;
+	                _maX = _globalPoint.x + _stageWidth/2;
+	                _maY = (_miY = _globalPoint.y) + _stageHeight;
 	                break;
 	            case StageAlign.BOTTOM:
 	            	_zeroPoint.x = _loaderInfo.width/2;
 	            	_zeroPoint.y = _loaderInfo.height;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _miX = _globalPoint.x - container.stage.stageWidth/2;
-	                _maX = _globalPoint.x + container.stage.stageWidth/2;
-	                _miY = (_maY = _globalPoint.y) - container.stage.stageHeight;
+	                _miX = _globalPoint.x - _stageWidth/2;
+	                _maX = _globalPoint.x + _stageWidth/2;
+	                _miY = (_maY = _globalPoint.y) - _stageHeight;
 	                break;
 	            case StageAlign.LEFT:
 	            	_zeroPoint.x = 0;
 	            	_zeroPoint.y = _loaderInfo.height/2;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _maX = (_miX = _globalPoint.x) + container.stage.stageWidth;
-	                _miY = _globalPoint.y - container.stage.stageHeight/2;
-	                _maY = _globalPoint.y + container.stage.stageHeight/2;
+	                _maX = (_miX = _globalPoint.x) + _stageWidth;
+	                _miY = _globalPoint.y - _stageHeight/2;
+	                _maY = _globalPoint.y + _stageHeight/2;
 	                break;
 	            case StageAlign.RIGHT:
 	            	_zeroPoint.x = _loaderInfo.width;
 	            	_zeroPoint.y = _loaderInfo.height/2;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
-	                _miX = (_maX = _globalPoint.x) - container.stage.stageWidth;
-	                _miY = _globalPoint.y - container.stage.stageHeight/2;
-	                _maY = _globalPoint.y + container.stage.stageHeight/2;
+	                _miX = (_maX = _globalPoint.x) - _stageWidth;
+	                _miY = _globalPoint.y - _stageHeight/2;
+	                _maY = _globalPoint.y + _stageHeight/2;
 	                break;
 	            default:
 	            	_zeroPoint.x = _loaderInfo.width/2;
 	            	_zeroPoint.y = _loaderInfo.height/2;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	            	
-	                _miX = _globalPoint.x - container.stage.stageWidth/2;
-	                _maX = _globalPoint.x + container.stage.stageWidth/2;
-	                _miY = _globalPoint.y - container.stage.stageHeight/2;
-	                _maY = _globalPoint.y + container.stage.stageHeight/2;
+	                _miX = _globalPoint.x - _stageWidth/2;
+	                _maX = _globalPoint.x + _stageWidth/2;
+	                _miY = _globalPoint.y - _stageHeight/2;
+	                _maY = _globalPoint.y + _stageHeight/2;
         	}
         	
 	
