@@ -238,7 +238,6 @@ package away3d.containers
 			statsOpen = false;
 			
 			stage.addEventListener(Event.RESIZE, onStageResized);
-			onStageResized(null);
 		}
 		
 		private function onStageResized(event:Event):void
