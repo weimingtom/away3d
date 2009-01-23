@@ -300,7 +300,7 @@ package away3d.cameras
             
             _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
             
-            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex, _drawPrimitiveStore.sourceDictionary[object]);
+            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex, _drawPrimitiveStore.createVertexDictionary(object));
         }
     	        
 		/**
