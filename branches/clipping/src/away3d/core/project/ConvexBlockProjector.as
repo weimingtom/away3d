@@ -119,14 +119,12 @@ package away3d.core.project
             o = cross(result[result.length-2], result[result.length-1], result[0]);
             if (o > 0)
                 result.pop();
-						
+			
             consumer.blocker(_drawPrimitiveStore.createConvexBlocker(source, result));
  		}
  		
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			super.primitives(source, viewTransform, consumer);
-			
 			_convexBlock = source as ConvexBlock;
 			
         	if (_convexBlock.debug)

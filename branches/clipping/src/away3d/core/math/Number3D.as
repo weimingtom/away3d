@@ -1,5 +1,4 @@
-package away3d.core.math
-{
+﻿package away3d.core.math{
     /**
     * A point in 3D space.
     */
@@ -331,7 +330,7 @@ package away3d.core.math
          * 
          * @see flash.geom.Point.interpolate()
         */
-        public static function interpolate(w:Number3D, v:Number3D, f:Number):Number3D
+        public static function getInterpolated(w:Number3D, v:Number3D, f:Number):Number3D
         {
         	var d:Number3D = new Number3D;
         	

@@ -210,7 +210,7 @@ package away3d.materials
         	_session = _source.session;
     		var level:int = 0;
         	
-        	if (_session != tri.view.session) {
+        	if (_session != tri.source.scene.session) {
         		//check to see if session sprite exists
 	    		if (!(_sprite = _session.spriteLayers[level]))
 	    			_sprite = _session.spriteLayers[level] = new Sprite();
@@ -221,7 +221,7 @@ package away3d.materials
         	}
 	    	
 	    	if (!_session.children[_sprite]) {
-	    		if (_session != tri.view.session)
+	    		if (_session != tri.source.scene.session)
         			_session.addLayerObject(_sprite);
         		else
         			_session.addDisplayObject(_sprite);
@@ -251,7 +251,7 @@ package away3d.materials
         		_source = tri.source;
         		_session = _source.session;
         		
-	        	if (_session != tri.view.session) {
+	        	if (_session != tri.source.scene.session) {
 	        		//check to see if session sprite exists
 		    		if (!(_sprite = _session.spriteLayers[level]))
 		    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());

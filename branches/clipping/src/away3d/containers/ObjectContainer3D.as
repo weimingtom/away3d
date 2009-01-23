@@ -294,11 +294,11 @@
 				y = child.y;
 				z = child.z;
 
-				y1 = y
+				y1 = y;
 				y = y1*cosx+z*-sinx;
 				z = y1*sinx+z*cosx;
 				
-				x1 = x
+				x1 = x;
 				x = x1*cosy+z*siny;
 				z = x1*-siny+z*cosy;
 			
@@ -375,7 +375,7 @@
             	} else if (child is ObjectContainer3D) {
             		_child = new ObjectContainer3D();
                 	container.addChild(_child);
-                	(child as ObjectContainer3D).cloneAll(_child)
+                	(child as ObjectContainer3D).cloneAll(_child);
             	} else if (child is Mesh) {
                 	container.addChild((child as Mesh).cloneAll());
             	} else {
