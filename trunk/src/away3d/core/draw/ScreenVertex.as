@@ -67,6 +67,8 @@ package away3d.core.draw
         */
         public var visible:Boolean;
     	
+    	public var viewTimer:int;
+    	
 		/**
 		 * Creates a new <code>PrimitiveQuadrantTreeNode</code> object.
 		 *

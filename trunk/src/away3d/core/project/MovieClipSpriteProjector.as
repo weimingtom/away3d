@@ -38,7 +38,7 @@ package away3d.core.project
 			
 			_movieclip = _movieClipSprite.movieclip;
 			
-			_screenVertex = _view.camera.lens.project(viewTransform, _movieClipSprite.center, _vertexDictionary);
+			_screenVertex = _view.camera.lens.project(viewTransform, _movieClipSprite.center);
 			
             _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
             

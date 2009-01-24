@@ -39,7 +39,7 @@ package away3d.core.project
 			
 			_lens = _view.camera.lens;
 			
-			_screenVertex = _lens.project(viewTransform, _dofsprite.center, _vertexDictionary);
+			_screenVertex = _lens.project(viewTransform, _dofsprite.center);
             
             if (!_screenVertex.visible)
                 return;

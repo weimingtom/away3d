@@ -76,7 +76,7 @@ package away3d.core.project
             {
                 _s += _vertex.toString() + "\n";
                 
-				_screenVertex = _lens.project(viewTransform, _vertex, _vertexDictionary);
+				_screenVertex = _lens.project(viewTransform, _vertex);
 				
                 if (_base == null)
                     _base = _screenVertex;

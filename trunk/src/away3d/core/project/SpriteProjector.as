@@ -34,7 +34,7 @@ package away3d.core.project
         	
 			_sprite = source as Sprite2D;
 			
-			_screenVertex = _view.camera.lens.project(viewTransform, _sprite.center, _vertexDictionary);
+			_screenVertex = _view.camera.lens.project(viewTransform, _sprite.center);
             
             if (!_screenVertex.visible)
                 return;

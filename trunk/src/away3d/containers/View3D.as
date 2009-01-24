@@ -18,6 +18,7 @@ package away3d.containers
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
+	import flash.utils.getTimer;
 	
 	use namespace arcane;
 	
@@ -322,6 +323,8 @@ package away3d.containers
                 tar = tar.parent;
             }       
         }
+        
+        public var viewTimer:int;
         
         /**
         * A background sprite positioned under the rendered scene.
@@ -782,6 +785,8 @@ package away3d.containers
         */
         public function render():void
         {
+        	viewTimer = getTimer();
+        	
         	//check for global view movement
         	_viewZero.x = 0;
         	_viewZero.y = 0;
@@ -807,6 +812,9 @@ package away3d.containers
 	        
             //clear session
             _session.clear(this);
+			
+        	//clear drawprimitives
+        	_drawPrimitiveStore.reset();
             
             //draw scene into view session
             if (_session.updated) {
