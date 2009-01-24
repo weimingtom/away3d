@@ -143,7 +143,7 @@ package away3d.cameras.lenses
        /**
         * Projects the vertex to the screen space of the view.
         */
-        public function project(viewTransform:Matrix3D, vertex:Vertex, vertexDictionary:Dictionary):ScreenVertex
+        public function project(viewTransform:Matrix3D, vertex:Vertex):ScreenVertex
         {
         	throw new Error("Not implemented");
         }

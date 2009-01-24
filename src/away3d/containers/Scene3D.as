@@ -164,11 +164,10 @@ package away3d.containers
 	        	//clear meshes
 	        	meshes = new Dictionary(true);
 	        	
+	        	_view.drawPrimitiveStore.blockerDictionary = new Dictionary(true);
+	        	
 	        	//clear camera view transforms
 	        	_view.cameraVarsStore.reset();
-	        	
-	        	//clear drawprimitives
-	        	_view.drawPrimitiveStore.reset();
 	        	
 	        	//clear blockers
 	        	_view.blockerarray.clip = _view.screenClip;

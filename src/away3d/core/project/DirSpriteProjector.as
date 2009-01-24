@@ -53,7 +53,7 @@ package away3d.core.project
             
             for each (_vertex in _vertices) {
             	
-                _screenVertex = _lens.project(viewTransform, _vertex, _vertexDictionary);
+                _screenVertex = _lens.project(viewTransform, _vertex);
                 var z:Number = _screenVertex.z;
                 
                 if (z < minz) {
@@ -65,7 +65,7 @@ package away3d.core.project
             if (bitmap == null)
                 return;
             
-            _screenVertex = _lens.project(viewTransform, _dirsprite.center, _vertexDictionary);
+            _screenVertex = _lens.project(viewTransform, _dirsprite.center);
             
             if (!_screenVertex.visible)
                 return;

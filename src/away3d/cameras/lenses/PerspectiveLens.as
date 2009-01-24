@@ -132,12 +132,14 @@ package away3d.cameras.lenses
        /**
         * Projects the vertex to the screen space of the view.
         */
-        public override function project(viewTransform:Matrix3D, vertex:Vertex, vertexDictionary:Dictionary):ScreenVertex
+        public override function project(viewTransform:Matrix3D, vertex:Vertex):ScreenVertex
         {
-        	if ((_screenVertex = vertexDictionary[vertex]))
-        		return _screenVertex;
-        		
         	_screenVertex = drawPrimitiveStore.createScreenVertex(vertex);
+        	
+        	if (_screenVertex.viewTimer == camera.view.viewTimer)
+        		return _screenVertex;
+        	
+        	_screenVertex.viewTimer = camera.view.viewTimer;
         	
         	_vx = vertex.x;
         	_vy = vertex.y;

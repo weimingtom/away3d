@@ -299,8 +299,9 @@ package away3d.cameras
                 vertex = center;
             
             _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
+            _drawPrimitiveStore.createVertexDictionary(object);
             
-            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex, _drawPrimitiveStore.createVertexDictionary(object));
+            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex);
         }
     	        
 		/**
