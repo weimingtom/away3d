@@ -14,7 +14,7 @@ package away3d.cameras.lenses
 		
         public override function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum
 		{
-			_frustum = cameraVarsStore.createFrustum(node)
+			_frustum = cameraVarsStore.createFrustum(node);
 			
 			_plane = _frustum.planes[Frustum.NEAR];
 			_plane.a = 0;
@@ -163,8 +163,8 @@ package away3d.cameras.lenses
             if (isNaN(_sz))
                 throw new Error("isNaN(sz)");
             
-            _screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)*camera.zoom
-            _screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)*camera.zoom
+            _screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)*camera.zoom;
+            _screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)*camera.zoom;
             
             if (_sz < _near) {
                 _screenVertex.visible = false;
