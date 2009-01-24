@@ -63,7 +63,7 @@ package away3d.core.traverse
             
             //compute viewTransform matrix
             _viewTransform = _cameraVarsStore.createViewTransform(node);
-            _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform)
+            _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform);
             
             if (_camera.frustumClipping) {
 	        	_frustum = _lens.getFrustum(node, _viewTransform);
