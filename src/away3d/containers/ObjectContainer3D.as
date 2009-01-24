@@ -3,7 +3,6 @@
     import away3d.animators.skin.*;
     import away3d.arcane;
     import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.project.*;
     import away3d.core.traverse.*;
@@ -11,8 +10,6 @@
     import away3d.events.*;
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
-    
-    import flash.display.*;
     
     use namespace arcane;
     

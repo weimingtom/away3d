@@ -5,7 +5,6 @@ package away3d.core.utils
 	
 	import flash.display.BitmapData;
 	import flash.geom.Matrix;
-	import flash.utils.Dictionary;
 	
 	public class FaceMaterialVO
 	{

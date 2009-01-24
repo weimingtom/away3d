@@ -6,9 +6,6 @@ package away3d.core.render
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.filter.*;
-	import away3d.core.light.*;
-	import away3d.core.stats.*;
-	import away3d.core.traverse.*;
     
 
     /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */

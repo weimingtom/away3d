@@ -2,8 +2,6 @@
 {
 	import away3d.*;
 	import away3d.core.base.*;
-	import away3d.core.math.*;
-	import away3d.core.utils.*;
 	import away3d.materials.*;
     
 	use namespace arcane;

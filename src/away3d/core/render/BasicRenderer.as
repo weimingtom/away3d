@@ -6,12 +6,6 @@ package away3d.core.render
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.filter.*;
-	import away3d.core.light.*;
-	import away3d.core.stats.*;
-	import away3d.core.traverse.*;
-	import away3d.materials.*;
-	
-	import flash.utils.*;
     
     /** 
     * Default renderer for a view.

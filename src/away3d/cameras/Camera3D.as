@@ -6,11 +6,8 @@ package away3d.cameras
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
-	import away3d.core.render.*;
 	import away3d.core.utils.*;
 	import away3d.events.CameraEvent;
-	
-	import flash.utils.*;
 	
 	/**
 	 * Dispatched when the focus or zoom properties of a camera update.

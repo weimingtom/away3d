@@ -6,13 +6,9 @@ package away3d.core.traverse
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.geom.*;
-	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.project.*;
-	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	
-	import flash.utils.*;
 	
 	use namespace arcane;
 	

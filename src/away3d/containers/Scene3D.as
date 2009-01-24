@@ -3,12 +3,10 @@ package away3d.containers
 	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
-	import away3d.core.render.*;
 	import away3d.core.traverse.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	
-	import flash.display.*;
 	import flash.events.*;
 	import flash.utils.*;
     

@@ -4,8 +4,6 @@ package away3d.animators
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.utils.*;
 	
-	import flash.utils.*;
-	
 	public class SkinAnimation implements IMeshAnimation
     {
         private var _channels:Array;

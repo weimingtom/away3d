@@ -1,6 +1,5 @@
 package away3d.materials
 {
-    import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.utils.*;
     

@@ -5,8 +5,6 @@ package away3d.core.render
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
-	import away3d.core.light.*;
-	import away3d.core.traverse.*;
 	import away3d.events.Object3DEvent;
 	import away3d.events.SessionEvent;
 	

@@ -1,7 +1,6 @@
 package away3d.cameras.lenses
 {
 	import away3d.cameras.*;
-	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;

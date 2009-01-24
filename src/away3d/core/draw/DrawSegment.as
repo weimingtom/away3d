@@ -1,7 +1,6 @@
 package away3d.core.draw
 {
 	import away3d.arcane;
-    import away3d.core.render.*;
     import away3d.materials.*;
 
 	use namespace arcane;
