@@ -442,7 +442,7 @@
         public function set smooth(val:Boolean):void
         {
         	if (_smooth == val)
-        		return
+        		return;
         	
         	_smooth = val;
         	
@@ -461,7 +461,7 @@
         public function set debug(val:Boolean):void
         {
         	if (_debug == val)
-        		return
+        		return;
         	
         	_debug = val;
         	
@@ -479,7 +479,7 @@
         public function set repeat(val:Boolean):void
         {
         	if (_repeat == val)
-        		return
+        		return;
         	
         	_repeat = val;
         	
@@ -615,7 +615,7 @@
         	_blendModeDirty = true;
         }
 				 /**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }        
-        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return        	        	_showNormals = val;        	        	_faceDirty = true;        }        		/**
+        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_faceDirty = true;        }        		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
 		 * @param	bitmap				The bitmapData object to be used as the material's texture.
