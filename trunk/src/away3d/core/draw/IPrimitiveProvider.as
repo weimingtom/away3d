@@ -1,10 +1,7 @@
 package away3d.core.draw
 {
-    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.math.*;
-    import away3d.core.project.*;
-    import away3d.core.render.*;
 
     /**
     * Interface for objects that provide drawing primitives to the rendering process

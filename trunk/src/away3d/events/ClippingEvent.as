@@ -1,6 +1,5 @@
 package away3d.events
 {
-	import away3d.cameras.*;
 	import away3d.core.clip.*;
 	
 	import flash.events.Event;

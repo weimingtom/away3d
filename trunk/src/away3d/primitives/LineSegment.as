@@ -2,7 +2,6 @@
 {
     import away3d.core.base.*;
     import away3d.materials.*;
-    import away3d.core.math.Number3D;
     
     /**
     * Creates a 3d line segment.

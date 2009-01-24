@@ -1,7 +1,5 @@
 package away3d.core.math
 {
-	import flash.geom.Matrix;
-	
     /**
     * A 3D transformation 4x4 matrix
     */

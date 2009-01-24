@@ -2,10 +2,8 @@ package away3d.core.draw
 {
     import away3d.arcane;
     import away3d.core.base.*;
-    import away3d.core.render.*;
     import away3d.materials.*;
     
-    import flash.display.*;
     import flash.geom.Matrix;
     
     use namespace arcane;

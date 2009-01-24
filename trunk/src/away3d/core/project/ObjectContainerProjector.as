@@ -7,9 +7,7 @@ package away3d.core.project
 	import away3d.core.math.*;
 	import away3d.core.render.SpriteRenderSession;
 	import away3d.core.utils.*;
-	import away3d.sprites.*;
 	
-	import flash.display.*;
 	import flash.utils.*;
 	
 	public class ObjectContainerProjector implements IPrimitiveProvider

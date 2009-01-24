@@ -2,7 +2,6 @@ package away3d.core.render
 {
 	import away3d.arcane;
 	import away3d.containers.View3D;
-	import away3d.core.draw.*;
 	
 	import flash.display.*;
 	import flash.geom.Matrix;

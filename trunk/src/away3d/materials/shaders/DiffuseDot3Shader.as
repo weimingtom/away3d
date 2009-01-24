@@ -11,7 +11,6 @@ package away3d.materials.shaders
 	import away3d.materials.*;
 	
 	import flash.display.*;
-	import flash.filters.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	

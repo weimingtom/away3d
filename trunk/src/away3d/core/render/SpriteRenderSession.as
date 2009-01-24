@@ -3,7 +3,6 @@ package away3d.core.render
 	import away3d.containers.*;
 	import away3d.arcane;
 	import away3d.core.clip.*;
-	import away3d.core.draw.*;
 	import away3d.events.*;
 	
 	import flash.display.*;
