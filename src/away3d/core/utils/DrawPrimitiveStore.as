@@ -15,6 +15,8 @@ package away3d.core.utils
 		private var _sourceDictionary:Dictionary = new Dictionary(true);
 		private var _vertexDictionary:Dictionary;
 		private var _object:Object;
+		private var _vertex:Object;
+		private var _source:Object3D;
 		private var _session:AbstractRenderSession;
 		private var _sv:ScreenVertex;
 		private var _bill:DrawBillboard;
@@ -24,7 +26,6 @@ package away3d.core.utils
 		private var _sbitmap:DrawScaledBitmap;
 		private var _dobject:DrawDisplayObject;
 		private var _svStore:Array = new Array();
-        private var _svActive:Array = new Array();
 		private var _dtDictionary:Dictionary = new Dictionary(true);
 		private var _dtArray:Array;
 		private var _dtStore:Array = new Array();
@@ -50,8 +51,16 @@ package away3d.core.utils
 		
 		public function reset():void
 		{
-			_svStore = _svStore.concat(_svActive);
-			_svActive = [];
+			for (_object in _sourceDictionary) {
+				_source = _object as Object3D;
+				if (_source.session.updated) {
+					for (_vertex in _sourceDictionary[_source]) {
+						_sv = _sourceDictionary[_source][_vertex];
+						_svStore.push(_sv);
+						delete _sourceDictionary[_source][_vertex];
+					}
+				}
+			}
 			
 			for (_object in _dtDictionary) {
 				_session = _object as AbstractRenderSession;
@@ -116,9 +125,9 @@ package away3d.core.utils
         		return _sv;
         	
 			if (_svStore.length)
-	        	_svActive.push(_sv = _vertexDictionary[vertex] = _svStore.pop());
+	        	_sv = _vertexDictionary[vertex] = _svStore.pop();
 	        else
-	        	_svActive.push(_sv = _vertexDictionary[vertex] = new ScreenVertex());
+	        	_sv = _vertexDictionary[vertex] = new ScreenVertex();
 			
 	        return _sv;
 		}
@@ -211,7 +220,7 @@ package away3d.core.utils
 		        _cblocker.create = createConvexBlocker;
 	        }
 	        
-	        _cblocker.source = source;
+	        _cblocker.source = source
 	        _cblocker.vertices = vertices;
 	        _cblocker.calc();
 	        
