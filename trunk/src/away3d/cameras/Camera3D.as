@@ -309,6 +309,8 @@ package away3d.cameras
 		 */
         public function update():void
         {
+        	_view.updateScreenClip();
+        	
         	_clipping  = _view.screenClip;
         	
         	if (_clipTop != _clipping.maxY || _clipBottom != _clipping.minY || _clipLeft != _clipping.minX || _clipRight != _clipping.maxX) {
