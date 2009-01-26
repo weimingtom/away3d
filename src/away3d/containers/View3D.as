@@ -89,6 +89,7 @@ package away3d.containers
             dispatchEvent(event);
         }
 		
+		private var _screenClipDirty:Boolean;
 		private var _viewZero:Point = new Point();
 		private var _x:Number;
 		private var _y:Number;
@@ -107,7 +108,6 @@ package away3d.containers
         private var _lastmove_mouseY:Number;
 		private var _internalsession:AbstractRenderSession;
 		private var _updatescene:ViewEvent;
-		private var _updateclipping:ViewEvent;
 		private var _updated:Boolean;
 		private var _cleared:Boolean;
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
@@ -222,15 +222,6 @@ package away3d.containers
 			dispatchEvent(_updatescene);
 		}
 		
-		private function notifyClippingUpdate():void
-		{
-			//dispatch event
-			if (!_updateclipping)
-				_updateclipping = new ViewEvent(ViewEvent.UPDATE_CLIPPING, this);
-				
-			dispatchEvent(_updateclipping);
-		}
-		
 		private function createStatsMenu(event:Event):void
 		{
 			statsPanel = new Stats(this, stage.frameRate); 
@@ -241,7 +232,7 @@ package away3d.containers
 		
 		private function onStageResized(event:Event):void
 		{
-			notifyClippingUpdate();
+			_screenClipDirty = true;
 		}
 		
 		private function onSessionUpdate(event:SessionEvent):void
@@ -451,8 +442,7 @@ package away3d.containers
         	}
         	
         	_updated = true;
-        	
-        	notifyClippingUpdate();
+        	_screenClipDirty = true;
         }
         
         /**
@@ -574,6 +564,11 @@ package away3d.containers
         
         public function get screenClip():Clipping
         {
+        	if (_screenClipDirty) {
+        		_screenClipDirty = false;
+        		return _screenClip = _clipping.screen(this);
+        	}
+        	
         	return _screenClip;
         }
         
@@ -765,6 +760,20 @@ package away3d.containers
 				throw new Error("incorrect session object - require BitmapRenderSession");	
 		}
 		
+		public function updateScreenClip():void
+		{
+			//check for global view movement
+        	_viewZero.x = 0;
+        	_viewZero.y = 0;
+        	localToGlobal(_viewZero);
+			if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
+        		_x = _viewZero.x;
+        		_y = _viewZero.y;
+        		_stageWidth = stage.stageWidth;
+        		_stageHeight = stage.stageHeight;
+        		_screenClipDirty = true;
+   			}
+		}
         /**
         * Clears previously rendered view from all render sessions.
         * 
@@ -786,18 +795,6 @@ package away3d.containers
         public function render():void
         {
         	viewTimer = getTimer();
-        	
-        	//check for global view movement
-        	_viewZero.x = 0;
-        	_viewZero.y = 0;
-        	localToGlobal(_viewZero);
-        	if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
-        		_x = _viewZero.x;
-        		_y = _viewZero.y;
-        		_stageWidth = stage.stageWidth;
-        		_stageHeight = stage.stageHeight;
-        		notifyClippingUpdate();
-        	}
         	
             //update scene
             notifySceneUpdate();
