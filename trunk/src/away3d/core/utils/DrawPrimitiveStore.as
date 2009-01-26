@@ -53,7 +53,7 @@ package away3d.core.utils
 		{
 			for (_object in _sourceDictionary) {
 				_source = _object as Object3D;
-				if (_source.session.updated) {
+				if (_source.session && _source.session.updated) {
 					for (_vertex in _sourceDictionary[_source]) {
 						_sv = _sourceDictionary[_source][_vertex];
 						_svStore.push(_sv);
