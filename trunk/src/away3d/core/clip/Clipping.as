@@ -244,8 +244,9 @@ package away3d.core.clip
         		_clippingClone = clone();
         		_clippingClone.addOnClippingUpdate(onScreenUpdate);
         	}
+        	
         	_stage = container.stage;
-        	_loaderInfo = LoaderInfo.getLoaderInfoByDefinition(_stage) as LoaderInfo;
+        	_loaderInfo = container.loaderInfo;
         	
         	if (_stage.scaleMode == StageScaleMode.NO_SCALE) {
         		_stageWidth = _stage.stageWidth;
