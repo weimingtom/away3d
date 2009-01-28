@@ -1210,10 +1210,10 @@ package away3d.loaders
 		/**
 		 * Retrieves the color of a material
 		 */
-		private function parseColorMaterial(name:String, materialData:MaterialData):void
+		private function parseColorMaterial(cname:String, materialData:MaterialData):void
 		{
 			
-			var material:XML = collada.library_materials.material.(@id == name)[0];
+			var material:XML = collada.library_materials.material.(@id == cname)[0];
 			
 			if (material) {
 				var effectId:String = getId( material.instance_effect.@url );
@@ -1232,8 +1232,7 @@ package away3d.loaders
 				return 0xFFFFFF;
 			
 			var colorArray:Array = color.color.split(" ");
-			var colorString:String = (colorArray[0]*255).toString(16) + (colorArray[1]*255).toString(16) + (colorArray[2]*255).toString(16);
-			return parseInt(colorString, 16);
+			return int(colorArray[0]*255 << 16) | int(colorArray[1]*255 << 8) | int(colorArray[2]*255);
 		}
 		
 		/**
