@@ -304,15 +304,25 @@ package away3d.containers
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
-        private function bubbleMouseEvent(event:MouseEvent3D):void
+        private function bubbleMouseEvent(event:MouseEvent3D):Array
         {
             var tar:Object3D = event.object;
+            var tarArray:Array = [];
             while (tar != null)
             {
+            	tarArray.unshift(tar);
                 if (tar.dispatchMouseEvent(event))
                     break;
                 tar = tar.parent;
-            }       
+            }
+            
+            return tarArray;
+        }
+        
+        private function traverseRollEvent(event:MouseEvent3D, array:Array):void
+        {
+        	for each (var tar:Object3D in array)
+        		tar.dispatchMouseEvent(event)
         }
         
         public var viewTimer:int;
@@ -645,8 +655,8 @@ package away3d.containers
         	findHit(_internalsession, x, y);
         	
             var event:MouseEvent3D = getMouseEvent(type);
-            var target:Object3D = event.object;
-            var targetMaterial:IUVMaterial = event.material;
+            var outArray:Array = [];
+            var overArray:Array = [];
             event.ctrlKey = ctrlKey;
             event.shiftKey = shiftKey;
 			
@@ -655,26 +665,53 @@ package away3d.containers
 	            bubbleMouseEvent(event);
 			}
             
-            //catch rollover/rollout object3d events
-            if (mouseObject != target || mouseMaterial != targetMaterial) {
+            //catch mouseOver/mouseOut rollOver/rollOut object3d events
+            if (mouseObject != object || mouseMaterial != material) {
                 if (mouseObject != null) {
                     event = getMouseEvent(MouseEvent3D.MOUSE_OUT);
                     event.object = mouseObject;
                     event.material = mouseMaterial;
+                    event.ctrlKey = ctrlKey;
+            		event.shiftKey = shiftKey;
                     dispatchMouseEvent(event);
-                    bubbleMouseEvent(event);
-                    mouseObject = null;
+                    outArray = bubbleMouseEvent(event);
                     buttonMode = false;
                 }
-                if (target != null && mouseObject == null) {
+                if (object != null) {
                     event = getMouseEvent(MouseEvent3D.MOUSE_OVER);
-                    event.object = target;
-                    event.material = mouseMaterial = targetMaterial;
+                    event.ctrlKey = ctrlKey;
+            		event.shiftKey = shiftKey;
                     dispatchMouseEvent(event);
-                    bubbleMouseEvent(event);
-                    buttonMode = target.useHandCursor;
+                    overArray = bubbleMouseEvent(event);
+                    buttonMode = object.useHandCursor;
                 }
-                mouseObject = target;
+                
+                if (mouseObject != object) {
+                	
+	                var i:int = 0;
+	                
+	                while (outArray[i] && outArray[i] == overArray[i])
+	                	i++
+	                
+	                if (mouseObject != null) {
+	                	event = getMouseEvent(MouseEvent3D.ROLL_OUT);
+	                	event.object = mouseObject;
+	                	event.material = mouseMaterial;
+	                	event.ctrlKey = ctrlKey;
+	            		event.shiftKey = shiftKey;
+		                traverseRollEvent(event, outArray.slice(i));
+	                }
+	                
+	                if (object != null) {
+	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER);
+	                	event.ctrlKey = ctrlKey;
+	            		event.shiftKey = shiftKey;
+		                traverseRollEvent(event, overArray.slice(i));
+	                }
+                }
+                
+                mouseObject = object;
+                mouseMaterial = material;
             }
             
         }
