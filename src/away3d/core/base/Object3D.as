@@ -407,7 +407,7 @@
         {
         	if (_rotationDirty) 
                 updateRotation();            
-            _quaternion.euler2quaternion(_rotationY, _rotationZ, _rotationX); // Swapped
+            _quaternion.euler2quaternion(_rotationY, _rotationZ, -_rotationX); // Swapped
             _transform.quaternion2matrix(_quaternion);
             
             _transform.scale(_transform, _scaleX, _scaleY, _scaleZ);
