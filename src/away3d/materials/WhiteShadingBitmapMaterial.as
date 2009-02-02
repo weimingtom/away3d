@@ -214,21 +214,5 @@ package away3d.materials
         	for each (_faceMaterialVO in _faceDictionary)
         		_faceMaterialVO.invalidated = true;
         }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function addOnMaterialResize(listener:Function):void
-        {
-        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function removeOnMaterialResize(listener:Function):void
-        {
-        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
-        }
     }
 }

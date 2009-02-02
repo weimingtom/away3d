@@ -2,13 +2,6 @@
     
 	use namespace arcane;
 	
-	 /**
-	 * Dispatched when the bitmapData used for the material texture is resized.
-	 * 
-	 * @eventType away3d.events.AnimationEvent
-	 */
-	[Event(name="materialResize",type="away3d.events.MaterialEvent")]
-	
     /**
     * Basic bitmap material
     */
@@ -69,7 +62,7 @@
                 _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
-        }		/** @private */        arcane function notifyMaterialResize():void        {            invalidateFaces();                    	if (!hasEventListener(MaterialEvent.MATERIAL_RESIZED))                return;                    	if (_materialresized == null)				_materialresized = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);						dispatchEvent(_materialresized);        }
+        }
         /** @private */
         arcane function clearShapeDictionary():void
         {
@@ -118,7 +111,7 @@
         private var _precision:Number;
         private var _shapeDictionary:Dictionary = new Dictionary(true);
     	private var _shape:Shape;
-    	private var _materialupdated:MaterialEvent;    	private var _materialresized:MaterialEvent;
+    	private var _materialupdated:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
         private var triangle:DrawTriangle = new DrawTriangle(); 
@@ -403,7 +396,7 @@
 	        } else {
 	        	_renderBitmap = _bitmap.clone();
 	        }
-	        	        notifyMaterialResize();
+	        	        invalidateFaces();
         }
         
         /**
@@ -765,22 +758,6 @@
         public function get visible():Boolean
         {
             return _alpha > 0;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function addOnMaterialResize(listener:Function):void
-        {
-        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function removeOnMaterialResize(listener:Function):void
-        {
-        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
         }
         
 		/**

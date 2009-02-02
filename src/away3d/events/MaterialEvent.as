@@ -25,11 +25,6 @@ package away3d.events
     	public static const LOAD_SUCCESS:String = "loadSuccess";
     	
     	/**
-    	 * Defines the value of the type property of a materialResized event object.
-    	 */
-    	public static const MATERIAL_RESIZED:String = "materialResized";
-    	
-    	/**
     	 * Defines the value of the type property of a materialUpdated event object.
     	 */
     	public static const MATERIAL_UPDATED:String = "materialUpdated";
