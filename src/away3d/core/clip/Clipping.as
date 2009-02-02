@@ -42,6 +42,8 @@ package away3d.core.clip
         }
     	private var _clippingClone:Clipping;
     	private var _loaderInfo:LoaderInfo;
+    	private var _loaderWidth:Number;
+    	private var _loaderHeight:Number;
     	private var _stage:Stage;
     	private var _stageWidth:Number;
     	private var _stageHeight:Number;
@@ -248,26 +250,34 @@ package away3d.core.clip
         	_stage = container.stage;
         	_loaderInfo = container.loaderInfo;
         	
+        	try {
+        		_loaderWidth = _loaderInfo.width;
+        		_loaderHeight = _loaderInfo.height;
+        	} catch (error:Error) {
+        		_loaderWidth = _stage.stageWidth;
+        		_loaderHeight = _stage.stageHeight;
+        	}
+
         	if (_stage.scaleMode == StageScaleMode.NO_SCALE) {
         		_stageWidth = _stage.stageWidth;
         		_stageHeight = _stage.stageHeight;
         	} else if (_stage.scaleMode == StageScaleMode.EXACT_FIT) {
-        		_stageWidth = _loaderInfo.width;
-        		_stageHeight = _loaderInfo.height;
+        		_stageWidth = _loaderWidth;
+        		_stageHeight = _loaderHeight;
         	} else if (_stage.scaleMode == StageScaleMode.SHOW_ALL) {
-        		if (_stage.stageWidth/_loaderInfo.width < _stage.stageHeight/_loaderInfo.height) {
-        			_stageWidth = _loaderInfo.width;
+        		if (_stage.stageWidth/_loaderWidth < _stage.stageHeight/_loaderHeight) {
+        			_stageWidth = _loaderWidth;
         			_stageHeight = _stage.stageHeight*_stageWidth/_stage.stageWidth;
         		} else {
-        			_stageHeight = _loaderInfo.height;
+        			_stageHeight = _loaderHeight;
         			_stageWidth = _stage.stageWidth*_stageHeight/_stage.stageHeight;
         		}
         	} else if (_stage.scaleMode == StageScaleMode.NO_BORDER) {
-        		if (_stage.stageWidth/_loaderInfo.width > _stage.stageHeight/_loaderInfo.height) {
-        			_stageWidth = _loaderInfo.width;
+        		if (_stage.stageWidth/_loaderWidth > _stage.stageHeight/_loaderHeight) {
+        			_stageWidth = _loaderWidth;
         			_stageHeight = _stage.stageHeight*_stageWidth/_stage.stageWidth;
         		} else {
-        			_stageHeight = _loaderInfo.height;
+        			_stageHeight = _loaderHeight;
         			_stageWidth = _stage.stageWidth*_stageHeight/_stage.stageHeight;
         		}
         	}
@@ -284,7 +294,7 @@ package away3d.core.clip
 	                _maY = (_miY = _globalPoint.y) + _stageHeight;
 	                break;
 	            case StageAlign.TOP_RIGHT:
-	            	_zeroPoint.x = _loaderInfo.width;
+	            	_zeroPoint.x = _loaderWidth;
 	            	_zeroPoint.y = 0;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
@@ -293,21 +303,21 @@ package away3d.core.clip
 	                break;
 	            case StageAlign.BOTTOM_LEFT:
 	            	_zeroPoint.x = 0;
-	            	_zeroPoint.y = _loaderInfo.height;
+	            	_zeroPoint.y = _loaderHeight;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                _maX = (_miX = _globalPoint.x) + _stageWidth;
 	                _miY = (_maY = _globalPoint.y) - _stageHeight;
 	                break;
 	            case StageAlign.BOTTOM_RIGHT:
-	            	_zeroPoint.x = _loaderInfo.width;
-	            	_zeroPoint.y = _loaderInfo.height;
+	            	_zeroPoint.x = _loaderWidth;
+	            	_zeroPoint.y = _loaderHeight;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
 	                _miX = (_maX = _globalPoint.x) - _stageWidth;
 	                _miY = (_maY = _globalPoint.y) - _stageHeight;
 	                break;
 	            case StageAlign.TOP:
-	            	_zeroPoint.x = _loaderInfo.width/2;
+	            	_zeroPoint.x = _loaderWidth/2;
 	            	_zeroPoint.y = 0;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
@@ -316,8 +326,8 @@ package away3d.core.clip
 	                _maY = (_miY = _globalPoint.y) + _stageHeight;
 	                break;
 	            case StageAlign.BOTTOM:
-	            	_zeroPoint.x = _loaderInfo.width/2;
-	            	_zeroPoint.y = _loaderInfo.height;
+	            	_zeroPoint.x = _loaderWidth/2;
+	            	_zeroPoint.y = _loaderHeight;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
 	                _miX = _globalPoint.x - _stageWidth/2;
@@ -326,7 +336,7 @@ package away3d.core.clip
 	                break;
 	            case StageAlign.LEFT:
 	            	_zeroPoint.x = 0;
-	            	_zeroPoint.y = _loaderInfo.height/2;
+	            	_zeroPoint.y = _loaderHeight/2;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
 	                _maX = (_miX = _globalPoint.x) + _stageWidth;
@@ -334,8 +344,8 @@ package away3d.core.clip
 	                _maY = _globalPoint.y + _stageHeight/2;
 	                break;
 	            case StageAlign.RIGHT:
-	            	_zeroPoint.x = _loaderInfo.width;
-	            	_zeroPoint.y = _loaderInfo.height/2;
+	            	_zeroPoint.x = _loaderWidth;
+	            	_zeroPoint.y = _loaderHeight/2;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	                
 	                _miX = (_maX = _globalPoint.x) - _stageWidth;
@@ -343,8 +353,8 @@ package away3d.core.clip
 	                _maY = _globalPoint.y + _stageHeight/2;
 	                break;
 	            default:
-	            	_zeroPoint.x = _loaderInfo.width/2;
-	            	_zeroPoint.y = _loaderInfo.height/2;
+	            	_zeroPoint.x = _loaderWidth/2;
+	            	_zeroPoint.y = _loaderHeight/2;
 	                _globalPoint = container.globalToLocal(_zeroPoint);
 	            	
 	                _miX = _globalPoint.x - _stageWidth/2;

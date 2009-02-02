@@ -1,7 +1,7 @@
 package away3d.materials
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
@@ -24,6 +24,7 @@ package away3d.materials
 	{
 		private var _width:Number;
 		private var _height:Number;
+		private var _fMaterialVO:FaceMaterialVO;
 		private var _containerDictionary:Dictionary = new Dictionary(true);
 		private var _cacheDictionary:Dictionary = new Dictionary(true);
 		private var _containerVO:FaceMaterialVO;
@@ -36,8 +37,7 @@ package away3d.materials
         
         private function onMaterialUpdate(event:MaterialEvent):void
         {
-        	_faceDirty = true;
-        	dispatchEvent(event);
+        	_materialDirty = true;
         }
         
 		/**
@@ -51,7 +51,10 @@ package away3d.materials
 		protected override function updateRenderBitmap():void
         {
         	_bitmapDirty = false;
-        	_faceDirty = true;
+        	
+        	notifyMaterialResize();
+        	
+        	_materialDirty = true;
         }
         
 		/**
@@ -62,12 +65,13 @@ package away3d.materials
         	_face = tri.face;
     		_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
     		
-    		if (tri.generated || _faceMaterialVO.invalidated || !_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
-        		_faceMaterialVO.invalidated = false;
+    		if (tri.generated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
+	    		_faceMaterialVO.updated = true;
+	    		_faceMaterialVO.cleared = false;
 	    		
 	        	//check to see if face drawtriangle needs updating
-	        	if (!_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
-		    		_faceMaterialVO.backface = tri.backface;
+	        	if (_faceMaterialVO.invalidated) {
+	        		_faceMaterialVO.invalidated = false;
 	        		
 	        		//update face bitmapRect
 	        		_face.bitmapRect = new Rectangle(int(_width*_face.minU), int(_height*(1 - _face.maxV)), int(_width*(_face.maxU-_face.minU)+2), int(_height*(_face.maxV-_face.minV)+2));
@@ -83,22 +87,25 @@ package away3d.materials
 	        		_faceMaterialVO.resize(_faceWidth, _faceHeight, transparent);
 	        	}
         		
+        		_fMaterialVO = _faceMaterialVO;
+        		
 	    		//call renderFace on each material
 	    		for each (_material in materials)
-	        		_faceMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _faceMaterialVO);
-	        	
-	        	_cacheDictionary[_face] = _faceMaterialVO;
+	        		_fMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _fMaterialVO);
         		
-        		_renderBitmap = _faceMaterialVO.bitmap;
+        		_renderBitmap = _cacheDictionary[_face] = _fMaterialVO.bitmap;
 	        	
-	        	_faceMaterialVO.updated = false;
-	        } else {
-	        	_renderBitmap = _cacheDictionary[_face].bitmap;
+	        	_fMaterialVO.updated = false;
+	        	
+	        	return _faceMaterialVO.texturemapping;
 	        }
         	
+        	_renderBitmap = _cacheDictionary[_face];
+        	
         	//check to see if tri texturemapping need updating
-        	if (!_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
-        		_faceMaterialVO.backface = tri.backface;
+        	if (_faceMaterialVO.invalidated) {
+        		_faceMaterialVO.invalidated = false;
+        		
         		//update texturemapping
         		_faceMaterialVO.invtexturemapping = tri.transformUV(this).clone();
         		_faceMaterialVO.texturemapping = _faceMaterialVO.invtexturemapping.clone();
@@ -140,7 +147,7 @@ package away3d.materials
         	material.addOnMaterialUpdate(onMaterialUpdate);
         	materials.push(material);
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         public function removeMaterial(material:ILayerMaterial):void
@@ -154,7 +161,7 @@ package away3d.materials
         	
         	materials.splice(index, 1);
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         public function clearMaterials():void
@@ -174,17 +181,17 @@ package away3d.materials
 		 */
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
+        	for each (_material in materials)
+        		_material.updateMaterial(source, view);
+        	
         	if (_colorTransformDirty)
         		updateColorTransform();
         	
         	if (_bitmapDirty)
         		updateRenderBitmap();
         	
-        	if (_faceDirty || _blendModeDirty)
-        		clearFaceDictionary();
-        	
-        	for each (_material in materials)
-        		_material.updateMaterial(source, view);
+        	if (_materialDirty || _blendModeDirty)
+        		clearFaces();
         	
         	_blendModeDirty = false;
         }
@@ -244,8 +251,6 @@ package away3d.materials
 	        	else
 					_faceMaterialVO.bitmap.draw(_containerVO.bitmap, null, _colorTransform, _blendMode);
 	  		}
-	  		
-	  		_containerVO.updated = false;
 	  		
 	  		return _faceMaterialVO;        	
 		}

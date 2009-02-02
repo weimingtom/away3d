@@ -60,7 +60,8 @@ package away3d.materials.shaders
 			}
 			
 			_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
-			if (_faceMaterialVO.texturemapping)
+			
+			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
 			
 			_texturemapping = tri.transformUV(this).clone();
@@ -72,17 +73,23 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
+        public function clearFaces(source:Object3D = null, view:View3D = null):void
         {
         	notifyMaterialUpdate();
         	
-        	for each (_faceMaterialVO in _faceDictionary) {
-        		if (source == _faceMaterialVO.source) {
+        	for each (_faceMaterialVO in _faceDictionary)
+        		if (source == _faceMaterialVO.source)
 	        		if (!_faceMaterialVO.cleared)
 	        			_faceMaterialVO.clear();
-	        		_faceMaterialVO.invalidated = true;
-	        	}
-        	}
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function invalidateFaces(source:Object3D = null, view:View3D = null):void
+        {
+        	for each (_faceMaterialVO in _faceDictionary)
+        		_faceMaterialVO.invalidated = true;
         }
         
 		/**
@@ -215,7 +222,7 @@ package away3d.materials.shaders
         			directional.setDiffuseTransform(source);
         			directional.setNormalMatrixTransform(source);
         			directional.setColorMatrixTransform(source);
-        			clearFaceDictionary(source, view);
+        			clearFaces(source, view);
         		}
         	}
         }

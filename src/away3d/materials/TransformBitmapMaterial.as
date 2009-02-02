@@ -100,7 +100,7 @@ package away3d.materials
 	        	_transform.translate(_offsetX, _offsetY);
 	        }
 	        
-	        _faceDirty = true;
+	        _materialDirty = true;
         }
         
 		private function projectUV(tri:DrawTriangle):Matrix
@@ -285,9 +285,8 @@ package away3d.materials
         	_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source);
         	
         	//check to see if rendering can be skipped
-        	if (_faceMaterialVO.invalidated || !_faceMaterialVO.texturemapping || _faceMaterialVO.backface != tri.backface) {
+        	if (_faceMaterialVO.invalidated) {
         		_faceMaterialVO.invalidated = false;
-        		_faceMaterialVO.backface = tri.backface;
         		
         		//use projectUV if projection vector detected
         		if (projectionVector) {
@@ -371,7 +370,7 @@ package away3d.materials
 	        	_offsetX = _offsetY = _rotation = 0;
 	        }
         	
-	        //_faceDirty = true;
+	        //_materialDirty = true;
         }
         
         /**
@@ -583,11 +582,14 @@ package away3d.materials
         	if (_bitmapDirty)
         		updateRenderBitmap();
         	
+        	if (_projectionDirty || _transformDirty)
+        		invalidateFaces();
+        	
         	if (_transformDirty)
         		updateTransform();
         	
-        	if (_faceDirty || _projectionDirty || _blendModeDirty)
-        		clearFaceDictionary();
+        	if (_materialDirty || _blendModeDirty)
+        		clearFaces();
         	
         	_projectionDirty = false;
         	_blendModeDirty = false;
@@ -639,7 +641,7 @@ package away3d.materials
 			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//check to see if rendering can be skipped
-			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated) {
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
 				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect
@@ -648,7 +650,7 @@ package away3d.materials
 				//reset booleans
 				if (_faceMaterialVO.invalidated)
 					_faceMaterialVO.invalidated = false;
-				else 
+				else
 					_faceMaterialVO.updated = true;
 				
 				//store a clone

@@ -18,7 +18,7 @@
         /** @private */
     	arcane var _bitmap:BitmapData;
         /** @private */
-        arcane var _faceDirty:Boolean;
+        arcane var _materialDirty:Boolean;
         /** @private */
     	arcane var _renderBitmap:BitmapData;
         /** @private */
@@ -61,7 +61,7 @@
         arcane var _session:AbstractRenderSession;
 		/** @private */
         arcane function notifyMaterialUpdate():void
-        {
+        {        	_materialDirty = false;        	
             if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
                 return;
 			
@@ -69,7 +69,7 @@
                 _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
-        }		/** @private */        arcane function notifyMaterialResize():void        {        	if (!hasEventListener(MaterialEvent.MATERIAL_RESIZED))                return;                        clearFaceDictionary();                    	if (_materialresized == null)				_materialresized = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);						dispatchEvent(_materialresized);        }
+        }		/** @private */        arcane function notifyMaterialResize():void        {            invalidateFaces();                    	if (!hasEventListener(MaterialEvent.MATERIAL_RESIZED))                return;                    	if (_materialresized == null)				_materialresized = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);						dispatchEvent(_materialresized);        }
         /** @private */
         arcane function clearShapeDictionary():void
         {
@@ -86,7 +86,7 @@
 			_sourceVO.resize(containerRect.width, containerRect.height);
 			
 			//check to see if rendering can be skipped
-			if (_sourceVO.invalidated) {
+			if (_sourceVO.invalidated || _sourceVO.updated) {
 				
 				//calulate scale matrix
 				mapping.scale(containerRect.width/width, containerRect.height/height);
@@ -94,7 +94,7 @@
 				//reset booleans
 				_sourceVO.invalidated = false;
 				_sourceVO.cleared = false;
-				_sourceVO.updated = true;
+				_sourceVO.updated = false;
 				
 				//draw the bitmap
 				if (mapping.a == 1 && mapping.d == 1 && mapping.b == 0 && mapping.c == 0 && mapping.tx == 0 && mapping.ty == 0) {
@@ -361,7 +361,7 @@
         	_colorTransformDirty = false;
 			
 			_bitmapDirty = true;
-			_faceDirty = true;
+			_materialDirty = true;
         	
             if (_alpha == 1 && _color == 0xFFFFFF) {
                 _renderBitmap = _bitmap;
@@ -403,8 +403,7 @@
 	        } else {
 	        	_renderBitmap = _bitmap.clone();
 	        }
-	        
-	        _faceDirty = true;
+	        	        notifyMaterialResize();
         }
         
         /**
@@ -422,9 +421,9 @@
 			}
 			
 			_faceMaterialVO = getFaceMaterialVO(tri.face);
-			if (_faceMaterialVO.texturemapping)
+			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
-			
+						_faceMaterialVO.backface = tri.backface;			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
@@ -446,7 +445,7 @@
         	
         	_smooth = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         
@@ -465,7 +464,7 @@
         	
         	_debug = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         /**
@@ -483,7 +482,7 @@
         	
         	_repeat = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         
@@ -501,7 +500,7 @@
         {
         	_precision = val*val*1.4;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
 		/**
@@ -615,7 +614,7 @@
         	_blendModeDirty = true;
         }
 				 /**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }        
-        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_faceDirty = true;        }        		/**
+        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_materialDirty = true;        }        		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
 		 * @param	bitmap				The bitmapData object to be used as the material's texture.
@@ -653,9 +652,8 @@
         	if (_bitmapDirty)
         		updateRenderBitmap();
         	
-        	if (_faceDirty || _blendModeDirty)
-        		clearFaceDictionary(source, view);
-        		
+        	if (_materialDirty || _blendModeDirty)
+        		clearFaces(source, view);        	
         	_blendModeDirty = false;
         }
         
@@ -666,7 +664,7 @@
         	
         	return _faceDictionary[face] = new FaceMaterialVO();
         }
-        		/**		 * @inheritDoc		 */        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void        {        	_faceDirty = false;        	        	notifyMaterialUpdate();        	        	for each (_faceMaterialVO in _faceDictionary) {        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        		_faceMaterialVO.invalidated = true;        	}        }        
+                		/**		 * @inheritDoc		 */        public function clearFaces(source:Object3D = null, view:View3D = null):void        {        	notifyMaterialUpdate();        	        	for each (_faceMaterialVO in _faceDictionary)        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        }        		/**		 * @inheritDoc		 */        public function invalidateFaces(source:Object3D = null, view:View3D = null):void        {        	_materialDirty = true;        	        	for each (_faceMaterialVO in _faceDictionary)        		_faceMaterialVO.invalidated = true;        }        
 		/**
 		 * @inheritDoc
 		 */
@@ -743,7 +741,7 @@
 			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//check to see if face update can be skipped
-			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated) {
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
 				parentFaceMaterialVO.updated = false;
 				
 				//reset booleans

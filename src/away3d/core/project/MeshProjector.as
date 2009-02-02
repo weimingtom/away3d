@@ -39,6 +39,7 @@ package away3d.core.project
 		private var _face:Face;
 		private var _faceVO:FaceVO;
 		private var _tri:DrawTriangle;
+		private var _faceMaterialVO:FaceMaterialVO;
 		private var _uvt:UV;
 		private var _smaterial:ISegmentMaterial;
 		private var _bmaterial:IBillboardMaterial;
@@ -215,10 +216,13 @@ package away3d.core.project
                 }
 				
                 //check if face swapped direction
-                if (_tri.backface != _backface) {
-                	_tri.backface = _backface;
-                	if (_tri.material is IUVMaterial)
-                		(_tri.material as IUVMaterial).getFaceMaterialVO(_face).texturemapping = null;
+                if (_tri.material is IUVMaterial) {
+                	_faceMaterialVO = (_tri.material as IUVMaterial).getFaceMaterialVO(_face);
+                	
+                	if (_faceMaterialVO.backface != _backface) {
+                		_faceMaterialVO.backface = _backface;
+                		_faceMaterialVO.invalidated = true;
+                	}
                 }
 				
                 if (_mesh.outline && !_backface)

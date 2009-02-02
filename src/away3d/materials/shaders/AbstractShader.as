@@ -261,7 +261,7 @@ package away3d.materials.shaders
 			}
 			
 			//check to see if rendering can be skipped
-			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated) {
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
 				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect

@@ -51,8 +51,16 @@ package away3d.materials
         */
 		protected function getMapping(tri:DrawTriangle):Matrix
 		{
+			if (tri.generated) {
+				_texturemapping = tri.transformUV(this).clone();
+				_texturemapping.invert();
+				
+				return _texturemapping;
+			}
+			
 			_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
-			if (_faceMaterialVO.texturemapping)
+			
+			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
 			
 			_texturemapping = tri.transformUV(this).clone();
@@ -191,13 +199,20 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
+        public function clearFaces(source:Object3D = null, view:View3D = null):void
         {
-        	for each (_faceMaterialVO in _faceDictionary) {
+        	for each (_faceMaterialVO in _faceDictionary)
         		if (!_faceMaterialVO.cleared)
         			_faceMaterialVO.clear();
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function invalidateFaces(source:Object3D = null, view:View3D = null):void
+        {
+        	for each (_faceMaterialVO in _faceDictionary)
         		_faceMaterialVO.invalidated = true;
-        	}
         }
         
 		/**
