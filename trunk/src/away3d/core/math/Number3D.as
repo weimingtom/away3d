@@ -226,11 +226,11 @@
             if (!m1)
             	m1 = new Matrix3D();            
 		    // Extract the first angle, rotationX
-			x = Math.atan2(m.szy, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
+			x = -Math.atan2(m.szy, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
 			
 			// Remove the rotationX rotation from m1, so that the remaining
 			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
-			m1.rotationMatrix(1, 0, 0,  -x);
+			m1.rotationMatrix(1, 0, 0,  x);
 			m1.multiply(m, m1);			
 			// Extract the other two angles, rot.y and rot.z, from m1.
 			var cy:Number = Math.sqrt(m1.sxx*m1.sxx + m1.syx*m1.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
