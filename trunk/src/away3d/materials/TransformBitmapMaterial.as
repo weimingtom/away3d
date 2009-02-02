@@ -285,26 +285,28 @@ package away3d.materials
         	_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source);
         	
         	//check to see if rendering can be skipped
-        	if (_faceMaterialVO.invalidated) {
-        		_faceMaterialVO.invalidated = false;
+        	if (!_faceMaterialVO.invalidated)
+        		return _faceMaterialVO.texturemapping;
+    	
+    		_faceMaterialVO.invalidated = false;
+    		
+    		//use projectUV if projection vector detected
+    		if (projectionVector) {
+    			_texturemapping = projectUV(tri);
+    		} else {
+    			_texturemapping = tri.transformUV(this).clone();
+        		_texturemapping.invert();
+    		}
+    		
+    		//apply transform matrix if one exists
+    		if (_transform) {
+    			_faceMaterialVO.texturemapping = _transform.clone();
+        		_faceMaterialVO.texturemapping.concat(_texturemapping);
         		
-        		//use projectUV if projection vector detected
-        		if (projectionVector) {
-        			_faceMaterialVO.texturemapping = projectUV(tri);
-        		} else if (!_faceMaterialVO.texturemapping) {
-        			_faceMaterialVO.texturemapping = tri.transformUV(this).clone();
-	        		_faceMaterialVO.texturemapping.invert();
-        		}
-        		
-        		//apply transform matrix if one exists
-        		if (_transform) {
-        			_faceMaterialVO.mapping = _transform.clone();
-	        		_faceMaterialVO.mapping.concat(_faceMaterialVO.texturemapping);
-	        	} else {
-	        		_faceMaterialVO.mapping = _faceMaterialVO.texturemapping;
-	        	}
+        		return _faceMaterialVO.texturemapping;
         	}
-        	return _faceMaterialVO.mapping;
+        	
+        	return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
 		/**

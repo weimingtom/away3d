@@ -10,7 +10,6 @@ package away3d.core.utils
 	{
 		public var source:Object3D;
 		public var view:View3D;
-		public var mapping:Matrix;
 		public var invtexturemapping:Matrix;
 		public var texturemapping:Matrix;
 		

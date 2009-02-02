@@ -413,10 +413,10 @@
 				return _texturemapping;
 			}
 			
-			_faceMaterialVO = getFaceMaterialVO(tri.face);
+			_faceMaterialVO = getFaceMaterialVO(tri.face);			
 			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
-						_faceMaterialVO.backface = tri.backface;			
+						_faceMaterialVO.invalidated = false;			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
