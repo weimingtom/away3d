@@ -57,19 +57,5 @@ package away3d.materials
         * @see away3d.core.utils.FaceMaterialVO
         */
         function invalidateFaces(source:Object3D = null, view:View3D = null):void
-        
-		/**
-		 * Default method for adding a materialResized event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        function addOnMaterialResize(listener:Function):void;
-		
-		/**
-		 * Default method for removing a materialResized event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        function removeOnMaterialResize(listener:Function):void;
     }
 }

@@ -256,21 +256,5 @@ package away3d.materials.shaders
 			if (debug)
                 _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
         }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function addOnMaterialResize(listener:Function):void
-        {
-        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function removeOnMaterialResize(listener:Function):void
-        {
-        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
-        }
     }
 }

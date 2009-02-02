@@ -52,7 +52,7 @@ package away3d.materials
         {
         	_bitmapDirty = false;
         	
-        	notifyMaterialResize();
+        	invalidateFaces();
         	
         	_materialDirty = true;
         }
