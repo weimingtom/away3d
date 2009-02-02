@@ -3,7 +3,7 @@
     * A point in 3D space.
     */
     public final class Number3D
-    {
+    {    	private const MathPI:Number = Math.PI;
     	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
@@ -224,39 +224,68 @@
         public function matrix2euler(m:Matrix3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
         {
             if (!m1)
-            	m1 = new Matrix3D();
-	
+            	m1 = new Matrix3D();            
 		    // Extract the first angle, rotationX
-			x = Math.atan2(m.syz, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
+			x = Math.atan2(m.szy, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
 			
 			// Remove the rotationX rotation from m1, so that the remaining
 			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
-			var c :Number   = Math.cos(x);
-			var s :Number   = Math.sin(x);
-			m1.sxx = m.sxx;
-			m1.sxy = m.sxy*c + m.sxz*s;
-			m1.sxz = -m.sxy*s + m.sxz*c;
-			m1.syx = m.syx;
-			m1.syy = m.syy*c + m.syz*s;
-			m1.syz = -m.syy*s + m.syz*c;
-			m1.szx = m.szx;
-			m1.szy = m.szy*c + m.szz*s;
-			m1.szz = -m.szy*s + m.szz*c;
-			
+			m1.rotationMatrix(1, 0, 0,  -x);
+			m1.multiply(m, m1);			
 			// Extract the other two angles, rot.y and rot.z, from m1.
 			var cy:Number = Math.sqrt(m1.sxx*m1.sxx + m1.syx*m1.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
+			
 			y = Math.atan2(-m1.szx, cy); // rot.y = Math<T>::atan2 (-N[0][2], cy);
-			z = Math.atan2(-m1.sxy, m1.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);
-	
+			z = Math.atan2(-m1.sxy, m1.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);			
 			// Fix angles
-			if(x == Math.PI) {
+			if(Math.round(z/MathPI) == 1) {
 				if(y > 0)
-					y -= Math.PI;
+					y = -(y - MathPI);
 				else
-					y += Math.PI;
+					y = -(y + MathPI);
 	
-				x = 0;
-				z += Math.PI;
+				z -= MathPI;
+				
+				if (x > 0)
+					x -= MathPI;
+				else
+					x += MathPI;
+			} else if(Math.round(z/MathPI) == -1) {
+				if(y > 0)
+					y = -(y - MathPI);
+				else
+					y = -(y + MathPI);
+	
+				z += MathPI;
+				
+				if (x > 0)
+					x -= MathPI;
+				else
+					x += MathPI;
+			} else if(Math.round(x/MathPI) == 1) {
+				if(y > 0)
+					y = -(y - MathPI);
+				else
+					y = -(y + MathPI);
+	
+				x -= MathPI;
+				
+				if (z > 0)
+					z -= MathPI;
+				else
+					z += MathPI;
+			} else if(Math.round(x/MathPI) == -1) {
+				if(y > 0)
+					y = -(y - MathPI);
+				else
+					y = -(y + MathPI);
+	
+				x += MathPI;
+				
+				if (z > 0)
+					z -= MathPI;
+				else
+					z += MathPI;
 			}
         }
         

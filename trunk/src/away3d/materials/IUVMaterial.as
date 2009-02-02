@@ -39,15 +39,25 @@ package away3d.materials
 		function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO;
 		
 		/**
-        * Clears face value objects when material requires updating
+        * Clears facematerial value objects when bitmap requires updating
         * 
         * @param	source		[optional]	The parent 3d object of the face.
         * @param	view		[optional]	The view rendering the draw triangle.
         * 
         * @see away3d.core.utils.FaceMaterialVO
         */
-        function clearFaceDictionary(source:Object3D = null, view:View3D = null):void
+        function clearFaces(source:Object3D = null, view:View3D = null):void
 		
+		/**
+        * Invalidates facematerial value objects when texturemapping requires updating
+        * 
+        * @param	source		[optional]	The parent 3d object of the face.
+        * @param	view		[optional]	The view rendering the draw triangle.
+        * 
+        * @see away3d.core.utils.FaceMaterialVO
+        */
+        function invalidateFaces(source:Object3D = null, view:View3D = null):void
+        
 		/**
 		 * Default method for adding a materialResized event listener
 		 * 
