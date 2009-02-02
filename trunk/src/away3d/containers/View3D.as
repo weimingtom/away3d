@@ -273,7 +273,7 @@ package away3d.containers
             fireMouseEvent(MouseEvent3D.MOUSE_UP, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
 
-        private function onMouseOut(e:MouseEvent):void
+        private function onRollOut(e:MouseEvent):void
         {
         	//if (e.eventPhase != EventPhase.AT_TARGET)
         	//	return;
@@ -281,7 +281,7 @@ package away3d.containers
         	_mouseIsOverView = false;
         	
         	fireMouseEvent(MouseEvent3D.MOUSE_OUT, mouseX, mouseY, e.ctrlKey, e.shiftKey);
-        	
+        	/*
 			if (mouseObject != null)
 			{
 				var event:MouseEvent3D = getMouseEvent(MouseEvent3D.MOUSE_OUT);
@@ -292,9 +292,10 @@ package away3d.containers
 				mouseObject = null;
 				buttonMode = false;
 			}
+			*/
         }
         
-        private function onMouseOver(e:MouseEvent):void
+        private function onRollOver(e:MouseEvent):void
         {
         	//if (e.eventPhase != EventPhase.AT_TARGET)
         	//	return;
@@ -311,8 +312,9 @@ package away3d.containers
             while (tar != null)
             {
             	tarArray.unshift(tar);
-                if (tar.dispatchMouseEvent(event))
-                    break;
+            	
+                tar.dispatchMouseEvent(event);
+                
                 tar = tar.parent;
             }
             
@@ -380,7 +382,7 @@ package away3d.containers
         public var mouseMaterial:IUVMaterial;
         
         /**
-        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to true.
+        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to false.
         * 
         * @see #render()
         */
@@ -630,8 +632,8 @@ package away3d.containers
             //setup events on view
             addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-            addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-            addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+            addEventListener(MouseEvent.ROLL_OUT, onRollOut);
+            addEventListener(MouseEvent.ROLL_OVER, onRollOver);
             
             //setup stats panel creation
             if (stats)
@@ -699,14 +701,14 @@ package away3d.containers
 	                	event.material = mouseMaterial;
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
-		                traverseRollEvent(event, outArray.slice(i));
+		                traverseRollEvent(event, outArray.slice(i+1));
 	                }
 	                
 	                if (object != null) {
 	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER);
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
-		                traverseRollEvent(event, overArray.slice(i));
+		                traverseRollEvent(event, overArray.slice(i+1));
 	                }
                 }
                 
@@ -721,15 +723,15 @@ package away3d.containers
 	    */
         public function findHit(session:AbstractRenderSession, x:Number, y:Number):void
         {
-        	if (!session)
-        		return;
-        	
             screenX = x;
             screenY = y;
             screenZ = Infinity;
             material = null;
             object = null;
             
+        	if (!session || !_mouseIsOverView)
+        		return;
+        	
             _hitPointX = stage.mouseX;
             _hitPointY = stage.mouseY;
             

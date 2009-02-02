@@ -1102,18 +1102,18 @@
         	if (_rotationDirty) 
                 updateRotation();
             
-            _eulers.x = -_rotationX*toDEGREES;
-            _eulers.y = -_rotationY*toDEGREES;
-            _eulers.z = -_rotationZ*toDEGREES;
+            _eulers.x = _rotationX*toDEGREES;
+            _eulers.y = _rotationY*toDEGREES;
+            _eulers.z = _rotationZ*toDEGREES;
             
             return _eulers;
         }
 		
         public function set eulers(value:Number3D):void
         {
-            _rotationX = -value.x*toRADIANS;
-            _rotationY = -value.y*toRADIANS;
-            _rotationZ = -value.z*toRADIANS;
+            _rotationX = value.x*toRADIANS;
+            _rotationY = value.y*toRADIANS;
+            _rotationZ = value.z*toRADIANS;
 			
             _transformDirty = true;
         }
