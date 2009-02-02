@@ -58,9 +58,7 @@ package away3d.materials
 		
 		private function onComplete(e:Event):void
 		{
-			_renderBitmap = _bitmap = Bitmap(_loader.content).bitmapData;
-			
-			invalidateFaces();
+			bitmap = Bitmap(_loader.content).bitmapData;
 			
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
