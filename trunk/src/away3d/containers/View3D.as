@@ -473,7 +473,6 @@ package away3d.containers
         		return;
         	
         	if (_camera) {
-        		_camera.view = null;
         		_camera.removeOnSceneTransformChange(onCameraTransformChange);
         		_camera.removeOnCameraUpdate(onCameraUpdated);
         	}
