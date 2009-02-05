@@ -293,7 +293,7 @@ package away3d.cameras
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
             if (vertex == null)
-                vertex = center;
+                vertex = object.center;
             
             _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
             _drawPrimitiveStore.createVertexDictionary(object);
