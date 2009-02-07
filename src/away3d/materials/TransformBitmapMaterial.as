@@ -32,7 +32,7 @@ package away3d.materials
         private var _transformDirty:Boolean;
         private var _throughProjection:Boolean;
         private var _globalProjection:Boolean;
-        private var face:Face;
+        private var faceVO:FaceVO;
         private var x:Number;
 		private var y:Number;
 		private var px:Number;
@@ -105,27 +105,27 @@ package away3d.materials
         
 		private function projectUV(tri:DrawTriangle):Matrix
         {
-        	face = tri.face;
+        	faceVO = tri.faceVO;
         	
         	if (globalProjection) {
 	    		if (tri.backface) {
-		    		v0.transform(face.v0.position, tri.source.sceneTransform);
-		    		v2.transform(face.v1.position, tri.source.sceneTransform);
-		    		v1.transform(face.v2.position, tri.source.sceneTransform);
+		    		v0.transform(faceVO.v0.position, tri.source.sceneTransform);
+		    		v2.transform(faceVO.v1.position, tri.source.sceneTransform);
+		    		v1.transform(faceVO.v2.position, tri.source.sceneTransform);
 		    	} else {
-		    		v0.transform(face.v0.position, tri.source.sceneTransform);
-		    		v1.transform(face.v1.position, tri.source.sceneTransform);
-		    		v2.transform(face.v2.position, tri.source.sceneTransform);
+		    		v0.transform(faceVO.v0.position, tri.source.sceneTransform);
+		    		v1.transform(faceVO.v1.position, tri.source.sceneTransform);
+		    		v2.transform(faceVO.v2.position, tri.source.sceneTransform);
 	    		}
         	} else {
 	    		if (tri.backface) {
-		    		v0 = face.v0.position;
-		    		v2 = face.v1.position;
-		    		v1 = face.v2.position;
+		    		v0 = faceVO.v0.position;
+		    		v2 = faceVO.v1.position;
+		    		v1 = faceVO.v2.position;
 		    	} else {
-		    		v0 = face.v0.position;
-		    		v1 = face.v1.position;
-		    		v2 = face.v2.position;
+		    		v0 = faceVO.v0.position;
+		    		v1 = faceVO.v1.position;
+		    		v2 = faceVO.v2.position;
 	    		}
         	}
         	
@@ -282,7 +282,7 @@ package away3d.materials
 	        	return _mapping;
 			}
 			
-        	_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source);
+        	_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source);
         	
         	//check to see if rendering can be skipped
         	if (!_faceMaterialVO.invalidated)
@@ -605,10 +605,10 @@ package away3d.materials
         	if (_projectionVector && !throughProjection) {
         		
         		if (globalProjection) {
-        			normalR.rotate(tri.face.normal, tri.source.sceneTransform);
+        			normalR.rotate(tri.faceVO.face.normal, tri.source.sceneTransform);
         			if (normalR.dot(_projectionVector) < 0)
         				return;
-        		} else if (tri.face.normal.dot(_projectionVector) < 0)
+        		} else if (tri.faceVO.face.normal.dot(_projectionVector) < 0)
         			return;
         	}
         	
@@ -631,7 +631,7 @@ package away3d.materials
 				renderSource(tri.source, containerRect, _mapping);
 			
 			//get the correct faceMaterialVO
-			_faceMaterialVO = getFaceMaterialVO(face);
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO);
 			
 			//pass on resize value
 			if (parentFaceMaterialVO.resized) {
@@ -647,7 +647,7 @@ package away3d.materials
 				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = tri.face.bitmapRect;
+				_bitmapRect = tri.faceVO.bitmapRect;
 				
 				//reset booleans
 				if (_faceMaterialVO.invalidated)
@@ -666,7 +666,7 @@ package away3d.materials
 					_mapping.concat(projectUV(tri));
 					_mapping.concat(_invtexturemapping);
 					
-					normalR.clone(tri.face.normal);
+					normalR.clone(tri.faceVO.face.normal);
 					
 					if (_globalProjection)
 						normalR.rotate(normalR, tri.source.sceneTransform);

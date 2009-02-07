@@ -58,7 +58,7 @@ package away3d.materials
 				return _texturemapping;
 			}
 			
-			_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
 			
 			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
@@ -188,12 +188,12 @@ package away3d.materials
                 step *= 2;
         }
         
-        public function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceMaterialVO = _faceDictionary[face]))
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
         		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceMaterialVO();
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
         
 		/**

@@ -66,7 +66,7 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_dtStore = _dtStore.concat(_dtDictionary[_session] as Array);
-					_dtDictionary[_session] = [];
+					delete _dtDictionary[_session];
 				}
 			}
 			
@@ -74,7 +74,7 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_dsStore = _dsStore.concat(_dsDictionary[_session] as Array);
-					_dsDictionary[_session] = [];
+					delete _dsDictionary[_session];
 				}
 			}
 			
@@ -82,7 +82,7 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_dbStore = _dbStore.concat(_dbDictionary[_session] as Array);
-					_dbDictionary[_session] = [];
+					delete _dbDictionary[_session];
 				}
 			}
 			
@@ -90,7 +90,7 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_cbStore = _cbStore.concat(_cbDictionary[_session] as Array);
-					_cbDictionary[_session] = [];
+					delete _cbDictionary[_session];
 				}
 			}
 			
@@ -98,7 +98,7 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_sbStore = _sbStore.concat(_sbDictionary[_session] as Array);
-					_sbDictionary[_session] = [];
+					delete _sbDictionary[_session];
 				}
 			}
 			
@@ -106,7 +106,7 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_doStore = _doStore.concat(_doDictionary[_session] as Array);
-					_doDictionary[_session] = [];
+					delete _doDictionary[_session];
 				}
 			}
 		}
@@ -179,7 +179,7 @@ package away3d.core.utils
 	        return _seg;
 	    }
 	    
-		public function createDrawTriangle(source:Object3D, face:Face, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
+		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
 		{
 			if (!(_dtArray = _dtDictionary[source.session]))
 				_dtArray = _dtDictionary[source.session] = [];
@@ -194,7 +194,7 @@ package away3d.core.utils
 	        
 	        _tri.generated = generated;
 	        _tri.source = source;
-	        _tri.face = face;
+	        _tri.faceVO = faceVO;
 	        _tri.material = material;
 	        _tri.v0 = v0;
 	        _tri.v1 = v1;

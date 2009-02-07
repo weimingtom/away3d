@@ -16,8 +16,6 @@ package away3d.core.geom
 		public static const BOTTOM:int = 4;
 		public static const FAR:int = 5;
 		
-		public var planeNames:Array = ['NEAR','LEFT','RIGHT','TOP','BOTTOM','FAR'];
-		
 		//clasification
 		public static const OUT:int = 0;
 		public static const IN:int = 1;
@@ -28,10 +26,7 @@ package away3d.core.geom
 		private var _matrix:Matrix3D = new Matrix3D();
 		private var _plane:Plane3D;
 		private var _distance:Number;
-		private var _v0Classification:Plane3D;
-		private var _v1Classification:Plane3D;
-		private var _v2Classification:Plane3D;
-		
+    	
 		/**
 		 * Creates a frustum consisting of 6 planes in 3d space.
 		 */
@@ -97,14 +92,13 @@ package away3d.core.geom
 			return IN;
 		}
 		
-				
 		/**
 		 * Classify this vertex against this frustum
 		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
 		 */
 		public function classifyVertex(vertex:Vertex):Plane3D
 		{
-			for each(_plane in planes) {
+			for each (_plane in planes) {
 				_distance = _plane.distance(vertex.position);
 				
 				if (_distance < 0)
@@ -112,26 +106,6 @@ package away3d.core.geom
 			}
 			
 			return null;
-		}
-		
-		public function getClippedFaces(faceVO:FaceVO):Array
-		{
-			/*
-			_v0Classification = _cameraVarsStore.vertexClassificationDictionary[faceVO.v0];
-			_v1Classification = _cameraVarsStore.vertexClassificationDictionary[faceVO.v1];
-			_v2Classification = _cameraVarsStore.vertexClassificationDictionary[faceVO.v2];
-			*/
-			
-			//check if vertices all have no classification
-			if (_v0Classification == null && _v1Classification == null && _v2Classification == null)
-                return [faceVO];
-            
-			//check if vertices all have same classification
-			if (_v0Classification == _v1Classification == _v2Classification)
-                return [];
-            
-            //return sliced face
-            return [];
 		}
 		
 		/**

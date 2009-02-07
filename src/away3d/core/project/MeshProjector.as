@@ -4,6 +4,7 @@ package away3d.core.project
 	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.geom.*;
 	import away3d.core.math.*;
@@ -15,7 +16,6 @@ package away3d.core.project
 	public class MeshProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;
-		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _cameraVarsStore:CameraVarsStore;
 		private var _mesh:Mesh;
@@ -29,6 +29,7 @@ package away3d.core.project
 		private var _segments:Array;
 		private var _billboards:Array;
 		private var _camera:Camera3D;
+		private var _clipping:Clipping;
 		private var _lens:AbstractLens;
 		private var _focus:Number;
 		private var _zoom:Number;
@@ -82,7 +83,8 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+			_drawPrimitiveStore.createVertexDictionary(source);
+			_cameraVarsStore.createVertexClassificationDictionary(source);
 			
 			_mesh = source as Mesh;
 			_vertices = _mesh.vertices;
@@ -91,6 +93,7 @@ package away3d.core.project
 			_billboards = _mesh.billboards;
 			
 			_camera = _view.camera;
+			_clipping = _view.clipping;
 			_lens = _camera.lens;
         	_focus = _camera.focus;
         	_zoom = _camera.zoom;
@@ -110,14 +113,6 @@ package away3d.core.project
 			else
 				_frustumClipping = false;
 			
-			if (_frustumClipping) {
-				_frustum = _cameraVarsStore.frustumDictionary[source];
-				
-				//check vertices against the frustum planes for the mesh
-				for each (_vertex in _vertices)
-					_cameraVarsStore.vertexClassificationDictionary[_vertex] = _frustum.classifyVertex(_vertex);
-			}
-			
 			
 			//loop through all faces
             for each (_face in _faces)
@@ -127,20 +122,9 @@ package away3d.core.project
                 
                 //check if a face needs clipping
                 if (_frustumClipping)
-                	_clippedFaceVOs.concat(_frustum.getClippedFaces(_face.faceVO));
+                	_clippedFaceVOs = _clippedFaceVOs.concat(_clipping.checkFace(_face.faceVO, source));
                 else
                 	_clippedFaceVOs.push(_face.faceVO);
-                
-				//if (vertexClassificationDictionary[_vertex]
-
-				/*
-				_drawTriangle = _drawPrimitiveStore.createDrawTriangle(source, _face, null, _sv0, _sv1, _sv2, _face.uv0, _face.uv1, _face.uv2);
-	            
-				_clippedTriangles = _view.screenClip.check(_drawTriangle);
-				
-				for each (_tri in _clippedTriangles)
-					_triangles.push(_tri);
-				*/
             }
 
             for each (_faceVO in _clippedFaceVOs) {
@@ -153,7 +137,7 @@ package away3d.core.project
                 
             	_face = _faceVO.face;
                 
-            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _face, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2);
+            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
                 
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.area < 0;
@@ -217,7 +201,7 @@ package away3d.core.project
 				
                 //check if face swapped direction
                 if (_tri.material is IUVMaterial) {
-                	_faceMaterialVO = (_tri.material as IUVMaterial).getFaceMaterialVO(_face);
+                	_faceMaterialVO = (_tri.material as IUVMaterial).getFaceMaterialVO(_faceVO);
                 	
                 	if (_faceMaterialVO.backface != _backface) {
                 		_faceMaterialVO.backface = _backface;

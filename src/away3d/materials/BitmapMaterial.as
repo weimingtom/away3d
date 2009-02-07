@@ -413,7 +413,7 @@
 				return _texturemapping;
 			}
 			
-			_faceMaterialVO = getFaceMaterialVO(tri.face);			
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO);			
 			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
 						_faceMaterialVO.invalidated = false;			
@@ -650,12 +650,12 @@
         	_blendModeDirty = false;
         }
         
-        public function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {        	//check to see if faceMaterialVO exists
-        	if ((_faceMaterialVO = _faceDictionary[face]))
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
         		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceMaterialVO();
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
                 		/**		 * @inheritDoc		 */        public function clearFaces(source:Object3D = null, view:View3D = null):void        {        	notifyMaterialUpdate();        	        	for each (_faceMaterialVO in _faceDictionary)        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        }        		/**		 * @inheritDoc		 */        public function invalidateFaces(source:Object3D = null, view:View3D = null):void        {        	_materialDirty = true;        	        	for each (_faceMaterialVO in _faceDictionary)        		_faceMaterialVO.invalidated = true;        }        
 		/**
@@ -672,8 +672,8 @@
 		    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
 	        	} else {
 		        	//check to see if face shape exists
-		    		if (!(_shape = _shapeDictionary[tri.face]))
-		    			layer.addChild(_shape = _shapeDictionary[tri.face] = new Shape());
+		    		if (!(_shape = _shapeDictionary[tri.faceVO]))
+		    			layer.addChild(_shape = _shapeDictionary[tri.faceVO] = new Shape());
 	        	}
 	    		_shape.blendMode = _blendMode;
 	    		
@@ -712,7 +712,7 @@
 			
             if (debug)
                 _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-							if(showNormals){				if( _nn == null){					_nn = new Number3D();					_sv0 = new ScreenVertex();					_sv1 = new ScreenVertex();				}				        		var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];				_nn.rotate(tri.face.normal, t);				 				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;				_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;				_sv0.z = (tri.v0.z + tri.v1.z + tri.v2.z) / 3;				 				_sv1.x = (_sv0.x - (30*_nn.x));				_sv1.y = (_sv0.y - (30*_nn.y));				_sv1.z = (_sv0.z - (30*_nn.z));				 				_session.renderLine(_sv0, _sv1, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
+							if(showNormals){				if( _nn == null){					_nn = new Number3D();					_sv0 = new ScreenVertex();					_sv1 = new ScreenVertex();				}				        		var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];				_nn.rotate(tri.faceVO.face.normal, t);				 				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;				_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;				_sv0.z = (tri.v0.z + tri.v1.z + tri.v2.z) / 3;				 				_sv1.x = (_sv0.x - (30*_nn.x));				_sv1.y = (_sv0.y - (30*_nn.y));				_sv1.z = (_sv0.z - (30*_nn.z));				 				_session.renderLine(_sv0, _sv1, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
         
 		/**
 		 * @inheritDoc
@@ -722,7 +722,7 @@
 			//draw the bitmap once
 			renderSource(tri.source, containerRect, new Matrix());
 			
-			//get the correct faceMaterialVO			_faceMaterialVO = getFaceMaterialVO(tri.face);
+			//get the correct faceMaterialVO			_faceMaterialVO = getFaceMaterialVO(tri.faceVO);
 			
 			//pass on resize value
 			if (parentFaceMaterialVO.resized) {
@@ -746,7 +746,7 @@
 				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap.clone();
 				
 				//draw into faceBitmap
-				_faceMaterialVO.bitmap.copyPixels(_sourceVO.bitmap, tri.face.bitmapRect, _zeroPoint, null, null, true);
+				_faceMaterialVO.bitmap.copyPixels(_sourceVO.bitmap, tri.faceVO.bitmapRect, _zeroPoint, null, null, true);
 			}
 			
 			return _faceMaterialVO;

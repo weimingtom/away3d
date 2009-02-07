@@ -31,7 +31,7 @@ package away3d.materials
 		private var _faceWidth:int;
 		private var _faceHeight:int;
 		private var _forceRender:Boolean;
-		private var _face:Face;
+		private var _faceVO:FaceVO;
 		private var _material:ILayerMaterial;
         private var _viewDictionary:Dictionary = new Dictionary(true);
         
@@ -62,8 +62,8 @@ package away3d.materials
 		 */
 		protected override function getMapping(tri:DrawTriangle):Matrix
         {
-        	_face = tri.face;
-    		_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
+        	_faceVO = tri.faceVO;
+    		_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
     		
     		if (tri.generated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
 	    		_faceMaterialVO.updated = true;
@@ -74,9 +74,9 @@ package away3d.materials
 	        		_faceMaterialVO.invalidated = false;
 	        		
 	        		//update face bitmapRect
-	        		_face.bitmapRect = new Rectangle(int(_width*_face.minU), int(_height*(1 - _face.maxV)), int(_width*(_face.maxU-_face.minU)+2), int(_height*(_face.maxV-_face.minV)+2));
-	        		_faceWidth = _face.bitmapRect.width;
-	        		_faceHeight = _face.bitmapRect.height;
+	        		_faceVO.bitmapRect = new Rectangle(int(_width*_faceVO.minU), int(_height*(1 - _faceVO.maxV)), int(_width*(_faceVO.maxU-_faceVO.minU)+2), int(_height*(_faceVO.maxV-_faceVO.minV)+2));
+	        		_faceWidth = _faceVO.bitmapRect.width;
+	        		_faceHeight = _faceVO.bitmapRect.height;
 	        		
 	        		//update texturemapping
 	        		_faceMaterialVO.invtexturemapping = tri.transformUV(this).clone();
@@ -93,14 +93,14 @@ package away3d.materials
 	    		for each (_material in materials)
 	        		_fMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _fMaterialVO);
         		
-        		_renderBitmap = _cacheDictionary[_face] = _fMaterialVO.bitmap;
+        		_renderBitmap = _cacheDictionary[_faceVO] = _fMaterialVO.bitmap;
 	        	
 	        	_fMaterialVO.updated = false;
 	        	
 	        	return _faceMaterialVO.texturemapping;
 	        }
         	
-        	_renderBitmap = _cacheDictionary[_face];
+        	_renderBitmap = _cacheDictionary[_faceVO];
         	
         	//check to see if tri texturemapping need updating
         	if (_faceMaterialVO.invalidated) {
@@ -209,11 +209,11 @@ package away3d.materials
 		 */
         public override function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
 		{
-			_faceMaterialVO = getFaceMaterialVO(tri.face);
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO);
 			
 			//get width and height values
-			_faceWidth = tri.face.bitmapRect.width;
-    		_faceHeight = tri.face.bitmapRect.height;
+			_faceWidth = tri.faceVO.bitmapRect.width;
+    		_faceHeight = tri.faceVO.bitmapRect.height;
 
 			//check to see if bitmapContainer exists
 			if (!(_containerVO = _containerDictionary[tri]))

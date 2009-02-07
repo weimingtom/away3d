@@ -36,7 +36,7 @@ package away3d.materials
         */
         function getPixel32(u:Number, v:Number):uint;
 		
-		function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO;
+		function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO;
 		
 		/**
         * Clears facematerial value objects when bitmap requires updating

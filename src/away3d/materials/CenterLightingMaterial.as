@@ -231,9 +231,9 @@ package away3d.materials
 				dfy = _diffuseTransform.szy;
 				dfz = _diffuseTransform.szz;
                 
-                nx = tri.face.normal.x;
-                ny = tri.face.normal.y;
-                nz = tri.face.normal.z;
+                nx = tri.faceVO.face.normal.x;
+                ny = tri.faceVO.face.normal.y;
+                nz = tri.faceVO.face.normal.z;
                 
                 amb = directional.ambient * ambient_brightness;
 				
