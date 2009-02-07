@@ -216,8 +216,8 @@ package away3d.materials
 	    			_sprite = _session.spriteLayers[level] = new Sprite();
         	} else {
 	        	//check to see if face sprite exists
-	    		if (!(_sprite = _spriteDictionary[tri.face]))
-	    			_sprite = _spriteDictionary[tri.face] = new Sprite();
+	    		if (!(_sprite = _spriteDictionary[tri.faceVO]))
+	    			_sprite = _spriteDictionary[tri.faceVO] = new Sprite();
         	}
 	    	
 	    	if (!_session.children[_sprite]) {
@@ -257,8 +257,8 @@ package away3d.materials
 		    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
 	        	} else {
 		        	//check to see if face sprite exists
-		    		if (!(_sprite = _spriteDictionary[tri.face]))
-		    			layer.addChild(_sprite = _spriteDictionary[tri.face] = new Sprite());
+		    		if (!(_sprite = _spriteDictionary[tri.faceVO.face]))
+		    			layer.addChild(_sprite = _spriteDictionary[tri.faceVO.face] = new Sprite());
 	        	}
 	        	
 	        	_sprite.filters = [];

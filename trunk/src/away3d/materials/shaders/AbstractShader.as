@@ -62,6 +62,8 @@ package away3d.materials.shaders
 		arcane var _view:View3D;
         /** @private */
 		arcane var _face:Face;
+		/** @private */
+		arcane var _faceVO:FaceVO;
         /** @private */
 		arcane var _lights:ILightConsumer;
         /** @private */
@@ -236,7 +238,8 @@ package away3d.materials.shaders
         {
         	_source = tri.source as Mesh;
 			_view = tri.view;
-			_face = tri.face;
+			_faceVO = tri.faceVO;
+			_face = _faceVO.face;
 			_lights = tri.source.lightarray;
         }
         
@@ -247,9 +250,11 @@ package away3d.materials.shaders
         {
         	_source = tri.source as Mesh;
 			_view = tri.view;
+			_faceVO = tri.faceVO;
+			_face = _faceVO.face;
 			_parentFaceMaterialVO = parentFaceMaterialVO;
 			
-			_faceMaterialVO = getFaceMaterialVO(tri.face, _source, _view);
+			_faceMaterialVO = getFaceMaterialVO(_faceVO, _source, _view);
 			
 			//pass on inverse texturemapping
 			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
@@ -265,7 +270,7 @@ package away3d.materials.shaders
 				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = tri.face.bitmapRect;
+				_bitmapRect = _faceVO.bitmapRect;
 				
 				//reset booleans
 				if (_faceMaterialVO.invalidated)
@@ -286,12 +291,12 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function getFaceMaterialVO(face:Face, source:Object3D = null, view:View3D = null):FaceMaterialVO
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceMaterialVO = _faceDictionary[face]))
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
         		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceMaterialVO();
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
         
 		/**

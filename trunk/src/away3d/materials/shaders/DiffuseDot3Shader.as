@@ -59,7 +59,7 @@ package away3d.materials.shaders
 				return _texturemapping;
 			}
 			
-			_faceMaterialVO = getFaceMaterialVO(tri.face, tri.source, tri.view);
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
 			
 			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.texturemapping;
@@ -111,7 +111,6 @@ package away3d.materials.shaders
 				_normalBitmap.lock();
 			}
 			
-			_face = tri.face;
 			_n0 = _source.geometry.getVertexNormal(_face.v0);
 			_n1 = _source.geometry.getVertexNormal(_face.v1);
 			_n2 = _source.geometry.getVertexNormal(_face.v2);
@@ -143,7 +142,7 @@ package away3d.materials.shaders
 					_faceMaterialVO.updated = true;
 					
 					//resolve normal map
-		            _sourceBitmap.applyFilter(_bitmap, _face.bitmapRect, _zeroPoint, directional.normalMatrixTransform[_source]);
+		            _sourceBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixTransform[_source]);
 					
 		            //normalise bitmap
 					_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform[_source]);

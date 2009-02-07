@@ -6,6 +6,7 @@ package away3d.core.geom
     /** Plane in 3D space */
     public class Plane3D
     {
+    	private var _len:Number;
     	
     	public static const FRONT:int = 1;
     	public static const BACK:int = -1;
@@ -126,11 +127,12 @@ package away3d.core.geom
 		 * @returns Number
 		 */
         public function distance(p:Number3D):Number
-        {
-        	var len:Number = a*p.x + b*p.y + c*p.z + d;
-        	if ((len > -EPSILON) && (len < EPSILON))
-                len = 0;
-            return len / Math.sqrt(a*a + b*b + c*c);
+        {	
+        	_len = a*p.x + b*p.y + c*p.z + d;
+        	if ((_len > -EPSILON) && (_len < EPSILON))
+                _len = 0;
+            
+            return _len;
         }
 
 		/**

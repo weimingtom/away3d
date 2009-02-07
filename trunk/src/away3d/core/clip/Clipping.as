@@ -2,6 +2,7 @@ package away3d.core.clip
 {
 	import away3d.arcane;
 	import away3d.containers.*;
+	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
@@ -49,6 +50,7 @@ package away3d.core.clip
     	private var _stageHeight:Number;
     	private var _zeroPoint:Point = new Point(0, 0);
 		private var _globalPoint:Point;
+		private var _view:View3D;
 		private var _minX:Number;
 		private var _minY:Number;
 		private var _minZ:Number;
@@ -86,6 +88,18 @@ package away3d.core.clip
         }
         
         protected var _ini:Init;
+		protected var _cameraVarsStore:CameraVarsStore;
+		
+		public function get view():View3D
+		{
+			return _view;
+		}
+		
+		public function set view(value:View3D):void
+		{
+			_view = value;
+			_cameraVarsStore = view.cameraVarsStore;
+		}
 		
     	/**
     	 * Minimum allowed x value for primitives
@@ -222,6 +236,11 @@ package away3d.core.clip
         {
             return true;
         }
+		
+		public function checkFace(faceVO:FaceVO, source:Object3D):Array
+		{
+			return [faceVO];
+		}
 		
 		/**
 		 * Checks a bounding rectangle for clipping.

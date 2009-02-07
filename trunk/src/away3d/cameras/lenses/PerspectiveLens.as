@@ -166,7 +166,7 @@ package away3d.cameras.lenses
             _screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)*camera.zoom;
             _screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)*camera.zoom;
             
-            if (_sz < _near) {
+            if (_sz < _near && !camera.frustumClipping) {
                 _screenVertex.visible = false;
                 return _screenVertex;
             }

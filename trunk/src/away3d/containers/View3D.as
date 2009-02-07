@@ -445,6 +445,7 @@ package away3d.containers
         	}
         		
         	_clipping = val;
+        	_clipping.view = this;
         	
         	if (_clipping) {
         		_clipping.addOnClippingUpdate(onClippingUpdated);
@@ -700,14 +701,14 @@ package away3d.containers
 	                	event.material = mouseMaterial;
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
-		                traverseRollEvent(event, outArray.slice(i+1));
+		                traverseRollEvent(event, outArray.slice(i));
 	                }
 	                
 	                if (object != null) {
 	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER);
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
-		                traverseRollEvent(event, overArray.slice(i+1));
+		                traverseRollEvent(event, overArray.slice(i));
 	                }
                 }
                 
