@@ -54,13 +54,13 @@
 		/**
 		 * Recalculate start and end Vertex positions 
 		 */
-		private function recalc(vp1,vp2):void
+		private function recalc(vp1:*,vp2:*):void
         {
 			p1=new Number3D(vp1.x,vp1.y,vp1.z);
 			p2=new Number3D(vp2.x,vp2.y,vp2.z);
 
             if(lsegments>1){
-				var _index = segments.length;
+				var _index:int = segments.length;
     			while (_index--)
     				removeSegment(segments[_index]);
 				

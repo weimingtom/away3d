@@ -145,7 +145,7 @@ package away3d.loaders
 
             scaling = ini.getNumber("scaling", 1) * 100;
 
-            mesh = new Mesh(ini);
+            mesh = (container = new Mesh(ini)) as Mesh;
 
             parseAse(Cast.string(data));
         }
@@ -159,9 +159,10 @@ package away3d.loaders
 		 * 
 		 * @return						A 3d mesh object representation of the ase file.
 		 */
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):Mesh
+        public static function parse(data:*, init:Object = null):Mesh
         {
-            return new Ase(Cast.string(data), init).mesh;
+            return Object3DLoader.parseGeometry(data, Ase, init).handle as Mesh;
+						//return new Ase(Cast.string(data), init).mesh;
         }
     	
     	/**
