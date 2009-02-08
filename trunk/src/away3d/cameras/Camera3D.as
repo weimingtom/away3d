@@ -33,7 +33,7 @@ package away3d.cameras
         private var _flipY:Matrix3D = new Matrix3D();
         private var _focus:Number;
         private var _zoom:Number = 10;
-        private var _lens:AbstractLens;
+        private var _lens:ILens;
         private var _fov:Number = 0;
         private var _clipping:Clipping;
         private var _clipTop:Number;
@@ -67,8 +67,6 @@ package away3d.cameras
 		protected const toDEGREES:Number = 180/Math.PI;
 		
     	public var invViewMatrix:Matrix3D = new Matrix3D();
-        
-        public var frustumClipping:Boolean;
         
 		public var fixedZoom:Boolean;
 		
@@ -145,20 +143,17 @@ package away3d.cameras
 		/**
 		 * Defines a lens object used in vertex projection
 		 */
-		public function get lens():AbstractLens
+		public function get lens():ILens
 		{
 			return _lens;
 		}
 		
-		public function set lens(value:AbstractLens):void
+		public function set lens(value:ILens):void
 		{
 			if (_lens == value)
 				return;
 			
 			_lens = value;
-			
-			if (_lens)
-				_lens.camera = this;
 			
 			notifyCameraUpdate();
 		}
@@ -238,8 +233,7 @@ package away3d.cameras
             focus = ini.getNumber("focus", 100);
             zoom = ini.getNumber("zoom", _zoom);
             fixedZoom = ini.getBoolean("fixedZoom", true);
-            lens = ini.getObject("lens", AbstractLens) as AbstractLens;
-            frustumClipping = ini.getBoolean("frustumClipping", false);
+            lens = ini.getObject("lens", AbstractLens) as ILens || new ZoomFocusLens();
             aperture = ini.getNumber("aperture", 22);
             maxblur = ini.getNumber("maxblur", 150);
 	        doflevels = ini.getNumber("doflevels", 16);
@@ -251,9 +245,6 @@ package away3d.cameras
 			
             if (lookat)
                 lookAt(lookat);
-            
-            if (!lens)
-            	lens = new PerspectiveLens();
         }
         
         /**
@@ -326,9 +317,9 @@ package away3d.cameras
 	        	_clipBottom = _clipping.minY;
 	        	_clipLeft = _clipping.minX;
 	        	_clipRight = _clipping.maxX;
-	        	
-	        	lens.setClipping(_clipping);
         	}
+        	
+        	lens.setView(_view);
         	
         	if (_fovDirty) {
         		_fovDirty = false;
@@ -339,10 +330,6 @@ package away3d.cameras
         		_zoomDirty = false;
         		_zoom = lens.getZoom();
         	}
-        	
-        	lens.drawPrimitiveStore = _drawPrimitiveStore;
-        	lens.cameraVarsStore = _cameraVarsStore;
-        	//lens.updateView(clip, _zoom, _focus, _near, _far, sceneTransform, _flipY);
         }
         
 		/**

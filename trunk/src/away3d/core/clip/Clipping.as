@@ -87,8 +87,19 @@ package away3d.core.clip
             dispatchEvent(_clippingupdated);
         }
         
-        protected var _ini:Init;
+        protected var ini:Init;
 		protected var _cameraVarsStore:CameraVarsStore;
+		protected var _objectCulling:Boolean;
+		
+		public function get objectCulling():Boolean
+		{
+			return _objectCulling;
+		}
+		
+		public function set objectCulling(val:Boolean):void
+		{
+			_objectCulling = val;
+		}
 		
 		public function get view():View3D
 		{
@@ -216,14 +227,14 @@ package away3d.core.clip
 		 */
         public function Clipping(init:Object = null)
         {
-        	_ini = Init.parse(init) as Init;
+        	ini = Init.parse(init) as Init;
         	
-        	minX = _ini.getNumber("minX", -Infinity);
-        	minY = _ini.getNumber("minY", -Infinity);
-        	minZ = _ini.getNumber("minZ", -Infinity);
-        	maxX = _ini.getNumber("maxX", Infinity);
-        	maxY = _ini.getNumber("maxY", Infinity);
-        	maxZ = _ini.getNumber("maxZ", Infinity);
+        	minX = ini.getNumber("minX", -Infinity);
+        	minY = ini.getNumber("minY", -Infinity);
+        	minZ = ini.getNumber("minZ", -Infinity);
+        	maxX = ini.getNumber("maxX", Infinity);
+        	maxY = ini.getNumber("maxY", Infinity);
+        	maxZ = ini.getNumber("maxZ", Infinity);
         }
         
 		/**
@@ -232,14 +243,14 @@ package away3d.core.clip
 		 * @param	pri	The drawing primitive being checked.
 		 * @return		The clipping result - false for clipped, true for non-clipped.
 		 */
-        public function check(pri:DrawPrimitive):Boolean
+        public function checkPrimitive(pri:DrawPrimitive):Boolean
         {
             return true;
         }
 		
-		public function checkFace(faceVO:FaceVO, source:Object3D):Array
+		public function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array):void
 		{
-			return [faceVO];
+			clippedFaceVOs.push(faceVO);
 		}
 		
 		/**
@@ -253,9 +264,18 @@ package away3d.core.clip
 		 */
         public function rect(minX:Number, minY:Number, maxX:Number, maxY:Number):Boolean
         {
+            if (this.maxX < minX)
+                return false;
+            if (this.minX > maxX)
+                return false;
+            if (this.maxY < minY)
+                return false;
+            if (this.minY > maxY)
+                return false;
+
             return true;
         }
-
+		
 		/**
 		 * Returns a clipping object initilised with the edges of the flash movie as the clipping bounds.
 		 */
@@ -402,7 +422,11 @@ package away3d.core.clip
             	_clippingClone.maxY = _maY;
             else
             	_clippingClone.maxY = _maxY;
-            	
+            
+            _clippingClone.minZ = _minZ;
+            _clippingClone.maxZ = _minZ;
+            _clippingClone.objectCulling = _objectCulling;
+            
             return _clippingClone;
         }
 		
@@ -416,6 +440,7 @@ package away3d.core.clip
         	clipping.maxX = maxX;
         	clipping.maxY = maxY;
         	clipping.maxZ = maxZ;
+        	clipping.objectCulling = objectCulling;
         	
         	return clipping;
         }

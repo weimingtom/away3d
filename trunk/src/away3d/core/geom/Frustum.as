@@ -4,16 +4,13 @@ package away3d.core.geom
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
 	
-	/** b at turbulent dot ca */
-	/* based on Tim Knip and Don Picco's frustum works */
-	
 	public class Frustum
 	{
-		public static const NEAR:int = 0;
-		public static const LEFT:int = 1;
-		public static const RIGHT:int = 2;
-		public static const TOP:int = 3;
-		public static const BOTTOM:int = 4;
+		public static const LEFT:int = 0;
+		public static const RIGHT:int = 1;
+		public static const TOP:int = 2;
+		public static const BOTTOM:int = 3;
+		public static const NEAR:int = 4;
 		public static const FAR:int = 5;
 		
 		//clasification
@@ -33,11 +30,11 @@ package away3d.core.geom
 		public function Frustum()
 		{
 			planes = new Array(6);
-			planes[NEAR] = new Plane3D();
 			planes[LEFT] = new Plane3D();
 			planes[RIGHT] = new Plane3D();
 			planes[TOP] = new Plane3D();
 			planes[BOTTOM] = new Plane3D();
+			planes[NEAR] = new Plane3D();
 			planes[FAR] = new Plane3D();
 		}
 		
@@ -75,12 +72,7 @@ package away3d.core.geom
 		 */
 		public function classifyRadius(radius:Number):int
 		{
-			
-			//trace("classifyRadius");
-			//_plane = planes[FAR];
 			for each(_plane in planes) {
-				//trace("_plane.d: " + _plane.d);
-				//trace("radius: " + radius);
 				if(_plane.d < -radius)
 					return OUT;
 				
@@ -90,22 +82,6 @@ package away3d.core.geom
 			}
 			
 			return IN;
-		}
-		
-		/**
-		 * Classify this vertex against this frustum
-		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
-		 */
-		public function classifyVertex(vertex:Vertex):Plane3D
-		{
-			for each (_plane in planes) {
-				_distance = _plane.distance(vertex.position);
-				
-				if (_distance < 0)
-					return _plane;
-			}
-			
-			return null;
 		}
 		
 		/**

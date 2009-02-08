@@ -24,13 +24,13 @@ package away3d.core.project
 		private var _vertices:Array;
 		private var _faces:Array;
 		private var _triangles:Array;
-		private var _clippedTriangles:Array;
+		private var _clipFaceVOs:Boolean;
 		private var _clippedFaceVOs:Array;
 		private var _segments:Array;
 		private var _billboards:Array;
 		private var _camera:Camera3D;
 		private var _clipping:Clipping;
-		private var _lens:AbstractLens;
+		private var _lens:ILens;
 		private var _focus:Number;
 		private var _zoom:Number;
 		private var _faceMaterial:ITriangleMaterial;
@@ -104,15 +104,12 @@ package away3d.core.project
 			
 			_backmat = _mesh.back || _faceMaterial;
 			
-			//_triangles = new Array();
 			_clippedFaceVOs = new Array();
 			
-			//check if we are clipping
-			if (_camera.frustumClipping && _cameraVarsStore.nodeClassificationDictionary[source] == Frustum.INTERSECT)
-				_frustumClipping = true;
+			if (_cameraVarsStore.nodeClassificationDictionary[source] == Frustum.INTERSECT)
+				_clipFaceVOs = true;
 			else
-				_frustumClipping = false;
-			
+				_clipFaceVOs = false;
 			
 			//loop through all faces
             for each (_face in _faces)
@@ -121,8 +118,8 @@ package away3d.core.project
                     continue;
                 
                 //check if a face needs clipping
-                if (_frustumClipping)
-                	_clippedFaceVOs = _clippedFaceVOs.concat(_clipping.checkFace(_face.faceVO, source));
+                if (_clipFaceVOs)
+                	_clipping.checkFace(_face.faceVO, source, _clippedFaceVOs);
                 else
                 	_clippedFaceVOs.push(_face.faceVO);
             }
@@ -132,7 +129,7 @@ package away3d.core.project
 				_sv1 = _lens.project(viewTransform, _faceVO.v1);
 				_sv2 = _lens.project(viewTransform, _faceVO.v2);
 				
-                if (!_frustumClipping && (!_sv0.visible || !_sv1.visible || !_sv2.visible))
+                if (!_sv0.visible || !_sv1.visible || !_sv2.visible)
                     continue;
                 
             	_face = _faceVO.face;
