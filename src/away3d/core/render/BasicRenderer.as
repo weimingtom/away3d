@@ -55,7 +55,7 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
         {
-        	if (!_camera.frustumClipping && !_screenClip.check(pri))
+        	if (!_screenClip.checkPrimitive(pri))
         		return false;
         	
             for each (_blocker in _blockers) {

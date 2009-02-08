@@ -21,7 +21,7 @@ package away3d.core.project
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _convexBlock:ConvexBlock;
 		private var _camera:Camera3D;
-		private var _lens:AbstractLens;
+		private var _lens:ILens;
 		private var _vertices:Array;
 		private var _displayObject:DisplayObject;
 		private var _segmentMaterial:ISegmentMaterial;

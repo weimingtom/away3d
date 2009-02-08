@@ -1,6 +1,6 @@
 package away3d.core.project
 {
-	import away3d.cameras.lenses.AbstractLens;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
@@ -16,7 +16,7 @@ package away3d.core.project
 		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _dofsprite:DofSprite2D;
-		private var _lens:AbstractLens;
+		private var _lens:ILens;
 		private var _dofcache:DofCache;
 		private var _screenVertex:ScreenVertex;
 		private var _persp:Number;

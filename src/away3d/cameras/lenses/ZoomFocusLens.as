@@ -7,7 +7,7 @@ package away3d.cameras.lenses
 	import away3d.core.geom.*;
 	import away3d.core.math.*;
 	
-	public class PerspectiveLens extends AbstractLens implements ILens
+	public class ZoomFocusLens extends AbstractLens implements ILens
 	{
 		
 		public override function setView(val:View3D):void
@@ -15,7 +15,7 @@ package away3d.cameras.lenses
 			super.setView(val);
 			
 			if (_clipping.minZ == -Infinity)
-        		_near = _clipping.minZ = _camera.focus/2;
+        		_near = _clipping.minZ = -_camera.focus/2;
         	else
         		_near = _clipping.minZ;
 		}
@@ -44,28 +44,28 @@ package away3d.cameras.lenses
 			_plane.a = -_clipHeight*_focusOverZoom;
 			_plane.b = 0;
 			_plane.c = _clipHeight*_clipLeft/_zoom2;
-			_plane.d = 0;
+			_plane.d = _plane.c*_camera.focus;
 			_plane.transform(viewTransform);
 			
 			_plane = _frustum.planes[Frustum.RIGHT];
 			_plane.a = _clipHeight*_focusOverZoom;
 			_plane.b = 0;
 			_plane.c = -_clipHeight*_clipRight/_zoom2;
-			_plane.d = 0;
+			_plane.d = _plane.c*_camera.focus;
 			_plane.transform(viewTransform);
 			
 			_plane = _frustum.planes[Frustum.TOP];
 			_plane.a = 0;
 			_plane.b = -_clipWidth*_focusOverZoom;
 			_plane.c = _clipWidth*_clipTop/_zoom2;
-			_plane.d = 0;
+			_plane.d = _plane.c*_camera.focus;
 			_plane.transform(viewTransform);
 			
 			_plane = _frustum.planes[Frustum.BOTTOM];
 			_plane.a = 0;
 			_plane.b = _clipWidth*_focusOverZoom;
 			_plane.c = -_clipWidth*_clipBottom/_zoom2;
-			_plane.d = 0;
+			_plane.d = _plane.c*_camera.focus;
 			_plane.transform(viewTransform);
 			
 			return _frustum;
@@ -108,7 +108,7 @@ package away3d.cameras.lenses
                 return _screenVertex;
             }
             
-         	_persp = _camera.focus*_camera.zoom / _sz;
+         	_persp = _camera.zoom / (1 + _sz / _camera.focus);
 			
             _screenVertex.x = (_screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)) * _persp;
             _screenVertex.y = (_screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)) * _persp;

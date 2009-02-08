@@ -1,6 +1,7 @@
 package away3d.cameras.lenses
 {
 	import away3d.cameras.*;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
@@ -18,10 +19,19 @@ package away3d.cameras.lenses
     	protected const toRADIANS:Number = Math.PI/180;
 		protected const toDEGREES:Number = 180/Math.PI;
 		
+		protected var _view:View3D;
+		protected var _drawPrimitiveStore:DrawPrimitiveStore;
+		protected var _cameraVarsStore:CameraVarsStore;
+		protected var _camera:Camera3D;
+		protected var _clipping:Clipping;
 		protected var _clipTop:Number;
         protected var _clipBottom:Number;
         protected var _clipLeft:Number;
         protected var _clipRight:Number;
+        protected var _clipHeight:Number;
+        protected var _clipWidth:Number;
+        protected var _focusOverZoom:Number;
+        protected var _zoom2:Number;
         protected var _frustum:Frustum;
         protected var _near:Number;
         protected var _far:Number;
@@ -44,107 +54,22 @@ package away3d.cameras.lenses
     	protected var classification:int;
     	protected var viewTransform:Matrix3D;
     	protected var view:Matrix3D = new Matrix3D();
-    	
-		public static const OUT:int = -1;
-		public static const INTERSECT:int = 0;
-		public static const IN:int = 1;
 		
-		/**
-		 * reference back to camera parent.
-		 */
-		public var camera:Camera3D;
-		
-		public var drawPrimitiveStore:DrawPrimitiveStore;
-		
-		public var cameraVarsStore:CameraVarsStore;
-		/**
-		 * store for visible scene nodes in the lens.
-		 */
-		public var nodeVisible:Dictionary;
-		
-		/**
-		 * store for scene node's transform matrices.
-		 */
-		public var nodeTransform:Dictionary;
-		
-		public function setClipping(val:Clipping):void
+		public function setView(val:View3D):void
 		{
-			_clipTop = val.maxY;
-        	_clipBottom = val.minY;
-        	_clipLeft = val.minX;
-        	_clipRight = val.maxX;
+			_view = val;
+			_drawPrimitiveStore = val.drawPrimitiveStore;
+			_cameraVarsStore = val.cameraVarsStore;
+			_camera = val.camera;
+			_clipping = val.clipping;
+			_clipTop = _clipping.maxY;
+        	_clipBottom = _clipping.minY;
+        	_clipLeft = _clipping.minX;
+        	_clipRight = _clipping.maxX;
+        	_clipHeight = _clipBottom - _clipTop;
+        	_clipWidth = _clipRight - _clipLeft;
         	
-        	_far = val.maxZ;
-        	
-        	if (val.minZ == -Infinity)
-        		_near = val.minZ = -camera.focus/2;
-        	else
-        		_near = val.minZ;
+        	_far = _clipping.maxZ;
 		}
-		
-		public function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum
-		{
-			throw new Error("Not implemented");
-		}
-		
-		public function getFOV():Number
-		{
-			throw new Error("Not implemented");
-		}
-		
-		public function getZoom():Number
-		{
-			throw new Error("Not implemented");
-		}
-		
-		/**
-		 * Returns the transformation matrix used to resolve the scene to the view.
-		 * Used in the <code>ProjectionTraverser</code> class
-		 * 
-		 * @see	away3d.core.traverse.ProjectionTraverser
-		 */
-        public function updateView(clip:Clipping, sceneTransform:Matrix3D, flipY:Matrix3D):void
-        {
-        	throw new Error("Not implemented");
-        }
-        
-    	/**
-    	 * Used in <code>ProjectionTraverser</code> to determine whether the 3d object is visible in the lens.
-    	 * 
-    	 * @param	node	The 3d node being evaluated.
-    	 * @return			Defines whether the 3d node is visible.
-    	 * 
-    	 * @see	away3d.core.traverse.ProjectionTraverser
-    	 */
-        public function preCheckNode(node:Object3D):Boolean
-        {
-        	throw new Error("Not implemented");
-        }
-        
-        public function resolveTransform(node:Object3D):void
-		{
-			throw new Error("Not implemented");
-		}
-		
-    	/**
-    	 * Used in <code>ProjectionTraverser</code> to determine whether the 3d object is visible in the lens.
-    	 * 
-    	 * @param	node	The 3d node being evaluated.
-    	 * @return			Defines whether the 3d node is visible.
-    	 * 
-    	 * @see	away3d.core.traverse.ProjectionTraverser
-    	 */
-        public function postCheckNode(node:Object3D):Boolean
-        {
-        	throw new Error("Not implemented");
-        }
-        
-       /**
-        * Projects the vertex to the screen space of the view.
-        */
-        public function project(viewTransform:Matrix3D, vertex:Vertex):ScreenVertex
-        {
-        	throw new Error("Not implemented");
-        }
     }
 }

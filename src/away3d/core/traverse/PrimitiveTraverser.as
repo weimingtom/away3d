@@ -3,12 +3,15 @@ package away3d.core.traverse
 	import away3d.arcane;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.*;
 	import away3d.core.draw.*;
+	import away3d.core.geom.Frustum;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.project.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
+	import away3d.materials.*;
 	
 	import flash.utils.*;
     
@@ -20,8 +23,10 @@ package away3d.core.traverse
     public class PrimitiveTraverser extends Traverser
     {
     	private var _view:View3D;
+    	private var _clipping:Clipping;
     	private var _viewTransform:Matrix3D;
     	private var _cameraVarsStore:CameraVarsStore;
+    	private var _nodeClassification:int;
     	private var _consumer:IPrimitiveConsumer;
     	private var _mouseEnabled:Boolean;
     	private var _mouseEnableds:Array;
@@ -38,6 +43,7 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
+			_clipping = val.clipping;
 			_mouseEnabled = true;
 			_mouseEnableds = [];
 			_cameraVarsStore = _view.cameraVarsStore;
@@ -64,7 +70,7 @@ package away3d.core.traverse
 		 */
 		public override function match(node:Object3D):Boolean
         {
-            if (!node.visible || (_view.camera.frustumClipping && !_cameraVarsStore.nodeClassificationDictionary[node]))
+            if (!node.visible || (_clipping.objectCulling && !_cameraVarsStore.nodeClassificationDictionary[node]))
                 return false;
             if (node is ILODObject)
                 return (node as ILODObject).matchLOD(_view.camera);
@@ -94,15 +100,27 @@ package away3d.core.traverse
 	            
 	            if (node.debugbb && node.debugBoundingBox.visible) {
 	            	node.debugBoundingBox._session = node.session;
-	            	if (_view.camera.frustumClipping)
+	            	if (_clipping.objectCulling) {
 	            		_cameraVarsStore.frustumDictionary[node.debugBoundingBox] = _cameraVarsStore.frustumDictionary[node];
+	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node];
+	            		if (_nodeClassification == Frustum.INTERSECT)
+	            			(node.debugBoundingBox.material as WireframeMaterial).color = 0xFF0000;
+	            		else
+	            			(node.debugBoundingBox.material as WireframeMaterial).color = 0x333333;
+	            	}
 	            	_view._meshProjector.primitives(node.debugBoundingBox, _viewTransform, _consumer);
 	            }
 	            
 	            if (node.debugbs && node.debugBoundingSphere.visible) {
 	            	node.debugBoundingSphere._session = node.session;
-	            	if (_view.camera.frustumClipping)
+	            	if (_clipping.objectCulling) {
 	            		_cameraVarsStore.frustumDictionary[node.debugBoundingSphere] = _cameraVarsStore.frustumDictionary[node];
+	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node];
+	            		if (_nodeClassification == Frustum.INTERSECT)
+	            			(node.debugBoundingSphere.material as WireframeMaterial).color = 0xFF0000;
+	            		else
+	            			(node.debugBoundingSphere.material as WireframeMaterial).color = 0x00FFFF;
+	            	}
 	            	_view._meshProjector.primitives(node.debugBoundingSphere, _viewTransform, _consumer);
 	            }
 	            
@@ -110,7 +128,7 @@ package away3d.core.traverse
 	            	_light = node as ILightProvider;
 	            	if (_light.debug) {
 	            		_light.debugPrimitive._session = node.session;
-	            		if (_view.camera.frustumClipping)
+	            		if (_clipping.objectCulling)
 	            			_cameraVarsStore.frustumDictionary[_light.debugPrimitive] = _cameraVarsStore.frustumDictionary[_light];
 	            		_view._meshProjector.primitives(_light.debugPrimitive, _viewTransform, _consumer);
 	            	}

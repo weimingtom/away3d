@@ -19,7 +19,7 @@ package away3d.core.project
 		private var _dirsprite:DirSprite2D;
 		private var _vertices:Array;
 		private var _bitmaps:Dictionary;
-		private var _lens:AbstractLens;
+		private var _lens:ILens;
 		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _persp:Number;

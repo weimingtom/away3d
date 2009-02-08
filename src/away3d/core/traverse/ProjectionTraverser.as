@@ -5,6 +5,7 @@ package away3d.core.traverse
 	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.*;
 	import away3d.core.geom.*;
 	import away3d.core.math.*;
 	import away3d.core.project.*;
@@ -22,7 +23,8 @@ package away3d.core.traverse
         private var _mesh:Mesh;
         private var _cameraVarsStore:CameraVarsStore;
         private var _camera:Camera3D;
-        private var _lens:AbstractLens;
+        private var _lens:ILens;
+        private var _clipping:Clipping;
         private var _cameraViewMatrix:Matrix3D;
         private var _viewTransform:Matrix3D;
         private var _nodeClassification:int;
@@ -37,12 +39,13 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
-			_cameraVarsStore = _view.cameraVarsStore;
-			_camera = _view.camera;
+			_cameraVarsStore = val.cameraVarsStore;
+			_clipping = val.clipping;
+			_camera = val.camera;
 			_lens = _camera.lens;
             _cameraViewMatrix = _camera.viewMatrix;
-			if (_view.statsOpen)
-				_view.statsPanel.clearObjects();
+			if (val.statsOpen)
+				val.statsPanel.clearObjects();
 		}
 		    	
 		/**
@@ -65,7 +68,7 @@ package away3d.core.traverse
             _viewTransform = _cameraVarsStore.createViewTransform(node);
             _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform);
             
-            if (_camera.frustumClipping) {
+            if (_clipping.objectCulling) {
 	        	_frustum = _lens.getFrustum(node, _viewTransform);
 	        	
 	            if ((node is Scene3D || _cameraVarsStore.nodeClassificationDictionary[node.parent] == Frustum.INTERSECT)) {
