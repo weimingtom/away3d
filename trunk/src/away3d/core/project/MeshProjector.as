@@ -93,7 +93,7 @@ package away3d.core.project
 			_billboards = _mesh.billboards;
 			
 			_camera = _view.camera;
-			_clipping = _view.clipping;
+			_clipping = _view.screenClipping;
 			_lens = _camera.lens;
         	_focus = _camera.focus;
         	_zoom = _camera.zoom;
@@ -168,7 +168,7 @@ package away3d.core.project
                 if (!_mesh.outline && !_tri.material)
                         continue;
                 
-                //check whether screenclip removes triangle
+                //check whether screenClipping removes triangle
                 if (!consumer.primitive(_tri))
                 	continue;
 				

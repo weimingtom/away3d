@@ -6,7 +6,9 @@ package away3d.core.clip
     import away3d.core.render.*;
     import away3d.core.utils.*;
 
-    /** Rectangle clipping */
+    /**
+    * Rectangle clipping
+    */
     public class RectangleClipping extends Clipping
     {
     	private var tri:DrawTriangle;

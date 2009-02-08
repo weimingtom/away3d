@@ -168,7 +168,7 @@ package away3d.containers
 	        	_view.cameraVarsStore.reset();
 	        	
 	        	//clear blockers
-	        	_view.blockerarray.clip = _view.screenClip;
+	        	_view.blockerarray.clip = _view.screenClipping;
 	        	
 	        	//traverse scene
         		_projtraverser.view = _view;

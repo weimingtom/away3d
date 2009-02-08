@@ -1,12 +1,17 @@
 package away3d.core.clip
 {
+	import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.geom.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
-
-    /** Rectangle clipping */
+	
+	use namespace arcane;
+	
+    /**
+    * Rectangle clipping combined with nearfield clipping
+    */
     public class NearfieldClipping extends Clipping
     {
     	private var tri:DrawTriangle;
@@ -200,7 +205,7 @@ package away3d.core.clip
 		
 		public override function clone(object:Clipping = null):Clipping
         {
-        	var clipping:RectangleClipping = (object as RectangleClipping) || new RectangleClipping();
+        	var clipping:NearfieldClipping = (object as NearfieldClipping) || new NearfieldClipping();
         	
         	super.clone(clipping);
         	

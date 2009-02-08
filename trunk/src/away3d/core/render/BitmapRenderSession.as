@@ -79,8 +79,8 @@ package away3d.core.render
 			_container = getContainer(view) as Sprite;
 			
 			if (!_bitmapContainer.bitmapData) {
-				_bitmapwidth = int((_width = view.screenClip.maxX - view.screenClip.minX)/_scale);
-	        	_bitmapheight = int((_height = view.screenClip.maxY - view.screenClip.minY)/_scale);
+				_bitmapwidth = int((_width = view.screenClipping.maxX - view.screenClipping.minX)/_scale);
+	        	_bitmapheight = int((_height = view.screenClipping.maxY - view.screenClipping.minY)/_scale);
 	        	
 	        	return _bitmapContainer.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
 			}
@@ -152,14 +152,14 @@ package away3d.core.render
         	if (updated) {
 	        	_base = getBitmapData(view);
 	        	
-	        	_cx = _bitmapContainer.x = view.screenClip.minX;
-				_cy = _bitmapContainer.y = view.screenClip.minY;
+	        	_cx = _bitmapContainer.x = view.screenClipping.minX;
+				_cy = _bitmapContainer.y = view.screenClipping.minY;
 				_bitmapContainer.scaleX = _scale;
 				_bitmapContainer.scaleY = _scale;
 	        	
 	        	_cm = new Matrix();
 	        	_cm.scale(1/_scale, 1/_scale);
-				_cm.translate(-view.screenClip.minX/_scale, -view.screenClip.minY/_scale);
+				_cm.translate(-view.screenClipping.minX/_scale, -view.screenClipping.minY/_scale);
 				
 	        	//clear base canvas
 	        	_base.lock();

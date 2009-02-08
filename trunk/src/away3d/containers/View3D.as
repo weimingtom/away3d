@@ -63,7 +63,7 @@ package away3d.containers
 	public class View3D extends Sprite
 	{
 		/** @private */
-		arcane var _screenClip:Clipping;
+		arcane var _screenClipping:Clipping;
 		/** @private */
 		arcane var _interactiveLayer:Sprite = new Sprite();
 		/** @private */
@@ -89,7 +89,7 @@ package away3d.containers
             dispatchEvent(event);
         }
 		
-		private var _screenClipDirty:Boolean;
+		private var _screenClippingDirty:Boolean;
 		private var _viewZero:Point = new Point();
 		private var _x:Number;
 		private var _y:Number;
@@ -232,7 +232,7 @@ package away3d.containers
 		
 		private function onStageResized(event:Event):void
 		{
-			_screenClipDirty = true;
+			_screenClippingDirty = true;
 		}
 		
 		private function onSessionUpdate(event:SessionEvent):void
@@ -455,7 +455,7 @@ package away3d.containers
         	}
         	
         	_updated = true;
-        	_screenClipDirty = true;
+        	_screenClippingDirty = true;
         }
         
         /**
@@ -574,14 +574,14 @@ package away3d.containers
             addChild(hud);
         }
         
-        public function get screenClip():Clipping
+        public function get screenClipping():Clipping
         {
-        	if (_screenClipDirty) {
-        		_screenClipDirty = false;
-        		return _screenClip = _clipping.screen(this);
+        	if (_screenClippingDirty) {
+        		_screenClippingDirty = false;
+        		return _screenClipping = _clipping.screen(this);
         	}
         	
-        	return _screenClip;
+        	return _screenClipping;
         }
         
         public function get drawPrimitiveStore():DrawPrimitiveStore
@@ -799,7 +799,7 @@ package away3d.containers
 				throw new Error("incorrect session object - require BitmapRenderSession");	
 		}
 		
-		public function updateScreenClip():void
+		public function updateScreenClipping():void
 		{
 			//check for global view movement
         	_viewZero.x = 0;
@@ -810,7 +810,7 @@ package away3d.containers
         		_y = _viewZero.y;
         		_stageWidth = stage.stageWidth;
         		_stageHeight = stage.stageHeight;
-        		_screenClipDirty = true;
+        		_screenClippingDirty = true;
    			}
 		}
         /**

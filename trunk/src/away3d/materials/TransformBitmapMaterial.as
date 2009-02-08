@@ -268,9 +268,14 @@ package away3d.materials
 		protected override function getMapping(tri:DrawTriangle):Matrix
 		{
 			if (tri.generated) {
-				_texturemapping = tri.transformUV(this).clone();
-	        	_texturemapping.invert();
-	        	
+		        //use projectUV if projection vector detected
+	    		if (projectionVector) {
+	    			_texturemapping = projectUV(tri);
+	    		} else {
+	    			_texturemapping = tri.transformUV(this).clone();
+	        		_texturemapping.invert();
+	    		}
+    		
 	        	//apply transform matrix if one exists
         		if (_transform) {
         			_mapping = _transform.clone();
