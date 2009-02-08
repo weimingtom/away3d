@@ -566,7 +566,7 @@
             if (_dimensionsDirty)
             	updateDimensions();
            
-           return _boundingRadius;        }                public function get boundingScale():Number        {           return _boundingScale;        }
+           return _boundingRadius;        }
         
     	/**
     	 * Returns the maximum x value of the 3d object

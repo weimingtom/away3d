@@ -26,11 +26,16 @@ package away3d.core.clip
 	[Event(name="clipUpdated",type="away3d.events.ClipEvent")]
 	
 	use namespace arcane;
+	
     /**
     * Base clipping class for no clipping.
     */
     public class Clipping extends EventDispatcher
     {
+    	/** @private */
+        arcane var _cameraVarsStore:CameraVarsStore;
+        /** @private */
+        arcane var _objectCulling:Boolean;
     	/** @private */
         arcane function internalRemoveView(view:View3D):void
         {
@@ -61,14 +66,13 @@ package away3d.core.clip
 		private var _miY:Number;
 		private var _maX:Number;
 		private var _maY:Number;
-		
 		private var _clippingupdated:ClippingEvent;
 		
 		private function onUpdate(event:ViewEvent):void
 		{
 			//determine screen clipping
 			if (event.view.stage)
-				event.view._screenClip = screen(event.view);
+				event.view._screenClipping = screen(event.view);
 		}
 		
 		private function onScreenUpdate(event:ClippingEvent):void
@@ -88,8 +92,7 @@ package away3d.core.clip
         }
         
         protected var ini:Init;
-		protected var _cameraVarsStore:CameraVarsStore;
-		protected var _objectCulling:Boolean;
+		
 		
 		public function get objectCulling():Boolean
 		{
@@ -424,7 +427,7 @@ package away3d.core.clip
             	_clippingClone.maxY = _maxY;
             
             _clippingClone.minZ = _minZ;
-            _clippingClone.maxZ = _minZ;
+            _clippingClone.maxZ = _maxZ;
             _clippingClone.objectCulling = _objectCulling;
             
             return _clippingClone;
@@ -441,7 +444,7 @@ package away3d.core.clip
         	clipping.maxY = maxY;
         	clipping.maxZ = maxZ;
         	clipping.objectCulling = objectCulling;
-        	
+        	clipping._cameraVarsStore = _cameraVarsStore;
         	return clipping;
         }
         

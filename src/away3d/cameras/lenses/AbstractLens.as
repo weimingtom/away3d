@@ -61,7 +61,7 @@ package away3d.cameras.lenses
 			_drawPrimitiveStore = val.drawPrimitiveStore;
 			_cameraVarsStore = val.cameraVarsStore;
 			_camera = val.camera;
-			_clipping = val.clipping;
+			_clipping = val.screenClipping;
 			_clipTop = _clipping.maxY;
         	_clipBottom = _clipping.minY;
         	_clipLeft = _clipping.minX;

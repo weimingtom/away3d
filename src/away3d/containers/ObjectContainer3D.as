@@ -68,12 +68,19 @@
         	
         	if (children.length) {
 	        	
-	        	_boundingScale = _scaleX;
+	        	if (_scaleX < 0)
+	        		_boundingScale = -_scaleX;
+	        	else
+	        		_boundingScale = _scaleX
             	
-            	if (_boundingScale < _scaleY)
+            	if (_scaleY < 0 && _boundingScale < -_scaleY)
+            		_boundingScale = -_scaleY;
+            	else if (_boundingScale < _scaleY)
             		_boundingScale = _scaleY;
             	
-            	if (_boundingScale < _scaleZ)
+            	if (_scaleZ < 0 && _boundingScale < -_scaleZ)
+            		_boundingScale = -_scaleZ;
+            	else if (_boundingScale < _scaleZ)
             		_boundingScale = _scaleZ;
             	
 	        	var mradius:Number = 0;
