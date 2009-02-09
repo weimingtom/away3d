@@ -137,7 +137,7 @@ package away3d.core.project
             	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
                 
 				//determine if _triangle is facing towards or away from camera
-                _backface = _tri.area < 0;
+                _backface = _tri.backface = _tri.area < 0;
 				
 				//if _triangle facing away, check for backface material
                 if (_backface) {

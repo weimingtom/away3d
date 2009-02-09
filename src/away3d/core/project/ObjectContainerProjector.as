@@ -70,7 +70,7 @@ package away3d.core.project
 	             	if (_child.pushfront)
 	             		_screenVertex.z -= _child.boundingRadius;
 	            	
-	             	consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(source, _screenVertex, _container.session, _child.session.getContainer(view)));
+	             	consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(_child, _screenVertex, _container.session, _child.session.getContainer(view)));
 	   			}
         	}
 		}
