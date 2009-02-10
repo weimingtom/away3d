@@ -97,6 +97,7 @@ package away3d.core.render
         private var c2:Number;
         private var d2:Number;
 		private var m:Matrix = new Matrix();
+		private var area:Number;
         private var cont:Shape;
         private var ds:DisplayObject;
         private var time:int;
@@ -436,17 +437,22 @@ package away3d.core.render
 			m.tx = (tx = map.tx)*a2 + (ty = map.ty)*c2 + v0x;
 			m.ty = tx*b2 + ty*d2 + v0y;
 			
+			area = v0x*(d2 - b2) - v1x*d2 + v2x*b2;
+			
+			if (area < 0)
+				area = -area;
+			
 			if (layerGraphics) {
 				layerGraphics.lineStyle();
 	            layerGraphics.moveTo(v0x, v0y);
-	            layerGraphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
+	            layerGraphics.beginBitmapFill(bitmap, m, repeat, smooth && area > 400);
 	            layerGraphics.lineTo(v1x, v1y);
 	            layerGraphics.lineTo(v2x, v2y);
 	            layerGraphics.endFill();
 	  		} else {
 	  			graphics.lineStyle();
 	            graphics.moveTo(v0x, v0y);
-	            graphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
+	            graphics.beginBitmapFill(bitmap, m, repeat, smooth && area > 400);
 	            graphics.lineTo(v1x, v1y);
 	            graphics.lineTo(v2x, v2y);
 	            graphics.endFill();
