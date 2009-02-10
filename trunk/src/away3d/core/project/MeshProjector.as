@@ -40,6 +40,7 @@ package away3d.core.project
 		private var _face:Face;
 		private var _faceVO:FaceVO;
 		private var _tri:DrawTriangle;
+		private var _layerMaterial:ILayerMaterial;
 		private var _faceMaterialVO:FaceMaterialVO;
 		private var _uvt:UV;
 		private var _smaterial:ISegmentMaterial;
@@ -177,34 +178,6 @@ package away3d.core.project
 				
                 if (_mesh.pushfront)
                     _tri.screenZ = _tri.minZ;
-				
-				_uvmaterial = (_tri.material is IUVMaterial || _tri.material is ILayerMaterial);
-				
-				//swap ScreenVerticies if _triangle facing away from camera
-                if (_backface) {
-                    _vt = _tri.v1;
-                    _tri.v1 = _tri.v2;
-                    _tri.v2 = _vt;
-					
-                    _tri.area = -_tri.area;
-                    
-                    if (_uvmaterial) {
-						//pass accross uv values
-						_uvt = _tri.uv1;
-						_tri.uv1 = _tri.uv2;
-                    	_tri.uv2 = _uvt;
-                    }
-                }
-				
-                //check if face swapped direction
-                if (_tri.material is IUVMaterial) {
-                	_faceMaterialVO = (_tri.material as IUVMaterial).getFaceMaterialVO(_faceVO);
-                	
-                	if (_faceMaterialVO.backface != _backface) {
-                		_faceMaterialVO.backface = _backface;
-                		_faceMaterialVO.invalidated = true;
-                	}
-                }
 				
                 if (_mesh.outline && !_backface)
                 {

@@ -117,6 +117,7 @@ package away3d.core.draw
         private var _v0:Number;
         private var _v1:Number;
         private var _v2:Number;
+        private var _areaSign:Number;
         private var focus:Number;
         private var ax:Number;
         private var ay:Number;
@@ -446,7 +447,7 @@ package away3d.core.draw
 		 */
         public override final function quarter(focus:Number):Array
         {
-            if (area < 20)
+            if (area > -20 && area < 20)
                 return null;
 
             v01 = ScreenVertex.median(v0, v1, focus);
@@ -468,14 +469,14 @@ package away3d.core.draw
 		 * @inheritDoc
 		 */
         public override final function contains(x:Number, y:Number):Boolean
-        {   
-            if (v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y) < -0.001)
+        {
+            if ((v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y))*_areaSign < -0.001)
                 return false;
 
-            if (v0.x*(v2.y - y) + x*(v0.y - v2.y) + v2.x*(y - v0.y) < -0.001)
+            if ((v0.x*(v2.y - y) + x*(v0.y - v2.y) + v2.x*(y - v0.y))*_areaSign < -0.001)
                 return false;
 
-            if (x*(v2.y - v1.y) + v1.x*(y - v2.y) + v2.x*(v1.y - y) < -0.001)
+            if ((x*(v2.y - v1.y) + v1.x*(y - v2.y) + v2.x*(v1.y - y))*_areaSign < -0.001)
                 return false;
 
             return true;
@@ -544,6 +545,11 @@ package away3d.core.draw
             
             screenZ = (v0.z + v1.z + v2.z) / 3;
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
+            
+            if (area > 0)
+        		_areaSign = 1;
+        	else
+        		_areaSign = -1;
         }
         
 		/**
