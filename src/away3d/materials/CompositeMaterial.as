@@ -209,22 +209,12 @@ package away3d.materials
         	_source = tri.source;
         	_session = _source.session;
     		var level:int = 0;
-        	
-        	if (_session != tri.source.scene.session) {
-        		//check to see if session sprite exists
-	    		if (!(_sprite = _session.spriteLayers[level]))
-	    			_sprite = _session.spriteLayers[level] = new Sprite();
-        	} else {
-	        	//check to see if face sprite exists
-	    		if (!(_sprite = _spriteDictionary[tri.faceVO]))
-	    			_sprite = _spriteDictionary[tri.faceVO] = new Sprite();
-        	}
+    		
+    		if (!(_sprite = _session.spriteLayers[level]))
+    			_sprite = _session.spriteLayers[level] = new Sprite();
 	    	
 	    	if (!_session.children[_sprite]) {
-	    		if (_session != tri.source.scene.session)
         			_session.addLayerObject(_sprite);
-        		else
-        			_session.addDisplayObject(_sprite);
         		
 	    		_sprite.filters = [];
         		_sprite.blendMode = blendMode;
@@ -251,15 +241,9 @@ package away3d.materials
         		_source = tri.source;
         		_session = _source.session;
         		
-	        	if (_session != tri.source.scene.session) {
-	        		//check to see if session sprite exists
-		    		if (!(_sprite = _session.spriteLayers[level]))
-		    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
-	        	} else {
-		        	//check to see if face sprite exists
-		    		if (!(_sprite = _spriteDictionary[tri.faceVO.face]))
-		    			layer.addChild(_sprite = _spriteDictionary[tri.faceVO.face] = new Sprite());
-	        	}
+        		//check to see if session sprite exists
+	    		if (!(_sprite = _session.spriteLayers[level]))
+	    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
 	        	
 	        	_sprite.filters = [];
 	        	_sprite.blendMode = blendMode;

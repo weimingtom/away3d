@@ -164,7 +164,7 @@ package away3d.lights
 		/**
 		 * @inheritDoc
 		 */
-        public function light(consumeer:ILightConsumer):void
+        public function light(consumer:ILightConsumer):void
         {
             //update color
 			if (_colorDirty) {
@@ -195,7 +195,7 @@ package away3d.lights
         		_ls.updateSpecularBitmap(specular);
         	}
         	
-            consumeer.directionalLight(_ls);
+            consumer.directionalLight(_ls);
             
             _colorDirty = false;
             _brightnessDirty = false;
