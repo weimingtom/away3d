@@ -462,17 +462,26 @@ package away3d.core.render
         /**
          * Draws a triangle element with a fill color into the graphics object.
          */
-        public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
+        public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, layerGraphics:Graphics = null):void
         {
         	if (_layerDirty)
         		createLayer();
-        	     	
-            graphics.lineStyle();
-            graphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
-            graphics.beginFill(color, alpha);
-            graphics.lineTo(v1.x, v1.y);
-            graphics.lineTo(v2.x, v2.y);
-            graphics.endFill();
+        	
+        	if (layerGraphics) {
+				layerGraphics.lineStyle();
+	            layerGraphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
+	            layerGraphics.beginFill(color, alpha);
+	            layerGraphics.lineTo(v1.x, v1.y);
+	            layerGraphics.lineTo(v2.x, v2.y);
+	            layerGraphics.endFill();
+	  		} else {
+	            graphics.lineStyle();
+	            graphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
+	            graphics.beginFill(color, alpha);
+	            graphics.lineTo(v1.x, v1.y);
+	            graphics.lineTo(v2.x, v2.y);
+	            graphics.endFill();
+	    	}
         }
         
         /**
