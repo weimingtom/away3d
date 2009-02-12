@@ -14,9 +14,9 @@ package away3d.lights
     public class DirectionalLight3D extends Object3D implements ILightProvider, IClonable
     {
         private var _color:int;
-        private var _red:int;
-        private var _green:int;
-        private var _blue:int;
+        private var _red:Number;
+        private var _green:Number;
+        private var _blue:Number;
         private var _ambient:Number;
         private var _diffuse:Number;
         private var _specular:Number;
@@ -26,7 +26,6 @@ package away3d.lights
     	private var _ambientDirty:Boolean;
     	private var _diffuseDirty:Boolean;
     	private var _specularDirty:Boolean;
-    	private var _brightnessDirty:Boolean;
 		private var _ls:DirectionalLight = new DirectionalLight();
 		private var _debugPrimitive:Sphere;
         private var _debugMaterial:ColorMaterial;
@@ -43,9 +42,9 @@ package away3d.lights
 		public function set color(val:int):void
 		{
 			_color = val;
-			_red = (_color & 0xFF0000) >> 16;
-            _green = (_color & 0xFF00) >> 8;
-            _blue  = (_color & 0xFF);
+			_red = ((color & 0xFF0000) >> 16)/255;
+            _green = ((color & 0xFF00) >> 8)/255;
+            _blue  = (color & 0xFF)/255;
             _colorDirty = true;
             _ambientDirty = true;
             _diffuseDirty = true;
@@ -111,7 +110,10 @@ package away3d.lights
 		public function set brightness(val:Number):void
 		{
 			_brightness = val;
-            _brightnessDirty = true;
+            
+            _ambientDirty = true;
+            _diffuseDirty = true;
+            _specularDirty = true;
 		}
         
         /**
@@ -130,7 +132,7 @@ package away3d.lights
 		public function get debugPrimitive():Object3D
 		{
 			if (!_debugPrimitive)
-				_debugPrimitive = new Sphere();
+				_debugPrimitive = new Sphere({radius:10});
 			
 			if (!_debugMaterial) {
 				_debugMaterial = new ColorMaterial();
@@ -157,8 +159,8 @@ package away3d.lights
             specular = ini.getNumber("specular", 1, {min:0, max:1});
             brightness = ini.getNumber("brightness", 1);
             debug = ini.getBoolean("debug", false);
+            
             _ls.light = this;
-            addOnTransformChange(_ls.updateDirection);
         }
         
 		/**
@@ -173,32 +175,36 @@ package away3d.lights
 				_ls.blue = _blue;
 			}
         	
+        	//update coefficients
+        	_ls.ambient = _ambient*_brightness;
+        	_ls.diffuse = _diffuse*_brightness;
+        	_ls.specular = _specular*_brightness;
+        	
         	//update ambient diffuse
-            if (_ambientDirty || _diffuseDirty || _brightnessDirty)
-	        	_ls.updateAmbientDiffuseBitmap(ambient, diffuse);
+            if (_ambientDirty || _diffuseDirty)
+	        	_ls.updateAmbientDiffuseBitmap();
         	
         	//update ambient
-            if (_ambientDirty || _brightnessDirty) {
+            if (_ambientDirty) {
         		_ambientDirty = false;
-	        	_ls.updateAmbientBitmap(ambient);
+	        	_ls.updateAmbientBitmap();
         	}
             
         	//update diffuse
-        	if (_diffuseDirty || _brightnessDirty) {
+        	if (_diffuseDirty) {
         		_diffuseDirty = false;
-	        	_ls.updateDiffuseBitmap(diffuse);
+	        	_ls.updateDiffuseBitmap();
         	}
         	
         	//update specular
-        	if (_specularDirty || _brightnessDirty) {
+        	if (_specularDirty) {
         		_specularDirty = false;
-        		_ls.updateSpecularBitmap(specular);
+        		_ls.updateSpecularBitmap();
         	}
         	
             consumer.directionalLight(_ls);
             
             _colorDirty = false;
-            _brightnessDirty = false;
         }
 		
 		/**
