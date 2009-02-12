@@ -64,7 +64,7 @@ package away3d.materials
 			
 			if (_specular && materials.length < 3)
         		addMaterial(_specularPhongShader);
-   			else if (materials.length > 2)
+   			else if (!_specular && materials.length > 2)
             	removeMaterial(_specularPhongShader);
 		}
 		

@@ -746,7 +746,7 @@
         	_renderer = val;
         	
         	if (_ownSession)
-        		_ownSession.renderer = _renderer;
+        		_ownSession.renderer = _renderer;        	        	_sessionDirty = true;
         }
         
     	/**

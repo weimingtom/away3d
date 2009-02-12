@@ -36,20 +36,8 @@ package away3d.core.clip
         arcane var _cameraVarsStore:CameraVarsStore;
         /** @private */
         arcane var _objectCulling:Boolean;
-    	/** @private */
-        arcane function internalRemoveView(view:View3D):void
-        {
-        	view.removeEventListener(ViewEvent.UPDATE_CLIPPING, onUpdate);
-        }
-		/** @private */
-        arcane function internalAddView(view:View3D):void
-        {
-        	view.addEventListener(ViewEvent.UPDATE_CLIPPING, onUpdate);
-        }
+        
     	private var _clippingClone:Clipping;
-    	private var _loaderInfo:LoaderInfo;
-    	private var _loaderWidth:Number;
-    	private var _loaderHeight:Number;
     	private var _stage:Stage;
     	private var _stageWidth:Number;
     	private var _stageHeight:Number;
@@ -67,13 +55,6 @@ package away3d.core.clip
 		private var _maX:Number;
 		private var _maY:Number;
 		private var _clippingupdated:ClippingEvent;
-		
-		private function onUpdate(event:ViewEvent):void
-		{
-			//determine screen clipping
-			if (event.view.stage)
-				event.view._screenClipping = screen(event.view);
-		}
 		
 		private function onScreenUpdate(event:ClippingEvent):void
 		{
@@ -282,23 +263,14 @@ package away3d.core.clip
 		/**
 		 * Returns a clipping object initilised with the edges of the flash movie as the clipping bounds.
 		 */
-        public function screen(container:Sprite):Clipping
+        public function screen(container:Sprite, _loaderWidth, _loaderHeight):Clipping
         {
         	if (!_clippingClone) {
         		_clippingClone = clone();
         		_clippingClone.addOnClippingUpdate(onScreenUpdate);
         	}
         	
-        	_stage = container.stage;
-        	_loaderInfo = container.loaderInfo;
-        	
-        	try {
-        		_loaderWidth = _loaderInfo.width;
-        		_loaderHeight = _loaderInfo.height;
-        	} catch (error:Error) {
-        		_loaderWidth = _stage.stageWidth;
-        		_loaderHeight = _stage.stageHeight;
-        	}
+			_stage = container.stage;
 
         	if (_stage.scaleMode == StageScaleMode.NO_SCALE) {
         		_stageWidth = _stage.stageWidth;

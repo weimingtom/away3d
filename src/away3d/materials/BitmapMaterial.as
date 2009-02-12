@@ -1,4 +1,4 @@
-﻿package away3d.materials{	import away3d.arcane;	import away3d.containers.*;	import away3d.core.base.*;	import away3d.core.draw.*;	import away3d.core.math.*;	import away3d.core.render.*;	import away3d.core.utils.*;	import away3d.events.*;		import flash.display.*;	import flash.events.*;	import flash.geom.*;	import flash.utils.*;
+﻿package away3d.materials{	import away3d.arcane;	import away3d.cameras.lenses.ZoomFocusLens;	import away3d.containers.*;	import away3d.core.base.*;	import away3d.core.draw.*;	import away3d.core.math.*;	import away3d.core.render.*;	import away3d.core.utils.*;	import away3d.events.*;		import flash.display.*;	import flash.events.*;	import flash.geom.*;	import flash.utils.*;
     
 	use namespace arcane;
 	
@@ -357,9 +357,9 @@
 			_materialDirty = true;
         	
             if (_alpha == 1 && _color == 0xFFFFFF) {
-                _renderBitmap = _bitmap;
-                _colorTransform = null;
-                return;
+                _renderBitmap = _bitmap;                if (!_colorTransform || (!_colorTransform.redOffset && !_colorTransform.greenOffset && !_colorTransform.blueOffset)) {
+                	_colorTransform = null;
+                	return;            	}
             } else if (!_colorTransform)
             	_colorTransform = new ColorTransform();
 			
@@ -585,7 +585,7 @@
 
             _colorTransformDirty = true;
         }
-        
+                /**        * Defines a colortransform for the texture bitmap.        */        public function get colorTransform():ColorTransform        {            return _colorTransform;        }                public function set colorTransform(value:ColorTransform):void        {            _colorTransform = value;						if (_colorTransform) {				_red = _colorTransform.redMultiplier;				_green = _colorTransform.greenMultiplier;				_blue = _colorTransform.blueMultiplier;				_alpha = _colorTransform.alphaMultiplier;								_color = (_red*255 << 16) + (_green*255 << 8) + _blue*255;			}			            _colorTransformDirty = true;        }
         /**
         * Defines a blendMode value for the texture bitmap.
         * Applies to materials rendered as children of <code>BitmapMaterialContainer</code> or  <code>CompositeMaterial</code>.
@@ -625,7 +625,7 @@
             precision = ini.getNumber("precision", 0);
             _blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
-            color = ini.getColor("color", _color);
+            color = ini.getColor("color", _color);            colorTransform = ini.getObject("colorTransform", ColorTransform) as ColorTransform;
             showNormals = ini.getBoolean("showNormals", false);            _colorTransformDirty = true;
             
             createVertexArray();
@@ -689,9 +689,9 @@
         	
         	if (!_graphics && _session.newLayer)        		_graphics = _session.newLayer.graphics;
         	
-			if (precision) {
-            	focus = tri.view.camera.focus;
-            	
+			if (precision) {				if (_view.camera.lens is ZoomFocusLens)
+            		focus = tri.view.camera.focus;
+            	else            		focus = 0;            	
             	map.a = _mapping.a;
 	            map.b = _mapping.b;
 	            map.c = _mapping.c;
