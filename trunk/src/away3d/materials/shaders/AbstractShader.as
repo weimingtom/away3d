@@ -145,15 +145,9 @@ package away3d.materials.shaders
         protected function getShape(layer:Sprite):Shape
         {
         	_session = _source.session;
-        	if (_session != _view.scene.session) {
-        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session]))
-	    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
-        	} else {
-	        	//check to see if face shape exists
-	    		if (!(_shape = _shapeDictionary[_face]))
-	    			layer.addChild(_shape = _shapeDictionary[_face] = new Shape());
-        	}
+    		//check to see if source shape exists
+    		if (!(_shape = _shapeDictionary[_session]))
+    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
         	return _shape;
         }
         
@@ -177,19 +171,11 @@ package away3d.materials.shaders
         protected function getLightingShape(layer:Sprite, light:LightPrimitive):Shape
         {
         	_session = _source.session;
-        	if (_session != _view.scene.session) {
-    			if (!_shapeDictionary[_session])
-    				_shapeDictionary[_session] = new Dictionary(true);
-        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
-        	} else {
-        		if (!_shapeDictionary[_face])
-    				_shapeDictionary[_face] = new Dictionary(true);
-	        	//check to see if face shape exists
-	    		if (!(_shape = _shapeDictionary[_face][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_face][light] = new Shape());
-        	}
+        	if (!_shapeDictionary[_session])
+				_shapeDictionary[_session] = new Dictionary(true);
+    		//check to see if source shape exists
+    		if (!(_shape = _shapeDictionary[_session][light]))
+    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
         	return _shape;
         }
         

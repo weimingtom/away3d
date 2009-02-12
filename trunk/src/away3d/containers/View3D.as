@@ -88,7 +88,9 @@ package away3d.containers
 
             dispatchEvent(event);
         }
-		
+		private var _loaderWidth:Number;
+		private var _loaderHeight:Number;
+		private var _loaderDirty:Boolean;
 		private var _screenClippingDirty:Boolean;
 		private var _viewZero:Point = new Point();
 		private var _x:Number;
@@ -441,7 +443,6 @@ package away3d.containers
         	
         	if (_clipping) {
         		_clipping.removeOnClippingUpdate(onClippingUpdated);
-        		_clipping.internalRemoveView(this);
         	}
         		
         	_clipping = val;
@@ -449,7 +450,6 @@ package away3d.containers
         	
         	if (_clipping) {
         		_clipping.addOnClippingUpdate(onClippingUpdated);
-        		_clipping.internalAddView(this);
         	} else {
         		throw new Error("View cannot have clip set to null");
         	}
@@ -578,7 +578,8 @@ package away3d.containers
         {
         	if (_screenClippingDirty) {
         		_screenClippingDirty = false;
-        		return _screenClipping = _clipping.screen(this);
+        		
+        		return _screenClipping = _clipping.screen(this, _loaderWidth, _loaderHeight);
         	}
         	
         	return _screenClipping;
@@ -801,10 +802,25 @@ package away3d.containers
 		
 		public function updateScreenClipping():void
 		{
+        	//check for loaderInfo update
+        	try {
+        		_loaderWidth = loaderInfo.width;
+        		_loaderHeight = loaderInfo.height;
+        		if (_loaderDirty) {
+        			_loaderDirty = false;
+        			_screenClippingDirty = true;
+        		}
+        	} catch (error:Error) {
+        		_loaderDirty = true;
+        		_loaderWidth = stage.stageWidth;
+        		_loaderHeight = stage.stageHeight;
+        	}
+        	
 			//check for global view movement
         	_viewZero.x = 0;
         	_viewZero.y = 0;
-        	localToGlobal(_viewZero);
+        	_viewZero = localToGlobal(_viewZero);
+        	
 			if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
         		_x = _viewZero.x;
         		_y = _viewZero.y;

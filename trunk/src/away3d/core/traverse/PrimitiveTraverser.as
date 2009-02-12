@@ -43,7 +43,6 @@ package away3d.core.traverse
 		public function set view(val:View3D):void
 		{
 			_view = val;
-			_clipping = val.clipping;
 			_mouseEnabled = true;
 			_mouseEnableds = [];
 			_cameraVarsStore = _view.cameraVarsStore;
@@ -70,6 +69,8 @@ package away3d.core.traverse
 		 */
 		public override function match(node:Object3D):Boolean
         {
+        	_clipping = _view.clipping;
+        	
             if (!node.visible || (_clipping.objectCulling && !_cameraVarsStore.nodeClassificationDictionary[node]))
                 return false;
             if (node is ILODObject)
