@@ -87,26 +87,24 @@ package away3d.lights
             ambient = ini.getNumber("ambient", 1);
             diffuse = ini.getNumber("diffuse", 1);
             specular = ini.getNumber("specular", 1);
-            brightness = ini.getNumber("brightness", 1000);
+            brightness = ini.getNumber("brightness", 1000)*255;
             debug = ini.getBoolean("debug", false);
+            
+            _ls.light = this;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function light(consumeer:ILightConsumer):void
+        public function light(consumer:ILightConsumer):void
         {
-            _ls.x = scenePosition.x;
-            _ls.y = scenePosition.y;
-            _ls.z = scenePosition.z;
-            _ls.light = this;
-            _ls.red = (color & 0xFF0000) >> 16;
-            _ls.green = (color & 0xFF00) >> 8;
-            _ls.blue  = (color & 0xFF);
+            _ls.red = ((color & 0xFF0000) >> 16)/255;
+            _ls.green = ((color & 0xFF00) >> 8)/255;
+            _ls.blue  = (color & 0xFF)/255;
             _ls.ambient = ambient*brightness;
             _ls.diffuse = diffuse*brightness;
             _ls.specular = specular*brightness;
-            consumeer.pointLight(_ls);
+            consumer.pointLight(_ls);
         }
 		
 		/**

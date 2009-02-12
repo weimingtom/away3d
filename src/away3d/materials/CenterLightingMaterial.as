@@ -1,7 +1,7 @@
 package away3d.materials
 {
-    import away3d.containers.*;
     import away3d.arcane;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.light.*;
@@ -12,6 +12,7 @@ package away3d.materials
     
     import flash.display.*;
     import flash.events.*;
+    import flash.utils.*;
 
 	use namespace arcane;
 	
@@ -35,18 +36,15 @@ package away3d.materials
 		private var global:AmbientLight;
         private var focus:Number;
         private var zoom:Number;
-        private var v0z:Number;
-        private var v0p:Number;
         private var v0x:Number;
         private var v0y:Number;
-        private var v1z:Number;
-        private var v1p:Number;
+        private var v0z:Number;
         private var v1x:Number;
         private var v1y:Number;
-        private var v2z:Number;
-        private var v2p:Number;
+        private var v1z:Number;
         private var v2x:Number;
         private var v2y:Number;
+        private var v2z:Number;
         private var d1x:Number;
         private var d1y:Number;
         private var d1z:Number;
@@ -111,7 +109,10 @@ package away3d.materials
         private var draw_reflect:Boolean = false;
         private var draw_reflect_k:Number = 1;
         private var _diffuseTransform:Matrix3D;
+        private var _specularTransform:Matrix3D;
+        private var _viewPosition:Number3D
         private var _source:Mesh;
+        private var _view:View3D;
         
         /**
         * Instance of the Init object used to hold and parse default property values
@@ -161,10 +162,19 @@ package away3d.materials
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	for each (directional in source.lightarray.directionals) {
-        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
+        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source])
         			directional.setDiffuseTransform(source);
-        		}
+        		if (!directional.specularTransform[source])
+        			directional.specularTransform[source] = new Dictionary(true);
+        		if (!directional.specularTransform[source][view] || view.scene.updatedObjects[source] || view.updated)
+        			directional.setSpecularTransform(source, view);
         	}
+        	
+        	for each (point in source.lightarray.points) {
+        		if (!point.viewPositions[view] || view.scene.updatedObjects[source] || view.updated)
+        			point.setViewPosition(view);
+        	}
+        	
         }
         
 		/**
@@ -178,30 +188,27 @@ package away3d.materials
             v2 = tri.v2;
             focus = tri.view.camera.focus;
             zoom = tri.view.camera.zoom;
-
+			
+            v0x = v0.vx;
+            v0y = v0.vy;
             v0z = v0.z;
-            v0p = (1 + v0z / focus) / zoom;
-            v0x = v0.x * v0p;
-            v0y = v0.y * v0p;
-
+			
+            v1x = v1.vx;
+            v1y = v1.vy;
             v1z = v1.z;
-            v1p = (1 + v1z / focus) / zoom;
-            v1x = v1.x * v1p;
-            v1y = v1.y * v1p;
-
+			
+            v2x = v2.vx;
+            v2y = v2.vy;
             v2z = v2.z;
-            v2p = (1 + v2z / focus) / zoom;
-            v2x = v2.x * v2p;
-            v2y = v2.y * v2p;
             
             d1x = v1x - v0x;
             d1y = v1y - v0y;
             d1z = v1z - v0z;
-
+			
             d2x = v2x - v0x;
             d2y = v2y - v0y;
             d2z = v2z - v0z;
-
+			
             pa = d1y*d2z - d1z*d2y;
             pb = d1z*d2x - d1x*d2z;
             pc = d1x*d2y - d1y*d2x;
@@ -210,14 +217,15 @@ package away3d.materials
             pa /= pdd;
             pb /= pdd;
             pc /= pdd;
-
+			
             c0x = (v0x + v1x + v2x) / 3;
             c0y = (v0y + v1y + v2y) / 3;
             c0z = (v0z + v1z + v2z) / 3;
-
+			
             kar = kag = kab = kdr = kdg = kdb = ksr = ksg = ksb = 0;
 			
 			_source = tri.source as Mesh;
+			_view = tri.view;
 			
 			for each (directional in tri.source.lightarray.directionals)
             {
@@ -252,9 +260,11 @@ package away3d.materials
                 kdg += green * diff;
                 kdb += blue * diff;
                 
-                rfx = _diffuseTransform.szx;
-				rfy = _diffuseTransform.szy;
-				rfz = _diffuseTransform.szz;
+                _specularTransform = directional.specularTransform[_source][_view];
+                
+                rfx = _specularTransform.szx;
+				rfy = _specularTransform.szy;
+				rfz = _specularTransform.szz;
 				
 				rf = rfx*nx + rfy*ny + rfz*nz;
 				
@@ -270,10 +280,12 @@ package away3d.materials
                 red = point.red;
                 green = point.green;
                 blue = point.blue;
-
-                dfx = point.x - c0x;
-                dfy = point.y - c0y;
-                dfz = point.z - c0z;
+				
+				_viewPosition = point.viewPositions[tri.view];
+				
+                dfx = _viewPosition.x - c0x;
+                dfy = _viewPosition.y - c0y;
+                dfz = _viewPosition.z - c0z;
                 df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz);
                 dfx /= df;
                 dfy /= df;
@@ -345,9 +357,9 @@ package away3d.materials
                         green /= sum;
                         blue /= sum;
                 
-                        dfx = point.x - c0x;
-                        dfy = point.y - c0y;
-                        dfz = point.z - c0z;
+                        dfx = _viewPosition.x - c0x;
+                        dfy = _viewPosition.y - c0y;
+                        dfz = _viewPosition.z - c0z;
                         df = Math.sqrt(dfx*dfx + dfy*dfy + dfz*dfz);
                         dfx /= df;
                         dfy /= df;

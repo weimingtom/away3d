@@ -72,15 +72,14 @@ package away3d.materials
         /** @private */
         protected override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / (255*3);
+            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb)/3;
 			
             mapping = getMapping(tri);
-            	
+            
             v0 = tri.v0;
             v1 = tri.v1;
             v2 = tri.v2;
             
-                //trace(br);
             if ((br < 1) && (blackrender || ((step < 16) && (!_bitmap.transparent))))
             {
                 session.renderTriangleBitmap(_bitmap, mapping, v0, v1, v2, smooth, repeat);
