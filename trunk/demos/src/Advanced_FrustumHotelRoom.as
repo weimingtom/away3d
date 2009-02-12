@@ -59,7 +59,7 @@ package
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.filters.DropShadowFilter;
+	import flash.filters.*;
 	import flash.geom.*;
 	import flash.text.*;
 	import flash.ui.*;
@@ -121,9 +121,8 @@ package
 		private var targetpanangle:Number = 0;
 		
 		//collision varaibles
-		private var collisionBitmapData:BitmapData;
-		private var collisionBitmap:Bitmap;
-		private var sampleBitmapData:BitmapData;
+		private var collisionBitmap:BitmapData;
+		private var sampleBitmap:BitmapData;
 		private var sampleRect:Rectangle = new Rectangle();
 		private var samplePoint:Point = new Point();
 		private var collisionRect:Rectangle;
@@ -202,7 +201,7 @@ package
 		/**
 		 * Listener function for loading complete event on loader
 		 */
-		public function onSuccess(event:Event):void
+		private function onSuccess(event:Event):void
 		{
 			initModel();
 			initMaterials();
@@ -310,9 +309,8 @@ package
 		 */
 		private function initCollisionBitmap():void
 		{
-			collisionBitmap = new CollisionBitmap();
-			collisionBitmapData = collisionBitmap.bitmapData;
-			sampleBitmapData = new BitmapData(collisionDistance*2, collisionDistance*2, false, 0);
+			collisionBitmap = Cast.bitmap(CollisionBitmap);
+			sampleBitmap = new BitmapData(collisionDistance*2, collisionDistance*2, false, 0);
 			sampleRect = new Rectangle(0, 0, collisionDistance*2, collisionDistance*2);
 		}
 		
@@ -442,14 +440,14 @@ package
 			var i:int = collisionDistance + 1;
 			do {
 				i--;
-				collisionRect = sampleBitmapData.getColorBoundsRect(0xFFFFFF, 0x000000);
+				collisionRect = sampleBitmap.getColorBoundsRect(0xFFFFFF, 0x000000);
 				collisionShape.graphics.clear();
 				collisionShape.graphics.beginFill(0x660000);
 				collisionShape.graphics.drawCircle(collisionDistance, collisionDistance, i);
 				collisionShape.graphics.endFill();
-				sampleBitmapData.copyPixels(collisionBitmapData, sampleRect, samplePoint);
-				sampleBitmapData.draw(collisionShape, null, null, BlendMode.MULTIPLY);
-			} while (sampleBitmapData.getColorBoundsRect(0xFFFFFF, 0x000000).width && i > 1)
+				sampleBitmap.copyPixels(collisionBitmap, sampleRect, samplePoint);
+				sampleBitmap.draw(collisionShape, null, null, BlendMode.MULTIPLY);
+			} while (sampleBitmap.getColorBoundsRect(0xFFFFFF, 0x000000).width && i > 1)
 			
 			//resolve collision
 			if (i < collisionDistance) {
@@ -507,7 +505,7 @@ package
         /**
         * Key down handler for key controls
         */
-        public function onKeyDown(e:KeyboardEvent):void {
+        private function onKeyDown(e:KeyboardEvent):void {
 			switch(e.keyCode)
 			{
 				case Keyboard.UP:
@@ -529,7 +527,7 @@ package
         /**
         * Key up handler for key controls
         */
-		public function onKeyUp(e:KeyboardEvent):void {
+		private function onKeyUp(e:KeyboardEvent):void {
 			switch(e.keyCode)
 			{
 				case Keyboard.UP:
