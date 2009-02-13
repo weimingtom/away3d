@@ -1,12 +1,13 @@
 package away3d.containers
 {
 	import away3d.arcane;
+	import away3d.blockers.*;
 	import away3d.cameras.*;
 	import away3d.core.base.*;
 	import away3d.core.block.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
-	import away3d.core.math.Matrix3D;
+	import away3d.core.math.*;
 	import away3d.core.project.*;
 	import away3d.core.render.*;
 	import away3d.core.stats.*;
@@ -18,7 +19,7 @@ package away3d.containers
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
-	import flash.utils.getTimer;
+	import flash.utils.*;
 	
 	use namespace arcane;
 	
@@ -112,6 +113,7 @@ package away3d.containers
 		private var _updatescene:ViewEvent;
 		private var _updated:Boolean;
 		private var _cleared:Boolean;
+		private var _blocker:ConvexBlock;
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
 		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _container:DisplayObject;
@@ -277,31 +279,13 @@ package away3d.containers
 
         private function onRollOut(e:MouseEvent):void
         {
-        	//if (e.eventPhase != EventPhase.AT_TARGET)
-        	//	return;
-        	
         	_mouseIsOverView = false;
         	
         	fireMouseEvent(MouseEvent3D.MOUSE_OUT, mouseX, mouseY, e.ctrlKey, e.shiftKey);
-        	/*
-			if (mouseObject != null)
-			{
-				var event:MouseEvent3D = getMouseEvent(MouseEvent3D.MOUSE_OUT);
-				event.object = mouseObject;
-				event.material = mouseMaterial;
-				dispatchMouseEvent(event);
-				bubbleMouseEvent(event);
-				mouseObject = null;
-				buttonMode = false;
-			}
-			*/
         }
         
         private function onRollOver(e:MouseEvent):void
         {
-        	//if (e.eventPhase != EventPhase.AT_TARGET)
-        	//	return;
-        	
         	_mouseIsOverView = true;
         	
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
@@ -391,6 +375,8 @@ package away3d.containers
         public var forceUpdate:Boolean;
       
         public var blockerarray:BlockerArray = new BlockerArray();
+        
+        public var blockers:Dictionary;
         
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
@@ -855,8 +841,8 @@ package away3d.containers
             notifySceneUpdate();
             
         	//update session
-        	if (_session != _internalsession)
-        		_internalsession = session;
+        	if (_internalsession != _session)
+        		_internalsession = _session;
         	
         	//update renderer
         	if (_session.renderer != _renderer as IPrimitiveConsumer)
@@ -881,7 +867,11 @@ package away3d.containers
 	         	_consumer.primitive(_ddo);
             }
             
-            //traverse scene
+            //traverse blockers
+            for each (_blocker in blockers)
+            	_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary[_blocker], blockerarray);
+            
+            //traverse primitives
             _scene.traverse(_pritraverser);
             
             //render scene

@@ -20,7 +20,6 @@ package away3d.core.traverse
     {
         private var _view:View3D;
         private var _frustum:Frustum;
-        private var _mesh:Mesh;
         private var _cameraVarsStore:CameraVarsStore;
         private var _camera:Camera3D;
         private var _lens:ILens;
@@ -105,10 +104,10 @@ package away3d.core.traverse
         public override function apply(node:Object3D):void
         {
             if (node.projectorType == ProjectorType.CONVEX_BLOCK)
-                _view._convexBlockProjector.blockers(node, _viewTransform, _view.blockerarray);
+                _view.blockers[node] = node;
             
         	//add to scene meshes dictionary
-            if ((_mesh = node as Mesh))
+            if (node is Mesh)
             	_view.scene.meshes[node] = node;
         }
         
