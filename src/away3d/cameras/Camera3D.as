@@ -372,6 +372,14 @@ package away3d.cameras
             return camera;
         }
 		
+		public function unproject(mX:Number, mY:Number):Number3D
+		{	
+			var persp:Number = (focus*zoom) / focus;
+			var vector:Number3D = new Number3D(mX/persp, -mY/persp, focus);
+			transform.multiplyVector3x3(vector);
+			return vector;
+		}
+		
 		/**
 		 * Default method for adding a cameraUpdated event listener
 		 * 

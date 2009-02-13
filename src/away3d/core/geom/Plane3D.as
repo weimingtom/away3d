@@ -105,6 +105,8 @@ package away3d.core.geom
         	b = normal.y;
         	c = normal.z;
         	d = -(a*point.x + b*point.y + c*point.z);
+        	
+        	_point = normal;
         }
 	
 		/**
@@ -184,6 +186,39 @@ package away3d.core.geom
 			return closest;
 		}
 		
+		public function getIntersectionLineNumbers( v0: Number3D, v1: Number3D ): Number3D
+		{
+			var d0: Number = _point.x * v0.x + _point.y * v0.y + _point.z * v0.z - d;
+			var d1: Number = _point.x * v1.x + _point.y * v1.y + _point.z * v1.z - d;
+			var m: Number = d1 / ( d1 - d0 );
+			
+			return new Number3D(
+
+					v1.x + ( v0.x - v1.x ) * m,
+
+					v1.y + ( v0.y - v1.y ) * m,
+
+					v1.z + ( v0.z - v1.z ) * m
+
+				);
+		}
+		
+		public function getIntersectionLine( v0: Vertex, v1: Vertex ): Vertex
+		{
+			var d0: Number = _point.x * v0.x + _point.y * v0.y + _point.z * v0.z - d;
+			var d1: Number = _point.x * v1.x + _point.y * v1.y + _point.z * v1.z - d;
+			var m: Number = d1 / ( d1 - d0 );
+			return new Vertex(
+
+					v1.x + ( v0.x - v1.x ) * m,
+
+					v1.y + ( v0.y - v1.y ) * m,
+
+					v1.z + ( v0.z - v1.z ) * m
+
+				);
+
+		}
 		
 		/**
 		 * Transform this plane with the 4x4 transform matrix m4x4.
