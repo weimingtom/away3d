@@ -263,7 +263,7 @@ package away3d.core.clip
 		/**
 		 * Returns a clipping object initilised with the edges of the flash movie as the clipping bounds.
 		 */
-        public function screen(container:Sprite, _loaderWidth, _loaderHeight):Clipping
+        public function screen(container:Sprite, _loaderWidth:Number, _loaderHeight:Number):Clipping
         {
         	if (!_clippingClone) {
         		_clippingClone = clone();
