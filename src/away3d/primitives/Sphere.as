@@ -16,7 +16,7 @@
         private var _segmentsW:int;
         private var _segmentsH:int;
         private var _yUp:Boolean;
-
+		
         private function buildSphere(radius:Number, segmentsW:int, segmentsH:int, yUp:Boolean):void
         {
             var i:int;
