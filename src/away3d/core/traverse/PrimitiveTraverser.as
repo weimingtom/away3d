@@ -33,6 +33,7 @@ package away3d.core.traverse
     	private var _projectorDictionary:Dictionary = new Dictionary(true);
     	
 		private var _light:ILightProvider;
+		
 		/**
 		 * Defines the view being used.
 		 */

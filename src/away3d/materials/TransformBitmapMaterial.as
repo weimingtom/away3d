@@ -108,25 +108,13 @@ package away3d.materials
         	faceVO = tri.faceVO;
         	
         	if (globalProjection) {
-	    		if (tri.backface) {
-		    		v0.transform(faceVO.v0.position, tri.source.sceneTransform);
-		    		v2.transform(faceVO.v1.position, tri.source.sceneTransform);
-		    		v1.transform(faceVO.v2.position, tri.source.sceneTransform);
-		    	} else {
-		    		v0.transform(faceVO.v0.position, tri.source.sceneTransform);
-		    		v1.transform(faceVO.v1.position, tri.source.sceneTransform);
-		    		v2.transform(faceVO.v2.position, tri.source.sceneTransform);
-	    		}
+	    		v0.transform(faceVO.v0.position, tri.source.sceneTransform);
+	    		v1.transform(faceVO.v1.position, tri.source.sceneTransform);
+	    		v2.transform(faceVO.v2.position, tri.source.sceneTransform);
         	} else {
-	    		if (tri.backface) {
-		    		v0 = faceVO.v0.position;
-		    		v2 = faceVO.v1.position;
-		    		v1 = faceVO.v2.position;
-		    	} else {
-		    		v0 = faceVO.v0.position;
-		    		v1 = faceVO.v1.position;
-		    		v2 = faceVO.v2.position;
-	    		}
+	    		v0 = faceVO.v0.position;
+	    		v1 = faceVO.v1.position;
+	    		v2 = faceVO.v2.position;
         	}
         	
         	v0x = v0.x;

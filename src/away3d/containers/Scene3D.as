@@ -162,6 +162,9 @@ package away3d.containers
 	        	//clear meshes
 	        	meshes = new Dictionary(true);
 	        	
+	        	//clear blockers
+	        	_view.blockers = new Dictionary(true);
+	        	
 	        	_view.drawPrimitiveStore.blockerDictionary = new Dictionary(true);
 	        	
 	        	//clear camera view transforms
