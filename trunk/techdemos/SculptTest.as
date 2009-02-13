@@ -2,7 +2,7 @@ package
 {
     import away3d.cameras.*;
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -49,7 +49,7 @@ package
     
     import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*
     import away3d.core.draw.*;
     import away3d.core.render.*;
@@ -90,7 +90,7 @@ class Sculpt extends ObjectContainer3D
         if (e.drawpri is DrawTriangle)
         {
             var tri:DrawTriangle = e.drawpri as DrawTriangle;
-            removeFace(tri.face);
+            removeFace(tri.faceVO.face);
         }
     }
 
