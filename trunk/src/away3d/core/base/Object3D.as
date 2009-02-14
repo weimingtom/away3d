@@ -124,7 +124,7 @@
         /** @private */
         arcane var _maxZ:Number = 0;
         /** @private */
-        arcane var _minZ:Number = 0;
+        arcane var _minZ:Number = 0;        /** @private */        arcane var _lookingAtTarget:Number3D = new Number3D();         /** @private */        public function get lookingAtTarget():Number3D        {            return _lookingAtTarget;        }
         /** @private */
         public function get parentmaxX():Number
         {
@@ -1586,7 +1586,7 @@
 		 * @param	upAxis		An optional vector used to define the desired up orientation of the 3d object after rotation has occurred
 		 */
         public function lookAt(target:Number3D, upAxis:Number3D = null):void
-        {
+        {        	_lookingAtTarget = target;        	
             _zAxis.sub(target, position);
             _zAxis.normalize();
     
