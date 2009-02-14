@@ -111,6 +111,7 @@ package away3d.containers
         private var _lastmove_mouseY:Number;
 		private var _internalsession:AbstractRenderSession;
 		private var _updatescene:ViewEvent;
+		private var _renderComplete:ViewEvent;
 		private var _updated:Boolean;
 		private var _cleared:Boolean;
 		private var _blocker:ConvexBlock;
@@ -224,6 +225,15 @@ package away3d.containers
 				_updatescene = new ViewEvent(ViewEvent.UPDATE_SCENE, this);
 				
 			dispatchEvent(_updatescene);
+		}
+		
+		private function notifyRenderComplete():void
+		{
+			//dispatch event
+			if(!_renderComplete)
+				_renderComplete = new ViewEvent(ViewEvent.RENDER_COMPLETE, this);
+				
+			dispatchEvent(_renderComplete);
 		}
 		
 		private function createStatsMenu(event:Event):void
@@ -888,6 +898,9 @@ package away3d.containers
 			
 			//check for mouse interaction
             fireMouseMoveEvent();
+            
+            //notify render complete
+            notifyRenderComplete();
         }
         
 		/**
