@@ -1,4 +1,4 @@
-﻿package away3d.materials{	import away3d.arcane;	import away3d.cameras.lenses.ZoomFocusLens;	import away3d.containers.*;	import away3d.core.base.*;	import away3d.core.draw.*;	import away3d.core.math.*;	import away3d.core.render.*;	import away3d.core.utils.*;	import away3d.events.*;		import flash.display.*;	import flash.events.*;	import flash.geom.*;	import flash.utils.*;
+﻿package away3d.materials{	import away3d.arcane;	import away3d.cameras.lenses.*;	import away3d.containers.*;	import away3d.core.base.*;	import away3d.core.clip.*;	import away3d.core.draw.*;	import away3d.core.math.*;	import away3d.core.render.*;	import away3d.core.utils.*;	import away3d.events.*;		import flash.display.*;	import flash.events.*;	import flash.geom.*;	import flash.utils.*;
     
 	use namespace arcane;
 	
@@ -104,7 +104,7 @@
 			}
 		}
 		
-		private var _view:View3D;
+		private var _view:View3D;		private var _near:Number;
 		private var _smooth:Boolean;
 		private var _debug:Boolean;
 		private var _repeat:Boolean;
@@ -171,10 +171,10 @@
             cy = c.y;
             cz = c.z;
             
-            if (!_view.screenClipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!(_view.screenClipping is FrustumClipping) && !_view.screenClipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
-            if ((az <= 0) && (bz <= 0) && (cz <= 0))
+            if ((_view.screenClipping is RectangleClipping) && (az < _near || bz < _near || cz < _near))
                 return;
             
             if (index >= 100 || (focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
@@ -184,15 +184,15 @@
                     _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
-
+			
             faz = focus + az;
             fbz = focus + bz;
             fcz = focus + cz;
-
+			
             mabz = 2 / (faz + fbz);
             mbcz = 2 / (fbz + fcz);
             mcaz = 2 / (fcz + faz);
-
+			
             dabx = ax + bx - (mabx = (ax*faz + bx*fbz)*mabz);
             daby = ay + by - (maby = (ay*faz + by*fbz)*mabz);
             dbcx = bx + cx - (mbcx = (bx*fbz + cx*fcz)*mbcz);
@@ -203,7 +203,7 @@
             dsab = (dabx*dabx + daby*daby);
             dsbc = (dbcx*dbcx + dbcy*dbcy);
             dsca = (dcax*dcax + dcay*dcay);
-
+			
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
                 _session.renderTriangleBitmap(_renderBitmap, map, a, b, c, smooth, repeat, _graphics);
@@ -211,7 +211,7 @@
                     _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
-
+			
             var map_a:Number = map.a;
             var map_b:Number = map.b;
             var map_c:Number = map.c;
@@ -272,7 +272,7 @@
                 
                 return;
             }
-
+			
             dmax = Math.max(dsab, Math.max(dsca, dsbc));
             if (dsab == dmax)
             {
@@ -296,7 +296,7 @@
                 
                 return;
             }
-
+			
             if (dsca == dmax)
             {
                 sv2 = svArray[index++];
@@ -319,7 +319,7 @@
                 
                 return;
             }
-                
+            
             map.a = map_a - map_b;
             map.b = map_b*2;
             map.c = map_c - map_d;
@@ -327,7 +327,7 @@
             map.tx = map_tx - map_ty;
             map.ty = map_ty*2;
             renderRec(a, b, sv3, index);
-                
+            
             map.a = map_a*2;
             map.b = map_b - map_a;
             map.c = map_c*2;
@@ -686,7 +686,7 @@
         	_mapping = getMapping(tri);
 			_session = tri.source.session;
         	_view = tri.view;
-        	
+        	_near = _view.screenClipping.minZ;        	
         	if (!_graphics && _session.newLayer)        		_graphics = _session.newLayer.graphics;
         	
 			if (precision) {				if (_view.camera.lens is ZoomFocusLens)
