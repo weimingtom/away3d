@@ -460,6 +460,49 @@ package away3d.core.render
         }
         
         /**
+         * Draws a triangle element with a bitmap texture into the graphics object, with no uv transforms.
+         */
+        //Temporal: for reflections testing...
+        public function renderTriangleBitmapMask(bitmap:BitmapData, offX:Number, offY:Number, sc:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+        	a2 = (v1x = v1.x) - (v0x = v0.x);
+        	b2 = (v1y = v1.y) - (v0y = v0.y);
+        	c2 = (v2x = v2.x) - v0x;
+        	d2 = (v2y = v2.y) - v0y;
+        	
+			/* m.a = 1;
+			m.b = 1;
+			m.c = 1;
+			m.d = 1;
+			m.tx = 0;
+			m.ty = 0; */
+			//Review this. Apparently it is causing problems when the plane has rotationZ.
+			//Besides it can't be this simple!
+			m.identity();
+			m.scale(sc, sc);
+			m.translate(offX, offY);
+			
+			if (layerGraphics) {
+				layerGraphics.lineStyle();
+	            layerGraphics.moveTo(v0x, v0y);
+	            layerGraphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
+	            layerGraphics.lineTo(v1x, v1y);
+	            layerGraphics.lineTo(v2x, v2y);
+	            layerGraphics.endFill();
+	  		} else {
+	  			graphics.lineStyle();
+	            graphics.moveTo(v0x, v0y);
+	            graphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
+	            graphics.lineTo(v1x, v1y);
+	            graphics.lineTo(v2x, v2y);
+	            graphics.endFill();
+	  		}
+        }
+        
+        /**
          * Draws a triangle element with a fill color into the graphics object.
          */
         public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, layerGraphics:Graphics = null):void
