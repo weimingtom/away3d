@@ -103,7 +103,7 @@
 			camera.mintiltangle = 10;
 			camera.targetpanangle = camera.panangle = 0;
 			camera.targettiltangle = camera.tiltangle = 10;
-			view = new View3D({scene:scene, camera:camera, clip:new RectangleClipping(-400, -300, 400, 300)});
+			view = new View3D({scene:scene, camera:camera, clipping:new RectangleClipping({minX:-400, minY:-300, maxX:400, maxY:300})});
 			view.x = 400;
 			view.y = 300;
 			view.addSourceURL("srcview/index.html");

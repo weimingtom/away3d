@@ -1,7 +1,6 @@
 package away3d.core.block
 {
 	import away3d.core.clip.*;
-    import away3d.core.render.*;
 
     /**
     * Array for storing blocker objects
@@ -30,7 +29,7 @@ package away3d.core.block
 		 */
         public function blocker(pri:Blocker):void
         {
-            if (_clip.check(pri))
+            if (_clip.checkPrimitive(pri))
             {
                 _blockers.push(pri);
             }

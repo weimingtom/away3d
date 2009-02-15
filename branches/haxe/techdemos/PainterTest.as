@@ -2,7 +2,7 @@ package
 {
     import away3d.cameras.*;
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.draw.*;
     import away3d.core.filter.*;
@@ -48,7 +48,7 @@ package
     
     import away3d.containers.*;
     import away3d.cameras.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.render.*;
     import away3d.core.base.*
     import away3d.core.base.*;
@@ -182,7 +182,7 @@ class Drawing extends ObjectContainer3D
 
         spraypicker = new ObjectContainer3D(spray0, spray1, spray2);
 
-        colorpicker = new Triangle({material:new BitmapMaterial(pallete, {precision:8, smooth:false}), edge:550, rotationY: -90, x:600, y:300, rotationZ:-35});
+        colorpicker = new Triangle({material:new BitmapMaterial(pallete, {precision:8, smooth:false}), edge:550, rotationY: -90, x:600, y:300, rotationZ:-35, bothsides:true});
 
         smoothswitch = new Plane({material:new BitmapMaterial(Asset.bwwb, {precision:8, smooth:true}), width:80, height:80, z:400, x:-600});
         clearbutton = new Plane({material:new ColorMaterial(0xFFFFFF), width:80, height:80, z:300, x:-600});

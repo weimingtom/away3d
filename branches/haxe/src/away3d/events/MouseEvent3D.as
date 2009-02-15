@@ -38,6 +38,16 @@ package away3d.events
     	public static const MOUSE_MOVE:String = "mouseMove3d";
     	
     	/**
+    	 * Defines the value of the type property of a rollOver3d event object.
+    	 */
+    	public static const ROLL_OVER:String = "rollOver3d";
+    	
+    	/**
+    	 * Defines the value of the type property of a rollOut3d event object.
+    	 */
+    	public static const ROLL_OUT:String = "rollOut3d";
+    	
+    	/**
     	 * The horizontal coordinate at which the event occurred in view coordinates.
     	 */
         public var screenX:Number;

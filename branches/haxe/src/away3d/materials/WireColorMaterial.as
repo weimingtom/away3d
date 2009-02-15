@@ -7,7 +7,6 @@ package away3d.materials
     import away3d.core.utils.*;
     import away3d.events.*;
     
-    import flash.display.*;
     import flash.events.*;
 
     /**

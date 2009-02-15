@@ -3,7 +3,6 @@
     import away3d.animators.skin.*;
     import away3d.arcane;
     import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.math.*;
     import away3d.core.project.*;
     import away3d.core.traverse.*;
@@ -11,8 +10,6 @@
     import away3d.events.*;
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
-    
-    import flash.display.*;
     
     use namespace arcane;
     
@@ -71,12 +68,19 @@
         	
         	if (children.length) {
 	        	
-	        	_boundingScale = _scaleX;
+	        	if (_scaleX < 0)
+	        		_boundingScale = -_scaleX;
+	        	else
+	        		_boundingScale = _scaleX
             	
-            	if (_boundingScale < _scaleY)
+            	if (_scaleY < 0 && _boundingScale < -_scaleY)
+            		_boundingScale = -_scaleY;
+            	else if (_boundingScale < _scaleY)
             		_boundingScale = _scaleY;
             	
-            	if (_boundingScale < _scaleZ)
+            	if (_scaleZ < 0 && _boundingScale < -_scaleZ)
+            		_boundingScale = -_scaleZ;
+            	else if (_boundingScale < _scaleZ)
             		_boundingScale = _scaleZ;
             	
 	        	var mradius:Number = 0;
@@ -85,7 +89,7 @@
 	            for each (var child:Object3D in children) {
 	            	num.sub(child.position, _pivotPoint);
 	            	
-	                cradius = num.modulo + child.boundingRadius;
+	                cradius = num.modulo + child.parentBoundingRadius;
 	                if (mradius < cradius)
 	                    mradius = cradius;
 	            }
@@ -294,11 +298,11 @@
 				y = child.y;
 				z = child.z;
 
-				y1 = y
+				y1 = y;
 				y = y1*cosx+z*-sinx;
 				z = y1*sinx+z*cosx;
 				
-				x1 = x
+				x1 = x;
 				x = x1*cosy+z*siny;
 				z = x1*-siny+z*cosy;
 			
@@ -375,7 +379,7 @@
             	} else if (child is ObjectContainer3D) {
             		_child = new ObjectContainer3D();
                 	container.addChild(_child);
-                	(child as ObjectContainer3D).cloneAll(_child)
+                	(child as ObjectContainer3D).cloneAll(_child);
             	} else if (child is Mesh) {
                 	container.addChild((child as Mesh).cloneAll());
             	} else {

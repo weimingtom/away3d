@@ -17,17 +17,27 @@ package away3d.core.draw
 		private var dy:Number;
 		
     	/**
-    	 * The x position of the vertex in the view.
+    	 * The view x position of the vertex in the view.
+    	 */
+        public var vx:Number;
+        
+    	/**
+    	 * The view y position of the vertex in the view.
+    	 */
+        public var vy:Number;
+		
+    	/**
+    	 * The screen x position of the vertex in the view.
     	 */
         public var x:Number;
         
     	/**
-    	 * The y position of the vertex in the view.
+    	 * The screen y position of the vertex in the view.
     	 */
         public var y:Number;
         
     	/**
-    	 * The z position of the vertex in the view.
+    	 * The screen z position of the vertex in the view.
     	 */
         public var z:Number;
         
@@ -56,6 +66,8 @@ package away3d.core.draw
         * Indicates whether the vertex is visible after projection.
         */
         public var visible:Boolean;
+    	
+    	public var viewTimer:int;
     	
 		/**
 		 * Creates a new <code>PrimitiveQuadrantTreeNode</code> object.

@@ -132,8 +132,9 @@ package
 		{
 			scene = new Scene3D();
 			camera = new HoverCamera3D({zoom:3, focus:200, distance:40000});
-			camera.targetpanangle = camera.panangle = -10;
+			camera.targetpanangle = camera.panangle = 100;
 			camera.targettiltangle = camera.tiltangle = 20;
+			camera.mintiltangle = -90;
 			camera.yfactor = 1;
 			view = new View3D({scene:scene, camera:camera});
 			view.x = 400;

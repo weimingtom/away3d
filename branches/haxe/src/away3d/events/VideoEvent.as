@@ -36,7 +36,7 @@ package away3d.events
     	/**
     	 * A reference to the related object (for metadata)
     	 */
-        public var object:Object
+        public var object:Object;
         
 		/**
 		 * Creates a new <code>VideoEvent</code> object.

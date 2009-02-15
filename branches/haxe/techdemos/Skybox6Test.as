@@ -10,7 +10,7 @@ package
     import away3d.containers.*;
     import away3d.cameras.*;
     import away3d.test.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.materials.*;
@@ -73,7 +73,7 @@ package
     import away3d.containers.*;
     import away3d.cameras.*;
     import away3d.test.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.draw.*;
     import away3d.core.render.*;
     import away3d.materials.*;

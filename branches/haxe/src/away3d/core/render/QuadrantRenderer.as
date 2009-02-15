@@ -6,9 +6,6 @@ package away3d.core.render
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.filter.*;
-	import away3d.core.light.*;
-	import away3d.core.stats.*;
-	import away3d.core.traverse.*;
     
 
     /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
@@ -16,7 +13,6 @@ package away3d.core.render
     {
         private var _qdrntfilters:Array;
         private var _root:PrimitiveQuadrantTreeNode;
-		private var _rect:RectangleClipping;
 		private var _center:Array;
 		private var _result:Array;
 		private var _except:Object3D;
@@ -28,10 +24,11 @@ package away3d.core.render
 		private var _children:Array;
 		private var i:int;
 		private var _primitives:Array;
+		private var _clippedPrimitives:Array;
         private var _view:View3D;
         private var _scene:Scene3D;
         private var _camera:Camera3D;
-        private var _clip:Clipping;
+        private var _screenClipping:Clipping;
         private var _blockers:Array;
 		private var _filter:IPrimitiveQuadrantFilter;
 		
@@ -118,9 +115,9 @@ package away3d.core.render
 		 */
         public function primitive(pri:DrawPrimitive):Boolean
         {
-            if (!_clip.check(pri))
-            	return false;
-            
+        	if (!_screenClipping.checkPrimitive(pri))
+        		return false;
+			
             _root.push(pri);
             
             return true;
@@ -184,13 +181,12 @@ package away3d.core.render
         	_primitives = [];
 			_scene = view.scene;
 			_camera = view.camera;
-			_clip = view.clip;
+			_screenClipping = view.screenClipping;
 			
-			_rect = _clip.asRectangleClipping();
 			if (!_root)
-				_root = new PrimitiveQuadrantTreeNode((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY, 0);
+				_root = new PrimitiveQuadrantTreeNode((_screenClipping.minX + _screenClipping.maxX)/2, (_screenClipping.minY + _screenClipping.maxY)/2, _screenClipping.maxX - _screenClipping.minX, _screenClipping.maxY - _screenClipping.minY, 0);
 			else
-				_root.reset((_rect.minX + _rect.maxX)/2, (_rect.minY + _rect.maxY)/2, _rect.maxX - _rect.minX, _rect.maxY - _rect.minY);	
+				_root.reset((_screenClipping.minX + _screenClipping.maxX)/2, (_screenClipping.minY + _screenClipping.maxY)/2, _screenClipping.maxX - _screenClipping.minX, _screenClipping.maxY - _screenClipping.minY);	
         }
         
         public function render(view:View3D):void
@@ -198,7 +194,7 @@ package away3d.core.render
 			
         	//filter primitives array
 			for each (_filter in _qdrntfilters)
-        		_filter.filter(this, _scene, _camera, _clip);
+        		_filter.filter(this, _scene, _camera, _screenClipping);
         	
     		// render all primitives
             _root.render(-Infinity);

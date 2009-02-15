@@ -1,43 +1,40 @@
 package away3d.core.geom
 {
 	import away3d.core.base.*;
-	import away3d.core.geom.*;
 	import away3d.core.math.*;
-	
-	/** b at turbulent dot ca */
-	/* based on Tim Knip and Don Picco's frustum works */
+	import away3d.core.utils.*;
 	
 	public class Frustum
 	{
-		public static const NEAR:int = 0;
-		public static const LEFT:int = 1;
-		public static const RIGHT:int = 2;
-		public static const TOP:int = 3;
-		public static const BOTTOM:int = 4;
+		public static const LEFT:int = 0;
+		public static const RIGHT:int = 1;
+		public static const TOP:int = 2;
+		public static const BOTTOM:int = 3;
+		public static const NEAR:int = 4;
 		public static const FAR:int = 5;
 		
-		public var planeNames:Array = ['NEAR','LEFT','RIGHT','TOP','BOTTOM','FAR'];
-		
 		//clasification
+		public static const OUT:int = 0;
 		public static const IN:int = 1;
-		public static const OUT:int = -1;
-		public static const INTERSECT:int = 0;
+		public static const INTERSECT:int = 2;
 		
 		public var planes:Array;
 		
 		private var _matrix:Matrix3D = new Matrix3D();
-		
+		private var _plane:Plane3D;
+		private var _distance:Number;
+    	
 		/**
 		 * Creates a frustum consisting of 6 planes in 3d space.
 		 */
 		public function Frustum()
 		{
 			planes = new Array(6);
-			planes[NEAR] = new Plane3D();
 			planes[LEFT] = new Plane3D();
 			planes[RIGHT] = new Plane3D();
 			planes[TOP] = new Plane3D();
 			planes[BOTTOM] = new Plane3D();
+			planes[NEAR] = new Plane3D();
 			planes[FAR] = new Plane3D();
 		}
 		
@@ -56,20 +53,34 @@ package away3d.core.geom
 		 */
 		public function classifySphere(center:Number3D, radius:Number):int
 		{
-			var dist:Number;
-			for(var p:int = 0; p < 6; p++)
-			{
-				dist = Plane3D(planes[p]).distance(center);
-				if(dist < -radius)
-				{
+			for each(_plane in planes) {
+				_distance = _plane.distance(center);
+				
+				if(_distance < -radius)
 					return OUT;
-				}
-				if(Math.abs(dist) < radius)
-				{
+				
+				if(Math.abs(_distance) < radius)
+					return INTERSECT;
+			}
+			
+			return IN;
+		}
+		
+		/**
+		 * Classify this radius against this frustum
+		 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
+		 */
+		public function classifyRadius(radius:Number):int
+		{
+			for each(_plane in planes) {
+				if(_plane.d < -radius)
+					return OUT;
+				
+				if(Math.abs(_plane.d) < radius)
 					return INTERSECT;	
-				}
 				
 			}
+			
 			return IN;
 		}
 		

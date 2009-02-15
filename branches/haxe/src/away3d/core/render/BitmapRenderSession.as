@@ -2,7 +2,6 @@ package away3d.core.render
 {
 	import away3d.arcane;
 	import away3d.containers.View3D;
-	import away3d.core.draw.*;
 	
 	import flash.display.*;
 	import flash.geom.Matrix;
@@ -80,8 +79,8 @@ package away3d.core.render
 			_container = getContainer(view) as Sprite;
 			
 			if (!_bitmapContainer.bitmapData) {
-				_bitmapwidth = int((_width = view.clip.maxX - view.clip.minX)/_scale);
-	        	_bitmapheight = int((_height = view.clip.maxY - view.clip.minY)/_scale);
+				_bitmapwidth = int((_width = view.screenClipping.maxX - view.screenClipping.minX)/_scale);
+	        	_bitmapheight = int((_height = view.screenClipping.maxY - view.screenClipping.minY)/_scale);
 	        	
 	        	return _bitmapContainer.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
 			}
@@ -153,14 +152,14 @@ package away3d.core.render
         	if (updated) {
 	        	_base = getBitmapData(view);
 	        	
-	        	_cx = _bitmapContainer.x = view.clip.minX;
-				_cy = _bitmapContainer.y = view.clip.minY;
+	        	_cx = _bitmapContainer.x = view.screenClipping.minX;
+				_cy = _bitmapContainer.y = view.screenClipping.minY;
 				_bitmapContainer.scaleX = _scale;
 				_bitmapContainer.scaleY = _scale;
 	        	
 	        	_cm = new Matrix();
 	        	_cm.scale(1/_scale, 1/_scale);
-				_cm.translate(-view.clip.minX/_scale, -view.clip.minY/_scale);
+				_cm.translate(-view.screenClipping.minX/_scale, -view.screenClipping.minY/_scale);
 				
 	        	//clear base canvas
 	        	_base.lock();
