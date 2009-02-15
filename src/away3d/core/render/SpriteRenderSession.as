@@ -3,7 +3,6 @@ package away3d.core.render
 	import away3d.containers.*;
 	import away3d.arcane;
 	import away3d.core.clip.*;
-	import away3d.core.draw.*;
 	import away3d.events.*;
 	
 	import flash.display.*;
@@ -114,7 +113,7 @@ package away3d.core.render
 	 			
 	        	//clip the edges of the root container with  scrollRect
 	        	if (this == view.session) {
-		        	_clip = view.clip;
+		        	_clip = view.screenClipping;
 		        	_container.scrollRect = new Rectangle(_clip.minX-1, _clip.minY-1, _clip.maxX - _clip.minX + 2, _clip.maxY - _clip.minY + 2);
 		        	_container.x = _clip.minX - 1;
 		        	_container.y = _clip.minY - 1;

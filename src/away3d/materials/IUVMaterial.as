@@ -36,22 +36,26 @@ package away3d.materials
         */
         function getPixel32(u:Number, v:Number):uint;
 		
-		function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO;
-		
-		function removeFaceDictionary():void;
+		function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO;
 		
 		/**
-		 * Default method for adding a materialResize event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        function addOnMaterialResize(listener:Function):void;
+        * Clears facematerial value objects when bitmap requires updating
+        * 
+        * @param	source		[optional]	The parent 3d object of the face.
+        * @param	view		[optional]	The view rendering the draw triangle.
+        * 
+        * @see away3d.core.utils.FaceMaterialVO
+        */
+        function clearFaces(source:Object3D = null, view:View3D = null):void
 		
 		/**
-		 * Default method for removing a materialResize event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        function removeOnMaterialResize(listener:Function):void;
+        * Invalidates facematerial value objects when texturemapping requires updating
+        * 
+        * @param	source		[optional]	The parent 3d object of the face.
+        * @param	view		[optional]	The view rendering the draw triangle.
+        * 
+        * @see away3d.core.utils.FaceMaterialVO
+        */
+        function invalidateFaces(source:Object3D = null, view:View3D = null):void
     }
 }

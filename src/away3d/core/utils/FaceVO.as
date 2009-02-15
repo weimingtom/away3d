@@ -1,60 +1,126 @@
 package away3d.core.utils
 {
-	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.materials.*;
 	
-	import flash.display.BitmapData;
-	import flash.geom.Matrix;
-	import flash.utils.Dictionary;
+	import flash.geom.*;
 	
 	public class FaceVO
 	{
-		public var source:Object3D;
-		public var view:View3D;
-		public var mapping:Matrix;
-		public var invtexturemapping:Matrix;
-		public var texturemapping:Matrix;
 		
-		public var width:int;
-		public var height:int;
-		public var color:uint;
+        public var v0:Vertex;
 		
-		public var bitmap:BitmapData;
+        public var v1:Vertex;
 		
-		public var cleared:Boolean = true;
-		public var updated:Boolean = false;
-		public var invalidated:Boolean = true;
-		public var backface:Boolean = false;
-		public var resized:Boolean;
+        public var v2:Vertex;
 		
-		public function FaceVO(source:Object3D = null, view:View3D = null)
-		{
-			this.source = source;
-			this.view = view;
-		}
+        public var uv0:UV;
 		
-		public function clear():void
-		{
-	        cleared = true;
-	        updated = true;
-		}
+        public var uv1:UV;
 		
-		public function resize(width:Number, height:Number, transparent:Boolean = true):void
-		{
-			if (this.width == width && this.height == height)
-				return;
-			
-			resized = true;
-			updated = true;
-			
-			this.width = width;
-			this.height = height;
-			
-			if (bitmap)
-				bitmap.dispose();
-			
-			bitmap = new BitmapData(width, height, transparent, 0);
-			bitmap.lock();
-		}
+        public var uv2:UV;
+		
+		public var material:ITriangleMaterial;
+		
+		public var back:ITriangleMaterial;
+		
+		public var generated:Boolean;
+		
+		public var face:Face;
+		
+		public var bitmapRect:Rectangle;
+		        
+    	/**
+    	 * Returns the maximum u value of the face
+    	 * 
+    	 * @see	away3d.core.base.UV#u
+    	 */
+        public function get maxU():Number
+        {
+            if (uv0.u > uv1.u)
+            {
+                if (uv0.u > uv2.u)
+                    return uv0.u;
+                else
+                    return uv2.u;
+            }
+            else
+            {
+                if (uv1.u > uv2.u)
+                    return uv1.u;
+                else
+                    return uv2.u;
+            }
+        }
+        
+    	/**
+    	 * Returns the minimum u value of the face
+    	 * 
+    	 * @see away3d.core.base.UV#u
+    	 */
+        public function get minU():Number
+        {
+            if (uv0.u < uv1.u)
+            {
+                if (uv0.u < uv2.u)
+                    return uv0.u;
+                else
+                    return uv2.u;
+            }
+            else
+            {
+                if (uv1.u < uv2.u)
+                    return uv1.u;
+                else
+                    return uv2.u;
+            }
+        }
+        
+    	/**
+    	 * Returns the maximum v value of the face
+    	 * 
+    	 * @see away3d.core.base.UV#v
+    	 */
+        public function get maxV():Number
+        {
+            if (uv0.v > uv1.v)
+            {
+                if (uv0.v > uv2.v)
+                    return uv0.v;
+                else
+                    return uv2.v;
+            }
+            else
+            {
+                if (uv1.v > uv2.v)
+                    return uv1.v;
+                else
+                    return uv2.v;
+            }
+        }
+        
+    	/**
+    	 * Returns the minimum v value of the face
+    	 * 
+    	 * @see	away3d.core.base.UV#v
+    	 */
+        public function get minV():Number
+        {
+            if (uv0.v < uv1.v)
+            {
+                if (uv0.v < uv2.v)
+                    return uv0.v;
+                else
+                    return uv2.v;
+            }
+            else
+            {
+                if (uv1.v < uv2.v)
+                    return uv1.v;
+                else
+                    return uv2.v;
+            }
+        }
+        
 	}
 }

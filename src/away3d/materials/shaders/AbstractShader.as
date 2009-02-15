@@ -62,10 +62,12 @@ package away3d.materials.shaders
 		arcane var _view:View3D;
         /** @private */
 		arcane var _face:Face;
+		/** @private */
+		arcane var _faceVO:FaceVO;
         /** @private */
 		arcane var _lights:ILightConsumer;
         /** @private */
-		arcane var _parentFaceVO:FaceVO;
+		arcane var _parentFaceMaterialVO:FaceMaterialVO;
         /** @private */
 		arcane var _n0:Number3D;
         /** @private */
@@ -79,7 +81,7 @@ package away3d.materials.shaders
         /** @private */
 		arcane var directional:DirectionalLight;
         /** @private */
-		arcane var _faceVO:FaceVO;
+		arcane var _faceMaterialVO:FaceMaterialVO;
         /** @private */
 		arcane var _normal0:Number3D = new Number3D();
         /** @private */
@@ -134,19 +136,6 @@ package away3d.materials.shaders
         */
         protected var ini:Init;
         
-        /**
-        * Clears face value objects when shader requires updating
-        * 
-        * @param	source		The parent 3d object of the face.
-        * @param	view		The view rendering the draw triangle.
-        * 
-        * @see away3d.core.utils.FaceVO
-        */
-        protected function clearFaceDictionary(source:Object3D, view:View3D):void
-        {
-        	throw new Error("Not implemented");
-        }
-        
 		/**
 		 * Returns a shape object for use by environment shaders.
 		 * 
@@ -156,15 +145,9 @@ package away3d.materials.shaders
         protected function getShape(layer:Sprite):Shape
         {
         	_session = _source.session;
-        	if (_session != _view.scene.session) {
-        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session]))
-	    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
-        	} else {
-	        	//check to see if face shape exists
-	    		if (!(_shape = _shapeDictionary[_face]))
-	    			layer.addChild(_shape = _shapeDictionary[_face] = new Shape());
-        	}
+    		//check to see if source shape exists
+    		if (!(_shape = _shapeDictionary[_session]))
+    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
         	return _shape;
         }
         
@@ -188,19 +171,11 @@ package away3d.materials.shaders
         protected function getLightingShape(layer:Sprite, light:LightPrimitive):Shape
         {
         	_session = _source.session;
-        	if (_session != _view.scene.session) {
-    			if (!_shapeDictionary[_session])
-    				_shapeDictionary[_session] = new Dictionary(true);
-        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
-        	} else {
-        		if (!_shapeDictionary[_face])
-    				_shapeDictionary[_face] = new Dictionary(true);
-	        	//check to see if face shape exists
-	    		if (!(_shape = _shapeDictionary[_face][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_face][light] = new Shape());
-        	}
+        	if (!_shapeDictionary[_session])
+				_shapeDictionary[_session] = new Dictionary(true);
+    		//check to see if source shape exists
+    		if (!(_shape = _shapeDictionary[_session][light]))
+    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
         	return _shape;
         }
         
@@ -249,67 +224,65 @@ package away3d.materials.shaders
         {
         	_source = tri.source as Mesh;
 			_view = tri.view;
-			_face = tri.face;
+			_faceVO = tri.faceVO;
+			_face = _faceVO.face;
 			_lights = tri.source.lightarray;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
         {
         	_source = tri.source as Mesh;
 			_view = tri.view;
-			_parentFaceVO = parentFaceVO;
+			_faceVO = tri.faceVO;
+			_face = _faceVO.face;
+			_parentFaceMaterialVO = parentFaceMaterialVO;
 			
-			_faceVO = getFaceVO(tri.face, _source, _view);
+			_faceMaterialVO = getFaceMaterialVO(_faceVO, _source, _view);
 			
 			//pass on inverse texturemapping
-			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//pass on resize value
-			if (parentFaceVO.resized) {
-				parentFaceVO.resized = false;
-				_faceVO.resized = true;
+			if (parentFaceMaterialVO.resized) {
+				parentFaceMaterialVO.resized = false;
+				_faceMaterialVO.resized = true;
 			}
 			
 			//check to see if rendering can be skipped
-			if (parentFaceVO.updated || _faceVO.invalidated) {
-				parentFaceVO.updated = false;
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
+				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = tri.face.bitmapRect;
+				_bitmapRect = _faceVO.bitmapRect;
 				
 				//reset booleans
-				if (_faceVO.invalidated)
-					_faceVO.invalidated = false;
+				if (_faceMaterialVO.invalidated)
+					_faceMaterialVO.invalidated = false;
 				else 
-					_faceVO.updated = true;
+					_faceMaterialVO.updated = true;
 				
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap;
+				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap;
 				
 				//draw shader
 				renderShader(tri);
 			}
 			
-			return _faceVO;
+			return _faceMaterialVO;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
         
 		/**

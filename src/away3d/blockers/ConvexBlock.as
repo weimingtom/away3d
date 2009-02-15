@@ -1,14 +1,8 @@
 package away3d.blockers
 {
-    import away3d.containers.*;
     import away3d.core.base.*;
-    import away3d.core.block.*;
-    import away3d.core.draw.*;
     import away3d.core.project.*;
-    import away3d.core.render.*;
     import away3d.core.utils.*;
-    
-    import flash.utils.*;
     
     /**
     * Convex hull blocking all drawing primitives underneath.

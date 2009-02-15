@@ -52,7 +52,7 @@
 			
             for (j = jMin; j <= jMax; j++)  
             { 
-                var z:Number = -height + 2 * height * (j-1) / (segmentsH-2);
+                var z:Number = -height + 2 * height * (j-jMin) / (jMax-jMin);
 
                 grid[j] = new Array(segmentsW);
                 for (i = 0; i < segmentsW; i++) 

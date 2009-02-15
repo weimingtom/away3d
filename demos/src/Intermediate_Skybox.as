@@ -86,7 +86,7 @@
 			camera.targetpanangle = camera.panangle = 0;
 			camera.targettiltangle = camera.tiltangle = 0;
 			view = new View3D({scene:scene, camera:camera});
-			view.clip = new RectangleClipping(-320, -240, 320, 240);
+			//view.clipping = RectangleClipping({minX:-320, minY:-240, maxX:320, maxY:240});
 			view.x = 400;
 			view.y = 300;
 			addChild( view );

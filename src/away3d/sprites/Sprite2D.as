@@ -1,10 +1,7 @@
 package away3d.sprites
 {
-    import away3d.containers.*;
     import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.project.*;
-    import away3d.core.render.*;
     import away3d.core.utils.*;
     
     import flash.display.BitmapData;

@@ -3,12 +3,10 @@ package away3d.containers
 	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
-	import away3d.core.render.*;
 	import away3d.core.traverse.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	
-	import flash.display.*;
 	import flash.events.*;
 	import flash.utils.*;
     
@@ -158,14 +156,22 @@ package away3d.containers
         	//execute projection traverser on each view
         	for each(_view in viewDictionary) {
         		
+        		//update camera
+	        	_view.camera.update();
+	        	
 	        	//clear meshes
 	        	meshes = new Dictionary(true);
 	        	
+	        	//clear blockers
+	        	_view.blockers = new Dictionary(true);
+	        	
+	        	_view.drawPrimitiveStore.blockerDictionary = new Dictionary(true);
+	        	
 	        	//clear camera view transforms
-	        	_view.camera.clearViewTransforms();
+	        	_view.cameraVarsStore.reset();
 	        	
 	        	//clear blockers
-	        	_view.blockerarray.clip = _view.clip;
+	        	_view.blockerarray.clip = _view.screenClipping;
 	        	
 	        	//traverse scene
         		_projtraverser.view = _view;

@@ -2,10 +2,9 @@ package away3d.core.draw
 {
     import away3d.arcane;
     import away3d.core.base.*;
-    import away3d.core.render.*;
+    import away3d.core.utils.FaceVO;
     import away3d.materials.*;
     
-    import flash.display.*;
     import flash.geom.Matrix;
     
     use namespace arcane;
@@ -61,16 +60,16 @@ package away3d.core.draw
             if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
             {
                 return [
-                    create(source, face, material,  v0, v01, v12,  uv0, uv01, uv12),
-                    create(source, face, material, v01,  v1, v12, uv01,  uv1, uv12),
-                    create(source, face, material,  v0, v12 , v2,  uv0, uv12, uv2)];
+                    create(source, faceVO, material,  v0, v01, v12,  uv0, uv01, uv12, true),
+                    create(source, faceVO, material, v01,  v1, v12, uv01,  uv1, uv12, true),
+                    create(source, faceVO, material,  v0, v12 , v2,  uv0, uv12, uv2, true)];
             }
             else
             {
                 return [
-                    create(source, face, material,   v0, v01,  v2,  uv0, uv01, uv2),
-                    create(source, face, material,  v01,  v1, v12, uv01,  uv1, uv12),
-                    create(source, face, material,  v01, v12,  v2, uv01, uv12, uv2)];
+                    create(source, faceVO, material,   v0, v01,  v2,  uv0, uv01, uv2, true),
+                    create(source, faceVO, material,  v01,  v1, v12, uv01,  uv1, uv12, true),
+                    create(source, faceVO, material,  v01, v12,  v2, uv01, uv12, uv2, true)];
             }
         }
 		/** @private */
@@ -118,6 +117,7 @@ package away3d.core.draw
         private var _v0:Number;
         private var _v1:Number;
         private var _v2:Number;
+        private var _areaSign:Number;
         private var focus:Number;
         private var ax:Number;
         private var ay:Number;
@@ -168,8 +168,8 @@ package away3d.core.draw
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
                 uv01:UV = UV.median(uv0, uv1);
             return [
-                create(source, face, material, v2, v0, v01, uv2, uv0, uv01),
-                create(source, face, material, v01, v1, v2, uv01, uv1, uv2) 
+                create(source, faceVO, material, v2, v0, v01, uv2, uv0, uv01, true),
+                create(source, faceVO, material, v01, v1, v2, uv01, uv1, uv2, true) 
             ];
         }
 
@@ -178,8 +178,8 @@ package away3d.core.draw
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
                 uv12:UV = UV.median(uv1, uv2);
             return [
-                create(source, face, material, v0, v1, v12, uv0, uv1, uv12),
-                create(source, face, material, v12, v2, v0, uv12, uv2, uv0) 
+                create(source, faceVO, material, v0, v1, v12, uv0, uv1, uv12, true),
+                create(source, faceVO, material, v12, v2, v0, uv12, uv2, uv0, true) 
             ];
         }
 
@@ -188,8 +188,8 @@ package away3d.core.draw
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
                 uv20:UV = UV.median(uv2, uv0);
             return [
-                create(source, face, material, v1, v2, v20, uv1, uv2, uv20),
-                create(source, face, material, v20, v0, v1, uv20, uv0, uv1) 
+                create(source, faceVO, material, v1, v2, v20, uv1, uv2, uv20, true),
+                create(source, faceVO, material, v20, v0, v1, uv20, uv0, uv1, true) 
             ];                                                
         }
         
@@ -231,9 +231,7 @@ package away3d.core.draw
     	/**
     	 * A reference to the face object used by the triangle primitive.
     	 */
-        public var face:Face;
-        
-        public var generated:Boolean;
+        public var faceVO:FaceVO;
         
     	/**
     	 * Indicates whether the face of the triangle primitive is facing away from the camera.
@@ -315,8 +313,8 @@ package away3d.core.draw
         	_invtexmapping.d = _v2 - _v0;
         	
             if (material is BitmapMaterialContainer) {
-            	_invtexmapping.tx = _u0 - face.bitmapRect.x;
-            	_invtexmapping.ty = _v0 - face.bitmapRect.y;
+            	_invtexmapping.tx = _u0 - faceVO.bitmapRect.x;
+            	_invtexmapping.ty = _v0 - faceVO.bitmapRect.y;
             } else {
             	_invtexmapping.tx = _u0;
             	_invtexmapping.ty = _v0;
@@ -449,7 +447,7 @@ package away3d.core.draw
 		 */
         public override final function quarter(focus:Number):Array
         {
-            if (area < 20)
+            if (area > -20 && area < 20)
                 return null;
 
             v01 = ScreenVertex.median(v0, v1, focus);
@@ -460,10 +458,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(source, face, material, v0, v01, v20, uv0, uv01, uv20),
-                create(source, face, material, v1, v12, v01, uv1, uv12, uv01),
-                create(source, face, material, v2, v20, v12, uv2, uv20, uv12),
-                create(source, face, material, v01, v12, v20, uv01, uv12, uv20)
+                create(source, faceVO, material, v0, v01, v20, uv0, uv01, uv20, true),
+                create(source, faceVO, material, v1, v12, v01, uv1, uv12, uv01, true),
+                create(source, faceVO, material, v2, v20, v12, uv2, uv20, uv12, true),
+                create(source, faceVO, material, v01, v12, v20, uv01, uv12, uv20, true)
             ];
         }
         
@@ -471,14 +469,14 @@ package away3d.core.draw
 		 * @inheritDoc
 		 */
         public override final function contains(x:Number, y:Number):Boolean
-        {   
-            if (v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y) < -0.001)
+        {
+            if ((v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y))*_areaSign < -0.001)
                 return false;
 
-            if (v0.x*(v2.y - y) + x*(v0.y - v2.y) + v2.x*(y - v0.y) < -0.001)
+            if ((v0.x*(v2.y - y) + x*(v0.y - v2.y) + v2.x*(y - v0.y))*_areaSign < -0.001)
                 return false;
 
-            if (x*(v2.y - v1.y) + v1.x*(y - v2.y) + v2.x*(v1.y - y) < -0.001)
+            if ((x*(v2.y - v1.y) + v1.x*(y - v2.y) + v2.x*(v1.y - y))*_areaSign < -0.001)
                 return false;
 
             return true;
@@ -547,6 +545,11 @@ package away3d.core.draw
             
             screenZ = (v0.z + v1.z + v2.z) / 3;
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
+            
+            if (area > 0)
+        		_areaSign = 1;
+        	else
+        		_areaSign = -1;
         }
         
 		/**

@@ -1,30 +1,61 @@
 package away3d.core.clip
 {
+    import away3d.core.base.*;
     import away3d.core.draw.*;
+    import away3d.core.geom.*;
+    import away3d.core.render.*;
+    import away3d.core.utils.*;
 
-    /** Rectangle clipping */
+    /**
+    * Rectangle clipping
+    */
     public class RectangleClipping extends Clipping
     {
-        public function RectangleClipping(minX:Number = -1000000, minY:Number = -1000000, maxX:Number = 1000000, maxY:Number = 1000000)
+    	private var tri:DrawTriangle;
+    	private var _v0C:VertexClassification;
+    	private var _v1C:VertexClassification;
+    	private var _v2C:VertexClassification;
+    	private var _v0d:Number;
+    	private var _v1d:Number;
+    	private var _v2d:Number;
+    	private var _v0w:Number;
+    	private var _v1w:Number;
+    	private var _v2w:Number;
+    	private var _p:Number;
+    	private var _d:Number;
+    	private var _session:AbstractRenderSession;
+    	private var _frustum:Frustum;
+    	private var _pass:Boolean;
+    	private var _v0Classification:Plane3D;
+		private var _v1Classification:Plane3D;
+		private var _v2Classification:Plane3D;
+		private var _plane:Plane3D;
+		private var _v0:Vertex;
+    	private var _v01:Vertex;
+    	private var _v1:Vertex;
+    	private var _v12:Vertex;
+    	private var _v2:Vertex;
+    	private var _v20:Vertex;
+    	private var _uv0:UV;
+    	private var _uv01:UV;
+    	private var _uv1:UV;
+    	private var _uv12:UV;
+    	private var _uv2:UV;
+    	private var _uv20:UV;
+    	private var _f0:FaceVO;
+    	private var _f1:FaceVO;
+    	
+        public function RectangleClipping(init:Object = null)
         {
-            this.minX = minX;
-            this.maxX = maxX;
-            this.minY = minY;
-            this.maxY = maxY;
+            super(init);
+            
+            objectCulling = ini.getBoolean("objectCulling", false);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public override function asRectangleClipping():RectangleClipping
-        {
-            return this;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public override function check(pri:DrawPrimitive):Boolean
+        public override function checkPrimitive(pri:DrawPrimitive):Boolean
         {
             if (pri.maxX < minX)
                 return false;
@@ -34,35 +65,17 @@ package away3d.core.clip
                 return false;
             if (pri.minY > maxY)
                 return false;
-
+			
             return true;
         }
         
-		/**
-		 * @inheritDoc
-		 */
-        public override function rect(minX:Number, minY:Number, maxX:Number, maxY:Number):Boolean
+		public override function clone(object:Clipping = null):Clipping
         {
-            if (this.maxX < minX)
-                return false;
-            if (this.minX > maxX)
-                return false;
-            if (this.maxY < minY)
-                return false;
-            if (this.minY > maxY)
-                return false;
-
-            return true;
-        }
-		
-		/**
-		 * Used to trace the values of a rectangle clipping object.
-		 * 
-		 * @return A string representation of the rectangle clipping object.
-		 */
-        public function toString():String
-        {
-        	return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + "}";
+        	var clipping:RectangleClipping = (object as RectangleClipping) || new RectangleClipping();
+        	
+        	super.clone(clipping);
+        	
+        	return clipping;
         }
     }
 }

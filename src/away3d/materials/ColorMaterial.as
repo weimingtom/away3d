@@ -31,7 +31,7 @@ package away3d.materials
         
     	private var _color:uint;
     	private var _alpha:Number;
-    	private var _faceDirty:Boolean;
+    	private var _materialDirty:Boolean;
     	private var _materialupdated:MaterialEvent;
     	
         /**
@@ -50,7 +50,7 @@ package away3d.materials
         	
         	_color = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         public function get color():uint
@@ -68,7 +68,7 @@ package away3d.materials
         	
         	_alpha = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         public function get alpha():Number
@@ -107,8 +107,8 @@ package away3d.materials
 		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
-        	if (_faceDirty) {
-        		_faceDirty = false;
+        	if (_materialDirty) {
+        		_materialDirty = false;
         		notifyMaterialUpdate();
         	}
         }
