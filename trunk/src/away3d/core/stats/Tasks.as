@@ -2,7 +2,6 @@ package away3d.core.stats
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-	import flash.display.BlendMode;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
@@ -29,7 +28,7 @@ package away3d.core.stats
 		private var fps		:Number = 0;
 		private var timer	:Number = 0;
 		private var ms		:Number = 0;
-		private var msPrev	:Number = 0;		
+		private var msPrev	:Number = 0;
 		private var mem		:Number = 0;
 		
 		private var _width	:Number = 0;
@@ -55,23 +54,24 @@ package away3d.core.stats
         	graphBitmap = new Bitmap();
         	addChild(graphBitmap);
         	
-        	blendMode = BlendMode.MULTIPLY;
-        	
         	var logo:Logo = new Logo();
         	logo.x = 1;
         	logo.y = 1;
         	addChild(logo);
         	
+        	_width = width+2;
+        	
         	// default task
-        	addTask("$Away3D", 	"000000", width,	1, "<b>Away3D </b>"+Stats.VERSION+"."+Stats.REVISION +" | "+desc+" | ");
-        	addTask("FPS",		"CC0000", _width, 	1, "", 80);
-        	addTask("MS",		"00CC00", _width, 	1, "", 60);
-        	addTask("MEM",		"0000CC", _width, 	1, "", 90);
+        	addTask("DESC", "000000", _width,	1, ""+desc);
+        	addTask("FPS",	"CC0000", _width, 	1, "", 80);
+        	addTask("MS",	"00CC00", _width, 	1, "", 60);
+        	addTask("MEM",	"0000CC", _width, 	1, "", 90);
 			
 			// graph
 			graphBitmapData = graphBitmap.bitmapData = new BitmapData(100, _height, false, 0x000000);
 			
 			addEventListener(Event.ENTER_FRAME, update, false, 0, true);
+			
 			draw();
         }
         
@@ -89,15 +89,15 @@ package away3d.core.stats
         public function addTask(id:String, rgb:String="", x:Number=-1, y:Number=1, text:String="", span:Number=-1):StaticTextField
         {
         	x = (x>0)?x:_width;
-        	rgb = (rgb!="")?rgb:"DDDDDD";
+        	rgb = (rgb!="")?rgb:"FFFF00";
         	
-        	text = (text!="")?text:"<FONT COLOR='#"+rgb+"'><b>"+id+":</b></FONT>";
+        	text = (text!="")?text:"<FONT COLOR='#999999'> | </FONT><FONT COLOR='#"+rgb+"'><b>"+id+" : </b></FONT>";
         	
         	var _text:StaticTextField = new StaticTextField(text);
         	_text.x = x;
         	_text.y = y;
         	
-        	span = (span>0)?span:_text.width+20;
+        	span = (span>0)?span:Math.max(_text.width+10,60);
         	_width += span;
         	
         	addChild(_text);
@@ -116,7 +116,7 @@ package away3d.core.stats
         	getInstance().times[id] = getTimer();
         }
         
-        public static function end(id:String, rgb:String="DDDDDD"):void
+        public static function end(id:String, rgb:String="FFFF00"):void
         {
         	//current 
         	var _time:Number = getTimer();
@@ -138,23 +138,6 @@ package away3d.core.stats
         		tasks.graphBitmapData.setPixel(0, tasks.graphBitmapData.height - ((_time - time)*.5 << 0), Number("0x"+rgb));
         	
         	task.htmlText = task.defaultText + Number(_time-time);
-        }
-        
-        private function draw():void
-        {
-        	// Graph
-        	graphBitmap.x = Math.max(_width, stage?stage.stageWidth-graphBitmap.width:0);
-        	
-			// Background
-			graphics.clear();
-			graphics.beginFill(0x999999);
-			
-			if(stage)
-				graphics.drawRect(0, 0, stage.stageWidth, _height);
-			else
-				graphics.drawRect(0, 0, width, _height);
-			
-			graphics.endFill();
         }
         
         private function update( event:Event ):void
@@ -195,6 +178,22 @@ package away3d.core.stats
 			
 			tasks["MS"].htmlText = tasks["MS"].defaultText + (timer - ms);
 			ms = timer;
+        }
+        
+        private function draw():void
+        {
+        	// Graph
+        	graphBitmap.x = _width;
+        	
+			// Background
+			graphics.clear();
+			graphics.beginFill(0xCCCCCC);
+			graphics.drawRect(0, 0, width, _height);
+			graphics.endFill();
+			
+			//Position
+			if(stage)
+				x = Math.max(0,stage.stageWidth*.5 - width*.5);
         }
     }
 }

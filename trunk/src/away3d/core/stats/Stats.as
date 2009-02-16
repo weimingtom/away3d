@@ -63,8 +63,8 @@ package away3d.core.stats
         private var defautTF:TextFormat = new TextFormat("Verdana", 10, 0x000000);
 		private var defautTFBold:TextFormat = new TextFormat("Verdana", 10, 0x000000, true);
         //
-        public static const VERSION:String = "2";
-        public static const REVISION:String = "3.0";
+        private const VERSION:String = "2";
+        private const REVISION:String = "3.0";
         private const APPLICATION_NAME:String = "Away3D.com";
         
         public var sourceURL:String;
