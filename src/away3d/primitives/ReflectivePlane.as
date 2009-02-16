@@ -262,6 +262,11 @@ package away3d.primitives
 				return _backgroundAlpha;
 			}
 		
+			public function get reflectionBmd():BitmapData
+			{
+				return _reflectionBmd;
+			}
+		
 		//Optical adjustments.
 		
 			public function set reflectionBlur(value:Number):void
