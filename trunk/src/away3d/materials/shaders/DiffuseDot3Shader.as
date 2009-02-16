@@ -215,7 +215,6 @@ package away3d.materials.shaders
 		 */
 		public override function updateMaterial(source:Object3D, view:View3D):void
         {
-        	clearLightingShapeDictionary();
         	for each (directional in source.lightarray.directionals) {
         		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
@@ -229,14 +228,14 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	super.renderLayer(tri, layer, level);
         	
         	for each (directional in _lights.directionals)
         	{
         		if (_lights.numLights > 1) {
-					_shape = getLightingShape(layer, directional);
+					_shape = _session.getLightShape(this, level++, layer, directional);
 	        		_shape.filters = [directional.normalMatrixTransform[_source], directional.colorMatrixTransform[_source]];
 	        		_shape.blendMode = blendMode;
 	        		_shape.transform.colorTransform = directional.ambientDiffuseColorTransform;
@@ -254,6 +253,8 @@ package away3d.materials.shaders
 			
 			if (debug)
                 _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+            
+            return level;
         }
     }
 }

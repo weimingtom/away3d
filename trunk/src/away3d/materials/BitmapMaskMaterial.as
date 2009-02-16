@@ -753,28 +753,23 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	if (blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
         		_session = tri.source.session;
-	        	if (_session != tri.source.scene.session) {
-	        		//check to see if source shape exists
-		    		if (!(_shape = _shapeDictionary[_session]))
-		    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
-	        	} else {
-		        	//check to see if face shape exists
-		    		if (!(_shape = _shapeDictionary[tri.faceVO]))
-		    			layer.addChild(_shape = _shapeDictionary[tri.faceVO] = new Shape());
-	        	}
+        		
+				_shape = _session.getShape(this, level++, layer);
+				
 	    		_shape.blendMode = _blendMode;
 	    		
 	    		_graphics = _shape.graphics;
         	}
     		
-    		
     		renderTriangle(tri);
+    		
+    		return level;
         }
         
 		/**
@@ -785,9 +780,6 @@ package away3d.materials
         	_mapping = getMapping(tri);
 			_session = tri.source.session;
         	_view = tri.view;
-        	
-        	if (!_graphics && _session != tri.source.scene.session && _session.newLayer)
-        		_graphics = _session.newLayer.graphics;
         	
 			if (precision) {
             	focus = tri.view.camera.focus;

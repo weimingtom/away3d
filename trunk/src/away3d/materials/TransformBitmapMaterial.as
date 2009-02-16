@@ -569,7 +569,6 @@ package away3d.materials
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
         	_graphics = null;
-        	clearShapeDictionary();
         	
         	if (_colorTransformDirty)
         		updateColorTransform();
