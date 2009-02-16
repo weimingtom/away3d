@@ -872,7 +872,7 @@ package away3d.primitives
 				BitmapMaterial(_bumpMapDummyPlane.material).alpha = 1;
 			}
 			
-			_bumpMapDummyPlane.pushback = true;
+			//_bumpMapDummyPlane.pushback = true;
 			_bumpMapDummyPlane.alpha = 0;
 			
 			scene.addChild(_bumpMapDummyPlane);

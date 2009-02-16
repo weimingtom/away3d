@@ -210,30 +210,27 @@ package away3d.materials
         	_session = _source.session;
     		var level:int = 0;
     		
-    		if (!(_sprite = _session.spriteLayers[level]))
-    			_sprite = _session.spriteLayers[level] = new Sprite();
-	    	
-	    	if (!_session.children[_sprite]) {
-        			_session.addLayerObject(_sprite);
-        		
-	    		_sprite.filters = [];
+    		_sprite = _session.layer as Sprite;
+    		
+        	if (!_sprite || _colorTransform || blendMode != BlendMode.NORMAL) {
+        		_sprite = _session.getSprite(this, level++);
         		_sprite.blendMode = blendMode;
-        		
-        		if (_colorTransform)
-	    			_sprite.transform.colorTransform = _colorTransform;
-	    		else
-	    			_sprite.transform.colorTransform = _defaultColorTransform;
-      		}
-        	
+        	}
+    		
+    		if (_colorTransform)
+    			_sprite.transform.colorTransform = _colorTransform;
+    		else
+    			_sprite.transform.colorTransform = _defaultColorTransform;
+	        
     		//call renderLayer on each material
     		for each (_material in materials)
-        		_material.renderLayer(tri, _sprite, ++level);
+        		level = _material.renderLayer(tri, _sprite, level);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
         		_sprite = layer;
@@ -241,11 +238,8 @@ package away3d.materials
         		_source = tri.source;
         		_session = _source.session;
         		
-        		//check to see if session sprite exists
-	    		if (!(_sprite = _session.spriteLayers[level]))
-	    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
+        		_sprite = _session.getSprite(this, level++, layer);
 	        	
-	        	_sprite.filters = [];
 	        	_sprite.blendMode = blendMode;
 	        	
 	    		if (_colorTransform)
@@ -256,7 +250,9 @@ package away3d.materials
     		
 	    	//call renderLayer on each material
     		for each (_material in materials)
-        		_material.renderLayer(tri, _sprite, level++);
+        		level = _material.renderLayer(tri, _sprite, level);
+        	
+        	return level;
         }
         
 		/**

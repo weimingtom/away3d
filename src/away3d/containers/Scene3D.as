@@ -40,7 +40,6 @@ package away3d.containers
         private function onUpdate(event:ViewEvent):void
         {
         	if (autoUpdate) {
-        		
         		if (_currentView && _currentView != event.view)
         			Debug.warning("Multiple views detected! Should consider switching to manual update");
         		

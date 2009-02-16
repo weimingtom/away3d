@@ -62,12 +62,6 @@
                 _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
-        }
-        /** @private */
-        arcane function clearShapeDictionary():void
-        {
-        	for each (_shape in _shapeDictionary)
-	        	_shape.graphics.clear();
         }        
         /** @private */
 		arcane function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):void
@@ -109,7 +103,6 @@
 		private var _debug:Boolean;
 		private var _repeat:Boolean;
         private var _precision:Number;
-        private var _shapeDictionary:Dictionary = new Dictionary(true);
     	private var _shape:Shape;
     	private var _materialupdated:MaterialEvent;
         private var focus:Number;
@@ -637,7 +630,6 @@
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	_graphics = null;
-        	clearShapeDictionary();
         		
         	if (_colorTransformDirty)
         		updateColorTransform();
@@ -661,21 +653,19 @@
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	if (blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
-        		_session = tri.source.session;        		        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session]))
-	    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());	    		
+        		_session = tri.source.session;        		        		_shape = _session.getShape(this, level++, layer);	    		
 	    		_shape.blendMode = _blendMode;
 	    		
 	    		_graphics = _shape.graphics;
         	}
     		
     		
-    		renderTriangle(tri);
+    		renderTriangle(tri);    		    		return level;
         }
         
 		/**
@@ -687,7 +677,7 @@
 			_session = tri.source.session;
         	_view = tri.view;
         	_near = _view.screenClipping.minZ;        	
-        	if (!_graphics && _session.newLayer)        		_graphics = _session.newLayer.graphics;
+        	//if (!_graphics && _session.newLayer)        	//	_graphics = _session.newLayer.graphics;
         	
 			if (precision) {				if (_view.camera.lens is ZoomFocusLens)
             		focus = tri.view.camera.focus;

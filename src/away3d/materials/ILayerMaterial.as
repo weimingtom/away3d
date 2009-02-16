@@ -32,6 +32,6 @@ package away3d.materials
     	 * @param	layer			The parent layer into which the triangle is drawn.
     	 * @param	parentFaceMaterialVO	Defines the sprite level for the layer.
     	 */
-        function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void;
+        function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int;
     }
 }

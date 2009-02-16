@@ -199,7 +199,7 @@ package away3d.materials
 		/**
 		 * @private
 		 */
-        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	throw new Error("Not implemented");
         }

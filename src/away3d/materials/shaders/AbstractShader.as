@@ -29,11 +29,7 @@ package away3d.materials.shaders
         /** @private */
         arcane var _faceDictionary:Dictionary = new Dictionary(true);
         /** @private */
-        arcane var _spriteDictionary:Dictionary = new Dictionary(true);
-        /** @private */
         arcane var _sprite:Sprite;
-        /** @private */
-        arcane var _shapeDictionary:Dictionary = new Dictionary(true);
         /** @private */
         arcane var _shape:Shape;
         /** @private */
@@ -102,20 +98,6 @@ package away3d.materials.shaders
             dispatchEvent(_materialupdated);
         }
         /** @private */
-        arcane function clearShapeDictionary():void
-        {
-        	for each (_shape in _shapeDictionary)
-        		_shape.graphics.clear();
-        }
-        /** @private */
-        arcane function clearLightingShapeDictionary():void
-        {
-        	
-        	for each (_dict in _shapeDictionary)
-        		for each (_shape in _dict)
-	        		_shape.graphics.clear();
-        }
-        /** @private */
 		arcane final function contains(v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, x:Number, y:Number):Boolean
         {   
             if (v0x*(y - v1y) + v1x*(v0y - y) + x*(v1y - v0y) < -0.001)
@@ -136,21 +118,6 @@ package away3d.materials.shaders
         */
         protected var ini:Init;
         
-		/**
-		 * Returns a shape object for use by environment shaders.
-		 * 
-		 * @param	layer	The parent layer of the triangle
-		 * @return			The resolved shape object to use for drawing
-		 */
-        protected function getShape(layer:Sprite):Shape
-        {
-        	_session = _source.session;
-    		//check to see if source shape exists
-    		if (!(_shape = _shapeDictionary[_session]))
-    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
-        	return _shape;
-        }
-        
         /**
         * Renders the shader to the specified face.
         * 
@@ -159,24 +126,6 @@ package away3d.materials.shaders
         protected function renderShader(tri:DrawTriangle):void
         {
         	throw new Error("Not implemented");
-        }
-        
-		/**
-		 * Returns a shape object for use by light shaders
-		 * 
-		 * @param	layer	The parent layer of the triangle.
-		 * @param	light	The light primitive.
-		 * @return			The resolved shape object to use for drawing.
-		 */
-        protected function getLightingShape(layer:Sprite, light:LightPrimitive):Shape
-        {
-        	_session = _source.session;
-        	if (!_shapeDictionary[_session])
-				_shapeDictionary[_session] = new Dictionary(true);
-    		//check to see if source shape exists
-    		if (!(_shape = _shapeDictionary[_session][light]))
-    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
-        	return _shape;
         }
         
     	/**
@@ -220,13 +169,16 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	_source = tri.source as Mesh;
+        	_session = _source.session;
 			_view = tri.view;
 			_faceVO = tri.faceVO;
 			_face = _faceVO.face;
 			_lights = tri.source.lightarray;
+			
+			return level;
         }
         
 		/**
@@ -235,6 +187,7 @@ package away3d.materials.shaders
         public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
         {
         	_source = tri.source as Mesh;
+        	_session = _source.session;
 			_view = tri.view;
 			_faceVO = tri.faceVO;
 			_face = _faceVO.face;

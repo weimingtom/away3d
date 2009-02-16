@@ -29,7 +29,7 @@ package away3d.core.render
 		private var mStore:Array = new Array();
 		private var mActive:Array = new Array();
 		private var layers:Array = [];
-		private var layer:DisplayObject;
+		private var _layer:DisplayObject;
 		
 		/**
 		 * Creates a new <code>BitmapRenderSession</code> object.
@@ -96,9 +96,6 @@ package away3d.core.render
             //add child to layers
             layers.push(child);
             child.visible = true;
-        	
-			//add child to children
-            children[child] = child;
             
             _layerDirty = true;
         }
@@ -106,16 +103,22 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public override function addLayerObject(child:Sprite):void
+        protected override function createSprite(parent:Sprite = null):Sprite
         {
-            //add child to layers
-            layers.push(child);
-            child.visible = true;       
+        	if (_spriteStore.length) {
+            	_spriteActive.push(_sprite = _spriteStore.pop());
+            } else {
+            	_spriteActive.push(_sprite = new Sprite());
+            }
             
-            //add child to children
-            children[child] = child;
+            if (parent)
+            	parent.addChild(_sprite)
+            else
+            	layers.push(_sprite);
             
-            newLayer = child;
+            _layerDirty = true;
+            
+            return _sprite;
         }
         
 		/**
@@ -124,17 +127,17 @@ package away3d.core.render
         protected override function createLayer():void
         {
             //create new canvas for remaining triangles
-            if (_doStore.length) {
-            	_shape = _doStore.pop();
+            if (_shapeStore.length) {
+            	_shapeActive.push(_shape = _shapeStore.pop());
             } else {
-            	_shape = new Shape();
+            	_shapeActive.push(_shape = new Shape());
             }
+            
+            //update layer reference
+            layer = _shape;
             
             //update graphics reference
             graphics = _shape.graphics;
-            
-            //store new canvas
-            _doActive.push(_shape);
             
             //add new canvas to layers
             layers.push(_shape);
@@ -165,13 +168,10 @@ package away3d.core.render
 	        	_base.lock();
 	        	_base.fillRect(_base.rect, 0);
 	            
-	            //remove all children
-	            children = new Dictionary(true);
-	            newLayer = null;
-	            
 	            //remove all layers
 	            layers = [];
 	            _layerDirty = true;
+	            layer = null;
 	        }
 	        
 	        if ((filters && filters.length) || (_bitmapContainer.filters && _bitmapContainer.filters.length))
@@ -189,8 +189,8 @@ package away3d.core.render
 	        super.render(view);
 	        	
         	if (updated) {
-	            for each (layer in layers)
-	            	_base.draw(layer, _cm, layer.transform.colorTransform, layer.blendMode, _base.rect);
+	            for each (_layer in layers)
+	            	_base.draw(_layer, _cm, _layer.transform.colorTransform, _layer.blendMode, _base.rect);
 	           	
 	           _base.unlock();
 	        }
