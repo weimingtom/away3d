@@ -5,7 +5,7 @@ package away3d.events
 	import flash.events.Event;
     
     /**
-    * Passed as a parameter when a session event occurs
+    * Passed as a parameter when a camera event occurs
     */
     public class CameraEvent extends Event
     {

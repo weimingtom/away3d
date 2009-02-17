@@ -27,6 +27,7 @@ package away3d.core.traverse
         private var _cameraViewMatrix:Matrix3D;
         private var _viewTransform:Matrix3D;
         private var _nodeClassification:int;
+        private var _mesh:Mesh;
 		
 		/**
 		 * Defines the view being used.
@@ -107,8 +108,14 @@ package away3d.core.traverse
                 _view.blockers[node] = node;
             
         	//add to scene meshes dictionary
-            if (node is Mesh)
-            	_view.scene.meshes[node] = node;
+            if ((_mesh = node as Mesh)) {
+            	if (!_view.scene.meshes[node])
+            		_view.scene.meshes[node] = [];
+            	
+            	_view.scene.meshes[node].push(_view);
+            	
+            	_view.scene.geometries[_mesh.geometry] = _mesh.geometry;
+            }
         }
         
         public override function leave(node:Object3D):void
