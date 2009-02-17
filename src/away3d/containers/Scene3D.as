@@ -29,9 +29,11 @@ package away3d.containers
         }
         
         private var _view:View3D;
+        private var _viewArray:Array;
         private var _currentView:View3D;
         private var _mesh:Mesh;
-        private var _time:int;
+        private var _key:Object;
+        private var _geometry:Geometry;
         private var _autoUpdate:Boolean;
         private var _projtraverser:ProjectionTraverser = new ProjectionTraverser();
         private var _sessiontraverser:SessionTraverser = new SessionTraverser();
@@ -72,6 +74,11 @@ package away3d.containers
         * Library of  all meshes in the scene.
         */
         public var meshes:Dictionary;
+        
+        /**
+        * Library of  all geometries in the scene.
+        */
+        public var geometries:Dictionary;
         
         /**
         * Defines whether scene events are automatically triggered by the view, or manually by <code>updateScene()</code>
@@ -148,19 +155,22 @@ package away3d.containers
         	
         	//clear updated sessions
         	updatedSessions = new Dictionary(true);
+    		
+        	//clear meshes
+        	meshes = new Dictionary(true);
+        	
+        	//clear geometries
+        	geometries = new Dictionary(true);
         	
         	//traverse lights
 			traverse(_lighttraverser);
 				
         	//execute projection traverser on each view
         	for each(_view in viewDictionary) {
-        		
-        		//update camera
+	        	
+				//update camera
 	        	_view.camera.update();
-	        	
-	        	//clear meshes
-	        	meshes = new Dictionary(true);
-	        	
+				
 	        	//clear blockers
 	        	_view.blockers = new Dictionary(true);
 	        	
@@ -175,19 +185,20 @@ package away3d.containers
 	        	//traverse scene
         		_projtraverser.view = _view;
 				traverse(_projtraverser);
-	        	
-	        	_time = getTimer();
-	        	
-	        	//update materials in meshes
-	        	for each (_mesh in meshes) {
-	        		//update node materials
-		        	_mesh.updateMaterials(_mesh, _view);
-		        	//update geometry materials
-		        	_mesh.geometry.updateMaterials(_mesh, _view);
-		        	//update elements
-	        		_mesh.geometry.updateElements(_time);
-	        	}
         	}
+        	
+        	//update meshes
+        	for (_key in meshes) {
+        		_mesh = _key as Mesh;
+        		_viewArray = meshes[_mesh];
+        		//update materials
+        		for each (_view in _viewArray)
+		        	_mesh.updateMaterials(_mesh, _view);
+        	}
+        	
+        	//update geometries
+        	for each (_geometry in geometries)
+        		_geometry.updateElements();
         	
         	//traverse sessions
 			traverse(_sessiontraverser);
