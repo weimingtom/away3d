@@ -7,14 +7,11 @@ package away3d.primitives
 	import away3d.core.draw.ScreenVertex;
 	import away3d.core.math.Matrix3D;
 	import away3d.core.math.Number3D;
-	import away3d.core.render.BitmapRenderSession;
-	import away3d.core.render.SpriteRenderSession;
 	import away3d.events.ViewEvent;
 	import away3d.materials.BitmapMaskMaterial;
 	import away3d.materials.BitmapMaterial;
 	import away3d.materials.CompositeMaterial;
 	
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.BitmapDataChannel;
 	import flash.display.Sprite;
@@ -28,72 +25,54 @@ package away3d.primitives
 	import flash.geom.Rectangle;
 	
 	/* 
-		Experimenting reflections injecting a secondary view into the plane material.
+		This class is a work in progress...
 		
-		Away3D engine changes to support this...
-		- Added BitmapMaskMaterial. Review how this is implemented, seems overkill for only a slight change
-		  in the render triangle method.
-		- Added looking at target in Object3D. This is used to mirror the looking at point of the camera.
-		  Review what would happen if lookAt is not used in the main camera...
-		- Extended ViewEvent with type RENDER_COMPLETE.
+		Experimenting reflections by injecting the view of a secondary camera into the material of a plane.
 	*/
 	public class ReflectivePlane extends Plane
 	{	
 		//---------------------------------------------------------------------------------------------------------
-		// static fields
-		//---------------------------------------------------------------------------------------------------------
-		
-		public static const OPTICAL_MODE_REFLECTIVE:String = "reflectiveOpticMode";
-		public static const OPTICAL_MODE_REFRACTIVE:String = "refractiveOpticMode";
-		public static const OPTICAL_MODE_DUAL:String = "dualOpticMode";
-		public static const RENDER_MODE_SPRITE:String = "spriteRenderMode";
-		public static const RENDER_MODE_BITMAP:String = "bitmapRenderMode";
-		
-		//---------------------------------------------------------------------------------------------------------
 		// private fields
 		//---------------------------------------------------------------------------------------------------------
 		
-		private var _opticalModes:Array = [OPTICAL_MODE_REFLECTIVE, OPTICAL_MODE_REFRACTIVE, OPTICAL_MODE_DUAL];
-		private var _renderModes:Array = [RENDER_MODE_SPRITE, RENDER_MODE_BITMAP];
 		private var _zeroPoint:Point;
 		private var _viewRect:Rectangle;
 		private var _effectsBounds:Rectangle;
 		private var _planeBounds:Rectangle;
+		private var _identityColorTransform:ColorTransform;
+		
 		private var _camera:Camera3D;
 		private var _view:View3D;
 		private var _reflectionCamera:Camera3D;
 		private var _reflectionView:View3D;
 		private var _reflectionViewHolder:Sprite;
+		
 		private var _normal:Number3D;
 		private var _reflectionMatrix3D:Matrix3D;
 		private var _reflectionMatrix2D:Matrix;
 		private var _plane2DRotation:Number = 0;
+		
 		private var _reflectionAlpha:Number = 1;
-		private var _refractionAlpha:Number = 1;
 		private var _reflectionColorTransform:ColorTransform;
-		private var _refractionColorTransform:ColorTransform;
-		private var _identityColorTransform:ColorTransform;
 		private var _reflectionBlur:BlurFilter;
-		private var _refractionBlur:BlurFilter;
+		
 		private var _hideList:Array;
-		private var _opticalMode:String = OPTICAL_MODE_REFLECTIVE;
 		private var _cameraOnFrontSide:Boolean;
+		
 		private var _materialBoundTolerance:Number = 0;
-		private var _renderMode:String = RENDER_MODE_SPRITE;
-		private var _bitmapRenderModeScale:Number = 2;
 		private var _scaling:Number = 1;
+		
 		private var _backgroundImage:BitmapData;
 		private var _smoothMaterials:Boolean;
-		private var _backgroundColor:int;
+		private var _backgroundColor:int = 0xFFFFFF;
 		private var _backgroundAlpha:Number = 1;
 		private var _redrawMatrix:Matrix;
 		private var _compositeMaterial:CompositeMaterial;
 		private var _backgroundMaterial:BitmapMaterial;
-		private var _refractionMaterial:BitmapMaskMaterial;
 		private var _reflectionMaterial:BitmapMaskMaterial;
 		private var _backgroundBmd:BitmapData;
-		private var _refractionBmd:BitmapData;
 		private var _reflectionBmd:BitmapData;
+		
 		private var _v0:Vertex;
 		private var _v1:Vertex;
 		private var _v2:Vertex;
@@ -102,6 +81,7 @@ package away3d.primitives
 		private var _sv1:ScreenVertex;
 		private var _sv2:ScreenVertex;
 		private var _sv3:ScreenVertex;
+		
 		private var _useBackgroundImageForDistortion:Boolean = true;
 		private var _bumpMapDummyPlane:Plane;
 		private var _bumpMapContainer:Sprite;
@@ -110,11 +90,6 @@ package away3d.primitives
 		private var _displacementMap:DisplacementMapFilter;
 		private var _distortionChannel:uint = BitmapDataChannel.RED;
 		private var _distortionImage:BitmapData;
-		
-		//TODO: Remove in final version.
-		private var _debugLayer:Sprite;
-		private var _debugBmp:Bitmap;
-		private var _hasDebugGraphics:Boolean = false;
 		
 		//---------------------------------------------------------------------------------------------------------
 		// setters & getters
@@ -125,22 +100,6 @@ package away3d.primitives
 			public function get reflectionView():View3D
 			{
 				return _reflectionView;
-			}
-		
-		//Optical modes.
-			
-			public function set opticalMode(value:String):void
-			{
-				if(_opticalModes.indexOf(value) == -1)
-					return;
-				
-				_opticalMode = value;
-				
-				buildMaterials();
-			}
-			public function get opticalMode():String
-			{
-				return _opticalMode;
 			}
 		
 		//Rendering.
@@ -158,44 +117,6 @@ package away3d.primitives
 			public function get reflectionQuality():Number
 			{
 				return 1/_scaling;
-			}
-		
-			public function set renderMode(value:String):void
-			{
-				if(_renderModes.indexOf(value) == -1)
-					return;
-				
-				if(_renderMode == value)
-					return;
-				
-				if(!_view)
-					return;
-				
-				_renderMode = value;
-					
-				if(_renderMode == RENDER_MODE_BITMAP)
-					_reflectionView.session = new BitmapRenderSession(_bitmapRenderModeScale);
-				else
-					_reflectionView.session = new SpriteRenderSession();
-			}
-			public function get renderMode():String
-			{
-				return _renderMode;
-			}
-			
-			public function set bitmapScaling(value:Number):void
-			{
-				_bitmapRenderModeScale = value;
-				
-				if(!_view)
-					return;
-				
-				if(_renderMode == RENDER_MODE_BITMAP)
-					_reflectionView.session = new BitmapRenderSession(_bitmapRenderModeScale);
-			}
-			public function get bitmapScaling():Number
-			{
-				return _bitmapRenderModeScale;
 			}
 		
 		//Materials.
@@ -218,7 +139,6 @@ package away3d.primitives
 					
 				_backgroundMaterial.smooth = value;
 				_reflectionMaterial.smooth = value;
-				_refractionMaterial.smooth = value;
 			}
 			public function get smoothMaterials():Boolean
 			{
@@ -288,25 +208,6 @@ package away3d.primitives
 				return _reflectionBlur;
 			}
 		
-			public function set refractionBlur(value:Number):void
-			{
-				_refractionBlur.blurX = value;
-				_refractionBlur.blurY = value;
-			}
-			public function get refractionBlur():Number
-			{
-				return _refractionBlur.blurX;
-			}
-			
-			public function set refractionBlurFilter(blur:BlurFilter):void
-			{
-				_refractionBlur = blur;
-			}
-			public function get refractionBlurFilter():BlurFilter
-			{
-				return _refractionBlur;
-			}
-		
 			public function set reflectionColorTransform(value:ColorTransform):void
 			{
 				_reflectionAlpha = value.alphaMultiplier;
@@ -327,28 +228,6 @@ package away3d.primitives
 			public function get reflectionAlpha():Number
 			{
 				return _reflectionAlpha;
-			}
-		
-			public function set refractionColorTransform(value:ColorTransform):void
-			{
-				_refractionAlpha = value.alphaMultiplier;
-				
-				_refractionColorTransform = value;
-			}
-			public function get refractionColorTransform():ColorTransform
-			{
-				return _refractionColorTransform;
-			}
-			
-			public function set refractionAlpha(value:Number):void
-			{
-				_refractionAlpha = value;
-				
-				_refractionColorTransform.alphaMultiplier = value;
-			}
-			public function get refractionAlpha():Number
-			{
-				return _refractionAlpha;
 			}
 		
 		//Distortion.
@@ -406,71 +285,45 @@ package away3d.primitives
 				return _useBackgroundImageForDistortion;
 			}
 			
-			//TODO: Remove in release.
-			private var _enableDebugBoundingBox:Boolean = false;
-			public function set enableDebugBoundingBox(value:Boolean):void
-			{
-				_enableDebugBoundingBox = value;
-			}
-			private var _enableDebugDummyPlane:Boolean = false;
-			public function set enableDebugDummyPlane(value:Boolean):void
-			{
-				_enableDebugDummyPlane = value;
-			}
-			public function set enableDebugVisibleVirtualObjects(value:Boolean):void
-			{
-				_reflectionViewHolder.visible = value;
-			}
-		
 		//---------------------------------------------------------------------------------------------------------
 		// constructor and init
 		//---------------------------------------------------------------------------------------------------------
 		
-		public function ReflectivePlane()
+		public function ReflectivePlane(view:View3D)
 		{
 			super();
 			
+			_view = view;
+			_camera = view.camera;
+			
 			_zeroPoint = new Point();
 			_planeBounds = new Rectangle();
-			_refractionColorTransform = new ColorTransform();
 			_reflectionColorTransform = new ColorTransform();
 			_identityColorTransform = new ColorTransform();
 			_reflectionBlur = new BlurFilter(0, 0, 1);
-			_refractionBlur = new BlurFilter(0, 0, 1);
 			
 			_backgroundBmd = new BitmapData(1, 1, true, 0);
-			_refractionBmd = new BitmapData(1, 1, true, 0);
-			_refractionBmd = new BitmapData(1, 1, true, 0);
+			_reflectionBmd = new BitmapData(1, 1, true, 0);
 			_backgroundMaterial = new BitmapMaterial(_backgroundBmd);
-			_refractionMaterial = new BitmapMaskMaterial(_refractionBmd);
 			_reflectionMaterial = new BitmapMaskMaterial(_reflectionBmd);
 			
 			//Listens for scene change to trigger init().
 			this.addOnSceneChange(sceneChangeHandler);
-			
-			//Listens for transform change to update plane data (normal and reflection matrixes) and dummy plane.
-			this.addOnTransformChange(transformChangeHandler);
-			this.addOnDimensionsChange(dimensionsChangeHandler);
 		}
 		
 		private function init():void
 		{
 			this.removeOnSceneChange(sceneChangeHandler);
 			
-			//Find the main view automatically.
-			var viewSet:Boolean;
-			for each(var view:View3D in this.scene.viewDictionary)
-			{
-				if(!viewSet)
-					_view = view;
-			}
-			_camera = view.camera;
-			
 			initSubScene();
 			buildMaterials();
 			calculatePlaneData();
 			
 			this.bothsides = true;
+			
+			//Listens for transform change to update plane data (normal and reflection matrixes) and dummy plane.
+			this.addOnTransformChange(transformChangeHandler);
+			this.addOnDimensionsChange(dimensionsChangeHandler);
 		}
 		
 		private function initSubScene():void
@@ -491,19 +344,6 @@ package away3d.primitives
 			_reflectionView.mouseChildren = false;
 			_viewRect = new Rectangle(0, 0, _view.clipping.maxX - _view.clipping.minX, _view.clipping.maxY - _view.clipping.minY);
 			
-			if(_renderMode == RENDER_MODE_BITMAP)
-				_reflectionView.session = new BitmapRenderSession(_bitmapRenderModeScale);
-				
-			//TODO: Remove in final version.
-			//-----------------------------------
-			_debugLayer = new Sprite();
-			_debugBmp = new Bitmap();
-			_debugLayer.addChild(_debugBmp);
-			_debugLayer.x = _view.x;
-			_debugLayer.y = _view.y;
-			_view.parent.addChild(_debugLayer);
-			//-----------------------------------
-			
 			//The reflection is placed on a holder, so that bitmap scaling techniques can be used
 			//to control redrawing quality.
 			_reflectionViewHolder = new Sprite();
@@ -516,14 +356,9 @@ package away3d.primitives
 			//TODO: Remove on final version.
 			_reflectionViewHolder.alpha = 0.25;
 			
-			//TODO: What happens on stage resize?
-	
-			//Used to extract an image of the main view, used for refractions.
-			_view.addEventListener(ViewEvent.UPDATE_SCENE, mainViewUpdateHandler);
+			//TODO: Change this type of autorendering to an override of updateMaterials().
+			_view.addEventListener(ViewEvent.RENDER_COMPLETE, mainViewRenderCompleteHandler);
 			
-			//Used to auto render the reflection view.
-			_view.addEventListener(ViewEvent.RENDER_COMPLETE, mainViewRenderHandler); //I created this event in the engine.
-				
 			//A lot of comments to what the dummy plane is for below.
 			if(_distortionStrength != 0)
 				buildDummyPlane();
@@ -543,31 +378,21 @@ package away3d.primitives
 			//no need to draw any reflection or refraction.
 			if(!_cameraOnFrontSide && back)
 				return;
-				
+			
 			positionReflectionCamera(); //Uses the reflection matrix to mirror the refl camera.
-			getPlaneBounds(); //Redrawing of the refl view occurs only for the relevant area, so plane bounds must be known.
+			getPlaneBounds(); //Redrawing of the refl view occurs only for the relevant area, so plane bounds must be known.	
 			
 			//Uses a dummy plane to get a perspectived image of the plane material or distortion image.
 			//This image is used in a displacement map to distort the material. Might be overkill
 			//but couldn't find another solution.
-			updateBumpMapSource();
+			//updateBumpMapSource();
 			
+			hideObjectsOnSide(); //Hides all objects on same side of refl camera including the plane (avoid holograms).
+			_reflectionView.render();
+			restoreObjectsOnSide(); //Restores hiden objects.
 			
-			if(_opticalMode == OPTICAL_MODE_REFLECTIVE || _opticalMode == OPTICAL_MODE_DUAL)
-			{
-				hideObjectsOnSide(); //Hides all objects on same side of refl camera including the plane (avoid holograms).
-				_reflectionView.render();
-				restoreObjectsOnSide(); //Restores hiden objects.
-				
-				//Redraws the reflection into the plane.
-				updateLayerMaterial(_reflectionMaterial, _reflectionBmd, _reflectionColorTransform, _reflectionBlur);
-			}
-			
-			//Refractive mode does not use the reflectionView. Instead, the class is listening
-			//for scene update events and on such steals the main view image when the plane is not visible...
-			//See captureCacheRefractiveBmd() method below.
-			if(_opticalMode == OPTICAL_MODE_REFRACTIVE || _opticalMode == OPTICAL_MODE_DUAL)
-				updateLayerMaterial(_refractionMaterial, _refractionBmd, _refractionColorTransform, _refractionBlur, false);
+			//Redraws the reflection into the plane.
+			updateLayerMaterial(_reflectionMaterial, _reflectionBmd, _reflectionColorTransform, _reflectionBlur);
 			
 			this.material = _compositeMaterial;
 		}
@@ -576,7 +401,7 @@ package away3d.primitives
 		//main view depending on reflection or refraction respectively.
 		//Also uses scaling of the refl view to manage redrawing quality.
 		//Also applies blur, colorTransform and distortion effects to the redrawn image.
-		private function updateLayerMaterial(layerMaterial:BitmapMaskMaterial, layerBmd:BitmapData, ct:ColorTransform, blur:BlurFilter, redrawBmd:Boolean = true):void
+		private function updateLayerMaterial(layerMaterial:BitmapMaskMaterial, layerBmd:BitmapData, ct:ColorTransform, blur:BlurFilter):void
 		{
 			if(_planeBounds.width < 1 || _planeBounds.height < 1)
 				return;
@@ -584,16 +409,13 @@ package away3d.primitives
 			if(_planeBounds.width > 2880 || _planeBounds.height > 2880)
 				return;
 			
-			if(redrawBmd)
-			{
-				layerBmd = new BitmapData(_planeBounds.width/_scaling, _planeBounds.height/_scaling, true, 0x00000000);
-				_redrawMatrix = new Matrix();
-				_redrawMatrix.scale(1/_scaling, 1/_scaling);
-				_redrawMatrix.translate(-_planeBounds.x/_scaling, -_planeBounds.y/_scaling);
-				layerBmd.draw(_reflectionViewHolder, _redrawMatrix);
-			}
+			layerBmd = new BitmapData(_planeBounds.width/_scaling, _planeBounds.height/_scaling, true, 0x00000000);
+			_redrawMatrix = new Matrix();
+			_redrawMatrix.scale(1/_scaling, 1/_scaling);
+			_redrawMatrix.translate(-_planeBounds.x/_scaling, -_planeBounds.y/_scaling);
+			layerBmd.draw(_reflectionViewHolder, _redrawMatrix);
 			
-			if(ct != _identityColorTransform)
+			 if(ct != _identityColorTransform)
 				layerBmd.colorTransform(_effectsBounds, ct);
 			
 			if(blur)
@@ -603,14 +425,14 @@ package away3d.primitives
 			}
 			
 			if(_distortionStrength != 0 && _displacementMap)
-				layerBmd.applyFilter(layerBmd, _effectsBounds, _zeroPoint, _displacementMap);
+				layerBmd.applyFilter(layerBmd, _effectsBounds, _zeroPoint, _displacementMap); 
 				
 			//Reflection and refraction materials are BitmapMaskMaterials.
 			//These are identical to BitmapMaterials except that they dont pass a transformation matrix to 
 			//AbstractRenderSession. They use renderTriangleBitmapMask in this method, which is just as
 			//renderTriangleBitmap, but ignores transformations, except offsets and scales.
 			layerMaterial.bitmap = layerBmd;
-			layerMaterial.scaling = redrawBmd ? _scaling : 1;
+			layerMaterial.scaling = _scaling;
 			layerMaterial.offsetX = _planeBounds.x;
 			layerMaterial.offsetY = _planeBounds.y;
 		}
@@ -631,23 +453,17 @@ package away3d.primitives
 			if(_bumpMapContainer.width > 2880 || _bumpMapContainer.height > 2880)
 				return;
 				
+			if(_planeBounds.width < 1 || _planeBounds.height < 1)
+				return;
+				
+			if(_planeBounds.width > 2880 || _planeBounds.height > 2880)
+				return;
+				
 			_bumpMapBmd = new BitmapData(_planeBounds.width/_scaling, _planeBounds.height/_scaling, false, 0x000000);
 			_redrawMatrix = new Matrix();
 			_redrawMatrix.scale(1/_scaling, 1/_scaling);
 			_redrawMatrix.translate(-_planeBounds.x/_scaling, -_planeBounds.y/_scaling);
 			_bumpMapBmd.draw(_bumpMapContainer, _redrawMatrix);
-			
-			//TODO: Remove in final version.
-			//------------------------------
-			if(_enableDebugDummyPlane)
-			{
-				_debugBmp.x = -_view.x;
-				_debugBmp.y = -_view.y;
-				_debugBmp.bitmapData = _bumpMapBmd;
-			}
-			else
-				_debugBmp.bitmapData = null;
-			//------------------------------
 			
 			var k:int = _cameraOnFrontSide ? 1 : -1;
 			_displacementMap = new DisplacementMapFilter(_bumpMapBmd, _zeroPoint,
@@ -691,20 +507,6 @@ package away3d.primitives
 			_planeBounds.inflate(_materialBoundTolerance, _materialBoundTolerance);
 			
 			_effectsBounds = new Rectangle(0, 0, _planeBounds.width, _planeBounds.height);
-			
-			//TODO: Remove in final version.
-			//------------------------------
-			if(_enableDebugBoundingBox)
-			{
-				_hasDebugGraphics = true;
-				debugPlaneBoundingBox();
-			}
-			else if(_hasDebugGraphics)
-			{
-				_hasDebugGraphics = false;
-				_debugLayer.graphics.clear();
-			}
-			//------------------------------
 		}
 		
 		//Hides all scene objects that are on the same side of the refl camera according to the
@@ -715,7 +517,7 @@ package away3d.primitives
 			
 			for each(var obj:Object3D in this.scene.children)
 			{
-				if(!onFrontSide(obj.position))
+				if(obj.visible && !onFrontSide(obj.position))
 				{
 					obj.visible = false;
 					_hideList.push(obj);
@@ -742,7 +544,7 @@ package away3d.primitives
 		}
 		
 		//Reconstructs the composite material of the plane.
-		//3 materials are used: 1 for the reflection, 1 for the refraction and 1 for the background of these two.
+		//2 materials are used: 1 for the reflection and 1 for the background.
 		private function buildMaterials():void
 		{
 			if(_backgroundImage)
@@ -756,14 +558,10 @@ package away3d.primitives
 			
 			_compositeMaterial = new CompositeMaterial();
 			_compositeMaterial.addMaterial(_backgroundMaterial);
-			if(_opticalMode == OPTICAL_MODE_REFRACTIVE || _opticalMode == OPTICAL_MODE_DUAL)
-				_compositeMaterial.addMaterial(_refractionMaterial);
-			if(_opticalMode == OPTICAL_MODE_REFLECTIVE || _opticalMode == OPTICAL_MODE_DUAL)
-				_compositeMaterial.addMaterial(_reflectionMaterial);
+			_compositeMaterial.addMaterial(_reflectionMaterial);
 				
 			_backgroundMaterial.smooth = _smoothMaterials;
 			_reflectionMaterial.smooth = _smoothMaterials;
-			_refractionMaterial.smooth = _smoothMaterials;	
 				
 			buildDummyPlane();
 			
@@ -902,24 +700,6 @@ package away3d.primitives
 			_bumpMapDummyPlane.rotationZ = this.rotationZ;
 		}
 		
-		//Called each time the main view scene updates.
-		//A bitmap of the main view is captured and this image is used for refractions.
-		//Extracted images are outdated (this is why refractions have more lag), but performance
-		//is greatly boosted, since this makes no need for the refl view in refractions.
-		private function captureCacheRefractiveBmd():void
-		{
-			if(_planeBounds.width < 1 || _planeBounds.height < 1)
-				return;
-			
-			if(_planeBounds.width > 2880 || _planeBounds.height > 2880)
-				return;
-			
-			_refractionBmd = new BitmapData(_planeBounds.width, _planeBounds.height, true, 0x00FF0000);
-			_redrawMatrix = new Matrix();
-			_redrawMatrix.translate(_planeBounds.width/2, _planeBounds.height/2);
-			_refractionBmd.draw(_view, _redrawMatrix);
-		}
-		
 		//---------------------------------------------------------------------------------------------------------
 		// event handlers
 		//---------------------------------------------------------------------------------------------------------
@@ -940,54 +720,9 @@ package away3d.primitives
 			updatePlaneDummyDimensions();
 		}
 		
-		private function mainViewRenderHandler(event:Event):void
+		private function mainViewRenderCompleteHandler(event:Event):void
 		{
 			renderReflection();
-		}
-		
-		private function mainViewUpdateHandler(event:Event):void
-		{
-			if(_opticalMode == OPTICAL_MODE_REFLECTIVE)
-				return;
-			
-			captureCacheRefractiveBmd();
-		}
-		
-		//---------------------------------------------------------------------------------------------------------
-		// debugging methods (remove in release version)
-		//---------------------------------------------------------------------------------------------------------
-		
-		private function debugPlaneBoundingBox():void
-		{
-			_debugLayer.graphics.clear();
-			
-			traceScreenVertex(_sv0, 0xFF0000);
-			traceScreenVertex(_sv1, 0x00FF00);
-			traceScreenVertex(_sv2, 0x0000FF);
-			traceScreenVertex(_sv3, 0xFFFFFF); 
-			
-			_debugLayer.graphics.beginFill(0xFF0000, 0.25);
-			_debugLayer.graphics.moveTo(_sv0.x, _sv0.y);
-			_debugLayer.graphics.lineTo(_sv1.x, _sv1.y);
-			_debugLayer.graphics.lineTo(_sv2.x, _sv2.y);
-			_debugLayer.graphics.lineTo(_sv3.x, _sv3.y);
-			_debugLayer.graphics.lineTo(_sv0.x, _sv0.y);
-			_debugLayer.graphics.endFill();  
-			
-			_debugLayer.graphics.beginFill(0x00FF00, 0.25);
-			_debugLayer.graphics.moveTo(_planeBounds.x, _planeBounds.y);
-			_debugLayer.graphics.lineTo(_planeBounds.x + _planeBounds.width, _planeBounds.y);
-			_debugLayer.graphics.lineTo(_planeBounds.x + _planeBounds.width, _planeBounds.y + _planeBounds.height);
-			_debugLayer.graphics.lineTo(_planeBounds.x, _planeBounds.y + _planeBounds.height);
-			_debugLayer.graphics.lineTo(_planeBounds.x, _planeBounds.y);
-			_debugLayer.graphics.endFill();	 
-		}
-		
-		private function traceScreenVertex(sv:ScreenVertex, color:uint):void
-		{
-			_debugLayer.graphics.beginFill(color);
-			_debugLayer.graphics.drawCircle(sv.x, sv.y, 3);
-			_debugLayer.graphics.endFill();
 		}
 	}
 }
