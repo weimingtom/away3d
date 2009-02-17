@@ -1,9 +1,11 @@
-﻿package away3d.core.math{
+﻿package away3d.core.math
+{
     /**
     * A point in 3D space.
     */
     public final class Number3D
-    {    	private const MathPI:Number = Math.PI;
+    {
+    	private const MathPI:Number = Math.PI;
     	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
@@ -65,6 +67,21 @@
             if (n)
             	normalize();
         }
+        
+        
+        /**
+         * Compares the 3d number to another and returns a boolean indicating whether
+         * they match or not.
+         * 
+         * @param v The 3d number to compare against.
+         * 
+         * @return Boolean indicating match.
+        */
+        public function equals(v:Number3D) : Boolean
+        {
+        	return (v.x==x && v.y==y && v.z==z);
+        }
+        
 		
 		/**
 		 * Duplicates the 3d number's properties to another <code>Number3D</code> object
@@ -224,19 +241,22 @@
         public function matrix2euler(m:Matrix3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
         {
             if (!m1)
-            	m1 = new Matrix3D();            
+            	m1 = new Matrix3D();
+            
 		    // Extract the first angle, rotationX
 			x = -Math.atan2(m.szy, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
 			
 			// Remove the rotationX rotation from m1, so that the remaining
 			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
 			m1.rotationMatrix(1, 0, 0,  x);
-			m1.multiply(m, m1);			
+			m1.multiply(m, m1);
+			
 			// Extract the other two angles, rot.y and rot.z, from m1.
 			var cy:Number = Math.sqrt(m1.sxx*m1.sxx + m1.syx*m1.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
 			
 			y = Math.atan2(-m1.szx, cy); // rot.y = Math<T>::atan2 (-N[0][2], cy);
-			z = Math.atan2(-m1.sxy, m1.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);			
+			z = Math.atan2(-m1.sxy, m1.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);
+			
 			// Fix angles
 			if(Math.round(z/MathPI) == 1) {
 				if(y > 0)
