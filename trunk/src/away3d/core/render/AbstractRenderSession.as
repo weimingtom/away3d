@@ -429,12 +429,13 @@ package away3d.core.render
         	if (!(_array = _spriteLayer[material])) 
         		_array = _spriteLayer[material] = new Array();
         	
-        	if (_level >= level) {
+        	if (_level >= level && _array.length) {
         		_sprite = _array[0];
         	} else {
 	        	_level = level;
         		_array.unshift(_sprite = createSprite(parent));
         	}
+        	
             return _sprite;
         }
         
@@ -443,7 +444,7 @@ package away3d.core.render
         	if (!(_array = _shapeLayer[material]))
         		_array = _shapeLayer[material] = new Array();
         	
-        	if (_level >= level) {
+        	if (_level >= level && _array.length) {
         		_shape = _array[0];
         	} else {
 	        	_level = level;
@@ -459,10 +460,10 @@ package away3d.core.render
         	if (!(_dictionary = _lightShapeLayer[material]))
         		_dictionary = _lightShapeLayer[material] = new Dictionary(true);
         	
-        	if (!(_array = _dictionary[material]))
-        		_array = _dictionary[material] = new Array();
+        	if (!(_array = _dictionary[light]))
+        		_array = _dictionary[light] = new Array();
         	
-        	if (_level >= level) {
+        	if (_level >= level && _array.length) {
         		_shape = _array[0];
         	} else {
         		_level = level;
