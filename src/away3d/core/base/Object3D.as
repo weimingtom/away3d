@@ -466,7 +466,7 @@
 		 * Elements use their nearest point to the camera when z-sorting
 		 */
         public var pushfront:Boolean;
-        
+        		/**		 * Defines an additional offset to the z-sorting algorithm used on mesh elements or objects with ownCanvas set to true		 */        public var screenZOffset:Number;        
     	/**
     	 * Returns the inverse of sceneTransform.
     	 * 
@@ -1305,7 +1305,7 @@
             debugbb = ini.getBoolean("debugbb", false);
             debugbs = ini.getBoolean("debugbs", false);
             pushback = ini.getBoolean("pushback", false);
-            pushfront = ini.getBoolean("pushfront", false);
+            pushfront = ini.getBoolean("pushfront", false);            screenZOffset = ini.getNumber("screenZOffset", 0);
             x = ini.getNumber("x", 0);
             y = ini.getNumber("y", 0);
             z = ini.getNumber("z", 0);        
@@ -1668,7 +1668,7 @@
             object3D.mouseEnabled = mouseEnabled;
             object3D.useHandCursor = useHandCursor;
             object3D.pushback = pushback;
-            object3D.pushfront = pushfront;
+            object3D.pushfront = pushfront;            object3D.screenZOffset = screenZOffset;
             object3D.pivotPoint = pivotPoint;            object3D.projectorType = projectorType;            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             
             return object3D;

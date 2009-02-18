@@ -179,6 +179,8 @@ package away3d.core.project
                 if (_mesh.pushfront)
                     _tri.screenZ = _tri.minZ;
 				
+				_tri.screenZ += _mesh.screenZOffset;
+				
                 if (_mesh.outline && !_backface)
                 {
                     _n01 = _mesh.geometry.neighbour01(_face);
