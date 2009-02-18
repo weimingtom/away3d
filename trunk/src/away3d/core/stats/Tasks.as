@@ -97,7 +97,7 @@ package away3d.core.stats
         	_text.x = x;
         	_text.y = y;
         	
-        	span = (span>0)?span:Math.max(_text.width+10,60);
+        	span = (span>0)?span:Math.max(_text.width+20,60);
         	_width += span;
         	
         	addChild(_text);
