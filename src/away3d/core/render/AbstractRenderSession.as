@@ -203,6 +203,7 @@ package away3d.core.render
         
         public var primitives:Array;
         
+        public var screenZ:Number;
         /**
         * Placeholder for filters property of containers
         */
