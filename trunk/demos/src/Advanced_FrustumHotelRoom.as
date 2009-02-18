@@ -323,11 +323,13 @@ package
 			text.defaultTextFormat = new TextFormat("Verdana", 10, 0xFFFFFF);
 			text.x = 0;
 			text.y = 0;
-			text.width = 220;
+			text.width = 240;
 			text.height = 100;
 			text.selectable = false;
 			text.mouseEnabled = false;
-			text.text = "D - toggle debug triangles\n" + 
+			text.text = "Mouse click and drag - rotate\n" + 
+					"Cursor keys / WSAD - move\n" + 
+					"T - toggle debug triangles\n" + 
 					"Z - toggle local z-sort correction\n" +
 					"F - Frustum Clipping mode (default)\n" + 
 					"N - Nearfield Clipping mode\n" + 
@@ -509,15 +511,19 @@ package
 			switch(e.keyCode)
 			{
 				case Keyboard.UP:
+				case "W".charCodeAt():
 					upFlag = true;
 					break;
 				case Keyboard.DOWN:
+				case "S".charCodeAt():
 					downFlag = true;
 					break;
 				case Keyboard.LEFT:
+				case "A".charCodeAt():
 					leftFlag = true;
 					break;
-				case Keyboard.RIGHT: 
+				case Keyboard.RIGHT:
+				case "D".charCodeAt():
 					rightFlag = true;
 					break;
 				default:
@@ -531,18 +537,22 @@ package
 			switch(e.keyCode)
 			{
 				case Keyboard.UP:
+				case "W".charCodeAt():
 					upFlag = false;
 					break;
 				case Keyboard.DOWN:
+				case "S".charCodeAt():
 					downFlag = false;
 					break;
 				case Keyboard.LEFT:
+				case "A".charCodeAt():
 					leftFlag = false;
 					break;
-				case Keyboard.RIGHT: 
+				case Keyboard.RIGHT:
+				case "D".charCodeAt():
 					rightFlag = false;
 					break;
-				case "D".charCodeAt():
+				case "T".charCodeAt():
 					debugPrecise = !debugPrecise;
 					for each (material in preciseMaterials)
 						material.debug = debugPrecise;
