@@ -65,13 +65,14 @@ package away3d.core.project
 						} else {
 							_screenVertex.z = _viewTransformDictionary[_child].position.modulo;
 						}
-			             
-		             	
+			            
 		             	if (_child.pushback)
 		             		_screenVertex.z += _child.boundingRadius;
 		             		
 		             	if (_child.pushfront)
 		             		_screenVertex.z -= _child.boundingRadius;
+		             		
+		             	_screenVertex.z += _child.screenZOffset;
 	    			}
 	    			
 	             	consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(_child, _screenVertex, _container.session, _child.session.getContainer(view)));
