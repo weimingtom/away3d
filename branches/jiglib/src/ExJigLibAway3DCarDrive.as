@@ -44,7 +44,7 @@ package
 		
 		public function ExJigLibAway3DCarDrive() 
 		{
-			super("JigLib", "JigLib CarDrive by katopz");
+			super("JigLib", "JigLibAway3D 3.2.1, CarDrive by katopz");
 			stage.addEventListener( KeyboardEvent.KEY_DOWN, keyDownHandler );
 			stage.addEventListener( KeyboardEvent.KEY_UP, keyUpHandler );
 		}

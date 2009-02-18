@@ -1,4 +1,4 @@
-package
+﻿package
 {
 	import away3d.core.base.Object3D;
 	import away3d.core.base.Vertex;
@@ -45,7 +45,7 @@ package
 		
 		public function ExJigLibMouseDragAway3D()
 		{
-			super("JigLib", "JigLib Mouse Drag by katopz");
+			super("JigLib", "JigLib for Away3D 3.2.1, Mouse Drag by katopz");
 			stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseRelease);
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, handleMouseMove);
 		}

@@ -43,7 +43,7 @@ package
 		
 		public function ExJigLibAway3DFlash3DPhysics()
 		{
-			super("JigLib", "JigLibFlash test run by katopz");
+			super("JigLib", "JigLib for Away3D 3.2.1, Engine test run by katopz");
 			stage.addEventListener( KeyboardEvent.KEY_DOWN, keyDownHandler );
 			stage.addEventListener( KeyboardEvent.KEY_UP, keyUpHandler );
 		}
