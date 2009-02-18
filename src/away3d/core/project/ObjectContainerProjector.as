@@ -52,9 +52,9 @@ package away3d.core.project
 					_screenVertex.x = 0;
 					_screenVertex.y = 0;
 					
-					if (_child.ownSession.screenZ != null) {
-						_screenVertex.z = screenZ;
-					else {
+					if (!isNaN(_child.ownSession.screenZ)) {
+						_screenVertex.z = _child.ownSession.screenZ;
+					} else {
 						if (_child.scenePivotPoint.modulo) {
 							_depthPoint.clone(_child.scenePivotPoint);
 							_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
