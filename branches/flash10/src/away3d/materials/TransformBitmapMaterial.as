@@ -292,12 +292,12 @@ package away3d.materials
 				
 				if (projectionVector) {
 		    		_uvtData = projectUV(tri);
-		        	_u0 = _uvtData[0] - _offsetX/width;
-		        	_u1 = _uvtData[3] - _offsetX/width;
-		        	_u2 = _uvtData[6] - _offsetX/width;
-		        	_v0 = _uvtData[1] - _offsetY/height
-		        	_v1 = _uvtData[4] - _offsetY/height
-		        	_v2 = _uvtData[7] - _offsetY/height
+		        	_u0 = (_uvtData[0] - _offsetX)/width;
+		        	_u1 = (_uvtData[3] - _offsetX)/width;
+		        	_u2 = (_uvtData[6] - _offsetX)/width;
+		        	_v0 = (_uvtData[1] - _offsetY)/height;
+		        	_v1 = (_uvtData[4] - _offsetY)/height;
+		        	_v2 = (_uvtData[7] - _offsetY)/height;
 		   		} else {
 		   			_u0 = tri.uv0.u - _offsetX/width;
 		        	_u1 = tri.uv1.u - _offsetX/width;
@@ -306,13 +306,6 @@ package away3d.materials
 		        	_v1 = 1 - tri.uv1.v - _offsetY/height;
 		        	_v2 = 1 - tri.uv2.v - _offsetY/height;
 		   		}
-		   		
-	    		_u0 = tri.uv0.u - _offsetX/width;
-	        	_u1 = tri.uv1.u - _offsetX/width;
-	        	_u2 = tri.uv2.u - _offsetX/width;
-	        	_v0 = 1 - tri.uv0.v - _offsetY/height;
-	        	_v1 = 1 - tri.uv1.v - _offsetY/height;
-	        	_v2 = 1 - tri.uv2.v - _offsetY/height;
 	        	
 	        	if (_rotation) {
 	        		_uvtData[0] = (_u0*_cos - _v0*_sin)/_scaleX;
@@ -346,12 +339,12 @@ package away3d.materials
         	
         	if (projectionVector) {
 	    		_uvtData = projectUV(tri);
-	        	_u0 = _uvtData[0] - _offsetX/width;
-	        	_u1 = _uvtData[3] - _offsetX/width;
-	        	_u2 = _uvtData[6] - _offsetX/width;
-	        	_v0 = _uvtData[1] - _offsetY/height;
-	        	_v1 = _uvtData[4] - _offsetY/height;
-	        	_v2 = _uvtData[7] - _offsetY/height;
+	        	_u0 = (_uvtData[0] - _offsetX)/width;
+	        	_u1 = (_uvtData[3] - _offsetX)/width;
+	        	_u2 = (_uvtData[6] - _offsetX)/width;
+	        	_v0 = (_uvtData[1] - _offsetY)/height;
+	        	_v1 = (_uvtData[4] - _offsetY)/height;
+	        	_v2 = (_uvtData[7] - _offsetY)/height;
 	   		} else {
 	   			_u0 = tri.uv0.u - _offsetX/width;
 	        	_u1 = tri.uv1.u - _offsetX/width;
