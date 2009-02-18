@@ -3,6 +3,8 @@
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.Clipping;
+	import away3d.core.clip.FrustumClipping;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	import away3d.loaders.*;
@@ -58,6 +60,7 @@
     	//engine variables
     	private var scene:Scene3D;
 		private var camera:HoverCamera3D;
+		private var clipping:Clipping;
 		private var view:View3D;
 		
 		//signature variables
@@ -117,7 +120,8 @@
 			camera.mintiltangle = 0;
 			camera.targetpanangle = camera.panangle = -140;
 			camera.targettiltangle = camera.tiltangle = 4;
-			view = new View3D({scene:scene, camera:camera});
+			clipping = new FrustumClipping();
+			view = new View3D({scene:scene, camera:camera, clipping:clipping});
 			view.x = 400;
 			view.y = 300;
 			view.addSourceURL("srcview/index.html");
@@ -171,7 +175,7 @@
 			scene.addChild(model);
 			
 			//create floor object
-			floor = new RegularPolygon({material:materialContainer, ownCanvas:true, radius:5000, sides:20, subdivision:20, y:-200});
+			floor = new RegularPolygon({material:materialContainer, ownCanvas:true, radius:5000, sides:20, subdivision:1, y:-200});
 			floor.blendMode = BlendMode.MULTIPLY;
 			scene.addChild( floor );
 			
