@@ -12,7 +12,7 @@ package away3d.events
     	/**
     	 * Defines the value of the type property of a vertexChanged event object.
     	 */
-    	public static const VERTEX_CHANGED:String = "vertexCchanged";
+    	public static const VERTEX_CHANGED:String = "vertexChanged";
     	
     	/**
     	 * Defines the value of the type property of a vertexvalueChanged event object.

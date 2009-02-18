@@ -11,7 +11,6 @@ package away3d.materials.shaders
 	import away3d.materials.*;
 	
 	import flash.display.*;
-	import flash.filters.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	
@@ -53,30 +52,44 @@ package away3d.materials.shaders
         */
 		private function getMapping(tri:DrawTriangle):Matrix
 		{
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
-			if (_faceVO.texturemapping)
-				return _faceVO.texturemapping;
+			if (tri.generated) {
+				_texturemapping = tri.transformUV(this).clone();
+				_texturemapping.invert();
+				
+				return _texturemapping;
+			}
+			
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
+			
+			if (!_faceMaterialVO.invalidated)
+				return _faceMaterialVO.texturemapping;
 			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
-			return _faceVO.texturemapping = _texturemapping;
+			return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
 		/**
 		 * @inheritDoc
 		 */
-        protected override function clearFaceDictionary(source:Object3D, view:View3D):void
+        public function clearFaces(source:Object3D = null, view:View3D = null):void
         {
         	notifyMaterialUpdate();
         	
-        	for each (_faceVO in _faceDictionary) {
-        		if (source == _faceVO.source) {
-	        		if (!_faceVO.cleared)
-	        			_faceVO.clear();
-	        		_faceVO.invalidated = true;
-	        	}
-        	}
+        	for each (_faceMaterialVO in _faceDictionary)
+        		if (source == _faceMaterialVO.source)
+	        		if (!_faceMaterialVO.cleared)
+	        			_faceMaterialVO.clear();
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function invalidateFaces(source:Object3D = null, view:View3D = null):void
+        {
+        	for each (_faceMaterialVO in _faceDictionary)
+        		_faceMaterialVO.invalidated = true;
         }
         
 		/**
@@ -86,19 +99,18 @@ package away3d.materials.shaders
         {
 			//check to see if sourceDictionary exists
 			_sourceBitmap = _sourceDictionary[tri];
-			if (!_sourceBitmap || _faceVO.resized) {
-				_sourceBitmap = _sourceDictionary[tri] = _parentFaceVO.bitmap.clone();
+			if (!_sourceBitmap || _faceMaterialVO.resized) {
+				_sourceBitmap = _sourceDictionary[tri] = _parentFaceMaterialVO.bitmap.clone();
 				_sourceBitmap.lock();
 			}
 			
 			//check to see if normalDictionary exists
 			_normalBitmap = _normalDictionary[tri];
-			if (!_normalBitmap || _faceVO.resized) {
-				_normalBitmap = _normalDictionary[tri] = _parentFaceVO.bitmap.clone();
+			if (!_normalBitmap || _faceMaterialVO.resized) {
+				_normalBitmap = _normalDictionary[tri] = _parentFaceMaterialVO.bitmap.clone();
 				_normalBitmap.lock();
 			}
 			
-			_face = tri.face;
 			_n0 = _source.geometry.getVertexNormal(_face.v0);
 			_n1 = _source.geometry.getVertexNormal(_face.v1);
 			_n2 = _source.geometry.getVertexNormal(_face.v2);
@@ -120,23 +132,23 @@ package away3d.materials.shaders
 				if (_normal0z > -0.2 || _normal1z > -0.2 || _normal2z > -0.2) {
 					
 					//store a clone
-					if (_faceVO.cleared && !_parentFaceVO.updated) {
-						_faceVO.bitmap = _parentFaceVO.bitmap.clone();
-						_faceVO.bitmap.lock();
+					if (_faceMaterialVO.cleared && !_parentFaceMaterialVO.updated) {
+						_faceMaterialVO.bitmap = _parentFaceMaterialVO.bitmap.clone();
+						_faceMaterialVO.bitmap.lock();
 					}
 					
 					//update booleans
-					_faceVO.cleared = false;
-					_faceVO.updated = true;
+					_faceMaterialVO.cleared = false;
+					_faceMaterialVO.updated = true;
 					
 					//resolve normal map
-		            _sourceBitmap.applyFilter(_bitmap, _face.bitmapRect, _zeroPoint, directional.normalMatrixTransform[_source]);
+		            _sourceBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixTransform[_source]);
 					
 		            //normalise bitmap
 					_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform[_source]);
 		            
 					//draw into faceBitmap
-					_faceVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
+					_faceMaterialVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
 				}
 	    	}
         }
@@ -203,13 +215,12 @@ package away3d.materials.shaders
 		 */
 		public override function updateMaterial(source:Object3D, view:View3D):void
         {
-        	clearLightingShapeDictionary();
         	for each (directional in source.lightarray.directionals) {
         		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         			directional.setNormalMatrixTransform(source);
         			directional.setColorMatrixTransform(source);
-        			clearFaceDictionary(source, view);
+        			clearFaces(source, view);
         		}
         	}
         }
@@ -217,14 +228,14 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	super.renderLayer(tri, layer, level);
         	
         	for each (directional in _lights.directionals)
         	{
         		if (_lights.numLights > 1) {
-					_shape = getLightingShape(layer, directional);
+					_shape = _session.getLightShape(this, level++, layer, directional);
 	        		_shape.filters = [directional.normalMatrixTransform[_source], directional.colorMatrixTransform[_source]];
 	        		_shape.blendMode = blendMode;
 	        		_shape.transform.colorTransform = directional.ambientDiffuseColorTransform;
@@ -242,22 +253,8 @@ package away3d.materials.shaders
 			
 			if (debug)
                 _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function addOnMaterialResize(listener:Function):void
-        {
-        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function removeOnMaterialResize(listener:Function):void
-        {
-        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
+            
+            return level;
         }
     }
 }

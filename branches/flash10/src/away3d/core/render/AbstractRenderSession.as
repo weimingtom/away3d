@@ -8,9 +8,8 @@ package away3d.core.render
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.light.*;
-	import away3d.core.traverse.*;
-	import away3d.events.Object3DEvent;
-	import away3d.events.SessionEvent;
+	import away3d.events.*;
+	import away3d.materials.*;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -37,13 +36,23 @@ package away3d.core.render
 		/** @private */
 		arcane var _shape:Shape;
 		/** @private */
+		arcane var _sprite:Sprite;
+		/** @private */
+		arcane var _spriteLayer:Sprite;
+		/** @private */
+		arcane var _level:int = -1;
+		/** @private */
         arcane var _renderSource:Object3D;
 		/** @private */
         arcane var _layerDirty:Boolean;
 		/** Array for storing old displayobjects to the canvas */
-		arcane var _doStore:Array = new Array();
+		arcane var _shapeStore:Array;
 		/** Array for storing added displayobjects to the canvas */
-		arcane var _doActive:Array = new Array();
+		arcane var _shapeActive:Array;
+		/** Array for storing old displayobjects to the canvas */
+		arcane var _spriteStore:Array;
+		/** Array for storing added displayobjects to the canvas */
+		arcane var _spriteActive:Array;
 		/** @private */
 		arcane function notifySessionUpdate():void
 		{
@@ -78,10 +87,21 @@ package away3d.core.render
         	object.removeEventListener(Object3DEvent.SESSION_UPDATED, onObjectSessionUpdate);
         }
         private var _consumer:IPrimitiveConsumer;
-        private var _layerGraphics:Graphics;
-        private var _doStores:Dictionary = new Dictionary(true);
-        private var _doActives:Dictionary = new Dictionary(true);
-        private var fill:GraphicsBitmapFill = new GraphicsBitmapFill();
+        private var _shapeStores:Dictionary = new Dictionary(true);
+        private var _shapeActives:Dictionary = new Dictionary(true);
+        private var _spriteStores:Dictionary = new Dictionary(true);
+        private var _spriteActives:Dictionary = new Dictionary(true);
+        private var _spriteLayers:Dictionary = new Dictionary(true);
+        private var _spriteLayer:Dictionary;
+        private var _shapeLayers:Dictionary = new Dictionary(true);
+        private var _shapeLayer:Dictionary;
+        private var _lightShapeLayers:Dictionary = new Dictionary(true);
+        private var _lightShapeLayer:Dictionary;
+        private var _dictionary:Dictionary;
+        private var _array:Array;
+        private var _defaultColorTransform:ColorTransform = new ColorTransform();
+		private var _layerGraphics:Graphics;
+		private var fill:GraphicsBitmapFill = new GraphicsBitmapFill();
         private var path:GraphicsTrianglePath = new GraphicsTrianglePath(new Vector.<Number>(3), null, new Vector.<Number>(3));
         private var drawing:Vector.<IGraphicsData> = Vector.<IGraphicsData>([fill, path]);
 		private var _renderers:Dictionary = new Dictionary(true);
@@ -99,13 +119,13 @@ package away3d.core.render
         private var v1x:Number;
         private var v1y:Number;
         private var v2x:Number;
-        private var v2y:Number;       
+        private var v2y:Number;
         private var a2:Number;
         private var b2:Number;
         private var c2:Number;
         private var d2:Number;
 		private var m:Matrix = new Matrix();
-        private var cont:Shape;
+		private var area:Number;
         private var ds:DisplayObject;
         private var time:int;
         private var materials:Dictionary;
@@ -117,28 +137,60 @@ package away3d.core.render
         	notifySessionUpdate();
         }
 		
-		private function getDOStore(view:View3D):Array
+		private function getShapeStore(view:View3D):Array
 		{
-			if (!_doStores[view])
-        		return _doStores[view] = new Array();
+			if (!_shapeStores[view])
+        		return _shapeStores[view] = new Array();
         	
-			return _doStores[view];
+			return _shapeStores[view];
 		}
 		
-		private function getDOActive(view:View3D):Array
+		private function getShapeActive(view:View3D):Array
 		{
-			if (!_doActives[view])
-        		return _doActives[view] = new Array();
+			if (!_shapeActives[view])
+        		return _shapeActives[view] = new Array();
         	
-			return _doActives[view];
+			return _shapeActives[view];
 		}
 		
-		private function drawBitmapTriangles():void
+		private function getSpriteStore(view:View3D):Array
 		{
-			if (_layerGraphics)
-				_layerGraphics.drawGraphicsData(drawing);
-	  		else
-	  			graphics.drawGraphicsData(drawing);
+			if (!_spriteStores[view])
+        		return _spriteStores[view] = new Array();
+        	
+			return _spriteStores[view];
+		}
+		
+		private function getSpriteActive(view:View3D):Array
+		{
+			if (!_spriteActives[view])
+        		return _spriteActives[view] = new Array();
+        	
+			return _spriteActives[view];
+		}
+		
+		public function getSpriteLayer(view:View3D):Dictionary
+		{
+			if (!_spriteLayers[view])
+        		return _spriteLayers[view] = new Dictionary(true);
+        	
+			return _spriteLayers[view];
+		}
+		
+		public function getShapeLayer(view:View3D):Dictionary
+		{
+			if (!_shapeLayers[view])
+        		return _shapeLayers[view] = new Dictionary(true);
+        	
+			return _shapeLayers[view];
+		}
+		
+		public function getLightShapeLayer(view:View3D):Dictionary
+		{
+			if (!_lightShapeLayers[view])
+        		return _lightShapeLayers[view] = new Dictionary(true);
+        	
+			return _lightShapeLayers[view];
 		}
 		
         protected function onSessionUpdate(event:SessionEvent):void
@@ -148,6 +200,8 @@ package away3d.core.render
         
 		/** @private */
         protected var i:int;
+        
+        public var layer:DisplayObject;
         
         public var parent:AbstractRenderSession;
         
@@ -174,23 +228,6 @@ package away3d.core.render
         * Array of child sessions.
         */
        	public var sessions:Array;
-       	
-       	/**
-       	 * Dictionary of sprite layers for rendering composite materials.
-       	 * 
-       	 * @see away3d.materials.CompositeMaterial#renderTriangle()
-       	 */
-       	public var spriteLayers:Array = new Array();
-       	
-       	/**
-       	 * Holds the last added layer sprite.
-       	 */
-       	public var newLayer:Sprite;
-       			
-		/**
-		 * Dictionary of child displayobjects.
-		 */
-		public var children:Dictionary = new Dictionary(true);
         
         /**
         * Reference to the current graphics object being used for drawing.
@@ -314,28 +351,53 @@ package away3d.core.render
        			_session.clear(view);
         	
 			if (updated) {
-	        	for each (var sprite:Sprite in spriteLayers) {
-	        		sprite.graphics.clear();
-	        		if (sprite.numChildren) {
-	        			var i:int = sprite.numChildren;
-	        			while (i--) {
-	        				ds = sprite.getChildAt(i);
-	        				if (ds is Shape)
-	        					(ds as Shape).graphics.clear();
-	        			}
-	        		}
-	        	}
 	        	
 	        	_consumer = getConsumer(view);
 	        	
-	        	_doStore = getDOStore(view);
-	        	_doActive = getDOActive(view);
-	        	//clear child canvases
-	            i = _doActive.length;
+	        	_spriteLayer = getSpriteLayer(view);
+	        	
+	        	for each (_array in _spriteLayer)
+	        		_array.length = 0;
+	        	
+	        	_shapeLayer = getShapeLayer(view);
+	        	
+	        	for each (_array in _shapeLayer)
+	        		_array.length = 0;
+	        	
+	        	_lightShapeLayer = getLightShapeLayer(view);
+	        	
+	        	for each (_dictionary in _lightShapeLayer)
+	        		for each (_array in _dictionary)
+	        			_array.length = 0;
+	        	
+	        	_level = -1;
+	        	
+	        	_shapeStore = getShapeStore(view);
+	        	_shapeActive = getShapeActive(view);
+	        	
+	        	//clear child shapes
+	            i = _shapeActive.length;
 	            while (i--) {
-	            	cont = _doActive.pop();
-	            	cont.graphics.clear();
-	            	_doStore.push(cont);
+	            	_shape = _shapeActive.pop();
+	            	_shape.graphics.clear();
+	            	_shape.filters = [];
+	            	_shape.blendMode = BlendMode.NORMAL;
+	            	_shape.transform.colorTransform = _defaultColorTransform;
+	            	_shapeStore.push(_shape);
+	            }
+	            
+	            _spriteStore = getSpriteStore(view);
+	        	_spriteActive = getSpriteActive(view);
+	        	
+	        	//clear child sprites
+	        	i = _spriteActive.length;
+	            while (i--) {
+	            	_sprite = _spriteActive.pop();
+	            	_sprite.graphics.clear();
+	            	_sprite.filters = [];
+	            	while (_sprite.numChildren)
+        				_sprite.removeChildAt(0);
+	            	_spriteStore.push(_sprite);
 	            }
 	            
 	            //clear primitives consumer
@@ -349,13 +411,13 @@ package away3d.core.render
         	for each(_session in sessions)
        			_session.render(view);
        		
-        	fill.bitmapData = null;
+        	//fill.bitmapData = null;
         	
         	if (updated)
 	            (getConsumer(view) as IRenderer).render(view);
 	        
-	        if (fill.bitmapData)
-	        	drawBitmapTriangles();
+	        //if (fill.bitmapData)
+	        //	drawBitmapTriangles();
         }
         
         public function clearRenderers():void
@@ -371,18 +433,78 @@ package away3d.core.render
         public function addDisplayObject(child:DisplayObject):void
         {
         	throw new Error("Not implemented");
-        }        
+        }
         
-        /**
-        * Adds a layer sprite to the render session display list.
-        * Doesn't update graphics so that elements in comosite materials
-        * can render in separate layers.
-        * 
-        * @param	child	The display object to add.
-        */
-        public function addLayerObject(child:Sprite):void
+        public function getSprite(material:ILayerMaterial, level:int, parent:Sprite = null):Sprite
         {
-            throw new Error("Not implemented");
+        	if (!(_array = _spriteLayer[material])) 
+        		_array = _spriteLayer[material] = new Array();
+        	
+        	if (_level >= level && _array.length) {
+        		_sprite = _array[0];
+        	} else {
+	        	_level = level;
+        		_array.unshift(_sprite = createSprite(parent));
+        	}
+        	
+            return _sprite;
+        }
+        
+        public function getShape(material:ILayerMaterial, level:int, parent:Sprite):Shape
+        {
+        	if (!(_array = _shapeLayer[material]))
+        		_array = _shapeLayer[material] = new Array();
+        	
+        	if (_level >= level && _array.length) {
+        		_shape = _array[0];
+        	} else {
+	        	_level = level;
+        		_array.unshift(_shape = createShape(parent));
+        	}
+        	
+            return _shape;
+        }
+        
+        
+        public function getLightShape(material:ILayerMaterial, level:int, parent:Sprite, light:LightPrimitive):Shape
+        {
+        	if (!(_dictionary = _lightShapeLayer[material]))
+        		_dictionary = _lightShapeLayer[material] = new Dictionary(true);
+        	
+        	if (!(_array = _dictionary[light]))
+        		_array = _dictionary[light] = new Array();
+        	
+        	if (_level >= level && _array.length) {
+        		_shape = _array[0];
+        	} else {
+        		_level = level;
+        		_array.unshift(_shape = createShape(parent));
+        	}
+        	
+            return _shape;
+        }
+        
+        protected function createSprite(parent:Sprite = null):Sprite
+        {
+        	throw new Error("Not implemented");
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        protected function createShape(parent:Sprite):Shape
+        {
+        	if (_shapeStore.length) {
+            	_shapeActive.push(_shape = _shapeStore.pop());
+            } else {
+            	_shapeActive.push(_shape = new Shape());
+            }
+            
+            parent.addChild(_shape);
+            
+            _layerDirty = true;
+            
+            return _shape;
         }
         
         /**
@@ -442,7 +564,7 @@ package away3d.core.render
          */
         public function renderTriangleBitmap(bitmap:BitmapData, map:Matrix, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
         {
-        	if (_layerDirty)
+        	if (!layerGraphics && _layerDirty)
         		createLayer();
         	
         	a2 = (v1x = v1.x) - (v0x = v0.x);
@@ -457,6 +579,54 @@ package away3d.core.render
 			m.tx = (tx = map.tx)*a2 + (ty = map.ty)*c2 + v0x;
 			m.ty = tx*b2 + ty*d2 + v0y;
 			
+			area = v0x*(d2 - b2) - v1x*d2 + v2x*b2;
+			
+			if (area < 0)
+				area = -area;
+			
+			if (layerGraphics) {
+				layerGraphics.lineStyle();
+	            layerGraphics.moveTo(v0x, v0y);
+	            layerGraphics.beginBitmapFill(bitmap, m, repeat, smooth && area > 400);
+	            layerGraphics.lineTo(v1x, v1y);
+	            layerGraphics.lineTo(v2x, v2y);
+	            layerGraphics.endFill();
+	  		} else {
+	  			graphics.lineStyle();
+	            graphics.moveTo(v0x, v0y);
+	            graphics.beginBitmapFill(bitmap, m, repeat, smooth && area > 400);
+	            graphics.lineTo(v1x, v1y);
+	            graphics.lineTo(v2x, v2y);
+	            graphics.endFill();
+	  		}
+        }
+        
+        /**
+         * Draws a triangle element with a bitmap texture into the graphics object, with no uv transforms.
+         */
+        //Temporal: for reflections testing...
+        public function renderTriangleBitmapMask(bitmap:BitmapData, offX:Number, offY:Number, sc:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+        	a2 = (v1x = v1.x) - (v0x = v0.x);
+        	b2 = (v1y = v1.y) - (v0y = v0.y);
+        	c2 = (v2x = v2.x) - v0x;
+        	d2 = (v2y = v2.y) - v0y;
+        	
+			/* m.a = 1;
+			m.b = 1;
+			m.c = 1;
+			m.d = 1;
+			m.tx = 0;
+			m.ty = 0; */
+			//Review this. Apparently it is causing problems when the plane has rotationZ.
+			//Besides it can't be this simple!
+			m.identity();
+			m.scale(sc, sc);
+			m.translate(offX, offY);
+			
 			if (layerGraphics) {
 				layerGraphics.lineStyle();
 	            layerGraphics.moveTo(v0x, v0y);
@@ -466,7 +636,7 @@ package away3d.core.render
 	            layerGraphics.endFill();
 	  		} else {
 	  			graphics.lineStyle();
-	            graphics.moveTo(v0x, v0y);       
+	            graphics.moveTo(v0x, v0y);
 	            graphics.beginBitmapFill(bitmap, m, repeat, smooth && (v0x*(d2 - b2) - v1x*d2 + v2x*b2 > 400));
 	            graphics.lineTo(v1x, v1y);
 	            graphics.lineTo(v2x, v2y);
@@ -500,17 +670,26 @@ package away3d.core.render
         /**
          * Draws a triangle element with a fill color into the graphics object.
          */
-        public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
+        public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, layerGraphics:Graphics = null):void
         {
-        	if (_layerDirty)
+        	if (!layerGraphics && _layerDirty)
         		createLayer();
-        	     	
-            graphics.lineStyle();
-            graphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
-            graphics.beginFill(color, alpha);
-            graphics.lineTo(v1.x, v1.y);
-            graphics.lineTo(v2.x, v2.y);
-            graphics.endFill();
+        	
+        	if (layerGraphics) {
+				layerGraphics.lineStyle();
+	            layerGraphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
+	            layerGraphics.beginFill(color, alpha);
+	            layerGraphics.lineTo(v1.x, v1.y);
+	            layerGraphics.lineTo(v2.x, v2.y);
+	            layerGraphics.endFill();
+	  		} else {
+	            graphics.lineStyle();
+	            graphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
+	            graphics.beginFill(color, alpha);
+	            graphics.lineTo(v1.x, v1.y);
+	            graphics.lineTo(v2.x, v2.y);
+	            graphics.endFill();
+	    	}
         }
         
         /**
@@ -554,6 +733,52 @@ package away3d.core.render
     
             if (alpha > 0)
                 graphics.endFill();
+        }
+        
+        /**
+         * Draws a billboard element with a fill color into the graphics object.
+         */
+        public function renderBillboardColor(color:int, alpha:Number, primitive:DrawBillboard):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+            if (primitive.rotation != 0) {
+	            graphics.beginFill(color, alpha);
+	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
+	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
+	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
+	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.endFill();
+            } else {
+	            graphics.beginFill(color, alpha);
+	            graphics.drawRect(primitive.minX, primitive.minY, primitive.maxX-primitive.minX, primitive.maxY-primitive.minY);
+            	graphics.endFill();
+            }
+        }
+        
+        /**
+         * Draws a billboard element with a fill bitmap into the graphics object.
+         */
+        public function renderBillboardBitmap(bitmap:BitmapData, primitive:DrawBillboard, smooth:Boolean):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+            if (primitive.rotation != 0) {
+	            graphics.beginBitmapFill(bitmap, primitive.mapping, false, smooth);
+	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
+	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
+	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
+	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.endFill();
+            } else {
+	            graphics.beginBitmapFill(bitmap, primitive.mapping, false, smooth);
+	            graphics.drawRect(primitive.minX, primitive.minY, primitive.maxX-primitive.minX, primitive.maxY-primitive.minY);
+            	graphics.endFill();
+            }
         }
         
         /**

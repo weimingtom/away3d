@@ -209,41 +209,28 @@ package away3d.materials
         	_source = tri.source;
         	_session = _source.session;
     		var level:int = 0;
-        	
-        	if (_session != tri.view.session) {
-        		//check to see if session sprite exists
-	    		if (!(_sprite = _session.spriteLayers[level]))
-	    			_sprite = _session.spriteLayers[level] = new Sprite();
-        	} else {
-	        	//check to see if face sprite exists
-	    		if (!(_sprite = _spriteDictionary[tri.face]))
-	    			_sprite = _spriteDictionary[tri.face] = new Sprite();
-        	}
-	    	
-	    	if (!_session.children[_sprite]) {
-	    		if (_session != tri.view.session)
-        			_session.addLayerObject(_sprite);
-        		else
-        			_session.addDisplayObject(_sprite);
-        		
-	    		_sprite.filters = [];
+    		
+    		_sprite = _session.layer as Sprite;
+    		
+        	if (!_sprite || _colorTransform || blendMode != BlendMode.NORMAL) {
+        		_sprite = _session.getSprite(this, level++);
         		_sprite.blendMode = blendMode;
-        		
-        		if (_colorTransform)
-	    			_sprite.transform.colorTransform = _colorTransform;
-	    		else
-	    			_sprite.transform.colorTransform = _defaultColorTransform;
-      		}
-        	
+        	}
+    		
+    		if (_colorTransform)
+    			_sprite.transform.colorTransform = _colorTransform;
+    		else
+    			_sprite.transform.colorTransform = _defaultColorTransform;
+	        
     		//call renderLayer on each material
     		for each (_material in materials)
-        		_material.renderLayer(tri, _sprite, ++level);
+        		level = _material.renderLayer(tri, _sprite, level);
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
         		_sprite = layer;
@@ -251,17 +238,8 @@ package away3d.materials
         		_source = tri.source;
         		_session = _source.session;
         		
-	        	if (_session != tri.view.session) {
-	        		//check to see if session sprite exists
-		    		if (!(_sprite = _session.spriteLayers[level]))
-		    			layer.addChild(_sprite = _session.spriteLayers[level] = new Sprite());
-	        	} else {
-		        	//check to see if face sprite exists
-		    		if (!(_sprite = _spriteDictionary[tri.face]))
-		    			layer.addChild(_sprite = _spriteDictionary[tri.face] = new Sprite());
-	        	}
+        		_sprite = _session.getSprite(this, level++, layer);
 	        	
-	        	_sprite.filters = [];
 	        	_sprite.blendMode = blendMode;
 	        	
 	    		if (_colorTransform)
@@ -272,13 +250,15 @@ package away3d.materials
     		
 	    	//call renderLayer on each material
     		for each (_material in materials)
-        		_material.renderLayer(tri, _sprite, level++);
+        		level = _material.renderLayer(tri, _sprite, level);
+        	
+        	return level;
         }
         
 		/**
 		 * @private
 		 */
-        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
 		{
 			throw new Error("Not implemented");
 		}

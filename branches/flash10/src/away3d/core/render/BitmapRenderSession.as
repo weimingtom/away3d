@@ -1,8 +1,7 @@
 package away3d.core.render
 {
-	import away3d.containers.View3D;
 	import away3d.arcane;
-	import away3d.core.draw.*;
+	import away3d.containers.View3D;
 	
 	import flash.display.*;
 	import flash.geom.Matrix;
@@ -15,7 +14,9 @@ package away3d.core.render
     */
 	public class BitmapRenderSession extends AbstractRenderSession
 	{
-		private var _container:Bitmap;
+		private var _container:Sprite;
+		private var _bitmapContainer:Bitmap;
+		private var _bitmapContainers:Dictionary = new Dictionary(true);
 		private var _width:int;
 		private var _height:int;
 		private var _bitmapwidth:int;
@@ -28,7 +29,7 @@ package away3d.core.render
 		private var mStore:Array = new Array();
 		private var mActive:Array = new Array();
 		private var layers:Array = [];
-		private var layer:DisplayObject;
+		private var _layer:DisplayObject;
 		
 		/**
 		 * Creates a new <code>BitmapRenderSession</code> object.
@@ -48,12 +49,25 @@ package away3d.core.render
 		 */
 		public override function getContainer(view:View3D):DisplayObject
 		{
-			if (!_containers[view])
-        		return _containers[view] = new Bitmap();
+    		_bitmapContainer = getBitmapContainer(view);
+    		
+			if (!_containers[view]) {
+        		_container = _containers[view] = new Sprite();
+        		_container.addChild(_bitmapContainer);
+        		return _container;
+   			}
         	
 			return _containers[view];
 		}
-        
+		
+		public function getBitmapContainer(view:View3D):Bitmap
+		{
+			if (!_bitmapContainers[view])
+        		return _bitmapContainers[view] = new Bitmap();
+        	
+			return _bitmapContainers[view];
+		}
+		
 		/**
 		 * Returns a bitmapData object containing the rendered view.
 		 * 
@@ -62,16 +76,16 @@ package away3d.core.render
 		 */
 		public function getBitmapData(view:View3D):BitmapData
 		{
-			_container = getContainer(view) as Bitmap;
+			_container = getContainer(view) as Sprite;
 			
-			if (!_container.bitmapData) {
-				_bitmapwidth = int((_width = view.clip.maxX - view.clip.minX)/_scale);
-	        	_bitmapheight = int((_height = view.clip.maxY - view.clip.minY)/_scale);
+			if (!_bitmapContainer.bitmapData) {
+				_bitmapwidth = int((_width = view.screenClipping.maxX - view.screenClipping.minX)/_scale);
+	        	_bitmapheight = int((_height = view.screenClipping.maxY - view.screenClipping.minY)/_scale);
 	        	
-	        	return _container.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
+	        	return _bitmapContainer.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
 			}
         	
-			return _container.bitmapData;
+			return _bitmapContainer.bitmapData;
 		}
         
 		/**
@@ -82,9 +96,6 @@ package away3d.core.render
             //add child to layers
             layers.push(child);
             child.visible = true;
-        	
-			//add child to children
-            children[child] = child;
             
             _layerDirty = true;
         }
@@ -92,16 +103,22 @@ package away3d.core.render
 		/**
 		 * @inheritDoc
 		 */
-        public override function addLayerObject(child:Sprite):void
+        protected override function createSprite(parent:Sprite = null):Sprite
         {
-            //add child to layers
-            layers.push(child);
-            child.visible = true;       
+        	if (_spriteStore.length) {
+            	_spriteActive.push(_sprite = _spriteStore.pop());
+            } else {
+            	_spriteActive.push(_sprite = new Sprite());
+            }
             
-            //add child to children
-            children[child] = child;
+            if (parent)
+            	parent.addChild(_sprite)
+            else
+            	layers.push(_sprite);
             
-            newLayer = child;
+            _layerDirty = true;
+            
+            return _sprite;
         }
         
 		/**
@@ -110,17 +127,17 @@ package away3d.core.render
         protected override function createLayer():void
         {
             //create new canvas for remaining triangles
-            if (_doStore.length) {
-            	_shape = _doStore.pop();
+            if (_shapeStore.length) {
+            	_shapeActive.push(_shape = _shapeStore.pop());
             } else {
-            	_shape = new Shape();
+            	_shapeActive.push(_shape = new Shape());
             }
+            
+            //update layer reference
+            layer = _shape;
             
             //update graphics reference
             graphics = _shape.graphics;
-            
-            //store new canvas
-            _doActive.push(_shape);
             
             //add new canvas to layers
             layers.push(_shape);
@@ -136,36 +153,32 @@ package away3d.core.render
 	        super.clear(view);
 	        
         	if (updated) {
-        		_container = getContainer(view) as Bitmap;
 	        	_base = getBitmapData(view);
 	        	
-	        	_cx = _container.x = view.clip.minX;
-				_cy = _container.y = view.clip.minY;
-				_container.scaleX = _scale;
-				_container.scaleY = _scale;
+	        	_cx = _bitmapContainer.x = view.screenClipping.minX;
+				_cy = _bitmapContainer.y = view.screenClipping.minY;
+				_bitmapContainer.scaleX = _scale;
+				_bitmapContainer.scaleY = _scale;
 	        	
 	        	_cm = new Matrix();
 	        	_cm.scale(1/_scale, 1/_scale);
-				_cm.translate(-view.clip.minX/_scale, -view.clip.minY/_scale);
+				_cm.translate(-view.screenClipping.minX/_scale, -view.screenClipping.minY/_scale);
 				
 	        	//clear base canvas
 	        	_base.lock();
 	        	_base.fillRect(_base.rect, 0);
 	            
-	            //remove all children
-	            children = new Dictionary(true);
-	            newLayer = null;
-	            
 	            //remove all layers
 	            layers = [];
 	            _layerDirty = true;
+	            layer = null;
 	        }
 	        
-	        if ((filters && filters.length) || (_container.filters && _container.filters.length))
-        		_container.filters = filters;
+	        if ((filters && filters.length) || (_bitmapContainer.filters && _bitmapContainer.filters.length))
+        		_bitmapContainer.filters = filters;
         	
-        	_container.alpha = alpha || 1;
-        	_container.blendMode = blendMode || BlendMode.NORMAL;
+        	_bitmapContainer.alpha = alpha || 1;
+        	_bitmapContainer.blendMode = blendMode || BlendMode.NORMAL;
         }
         
 		/**
@@ -176,8 +189,8 @@ package away3d.core.render
 	        super.render(view);
 	        	
         	if (updated) {
-	            for each (layer in layers)
-	            	_base.draw(layer, _cm, layer.transform.colorTransform, layer.blendMode, _base.rect);
+	            for each (_layer in layers)
+	            	_base.draw(_layer, _cm, _layer.transform.colorTransform, _layer.blendMode, _base.rect);
 	           	
 	           _base.unlock();
 	        }

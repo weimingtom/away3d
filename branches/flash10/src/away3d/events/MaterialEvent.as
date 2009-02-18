@@ -15,7 +15,7 @@ package away3d.events
     	public static const LOAD_ERROR:String = "loadError";
     	
     	/**
-    	 * Defines the value of the type property of a laodProgress event object.
+    	 * Defines the value of the type property of a loadProgress event object.
     	 */
     	public static const LOAD_PROGRESS:String = "loadProgress";
     	
@@ -23,11 +23,6 @@ package away3d.events
     	 * Defines the value of the type property of a loadSuccess event object.
     	 */
     	public static const LOAD_SUCCESS:String = "loadSuccess";
-    	
-    	/**
-    	 * Defines the value of the type property of a materialResize event object.
-    	 */
-    	public static const MATERIAL_RESIZED:String = "materialResize";
     	
     	/**
     	 * Defines the value of the type property of a materialUpdated event object.

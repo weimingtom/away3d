@@ -4,8 +4,6 @@ package away3d.animators
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.utils.*;
 	
-	import flash.utils.*;
-	
 	public class SkinAnimation implements IMeshAnimation
     {
         private var _channels:Array;
@@ -41,15 +39,15 @@ package away3d.animators
 		 */
         public function update(time:Number, interpolate:Boolean = true):void
         {
-			if (time - start > length ) {
+			if (time > start + length ) {
                 if (loop) {
-                    time = (time - start) % length;
+                    time = start + (time - start) % length;
                 }else{
-                    time = length;
+                    time = start + length;
                 }
             } else if (time < start) {
                 if (loop) {
-                    time = length - (time - start) % length;
+                    time = start + (time - start) % length + length;
                 }else{
                     time = start;
                 }

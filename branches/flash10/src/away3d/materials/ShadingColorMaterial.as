@@ -84,7 +84,7 @@ package away3d.materials
             session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, tri.v0, tri.v1, tri.v2);
 
             if (cache)
-                if (tri.face != null)
+                if (tri.faceVO != null)
                 {
                     sfr = int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr) >> 16);
                     sfg = int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg) >> 8);
@@ -97,7 +97,7 @@ package away3d.materials
                     if (sfb > 0xFF)
                         sfb = 0xFF;
 
-                    tri.face.material = new ColorMaterial(sfr << 16 | sfg << 8 | sfb);
+                    tri.faceVO.material = new ColorMaterial(sfr << 16 | sfg << 8 | sfb);
                 }
         }
         

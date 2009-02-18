@@ -1,12 +1,14 @@
 package away3d.containers
 {
 	import away3d.arcane;
+	import away3d.blockers.*;
 	import away3d.cameras.*;
 	import away3d.core.base.*;
-	import away3d.core.block.BlockerArray;
+	import away3d.core.block.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
-	import away3d.core.math.MatrixAway3D;
+	import away3d.core.math.*;
+	import away3d.core.project.*;
 	import away3d.core.render.*;
 	import away3d.core.stats.*;
 	import away3d.core.traverse.*;
@@ -14,12 +16,10 @@ package away3d.containers
 	import away3d.events.*;
 	import away3d.materials.*;
 	
-	import flash.display.BitmapData;
-	import flash.display.BlendMode;
-	import flash.display.DisplayObject;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.MouseEvent;
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
+	import flash.utils.*;
 	
 	use namespace arcane;
 	
@@ -64,7 +64,23 @@ package away3d.containers
 	public class View3D extends Sprite
 	{
 		/** @private */
+		arcane var _screenClipping:Clipping;
+		/** @private */
 		arcane var _interactiveLayer:Sprite = new Sprite();
+		/** @private */
+		arcane var _convexBlockProjector:ConvexBlockProjector = new ConvexBlockProjector();
+		/** @private */
+    	arcane var _dirSpriteProjector:DirSpriteProjector = new DirSpriteProjector();
+    	/** @private */
+    	arcane var _dofSpriteProjector:DofSpriteProjector = new DofSpriteProjector();
+    	/** @private */
+    	arcane var _meshProjector:MeshProjector = new MeshProjector();
+    	/** @private */
+    	arcane var _movieClipSpriteProjector:MovieClipSpriteProjector = new MovieClipSpriteProjector();
+    	/** @private */
+    	arcane var _objectContainerProjector:ObjectContainerProjector = new ObjectContainerProjector();
+    	/** @private */
+    	arcane var _spriteProjector:SpriteProjector = new SpriteProjector();
 		/** @private */
         arcane function dispatchMouseEvent(event:MouseEvent3D):void
         {
@@ -73,20 +89,32 @@ package away3d.containers
 
             dispatchEvent(event);
         }
+		private var _loaderWidth:Number;
+		private var _loaderHeight:Number;
+		private var _loaderDirty:Boolean;
+		private var _screenClippingDirty:Boolean;
+		private var _viewZero:Point = new Point();
+		private var _x:Number;
+		private var _y:Number;
+		private var _stageWidth:Number;
+		private var _stageHeight:Number;
+		private var _drawPrimitiveStore:DrawPrimitiveStore = new DrawPrimitiveStore();
+		private var _cameraVarsStore:CameraVarsStore = new CameraVarsStore();
         private var _scene:Scene3D;
 		private var _session:AbstractRenderSession;
+		private var _clipping:Clipping;
 		private var _camera:Camera3D;
 		private var _renderer:IRenderer;
-        private var _defaultclip:Clipping = new Clipping();
 		private var _ini:Init;
 		private var _mousedown:Boolean;
         private var _lastmove_mouseX:Number;
         private var _lastmove_mouseY:Number;
-		private var _oldclip:Clipping;
 		private var _internalsession:AbstractRenderSession;
 		private var _updatescene:ViewEvent;
+		private var _renderComplete:ViewEvent;
 		private var _updated:Boolean;
 		private var _cleared:Boolean;
+		private var _blocker:ConvexBlock;
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
 		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _container:DisplayObject;
@@ -108,6 +136,7 @@ package away3d.containers
         private var primitive:DrawPrimitive;
         private var inv:MatrixAway3D = new MatrixAway3D();
         private var persp:Number;
+        private var _mouseIsOverView:Boolean;
         
         private function checkSession(session:AbstractRenderSession):void
         {
@@ -150,6 +179,9 @@ package away3d.containers
             if (pri.maxY < screenY)
                 return;
             
+            if (pri is DrawDisplayObject && !(pri as DrawDisplayObject).displayobject.hitTestPoint(_hitPointX, _hitPointY, true))
+            	return;
+            
             if (pri.contains(screenX, screenY))
             {
                 var z:Number = pri.getZ(screenX, screenY);
@@ -172,7 +204,7 @@ package away3d.containers
                     }
                     screenZ = z;
                     persp = camera.zoom / (1 + screenZ / camera.focus);
-                    inv = camera.invView;
+                    inv = camera.invViewMatrix;
 					
                     sceneX = screenX / persp * inv.sxx + screenY / persp * inv.sxy + screenZ * inv.sxz + inv.tx;
                     sceneY = screenX / persp * inv.syx + screenY / persp * inv.syy + screenZ * inv.syz + inv.ty;
@@ -195,10 +227,26 @@ package away3d.containers
 			dispatchEvent(_updatescene);
 		}
 		
+		private function notifyRenderComplete():void
+		{
+			//dispatch event
+			if(!_renderComplete)
+				_renderComplete = new ViewEvent(ViewEvent.RENDER_COMPLETE, this);
+				
+			dispatchEvent(_renderComplete);
+		}
+		
 		private function createStatsMenu(event:Event):void
 		{
 			statsPanel = new Stats(this, stage.frameRate); 
 			statsOpen = false;
+			
+			stage.addEventListener(Event.RESIZE, onStageResized);
+		}
+		
+		private function onStageResized(event:Event):void
+		{
+			_screenClippingDirty = true;
 		}
 		
 		private function onSessionUpdate(event:SessionEvent):void
@@ -213,6 +261,11 @@ package away3d.containers
 		}
 		
 		private function onCameraUpdated(e:CameraEvent):void
+		{
+			_updated = true;
+		}
+		
+		private function onClippingUpdated(e:ClippingEvent):void
 		{
 			_updated = true;
 		}
@@ -234,30 +287,43 @@ package away3d.containers
             fireMouseEvent(MouseEvent3D.MOUSE_UP, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
 
-        private function onMouseOut(e:MouseEvent):void
+        private function onRollOut(e:MouseEvent):void
         {
-        	//if (e.eventPhase != EventPhase.AT_TARGET)
-        	//	return;
+        	_mouseIsOverView = false;
+        	
         	fireMouseEvent(MouseEvent3D.MOUSE_OUT, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
-        private function onMouseOver(e:MouseEvent):void
+        private function onRollOver(e:MouseEvent):void
         {
-        	//if (e.eventPhase != EventPhase.AT_TARGET)
-        	//	return;
+        	_mouseIsOverView = true;
+        	
             fireMouseEvent(MouseEvent3D.MOUSE_OVER, mouseX, mouseY, e.ctrlKey, e.shiftKey);
         }
         
-        private function bubbleMouseEvent(event:MouseEvent3D):void
+        private function bubbleMouseEvent(event:MouseEvent3D):Array
         {
             var tar:Object3D = event.object;
+            var tarArray:Array = [];
             while (tar != null)
             {
-                if (tar.dispatchMouseEvent(event))
-                    break;
+            	tarArray.unshift(tar);
+            	
+                tar.dispatchMouseEvent(event);
+                
                 tar = tar.parent;
-            }       
+            }
+            
+            return tarArray;
         }
+        
+        private function traverseRollEvent(event:MouseEvent3D, array:Array):void
+        {
+        	for each (var tar:Object3D in array)
+        		tar.dispatchMouseEvent(event)
+        }
+        
+        public var viewTimer:int;
         
         /**
         * A background sprite positioned under the rendered scene.
@@ -312,22 +378,15 @@ package away3d.containers
         public var mouseMaterial:IUVMaterial;
         
         /**
-        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to true.
+        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to false.
         * 
         * @see #render()
         */
         public var forceUpdate:Boolean;
       
         public var blockerarray:BlockerArray = new BlockerArray();
-        /**
-        * Clipping area used when rendering.
-        * 
-        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
-        * 
-        * @see #render()
-        * @see away3d.core.render.Clipping.scene()
-        */
-        public var clip:Clipping;
+        
+        public var blockers:Dictionary;
         
         /**
         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
@@ -361,6 +420,41 @@ package away3d.containers
         }
         
         /**
+        * Clipping area used when rendering.
+        * 
+        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
+        * 
+        * @see #render()
+        * @see away3d.core.render.Clipping.scene()
+        */
+        public function get clipping():Clipping
+        {
+        	return _clipping;
+        }
+    	
+        public function set clipping(val:Clipping):void
+        {
+        	if (_clipping == val)
+        		return;
+        	
+        	if (_clipping) {
+        		_clipping.removeOnClippingUpdate(onClippingUpdated);
+        	}
+        		
+        	_clipping = val;
+        	_clipping.view = this;
+        	
+        	if (_clipping) {
+        		_clipping.addOnClippingUpdate(onClippingUpdated);
+        	} else {
+        		throw new Error("View cannot have clip set to null");
+        	}
+        	
+        	_updated = true;
+        	_screenClippingDirty = true;
+        }
+        
+        /**
         * Camera used when rendering.
         * 
         * @see #render()
@@ -381,6 +475,9 @@ package away3d.containers
         	}
         	
         	_camera = val;
+        	_camera.view = this;
+        	
+        	_updated = true;
         	
         	if (_camera) {
         		_camera.addOnSceneTransformChange(onCameraTransformChange);
@@ -473,6 +570,27 @@ package away3d.containers
             addChild(hud);
         }
         
+        public function get screenClipping():Clipping
+        {
+        	if (_screenClippingDirty) {
+        		_screenClippingDirty = false;
+        		
+        		return _screenClipping = _clipping.screen(this, _loaderWidth, _loaderHeight);
+        	}
+        	
+        	return _screenClipping;
+        }
+        
+        public function get drawPrimitiveStore():DrawPrimitiveStore
+        {
+        	return _drawPrimitiveStore;
+        }
+        
+        public function get cameraVarsStore():CameraVarsStore
+        {
+        	return _cameraVarsStore;
+        }
+        
 		/**
 		 * Creates a new <code>View3D</code> object.
 		 * 
@@ -485,9 +603,9 @@ package away3d.containers
             var stats:Boolean = _ini.getBoolean("stats", true);
 			session = _ini.getObject("session") as AbstractRenderSession || new SpriteRenderSession();
             scene = _ini.getObjectOrInit("scene", Scene3D) as Scene3D || new Scene3D();
-            camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:1000, lookat:"center"});
+            camera = _ini.getObjectOrInit("camera", Camera3D) as Camera3D || new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 			renderer = _ini.getObject("renderer") as IRenderer || new BasicRenderer();
-			clip = _ini.getObject("clip", Clipping) as Clipping;
+			clipping = _ini.getObject("clipping", Clipping) as Clipping || new RectangleClipping();
 			x = _ini.getNumber("x", 0);
 			y = _ini.getNumber("y", 0);
 			forceUpdate = _ini.getBoolean("forceUpdate", false);
@@ -496,18 +614,23 @@ package away3d.containers
 			//setup blendmode for hidden interactive layer
             _interactiveLayer.blendMode = BlendMode.ALPHA;
             
-            //setup view property on traverser
+            //setup the view property on child classes
+            _convexBlockProjector.view = this;
+			_dirSpriteProjector.view = this;
+			_dofSpriteProjector.view = this;
+			_meshProjector.view = this;
+			_movieClipSpriteProjector.view = this;
+			_objectContainerProjector.view = this;
+			_spriteProjector.view = this;
+			_drawPrimitiveStore.view = this;
+			_cameraVarsStore.view = this;
             _pritraverser.view = this;
             
             //setup events on view
             addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
             addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-            addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-            addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-			
-			//setup default clip value
-            if (!clip)
-            	clip = _defaultclip;
+            addEventListener(MouseEvent.ROLL_OUT, onRollOut);
+            addEventListener(MouseEvent.ROLL_OVER, onRollOver);
             
             //setup stats panel creation
             if (stats)
@@ -531,8 +654,8 @@ package away3d.containers
         	findHit(_internalsession, x, y);
         	
             var event:MouseEvent3D = getMouseEvent(type);
-            var target:Object3D = event.object;
-            var targetMaterial:IUVMaterial = event.material;
+            var outArray:Array = [];
+            var overArray:Array = [];
             event.ctrlKey = ctrlKey;
             event.shiftKey = shiftKey;
 			
@@ -541,26 +664,53 @@ package away3d.containers
 	            bubbleMouseEvent(event);
 			}
             
-            //catch rollover/rollout object3d events
-            if (mouseObject != target || mouseMaterial != targetMaterial) {
+            //catch mouseOver/mouseOut rollOver/rollOut object3d events
+            if (mouseObject != object || mouseMaterial != material) {
                 if (mouseObject != null) {
                     event = getMouseEvent(MouseEvent3D.MOUSE_OUT);
                     event.object = mouseObject;
                     event.material = mouseMaterial;
+                    event.ctrlKey = ctrlKey;
+            		event.shiftKey = shiftKey;
                     dispatchMouseEvent(event);
-                    bubbleMouseEvent(event);
-                    mouseObject = null;
+                    outArray = bubbleMouseEvent(event);
                     buttonMode = false;
                 }
-                if (target != null && mouseObject == null) {
+                if (object != null) {
                     event = getMouseEvent(MouseEvent3D.MOUSE_OVER);
-                    event.object = target;
-                    event.material = mouseMaterial = targetMaterial;
+                    event.ctrlKey = ctrlKey;
+            		event.shiftKey = shiftKey;
                     dispatchMouseEvent(event);
-                    bubbleMouseEvent(event);
-                    buttonMode = target.useHandCursor;
+                    overArray = bubbleMouseEvent(event);
+                    buttonMode = object.useHandCursor;
                 }
-                mouseObject = target;
+                
+                if (mouseObject != object) {
+                	
+	                var i:int = 0;
+	                
+	                while (outArray[i] && outArray[i] == overArray[i])
+	                	i++
+	                
+	                if (mouseObject != null) {
+	                	event = getMouseEvent(MouseEvent3D.ROLL_OUT);
+	                	event.object = mouseObject;
+	                	event.material = mouseMaterial;
+	                	event.ctrlKey = ctrlKey;
+	            		event.shiftKey = shiftKey;
+		                traverseRollEvent(event, outArray.slice(i));
+	                }
+	                
+	                if (object != null) {
+	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER);
+	                	event.ctrlKey = ctrlKey;
+	            		event.shiftKey = shiftKey;
+		                traverseRollEvent(event, overArray.slice(i));
+	                }
+                }
+                
+                mouseObject = object;
+                mouseMaterial = material;
             }
             
         }
@@ -570,15 +720,15 @@ package away3d.containers
 	    */
         public function findHit(session:AbstractRenderSession, x:Number, y:Number):void
         {
-        	if (!session)
-        		return;
-        	
             screenX = x;
             screenY = y;
             screenZ = Infinity;
             material = null;
             object = null;
             
+        	if (!session || !_mouseIsOverView)
+        		return;
+        	
             _hitPointX = stage.mouseX;
             _hitPointY = stage.mouseY;
             
@@ -646,6 +796,35 @@ package away3d.containers
 				throw new Error("incorrect session object - require BitmapRenderSession");	
 		}
 		
+		public function updateScreenClipping():void
+		{
+        	//check for loaderInfo update
+        	try {
+        		_loaderWidth = loaderInfo.width;
+        		_loaderHeight = loaderInfo.height;
+        		if (_loaderDirty) {
+        			_loaderDirty = false;
+        			_screenClippingDirty = true;
+        		}
+        	} catch (error:Error) {
+        		_loaderDirty = true;
+        		_loaderWidth = stage.stageWidth;
+        		_loaderHeight = stage.stageHeight;
+        	}
+        	
+			//check for global view movement
+        	_viewZero.x = 0;
+        	_viewZero.y = 0;
+        	_viewZero = localToGlobal(_viewZero);
+        	
+			if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
+        		_x = _viewZero.x;
+        		_y = _viewZero.y;
+        		_stageWidth = stage.stageWidth;
+        		_stageHeight = stage.stageHeight;
+        		_screenClippingDirty = true;
+   			}
+		}
         /**
         * Clears previously rendered view from all render sessions.
         * 
@@ -666,28 +845,29 @@ package away3d.containers
         */
         public function render():void
         {
+        	viewTimer = getTimer();
+        	
+            //update scene
+            notifySceneUpdate();
+            
         	//update session
-        	if (_session != _internalsession)
-        		_internalsession = session;
+        	if (_internalsession != _session)
+        		_internalsession = _session;
         	
         	//update renderer
         	if (_session.renderer != _renderer as IPrimitiveConsumer)
         		_session.renderer = _renderer as IPrimitiveConsumer;
-        	
-            //update scene
-            notifySceneUpdate();
-        	
-        	_oldclip = clip;
-            
-            //if clip set to default, determine screen clipping
-			if (clip == _defaultclip)
-            	clip = _defaultclip.screen(this);
 	        
             //clear session
             _session.clear(this);
+			
+        	//clear drawprimitives
+        	_drawPrimitiveStore.reset();
             
             //draw scene into view session
             if (_session.updated) {
+            	if (_scene.ownSession is SpriteRenderSession)
+					(_scene.ownSession as SpriteRenderSession).cacheAsBitmap = true;
             	_ddo.view = this;
 	        	_ddo.displayobject = _scene.session.getContainer(this);
 	        	_ddo.session = _session;
@@ -697,7 +877,11 @@ package away3d.containers
 	         	_consumer.primitive(_ddo);
             }
             
-            //traverse scene
+            //traverse blockers
+            for each (_blocker in blockers)
+            	_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary[_blocker], blockerarray);
+            
+            //traverse primitives
             _scene.traverse(_pritraverser);
             
             //render scene
@@ -708,15 +892,15 @@ package away3d.containers
 			//dispatch stats
             if (statsOpen)
             	statsPanel.updateStats(_session.getTotalFaces(this), camera);
-            
-			//revert clip value
-			clip = _oldclip;
         	
         	//debug check
             Init.checkUnusedArguments();
 			
 			//check for mouse interaction
             fireMouseMoveEvent();
+            
+            //notify render complete
+            notifyRenderComplete();
         }
         
 		/**
@@ -738,6 +922,9 @@ package away3d.containers
         */
         public function fireMouseMoveEvent(force:Boolean = false):void
         {
+        	if(!_mouseIsOverView)
+        		return;
+        	
             if (!(mouseZeroMove || force))
                 if ((mouseX == _lastmove_mouseX) && (mouseY == _lastmove_mouseY))
                     return;

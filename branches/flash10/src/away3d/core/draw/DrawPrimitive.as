@@ -2,7 +2,6 @@ package away3d.core.draw
 {
     import away3d.containers.*;
     import away3d.core.base.*;
-    import away3d.core.render.*;
 
     /**
     * Abstract class for all drawing primitives
@@ -18,6 +17,11 @@ package away3d.core.draw
     	 * The parent 3d object of the drawing primitive.
     	 */
         public var source:Object3D;
+        
+        /**
+         * Indicator of whether primitive is the produce of a generator algorithm
+         */
+        public var generated:Boolean;
         
         /**
         * Placeholder function for creating new drawing primitives from a cache of objects.
@@ -104,7 +108,7 @@ package away3d.core.draw
 		 */
         public function quarter(focus:Number):Array
         {
-            throw new Error("Not implemented");
+            return [this];
         }
 		
 		/**

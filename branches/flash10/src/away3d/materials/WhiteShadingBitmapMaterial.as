@@ -22,7 +22,7 @@ package away3d.materials
     {
         private var _bitmap:BitmapData;
         private var _texturemapping:Matrix;
-        private var _faceVO:FaceVO;
+        private var _faceMaterialVO:FaceMaterialVO;
         private var _faceDictionary:Dictionary = new Dictionary(true);
         private var blackrender:Boolean;
         private var whiterender:Boolean;
@@ -51,28 +51,35 @@ package away3d.materials
         */
 		protected function getMapping(tri:DrawTriangle):Matrix
 		{
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
-			if (_faceVO.texturemapping)
-				return _faceVO.texturemapping;
+			if (tri.generated) {
+				_texturemapping = tri.transformUV(this).clone();
+				_texturemapping.invert();
+				
+				return _texturemapping;
+			}
+			
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
+			
+			if (!_faceMaterialVO.invalidated)
+				return _faceMaterialVO.texturemapping;
 			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
-			return _faceVO.texturemapping = _texturemapping;
+			return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
         /** @private */
         protected override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
-            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb) / (255*3);
+            br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb)/3;
 			
             mapping = getMapping(tri);
-            	
+            
             v0 = tri.v0;
             v1 = tri.v1;
             v2 = tri.v2;
             
-                //trace(br);
             if ((br < 1) && (blackrender || ((step < 16) && (!_bitmap.transparent))))
             {
                 session.renderTriangleBitmap(_bitmap, mapping, v0, v1, v2, smooth, repeat);
@@ -180,33 +187,31 @@ package away3d.materials
                 step *= 2;
         }
         
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function addOnMaterialResize(listener:Function):void
+        public function clearFaces(source:Object3D = null, view:View3D = null):void
         {
-        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
+        	for each (_faceMaterialVO in _faceDictionary)
+        		if (!_faceMaterialVO.cleared)
+        			_faceMaterialVO.clear();
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function removeOnMaterialResize(listener:Function):void
+        public function invalidateFaces(source:Object3D = null, view:View3D = null):void
         {
-        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
+        	for each (_faceMaterialVO in _faceDictionary)
+        		_faceMaterialVO.invalidated = true;
         }
     }
 }

@@ -1,21 +1,5 @@
-package away3d.core.base
-{
-    import away3d.arcane;
-    import away3d.containers.*;
-    import away3d.core.draw.*;
-    import away3d.core.light.*;
-    import away3d.core.math.*;
-    import away3d.core.project.*;
-    import away3d.core.render.*;
-    import away3d.core.traverse.*;
-    import away3d.core.utils.*;
-    import away3d.events.*;
-    import away3d.loaders.utils.*;
-    import away3d.primitives.*;
-    
-    import flash.display.*;
-    import flash.events.EventDispatcher;
-    
+﻿package away3d.core.base{
+	import away3d.arcane;	import away3d.containers.*;	import away3d.core.draw.*;	import away3d.core.light.*;	import away3d.core.math.*;	import away3d.core.render.*;	import away3d.core.traverse.*;	import away3d.core.utils.*;	import away3d.events.*;	import away3d.loaders.utils.*;	import away3d.primitives.*;		import flash.display.*;	import flash.events.EventDispatcher;    
     use namespace arcane;
     
 	/**
@@ -106,7 +90,7 @@ package away3d.core.base
 	 */
 	[Event(name="mouseOut",type="away3d.events.MouseEvent3D")]
 	
-    /**
+	/**	 * Dispatched when a user rolls over the 3d object.	 * 	 * @eventType away3d.events.MouseEvent3D	 */	[Event(name="rollOver",type="away3d.events.MouseEvent3D")]    	/**	 * Dispatched when a user rolls out of the 3d object.	 * 	 * @eventType away3d.events.MouseEvent3D	 */	[Event(name="rollOut",type="away3d.events.MouseEvent3D")]	    /**
      * Base class for all 3d objects.
      */
     public class Object3D extends EventDispatcher implements IClonable
@@ -141,36 +125,31 @@ package away3d.core.base
         arcane var _maxZ:Number = 0;
         /** @private */
         arcane var _minZ:Number = 0;
+        /** @private */        arcane var _lookingAtTarget:Number3D = new Number3D();         /** @private */        public function get lookingAtTarget():Number3D        {            return _lookingAtTarget;        }
         /** @private */
         public function get parentmaxX():Number
         {
-            return boundingRadius + _transform.tx;
-        }
+            return boundingRadius*_boundingScale + _transform.tx;        }
 		/** @private */
         public function get parentminX():Number
         {
-            return -boundingRadius + _transform.tx;
-        }
+            return -boundingRadius*_boundingScale + _transform.tx;        }
 		/** @private */
         public function get parentmaxY():Number
         {
-            return boundingRadius + _transform.ty;
-        }
+            return boundingRadius*_boundingScale + _transform.ty;        }
 		/** @private */
         public function get parentminY():Number
         {
-            return -boundingRadius + _transform.ty;
-        }
+            return -boundingRadius*_boundingScale + _transform.ty;        }
 		/** @private */
         public function get parentmaxZ():Number
         {
-            return boundingRadius + _transform.tz;
-        }
+            return boundingRadius*_boundingScale + _transform.tz;        }
 		/** @private */
         public function get parentminZ():Number
         {
-            return -boundingRadius + _transform.tz;
-        }
+            return -boundingRadius*_boundingScale + _transform.tz;        }        /** @private */        public function get parentBoundingRadius():Number        {        	return boundingRadius*_boundingScale;        }
         /** @private */
         arcane function notifyParentUpdate():void
         {
@@ -278,11 +257,6 @@ package away3d.core.base
 
             return true;
         }
-		/** @private */
-		arcane function setParentPivot(val:Number3D):void
-		{
-			_parentPivot = val;
-		}
 		
         private static var toDEGREES:Number = 180 / Math.PI;
         private static var toRADIANS:Number = Math.PI / 180;
@@ -297,9 +271,7 @@ package away3d.core.base
         arcane var _scaleX:Number = 1;
         arcane var _scaleY:Number = 1;
         arcane var _scaleZ:Number = 1;
-        arcane var _pivotPoint:Number3D = new Number3D();
-        private var _scenePivotPoint:Number3D = new Number3D();
-        private var _parentPivot:Number3D;
+        protected var _pivotPoint:Number3D = new Number3D();        private var _scenePivotPoint:Number3D = new Number3D();
         private var _parentradius:Number3D = new Number3D();
         arcane var _scene:Scene3D;
         private var _oldscene:Scene3D;
@@ -333,7 +305,6 @@ package away3d.core.base
 		private var _lightarray:ILightConsumer;
 		private var _debugBoundingSphere:WireSphere;
 		private var _debugBoundingBox:WireCube;
-		private var _projector:IPrimitiveProvider;
 		private var _visible:Boolean;
 		
 		private function onSessionUpdate(event:SessionEvent):void
@@ -362,10 +333,10 @@ package away3d.core.base
         private function updateRotation():void
         {
             _rot.matrix2euler(_transform, _scaleX, _scaleY, _scaleZ);
-            _rotationX = -_rot.x;
-            _rotationY = -_rot.y;
-            _rotationZ = -_rot.z;
-    
+            _rotationX = _rot.x;
+            _rotationY = _rot.y;
+            _rotationZ = _rot.z;
+    		
             _rotationDirty = false;
         }
 		
@@ -426,10 +397,7 @@ package away3d.core.base
         		
         	_sessionDirty = true;
         }
-        
-        protected var viewTransform:MatrixAway3D;
-        
-        /**
+                /**
          * Instance of the Init object used to hold and parse default property values
          * specified by the initialiser object in the 3d object constructor.
          */
@@ -440,7 +408,7 @@ package away3d.core.base
         	if (_rotationDirty) 
                 updateRotation();
             
-            _quaternion.euler2quaternion(-_rotationY, -_rotationZ, _rotationX); // Swapped
+            _quaternion.euler2quaternion(_rotationY, _rotationZ, -_rotationX); // Swapped
             _transform.quaternion2matrix(_quaternion);
             
             _transform.scale(_transform, _scaleX, _scaleY, _scaleZ);
@@ -461,8 +429,7 @@ package away3d.core.base
             	if (!_debugBoundingBox)
 					_debugBoundingBox = new WireCube({material:"#333333"});
 				
-                if (boundingRadius) {
-                	_debugBoundingBox.visible = true;
+                if (_boundingRadius) {                	_debugBoundingBox.visible = true;
                 	_debugBoundingBox.v000.setValue(_minX, _minY, _minZ);
                 	_debugBoundingBox.v100.setValue(_maxX, _minY, _minZ);
                 	_debugBoundingBox.v010.setValue(_minX, _maxY, _minZ);
@@ -481,8 +448,7 @@ package away3d.core.base
             	if (!_debugBoundingSphere)
 					_debugBoundingSphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
 				
-                if (boundingRadius) {
-                	_debugBoundingSphere.visible = true;
+                if (_boundingRadius) {                	_debugBoundingSphere.visible = true;
 					_debugBoundingSphere.radius = _boundingRadius;
 					_debugBoundingSphere.updateObject();
 					_debugBoundingSphere.applyPosition(-_pivotPoint.x, -_pivotPoint.y, -_pivotPoint.z);
@@ -569,7 +535,7 @@ package away3d.core.base
 		
 		public var center:Vertex = new Vertex();
 		
-		public function get debugBoundingBox():WireCube
+		public var projectorType:String;				public function get debugBoundingBox():WireCube
 		{	
             if (_dimensionsDirty || !_debugBoundingBox)
             	updateDimensions();
@@ -601,7 +567,7 @@ package away3d.core.base
             if (_dimensionsDirty)
             	updateDimensions();
            
-           return _boundingRadius*_boundingScale;
+           return _boundingRadius;
         }
         
     	/**
@@ -783,6 +749,7 @@ package away3d.core.base
         	
         	if (_ownSession)
         		_ownSession.renderer = _renderer;
+        	        	_sessionDirty = true;
         }
         
     	/**
@@ -913,25 +880,6 @@ package away3d.core.base
         	notifySessionChange();
         }
         
-        public function get projector():IPrimitiveProvider
-        {
-        	return _projector;
-        }
-        
-        public function set projector(val:IPrimitiveProvider):void
-        {
-        	if (_projector == val)
-        		return;
-        	
-        	if (_projector)
-        		_projector.source = null;
-        	
-        	_projector = val;
-        	
-        	if (_projector)
-        		_projector.source = this;
-        }
-        
     	/**
     	 * Defines the x coordinate of the 3d object relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
@@ -1024,7 +972,7 @@ package away3d.core.base
             if (_rotationDirty) 
                 updateRotation();
     
-            return -_rotationX*toDEGREES;
+            return _rotationX*toDEGREES;
         }
     
         public function set rotationX(rot:Number):void
@@ -1032,7 +980,7 @@ package away3d.core.base
         	if (rotationX == rot)
         		return;
         	
-            _rotationX = -rot*toRADIANS;
+            _rotationX = rot*toRADIANS;
             _transformDirty = true;
         }
 		
@@ -1044,7 +992,7 @@ package away3d.core.base
             if (_rotationDirty) 
                 updateRotation();
     
-            return -_rotationY*toDEGREES;
+            return _rotationY*toDEGREES;
         }
     
         public function set rotationY(rot:Number):void
@@ -1052,7 +1000,7 @@ package away3d.core.base
         	if (rotationY == rot)
         		return;
         	
-            _rotationY = -rot*toRADIANS;
+            _rotationY = rot*toRADIANS;
             _transformDirty = true;
         }
 		
@@ -1064,15 +1012,16 @@ package away3d.core.base
             if (_rotationDirty) 
                 updateRotation();
     
-            return -_rotationZ*toDEGREES;
+            return _rotationZ*toDEGREES;
         }
     
         public function set rotationZ(rot:Number):void
         {
+			
         	if (rotationZ == rot)
         		return;
         	
-            _rotationZ = -rot*toRADIANS;
+            _rotationZ = rot*toRADIANS;
             _transformDirty = true;
         }
 		
@@ -1156,18 +1105,18 @@ package away3d.core.base
         	if (_rotationDirty) 
                 updateRotation();
             
-            _eulers.x = -_rotationX*toDEGREES;
-            _eulers.y = -_rotationY*toDEGREES;
-            _eulers.z = -_rotationZ*toDEGREES;
+            _eulers.x = _rotationX*toDEGREES;
+            _eulers.y = _rotationY*toDEGREES;
+            _eulers.z = _rotationZ*toDEGREES;
             
             return _eulers;
         }
 		
         public function set eulers(value:Number3D):void
         {
-            _rotationX = -value.x*toRADIANS;
-            _rotationY = -value.y*toRADIANS;
-            _rotationZ = -value.z*toRADIANS;
+            _rotationX = value.x*toRADIANS;
+            _rotationY = value.y*toRADIANS;
+            _rotationZ = value.z*toRADIANS;
 			
             _transformDirty = true;
         }
@@ -1302,7 +1251,7 @@ package away3d.core.base
     		
     		_lightsDirty = true;
     	}
-    	
+        		/**		 * Defines the local point around which the object rotates.		 * 		 * @param	pivotPoint		The Number 3D for the new pivot point		 */        public function get pivotPoint():Number3D        {        	return _pivotPoint;        }		public function set pivotPoint(pivot:Number3D):void        {			_pivotPoint.clone(pivot);        	_pivotZero = (!_pivotPoint.x && !_pivotPoint.y && !_pivotPoint.z);        	_sceneTransformDirty = true;        	_dimensionsDirty = true;        	        	notifyParentUpdate();		}    	
     	/**
     	 * returns the array of lights contained inside the container.
     	 */
@@ -1329,15 +1278,12 @@ package away3d.core.base
         {
             return _scene;
         }
-        
-        public function get pivotPoint():Number3D
-        {
-        	return _pivotPoint;
-        }
+		        public function get pivotZero():Boolean        {
+        	return _pivotZero;        }
         
         public function get scenePivotPoint():Number3D
         {
-        	return _scenePivotPoint;
+        	if (_sceneTransformDirty)        		updateSceneTransform();        		        	return _scenePivotPoint;
         }
         
     	/**
@@ -1369,8 +1315,7 @@ package away3d.core.base
             rotationX = ini.getNumber("rotationX", 0);
             rotationY = ini.getNumber("rotationY", 0);
             rotationZ = ini.getNumber("rotationZ", 0);
-            
-            extra = ini.getObject("extra");
+            pivotPoint = ini.getNumber3D("pivotPoint") || new Number3D();            extra = ini.getObject("extra");
 			
         	if (this is Scene3D)
         		_scene = this as Scene3D;
@@ -1550,11 +1495,10 @@ package away3d.core.base
         	_pivotPoint.x = dx;
         	_pivotPoint.y = dy;
         	_pivotPoint.z = dz;
-        	
-        	_pivotZero = (!dx && !dy && !dz);
+			         	_pivotZero = (!dx && !dy && !dz);
         	_sceneTransformDirty = true;
         	_dimensionsDirty = true;
-        }
+        				notifyParentUpdate();        }
         
 		/**
 		 * Moves the 3d object along a vector by a defined length
@@ -1646,40 +1590,46 @@ package away3d.core.base
 		 */
         public function lookAt(target:Number3D, upAxis:Number3D = null):void
         {
+        	_lookingAtTarget = target;        	
             _zAxis.sub(target, position);
             _zAxis.normalize();
     
             if (_zAxis.modulo > 0.1 && (_zAxis.x != _transform.sxz || _zAxis.y != _transform.syz || _zAxis.z != _transform.szz))
             {
                 _xAxis.cross(_zAxis, upAxis || Number3D.UP);
-                _xAxis.normalize();
-    
-                _yAxis.cross(_zAxis, _xAxis);
+                				if (!_xAxis.modulo2)					_xAxis.cross(_zAxis, Number3D.BACKWARD);				                _xAxis.normalize();
+                                _yAxis.cross(_zAxis, _xAxis);
                 _yAxis.normalize();
     
-                _transform.sxx = _xAxis.x;
-                _transform.syx = _xAxis.y;
-                _transform.szx = _xAxis.z;
-    
-                _transform.sxy = -_yAxis.x;
-                _transform.syy = -_yAxis.y;
-                _transform.szy = -_yAxis.z;
-    
-                _transform.sxz = _zAxis.x;
-                _transform.syz = _zAxis.y;
-                _transform.szz = _zAxis.z;
-    
+                _transform.sxx = _xAxis.x*_scaleX;                _transform.syx = _xAxis.y*_scaleX;                _transform.szx = _xAxis.z*_scaleX;    
+                _transform.sxy = -_yAxis.x*_scaleY;                _transform.syy = -_yAxis.y*_scaleY;                _transform.szy = -_yAxis.z*_scaleY;    
+                _transform.sxz = _zAxis.x*_scaleZ;                _transform.syz = _zAxis.y*_scaleZ;                _transform.szz = _zAxis.z*_scaleZ;    
                 _transformDirty = false;
                 _rotationDirty = true;
                 _sceneTransformDirty = true;
                 _localTransformDirty = true;
-                // TODO: Implement scale
-            }
+                            }
             else
             {
                 //throw new Error("lookAt Error");
             }
         }
+		
+		/**
+ 		* Apply the local rotations to the object without altering the apperance of child objects
+ 		*/
+		public function applyRotations():void
+		{
+			throw new Error("Not implemented in Object3D - Use Mesh or ObjectContainer3D");
+		}
+		
+		/**
+ 		* Apply the given position to the object without altering the apperance of child objects
+ 		*/
+		public function applyPosition(dx:Number, dy:Number, dz:Number):void
+		{
+			throw new Error("Not implemented in Object3D - Use Mesh or ObjectContainer3D");
+		}
 		
 		/**
 		 * Used to trace the values of a 3d object.
@@ -1717,16 +1667,13 @@ package away3d.core.base
             object3D.name = name;
             object3D.ownCanvas = _ownCanvas;
             object3D.renderer = _renderer;
-            object3D.filters = _filters;
-            object3D.alpha = _alpha;
+            object3D.filters = _filters.concat();            object3D.alpha = _alpha;
             object3D.visible = visible;
             object3D.mouseEnabled = mouseEnabled;
             object3D.useHandCursor = useHandCursor;
             object3D.pushback = pushback;
             object3D.pushfront = pushfront;
-            object3D.pivotPoint.clone(pivotPoint);
-            object3D.projector = _projector.clone();
-            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
+            object3D.pivotPoint = pivotPoint;            object3D.projectorType = projectorType;            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             
             return object3D;
         }
@@ -1950,5 +1897,5 @@ package away3d.core.base
         {
             removeEventListener(MouseEvent3D.MOUSE_OUT, listener, false);
         }
-    }
+				/**		 * Default method for adding a rollOver3D event listener		 * 		 * @param	listener		The listener function		 */        public function addOnRollOver(listener:Function):void        {            addEventListener(MouseEvent3D.ROLL_OVER, listener, false, 0, false);        }				/**		 * Default method for removing a rollOver3D event listener		 * 		 * @param	listener		The listener function		 */        public function removeOnRollOver(listener:Function):void        {            removeEventListener(MouseEvent3D.ROLL_OVER, listener, false);        }				/**		 * Default method for adding a rollOut3D event listener		 * 		 * @param	listener		The listener function		 */        public function addOnRollOut(listener:Function):void        {            addEventListener(MouseEvent3D.ROLL_OUT, listener, false, 0, false);        }				/**		 * Default method for removing a rollOut3D event listener		 * 		 * @param	listener		The listener function		 */        public function removeOnRollOut(listener:Function):void        {            removeEventListener(MouseEvent3D.ROLL_OUT, listener, false);        }    }
 }

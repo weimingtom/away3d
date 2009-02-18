@@ -36,7 +36,6 @@ package away3d.materials
     public class BitmapFileMaterial extends TransformBitmapMaterial implements ITriangleMaterial, IUVMaterial
     {
 		private var _loader:Loader;
-		private var _materialresize:MaterialEvent;
 		private var _materialloaderror:MaterialEvent;
 		private var _materialloadprogress:MaterialEvent;
 		private var _materialloadsuccess:MaterialEvent;
@@ -59,12 +58,7 @@ package away3d.materials
 		
 		private function onComplete(e:Event):void
 		{
-			_renderBitmap = _bitmap = Bitmap(_loader.content).bitmapData;
-			
-			if (_materialresize == null)
-				_materialresize = new MaterialEvent(MaterialEvent.MATERIAL_RESIZED, this);
-			
-			dispatchEvent(_materialresize);
+			bitmap = Bitmap(_loader.content).bitmapData;
 			
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
@@ -114,7 +108,7 @@ package away3d.materials
 		 * 
 		 * @param	listener		The listener function
 		 */
-        public function addOnLaodProgress(listener:Function):void
+        public function addOnLoadProgress(listener:Function):void
         {
             addEventListener(MaterialEvent.LOAD_PROGRESS, listener, false, 0, true);
         }

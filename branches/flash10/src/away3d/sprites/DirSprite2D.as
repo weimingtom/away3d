@@ -1,10 +1,7 @@
 package away3d.sprites
 {
-    import away3d.containers.*;
     import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.project.*;
-    import away3d.core.render.*;
     import away3d.core.utils.*;
     
     import flash.display.BitmapData;
@@ -74,10 +71,7 @@ package away3d.sprites
                 add(x, y, z, b);
             }
             
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
-            
-            if (!projector)
-            	projector = new DirSpriteProjector();
+            projectorType = ProjectorType.DIR_SPRITE;
         }
 		
 		/**

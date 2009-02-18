@@ -619,7 +619,7 @@ package away3d.core.math
 			tx = (right+left)/(right-left);
 			
 			
-			syy = 2/(top-bottom)
+			syy = 2/(top-bottom);
 			syx = syz = 0;
 			ty = (top+bottom)/(top-bottom);
 			
@@ -836,5 +836,16 @@ package away3d.core.math
      		this.sxy = n.y;
      		this.sxz = n.z;
      	}   
+     	
+		public function multiplyVector3x3( v:Number3D ):void
+		{
+			var vx:Number = v.x;
+			var vy:Number = v.y;
+			var vz:Number = v.z;
+			
+			v.x = vx * sxx + vy * sxy + vz * sxz;
+			v.y = vx * syx + vy * syy + vz * syz;
+			v.z = vx * szx + vy * szy + vz * szz;
+		}
     }
 }

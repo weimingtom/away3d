@@ -1,14 +1,14 @@
 package away3d.core.filter
 {
+	import away3d.arcane;
 	import away3d.cameras.*;
-    import away3d.containers.*;
-    import away3d.arcane;
-    import away3d.core.base.*;
-    import away3d.core.clip.*;
-    import away3d.core.draw.*;
-    import away3d.core.render.*;
-    
-    import flash.utils.*;
+	import away3d.containers.*;
+	import away3d.core.base.*;
+	import away3d.core.clip.*;
+	import away3d.core.draw.*;
+	import away3d.core.render.*;
+	
+	import flash.utils.*;
 
 	use namespace arcane;
 	
@@ -34,6 +34,8 @@ package away3d.core.filter
         private var part:DrawPrimitive;
         private var subst:Array;
         private var focus:Number;
+        
+        private var positiveArea:Number;
         
         private var av0z:Number;
         private var av0p:Number;
@@ -195,8 +197,13 @@ package away3d.core.filter
         
         private final function riddleTT(q:DrawTriangle, w:DrawTriangle):Array
         {
+        	positiveArea = q.area;
+        	
+        	if (positiveArea < 0)
+        		positiveArea = -positiveArea;
+        	
         	//return if triangle area below 10 or if actual rival triangles do not overlap
-            if (q.area < 10 || w.area < 10 || !overlap(q, w))
+            if (positiveArea < 10 || positiveArea < 10 || !overlap(q, w))
                 return null;
 			
 			//deperspective rival v0 

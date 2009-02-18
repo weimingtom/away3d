@@ -29,11 +29,7 @@ package away3d.materials.shaders
         /** @private */
         arcane var _faceDictionary:Dictionary = new Dictionary(true);
         /** @private */
-        arcane var _spriteDictionary:Dictionary = new Dictionary(true);
-        /** @private */
         arcane var _sprite:Sprite;
-        /** @private */
-        arcane var _shapeDictionary:Dictionary = new Dictionary(true);
         /** @private */
         arcane var _shape:Shape;
         /** @private */
@@ -62,10 +58,12 @@ package away3d.materials.shaders
 		arcane var _view:View3D;
         /** @private */
 		arcane var _face:Face;
+		/** @private */
+		arcane var _faceVO:FaceVO;
         /** @private */
 		arcane var _lights:ILightConsumer;
         /** @private */
-		arcane var _parentFaceVO:FaceVO;
+		arcane var _parentFaceMaterialVO:FaceMaterialVO;
         /** @private */
 		arcane var _n0:Number3D;
         /** @private */
@@ -79,7 +77,7 @@ package away3d.materials.shaders
         /** @private */
 		arcane var directional:DirectionalLight;
         /** @private */
-		arcane var _faceVO:FaceVO;
+		arcane var _faceMaterialVO:FaceMaterialVO;
         /** @private */
 		arcane var _normal0:Number3D = new Number3D();
         /** @private */
@@ -98,20 +96,6 @@ package away3d.materials.shaders
                 _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
                 
             dispatchEvent(_materialupdated);
-        }
-        /** @private */
-        arcane function clearShapeDictionary():void
-        {
-        	for each (_shape in _shapeDictionary)
-        		_shape.graphics.clear();
-        }
-        /** @private */
-        arcane function clearLightingShapeDictionary():void
-        {
-        	
-        	for each (_dict in _shapeDictionary)
-        		for each (_shape in _dict)
-	        		_shape.graphics.clear();
         }
         /** @private */
 		arcane final function contains(v0x:Number, v0y:Number, v1x:Number, v1y:Number, v2x:Number, v2y:Number, x:Number, y:Number):Boolean
@@ -135,40 +119,6 @@ package away3d.materials.shaders
         protected var ini:Init;
         
         /**
-        * Clears face value objects when shader requires updating
-        * 
-        * @param	source		The parent 3d object of the face.
-        * @param	view		The view rendering the draw triangle.
-        * 
-        * @see away3d.core.utils.FaceVO
-        */
-        protected function clearFaceDictionary(source:Object3D, view:View3D):void
-        {
-        	throw new Error("Not implemented");
-        }
-        
-		/**
-		 * Returns a shape object for use by environment shaders.
-		 * 
-		 * @param	layer	The parent layer of the triangle
-		 * @return			The resolved shape object to use for drawing
-		 */
-        protected function getShape(layer:Sprite):Shape
-        {
-        	_session = _source.session;
-        	if (_session != _view.scene.session) {
-        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session]))
-	    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
-        	} else {
-	        	//check to see if face shape exists
-	    		if (!(_shape = _shapeDictionary[_face]))
-	    			layer.addChild(_shape = _shapeDictionary[_face] = new Shape());
-        	}
-        	return _shape;
-        }
-        
-        /**
         * Renders the shader to the specified face.
         * 
         * @param	face	The face object being rendered.
@@ -176,32 +126,6 @@ package away3d.materials.shaders
         protected function renderShader(tri:DrawTriangle):void
         {
         	throw new Error("Not implemented");
-        }
-        
-		/**
-		 * Returns a shape object for use by light shaders
-		 * 
-		 * @param	layer	The parent layer of the triangle.
-		 * @param	light	The light primitive.
-		 * @return			The resolved shape object to use for drawing.
-		 */
-        protected function getLightingShape(layer:Sprite, light:LightPrimitive):Shape
-        {
-        	_session = _source.session;
-        	if (_session != _view.scene.session) {
-    			if (!_shapeDictionary[_session])
-    				_shapeDictionary[_session] = new Dictionary(true);
-        		//check to see if source shape exists
-	    		if (!(_shape = _shapeDictionary[_session][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_session][light] = new Shape());
-        	} else {
-        		if (!_shapeDictionary[_face])
-    				_shapeDictionary[_face] = new Dictionary(true);
-	        	//check to see if face shape exists
-	    		if (!(_shape = _shapeDictionary[_face][light]))
-	    			layer.addChild(_shape = _shapeDictionary[_face][light] = new Shape());
-        	}
-        	return _shape;
         }
         
     	/**
@@ -245,71 +169,73 @@ package away3d.materials.shaders
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	_source = tri.source as Mesh;
+        	_session = _source.session;
 			_view = tri.view;
-			_face = tri.face;
+			_faceVO = tri.faceVO;
+			_face = _faceVO.face;
 			_lights = tri.source.lightarray;
+			
+			return level;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+        public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
         {
         	_source = tri.source as Mesh;
+        	_session = _source.session;
 			_view = tri.view;
-			_parentFaceVO = parentFaceVO;
+			_faceVO = tri.faceVO;
+			_face = _faceVO.face;
+			_parentFaceMaterialVO = parentFaceMaterialVO;
 			
-			_faceVO = getFaceVO(tri.face, _source, _view);
+			_faceMaterialVO = getFaceMaterialVO(_faceVO, _source, _view);
 			
 			//pass on inverse texturemapping
-			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//pass on resize value
-			if (parentFaceVO.resized) {
-				parentFaceVO.resized = false;
-				_faceVO.resized = true;
+			if (parentFaceMaterialVO.resized) {
+				parentFaceMaterialVO.resized = false;
+				_faceMaterialVO.resized = true;
 			}
 			
 			//check to see if rendering can be skipped
-			if (parentFaceVO.updated || _faceVO.invalidated) {
-				parentFaceVO.updated = false;
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
+				parentFaceMaterialVO.updated = false;
 				
 				//retrieve the bitmapRect
-				_bitmapRect = tri.face.bitmapRect;
+				_bitmapRect = _faceVO.bitmapRect;
 				
 				//reset booleans
-				if (_faceVO.invalidated)
-					_faceVO.invalidated = false;
+				if (_faceMaterialVO.invalidated)
+					_faceMaterialVO.invalidated = false;
 				else 
-					_faceVO.updated = true;
+					_faceMaterialVO.updated = true;
 				
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap;
+				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap;
 				
 				//draw shader
 				renderShader(tri);
 			}
 			
-			return _faceVO;
+			return _faceMaterialVO;
         }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
-        }
-        
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
         
 		/**

@@ -1,16 +1,13 @@
 package away3d.cameras
 {
-    import away3d.arcane;
-    import away3d.core.base.*;
-    import away3d.core.draw.*;
-    import away3d.core.math.*;
-    import away3d.core.render.*;
-    import away3d.core.utils.*;
-    import away3d.events.CameraEvent;
-    
-    import flash.utils.*;
-    
-	use namespace arcane;
+	import away3d.cameras.lenses.*;
+	import away3d.containers.*;
+	import away3d.core.base.*;
+	import away3d.core.clip.*;
+	import away3d.core.draw.*;
+	import away3d.core.math.*;
+	import away3d.core.utils.*;
+	import away3d.events.CameraEvent;
 	
 	/**
 	 * Dispatched when the focus or zoom properties of a camera update.
@@ -29,16 +26,24 @@ package away3d.cameras
 	 */
     public class Camera3D extends Object3D
     {
+    	private var _fovDirty:Boolean;
+    	private var _zoomDirty:Boolean;
         private var _aperture:Number = 22;
     	private var _dof:Boolean = false;
         private var _flipY:MatrixAway3D = new MatrixAway3D();
         private var _focus:Number;
-        private var _zoom:Number;
-        private var _fov:Number;
-    	private var _view:MatrixAway3D = new MatrixAway3D();
-        private var _screenVertex:ScreenVertex = new ScreenVertex();
-        private var _vtActive:Array = new Array();
-        private var _vtStore:Array = new Array();
+        private var _zoom:Number = 10;
+        private var _lens:ILens;
+        private var _fov:Number = 0;
+        private var _clipping:Clipping;
+        private var _clipTop:Number;
+        private var _clipBottom:Number;
+        private var _clipLeft:Number;
+        private var _clipRight:Number;
+    	private var _viewMatrix:MatrixAway3D = new MatrixAway3D();
+    	private var _view:View3D;
+    	private var _drawPrimitiveStore:DrawPrimitiveStore;
+    	private var _cameraVarsStore:CameraVarsStore;
         private var _vt:MatrixAway3D;
 		private var _cameraupdated:CameraEvent;
 		private var _x:Number;
@@ -58,30 +63,13 @@ package away3d.cameras
             dispatchEvent(_cameraupdated);
         }
         
-    	public var invView:MatrixAway3D = new MatrixAway3D();
-    	
-        /**
-        * Dictionary of all objects transforms calulated from the camera view for the last render frame
-        */
-        public var viewTransforms:Dictionary;
+        protected const toRADIANS:Number = Math.PI/180;
+		protected const toDEGREES:Number = 180/Math.PI;
+		
+    	public var invViewMatrix:MatrixAway3D = new MatrixAway3D();
         
-        public function createViewTransform(node:Object3D):MatrixAway3D
-        {
-        	if (_vtStore.length)
-        		_vtActive.push(_vt = viewTransforms[node] = _vtStore.pop());
-        	else
-        		_vtActive.push(_vt = viewTransforms[node] = new MatrixAway3D());
-        	
-        	return _vt
-        }
-        
-        public function clearViewTransforms():void
-        {
-        	viewTransforms = new Dictionary(true);
-        	_vtStore = _vtStore.concat(_vtActive);
-        	_vtActive = new Array();
-        }
-        
+		public var fixedZoom:Boolean;
+		
 		/**
 		 * Used in <code>DofSprite2D</code>.
 		 * 
@@ -141,7 +129,32 @@ package away3d.cameras
 		
 		public function set zoom(value:Number):void
 		{
+			if (_zoom == value)
+				return;
+			
 			_zoom = value;
+			
+			_zoomDirty = false;
+			_fovDirty = true;
+			
+			notifyCameraUpdate();
+		}
+		
+		/**
+		 * Defines a lens object used in vertex projection
+		 */
+		public function get lens():ILens
+		{
+			return _lens;
+		}
+		
+		public function set lens(value:ILens):void
+		{
+			if (_lens == value)
+				return;
+			
+			_lens = value;
+			
 			notifyCameraUpdate();
 		}
 		
@@ -155,7 +168,15 @@ package away3d.cameras
 		
 		public function set fov(value:Number):void
 		{
+			if (_fov == value)
+				return;
+			
 			_fov = value;
+			
+			_fovDirty = false;
+			_zoomDirty = true;
+			
+			notifyCameraUpdate();
 		}
 		
 		/**
@@ -171,6 +192,33 @@ package away3d.cameras
 		 * @see	away3d.sprites.DofSprite2D
 		 */
         public var doflevels:Number = 16;
+        
+        public function get view():View3D
+        {
+        	return _view;
+        }
+        public function set view(val:View3D):void
+        {
+        	if (_view == val)
+        		return;
+        	
+        	_view = val;
+        	_drawPrimitiveStore = val.drawPrimitiveStore;
+        	_cameraVarsStore = val.cameraVarsStore;
+        }
+        
+		/**
+		 * Returns the transformation matrix used to resolve the scene to the view.
+		 * Used in the <code>ProjectionTraverser</code> class
+		 * 
+		 * @see	away3d.core.traverse.ProjectionTraverser
+		 */
+        public function get viewMatrix():MatrixAway3D
+        {
+        	invViewMatrix.multiply(sceneTransform, _flipY);
+        	_viewMatrix.inverse(invViewMatrix);
+        	return _viewMatrix;
+        }
     	
 		/**
 		 * Creates a new <code>Camera3D</code> object.
@@ -181,8 +229,11 @@ package away3d.cameras
         {
             super(init);
             
-            zoom = ini.getNumber("zoom", 10);
+            fov = ini.getNumber("fov", _fov);
             focus = ini.getNumber("focus", 100);
+            zoom = ini.getNumber("zoom", _zoom);
+            fixedZoom = ini.getBoolean("fixedZoom", true);
+            lens = ini.getObject("lens", AbstractLens) as ILens || new ZoomFocusLens();
             aperture = ini.getNumber("aperture", 22);
             maxblur = ini.getNumber("maxblur", 150);
 	        doflevels = ini.getNumber("doflevels", 16);
@@ -192,7 +243,7 @@ package away3d.cameras
 			
 			_flipY.syy = -1;
 			
-            if (lookat != null)
+            if (lookat)
                 lookAt(lookat);
         }
         
@@ -219,19 +270,6 @@ package away3d.cameras
         {
         	DofCache.resetDof(false);
         }
-        
-		/**
-		 * Returns the transformation matrix used to resolve the scene to the view.
-		 * Used in the <code>ProjectionTraverser</code> class
-		 * 
-		 * @see	away3d.core.traverse.ProjectionTraverser
-		 */
-        public function get view():MatrixAway3D
-        {
-        	invView.multiply(sceneTransform, _flipY);
-        	_view.inverse(invView);
-        	return _view;
-        }
     	
 
     	
@@ -246,59 +284,54 @@ package away3d.cameras
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
             if (vertex == null)
-                vertex = new Vertex(0,0,0);
-                
-			createViewTransform(object).multiply(view, object.sceneTransform);
-            project(viewTransforms[object], vertex, _screenVertex);
+                vertex = object.center;
             
-            return _screenVertex
+            _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
+            _drawPrimitiveStore.createVertexDictionary(object);
+            
+            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex);
+        }
+    	        
+		/**
+		 * Updates the transformation matrix used to resolve the scene to the view.
+		 * Used in the <code>BasicRender</code> class
+		 * 
+		 * @see	away3d.core.render.BasicRender
+		 */
+        public function update():void
+        {
+        	_view.updateScreenClipping();
+        	
+        	_clipping  = _view.screenClipping;
+        	
+        	if (_clipTop != _clipping.maxY || _clipBottom != _clipping.minY || _clipLeft != _clipping.minX || _clipRight != _clipping.maxX) {
+        		
+        		if (!_fovDirty && !_zoomDirty) {
+	        		if (fixedZoom)
+		        		_fovDirty = true;
+		        	else
+		        		_zoomDirty = true;
+		        }
+		        
+	        	_clipTop = _clipping.maxY;
+	        	_clipBottom = _clipping.minY;
+	        	_clipLeft = _clipping.minX;
+	        	_clipRight = _clipping.maxX;
+        	}
+        	
+        	lens.setView(_view);
+        	
+        	if (_fovDirty) {
+        		_fovDirty = false;
+        		_fov = lens.getFOV();
+        	}
+        	
+        	if (_zoomDirty) {
+        		_zoomDirty = false;
+        		_zoom = lens.getZoom();
+        	}
         }
         
-       /**
-        * Projects the vertex to the screen space of the view.
-        */
-        public function project(viewTransform:MatrixAway3D, vertex:Vertex, screenvertex:ScreenVertex):void
-        {
-        	_x = vertex.x;
-        	_y = vertex.y;
-        	_z = vertex.z;
-        	
-            _sz = _x * viewTransform.szx + _y * viewTransform.szy + _z * viewTransform.szz + viewTransform.tz;
-    		/*/
-    		//modified
-    		var wx:Number = x * view.sxx + y * view.sxy + z * view.sxz + view.tx;
-    		var wy:Number = x * view.syx + y * view.syy + z * view.syz + view.ty;
-    		var wz:Number = x * view.szx + y * view.szy + z * view.szz + view.tz;
-			var wx2:Number = Math.pow(wx, 2);
-			var wy2:Number = Math.pow(wy, 2);
-    		var c:Number = Math.sqrt(wx2 + wy2 + wz*wz);
-			var c2:Number = (wx2 + wy2);
-			persp = c2? projection.focus*(c - wz)/c2 : 0;
-			sz = (c != 0 && wz != -c)? c*Math.sqrt(0.5 + 0.5*wz/c) : 0;
-			//*/
-    		//end modified
-    		
-            if (isNaN(_sz))
-                throw new Error("isNaN(sz)");
-            screenvertex.z = _sz;
-            
-            if (_sz*2 <= -focus) {
-                screenvertex.visible = false;
-                return;
-            } else {
-                screenvertex.visible = true;
-            }
-
-         	_persp = zoom / (1 + _sz / focus);
-
-            screenvertex.x = (_x * viewTransform.sxx + _y * viewTransform.sxy + _z * viewTransform.sxz + viewTransform.tx) * _persp;
-            screenvertex.y = (_x * viewTransform.syx + _y * viewTransform.syy + _z * viewTransform.syz + viewTransform.ty) * _persp;
-            /*
-            projected.x = wx * persp;
-            projected.y = wy * persp;
-			*/
-        }
-    	
 		/**
 		 * Rotates the camera in its vertical plane.
 		 * 
@@ -335,8 +368,17 @@ package away3d.cameras
             super.clone(camera);
             camera.zoom = zoom;
             camera.focus = focus;
+            camera.lens = lens;
             return camera;
         }
+		
+		public function unproject(mX:Number, mY:Number):Number3D
+		{	
+			var persp:Number = (focus*zoom) / focus;
+			var vector:Number3D = new Number3D(mX/persp, -mY/persp, focus);
+			transform.multiplyVector3x3(vector);
+			return vector;
+		}
 		
 		/**
 		 * Default method for adding a cameraUpdated event listener

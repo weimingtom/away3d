@@ -3,7 +3,6 @@ package away3d.core.filter
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.clip.*;
-	import away3d.core.draw.*;
 	import away3d.core.render.*;
 
     /**

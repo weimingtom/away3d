@@ -1,11 +1,13 @@
-package away3d.materials
-{
+﻿package away3d.materials{
     import __AS3__.vec.Vector;
     
     import away3d.arcane;
+    import away3d.cameras.lenses.*;
     import away3d.containers.*;
     import away3d.core.base.*;
+    import away3d.core.clip.*;
     import away3d.core.draw.*;
+    import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
     import away3d.events.*;
@@ -17,18 +19,10 @@ package away3d.materials
     
 	use namespace arcane;
 	
-	 /**
-	 * Dispatched when the bitmapData used for the material texture is resized.
-	 * 
-	 * @eventType away3d.events.AnimationEvent
-	 */
-	[Event(name="materialResize",type="away3d.events.MaterialEvent")]
-	
     /**
     * Basic bitmap material
     */
-    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial
-    {
+    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial    {
     	/** @private */
     	arcane var _texturemapping:Matrix;
     	/** @private */
@@ -38,7 +32,7 @@ package away3d.materials
         /** @private */
     	arcane var _bitmap:BitmapData;
         /** @private */
-        arcane var _faceDirty:Boolean;
+        arcane var _materialDirty:Boolean;
         /** @private */
     	arcane var _renderBitmap:BitmapData;
         /** @private */
@@ -66,7 +60,7 @@ package away3d.materials
         /** @private */
     	arcane var _zeroPoint:Point = new Point(0, 0);
         /** @private */
-        arcane var _faceVO:FaceVO;
+        arcane var _faceMaterialVO:FaceMaterialVO;
         /** @private */
         arcane var _mapping:Matrix;
         /** @private */
@@ -76,12 +70,13 @@ package away3d.materials
         /** @private */
 		arcane var _bitmapRect:Rectangle;
         /** @private */
-		arcane var _sourceVO:FaceVO;
+		arcane var _sourceVO:FaceMaterialVO;
         /** @private */
         arcane var _session:AbstractRenderSession;
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {
+        	_materialDirty = false;        	
             if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
                 return;
 			
@@ -90,36 +85,18 @@ package away3d.materials
                 
             dispatchEvent(_materialupdated);
         }
-        /** @private */
-        arcane function clearShapeDictionary():void
-        {
-        	for each (_shape in _shapeDictionary)
-	        	_shape.graphics.clear();
-        }
-        /** @private */
-        arcane function clearFaceDictionary():void
-        {
-        	_faceDirty = false;
-        	
-        	notifyMaterialUpdate();
-        	
-        	for each (_faceVO in _faceDictionary) {
-        		if (!_faceVO.cleared)
-        			_faceVO.clear();
-        		_faceVO.invalidated = true;
-        	}
-        }
+        
         /** @private */
 		arcane function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):void
 		{
 			//check to see if sourceDictionary exists
 			if (!(_sourceVO = _faceDictionary[source]))
-				_sourceVO = _faceDictionary[source] = new FaceVO();
+				_sourceVO = _faceDictionary[source] = new FaceMaterialVO();
 			
 			_sourceVO.resize(containerRect.width, containerRect.height);
 			
 			//check to see if rendering can be skipped
-			if (_sourceVO.invalidated) {
+			if (_sourceVO.invalidated || _sourceVO.updated) {
 				
 				//calulate scale matrix
 				mapping.scale(containerRect.width/width, containerRect.height/height);
@@ -127,7 +104,7 @@ package away3d.materials
 				//reset booleans
 				_sourceVO.invalidated = false;
 				_sourceVO.cleared = false;
-				_sourceVO.updated = true;
+				_sourceVO.updated = false;
 				
 				//draw the bitmap
 				if (mapping.a == 1 && mapping.d == 1 && mapping.b == 0 && mapping.c == 0 && mapping.tx == 0 && mapping.ty == 0) {
@@ -145,11 +122,11 @@ package away3d.materials
 		}
 		
 		private var _view:View3D;
+		private var _near:Number;
 		private var _smooth:Boolean;
 		private var _debug:Boolean;
 		private var _repeat:Boolean;
         private var _precision:Number;
-        private var _shapeDictionary:Dictionary = new Dictionary(true);
     	private var _shape:Shape;
     	private var _materialupdated:MaterialEvent;
         private var focus:Number;
@@ -189,7 +166,7 @@ package away3d.materials
         private var cx:Number;
         private var cy:Number;
         private var cz:Number;
-        
+		private var _showNormals:Boolean;		private var _nn:Number3D;		private var _sv0:ScreenVertex;		private var _sv1:ScreenVertex;        
         private function createVertexArray():void
         {
             var index:Number = 100;
@@ -211,10 +188,10 @@ package away3d.materials
             cy = c.y;
             cz = c.z;
             
-            if (!_view.clip.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!(_view.screenClipping is FrustumClipping) && !_view.screenClipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
-            if ((az <= 0) && (bz <= 0) && (cz <= 0))
+            if ((_view.screenClipping is RectangleClipping) && (az < _near || bz < _near || cz < _near))
                 return;
             
             if (index >= 100 || (focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
@@ -224,15 +201,15 @@ package away3d.materials
                     _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
-
+			
             faz = focus + az;
             fbz = focus + bz;
             fcz = focus + cz;
-
+			
             mabz = 2 / (faz + fbz);
             mbcz = 2 / (fbz + fcz);
             mcaz = 2 / (fcz + faz);
-
+			
             dabx = ax + bx - (mabx = (ax*faz + bx*fbz)*mabz);
             daby = ay + by - (maby = (ay*faz + by*fbz)*mabz);
             dbcx = bx + cx - (mbcx = (bx*fbz + cx*fcz)*mbcz);
@@ -243,7 +220,7 @@ package away3d.materials
             dsab = (dabx*dabx + daby*daby);
             dsbc = (dbcx*dbcx + dbcy*dbcy);
             dsca = (dcax*dcax + dcay*dcay);
-
+			
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
                 _session.renderTriangleBitmap(_renderBitmap, map, a, b, c, smooth, repeat, _graphics);
@@ -251,7 +228,7 @@ package away3d.materials
                     _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
                 return;
             }
-
+			
             var map_a:Number = map.a;
             var map_b:Number = map.b;
             var map_c:Number = map.c;
@@ -312,7 +289,7 @@ package away3d.materials
                 
                 return;
             }
-
+			
             dmax = Math.max(dsab, Math.max(dsca, dsbc));
             if (dsab == dmax)
             {
@@ -336,7 +313,7 @@ package away3d.materials
                 
                 return;
             }
-
+			
             if (dsca == dmax)
             {
                 sv2 = svArray[index++];
@@ -359,7 +336,7 @@ package away3d.materials
                 
                 return;
             }
-                
+            
             map.a = map_a - map_b;
             map.b = map_b*2;
             map.c = map_c - map_d;
@@ -367,7 +344,7 @@ package away3d.materials
             map.tx = map_tx - map_ty;
             map.ty = map_ty*2;
             renderRec(a, b, sv3, index);
-                
+            
             map.a = map_a*2;
             map.b = map_b - map_a;
             map.c = map_c*2;
@@ -394,12 +371,13 @@ package away3d.materials
         	_colorTransformDirty = false;
 			
 			_bitmapDirty = true;
-			_faceDirty = true;
+			_materialDirty = true;
         	
             if (_alpha == 1 && _color == 0xFFFFFF) {
                 _renderBitmap = _bitmap;
-                _colorTransform = null;
-                return;
+                if (!_colorTransform || (!_colorTransform.redOffset && !_colorTransform.greenOffset && !_colorTransform.blueOffset)) {
+                	_colorTransform = null;
+                	return;            	}
             } else if (!_colorTransform)
             	_colorTransform = new ColorTransform();
 			
@@ -437,7 +415,7 @@ package away3d.materials
 	        	_renderBitmap = _bitmap.clone();
 	        }
 	        
-	        _faceDirty = true;
+	        invalidateFaces();
         }
         
         /**
@@ -455,26 +433,26 @@ package away3d.materials
 				return _texturemapping;
 			}
 			
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
-			if (_faceVO.texturemapping)
-				return _faceVO.texturemapping;
-			
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO);			
+			if (!_faceMaterialVO.invalidated)
+				return _faceMaterialVO.texturemapping;
+						_faceMaterialVO.invalidated = false;			
 			_texturemapping = tri.transformUV(this).clone();
 			_texturemapping.invert();
 			
-			return _faceVO.texturemapping = _texturemapping;
+			return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
 		protected function getUVData(tri:DrawTriangle):Vector.<Number>
 		{
-			_faceVO = getFaceVO(tri.face, tri.source, tri.view);
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
 			
 			//if (_faceVO.uvtData)
 			//	return _faceVO.uvtData;
 			
 			_focus = tri.view.camera.focus;
 			var _zoom:Number = tri.view.camera.zoom;
-			return _faceVO.uvtData = Vector.<Number>([tri.uv0.u, 1 - tri.uv0.v, 1/(_focus + tri.v0.z), tri.uv1.u, 1 - tri.uv1.v, 1/(_focus + tri.v1.z), tri.uv2.u, 1 - tri.uv2.v, 1/(_focus + tri.v2.z)]);
+			return _faceMaterialVO.uvtData = Vector.<Number>([tri.uv0.u, 1 - tri.uv0.v, 1/(_focus + tri.v0.z), tri.uv1.u, 1 - tri.uv1.v, 1/(_focus + tri.v1.z), tri.uv2.u, 1 - tri.uv2.v, 1/(_focus + tri.v2.z)]);
 		}
 		
     	/**
@@ -488,11 +466,11 @@ package away3d.materials
         public function set smooth(val:Boolean):void
         {
         	if (_smooth == val)
-        		return
+        		return;
         	
         	_smooth = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         
@@ -507,11 +485,11 @@ package away3d.materials
         public function set debug(val:Boolean):void
         {
         	if (_debug == val)
-        		return
+        		return;
         	
         	_debug = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         /**
@@ -525,11 +503,11 @@ package away3d.materials
         public function set repeat(val:Boolean):void
         {
         	if (_repeat == val)
-        		return
+        		return;
         	
         	_repeat = val;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
         
@@ -547,7 +525,7 @@ package away3d.materials
         {
         	_precision = val*val*1.4;
         	
-        	_faceDirty = true;
+        	_materialDirty = true;
         }
         
 		/**
@@ -641,6 +619,8 @@ package away3d.materials
         }
         
         /**
+        * Defines a colortransform for the texture bitmap.        */        public function get colorTransform():ColorTransform        {            return _colorTransform;        }                public function set colorTransform(value:ColorTransform):void        {            _colorTransform = value;						if (_colorTransform) {				_red = _colorTransform.redMultiplier;				_green = _colorTransform.greenMultiplier;				_blue = _colorTransform.blueMultiplier;				_alpha = _colorTransform.alphaMultiplier;								_color = (_red*255 << 16) + (_green*255 << 8) + _blue*255;			}			            _colorTransformDirty = true;        }
+        /**
         * Defines a blendMode value for the texture bitmap.
         * Applies to materials rendered as children of <code>BitmapMaterialContainer</code> or  <code>CompositeMaterial</code>.
         * 
@@ -660,7 +640,8 @@ package away3d.materials
         	_blendMode = val;
         	_blendModeDirty = true;
         }
-        
+				 /**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }        
+        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_materialDirty = true;        }        
 		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
@@ -680,8 +661,8 @@ package away3d.materials
             _blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
             color = ini.getColor("color", _color);
-            
-            _colorTransformDirty = true;
+            colorTransform = ini.getObject("colorTransform", ColorTransform) as ColorTransform;
+            showNormals = ini.getBoolean("showNormals", false);            _colorTransformDirty = true;
             
             createVertexArray();
         }
@@ -692,7 +673,6 @@ package away3d.materials
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	_graphics = null;
-        	clearShapeDictionary();
         		
         	if (_colorTransformDirty)
         		updateColorTransform();
@@ -700,43 +680,35 @@ package away3d.materials
         	if (_bitmapDirty)
         		updateRenderBitmap();
         	
-        	if (_faceDirty || _blendModeDirty)
-        		clearFaceDictionary();
-        		
+        	if (_materialDirty || _blendModeDirty)
+        		clearFaces(source, view);        	
         	_blendModeDirty = false;
         }
         
-        public function getFaceVO(face:Face, source:Object3D, view:View3D = null):FaceVO
-        {
-        	if ((_faceVO = _faceDictionary[face]))
-        		return _faceVO;
+        public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
+        {        	//check to see if faceMaterialVO exists
+        	if ((_faceMaterialVO = _faceDictionary[faceVO]))
+        		return _faceMaterialVO;
         	
-        	return _faceDictionary[face] = new FaceVO();
+        	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
+                		/**		 * @inheritDoc		 */        public function clearFaces(source:Object3D = null, view:View3D = null):void        {
+        	notifyMaterialUpdate();        	
+        	for each (_faceMaterialVO in _faceDictionary)        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        }
         
-        public function removeFaceDictionary():void
-        {
-			_faceDictionary = new Dictionary(true);
-        }
+		/**		 * @inheritDoc		 */        public function invalidateFaces(source:Object3D = null, view:View3D = null):void        {
+        	_materialDirty = true;        	        	for each (_faceMaterialVO in _faceDictionary)        		_faceMaterialVO.invalidated = true;        }
         
 		/**
 		 * @inheritDoc
 		 */
-        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):void
+        public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
         	if (blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
         		_session = tri.source.session;
-	        	if (_session != tri.view.session) {
-	        		//check to see if source shape exists
-		    		if (!(_shape = _shapeDictionary[_session]))
-		    			layer.addChild(_shape = _shapeDictionary[_session] = new Shape());
-	        	} else {
-		        	//check to see if face shape exists
-		    		if (!(_shape = _shapeDictionary[tri.face]))
-		    			layer.addChild(_shape = _shapeDictionary[tri.face] = new Shape());
-	        	}
+        		        		_shape = _session.getShape(this, level++, layer);	    		
 	    		_shape.blendMode = _blendMode;
 	    		
 	    		_graphics = _shape.graphics;
@@ -744,6 +716,7 @@ package away3d.materials
     		
     		
     		renderTriangle(tri);
+    		    		return level;
         }
         
 		/**
@@ -754,54 +727,51 @@ package away3d.materials
         	//_mapping = getMapping(tri);
 			_session = tri.source.session;
         	_view = tri.view;
-        	
-        	if (!_graphics && _session != tri.view.session && _session.newLayer)
-        		_graphics = _session.newLayer.graphics;
+        	_near = _view.screenClipping.minZ;        	
+        	//if (!_graphics && _session.newLayer)        	//	_graphics = _session.newLayer.graphics;
         	
 			_session.renderTriangleBitmapF10(_renderBitmap, tri.vertices, getUVData(tri), smooth, repeat, _graphics);
 			//_session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
             if (debug)
                 _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-        }
+							if(showNormals){				if( _nn == null){					_nn = new Number3D();					_sv0 = new ScreenVertex();					_sv1 = new ScreenVertex();				}				        		var t:MatrixAway3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];				_nn.rotate(tri.faceVO.face.normal, t);				 				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;				_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;				_sv0.z = (tri.v0.z + tri.v1.z + tri.v2.z) / 3;				 				_sv1.x = (_sv0.x - (30*_nn.x));				_sv1.y = (_sv0.y - (30*_nn.y));				_sv1.z = (_sv0.z - (30*_nn.z));				 				_session.renderLine(_sv0, _sv1, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
         
 		/**
 		 * @inheritDoc
 		 */
-		public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceVO:FaceVO):FaceVO
+		public function renderBitmapLayer(tri:DrawTriangle, containerRect:Rectangle, parentFaceMaterialVO:FaceMaterialVO):FaceMaterialVO
 		{
 			//draw the bitmap once
 			renderSource(tri.source, containerRect, new Matrix());
 			
-			//check to see if faceDictionary exists
-			if (!(_faceVO = _faceDictionary[tri]))
-				_faceVO = _faceDictionary[tri] = new FaceVO();
+			//get the correct faceMaterialVO			_faceMaterialVO = getFaceMaterialVO(tri.faceVO);
 			
 			//pass on resize value
-			if (parentFaceVO.resized) {
-				parentFaceVO.resized = false;
-				_faceVO.resized = true;
+			if (parentFaceMaterialVO.resized) {
+				parentFaceMaterialVO.resized = false;
+				_faceMaterialVO.resized = true;
 			}
 			
 			//pass on invtexturemapping value
-			_faceVO.invtexturemapping = parentFaceVO.invtexturemapping;
+			_faceMaterialVO.invtexturemapping = parentFaceMaterialVO.invtexturemapping;
 			
 			//check to see if face update can be skipped
-			if (parentFaceVO.updated || _faceVO.invalidated) {
-				parentFaceVO.updated = false;
+			if (parentFaceMaterialVO.updated || _faceMaterialVO.invalidated || _faceMaterialVO.updated) {
+				parentFaceMaterialVO.updated = false;
 				
 				//reset booleans
-				_faceVO.invalidated = false;
-				_faceVO.cleared = false;
-				_faceVO.updated = true;
+				_faceMaterialVO.invalidated = false;
+				_faceMaterialVO.cleared = false;
+				_faceMaterialVO.updated = true;
 				
 				//store a clone
-				_faceVO.bitmap = parentFaceVO.bitmap.clone();
+				_faceMaterialVO.bitmap = parentFaceMaterialVO.bitmap.clone();
 				
 				//draw into faceBitmap
-				_faceVO.bitmap.copyPixels(_sourceVO.bitmap, tri.face.bitmapRect, _zeroPoint, null, null, true);
+				_faceMaterialVO.bitmap.copyPixels(_sourceVO.bitmap, tri.faceVO.bitmapRect, _zeroPoint, null, null, true);
 			}
 			
-			return _faceVO;
+			return _faceMaterialVO;
 		}
         
 		/**
@@ -810,22 +780,6 @@ package away3d.materials
         public function get visible():Boolean
         {
             return _alpha > 0;
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function addOnMaterialResize(listener:Function):void
-        {
-        	addEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false, 0, true);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function removeOnMaterialResize(listener:Function):void
-        {
-        	removeEventListener(MaterialEvent.MATERIAL_RESIZED, listener, false);
         }
         
 		/**

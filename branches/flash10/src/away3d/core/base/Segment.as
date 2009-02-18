@@ -1,7 +1,6 @@
 package away3d.core.base
 {
     import away3d.arcane;
-    import away3d.core.draw.*;
     import away3d.core.utils.*;
     import away3d.events.*;
     import away3d.materials.*;
@@ -139,7 +138,7 @@ package away3d.core.base
         }
 		
 		/**
-		 * Returns the squared bounding radius of the face.
+		 * Returns the squared bounding radius of the segment.
 		 */
         public override function get radius2():Number
         {

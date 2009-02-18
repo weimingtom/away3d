@@ -1,7 +1,7 @@
 package away3d.core.light
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.events.*;
@@ -19,7 +19,7 @@ package away3d.core.light
     */
     public class DirectionalLight extends LightPrimitive
     {
-    	
+    	private var _light:DirectionalLight3D;
         private var _colorMatrix:ColorMatrixFilter = new ColorMatrixFilter();
         private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
     	private var _matrix:Matrix = new Matrix();
@@ -77,17 +77,24 @@ package away3d.core.light
     	/**
     	 * A reference to the <code>DirectionalLight3D</code> object used by the light primitive.
     	 */
-        public var light:DirectionalLight3D;
+        public function get light():DirectionalLight3D
+        {
+        	return _light;
+        }
+        public function set light(val:DirectionalLight3D):void
+        {
+        	_light = val;
+        	val.addOnSceneTransformChange(updateDirection);
+        }
         
         /**
         * Updates the bitmapData object used as the lightmap for ambient light shading.
         * 
         * @param	ambient		The coefficient for ambient light intensity.
         */
-		public function updateAmbientBitmap(ambient:Number):void
+		public function updateAmbientBitmap():void
         {
-        	this.ambient = ambient;
-        	ambientBitmap = new BitmapData(256, 256, false, int(ambient*red << 16) | int(ambient*green << 8) | int(ambient*blue));
+        	ambientBitmap = new BitmapData(256, 256, false, int(ambient*red*0xFF << 16) | int(ambient*green*0xFF << 8) | int(ambient*blue*0xFF));
         	ambientBitmap.lock();
         }
         
@@ -96,9 +103,8 @@ package away3d.core.light
         * 
         * @param	diffuse		The coefficient for diffuse light intensity.
         */
-        public function updateDiffuseBitmap(diffuse:Number):void
+        public function updateDiffuseBitmap():void
         {
-        	this.diffuse = diffuse;
     		diffuseBitmap = new BitmapData(256, 256, false, 0x000000);
     		diffuseBitmap.lock();
     		_matrix.createGradientBox(256, 256, 0, 0, 0);
@@ -113,7 +119,7 @@ package away3d.core.light
     			if (g > 1) g = 1;
     			var b:Number = (i*diffuse/14);
     			if (b > 1) b = 1;
-    			colArray.push((r*red << 16) | (g*green << 8) | b*blue);
+    			colArray.push((r*red*0xFF << 16) | (g*green*0xFF << 8) | b*blue*0xFF);
     			alphaArray.push(1);
     			pointArray.push(int(30+225*2*Math.acos(i/14)/Math.PI));
     		}
@@ -123,7 +129,7 @@ package away3d.core.light
     		diffuseBitmap.draw(_shape);
         	
         	//update colortransform
-        	diffuseColorTransform = new ColorTransform(diffuse*red/255, diffuse*green/255, diffuse*blue/255, 1, 0, 0, 0, 0);
+        	diffuseColorTransform = new ColorTransform(diffuse*red, diffuse*green, diffuse*blue, 1, 0, 0, 0, 0);
         }
         
         /**
@@ -132,9 +138,8 @@ package away3d.core.light
         * @param	ambient		The coefficient for ambient light intensity.
         * @param	diffuse		The coefficient for diffuse light intensity.
         */
-        public function updateAmbientDiffuseBitmap(ambient:Number, diffuse:Number):void
+        public function updateAmbientDiffuseBitmap():void
         {
-        	this.diffuse = diffuse;
     		ambientDiffuseBitmap = new BitmapData(256, 256, false, 0x000000);
     		ambientDiffuseBitmap.lock();
     		_matrix.createGradientBox(256, 256, 0, 0, 0);
@@ -149,7 +154,7 @@ package away3d.core.light
     			if (g > 1) g = 1;
     			var b:Number = (i*diffuse/14 + ambient);
     			if (b > 1) b = 1;
-    			colArray.push((r*red << 16) | (g*green << 8) | b*blue);
+    			colArray.push((r*red*0xFF << 16) | (g*green*0xFF << 8) | b*blue*0xFF);
     			alphaArray.push(1);
     			pointArray.push(int(30+225*2*Math.acos(i/14)/Math.PI));
     		}
@@ -159,7 +164,7 @@ package away3d.core.light
     		ambientDiffuseBitmap.draw(_shape);
         	
         	//update colortransform
-        	ambientDiffuseColorTransform = new ColorTransform(diffuse*red/255, diffuse*green/255, diffuse*blue/255, 1, ambient*red, ambient*green, ambient*blue, 0);
+        	ambientDiffuseColorTransform = new ColorTransform(diffuse*red, diffuse*green, diffuse*blue, 1, ambient*red*0xFF, ambient*green*0xFF, ambient*blue*0xFF, 0);
         }
         
         /**
@@ -167,9 +172,8 @@ package away3d.core.light
         * 
         * @param	specular		The coefficient for specular light intensity.
         */
-        public function updateSpecularBitmap(specular:Number):void
+        public function updateSpecularBitmap():void
         {
-        	this.specular = specular;
     		specularBitmap = new BitmapData(512, 512, false, 0x000000);
     		specularBitmap.lock();
     		_matrix.createGradientBox(512, 512, 0, 0, 0);
@@ -178,7 +182,7 @@ package away3d.core.light
     		var pointArray:Array = new Array();
     		var i:int = 15;
     		while (i--) {
-    			colArray.push((i*specular*red/14 << 16) + (i*specular*green/14 << 8) + i*specular*blue/14);
+    			colArray.push((i*specular*red*0xFF/14 << 16) + (i*specular*green*0xFF/14 << 8) + i*specular*blue*0xFF/14);
     			alphaArray.push(1);
     			pointArray.push(int(30+225*2*Math.acos(Math.pow(i/14,1/20))/Math.PI));
     		}
@@ -205,9 +209,9 @@ package away3d.core.light
         public function updateDirection(e:Object3DEvent):void
         {
         	//update direction vector
-        	direction.x = light.x;
-        	direction.y = light.y;
-        	direction.z = light.z;
+        	direction.x = _light.x;
+        	direction.y = _light.y;
+        	direction.z = _light.z;
         	direction.normalize();
         	
         	nx = direction.x;
@@ -265,9 +269,9 @@ package away3d.core.light
         */
         public function setColorMatrixTransform(source:Object3D):void
         {
-        	_red = red/127;
-			_green = green/127;
-			_blue = blue/127;
+        	_red = red*2;
+			_green = green*2;
+			_blue = blue*2;
         	_colorMatrix.matrix = [_red, _red, _red, 0, -381*_red, _green, _green, _green, 0, -381*_green, _blue, _blue, _blue, 0, -381*_blue, 0, 0, 0, 1, 0];
         	colorMatrixTransform[source] = _colorMatrix.clone();
         }

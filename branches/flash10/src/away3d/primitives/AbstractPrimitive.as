@@ -2,14 +2,12 @@
 {
 	import away3d.*;
 	import away3d.core.base.*;
-	import away3d.core.math.*;
-	import away3d.core.utils.*;
 	import away3d.materials.*;
     
 	use namespace arcane;
 	
     /**
-    * Creates a 3d cone primitive.
+    * Abstract base class for shaded primitives
     */ 
     public class AbstractPrimitive extends Mesh
     {
@@ -110,15 +108,12 @@
     		
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);
-        	_vActive = new Array();
-    		
+        	_vActive = [];    		
     		//clear uv objects
     		_uvStore = _uvStore.concat(_uvActive);
-        	_uvActive = new Array();
-        	
+        	_uvActive = [];        	
         	//clear face objects
     		_faceStore = _faceStore.concat(_faceActive);
-        	_faceActive = new Array();
-    	}
+        	_faceActive = [];    	}
     }
 }

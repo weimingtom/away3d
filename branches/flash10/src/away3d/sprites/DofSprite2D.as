@@ -1,10 +1,7 @@
 package away3d.sprites
 {
-    import away3d.containers.*;
     import away3d.core.base.*;
-    import away3d.core.draw.*;
     import away3d.core.project.*;
-    import away3d.core.render.*;
     import away3d.core.utils.*;
     
     import flash.display.BitmapData;
@@ -56,10 +53,8 @@ package away3d.sprites
 			rotation = ini.getNumber("rotation", 0);
             smooth = ini.getBoolean("smooth", false);
             deltaZ = ini.getNumber("deltaZ", 0);
-            projector = ini.getObject("projector", IPrimitiveProvider) as IPrimitiveProvider;
             
-            if (!projector)
-            	projector = new DofSpriteProjector();
+            projectorType = ProjectorType.DOF_SPRITE;
         }
     }
 }

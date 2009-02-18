@@ -19,14 +19,14 @@ package away3d.materials
         function updateMaterial(source:Object3D, view:View3D):void;
 		
 		/**
-		 * Default method for adding a materialupdate event listener
+		 * Default method for adding a materialupdated event listener
 		 * 
 		 * @param	listener		The listener function
 		 */
         function addOnMaterialUpdate(listener:Function):void;
 		
 		/**
-		 * Default method for removing a materialupdate event listener
+		 * Default method for removing a materialupdated event listener
 		 * 
 		 * @param	listener		The listener function
 		 */

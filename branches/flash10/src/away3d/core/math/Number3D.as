@@ -1,10 +1,11 @@
-package away3d.core.math
+﻿package away3d.core.math
 {
     /**
     * A point in 3D space.
     */
     public final class Number3D
     {
+    	private const MathPI:Number = Math.PI;
     	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
@@ -66,6 +67,21 @@ package away3d.core.math
             if (n)
             	normalize();
         }
+        
+        
+        /**
+         * Compares the 3d number to another and returns a boolean indicating whether
+         * they match or not.
+         * 
+         * @param v The 3d number to compare against.
+         * 
+         * @return Boolean indicating match.
+        */
+        public function equals(v:Number3D) : Boolean
+        {
+        	return (v.x==x && v.y==y && v.z==z);
+        }
+        
 		
 		/**
 		 * Duplicates the 3d number's properties to another <code>Number3D</code> object
@@ -226,38 +242,70 @@ package away3d.core.math
         {
             if (!m1)
             	m1 = new MatrixAway3D();
-	
+            
 		    // Extract the first angle, rotationX
-			x = Math.atan2(m.syz, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
+			x = -Math.atan2(m.szy, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
 			
 			// Remove the rotationX rotation from m1, so that the remaining
 			// rotation, m2 is only around two axes, and gimbal lock cannot occur.
-			var c :Number   = Math.cos(x);
-			var s :Number   = Math.sin(x);
-			m1.sxx = m.sxx;
-			m1.sxy = m.sxy*c + m.sxz*s;
-			m1.sxz = -m.sxy*s + m.sxz*c;
-			m1.syx = m.syx;
-			m1.syy = m.syy*c + m.syz*s;
-			m1.syz = -m.syy*s + m.syz*c;
-			m1.szx = m.szx;
-			m1.szy = m.szy*c + m.szz*s;
-			m1.szz = -m.szy*s + m.szz*c;
+			m1.rotationMatrix(1, 0, 0,  x);
+			m1.multiply(m, m1);
 			
 			// Extract the other two angles, rot.y and rot.z, from m1.
 			var cy:Number = Math.sqrt(m1.sxx*m1.sxx + m1.syx*m1.syx); // T cy = Math<T>::sqrt (N[0][0]*N[0][0] + N[0][1]*N[0][1]);
+			
 			y = Math.atan2(-m1.szx, cy); // rot.y = Math<T>::atan2 (-N[0][2], cy);
 			z = Math.atan2(-m1.sxy, m1.syy); //rot.z = Math<T>::atan2 (-N[1][0], N[1][1]);
-	
+			
 			// Fix angles
-			if(x == Math.PI) {
+			if(Math.round(z/MathPI) == 1) {
 				if(y > 0)
-					y -= Math.PI;
+					y = -(y - MathPI);
 				else
-					y += Math.PI;
+					y = -(y + MathPI);
 	
-				x = 0;
-				z += Math.PI;
+				z -= MathPI;
+				
+				if (x > 0)
+					x -= MathPI;
+				else
+					x += MathPI;
+			} else if(Math.round(z/MathPI) == -1) {
+				if(y > 0)
+					y = -(y - MathPI);
+				else
+					y = -(y + MathPI);
+	
+				z += MathPI;
+				
+				if (x > 0)
+					x -= MathPI;
+				else
+					x += MathPI;
+			} else if(Math.round(x/MathPI) == 1) {
+				if(y > 0)
+					y = -(y - MathPI);
+				else
+					y = -(y + MathPI);
+	
+				x -= MathPI;
+				
+				if (z > 0)
+					z -= MathPI;
+				else
+					z += MathPI;
+			} else if(Math.round(x/MathPI) == -1) {
+				if(y > 0)
+					y = -(y - MathPI);
+				else
+					y = -(y + MathPI);
+	
+				x += MathPI;
+				
+				if (z > 0)
+					z -= MathPI;
+				else
+					z += MathPI;
 			}
         }
         
@@ -298,6 +346,50 @@ package away3d.core.math
             y = Math.sqrt(m.sxy*m.sxy + m.syy*m.syy + m.szy*m.szy);
             z = Math.sqrt(m.sxz*m.sxz + m.syz*m.syz + m.szz*m.szz);
         }
+        
+        /**
+         * Fills the 3d number object with values representing a point between the current and the
+         * 3d number specified in parameter v. The f parameter defines the degree of interpolation 
+         * between the two endpoints, where 0 represents the unmodified current values, and 1.0 
+         * those of the v parameter.
+         * 
+         * @param w The target point.
+         * @param f The level of interpolation between the current 3d number and the parameter v. 
+         * 
+         * @see flash.geom.Point.interpolate()
+        */
+        public function interpolate(w:Number3D, f:Number):void
+        {
+        	var d:Number3D = new Number3D;
+        	
+        	d.sub(w, this);
+        	d.scale(d, f);
+        	add(this, d);
+        }
+        
+        /**
+         * Returns a 3d number object representing a point between the two 3d number parameters w 
+         * and v. The f parameter defines the degree of interpolation between the two ednpoints, 
+         * where 0 or 1 will return 3d number objects equal to v and w respectively.
+         * 
+         * @param w The target point.
+         * @param v The zero point.
+         * @param f The level of interpolation where 0.0 will return a 3d number object equal to v,
+         * and 1.0 will return a 3d number object equal to w.
+         * 
+         * @see flash.geom.Point.interpolate()
+        */
+        public static function getInterpolated(w:Number3D, v:Number3D, f:Number):Number3D
+        {
+        	var d:Number3D = new Number3D;
+        	
+        	d.sub(w, v);
+        	d.scale(d, f);
+        	d.add(d, v);
+        	
+        	return d;
+        }
+        
         
         /**
         * A 3d number object representing a relative direction forward.

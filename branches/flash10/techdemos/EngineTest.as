@@ -2,7 +2,7 @@ package
 {
     import away3d.cameras.*;
     import away3d.containers.*;
-    import away3d.core.*;
+    import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.block.*;
     import away3d.core.draw.*;
@@ -180,7 +180,7 @@ import away3d.primitives.*;
 import away3d.lights.*;
 import away3d.loaders.*;
 import away3d.test.*;
-import away3d.core.*;
+import away3d.arcane;
 import away3d.core.base.*;
 import away3d.core.block.*;
 import away3d.core.draw.*;
@@ -771,7 +771,7 @@ class Projecting extends Primitives
         projectedMaterial2 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector2, transform:projectedTransform2, throughProjection:true});
         projectedMaterial3 = new TransformBitmapMaterial(Asset.smiley, {projectionVector:projectionVector3, transform:projectedTransform3, throughProjection:true});
         
-        sphere.material = new BitmapMaterialContainer(400, 400, {cache:false, materials:[
+        sphere.material = new BitmapMaterialContainer(400, 400, {materials:[
         				new BitmapMaterial(Asset.red),
         				projectedMaterial1,
         				projectedMaterial2,

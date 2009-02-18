@@ -161,7 +161,7 @@ package away3d.loaders.utils
 		/**
 		 * Adds a new loader and request object to the load queue.
 		 * 
-		 * @param	loader		The laoder object to add to the queue.
+		 * @param	loader		The loader object to add to the queue.
 		 * @param	request		The url request object to add tp the queue.
 		 */
 		public function addItem(loader:TextureLoader, request:URLRequest):void
