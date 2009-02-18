@@ -103,7 +103,8 @@ package away3d.core.render
 		private var _layerGraphics:Graphics;
 		private var fill:GraphicsBitmapFill = new GraphicsBitmapFill();
         private var path:GraphicsTrianglePath = new GraphicsTrianglePath(new Vector.<Number>(3), null, new Vector.<Number>(3));
-        private var drawing:Vector.<IGraphicsData> = Vector.<IGraphicsData>([fill, path]);
+        private var end:GraphicsEndFill = new GraphicsEndFill();
+        private var drawing:Vector.<IGraphicsData> = Vector.<IGraphicsData>([fill, path, end]);
 		private var _renderers:Dictionary = new Dictionary(true);
 		private var _renderer:IPrimitiveConsumer;
         private var _session:AbstractRenderSession;

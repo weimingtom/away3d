@@ -26,7 +26,7 @@
     	/** @private */
     	arcane var _texturemapping:Matrix;
     	/** @private */
-    	arcane var _uvtData:Vector.<Number>;
+    	arcane var _uvtData:Vector.<Number> = new Vector.<Number>(9, true);
     	/** @private */
     	arcane var _focus:Number;
         /** @private */
@@ -129,43 +129,11 @@
         private var _precision:Number;
     	private var _shape:Shape;
     	private var _materialupdated:MaterialEvent;
-        private var focus:Number;
         private var map:Matrix = new Matrix();
         private var triangle:DrawTriangle = new DrawTriangle(); 
         private var svArray:Array = new Array();
         private var x:Number;
 		private var y:Number;
-        private var faz:Number;
-        private var fbz:Number;
-        private var fcz:Number;
-        private var mabz:Number;
-        private var mbcz:Number;
-        private var mcaz:Number;
-        private var mabx:Number;
-        private var maby:Number;
-        private var mbcx:Number;
-        private var mbcy:Number;
-        private var mcax:Number;
-        private var mcay:Number;
-        private var dabx:Number;
-        private var daby:Number;
-        private var dbcx:Number;
-        private var dbcy:Number;
-        private var dcax:Number;
-        private var dcay:Number;    
-        private var dsab:Number;
-        private var dsbc:Number;
-        private var dsca:Number;
-        private var dmax:Number;
-        private var ax:Number;
-        private var ay:Number;
-        private var az:Number;
-        private var bx:Number;
-        private var by:Number;
-        private var bz:Number;
-        private var cx:Number;
-        private var cy:Number;
-        private var cz:Number;
 		private var _showNormals:Boolean;		private var _nn:Number3D;		private var _sv0:ScreenVertex;		private var _sv1:ScreenVertex;        
         private function createVertexArray():void
         {
@@ -173,185 +141,6 @@
             while (index--) {
                 svArray.push(new ScreenVertex());
             }
-        }
-        
-        private function renderRec(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex, index:Number):void
-        {
-            
-            ax = a.x;
-            ay = a.y;
-            az = a.z;
-            bx = b.x;
-            by = b.y;
-            bz = b.z;
-            cx = c.x;
-            cy = c.y;
-            cz = c.z;
-            
-            if (!(_view.screenClipping is FrustumClipping) && !_view.screenClipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
-                return;
-
-            if ((_view.screenClipping is RectangleClipping) && (az < _near || bz < _near || cz < _near))
-                return;
-            
-            if (index >= 100 || (focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
-            {
-                _session.renderTriangleBitmap(_renderBitmap, map, a, b, c, smooth, repeat, _graphics);
-                if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
-                return;
-            }
-			
-            faz = focus + az;
-            fbz = focus + bz;
-            fcz = focus + cz;
-			
-            mabz = 2 / (faz + fbz);
-            mbcz = 2 / (fbz + fcz);
-            mcaz = 2 / (fcz + faz);
-			
-            dabx = ax + bx - (mabx = (ax*faz + bx*fbz)*mabz);
-            daby = ay + by - (maby = (ay*faz + by*fbz)*mabz);
-            dbcx = bx + cx - (mbcx = (bx*fbz + cx*fcz)*mbcz);
-            dbcy = by + cy - (mbcy = (by*fbz + cy*fcz)*mbcz);
-            dcax = cx + ax - (mcax = (cx*fcz + ax*faz)*mcaz);
-            dcay = cy + ay - (mcay = (cy*fcz + ay*faz)*mcaz);
-            
-            dsab = (dabx*dabx + daby*daby);
-            dsbc = (dbcx*dbcx + dbcy*dbcy);
-            dsca = (dcax*dcax + dcay*dcay);
-			
-            if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
-            {
-                _session.renderTriangleBitmap(_renderBitmap, map, a, b, c, smooth, repeat, _graphics);
-                if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
-                return;
-            }
-			
-            var map_a:Number = map.a;
-            var map_b:Number = map.b;
-            var map_c:Number = map.c;
-            var map_d:Number = map.d;
-            var map_tx:Number = map.tx;
-            var map_ty:Number = map.ty;
-            
-            var sv1:ScreenVertex;
-            var sv2:ScreenVertex;
-            var sv3:ScreenVertex = svArray[index++];
-            sv3.x = mbcx/2;
-            sv3.y = mbcy/2;
-            sv3.z = (bz+cz)/2;
-            
-            if ((dsab > precision) && (dsca > precision) && (dsbc > precision))
-            {
-                sv1 = svArray[index++];
-                sv1.x = mabx/2;
-                sv1.y = maby/2;
-                sv1.z = (az+bz)/2;
-                
-                sv2 = svArray[index++];
-                sv2.x = mcax/2;
-                sv2.y = mcay/2;
-                sv2.z = (cz+az)/2;
-                
-                map.a = map_a*=2;
-                map.b = map_b*=2;
-                map.c = map_c*=2;
-                map.d = map_d*=2;
-                map.tx = map_tx*=2;
-                map.ty = map_ty*=2;
-                renderRec(a, sv1, sv2, index);
-                
-                map.a = map_a;
-                map.b = map_b;
-                map.c = map_c;
-                map.d = map_d;
-                map.tx = map_tx-1;
-                map.ty = map_ty;
-                renderRec(sv1, b, sv3, index);
-                
-                map.a = map_a;
-                map.b = map_b;
-                map.c = map_c;
-                map.d = map_d;
-                map.tx = map_tx;
-                map.ty = map_ty-1;
-                renderRec(sv2, sv3, c, index);
-                
-                map.a = -map_a;
-                map.b = -map_b;
-                map.c = -map_c;
-                map.d = -map_d;
-                map.tx = 1-map_tx;
-                map.ty = 1-map_ty;
-                renderRec(sv3, sv2, sv1, index);
-                
-                return;
-            }
-			
-            dmax = Math.max(dsab, Math.max(dsca, dsbc));
-            if (dsab == dmax)
-            {
-                sv1 = svArray[index++];
-                sv1.x = mabx/2;
-                sv1.y = maby/2;
-                sv1.z = (az+bz)/2;
-                
-                map.a = map_a*=2;
-                map.c = map_c*=2;
-                map.tx = map_tx*=2;
-                renderRec(a, sv1, c, index);
-                
-                map.a = map_a + map_b;
-                map.b = map_b;
-                map.c = map_c + map_d;
-                map.d = map_d;
-                map.tx = map_tx + map_ty - 1;
-                map.ty = map_ty;
-                renderRec(sv1, b, c, index);
-                
-                return;
-            }
-			
-            if (dsca == dmax)
-            {
-                sv2 = svArray[index++];
-                sv2.x = mcax/2;
-                sv2.y = mcay/2;
-                sv2.z = (cz+az)/2;
-                
-                map.b = map_b*=2;
-                map.d = map_d*=2;
-                map.ty = map_ty*=2;
-                renderRec(a, b, sv2, index);
-                
-                map.a = map_a;
-                map.b = map_b + map_a;
-                map.c = map_c;
-                map.d = map_d + map_c;
-                map.tx = map_tx;
-                map.ty = map_ty + map_tx - 1;
-                renderRec(sv2, b, c, index);
-                
-                return;
-            }
-            
-            map.a = map_a - map_b;
-            map.b = map_b*2;
-            map.c = map_c - map_d;
-            map.d = map_d*2;
-            map.tx = map_tx - map_ty;
-            map.ty = map_ty*2;
-            renderRec(a, b, sv3, index);
-            
-            map.a = map_a*2;
-            map.b = map_b - map_a;
-            map.c = map_c*2;
-            map.d = map_d - map_c;
-            map.tx = map_tx*2;
-            map.ty = map_ty - map_tx;
-            renderRec(a, sv3, c, index);
         }
         
         /**
@@ -444,15 +233,9 @@
 		}
 		
 		protected function getUVData(tri:DrawTriangle):Vector.<Number>
-		{
-			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
-			
-			//if (_faceVO.uvtData)
-			//	return _faceVO.uvtData;
-			
-			_focus = tri.view.camera.focus;
-			var _zoom:Number = tri.view.camera.zoom;
-			return _faceMaterialVO.uvtData = Vector.<Number>([tri.uv0.u, 1 - tri.uv0.v, 1/(_focus + tri.v0.z), tri.uv1.u, 1 - tri.uv1.v, 1/(_focus + tri.v1.z), tri.uv2.u, 1 - tri.uv2.v, 1/(_focus + tri.v2.z)]);
+		{			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
+						if (_view.camera.lens is ZoomFocusLens)        		_focus = tri.view.camera.focus;        	else        		_focus = 0;						if (tri.generated) {				_uvtData[2] = 1/(_focus + tri.v0.z);				_uvtData[5] = 1/(_focus + tri.v1.z);				_uvtData[8] = 1/(_focus + tri.v2.z);				_uvtData[0] = tri.uv0.u;	    		_uvtData[1] = 1 - tri.uv0.v;	    		_uvtData[3] = tri.uv1.u;	    		_uvtData[4] = 1 - tri.uv1.v;	    		_uvtData[6] = tri.uv2.u;	    		_uvtData[7] = 1 - tri.uv2.v;	    			    		return _uvtData;			}						_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0.z);			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1.z);			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2.z);						if (!_faceMaterialVO.invalidated)				return _faceMaterialVO.uvtData;						_faceMaterialVO.invalidated = false;        	        	_faceMaterialVO.uvtData[0] = tri.uv0.u;    		_faceMaterialVO.uvtData[1] = 1 - tri.uv0.v;    		_faceMaterialVO.uvtData[3] = tri.uv1.u;    		_faceMaterialVO.uvtData[4] = 1 - tri.uv1.v;    		_faceMaterialVO.uvtData[6] = tri.uv2.u;    		_faceMaterialVO.uvtData[7] = 1 - tri.uv2.v;        	
+			return _faceMaterialVO.uvtData;
 		}
 		
     	/**
