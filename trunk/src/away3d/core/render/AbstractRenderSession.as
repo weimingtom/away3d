@@ -521,7 +521,9 @@ package away3d.core.render
         	if (_layerDirty)
         		createLayer();
         	
-            if (primitive.rotation != 0) {           
+        	graphics.lineStyle();
+        	
+            if (primitive.rotation != 0) {   
 	            graphics.beginBitmapFill(bitmap, mapping, false, smooth);
 	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
 	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
