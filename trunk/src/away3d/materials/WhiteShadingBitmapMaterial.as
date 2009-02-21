@@ -198,8 +198,10 @@ package away3d.materials
 		/**
 		 * @inheritDoc
 		 */
-        public function clearFaces(source:Object3D = null, view:View3D = null):void
+        public override function clearFaces(source:Object3D = null, view:View3D = null):void
         {
+        	notifyMaterialUpdate();
+        	
         	for each (_faceMaterialVO in _faceDictionary)
         		if (!_faceMaterialVO.cleared)
         			_faceMaterialVO.clear();

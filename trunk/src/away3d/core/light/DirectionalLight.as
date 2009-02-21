@@ -20,7 +20,6 @@ package away3d.core.light
     public class DirectionalLight extends LightPrimitive
     {
     	private var _light:DirectionalLight3D;
-        private var _colorMatrix:ColorMatrixFilter = new ColorMatrixFilter();
         private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
     	private var _matrix:Matrix = new Matrix();
     	private var _shape:Shape = new Shape();
@@ -65,14 +64,14 @@ package away3d.core.light
         public var diffuseColorTransform:ColorTransform;
         
         /**
-        * Colormatrix transform used in DOT3 materials for resolving color in the normal map.
+        * Colormatrix transform used in DOT3 materials for resolving normal values in the normal map.
         */
-        public var colorMatrixTransform:Dictionary = new Dictionary(true);
+        public var normalMatrixDiffuseTransform:Dictionary = new Dictionary(true);
         
         /**
         * Colormatrix transform used in DOT3 materials for resolving normal values in the normal map.
         */
-        public var normalMatrixTransform:Dictionary = new Dictionary(true);
+        public var normalMatrixSpecularTransform:Dictionary = new Dictionary(true);
         
     	/**
     	 * A reference to the <code>DirectionalLight3D</code> object used by the light primitive.
@@ -199,8 +198,8 @@ package away3d.core.light
         {
         	diffuseTransform = new Dictionary(true);
         	specularTransform = new Dictionary(true);
-        	colorMatrixTransform = new Dictionary(true);
-        	normalMatrixTransform = new Dictionary(true);
+        	normalMatrixDiffuseTransform = new Dictionary(true);
+        	normalMatrixSpecularTransform = new Dictionary(true);
         }
 		
     	/**
@@ -249,7 +248,6 @@ package away3d.core.light
 			cameraDirection.z = -cameraTransform.szz;
 			halfVector.add(cameraDirection, direction);
 			halfVector.normalize();
-			
 			nx = halfVector.x;
         	ny = halfVector.y;
         	mod = Math.sqrt(nx*nx + ny*ny);
@@ -263,31 +261,53 @@ package away3d.core.light
         }
         
         /**
-        * Updates the color transform matrix.
+        * Updates the normal transform matrix.
         * 
-        * @see colorMatrixTransform
+        * @see normalMatrixTransform
         */
-        public function setColorMatrixTransform(source:Object3D):void
+        public function setNormalMatrixDiffuseTransform(source:Object3D):void
         {
         	_red = red*2;
 			_green = green*2;
 			_blue = blue*2;
-        	_colorMatrix.matrix = [_red, _red, _red, 0, -381*_red, _green, _green, _green, 0, -381*_green, _blue, _blue, _blue, 0, -381*_blue, 0, 0, 0, 1, 0];
-        	colorMatrixTransform[source] = _colorMatrix.clone();
+			
+        	_szx = diffuseTransform[source].szx;
+			_szy = diffuseTransform[source].szy;
+			_szz = diffuseTransform[source].szz;
+			
+        	//multipication of [_szx, 0, 0, 0, 127 - _szx*127, 0, -_szy, 0, 0, 127 + _szy*127, 0, 0, _szz, 0, 127 - _szz*127, 0, 0, 0, 1, 0]*[_red, _red, _red, 0, -381*_red, _green, _green, _green, 0, -381*_green, _blue, _blue, _blue, 0, -381*_blue, 0, 0, 0, 1, 0]
+        	_normalMatrix.matrix = [_szx*_red, _green*-_szy, _blue*_szz, 0, _red   * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -381*_red,
+        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _green * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -381*_green,
+        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _blue  * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -381*_blue,
+        						   0, 0, 0, 1, 0];
+        	normalMatrixDiffuseTransform[source] = _normalMatrix.clone();
         }
         
         /**
         * Updates the normal transform matrix.
         * 
-        * @see normalMatrixTransform
+        * @see colorMatrixTransform
         */
-        public function setNormalMatrixTransform(source:Object3D):void
+        public function setNormalMatrixSpecularTransform(source:Object3D, view:View3D, specular:Number, shininess:Number):void
         {
-        	_szx = diffuseTransform[source].szx;
-			_szy = diffuseTransform[source].szy;
-			_szz = diffuseTransform[source].szz;
-        	_normalMatrix.matrix = [_szx, 0, 0, 0, 127 - _szx*127, 0, -_szy, 0, 0, 127 + _szy*127, 0, 0, _szz, 0, 127 - _szz*127, 0, 0, 0, 1, 0];
-        	normalMatrixTransform[source] = _normalMatrix.clone();
+        	if (!normalMatrixSpecularTransform[source])
+				normalMatrixSpecularTransform[source] = new Dictionary(true);
+			
+        	_red = red*specular*2 + shininess;
+			_green = green*specular*2 + shininess;
+			_blue = blue*specular*2 + shininess;
+			
+        	_szx = specularTransform[source][view].szx;
+			_szy = specularTransform[source][view].szy;
+			_szz = specularTransform[source][view].szz;
+			
+        	//multipication of [_szx, 0, 0, 0, 127 - _szx*127, 0, -_szy, 0, 0, 127 + _szy*127, 0, 0, _szz, 0, 127 - _szz*127, 0, 0, 0, 1, 0]*[_red, _red, _red, 0, -127*shininess-381*_red, _green, _green, _green, 0, -127*shininess-381*_green, _blue, _blue, _blue, 0, -127*shininess-381*_blue, 0, 0, 0, 1, 0];
+        	_normalMatrix.matrix = [_szx*_red, _green*-_szy, _blue*_szz, 0, _red   * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -127*shininess-381*_red,
+        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _green * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -127*shininess-381*_green,
+        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _blue  * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -127*shininess-381*_blue,
+        						   0, 0, 0, 1, 0];
+        	
+        	normalMatrixSpecularTransform[source][view] = _normalMatrix.clone();
         }
     }
 }

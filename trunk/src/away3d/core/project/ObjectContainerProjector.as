@@ -67,10 +67,10 @@ package away3d.core.project
 						}
 			            
 		             	if (_child.pushback)
-		             		_screenVertex.z += _child.boundingRadius;
+		             		_screenVertex.z += _child.parentBoundingRadius;
 		             		
 		             	if (_child.pushfront)
-		             		_screenVertex.z -= _child.boundingRadius;
+		             		_screenVertex.z -= _child.parentBoundingRadius;
 		             		
 		             	_screenVertex.z += _child.screenZOffset;
 	    			}

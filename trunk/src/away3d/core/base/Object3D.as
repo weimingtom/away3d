@@ -1479,7 +1479,8 @@
             _localTransformDirty = true;
             _sceneTransformDirty = true;
         }
-		
+				public function centerPivot():void        {        	var offset:Number3D = new Number3D((maxX + minX)/2, (maxY + minY)/2, (maxZ + minZ)/2);        	movePivot(offset.x, offset.y, offset.z);			moveTo(offset.x, offset.y, offset.z);
+        }
 		/**
 		 * Moves the local point around which the object rotates.
 		 * 

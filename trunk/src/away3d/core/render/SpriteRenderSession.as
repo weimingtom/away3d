@@ -55,6 +55,10 @@ package away3d.core.render
             _container.addChild(child);
             child.visible = true;
             
+            layer = null;
+            
+            _level = -1;
+            
             _layerDirty = true;
         }
         
