@@ -30,7 +30,20 @@ package away3d.materials
         arcane var v2:ScreenVertex;
         /** @private */
         arcane var session:AbstractRenderSession;
-		
+		/** @private */
+        arcane function notifyMaterialUpdate():void
+        {
+        	_materialDirty = false;
+        	
+            if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
+                return;
+			
+            if (_materialupdated == null)
+                _materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
+                
+            dispatchEvent(_materialupdated);
+        }
+        
 		private var point:PointLight;
 		private var directional:DirectionalLight;
 		private var global:AmbientLight;
@@ -113,6 +126,8 @@ package away3d.materials
         private var _viewPosition:Number3D
         private var _source:Mesh;
         private var _view:View3D;
+        private var _materialDirty:Boolean;
+        private var _materialupdated:MaterialEvent;
         
         /**
         * Instance of the Init object used to hold and parse default property values
@@ -162,19 +177,34 @@ package away3d.materials
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	for each (directional in source.lightarray.directionals) {
-        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source])
+        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
+        			_materialDirty = true;
+        		}
+        		
         		if (!directional.specularTransform[source])
         			directional.specularTransform[source] = new Dictionary(true);
-        		if (!directional.specularTransform[source][view] || view.scene.updatedObjects[source] || view.updated)
+        		
+        		if (!directional.specularTransform[source][view] || view.scene.updatedObjects[source] || view.updated) {
         			directional.setSpecularTransform(source, view);
+        			_materialDirty = true;
+        		}
         	}
         	
         	for each (point in source.lightarray.points) {
-        		if (!point.viewPositions[view] || view.scene.updatedObjects[source] || view.updated)
+        		if (!point.viewPositions[view] || view.scene.updatedObjects[source] || view.updated) {
         			point.setViewPosition(view);
+        			_materialDirty = true;
+        		}
         	}
         	
+        	if (_materialDirty)
+        		clearFaces(source, view);
+        }
+        
+        public function clearFaces(source:Object3D = null, view:View3D = null):void
+        {
+        	notifyMaterialUpdate();
         }
         
 		/**

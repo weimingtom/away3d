@@ -11,6 +11,7 @@ package away3d.materials.shaders
 	import away3d.materials.*;
 	
 	import flash.display.*;
+	import flash.filters.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	
@@ -21,7 +22,7 @@ package away3d.materials.shaders
 	 * 
 	 * @see away3d.lights.DirectionalLight3D
 	 */
-    public class DiffuseDot3Shader extends AbstractShader implements IUVMaterial
+    public class SpecularDot3Shader extends AbstractShader implements IUVMaterial
     {
         private var _zeroPoint:Point = new Point(0, 0);
         private var _bitmap:BitmapData;
@@ -29,7 +30,9 @@ package away3d.materials.shaders
         private var _sourceBitmap:BitmapData;
         private var _normalDictionary:Dictionary = new Dictionary(true);
         private var _normalBitmap:BitmapData;
-		private var _diffuseTransform:Matrix3D;
+        private var _shininess:Number;
+		private var _specular:Number;
+		private var _specularTransform:Matrix3D;
 		private var _szx:Number;
 		private var _szy:Number;
 		private var _szz:Number;
@@ -117,12 +120,12 @@ package away3d.materials.shaders
 			
 			for each (directional in _source.lightarray.directionals)
 	    	{
-				_diffuseTransform = directional.diffuseTransform[_source];
+				_specularTransform = directional.specularTransform[_source];
 				
 				
-				_szx = _diffuseTransform.szx;
-				_szy = _diffuseTransform.szy;
-				_szz = _diffuseTransform.szz;
+				_szx = _specularTransform.szx;
+				_szy = _specularTransform.szy;
+				_szz = _specularTransform.szz;
 				
 				_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
 				_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
@@ -142,7 +145,7 @@ package away3d.materials.shaders
 					_faceMaterialVO.updated = true;
 					
 					//resolve normal map
-					_normalBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixDiffuseTransform[_source]);
+					_normalBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixSpecularTransform[_source][_view]);
 		            
 					//draw into faceBitmap
 					_faceMaterialVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
@@ -180,6 +183,32 @@ package away3d.materials.shaders
         	return _bitmap;
         }
         
+		/**
+		 * The exponential dropoff value used for specular highlights.
+		 */
+        public function get shininess():Number
+        {
+        	return _shininess;
+        }
+		
+        public function set shininess(val:Number):void
+        {
+        	_shininess = val;
+        }
+		
+		/**
+		 * Coefficient for specular light level.
+		 */
+		public function get specular():Number
+		{
+			return _specular;
+		}
+		
+		public function set specular(val:Number):void
+		{
+			_specular = val;
+		}
+		
         /**
         * Returns the argb value of the bitmapData pixel at the given u v coordinate.
         * 
@@ -193,17 +222,19 @@ package away3d.materials.shaders
         }
 		
 		/**
-		 * Creates a new <code>DiffuseDot3Shader</code> object.
+		 * Creates a new <code>SpecularDot3Shader</code> object.
 		 * 
 		 * @param	bitmap			The bitmapData object to be used as the material's DOT3 map.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
-        public function DiffuseDot3Shader(bitmap:BitmapData, init:Object = null)
+        public function SpecularDot3Shader(bitmap:BitmapData, init:Object = null)
         {
             super(init);
             
 			_bitmap = bitmap;
-            
+			
+            shininess = ini.getNumber("shininess", 20);
+            specular = ini.getNumber("specular", 1);
             tangentSpace = ini.getBoolean("tangentSpace", false);
         }
         
@@ -213,9 +244,12 @@ package away3d.materials.shaders
 		public override function updateMaterial(source:Object3D, view:View3D):void
         {
         	for each (directional in source.lightarray.directionals) {
-        		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
-        			directional.setDiffuseTransform(source);
-        			directional.setNormalMatrixDiffuseTransform(source);
+        		if (!directional.specularTransform[source])
+        			directional.specularTransform[source] = new Dictionary(true);
+        		
+        		if (!directional.specularTransform[source][view] || view.scene.updatedObjects[source] || view.updated) {
+        			directional.setSpecularTransform(source, view);
+        			directional.setNormalMatrixSpecularTransform(source, view, _specular, _shininess);
         			clearFaces(source, view);
         		}
         	}
@@ -230,17 +264,10 @@ package away3d.materials.shaders
         	
         	for each (directional in _lights.directionals)
         	{
-        		if (_lights.numLights > 1) {
-					_shape = _session.getLightShape(this, level++, layer, directional);
-	        		_shape.filters = [directional.normalMatrixDiffuseTransform[_source]];
-	        		_shape.blendMode = blendMode;
-	        		_shape.transform.colorTransform = directional.ambientDiffuseColorTransform;
-	        		_graphics = _shape.graphics;
-        		} else {
-        			layer.filters = [directional.normalMatrixDiffuseTransform[_source]];
-	        		layer.transform.colorTransform = directional.ambientDiffuseColorTransform;
-	        		_graphics = layer.graphics;
-        		}
+				_shape = _session.getLightShape(this, level++, layer, directional);
+        		_shape.filters = [directional.normalMatrixSpecularTransform[_source][_view]];
+        		_shape.blendMode = blendMode;
+        		_graphics = _shape.graphics;
         		
         		_mapping = getMapping(tri);
         		

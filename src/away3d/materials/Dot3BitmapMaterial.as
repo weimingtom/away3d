@@ -16,7 +16,7 @@ package away3d.materials
 		private var _phongShader:CompositeMaterial;
 		private var _ambientShader:AmbientShader;
 		private var _diffuseDot3Shader:DiffuseDot3Shader;
-		private var _specularPhongShader:SpecularPhongShader;
+		private var _specularDot3Shader:SpecularDot3Shader;
 		
 		/**
 		 * The exponential dropoff value used for specular highlights.
@@ -29,7 +29,7 @@ package away3d.materials
 		public function set shininess(val:Number):void
 		{
 			_shininess = val;
-            //_specularPhongShader.shininess = val;
+			_specularDot3Shader.shininess = val;
 		}
 		
 		/**
@@ -42,8 +42,16 @@ package away3d.materials
 		
 		public function set specular(val:Number):void
 		{
+			if (_specular == val)
+				return;
+			
 			_specular = val;
-            //_specularPhongShader.specular = val;
+			_specularDot3Shader.specular = val;
+			
+			if (_specular && materials.length < 3)
+        		addMaterial(_specularDot3Shader);
+   			else if (!_specular && materials.length > 2)
+            	removeMaterial(_specularDot3Shader);
 		}
         
         /**
@@ -77,18 +85,21 @@ package away3d.materials
 			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
-			_specular = ini.getNumber("specular", 0.7);
+			_specular = ini.getNumber("specular", 0.5, {min:0, max:1});
 			
 			//create new materials
 			_bitmapMaterial = new BitmapMaterial(bitmap, ini);
 			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
 			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
 			_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
+			_specularDot3Shader = new SpecularDot3Shader(normalMap, {shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
 			addMaterial(_bitmapMaterial);
 			addMaterial(_phongShader);
-			//addMaterial(_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD}));
+			
+			if (_specular)
+				addMaterial(_specularDot3Shader);
 		}
 	}
 }
