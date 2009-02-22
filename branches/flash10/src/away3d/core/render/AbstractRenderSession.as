@@ -42,6 +42,8 @@ package away3d.core.render
 		/** @private */
 		arcane var _level:int = -1;
 		/** @private */
+		arcane var _material:IMaterial;
+		/** @private */
         arcane var _renderSource:Object3D;
 		/** @private */
         arcane var _layerDirty:Boolean;
@@ -210,6 +212,7 @@ package away3d.core.render
         
         public var primitives:Array;
         
+        public var screenZ:Number;
         /**
         * Placeholder for filters property of containers
         */
@@ -441,13 +444,17 @@ package away3d.core.render
         	if (!(_array = _spriteLayer[material])) 
         		_array = _spriteLayer[material] = new Array();
         	
+        	if (!level && material != _material) {
+        		_level = -1;
+        		_material = material;
+        	}
+        	
         	if (_level >= level && _array.length) {
         		_sprite = _array[0];
         	} else {
 	        	_level = level;
         		_array.unshift(_sprite = createSprite(parent));
         	}
-        	
             return _sprite;
         }
         
@@ -532,7 +539,9 @@ package away3d.core.render
         	if (_layerDirty)
         		createLayer();
         	
-            if (primitive.rotation != 0) {           
+        	graphics.lineStyle();
+        	
+            if (primitive.rotation != 0) {   
 	            graphics.beginBitmapFill(bitmap, mapping, false, smooth);
 	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
 	            graphics.lineTo(primitive.topright.x, primitive.topright.y);

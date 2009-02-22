@@ -439,7 +439,7 @@
 		            //geometry.rootBone = rootBone;
 		            
 		            for each (skinController in skinControllers) {
-		            	//skinController.inverseTransform = new MatrixAway3D();
+		            	//skinController.inverseTransform = new Matrix3D();
 		            	skinController.inverseTransform = child.parent.inverseSceneTransform;
 		            }
 				}

@@ -55,11 +55,6 @@
 		
 		private var _index:int;
 		
-		protected override function getDefaultMaterial():IMaterial
-		{
-			return ini.getSegmentMaterial("material") || new WireframeMaterial();
-		}
-		
 		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
 		 *

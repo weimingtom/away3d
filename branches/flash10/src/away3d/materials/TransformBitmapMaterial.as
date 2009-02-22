@@ -11,8 +11,6 @@ package away3d.materials
     import flash.display.*;
     import flash.geom.*;
 
-;
-
 	use namespace arcane;
 	
     /** Basic bitmap texture material */

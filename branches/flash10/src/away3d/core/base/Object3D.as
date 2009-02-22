@@ -468,6 +468,7 @@
 		 */
         public var pushfront:Boolean;
         
+		/**		 * Defines an additional offset to the z-sorting algorithm used on mesh elements or objects with ownCanvas set to true		 */        public var screenZOffset:Number;        
     	/**
     	 * Returns the inverse of sceneTransform.
     	 * 
@@ -1309,6 +1310,7 @@
             debugbs = ini.getBoolean("debugbs", false);
             pushback = ini.getBoolean("pushback", false);
             pushfront = ini.getBoolean("pushfront", false);
+            screenZOffset = ini.getNumber("screenZOffset", 0);
             x = ini.getNumber("x", 0);
             y = ini.getNumber("y", 0);
             z = ini.getNumber("z", 0);        
@@ -1483,6 +1485,8 @@
             _sceneTransformDirty = true;
         }
 		
+		public function centerPivot():void        {        	var offset:Number3D = new Number3D((maxX + minX)/2, (maxY + minY)/2, (maxZ + minZ)/2);        	movePivot(offset.x, offset.y, offset.z);			moveTo(offset.x, offset.y, offset.z);
+        }
 		/**
 		 * Moves the local point around which the object rotates.
 		 * 
@@ -1673,7 +1677,7 @@
             object3D.useHandCursor = useHandCursor;
             object3D.pushback = pushback;
             object3D.pushfront = pushfront;
-            object3D.pivotPoint = pivotPoint;            object3D.projectorType = projectorType;            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
+            object3D.screenZOffset = screenZOffset;            object3D.pivotPoint = pivotPoint;            object3D.projectorType = projectorType;            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             
             return object3D;
         }

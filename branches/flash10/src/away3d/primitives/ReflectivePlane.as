@@ -333,7 +333,6 @@ package away3d.primitives
 			_reflectionCamera.name = "virtualReflectionCamera";
 			_reflectionCamera.focus = _camera.focus;
 			_reflectionCamera.zoom = _camera.zoom;
-			//_reflectionCamera.lens = _camera.lens; //TODO: Evaluate what other main view elements must be cloned.
 			
 			_reflectionView = new View3D({scene:this.scene, camera:_reflectionCamera});
 			_reflectionView.name = "virtualReflectionView";
@@ -385,23 +384,22 @@ package away3d.primitives
 			//Uses a dummy plane to get a perspectived image of the plane material or distortion image.
 			//This image is used in a displacement map to distort the material. Might be overkill
 			//but couldn't find another solution.
-			//updateBumpMapSource();
+			updateBumpMapSource();
 			
 			hideObjectsOnSide(); //Hides all objects on same side of refl camera including the plane (avoid holograms).
 			_reflectionView.render();
 			restoreObjectsOnSide(); //Restores hiden objects.
 			
 			//Redraws the reflection into the plane.
-			updateLayerMaterial(_reflectionMaterial, _reflectionBmd, _reflectionColorTransform, _reflectionBlur);
+			updateReflectionMaterial();
 			
 			this.material = _compositeMaterial;
 		}
 		
-		//Redraws the refl view into the material of the plane. Can use input from the refl view or the 
-		//main view depending on reflection or refraction respectively.
+		//Redraws the refl view into the material of the plane.
 		//Also uses scaling of the refl view to manage redrawing quality.
 		//Also applies blur, colorTransform and distortion effects to the redrawn image.
-		private function updateLayerMaterial(layerMaterial:BitmapMaskMaterial, layerBmd:BitmapData, ct:ColorTransform, blur:BlurFilter):void
+		private function updateReflectionMaterial():void
 		{
 			if(_planeBounds.width < 1 || _planeBounds.height < 1)
 				return;
@@ -409,32 +407,32 @@ package away3d.primitives
 			if(_planeBounds.width > 2880 || _planeBounds.height > 2880)
 				return;
 			
-			layerBmd = new BitmapData(_planeBounds.width/_scaling, _planeBounds.height/_scaling, true, 0x00000000);
+			_reflectionBmd = new BitmapData(_planeBounds.width/_scaling, _planeBounds.height/_scaling, true, 0x00000000);
 			_redrawMatrix = new Matrix();
 			_redrawMatrix.scale(1/_scaling, 1/_scaling);
 			_redrawMatrix.translate(-_planeBounds.x/_scaling, -_planeBounds.y/_scaling);
-			layerBmd.draw(_reflectionViewHolder, _redrawMatrix);
+			_reflectionBmd.draw(_reflectionViewHolder, _redrawMatrix);
 			
-			 if(ct != _identityColorTransform)
-				layerBmd.colorTransform(_effectsBounds, ct);
+			 if(_reflectionColorTransform != _identityColorTransform)
+				_reflectionBmd.colorTransform(_effectsBounds, _reflectionColorTransform);
 			
-			if(blur)
+			if(_reflectionBlur)
 			{
-				if(blur.blurX != 0 || blur.blurY != 0)
-					layerBmd.applyFilter(layerBmd, _effectsBounds, _zeroPoint, blur);
+				if(_reflectionBlur.blurX != 0 || _reflectionBlur.blurY != 0)
+					_reflectionBmd.applyFilter(_reflectionBmd, _effectsBounds, _zeroPoint, _reflectionBlur);
 			}
 			
 			if(_distortionStrength != 0 && _displacementMap)
-				layerBmd.applyFilter(layerBmd, _effectsBounds, _zeroPoint, _displacementMap); 
+				_reflectionBmd.applyFilter(_reflectionBmd, _effectsBounds, _zeroPoint, _displacementMap); 
 				
 			//Reflection and refraction materials are BitmapMaskMaterials.
 			//These are identical to BitmapMaterials except that they dont pass a transformation matrix to 
 			//AbstractRenderSession. They use renderTriangleBitmapMask in this method, which is just as
 			//renderTriangleBitmap, but ignores transformations, except offsets and scales.
-			layerMaterial.bitmap = layerBmd;
-			layerMaterial.scaling = _scaling;
-			layerMaterial.offsetX = _planeBounds.x;
-			layerMaterial.offsetY = _planeBounds.y;
+			_reflectionMaterial.bitmap = _reflectionBmd;
+			_reflectionMaterial.scaling = _scaling;
+			_reflectionMaterial.offsetX = _planeBounds.x;
+			_reflectionMaterial.offsetY = _planeBounds.y;
 		}
 		
 		//Redraws the container of the dummy plane and uses this image to distort the
