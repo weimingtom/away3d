@@ -1,102 +1,1 @@
-package away3d.materials
-{
-	import away3d.containers.View3D;
-	import away3d.core.base.Object3D;
-	import away3d.core.utils.*;
-	import away3d.materials.shaders.*;
-	
-	import flash.display.*;
-
-;
-
-;
-	
-	/**
-	 * Bitmap material with DOT3 shading.
-	 */
-	public class Dot3BitmapMaterialF10 extends BitmapMaterial
-	{
-		private var _shininess:Number;
-		private var _specular:Number;
-		private var _normalMap:BitmapData;
-		private var _normalShader:Shader;
-		
-		[Embed(source="normalMapping.pbj",mimeType="application/octet-stream")]
-    	private var NormalShader:Class;
-    	
-		/**
-		 * The exponential dropoff value used for specular highlights.
-		 */
-		public function get shininess():Number
-		{
-			return _shininess;
-		}
-		
-		public function set shininess(val:Number):void
-		{
-			_shininess = val;
-            //_specularPhongShader.shininess = val;
-		}
-		
-		/**
-		 * Coefficient for specular light level.
-		 */
-		public function get specular():Number
-		{
-			return _specular;
-		}
-		
-		public function set specular(val:Number):void
-		{
-			_specular = val;
-            //_specularPhongShader.specular = val;
-		}
-        
-        /**
-        * Returns the bitmapData object being used as the material normal map.
-        */
-		public function get normalMap():BitmapData
-		{
-			return _normalMap;
-		}
-		
-		/**
-		 * Creates a new <code>Dot3BitmapMaterial</code> object.
-		 * 
-		 * @param	bitmap				The bitmapData object to be used as the material's texture.
-		 * @param	normalMap			The bitmapData object to be used as the material's DOT3 map.
-		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
-		 */
-		public function Dot3BitmapMaterialF10(bitmap:BitmapData, normalMap:BitmapData, init:Object = null)
-		{
-			super(bitmap, init);
-			
-			
-			_normalMap = normalMap;
-			
-			_normalShader = new Shader();
-			
-			_shininess = ini.getNumber("shininess", 20);
-			_specular = ini.getNumber("specular", 0.7);
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-        public override function updateMaterial(source:Object3D, view:View3D):void
-        {
-        	super.updateMaterial(source, view);
-        	/*
-        	for each (_directional in source.lightarray.directionals) {
-        		if (!_directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
-        			_directional.setDiffuseTransform(source);
-        			_directional.setNormalMatrixTransform(source);
-        			_directional.setColorMatrixTransform(source);
-        			clearFaces(source, view);
-        			
-        			
-        		}
-        	}*/
-        }
-	}
-}
+﻿package away3d.materials{	import away3d.arcane;	import away3d.containers.*;	import away3d.core.base.*;	import away3d.core.light.*;	import away3d.core.utils.*;	import away3d.materials.shaders.*;		import flash.display.*;	import flash.filters.*;	import flash.geom.*;	import flash.utils.*;		use namespace arcane;		/**	 * Bitmap material with DOT3 shading.	 */	public class Dot3BitmapMaterialF10 extends BitmapMaterial	{		private var _shininess:Number;		private var _specular:Number;		private var _normalMap:BitmapData;		private var _normalShader:Shader;		private var _normalFilter:ShaderFilter;		private var _directional:DirectionalLight;		private var _zeroPoint:Point = new Point();				[Embed(source="../../normalMapping.pbj",mimeType="application/octet-stream")]    	private var NormalShader:Class;    		    	/**    	 * Updates the texture bitmapData with the colortransform determined from the <code>color</code> and <code>alpha</code> properties.    	 *     	 * @see color    	 * @see alpha    	 * @see setColorTransform()    	 */        protected override function updateRenderBitmap():void        {        	_bitmapDirty = false;        	        	if (_colorTransform) {	        	if (!_bitmap.transparent && _alpha != 1) {	                _renderBitmap = new BitmapData(_bitmap.width, _bitmap.height, true);	                _renderBitmap.draw(_bitmap);	            } else {	        		_renderBitmap = _bitmap.clone();	           }	            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);	        } else {	        	_renderBitmap = _bitmap.clone();	        }	        var _sourceBitmap:BitmapData = _renderBitmap.clone();	        _normalShader.data.src.input = _sourceBitmap;	        _normalShader.data.normalmap.input = _normalMap;	        	        _renderBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, _normalFilter);	        	        invalidateFaces();        }				/**		 * The exponential dropoff value used for specular highlights.		 */		public function get shininess():Number		{			return _shininess;		}				public function set shininess(val:Number):void		{			_shininess = val;            //_specularPhongShader.shininess = val;		}				/**		 * Coefficient for specular light level.		 */		public function get specular():Number		{			return _specular;		}				public function set specular(val:Number):void		{			_specular = val;            //_specularPhongShader.specular = val;		}                /**        * Returns the bitmapData object being used as the material normal map.        */		public function get normalMap():BitmapData		{			return _normalMap;		}				/**		 * Creates a new <code>Dot3BitmapMaterial</code> object.		 * 		 * @param	bitmap				The bitmapData object to be used as the material's texture.		 * @param	normalMap			The bitmapData object to be used as the material's DOT3 map.		 * @param	init	[optional]	An initialisation object for specifying default instance properties.		 */		public function Dot3BitmapMaterialF10(bitmap:BitmapData, normalMap:BitmapData, init:Object = null)		{			super(bitmap, init);									_normalMap = normalMap;						_normalShader = new Shader(new NormalShader());			_normalFilter = new ShaderFilter(_normalShader);						_shininess = ini.getNumber("shininess", 20);			_specular = ini.getNumber("specular", 0.7);		}				/**		 * @inheritDoc		 */        public override function updateMaterial(source:Object3D, view:View3D):void        {        	for each (_directional in source.lightarray.directionals) {        		if (!_directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {					_directional.setDiffuseTransform(source);					_directional.setNormalMatrixDiffuseTransform(source);										var diffuseMatrix:Array = _directional.normalMatrixDiffuseTransform[source].matrix;					_normalShader.data.diffuseMatrixR.value = [diffuseMatrix[0], diffuseMatrix[5], diffuseMatrix[10], 0];					_normalShader.data.diffuseMatrixG.value = [diffuseMatrix[1], diffuseMatrix[6], diffuseMatrix[11], 0];					_normalShader.data.diffuseMatrixB.value = [diffuseMatrix[2], diffuseMatrix[7], diffuseMatrix[12], 0];					_normalShader.data.diffuseMatrixO.value = [diffuseMatrix[4]/255, diffuseMatrix[9]/255, diffuseMatrix[14]/255, 1];					_bitmapDirty = true;        		}        		        		if (!_directional.specularTransform[source])        			_directional.specularTransform[source] = new Dictionary(true);        		        		if (!_directional.specularTransform[source][view] || view.scene.updatedObjects[source] || view.updated) {        			_directional.setSpecularTransform(source, view);        			_directional.setNormalMatrixSpecularTransform(source, view, _specular, _shininess);        			        			var specularMatrix:Array = _directional.normalMatrixSpecularTransform[source][view].matrix;					_normalShader.data.specularMatrixR.value = [specularMatrix[0], specularMatrix[5], specularMatrix[10], 0];					_normalShader.data.specularMatrixG.value = [specularMatrix[1], specularMatrix[6], specularMatrix[11], 0];					_normalShader.data.specularMatrixB.value = [specularMatrix[2], specularMatrix[7], specularMatrix[12], 0];					_normalShader.data.specularMatrixO.value = [specularMatrix[4]/255, specularMatrix[9]/255, specularMatrix[14]/255, 1];        			_bitmapDirty = true;        		}        	}        	        	super.updateMaterial(source, view);        }	}}

@@ -268,18 +268,18 @@ package away3d.core.light
         */
         public function setNormalMatrixDiffuseTransform(source:Object3D):void
         {
-        	_red = red*2;
-			_green = green*2;
-			_blue = blue*2;
+        	_red = red*2*diffuse;
+			_green = green*2*diffuse;
+			_blue = blue*2*diffuse;
 			
         	_szx = diffuseTransform[source].szx;
 			_szy = diffuseTransform[source].szy;
 			_szz = diffuseTransform[source].szz;
 			
         	//multipication of [_szx, 0, 0, 0, 127 - _szx*127, 0, -_szy, 0, 0, 127 + _szy*127, 0, 0, _szz, 0, 127 - _szz*127, 0, 0, 0, 1, 0]*[_red, _red, _red, 0, -381*_red, _green, _green, _green, 0, -381*_green, _blue, _blue, _blue, 0, -381*_blue, 0, 0, 0, 1, 0]
-        	_normalMatrix.matrix = [_szx*_red, _green*-_szy, _blue*_szz, 0, _red   * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -381*_red,
-        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _green * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -381*_green,
-        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _blue  * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127) -381*_blue,
+        	_normalMatrix.matrix = [_szx*_red, _green*-_szy, _blue*_szz, 0, _red   * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127 - 381) + red*ambient*255,
+        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _green * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127 - 381) + red*ambient*255,
+        						    _szx*_red, _green*-_szy, _blue*_szz, 0, _blue  * (127 - _szx*127 + 127 + _szy*127 + 127 - _szz*127 - 381) + red*ambient*255,
         						   0, 0, 0, 1, 0];
         	normalMatrixDiffuseTransform[source] = _normalMatrix.clone();
         }
