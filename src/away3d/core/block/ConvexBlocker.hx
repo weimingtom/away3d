@@ -3,7 +3,7 @@ package away3d.core.block;
 import flash.display.Graphics;
 import flash.events.EventDispatcher;
 import away3d.core.draw.ScreenVertex;
-import fl.motion.Color;
+import away3d.core.utils.Color;
 import away3d.core.draw.DrawTriangle;
 import away3d.core.draw.DrawPrimitive;
 import away3d.core.geom.Line2D;
