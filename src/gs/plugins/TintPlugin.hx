@@ -74,7 +74,7 @@ class TintPlugin extends TweenPlugin  {
 		while (i > -1) {
 			p = _props[i];
 			if (Reflect.field(_ct, p) != Reflect.field($end, p)) {
-				_tweens[_tweens.length] = new TweenInfo();
+				_tweens[_tweens.length] = new TweenInfo(_ct, p, Reflect.field(_ct, p), Reflect.field($end, p) - Reflect.field(_ct, p), "tint", false);
 			}
 			
 			// update loop variables

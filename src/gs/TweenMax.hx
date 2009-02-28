@@ -44,7 +44,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 	public static var killDelayedCallsTo:Dynamic = TweenLite.killTweensOf;
 	public static var removeTween:Dynamic = TweenLite.removeTween;
 	//protects from garbage collection issues
-	private static var _pausedTweens:Dictionary = new Dictionary();
+	private static var _pausedTweens:Dictionary = new Dictionary(false);
 	private static var _globalTimeScale:Float = 1;
 	private var _dispatcher:EventDispatcher;
 	//stores the original onComplete, onStart, and onUpdate Functions from the this.vars Object (we replace them if/when dispatching events)
@@ -109,7 +109,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		
 		if (this.exposedVars.startAt != null) {
 			this.exposedVars.startAt.overwrite = 0;
-			new TweenMax();
+			new TweenMax(this.target, 0, this.exposedVars.startAt);
 		}
 		super.initTweenVals();
 		//accommodate rounding if necessary...
@@ -132,10 +132,10 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 							ti.target.round = true;
 						} else {
 							if (plugin == null) {
-								plugin = new TweenLite.plugins.roundProps();
+								plugin = Type.createInstance(TweenLite.plugins.roundProps, []);
 								plugin.add(ti.target, prop, ti.start, ti.change);
 								_hasPlugins = true;
-								this.tweens[j] = new TweenInfo();
+								this.tweens[j] = new TweenInfo(plugin, "changeFactor", 0, 1, prop, true);
 							} else {
 								plugin.add(ti.target, prop, ti.start, ti.change);
 								this.tweens.splice(j, 1);
@@ -167,7 +167,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 			//required for OverwriteManager
 			this.startTime = 999999999999999;
 			this.enabled = false;
-			_pausedTweens[cast this] = this;
+			_pausedTweens[untyped this] = this;
 		}
 	}
 
@@ -183,8 +183,8 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 			} else {
 				this.active = this.started;
 			}
-			_pausedTweens[cast this] = null;
-			_pausedTweens[cast this] = null;
+			_pausedTweens[untyped this] = null;
+			_pausedTweens[untyped this] = null;
 		}
 	}
 
@@ -203,8 +203,8 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 			render(this.startTime);
 		}
 		this.pauseTime = Math.NaN;
-		_pausedTweens[cast this] = null;
-		_pausedTweens[cast this] = null;
+		_pausedTweens[untyped this] = null;
+		_pausedTweens[untyped this] = null;
 		this.enabled = true;
 	}
 
@@ -430,7 +430,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 	private function initDispatcher():Void {
 		
 		if (_dispatcher == null) {
-			_dispatcher = new EventDispatcher();
+			_dispatcher = new EventDispatcher(this);
 			//store the originals
 			_callbacks = {onStart:this.vars.onStart, onUpdate:this.vars.onUpdate, onComplete:this.vars.onComplete};
 			//For TweenLiteVars, TweenFilterLiteVars, and TweenMaxVars compatibility
@@ -469,7 +469,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		if (_callbacks.onStart != null) {
 			_callbacks.onStart.apply(null, this.vars.onStartParams);
 		}
-		_dispatcher.dispatchEvent(new TweenEvent());
+		_dispatcher.dispatchEvent(new TweenEvent(TweenEvent.START));
 	}
 
 	private function onUpdateDispatcher(?$args:Array<Dynamic>):Void {
@@ -478,7 +478,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		if (_callbacks.onUpdate != null) {
 			_callbacks.onUpdate.apply(null, this.vars.onUpdateParams);
 		}
-		_dispatcher.dispatchEvent(new TweenEvent());
+		_dispatcher.dispatchEvent(new TweenEvent(TweenEvent.UPDATE));
 	}
 
 	private function onCompleteDispatcher(?$args:Array<Dynamic>):Void {
@@ -487,7 +487,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		if (_callbacks.onComplete != null) {
 			_callbacks.onComplete.apply(null, this.vars.onCompleteParams);
 		}
-		_dispatcher.dispatchEvent(new TweenEvent());
+		_dispatcher.dispatchEvent(new TweenEvent(TweenEvent.COMPLETE));
 	}
 
 	public function addEventListener($type:String, $listener:Dynamic, ?$useCapture:Bool=false, ?$priority:Int=0, ?$useWeakReference:Bool=false):Void {
@@ -549,18 +549,18 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 	//---- STATIC FUNCTIONS -----------------------------------------------------------------------------------------------------------
 	public static function to($target:Dynamic, $duration:Float, $vars:Dynamic):TweenMax {
 		
-		return new TweenMax();
+		return new TweenMax($target, $duration, $vars);
 	}
 
 	public static function from($target:Dynamic, $duration:Float, $vars:Dynamic):TweenMax {
 		
 		$vars.runBackwards = true;
-		return new TweenMax();
+		return new TweenMax($target, $duration, $vars);
 	}
 
 	public static function delayedCall($delay:Float, $onComplete:Dynamic, ?$onCompleteParams:Array<Dynamic>=null, ?$persist:Bool=false):TweenMax {
 		
-		return new TweenMax();
+		return new TweenMax($onComplete, 0, {delay:$delay, onComplete:$onComplete, onCompleteParams:$onCompleteParams, persist:$persist, overwrite:0});
 	}
 
 	public static function setGlobalTimeScale($scale:Float):Void {
@@ -574,25 +574,27 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		_globalTimeScale = $scale;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(ml)).iterator();
 		for (__key in __keys) {
-			a = ml[cast __key];
+			a = ml[untyped __key];
 
-			i = a.length - 1;
-			while (i > -1) {
-				if (Std.is(a[i], TweenMax)) {
-					a[i].timeScale *= 1;
+			if (a != null) {
+				i = a.length - 1;
+				while (i > -1) {
+					if (Std.is(a[i], TweenMax)) {
+						a[i].timeScale *= 1;
+					}
+					
+					// update loop variables
+					i--;
 				}
-				
-				// update loop variables
-				i--;
-			}
 
+			}
 		}
 
 	}
 
 	public static function getTweensOf($target:Dynamic):Array<Dynamic> {
 		
-		var a:Array<Dynamic> = masterList[cast $target];
+		var a:Array<Dynamic> = masterList[untyped $target];
 		var toReturn:Array<Dynamic> = [];
 		if (a != null) {
 			var i:Int = a.length - 1;
@@ -608,10 +610,12 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		}
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_pausedTweens)).iterator();
 		for (__key in __keys) {
-			var tween:TweenLite = _pausedTweens[cast __key];
+			var tween:TweenLite = _pausedTweens[untyped __key];
 
-			if (tween.target == $target) {
-				toReturn[toReturn.length] = tween;
+			if (tween != null) {
+				if (tween.target == $target) {
+					toReturn[toReturn.length] = tween;
+				}
 			}
 		}
 
@@ -644,25 +648,29 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 		var tween:TweenLite;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(ml)).iterator();
 		for (__key in __keys) {
-			a = ml[cast __key];
+			a = ml[untyped __key];
 
-			i = a.length - 1;
-			while (i > -1) {
-				if (!a[i].gc) {
-					toReturn[toReturn.length] = a[i];
+			if (a != null) {
+				i = a.length - 1;
+				while (i > -1) {
+					if (!a[i].gc) {
+						toReturn[toReturn.length] = a[i];
+					}
+					
+					// update loop variables
+					i--;
 				}
-				
-				// update loop variables
-				i--;
-			}
 
+			}
 		}
 
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_pausedTweens)).iterator();
 		for (__key in __keys) {
-			tween = _pausedTweens[cast __key];
+			tween = _pausedTweens[untyped __key];
 
-			toReturn[toReturn.length] = tween;
+			if (tween != null) {
+				toReturn[toReturn.length] = tween;
+			}
 		}
 
 		return toReturn;
@@ -783,8 +791,8 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 	override public function setEnabled($b:Bool):Bool {
 		
 		if (!$b) {
-			_pausedTweens[cast this] = null;
-			_pausedTweens[cast this] = null;
+			_pausedTweens[untyped this] = null;
+			_pausedTweens[untyped this] = null;
 		}
 		super.enabled = $b;
 		if ($b) {

@@ -52,7 +52,7 @@ class Ase extends AbstractParser  {
 						var x:Float = Std.parseFloat(mvl[1]) * scaling;
 						var z:Float = Std.parseFloat(mvl[2]) * scaling;
 						var y:Float = Std.parseFloat(mvl[3]) * scaling;
-						vertices.push(new Vertex());
+						vertices.push(new Vertex(x, y, z));
 					}
 
 				case 'MESH_FACE_LIST' :
@@ -73,7 +73,7 @@ class Ase extends AbstractParser  {
 						var b:Vertex = vertices[Std.parseInt(con.substr(0, con.lastIndexOf(' ')))];
 						con = drc[4];
 						var c:Vertex = vertices[Std.parseInt(con.substr(0, con.lastIndexOf(' ')))];
-						faces.push(new Face());
+						faces.push(new Face(a, b, c));
 					}
 
 				case 'MESH_TVERTLIST' :
@@ -84,7 +84,7 @@ class Ase extends AbstractParser  {
 						}
 						textureline = textureline.substr(textureline.indexOf('*') + 1);
 						var mtvl:Array<Dynamic> = textureline.split('\t');
-						uvs.push(new UV());
+						uvs.push(new UV(Std.parseFloat(mtvl[1]), Std.parseFloat(mtvl[2])));
 					}
 
 				case 'MESH_TFACELIST' :
@@ -111,7 +111,9 @@ class Ase extends AbstractParser  {
 		for (__i in 0...faces.length) {
 			var f:Face = faces[__i];
 
-			mesh.addFace(f);
+			if (f != null) {
+				mesh.addFace(f);
+			}
 		}
 
 		mesh.type = ".Ase";
@@ -133,7 +135,7 @@ class Ase extends AbstractParser  {
 		
 		ini = Init.parse(init);
 		scaling = ini.getNumber("scaling", 1) * 100;
-		mesh = cast((container = new Mesh()), Mesh);
+		mesh = cast((container = new Mesh(ini)), Mesh);
 		parseAse(Cast.string(data));
 	}
 

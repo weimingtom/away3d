@@ -55,7 +55,7 @@ class ColorMatrixFilterPlugin extends FilterPlugin  {
 		_target = $target;
 		_type = ColorMatrixFilter;
 		var cmf:Dynamic = $value;
-		initFilter({}, new ColorMatrixFilter());
+		initFilter({}, new ColorMatrixFilter(_idMatrix.slice()));
 		_matrix = ColorMatrixFilter(_filter).matrix;
 		var endMatrix:Array<Dynamic> = [];
 		if (cmf.matrix != null && (Std.is(cmf.matrix, Array<Dynamic>))) {

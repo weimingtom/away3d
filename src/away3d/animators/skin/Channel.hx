@@ -84,7 +84,7 @@ class Channel  {
 
 	public function clone(object:ObjectContainer3D):Channel {
 		
-		var channel:Channel = new Channel();
+		var channel:Channel = new Channel(name);
 		channel.target = object.getChildByName(name);
 		channel.type = type.concat();
 		channel.param = param.concat();

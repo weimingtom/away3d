@@ -66,7 +66,7 @@ class ColladaParser extends AbstractParser  {
 		this.xml = xml;
 		this.extractMainSections();
 		this._sections = this.mainSections;
-		this.dispatchEvent(new Event());
+		this.dispatchEvent(new Event(Event.COMPLETE));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -80,16 +80,18 @@ class ColladaParser extends AbstractParser  {
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
 
-			var children:XMLList = node.children();
-			var vo:SceneSectionVO = new SceneSectionVO();
-			vo.id = node.@id;
-			vo.name = node.@name;
-			vo.values = this.extractPivot(node);
-			vo.cameras = this.extractGroup(ColladaParser.GROUP_CAMERA, vo, children);
-			vo.geometry = this.extractGroup(ColladaParser.GROUP_GEOMETRY, vo, children);
-			vo.sections = this.extractGroup(ColladaParser.GROUP_SECTION, vo, children);
-			this.mainSections.push(vo);
-			this.sections.push(vo);
+			if (node != null) {
+				var children:XMLList = node.children();
+				var vo:SceneSectionVO = new SceneSectionVO();
+				vo.id = node.@id;
+				vo.name = node.@name;
+				vo.values = this.extractPivot(node);
+				vo.cameras = this.extractGroup(ColladaParser.GROUP_CAMERA, vo, children);
+				vo.geometry = this.extractGroup(ColladaParser.GROUP_GEOMETRY, vo, children);
+				vo.sections = this.extractGroup(ColladaParser.GROUP_SECTION, vo, children);
+				this.mainSections.push(vo);
+				this.sections.push(vo);
+			}
 		}
 
 	}
@@ -108,29 +110,31 @@ class ColladaParser extends AbstractParser  {
 
 	private function extractGroup(group:Int, section:SceneSectionVO, list:XMLList):Array<Dynamic> {
 		
-		var a:Array<Dynamic> = new Array<Dynamic>();
+		var a:Array<Dynamic> = new Array();
 		var counter:Int = 0;
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
 
-			var type:String = node.@type;
-			if (type == ColladaParser.GROUP_IDENTIFIER && counter == group) {
-				switch (group) {
-					case ColladaParser.GROUP_CAMERA :
-						a = this.extractCameras(section, node.children());
-						break;
-					case ColladaParser.GROUP_GEOMETRY :
-						a = this.extractGeometry(section, node.children());
-						break;
-					case ColladaParser.GROUP_SECTION :
-						a = this.extractSection(node);
-						break;
-					
+			if (node != null) {
+				var type:String = node.@type;
+				if (type == ColladaParser.GROUP_IDENTIFIER && counter == group) {
+					switch (group) {
+						case ColladaParser.GROUP_CAMERA :
+							a = this.extractCameras(section, node.children());
+							break;
+						case ColladaParser.GROUP_GEOMETRY :
+							a = this.extractGeometry(section, node.children());
+							break;
+						case ColladaParser.GROUP_SECTION :
+							a = this.extractSection(node);
+							break;
+						
 
+					}
 				}
-			}
-			if (type == ColladaParser.GROUP_IDENTIFIER) {
-				counter++;
+				if (type == ColladaParser.GROUP_IDENTIFIER) {
+					counter++;
+				}
 			}
 		}
 
@@ -140,21 +144,23 @@ class ColladaParser extends AbstractParser  {
 	/*section : SceneSectionVO ,*/
 	private function extractSection(xml:Xml):Array<Dynamic> {
 		
-		var a:Array<Dynamic> = new Array<Dynamic>();
+		var a:Array<Dynamic> = new Array();
 		for (__i in 0...xml[ColladaNode.NODE].length) {
 			var node:Xml = xml[ColladaNode.NODE][__i];
 
-			var vo:SceneSectionVO = new SceneSectionVO();
-			var children:XMLList = node.children();
-			vo.id = node.@id;
-			vo.name = node.@name;
-			vo.values = this.extractPivot(xml);
-			//vo.pivot = section.pivot ;
-			vo.cameras = this.extractGroup(ColladaParser.GROUP_CAMERA, vo, children);
-			vo.geometry = this.extractGroup(ColladaParser.GROUP_GEOMETRY, vo, children);
-			vo.sections = this.extractGroup(ColladaParser.GROUP_SECTION, vo, children);
-			a.push(vo);
-			this.allSections.push(vo);
+			if (node != null) {
+				var vo:SceneSectionVO = new SceneSectionVO();
+				var children:XMLList = node.children();
+				vo.id = node.@id;
+				vo.name = node.@name;
+				vo.values = this.extractPivot(xml);
+				//vo.pivot = section.pivot ;
+				vo.cameras = this.extractGroup(ColladaParser.GROUP_CAMERA, vo, children);
+				vo.geometry = this.extractGroup(ColladaParser.GROUP_GEOMETRY, vo, children);
+				vo.sections = this.extractGroup(ColladaParser.GROUP_SECTION, vo, children);
+				a.push(vo);
+				this.allSections.push(vo);
+			}
 		}
 
 		return a;
@@ -162,29 +168,31 @@ class ColladaParser extends AbstractParser  {
 
 	private function extractCameras(section:SceneSectionVO, list:XMLList):Array<Dynamic> {
 		
-		var cameras:Array<Dynamic> = new Array<Dynamic>();
+		var cameras:Array<Dynamic> = new Array();
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
 
-			var type:String = node.@type;
-			if (type == ColladaParser.GROUP_IDENTIFIER) {
-				var vo:SceneCameraVO = new SceneCameraVO();
-				var values:SceneObjectVO = new SceneObjectVO();
-				var children:XMLList = node.children();
-				var positions:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_POSITION, children);
-				var rotations:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_ROTATION, children);
-				var extras:XMLList = (cast(node[ColladaNode.EXTRA][ColladaNode.TECHNIQUE][ColladaNode.DYNAMIC_ATTRIBUTES], XMLList)).children();
-				this.applyPosition(values, positions);
-				this.applyRotation(values, rotations);
-				vo.id = node.@id;
-				vo.name = node.@name;
-				vo.parentSection = section;
-				vo.values = values;
-				if (extras.toString() != "") {
-					vo = this.extractCameraExtras(vo, extras);
+			if (node != null) {
+				var type:String = node.@type;
+				if (type == ColladaParser.GROUP_IDENTIFIER) {
+					var vo:SceneCameraVO = new SceneCameraVO();
+					var values:SceneObjectVO = new SceneObjectVO();
+					var children:XMLList = node.children();
+					var positions:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_POSITION, children);
+					var rotations:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_ROTATION, children);
+					var extras:XMLList = (cast(node[ColladaNode.EXTRA][ColladaNode.TECHNIQUE][ColladaNode.DYNAMIC_ATTRIBUTES], XMLList)).children();
+					this.applyPosition(values, positions);
+					this.applyRotation(values, rotations);
+					vo.id = node.@id;
+					vo.name = node.@name;
+					vo.parentSection = section;
+					vo.values = values;
+					if (extras.toString() != "") {
+						vo = this.extractCameraExtras(vo, extras);
+					}
+					cameras.push(vo);
+					this.cameras.push(vo);
 				}
-				cameras.push(vo);
-				this.cameras.push(vo);
 			}
 		}
 
@@ -196,20 +204,22 @@ class ColladaParser extends AbstractParser  {
 		for (__i in 0...extras.length) {
 			var node:Xml = extras[__i];
 
-			var attribute:DynamicAttributeVO = new DynamicAttributeVO();
-			var name:String = (node.name()).toString();
-			var pair:Array<Dynamic> = name.split("_");
-			var prefix:String = pair[0];
-			var key:String = pair[1];
-			var value:String = node.toString();
-			attribute.key = key;
-			attribute.value = value;
-			switch (prefix) {
-				case ColladaParser.PREFIX_CAMERA :
-					vo.extras.push(attribute);
-					break;
-				
+			if (node != null) {
+				var attribute:DynamicAttributeVO = new DynamicAttributeVO();
+				var name:String = (node.name()).toString();
+				var pair:Array<Dynamic> = name.split("_");
+				var prefix:String = pair[0];
+				var key:String = pair[1];
+				var value:String = node.toString();
+				attribute.key = key;
+				attribute.value = value;
+				switch (prefix) {
+					case ColladaParser.PREFIX_CAMERA :
+						vo.extras.push(attribute);
+						break;
+					
 
+				}
 			}
 		}
 
@@ -218,31 +228,33 @@ class ColladaParser extends AbstractParser  {
 
 	private function extractGeometry(section:SceneSectionVO, list:XMLList):Array<Dynamic> {
 		
-		var geometry:Array<Dynamic> = new Array<Dynamic>();
+		var geometry:Array<Dynamic> = new Array();
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
 
-			var type:String = node.@type;
-			if (type == ColladaParser.GROUP_IDENTIFIER) {
-				var vo:SceneGeometryVO = new SceneGeometryVO();
-				var values:SceneObjectVO = new SceneObjectVO();
-				var children:XMLList = node.children();
-				var positions:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_POSITION, children);
-				var rotations:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_ROTATION, children);
-				var scales:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_SCALE, children);
-				var extras:XMLList = (cast(node[ColladaNode.EXTRA][ColladaNode.TECHNIQUE][ColladaNode.DYNAMIC_ATTRIBUTES], XMLList)).children();
-				this.applyPosition(values, positions);
-				this.applyRotation(values, rotations);
-				this.applyScale(values, scales);
-				vo.id = node.@id;
-				vo.name = node.@name;
-				vo.values = values;
-				vo.enabled = section.enabled;
-				if (extras.toString() != "") {
-					vo = this.extractGeometryExtras(vo, extras);
+			if (node != null) {
+				var type:String = node.@type;
+				if (type == ColladaParser.GROUP_IDENTIFIER) {
+					var vo:SceneGeometryVO = new SceneGeometryVO();
+					var values:SceneObjectVO = new SceneObjectVO();
+					var children:XMLList = node.children();
+					var positions:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_POSITION, children);
+					var rotations:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_ROTATION, children);
+					var scales:Array<Dynamic> = this.extractValues(ColladaNode.VALUE_TYPE_SCALE, children);
+					var extras:XMLList = (cast(node[ColladaNode.EXTRA][ColladaNode.TECHNIQUE][ColladaNode.DYNAMIC_ATTRIBUTES], XMLList)).children();
+					this.applyPosition(values, positions);
+					this.applyRotation(values, rotations);
+					this.applyScale(values, scales);
+					vo.id = node.@id;
+					vo.name = node.@name;
+					vo.values = values;
+					vo.enabled = section.enabled;
+					if (extras.toString() != "") {
+						vo = this.extractGeometryExtras(vo, extras);
+					}
+					geometry.push(vo);
+					this.geometry.push(vo);
 				}
-				geometry.push(vo);
-				this.geometry.push(vo);
 			}
 		}
 
@@ -254,23 +266,25 @@ class ColladaParser extends AbstractParser  {
 		for (__i in 0...extras.length) {
 			var node:Xml = extras[__i];
 
-			var attribute:DynamicAttributeVO = new DynamicAttributeVO();
-			var name:String = (node.name()).toString();
-			var pair:Array<Dynamic> = name.split("_");
-			var prefix:String = pair[0];
-			var key:String = pair[1];
-			var value:String = node.toString();
-			attribute.key = key;
-			attribute.value = value;
-			switch (prefix) {
-				case ColladaParser.PREFIX_GEOMETRY :
-					vo.geometryExtras.push(attribute);
-					break;
-				case ColladaParser.PREFIX_MATERIAL :
-					vo.materialExtras.push(attribute);
-					break;
-				
+			if (node != null) {
+				var attribute:DynamicAttributeVO = new DynamicAttributeVO();
+				var name:String = (node.name()).toString();
+				var pair:Array<Dynamic> = name.split("_");
+				var prefix:String = pair[0];
+				var key:String = pair[1];
+				var value:String = node.toString();
+				attribute.key = key;
+				attribute.value = value;
+				switch (prefix) {
+					case ColladaParser.PREFIX_GEOMETRY :
+						vo.geometryExtras.push(attribute);
+						break;
+					case ColladaParser.PREFIX_MATERIAL :
+						vo.materialExtras.push(attribute);
+						break;
+					
 
+				}
 			}
 		}
 
@@ -280,34 +294,36 @@ class ColladaParser extends AbstractParser  {
 	private function extractValues(type:String, list:XMLList):Array<Dynamic> {
 		
 		var sList:String = list.toString();
-		var positions:Array<Dynamic> = new Array<Dynamic>();
-		var rotations:Array<Dynamic> = new Array<Dynamic>();
-		var scales:Array<Dynamic> = new Array<Dynamic>();
+		var positions:Array<Dynamic> = new Array(0, 0, 0);
+		var rotations:Array<Dynamic> = new Array(0, 0, 0);
+		var scales:Array<Dynamic> = new Array(1, 1, 1);
 		var values:Array<Dynamic>;
 		if (sList != "") {
 			for (__i in 0...list.length) {
 				var node:Xml = list[__i];
 
-				var sNode:String = node.toString();
-				var sid:String = node.@sid;
-				switch (sid) {
-					case ColladaNode.TRANSLATE :
-						positions = sNode.split(" ");
-						break;
-					case ColladaNode.ROTATE_X :
-						rotations[0] = this.extractLastEntry(sNode);
-						break;
-					case ColladaNode.ROTATE_Y :
-						rotations[1] = this.extractLastEntry(sNode);
-						break;
-					case ColladaNode.ROTATE_Z :
-						rotations[2] = this.extractLastEntry(sNode);
-						break;
-					case ColladaNode.SCALE :
-						scales = sNode.split(" ");
-						break;
-					
+				if (node != null) {
+					var sNode:String = node.toString();
+					var sid:String = node.@sid;
+					switch (sid) {
+						case ColladaNode.TRANSLATE :
+							positions = sNode.split(" ");
+							break;
+						case ColladaNode.ROTATE_X :
+							rotations[0] = this.extractLastEntry(sNode);
+							break;
+						case ColladaNode.ROTATE_Y :
+							rotations[1] = this.extractLastEntry(sNode);
+							break;
+						case ColladaNode.ROTATE_Z :
+							rotations[2] = this.extractLastEntry(sNode);
+							break;
+						case ColladaNode.SCALE :
+							scales = sNode.split(" ");
+							break;
+						
 
+					}
 				}
 			}
 

@@ -441,47 +441,53 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 		primitives = tree.list();
 		turn = 0;
 		while (primitives.length > 0) {
-			var leftover:Array<Dynamic> = new Array<Dynamic>();
+			var leftover:Array<Dynamic> = new Array();
 			for (__i in 0...primitives.length) {
 				pri = primitives[__i];
 
-				check++;
-				if (check == 10) {
-					if (flash.Lib.getTimer() - start > maxdelay) {
-						return;
-					} else {
-						check = 0;
+				if (pri != null) {
+					check++;
+					if (check == 10) {
+						if (flash.Lib.getTimer() - start > maxdelay) {
+							return;
+						} else {
+							check = 0;
+						}
 					}
-				}
-				rivals = tree.get(pri, pri.source);
-				for (__i in 0...rivals.length) {
-					rival = rivals[__i];
+					rivals = tree.get(pri, pri.source);
+					for (__i in 0...rivals.length) {
+						rival = rivals[__i];
 
-					if (rival == pri) {
-						continue;
-					}
-					if (rival.minZ >= pri.maxZ) {
-						continue;
-					}
-					if (rival.maxZ <= pri.minZ) {
-						continue;
-					}
-					parts = riddle(pri, rival);
-					if (parts == null) {
-						continue;
-					}
-					tree.remove(pri);
-					for (__i in 0...parts.length) {
-						part = parts[__i];
+						if (rival != null) {
+							if (rival == pri) {
+								continue;
+							}
+							if (rival.minZ >= pri.maxZ) {
+								continue;
+							}
+							if (rival.maxZ <= pri.minZ) {
+								continue;
+							}
+							parts = riddle(pri, rival);
+							if (parts == null) {
+								continue;
+							}
+							tree.remove(pri);
+							for (__i in 0...parts.length) {
+								part = parts[__i];
 
-						if (tree.primitive(part)) {
-							leftover.push(part);
+								if (part != null) {
+									if (tree.primitive(part)) {
+										leftover.push(part);
+									}
+								}
+							}
+
+							break;
 						}
 					}
 
-					break;
 				}
-
 			}
 
 			primitives = leftover;

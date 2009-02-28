@@ -19,17 +19,17 @@ class SeaTurtle extends Mesh  {
 
 	private function v(x:Float, y:Float, z:Float):Void {
 		
-		varr.push(new Vertex());
+		varr.push(new Vertex(x, y, z));
 	}
 
 	private function uv(u:Float, v:Float):Void {
 		
-		uvarr.push(new UV());
+		uvarr.push(new UV(u, v));
 	}
 
 	private function f(vn0:Int, vn1:Int, vn2:Int, uvn0:Int, uvn1:Int, uvn2:Int):Void {
 		
-		addFace(new Face());
+		addFace(new Face(varr[vn0], varr[vn1], varr[vn2], null, uvarr[uvn0], uvarr[uvn1], uvarr[uvn2]));
 	}
 
 	public function new(?init:Dynamic=null) {

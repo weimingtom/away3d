@@ -575,63 +575,69 @@ class AnotherRivalFilter implements IPrimitiveQuadrantFilter {
 		primitives = tree.list();
 		turn = 0;
 		while (primitives.length > 0) {
-			leftover = new Array<Dynamic>();
+			leftover = new Array();
 			for (__i in 0...primitives.length) {
 				pri = primitives[__i];
 
-				check++;
-				if (check == 10) {
-					if (flash.Lib.getTimer() - start > maxdelay) {
-						return;
-					} else {
-						check = 0;
-					}
-				}
-				maxZ = pri.maxZ + 1000;
-				minZ = pri.minZ - 1000;
-				maxdeltaZ = 0;
-				rivals = tree.get(pri);
-				for (__i in 0...rivals.length) {
-					rival = rivals[__i];
-
-					if (rival == pri) {
-						continue;
-					}
-					switch (zconflict(pri, rival)) {
-						case ZOrderIrrelevant :
-						case ZOrderDeeper :
-							if (minZ < rival.screenZ) {
-								minZ = rival.screenZ;
-							}
-						case ZOrderHigher :
-							if (maxZ > rival.screenZ) {
-								maxZ = rival.screenZ;
-							}
-						
-
-					}
-				}
-
-				if (maxZ >= pri.screenZ && pri.screenZ >= minZ) {
-				} else if (maxZ >= minZ) {
-					pri.screenZ = (maxZ + minZ) / 2;
-				} else {
-					if (turn % 3 == 2) {
-						parts = pri.quarter(camera.focus);
-						if (parts == null) {
-							continue;
+				if (pri != null) {
+					check++;
+					if (check == 10) {
+						if (flash.Lib.getTimer() - start > maxdelay) {
+							return;
+						} else {
+							check = 0;
 						}
-						tree.remove(pri);
-						for (__i in 0...parts.length) {
-							part = parts[__i];
+					}
+					maxZ = pri.maxZ + 1000;
+					minZ = pri.minZ - 1000;
+					maxdeltaZ = 0;
+					rivals = tree.get(pri);
+					for (__i in 0...rivals.length) {
+						rival = rivals[__i];
 
-							if (tree.primitive(part)) {
-								leftover.push(part);
+						if (rival != null) {
+							if (rival == pri) {
+								continue;
+							}
+							switch (zconflict(pri, rival)) {
+								case ZOrderIrrelevant :
+								case ZOrderDeeper :
+									if (minZ < rival.screenZ) {
+										minZ = rival.screenZ;
+									}
+								case ZOrderHigher :
+									if (maxZ > rival.screenZ) {
+										maxZ = rival.screenZ;
+									}
+								
+
 							}
 						}
+					}
 
+					if (maxZ >= pri.screenZ && pri.screenZ >= minZ) {
+					} else if (maxZ >= minZ) {
+						pri.screenZ = (maxZ + minZ) / 2;
 					} else {
-						leftover.push(pri);
+						if (turn % 3 == 2) {
+							parts = pri.quarter(camera.focus);
+							if (parts == null) {
+								continue;
+							}
+							tree.remove(pri);
+							for (__i in 0...parts.length) {
+								part = parts[__i];
+
+								if (part != null) {
+									if (tree.primitive(part)) {
+										leftover.push(part);
+									}
+								}
+							}
+
+						} else {
+							leftover.push(pri);
+						}
 					}
 				}
 			}

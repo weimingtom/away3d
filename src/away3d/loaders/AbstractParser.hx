@@ -32,7 +32,7 @@ class AbstractParser extends EventDispatcher  {
 	public function notifyProgress():Void {
 		
 		if (_parseprogress == null) {
-			_parseprogress = new ParserEvent();
+			_parseprogress = new ParserEvent(ParserEvent.PARSE_PROGRESS, this, container);
 		}
 		dispatchEvent(_parseprogress);
 	}
@@ -41,7 +41,7 @@ class AbstractParser extends EventDispatcher  {
 	public function notifySuccess():Void {
 		
 		if (_parsesuccess == null) {
-			_parsesuccess = new ParserEvent();
+			_parsesuccess = new ParserEvent(ParserEvent.PARSE_SUCCESS, this, container);
 		}
 		dispatchEvent(_parsesuccess);
 	}
@@ -50,7 +50,7 @@ class AbstractParser extends EventDispatcher  {
 	public function notifyError():Void {
 		
 		if (_parseerror == null) {
-			_parseerror = new ParserEvent();
+			_parseerror = new ParserEvent(ParserEvent.PARSE_ERROR, this, container);
 		}
 		dispatchEvent(_parseerror);
 	}

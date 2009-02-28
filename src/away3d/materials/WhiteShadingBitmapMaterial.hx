@@ -106,12 +106,12 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 				}
 			}
 			var brightness:Float = ladder(br);
-			var bitmap:BitmapData = cache[cast brightness];
+			var bitmap:BitmapData = cache[untyped brightness];
 			if (bitmap == null) {
-				bitmap = new BitmapData();
+				bitmap = new BitmapData(_bitmap.width, _bitmap.height, true, 0x00000000);
 				colorTransform.matrix = [brightness, 0, 0, 0, 0, 0, brightness, 0, 0, 0, 0, 0, brightness, 0, 0, 0, 0, 0, 1, 0];
 				bitmap.applyFilter(_bitmap, bitmap.rect, bitmapPoint, colorTransform);
-				cache[cast brightness] = bitmap;
+				cache[untyped brightness] = bitmap;
 			}
 			session.renderTriangleBitmap(bitmap, mapping, v0, v1, v2, smooth, repeat);
 		}
@@ -164,9 +164,9 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	 */
 	public function new(bitmap:BitmapData, ?init:Dynamic=null) {
-		this._faceDictionary = new Dictionary();
+		this._faceDictionary = new Dictionary(true);
 		this.whitek = 0.2;
-		this.bitmapPoint = new Point();
+		this.bitmapPoint = new Point(0, 0);
 		this.colorTransform = new ColorMatrixFilter();
 		this.step = 1;
 		
@@ -175,10 +175,10 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 		super(init);
 		smooth = ini.getBoolean("smooth", false);
 		repeat = ini.getBoolean("repeat", false);
-		if (!CacheStore.whiteShadingCache[cast _bitmap]) {
-			CacheStore.whiteShadingCache[cast _bitmap] = new Dictionary();
+		if (!CacheStore.whiteShadingCache[untyped _bitmap]) {
+			CacheStore.whiteShadingCache[untyped _bitmap] = new Dictionary(true);
 		}
-		cache = CacheStore.whiteShadingCache[cast _bitmap];
+		cache = CacheStore.whiteShadingCache[untyped _bitmap];
 	}
 
 	public function doubleStepTo(limit:Int):Void {
@@ -190,10 +190,10 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 
 	public function getFaceMaterialVO(faceVO:FaceVO, ?source:Object3D=null, ?view:View3D=null):FaceMaterialVO {
 		
-		if (((_faceMaterialVO = _faceDictionary[cast faceVO]) != null)) {
+		if (((_faceMaterialVO = _faceDictionary[untyped faceVO]) != null)) {
 			return _faceMaterialVO;
 		}
-		return _faceDictionary[cast faceVO] = new FaceMaterialVO();
+		return _faceDictionary[untyped faceVO] = new FaceMaterialVO();
 	}
 
 	/**
@@ -203,10 +203,12 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			if (!_faceMaterialVO.cleared) {
-				_faceMaterialVO.clear();
+			if (_faceMaterialVO != null) {
+				if (!_faceMaterialVO.cleared) {
+					_faceMaterialVO.clear();
+				}
 			}
 		}
 
@@ -219,9 +221,11 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			_faceMaterialVO.invalidated = true;
+			if (_faceMaterialVO != null) {
+				_faceMaterialVO.invalidated = true;
+			}
 		}
 
 	}

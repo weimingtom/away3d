@@ -81,7 +81,7 @@ class DrawScaledBitmap extends DrawPrimitive  {
 			bottomleft.y = screenvertex.y + sinw + cosh;
 			bottomright.x = screenvertex.x + cosw + sinh;
 			bottomright.y = screenvertex.y - sinw + cosh;
-			var boundsArray:Array<Dynamic> = new Array<Dynamic>();
+			var boundsArray:Array<Dynamic> = new Array();
 			boundsArray.push(topleft);
 			boundsArray.push(topright);
 			boundsArray.push(bottomleft);
@@ -93,17 +93,19 @@ class DrawScaledBitmap extends DrawPrimitive  {
 			for (__i in 0...boundsArray.length) {
 				bounds = boundsArray[__i];
 
-				if (minX > bounds.x) {
-					minX = bounds.x;
-				}
-				if (maxX < bounds.x) {
-					maxX = bounds.x;
-				}
-				if (minY > bounds.y) {
-					minY = bounds.y;
-				}
-				if (maxY < bounds.y) {
-					maxY = bounds.y;
+				if (bounds != null) {
+					if (minX > bounds.x) {
+						minX = bounds.x;
+					}
+					if (maxX < bounds.x) {
+						maxX = bounds.x;
+					}
+					if (minY > bounds.y) {
+						minY = bounds.y;
+					}
+					if (maxY < bounds.y) {
+						maxY = bounds.y;
+					}
 				}
 			}
 
@@ -172,12 +174,12 @@ class DrawScaledBitmap extends DrawPrimitive  {
 			return true;
 		}
 		if (rotation != 0) {
-			mapping = new Matrix();
+			mapping = new Matrix(scale * cos, -scale * sin, scale * sin, scale * cos, topleft.x, topleft.y);
 		} else {
-			mapping = new Matrix();
+			mapping = new Matrix(scale, 0, 0, scale, topleft.x, topleft.y);
 		}
 		mapping.invert();
-		var p:Point = mapping.transformPoint(new Point());
+		var p:Point = mapping.transformPoint(new Point(x, y));
 		if (p.x < 0) {
 			p.x = 0;
 		}

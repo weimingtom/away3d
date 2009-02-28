@@ -79,8 +79,8 @@ class BezierPatch extends Mesh  {
 	public static inline var TOPRIGHT:Int = 2;
 	public static inline var BOTTOMLEFT:Int = 3;
 	public static inline var BOTTOMRIGHT:Int = 4;
-	private static inline var OPPOSITE_OR:Array<Dynamic> = new Array<Dynamic>();
-	private static inline var SCALINGS:Array<Dynamic> = new Array<Dynamic>();
+	private static inline var OPPOSITE_OR:Array<Dynamic> = new Array();
+	private static inline var SCALINGS:Array<Dynamic> = new Array();
 	private var uva:UV;
 	private var uvb:UV;
 	private var uvc:UV;
@@ -111,7 +111,7 @@ class BezierPatch extends Mesh  {
 	 */
 	public function new(patchDataPrm:PatchData, ?init:Dynamic=null) {
 		this._patchVertices = new Dictionary();
-		this._gen = new Array<Dynamic>();
+		this._gen = new Array();
 		this.vx0 = new Vertex();
 		this.vx1 = new Vertex();
 		this.vx2 = new Vertex();
@@ -158,7 +158,7 @@ class BezierPatch extends Mesh  {
 		
 		var start:Int = flash.Lib.getTimer();
 		_patchVertices = new Dictionary();
-		_edgeCache = new Array<Dynamic>();
+		_edgeCache = new Array();
 		geometry = new Geometry();
 		// Iterate through all the items in the patch array
 		var key:String;
@@ -189,39 +189,41 @@ class BezierPatch extends Mesh  {
 		for (__i in 0...[1, 2, 4, 8, 16, 32, 64, 128].length) {
 			var orientation:Int = [1, 2, 4, 8, 16, 32, 64, 128][__i];
 
-			if ((or & orientation) > 0) {
-				var xOr:Bool = ((orientation & X) | (orientation & XY) | (orientation & XZ) | (orientation & XYZ)) > 0;
-				var yOr:Bool = ((orientation & Y) | (orientation & XY) | (orientation & YZ) | (orientation & XYZ)) > 0;
-				var zOr:Bool = ((orientation & Z) | (orientation & YZ) | (orientation & XZ) | (orientation & XYZ)) > 0;
-				var xS:Float = (xOr ? -1 : 1);
-				var yS:Float = (yOr ? -1 : 1);
-				var zS:Float = (zOr ? -1 : 1);
-				// Iterate through each key in the object
-				var i:Int = 0;
-				while (i < Reflect.field(patchData.nodes, key).length) {
-					var vA:Array<Dynamic> = Reflect.field(patchData.nodes, key);
-					var v0:Vertex = new Vertex();
-					var v1:Vertex = new Vertex();
-					var v2:Vertex = new Vertex();
-					var v3:Vertex = new Vertex();
-					addSegment(new Segment());
-					addSegment(new Segment());
-					addSegment(new Segment());
-					if (i + 4 < Reflect.field(patchData.nodes, key).length) {
-						var v4:Vertex = new Vertex();
-						var v5:Vertex = new Vertex();
-						var v6:Vertex = new Vertex();
-						var v7:Vertex = new Vertex();
-						addSegment(new Segment());
-						addSegment(new Segment());
-						addSegment(new Segment());
-						addSegment(new Segment());
+			if (orientation != null) {
+				if ((or & orientation) > 0) {
+					var xOr:Bool = ((orientation & X) | (orientation & XY) | (orientation & XZ) | (orientation & XYZ)) > 0;
+					var yOr:Bool = ((orientation & Y) | (orientation & XY) | (orientation & YZ) | (orientation & XYZ)) > 0;
+					var zOr:Bool = ((orientation & Z) | (orientation & YZ) | (orientation & XZ) | (orientation & XYZ)) > 0;
+					var xS:Float = (xOr ? -1 : 1);
+					var yS:Float = (yOr ? -1 : 1);
+					var zS:Float = (zOr ? -1 : 1);
+					// Iterate through each key in the object
+					var i:Int = 0;
+					while (i < Reflect.field(patchData.nodes, key).length) {
+						var vA:Array<Dynamic> = Reflect.field(patchData.nodes, key);
+						var v0:Vertex = new Vertex((patchData.vertices[vA[i]].x + xOffset) * xS, (patchData.vertices[vA[i]].y + yOffset) * yS, (patchData.vertices[vA[i]].z + zOffset) * zS);
+						var v1:Vertex = new Vertex((patchData.vertices[vA[i + 1]].x + xOffset) * xS, (patchData.vertices[vA[i + 1]].y + yOffset) * yS, (patchData.vertices[vA[i + 1]].z + zOffset) * zS);
+						var v2:Vertex = new Vertex((patchData.vertices[vA[i + 2]].x + xOffset) * xS, (patchData.vertices[vA[i + 2]].y + yOffset) * yS, (patchData.vertices[vA[i + 2]].z + zOffset) * zS);
+						var v3:Vertex = new Vertex((patchData.vertices[vA[i + 3]].x + xOffset) * xS, (patchData.vertices[vA[i + 3]].y + yOffset) * yS, (patchData.vertices[vA[i + 3]].z + zOffset) * zS);
+						addSegment(new Segment(v0, v1));
+						addSegment(new Segment(v1, v2));
+						addSegment(new Segment(v2, v3));
+						if (i + 4 < Reflect.field(patchData.nodes, key).length) {
+							var v4:Vertex = new Vertex((patchData.vertices[vA[i + 4]].x + xOffset) * xS, (patchData.vertices[vA[i + 4]].y + yOffset) * yS, (patchData.vertices[vA[i + 4]].z + zOffset) * zS);
+							var v5:Vertex = new Vertex((patchData.vertices[vA[i + 5]].x + xOffset) * xS, (patchData.vertices[vA[i + 5]].y + yOffset) * yS, (patchData.vertices[vA[i + 5]].z + zOffset) * zS);
+							var v6:Vertex = new Vertex((patchData.vertices[vA[i + 6]].x + xOffset) * xS, (patchData.vertices[vA[i + 6]].y + yOffset) * yS, (patchData.vertices[vA[i + 6]].z + zOffset) * zS);
+							var v7:Vertex = new Vertex((patchData.vertices[vA[i + 7]].x + xOffset) * xS, (patchData.vertices[vA[i + 7]].y + yOffset) * yS, (patchData.vertices[vA[i + 7]].z + zOffset) * zS);
+							addSegment(new Segment(v0, v4));
+							addSegment(new Segment(v1, v5));
+							addSegment(new Segment(v2, v6));
+							addSegment(new Segment(v3, v7));
+						}
+						
+						// update loop variables
+						i += 4;
 					}
-					
-					// update loop variables
-					i += 4;
-				}
 
+				}
 			}
 		}
 
@@ -257,90 +259,92 @@ class BezierPatch extends Mesh  {
 					for (__i in 0...[1, 2, 4, 8, 16, 32, 64, 128].length) {
 						orientation = [1, 2, 4, 8, 16, 32, 64, 128][__i];
 
-						thisOr = Reflect.field(_pI, key).oOr & orientation;
-						// If we have the correct orientation proceed
-						if (thisOr > 0) {
-							var hasUVs:Bool = false;
-							var xOr:Bool = ((orientation & X) | (orientation & XY) | (orientation & XZ) | (orientation & XYZ)) > 0;
-							var yOr:Bool = ((orientation & Y) | (orientation & XY) | (orientation & YZ) | (orientation & XYZ)) > 0;
-							var zOr:Bool = ((orientation & Z) | (orientation & YZ) | (orientation & XZ) | (orientation & XYZ)) > 0;
-							// Decide on the direction of the normals for the faces
-							_normDir = ((((xOr ? 1 : 0) + (yOr ? 1 : 0) + (zOr ? 1 : 0)) % 2) > 0);
-							// Only add faces to the patch when not top or left edge (y=0 & x=0)
-							if (x > 0 && y > 0) {
-								u1 = v1 = u2 = v2 = 1;
-								if ((patchData.uvs != null) && (Reflect.field(patchData.uvs, key) != null)) {
-									if ((Reflect.field(patchData.uvs, key)[thisOr] != null)) {
-										u1 = pUV[thisOr][p][0];
-										v1 = pUV[thisOr][p][1];
-										u2 = pUV[thisOr][p][2];
-										v2 = pUV[thisOr][p][3];
-									} else if ((Reflect.field(patchData.uvs, key)[p] != null)) {
-										u1 = pUV[p][0];
-										v1 = pUV[p][1];
-										u2 = pUV[p][2];
-										v2 = pUV[p][3];
+						if (orientation != null) {
+							thisOr = Reflect.field(_pI, key).oOr & orientation;
+							// If we have the correct orientation proceed
+							if (thisOr > 0) {
+								var hasUVs:Bool = false;
+								var xOr:Bool = ((orientation & X) | (orientation & XY) | (orientation & XZ) | (orientation & XYZ)) > 0;
+								var yOr:Bool = ((orientation & Y) | (orientation & XY) | (orientation & YZ) | (orientation & XYZ)) > 0;
+								var zOr:Bool = ((orientation & Z) | (orientation & YZ) | (orientation & XZ) | (orientation & XYZ)) > 0;
+								// Decide on the direction of the normals for the faces
+								_normDir = ((((xOr ? 1 : 0) + (yOr ? 1 : 0) + (zOr ? 1 : 0)) % 2) > 0);
+								// Only add faces to the patch when not top or left edge (y=0 & x=0)
+								if (x > 0 && y > 0) {
+									u1 = v1 = u2 = v2 = 1;
+									if ((patchData.uvs != null) && (Reflect.field(patchData.uvs, key) != null)) {
+										if ((Reflect.field(patchData.uvs, key)[thisOr] != null)) {
+											u1 = pUV[thisOr][p][0];
+											v1 = pUV[thisOr][p][1];
+											u2 = pUV[thisOr][p][2];
+											v2 = pUV[thisOr][p][3];
+										} else if ((Reflect.field(patchData.uvs, key)[p] != null)) {
+											u1 = pUV[p][0];
+											v1 = pUV[p][1];
+											u2 = pUV[p][2];
+											v2 = pUV[p][3];
+										}
+										if (_normDir) {
+											u2Pos = ((u1 - u2) * (x / Reflect.field(_pI, key).oSegW)) + u2;
+											v2Pos = ((v2 - v1) * (y / Reflect.field(_pI, key).oSegH)) + v1;
+											u1Pos = u2Pos - ((u1 - u2) * Reflect.field(_pI, key).xStp);
+											v1Pos = v2Pos - ((v2 - v1) * Reflect.field(_pI, key).yStp);
+											// Set up the UVs
+											uva = new UV(u2Pos, 1 - v1Pos);
+											uvb = new UV(u2Pos, 1 - v2Pos);
+											uvc = new UV(u1Pos, 1 - v2Pos);
+											uvd = new UV(u1Pos, 1 - v1Pos);
+										} else {
+											u2Pos = ((u2 - u1) * (x / Reflect.field(_pI, key).oSegW)) + u1;
+											v2Pos = ((v2 - v1) * (y / Reflect.field(_pI, key).oSegH)) + v1;
+											u1Pos = u2Pos - ((u2 - u1) * Reflect.field(_pI, key).xStp);
+											v1Pos = v2Pos - ((v2 - v1) * Reflect.field(_pI, key).yStp);
+											// Set up the UVs
+											uva = new UV(u2Pos, 1 - v2Pos);
+											uvb = new UV(u2Pos, 1 - v1Pos);
+											uvc = new UV(u1Pos, 1 - v1Pos);
+											uvd = new UV(u1Pos, 1 - v2Pos);
+										}
 									}
+									// Get the stored vertices and switch face normal as necessary
+									vx0 = _gen[p][y - 1][x][orientation];
+									vx1 = _gen[p][y][x - 1][orientation];
+									vx2 = _gen[p][y - 1][x - 1][orientation];
+									vx3 = _gen[p][y][x][orientation];
+									_patchVertices[untyped vx0] = [key, p, y - 1, x, orientation];
+									_patchVertices[untyped vx1] = [key, p, y, x - 1, orientation];
+									_patchVertices[untyped vx2] = [key, p, y - 1, x - 1, orientation];
+									_patchVertices[untyped vx3] = [key, p, y, x, orientation];
+									// Add faces based on normal and if the vertices do not shared
 									if (_normDir) {
-										u2Pos = ((u1 - u2) * (x / Reflect.field(_pI, key).oSegW)) + u2;
-										v2Pos = ((v2 - v1) * (y / Reflect.field(_pI, key).oSegH)) + v1;
-										u1Pos = u2Pos - ((u1 - u2) * Reflect.field(_pI, key).xStp);
-										v1Pos = v2Pos - ((v2 - v1) * Reflect.field(_pI, key).yStp);
-										// Set up the UVs
-										uva = new UV();
-										uvb = new UV();
-										uvc = new UV();
-										uvd = new UV();
+										if (vx0 != vx1 && vx0 != vx3 && vx1 != vx3) {
+											addFace(new Face(vx0, vx3, vx1, _material, uva, uvb, uvc));
+										}
+										if (vx0 != vx1 && vx0 != vx2 && vx1 != vx2) {
+											addFace(new Face(vx0, vx1, vx2, _material, uva, uvc, uvd));
+										}
 									} else {
-										u2Pos = ((u2 - u1) * (x / Reflect.field(_pI, key).oSegW)) + u1;
-										v2Pos = ((v2 - v1) * (y / Reflect.field(_pI, key).oSegH)) + v1;
-										u1Pos = u2Pos - ((u2 - u1) * Reflect.field(_pI, key).xStp);
-										v1Pos = v2Pos - ((v2 - v1) * Reflect.field(_pI, key).yStp);
-										// Set up the UVs
-										uva = new UV();
-										uvb = new UV();
-										uvc = new UV();
-										uvd = new UV();
+										if (vx0 != vx1 && vx0 != vx3 && vx1 != vx3) {
+											addFace(new Face(vx0, vx1, vx3, _material, uvb, uvd, uva));
+										}
+										if (vx0 != vx1 && vx0 != vx2 && vx1 != vx2) {
+											addFace(new Face(vx0, vx2, vx1, _material, uvb, uvc, uvd));
+										}
 									}
 								}
-								// Get the stored vertices and switch face normal as necessary
-								vx0 = _gen[p][y - 1][x][orientation];
-								vx1 = _gen[p][y][x - 1][orientation];
-								vx2 = _gen[p][y - 1][x - 1][orientation];
-								vx3 = _gen[p][y][x][orientation];
-								_patchVertices[cast vx0] = [key, p, y - 1, x, orientation];
-								_patchVertices[cast vx1] = [key, p, y, x - 1, orientation];
-								_patchVertices[cast vx2] = [key, p, y - 1, x - 1, orientation];
-								_patchVertices[cast vx3] = [key, p, y, x, orientation];
-								// Add faces based on normal and if the vertices do not shared
-								if (_normDir) {
-									if (vx0 != vx1 && vx0 != vx3 && vx1 != vx3) {
-										addFace(new Face());
-									}
-									if (vx0 != vx1 && vx0 != vx2 && vx1 != vx2) {
-										addFace(new Face());
-									}
-								} else {
-									if (vx0 != vx1 && vx0 != vx3 && vx1 != vx3) {
-										addFace(new Face());
-									}
-									if (vx0 != vx1 && vx0 != vx2 && vx1 != vx2) {
-										addFace(new Face());
-									}
+								// Connect along the edges in the defined direction
+								if (Reflect.field(_pI, key).oCL > 0) {
+									connectEdge(pUV, X, key, p, x, y, 0, _normDir, orientation, Reflect.field(_pI, key).oCL, L);
 								}
-							}
-							// Connect along the edges in the defined direction
-							if (Reflect.field(_pI, key).oCL > 0) {
-								connectEdge(pUV, X, key, p, x, y, 0, _normDir, orientation, Reflect.field(_pI, key).oCL, L);
-							}
-							if (Reflect.field(_pI, key).oCR > 0) {
-								connectEdge(pUV, X, key, p, x, y, Reflect.field(_pI, key).oSegW, !_normDir, orientation, Reflect.field(_pI, key).oCR, R);
-							}
-							if (Reflect.field(_pI, key).oCT > 0) {
-								connectEdge(pUV, Y, key, p, x, y, 0, !_normDir, orientation, Reflect.field(_pI, key).oCT, T);
-							}
-							if (Reflect.field(_pI, key).oCB > 0) {
-								connectEdge(pUV, Y, key, p, x, y, Reflect.field(_pI, key).oSegH, _normDir, orientation, Reflect.field(_pI, key).oCB, B);
+								if (Reflect.field(_pI, key).oCR > 0) {
+									connectEdge(pUV, X, key, p, x, y, Reflect.field(_pI, key).oSegW, !_normDir, orientation, Reflect.field(_pI, key).oCR, R);
+								}
+								if (Reflect.field(_pI, key).oCT > 0) {
+									connectEdge(pUV, Y, key, p, x, y, 0, !_normDir, orientation, Reflect.field(_pI, key).oCT, T);
+								}
+								if (Reflect.field(_pI, key).oCB > 0) {
+									connectEdge(pUV, Y, key, p, x, y, Reflect.field(_pI, key).oSegH, _normDir, orientation, Reflect.field(_pI, key).oCB, B);
+								}
 							}
 						}
 					}
@@ -370,24 +374,26 @@ class BezierPatch extends Mesh  {
 		var xCtr:Int = 0;
 		var yCtr:Int = 0;
 		var thisOr:Int = 0;
-		_gen[p] = new Array<Dynamic>();
+		_gen[p] = new Array();
 		// Generate mesh for base patch and apply to the other orientations and store
 		var yPos:Float = 0;
 		while (yPos <= 1 + (Reflect.field(_pI, key).yStp / 2)) {
-			_gen[p][yCtr] = new Array<Dynamic>();
+			_gen[p][yCtr] = new Array();
 			xCtr = 0;
 			var xPos:Float = 0;
 			while (xPos <= 1 + (Reflect.field(_pI, key).xStp / 2)) {
-				_gen[p][yCtr][xCtr] = new Array<Dynamic>();
+				_gen[p][yCtr][xCtr] = new Array();
 				for (__i in 0...[1, 2, 4, 8, 16, 32, 64, 128].length) {
 					var orientation:Int = [1, 2, 4, 8, 16, 32, 64, 128][__i];
 
-					thisOr = Reflect.field(_pI, key).oOr & orientation;
-					if (thisOr > 0) {
-						_gen[p][yCtr][xCtr][orientation] = vScaleXYZ(Reflect.field(patchData.generatedPatch, key)[p][yCtr][xCtr], xPos, yPos, SCALINGS[orientation][0], SCALINGS[orientation][1], SCALINGS[orientation][2]);
-						// Cache the edges for re-use later
-						if (xPos == 0 || yPos == 0 || (Math.round(xPos * resol) / resol) == 1 || (Math.round(yPos * resol) / resol) >= 1) {
-							_edgeCache.push(_gen[p][yCtr][xCtr][orientation]);
+					if (orientation != null) {
+						thisOr = Reflect.field(_pI, key).oOr & orientation;
+						if (thisOr > 0) {
+							_gen[p][yCtr][xCtr][orientation] = vScaleXYZ(Reflect.field(patchData.generatedPatch, key)[p][yCtr][xCtr], xPos, yPos, SCALINGS[orientation][0], SCALINGS[orientation][1], SCALINGS[orientation][2]);
+							// Cache the edges for re-use later
+							if (xPos == 0 || yPos == 0 || (Math.round(xPos * resol) / resol) == 1 || (Math.round(yPos * resol) / resol) >= 1) {
+								_edgeCache.push(_gen[p][yCtr][xCtr][orientation]);
+							}
 						}
 					}
 				}
@@ -430,14 +436,16 @@ class BezierPatch extends Mesh  {
 				for (__i in 0...vertices.length) {
 					v = vertices[__i];
 
-					pId = _patchVertices[cast v][cast 1];
-					yId = _patchVertices[cast v][cast 2];
-					xId = _patchVertices[cast v][cast 3];
-					orId = _patchVertices[cast v][cast 4];
-					v.x = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].x;
-					v.y = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].y;
-					v.z = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].z;
-					vRescaleXYZ(v, SCALINGS[orId][0], SCALINGS[orId][1], SCALINGS[orId][2]);
+					if (v != null) {
+						pId = _patchVertices[untyped v][untyped 1];
+						yId = _patchVertices[untyped v][untyped 2];
+						xId = _patchVertices[untyped v][untyped 3];
+						orId = _patchVertices[untyped v][untyped 4];
+						v.x = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].x;
+						v.y = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].y;
+						v.z = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].z;
+						vRescaleXYZ(v, SCALINGS[orId][0], SCALINGS[orId][1], SCALINGS[orId][2]);
+					}
 				}
 
 				
@@ -484,12 +492,12 @@ class BezierPatch extends Mesh  {
 				u1Pos = u2Pos - ((u2 - u1) * Reflect.field(_pI, key).yStp);
 			}
 			// Set up the UVs
-			uva = new UV();
-			uvb = new UV();
-			uvc = new UV();
-			uvd = new UV();
-			addFace(new Face());
-			addFace(new Face());
+			uva = new UV(u2Pos, 1 - v1);
+			uvb = new UV(u2Pos, 1 - v2);
+			uvc = new UV(u1Pos, 1 - v2);
+			uvd = new UV(u1Pos, 1 - v1);
+			addFace(new Face(vx0, vx3, vx1, _material, uva, uvd, uvc));
+			addFace(new Face(vx0, vx1, vx2, _material, uva, uvc, uvb));
 		}
 		// Connect along y==0 for the top connection or y=o.segmentsH for bottom
 		if (edge == Y && x > 0 && y == pos && oppOr > 0) {
@@ -515,12 +523,12 @@ class BezierPatch extends Mesh  {
 				u1Pos = u2Pos - ((u2 - u1) * Reflect.field(_pI, key).xStp);
 			}
 			// Set up the UVs
-			uva = new UV();
-			uvb = new UV();
-			uvc = new UV();
-			uvd = new UV();
-			addFace(new Face());
-			addFace(new Face());
+			uva = new UV(u2Pos, 1 - v2);
+			uvb = new UV(u2Pos, 1 - v1);
+			uvc = new UV(u1Pos, 1 - v1);
+			uvd = new UV(u1Pos, 1 - v2);
+			addFace(new Face(vx0, vx3, vx1, _material, uva, uvd, uvc));
+			addFace(new Face(vx0, vx1, vx2, _material, uva, uvc, uvb));
 		}
 	}
 
@@ -529,50 +537,52 @@ class BezierPatch extends Mesh  {
 		for (__i in 0...fillPoints.length) {
 			var vData:Array<Dynamic> = fillPoints[__i];
 
-			var vId:Int = vData[0];
-			var vOr:Array<Dynamic> = vData[1];
-			var x:Int;
-			var y:Int;
-			switch (vId) {
-				case TOPLEFT :
-					x = 0;
-					y = 0;
-				case TOPRIGHT :
-					x = segW;
-					y = 0;
-				case BOTTOMLEFT :
-					x = 0;
-					y = segH;
-				case BOTTOMRIGHT :
-					x = segW;
-					y = segH;
-				
+			if (vData != null) {
+				var vId:Int = vData[0];
+				var vOr:Array<Dynamic> = vData[1];
+				var x:Int;
+				var y:Int;
+				switch (vId) {
+					case TOPLEFT :
+						x = 0;
+						y = 0;
+					case TOPRIGHT :
+						x = segW;
+						y = 0;
+					case BOTTOMLEFT :
+						x = 0;
+						y = segH;
+					case BOTTOMRIGHT :
+						x = segW;
+						y = segH;
+					
 
-			}
-			vx0 = _gen[p][y][x][vOr[0]];
-			vx1 = _gen[p][y][x][vOr[1]];
-			vx2 = _gen[p][y][x][vOr[2]];
-			vx3 = _gen[p][y][x][vOr[3]];
-			if ((vx0 != null) && (vx1 != null) && (vx2 != null) && (vx3 != null)) {
-				u1 = v1 = 0;
-				u2 = v2 = 1;
-				if ((pUV != null)) {
-					if ((pUV[vOr] != null)) {
-						u1 = pUV[vOr][p][0];
-						v1 = pUV[vOr][p][1];
-						u2 = pUV[vOr][p][2];
-						v2 = pUV[vOr][p][3];
-					}
-					// Set up the UVs
-					uva = new UV();
-					uvb = new UV();
-					uvc = new UV();
-					uvd = new UV();
 				}
-				addFace(new Face());
-				addFace(new Face());
-			} else {
-				trace("BezierPatch Error-fillPatchMirrorHoles: Incorrect orientations defined for this hole fill");
+				vx0 = _gen[p][y][x][vOr[0]];
+				vx1 = _gen[p][y][x][vOr[1]];
+				vx2 = _gen[p][y][x][vOr[2]];
+				vx3 = _gen[p][y][x][vOr[3]];
+				if ((vx0 != null) && (vx1 != null) && (vx2 != null) && (vx3 != null)) {
+					u1 = v1 = 0;
+					u2 = v2 = 1;
+					if ((pUV != null)) {
+						if ((pUV[vOr] != null)) {
+							u1 = pUV[vOr][p][0];
+							v1 = pUV[vOr][p][1];
+							u2 = pUV[vOr][p][2];
+							v2 = pUV[vOr][p][3];
+						}
+						// Set up the UVs
+						uva = new UV(u2, 1 - v2);
+						uvb = new UV(u2, 1 - v1);
+						uvc = new UV(u1, 1 - v1);
+						uvd = new UV(u1, 1 - v2);
+					}
+					addFace(new Face(vx0, vx3, vx1, _material, uva, uvb, uvc));
+					addFace(new Face(vx0, vx1, vx2, _material, uva, uvc, uvd));
+				} else {
+					trace("BezierPatch Error-fillPatchMirrorHoles: Incorrect orientations defined for this hole fill");
+				}
 			}
 		}
 
@@ -581,13 +591,15 @@ class BezierPatch extends Mesh  {
 	// Scale a Vertex and apply an x, y or z offset for a new vertex or a closely matching one
 	private function vScaleXYZ(v:Vertex, x:Float, y:Float, xS:Float, yS:Float, zS:Float):Vertex {
 		
-		var sV:Vertex = new Vertex();
+		var sV:Vertex = new Vertex(Math.round(((v.x * xS) + (xOffset * xS)) * resol) / resol, Math.round(((v.y * yS) + (yOffset * yS)) * resol) / resol, Math.round(((v.z * zS) + (zOffset * zS)) * resol) / resol);
 		if (x == 0 || (Math.round(x * resol) / resol) == 1 || y == 0 || (Math.round(y * resol) / resol) == 1) {
 			for (__i in 0..._edgeCache.length) {
 				var cV:Vertex = _edgeCache[__i];
 
-				if (sV.x == cV.x && sV.y == cV.y && sV.z == cV.z) {
-					return cV;
+				if (cV != null) {
+					if (sV.x == cV.x && sV.y == cV.y && sV.z == cV.z) {
+						return cV;
+					}
 				}
 			}
 

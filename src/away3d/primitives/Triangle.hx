@@ -22,9 +22,9 @@ class Triangle extends Mesh  {
 		
 		var s3:Float = 1 / Math.sqrt(3);
 		if (yUp) {
-			_face = new Face();
+			_face = new Face(new Vertex(0, 0, 2 * s3 * edge), new Vertex(edge, 0, -s3 * edge), new Vertex(-edge, 0, -s3 * edge), null, new UV(0, 0), new UV(1, 0), new UV(0, 1));
 		} else {
-			_face = new Face();
+			_face = new Face(new Vertex(0, 2 * s3 * edge, 0), new Vertex(edge, -s3 * edge, 0), new Vertex(-edge, -s3 * edge, 0), null, new UV(0, 0), new UV(1, 0), new UV(0, 1));
 		}
 		addFace(_face);
 		type = "Triangle";

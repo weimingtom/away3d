@@ -22,7 +22,7 @@ class CRC32  {
 	/** Make the table for a fast CRC. */
 	private static function makeCrcTable():Array<Dynamic> {
 		
-		var crcTable:Array<Dynamic> = new Array<Dynamic>();
+		var crcTable:Array<Dynamic> = new Array(256);
 		var n:Int = 0;
 		while (n < 256) {
 			var c:Int = n;

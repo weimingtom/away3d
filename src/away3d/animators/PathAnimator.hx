@@ -107,8 +107,8 @@ class PathAnimator extends EventDispatcher  {
 		this._rotatedOffset = new Number3D();
 		this._position = new Number3D();
 		this._lastSegment = 0;
-		this._worldAxis = new Number3D();
-		this._basePosition = new Number3D();
+		this._worldAxis = new Number3D(0, 1, 0);
+		this._basePosition = new Number3D(0, 0, 0);
 		
 		
 		_path = path;
@@ -538,7 +538,7 @@ class PathAnimator extends EventDispatcher  {
 		
 		_lasttime = 0;
 		_bCycle = true;
-		_eCycle = new PathEvent();
+		_eCycle = new PathEvent(PathEvent.CYCLE, this);
 		this.addEventListener(PathEvent.CYCLE, listener, false, 0, false);
 	}
 
@@ -564,7 +564,7 @@ class PathAnimator extends EventDispatcher  {
 		_from = from;
 		_to = to;
 		_bRange = true;
-		_eRange = new PathEvent();
+		_eRange = new PathEvent(PathEvent.RANGE, this);
 		this.addEventListener(PathEvent.RANGE, listener, false, 0, false);
 	}
 
@@ -591,7 +591,7 @@ class PathAnimator extends EventDispatcher  {
 		
 		_bSegment = true;
 		_lastSegment = 0;
-		_eSeg = new PathEvent();
+		_eSeg = new PathEvent(PathEvent.CHANGE_SEGMENT, this);
 		this.addEventListener(PathEvent.CHANGE_SEGMENT, listener, false, 0, false);
 	}
 

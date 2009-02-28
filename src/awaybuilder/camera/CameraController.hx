@@ -155,8 +155,8 @@ class CameraController extends AbstractCameraController, implements ICameraContr
 
 	private function animateCamera(vo:SceneCameraVO):Void {
 		
-		var init:Dynamic = new Dynamic();
-		var cameraEvent:CameraEvent = new CameraEvent();
+		var init:Dynamic = new Object();
+		var cameraEvent:CameraEvent = new CameraEvent(CameraEvent.ANIMATION_START);
 		CoordinateCopy.position(this.target, init);
 		CoordinateCopy.rotation(this.target, init);
 		switch (this.animationControl) {
@@ -182,7 +182,7 @@ class CameraController extends AbstractCameraController, implements ICameraContr
 		switch (this.update) {
 			case SceneUpdate.MANUAL :
 			case SceneUpdate.ON_CAMERA_UPDATE :
-				this.dispatchEvent(new SceneEvent());
+				this.dispatchEvent(new SceneEvent(SceneEvent.RENDER));
 			
 
 		}
@@ -190,11 +190,11 @@ class CameraController extends AbstractCameraController, implements ICameraContr
 
 	private function cameraComplete():Void {
 		
-		var cameraEvent:CameraEvent = new CameraEvent();
+		var cameraEvent:CameraEvent = new CameraEvent(CameraEvent.ANIMATION_COMPLETE);
 		this.copyCoordinates(this.target, this.camera);
 		//this.animating = false ;
 		cameraEvent.targetCamera = this.targetCamera;
-		this.dispatchEvent(new SceneEvent());
+		this.dispatchEvent(new SceneEvent(SceneEvent.RENDER));
 		this.dispatchEvent(cameraEvent);
 	}
 

@@ -127,8 +127,8 @@ class MeshProjector implements IPrimitiveProvider {
 		if (_backmat == null)  {
 			_backmat = _faceMaterial;
 		};
-		_clippedFaceVOs = new Array<Dynamic>();
-		if (_cameraVarsStore.nodeClassificationDictionary[cast source] == Frustum.INTERSECT) {
+		_clippedFaceVOs = new Array();
+		if (_cameraVarsStore.nodeClassificationDictionary[untyped source] == Frustum.INTERSECT) {
 			_clipFaceVOs = true;
 		} else {
 			_clipFaceVOs = false;
@@ -137,80 +137,84 @@ class MeshProjector implements IPrimitiveProvider {
 		for (__i in 0..._faces.length) {
 			_face = _faces[__i];
 
-			if (!_face.visible) {
-				continue;
-			}
-			//check if a face needs clipping
-			if (_clipFaceVOs) {
-				_clipping.checkFace(_face.faceVO, source, _clippedFaceVOs);
-			} else {
-				_clippedFaceVOs.push(_face.faceVO);
+			if (_face != null) {
+				if (!_face.visible) {
+					continue;
+				}
+				//check if a face needs clipping
+				if (_clipFaceVOs) {
+					_clipping.checkFace(_face.faceVO, source, _clippedFaceVOs);
+				} else {
+					_clippedFaceVOs.push(_face.faceVO);
+				}
 			}
 		}
 
 		for (__i in 0..._clippedFaceVOs.length) {
 			_faceVO = _clippedFaceVOs[__i];
 
-			_sv0 = _lens.project(viewTransform, _faceVO.v0);
-			_sv1 = _lens.project(viewTransform, _faceVO.v1);
-			_sv2 = _lens.project(viewTransform, _faceVO.v2);
-			if (!_sv0.visible || !_sv1.visible || !_sv2.visible) {
-				continue;
-			}
-			_face = _faceVO.face;
-			_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
-			//determine if _triangle is facing towards or away from camera
-			_backface = _tri.backface = _tri.area < 0;
-			//if _triangle facing away, check for backface material
-			if (_backface) {
-				if (!_mesh.bothsides) {
+			if (_faceVO != null) {
+				_sv0 = _lens.project(viewTransform, _faceVO.v0);
+				_sv1 = _lens.project(viewTransform, _faceVO.v1);
+				_sv2 = _lens.project(viewTransform, _faceVO.v2);
+				if (!_sv0.visible || !_sv1.visible || !_sv2.visible) {
 					continue;
 				}
-				_tri.material = _faceVO.back;
-				if (!_tri.material) {
+				_face = _faceVO.face;
+				_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
+				//determine if _triangle is facing towards or away from camera
+				_backface = _tri.backface = _tri.area < 0;
+				//if _triangle facing away, check for backface material
+				if (_backface) {
+					if (!_mesh.bothsides) {
+						continue;
+					}
+					_tri.material = _faceVO.back;
+					if (!_tri.material) {
+						_tri.material = _faceVO.material;
+					}
+				} else {
 					_tri.material = _faceVO.material;
 				}
-			} else {
-				_tri.material = _faceVO.material;
-			}
-			//determine the material of the _triangle
-			if (!_tri.material) {
-				if (_backface) {
-					_tri.material = _backmat;
-				} else {
-					_tri.material = _faceMaterial;
+				//determine the material of the _triangle
+				if (!_tri.material) {
+					if (_backface) {
+						_tri.material = _backmat;
+					} else {
+						_tri.material = _faceMaterial;
+					}
 				}
-			}
-			//do not draw material if visible is false
-			if (_tri.material && !_tri.material.visible) {
-				_tri.material = null;
-			}
-			//if there is no material and no outline, continue
-			if (!_mesh.outline && !_tri.material) {
-				continue;
-			}
-			//check whether screenClipping removes triangle
-			if (!consumer.primitive(_tri)) {
-				continue;
-			}
-			if (_mesh.pushback) {
-				_tri.screenZ = _tri.maxZ;
-			}
-			if (_mesh.pushfront) {
-				_tri.screenZ = _tri.minZ;
-			}
-			if (_mesh.outline && !_backface) {
-				_n01 = _mesh.geometry.neighbour01(_face);
-				if (_n01 == null || front(_n01, viewTransform) <= 0) {
-					consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v0, _tri.v1));
+				//do not draw material if visible is false
+				if (_tri.material && !_tri.material.visible) {
+					_tri.material = null;
 				}
-				_n12 = _mesh.geometry.neighbour12(_face);
-				if (_n12 == null || front(_n12, viewTransform) <= 0) {
-					consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v1, _tri.v2));
+				//if there is no material and no outline, continue
+				if (!_mesh.outline && !_tri.material) {
+					continue;
 				}
-				_n20 = _mesh.geometry.neighbour20(_face);
-				if (_n20 == null || front(_n20, viewTransform) <= 0) {
-					consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v2, _tri.v0));
+				//check whether screenClipping removes triangle
+				if (!consumer.primitive(_tri)) {
+					continue;
+				}
+				if (_mesh.pushback) {
+					_tri.screenZ = _tri.maxZ;
+				}
+				if (_mesh.pushfront) {
+					_tri.screenZ = _tri.minZ;
+				}
+				if (_mesh.outline && !_backface) {
+					_n01 = _mesh.geometry.neighbour01(_face);
+					if (_n01 == null || front(_n01, viewTransform) <= 0) {
+						consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v0, _tri.v1));
+					}
+					_n12 = _mesh.geometry.neighbour12(_face);
+					if (_n12 == null || front(_n12, viewTransform) <= 0) {
+						consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v1, _tri.v2));
+					}
+					_n20 = _mesh.geometry.neighbour20(_face);
+					if (_n20 == null || front(_n20, viewTransform) <= 0) {
+						consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v2, _tri.v0));
+					}
 				}
 			}
 		}
@@ -219,40 +223,44 @@ class MeshProjector implements IPrimitiveProvider {
 		for (__i in 0..._segments.length) {
 			_segment = _segments[__i];
 
-			_sv0 = _lens.project(viewTransform, _segment.v0);
-			_sv1 = _lens.project(viewTransform, _segment.v1);
-			if (!_sv0.visible || !_sv1.visible) {
-				continue;
+			if (_segment != null) {
+				_sv0 = _lens.project(viewTransform, _segment.v0);
+				_sv1 = _lens.project(viewTransform, _segment.v1);
+				if (!_sv0.visible || !_sv1.visible) {
+					continue;
+				}
+				_smaterial = _segment.material;
+				if (_smaterial == null)  {
+					_smaterial = _segmentMaterial;
+				};
+				if (!_smaterial.visible) {
+					continue;
+				}
+				consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _smaterial, _sv0, _sv1));
 			}
-			_smaterial = _segment.material;
-			if (_smaterial == null)  {
-				_smaterial = _segmentMaterial;
-			};
-			if (!_smaterial.visible) {
-				continue;
-			}
-			consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _smaterial, _sv0, _sv1));
 		}
 
 		//loop through all billboards
 		for (__i in 0..._billboards.length) {
 			_billboard = _billboards[__i];
 
-			if (!_billboard.visible) {
-				continue;
+			if (_billboard != null) {
+				if (!_billboard.visible) {
+					continue;
+				}
+				_sv0 = _lens.project(viewTransform, _billboard.vertex);
+				if (!_sv0.visible) {
+					continue;
+				}
+				_bmaterial = _billboard.material;
+				if (_bmaterial == null)  {
+					_bmaterial = _billboardMaterial;
+				};
+				if (!_bmaterial.visible) {
+					continue;
+				}
+				consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling * _zoom / (1 + _sv0.z / _focus), _billboard.rotation));
 			}
-			_sv0 = _lens.project(viewTransform, _billboard.vertex);
-			if (!_sv0.visible) {
-				continue;
-			}
-			_bmaterial = _billboard.material;
-			if (_bmaterial == null)  {
-				_bmaterial = _billboardMaterial;
-			};
-			if (!_bmaterial.visible) {
-				continue;
-			}
-			consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling * _zoom / (1 + _sv0.z / _focus), _billboard.rotation));
 		}
 
 	}

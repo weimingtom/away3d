@@ -91,9 +91,9 @@ class NormalUVModifier  {
 					n0 = _mesh.geometry.getVertexNormal(face.v0);
 					v0 = face.v0;
 					if (_sourceBmd != null) {
-						p0 = new Point();
+						p0 = new Point(face.uv0.u * w, (1 - face.uv0.v) * h);
 					} else {
-						p0 = new Point();
+						p0 = new Point(face.uv0.u, (1 - face.uv0.v));
 					}
 					basevertices.splice(j, 1);
 					m0 = true;
@@ -103,9 +103,9 @@ class NormalUVModifier  {
 					n1 = _mesh.geometry.getVertexNormal(face.v1);
 					v1 = face.v1;
 					if (_sourceBmd != null) {
-						p1 = new Point();
+						p1 = new Point(face.uv1.u * w, (1 - face.uv1.v) * h);
 					} else {
-						p1 = new Point();
+						p1 = new Point(face.uv1.u, (1 - face.uv1.v));
 					}
 					basevertices.splice(j, 1);
 					m1 = true;
@@ -115,9 +115,9 @@ class NormalUVModifier  {
 					n2 = _mesh.geometry.getVertexNormal(face.v2);
 					v2 = face.v2;
 					if (_sourceBmd != null) {
-						p2 = new Point();
+						p2 = new Point(face.uv2.u * w, (1 - face.uv2.v) * h);
 					} else {
-						p2 = new Point();
+						p2 = new Point(face.uv2.u, (1 - face.uv2.v));
 					}
 					basevertices.splice(j, 1);
 					m2 = true;
@@ -136,9 +136,9 @@ class NormalUVModifier  {
 				oV.v0 = (m0) ? v0 : null;
 				oV.v1 = (m1) ? v1 : null;
 				oV.v2 = (m2) ? v2 : null;
-				oV.v0o = (m0) ? new Vertex() : null;
-				oV.v1o = (m1) ? new Vertex() : null;
-				oV.v2o = (m2) ? new Vertex() : null;
+				oV.v0o = (m0) ? new Vertex(v0.x, v0.y, v0.z) : null;
+				oV.v1o = (m1) ? new Vertex(v1.x, v1.y, v1.z) : null;
+				oV.v2o = (m2) ? new Vertex(v2.x, v2.y, v2.z) : null;
 				oV.p0 = (m0) ? p0 : null;
 				oV.p1 = (m1) ? p1 : null;
 				oV.p2 = (m2) ? p2 : null;
@@ -207,7 +207,7 @@ class NormalUVModifier  {
 			_sourceBmd = sourcebmd;
 			setVertices();
 		} else {
-			throw new Error();
+			throw new Error("Unvalid Mesh, no vertices array found");
 		}
 	}
 

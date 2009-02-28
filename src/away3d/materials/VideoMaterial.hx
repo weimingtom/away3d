@@ -55,7 +55,7 @@ class VideoMaterial extends MovieMaterial  {
 				nc = new NetConnection();
 				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler, false, 0, true);
 				nc.connect(null);
-				_netStream = new NetStream();
+				_netStream = new NetStream(nc);
 				this._netStream = _netStream;
 				// Setup stream. Remember that the FLV must be in the same security sandbox as the SWF.
 				_netStream.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler, false, 0, true);
@@ -63,7 +63,7 @@ class VideoMaterial extends MovieMaterial  {
 				_netStream.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler, false, 0, true);
 				_netStream.play(file);
 				// ignore metadata
-				var anyObject:Dynamic = new Dynamic();
+				var anyObject:Dynamic = new Object();
 				anyObject.onCuePoint = metaDataHandler;
 				anyObject.onMetaData = metaDataHandler;
 				_netStream.client = anyObject;
@@ -85,7 +85,7 @@ class VideoMaterial extends MovieMaterial  {
 
 	private function playStream():Void {
 		
-		_netStream = new NetStream();
+		_netStream = new NetStream(nc);
 		_netStream = _netStream;
 		_netStream.checkPolicyFile = true;
 		_netStream.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler, false, 0, true);
@@ -110,7 +110,7 @@ class VideoMaterial extends MovieMaterial  {
 		
 		_lockW = ini.getNumber("lockW", movie.width);
 		_lockH = ini.getNumber("lockH", movie.height);
-		_bitmap = new BitmapData();
+		_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
 	}
 
 	// Event handling
@@ -122,7 +122,7 @@ class VideoMaterial extends MovieMaterial  {
 	private function metaDataHandler(?oData:Dynamic=null):Void {
 		// Offers info such as oData.duration, oData.width, oData.height, oData.framerate and more (if encoded into the FLV)
 		
-		this.dispatchEvent(new VideoEvent());
+		this.dispatchEvent(new VideoEvent(VideoEvent.METADATA, _netStream, file, oData));
 	}
 
 	private function ioErrorHandler(e:IOErrorEvent):Void {
@@ -142,7 +142,7 @@ class VideoMaterial extends MovieMaterial  {
 		sprite.graphics.endFill();
 		// Error text formatting
 		var style:StyleSheet = new StyleSheet();
-		var styleObj:Dynamic = new Dynamic();
+		var styleObj:Dynamic = new Object();
 		styleObj.fontSize = 24;
 		styleObj.fontWeight = "bold";
 		styleObj.color = "#FF0000";
@@ -162,12 +162,12 @@ class VideoMaterial extends MovieMaterial  {
 		
 		switch (e.info.code) {
 			case "NetStream.Play.Stop" :
-				this.dispatchEvent(new VideoEvent());
+				this.dispatchEvent(new VideoEvent(VideoEvent.STOP, _netStream, file));
 				if (loop) {
 					_netStream.play(file);
 				}
 			case "NetStream.Play.Play" :
-				this.dispatchEvent(new VideoEvent());
+				this.dispatchEvent(new VideoEvent(VideoEvent.PLAY, _netStream, file));
 			case "NetStream.Play.StreamNotFound" :
 				showError("The file " + file + "was not found", e);
 			case "NetConnection.Connect.Success" :

@@ -29,7 +29,7 @@ class EnviroColorMaterial extends EnviroShader, implements ITriangleMaterial {
 
 	private function setColorTranform():Void {
 		
-		_colorTransform = new ColorTransform();
+		_colorTransform = new ColorTransform(_red * _reflectiveness, _green * _reflectiveness, _blue * _reflectiveness, 1, (1 - _reflectiveness) * _red * 255, (1 - _reflectiveness) * _green * 255, (1 - _reflectiveness) * _blue * 255, 0);
 		_colorMap = _bitmap.clone();
 		_colorMap.colorTransform(_colorMap.rect, _colorTransform);
 	}

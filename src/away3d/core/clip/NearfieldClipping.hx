@@ -64,7 +64,7 @@ class NearfieldClipping extends Clipping  {
 	public override function setObjectCulling(val:Bool):Bool {
 		
 		if (!val) {
-			throw new Error();
+			throw new Error("objectCulling requires setting to true for NearfieldClipping");
 		}
 		_objectCulling = val;
 		return val;
@@ -100,7 +100,7 @@ class NearfieldClipping extends Clipping  {
 	public override function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<Dynamic>):Void {
 		
 		_session = source.session;
-		_frustum = _cameraVarsStore.frustumDictionary[cast source];
+		_frustum = _cameraVarsStore.frustumDictionary[untyped source];
 		_pass = true;
 		_v0C = _cameraVarsStore.createVertexClassification(faceVO.v0);
 		_v1C = _cameraVarsStore.createVertexClassification(faceVO.v1);

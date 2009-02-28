@@ -38,7 +38,7 @@ class SegmentEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new SegmentEvent();
+		return new SegmentEvent(type, segment);
 	}
 
 }

@@ -28,7 +28,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 	public static inline var ALIGN_NONE:String = "none";
 	//forces OverwriteManager to init() in AUTO mode (if it's not already initted) because AUTO overwriting is much more intuitive when working with sequences and groups. If you prefer to manage overwriting manually to save the 1kb, just comment this line out.
 	private static var _overwriteMode:Int = (OverwriteManager.enabled) ? OverwriteManager.mode : OverwriteManager.init();
-	private static var _TweenMax:Class<Dynamic>;
+	private static var _TweenMax:Class;
 	private static var _classInitted:Bool;
 	//TweenGroups that have not ended/expired yet (have endTimes in the future)
 	private static var _unexpired:Array<Dynamic> = [];
@@ -64,7 +64,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 	 * @param $align Controls the alignment of the tweens within the group. Options are TweenGroup.ALIGN_SEQUENCE, TweenGroup.ALIGN_START, TweenGroup.ALIGN_END, TweenGroup.ALIGN_INIT, or TweenGroup.ALIGN_NONE
 	 * @param $stagger Amount of time (in seconds) to offset each tween according to the current alignment. For example, if the align property is set to ALIGN_SEQUENCE and stagger is 0.5, this adds 0.5 seconds between each tween in the sequence. If align is set to ALIGN_START, it would add 0.5 seconds to the start time of each tween (0 for the first tween, 0.5 for the second, 1 for the third, etc.)
 	 * */
-	public function new(?$tweens:Array<Dynamic>=null, ?$DefaultTweenClass:Class<Dynamic>=null, ?$align:String="none", ?$stagger:Float=0) {
+	public function new(?$tweens:Array<Dynamic>=null, ?$DefaultTweenClass:Class=null, ?$align:String="none", ?$stagger:Float=0) {
 		
 		OPPOSITE_OR[X | X] = N;
 		OPPOSITE_OR[XY | X] = Y;
@@ -94,7 +94,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 			}
 			//Checking "if (tween is _TweenMax)" is twice as fast as "if (tween.hasOwnProperty("paused"))". Storing a reference to the class this way prevents us from having to import the whole TweenMax class, thus saves a lot of Kb.
 			try {
-				_TweenMax = (cast(Type.resolveClass("gs.TweenMax"), Class<Dynamic>));
+				_TweenMax = (cast(Type.resolveClass("gs.TweenMax"), Class));
 			} catch ($e:Error) {
 				_TweenMax = Array;
 			}
@@ -106,7 +106,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 		_repeatCount = 0;
 		_align = $align;
 		_stagger = $stagger;
-		_dispatcher = new EventDispatcher();
+		_dispatcher = new EventDispatcher(this);
 		if ($tweens != null) {
 			_tweens = parse($tweens, $DefaultTweenClass);
 			updateTimeSpan();
@@ -295,7 +295,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 			} else if (tween.ease != tween.vars.ease) {
 				tween.ease = tween.vars.ease;
 			} else {
-				proxy = new ReverseProxy();
+				proxy = Type.createInstance(ReverseProxy, []);
 				tween.ease = proxy.reverseEase;
 			}
 			tScale = tween.combinedTimeScale;
@@ -536,7 +536,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 	 * @param $BaseTweenClass Defines which tween class should be used when parsing objects that are not already TweenLite/TweenMax instances. Choices are TweenLite or TweenMax.
 	 * @return An Array with only TweenLite/TweenMax instances
 	 */
-	public static function parse($tweens:Array<Dynamic>, ?$DefaultTweenClass:Class<Dynamic>=null):Array<Dynamic> {
+	public static function parse($tweens:Array<Dynamic>, ?$DefaultTweenClass:Class=null):Array<Dynamic> {
 		
 		if ($DefaultTweenClass == null) {
 			$DefaultTweenClass = TweenLite;
@@ -576,7 +576,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 	 * @param $DefaultTweenClass Defines which tween class to use. Choices are TweenLite or TweenMax.
 	 * @return TweenGroup instance
 	 */
-	public static function allTo($targets:Array<Dynamic>, $duration:Float, $vars:Dynamic, ?$DefaultTweenClass:Class<Dynamic>=null):TweenGroup {
+	public static function allTo($targets:Array<Dynamic>, $duration:Float, $vars:Dynamic, ?$DefaultTweenClass:Class=null):TweenGroup {
 		
 		if ($DefaultTweenClass == null) {
 			$DefaultTweenClass = TweenLite;
@@ -584,7 +584,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 		var i:Int;
 		var vars:Dynamic;
 		var p:String;
-		var group:TweenGroup = new TweenGroup();
+		var group:TweenGroup = new TweenGroup(null, $DefaultTweenClass, ALIGN_INIT, ($vars.stagger > 0) ? $vars.stagger : 0);
 		group.onComplete = $vars.onCompleteAll;
 		group.onCompleteParams = $vars.onCompleteAllParams;
 		$vars.stagger = null;
@@ -619,7 +619,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 	 * @param $DefaultTweenClass Defines which tween class to use. Choices are TweenLite or TweenMax.
 	 * @return TweenGroup instance
 	 */
-	public static function allFrom($targets:Array<Dynamic>, $duration:Float, $vars:Dynamic, ?$DefaultTweenClass:Class<Dynamic>=null):TweenGroup {
+	public static function allFrom($targets:Array<Dynamic>, $duration:Float, $vars:Dynamic, ?$DefaultTweenClass:Class=null):TweenGroup {
 		
 		$vars.runBackwards = true;
 		return allTo($targets, $duration, $vars, $DefaultTweenClass);
@@ -895,7 +895,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 		if (this.onComplete != null) {
 			this.onComplete.apply(null, this.onCompleteParams);
 		}
-		_dispatcher.dispatchEvent(new Event());
+		_dispatcher.dispatchEvent(new Event(Event.COMPLETE));
 	}
 
 	//---- GETTERS / SETTERS --------------------------------------------------------------------------------------------------

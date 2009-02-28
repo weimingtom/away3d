@@ -71,7 +71,7 @@ class DropShadowFilterVars extends FilterVars  {
 		if (Std.is($vars, DropShadowFilterVars)) {
 			return cast($vars, DropShadowFilterVars);
 		}
-		return new DropShadowFilterVars();
+		return new DropShadowFilterVars(($vars.distance > 0) ? $vars.distance : 0, ($vars.blurX > 0) ? $vars.blurX : 0, ($vars.blurY > 0) ? $vars.blurY : 0, ($vars.alpha > 0) ? $vars.alpha : 0, ($vars.angle == null) ? 45 : $vars.angle, ($vars.color == null) ? 0x000000 : $vars.color, ($vars.strength == null) ? 2 : $vars.strength, Boolean($vars.inner), Boolean($vars.knockout), Boolean($vars.hideObject), ($vars.quality > 0) ? $vars.quality : 2, $vars.remove || false, ($vars.index == null) ? -1 : $vars.index, $vars.addFilter);
 	}
 
 	//---- GETTERS / SETTERS --------------------------------------------------------------------------------------------

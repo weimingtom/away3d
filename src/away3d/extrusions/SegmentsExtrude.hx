@@ -18,9 +18,9 @@ class SegmentsExtrude extends Mesh  {
 	
 
 	public function new(aPoints:Dynamic, ?init:Dynamic=null) {
-		this.varr = new Array<Dynamic>();
-		this.varr2 = new Array<Dynamic>();
-		this.uvarr = new Array<Dynamic>();
+		this.varr = new Array();
+		this.varr2 = new Array();
+		this.uvarr = new Array();
 		
 		
 		if (init.material != null) {
@@ -50,9 +50,9 @@ class SegmentsExtrude extends Mesh  {
 			var i:Int = 0;
 			while (i < aPoints.length) {
 				if (aPoints[i].length > 1) {
-					varr = new Array<Dynamic>();
-					varr2 = new Array<Dynamic>();
-					uvarr = new Array<Dynamic>();
+					varr = new Array();
+					varr2 = new Array();
+					uvarr = new Array();
 					generate(aPoints[i], oMat, axis, offset, subdivision, thickness, thickness_subdivision, scaling, omit, coverall, closepath, flip);
 				} else {
 					trace("SegmentsExtrude error: at index " + i + " , at least 2 points are required per extrude!");
@@ -64,7 +64,7 @@ class SegmentsExtrude extends Mesh  {
 
 		} else {
 			if (closepath) {
-				aPoints.push(new Number3D());
+				aPoints.push(new Number3D(aPoints[0].x, aPoints[0].y, aPoints[0].z));
 			}
 			if (aPoints.length > 1) {
 				generate(aPoints, oMat, axis, offset, subdivision, thickness, thickness_subdivision, scaling, omit, coverall, closepath, flip);
@@ -206,11 +206,11 @@ class SegmentsExtrude extends Mesh  {
 					Reflect.setField(vector, prop1, oPoints.pt2.x.toFixed(4));
 					Reflect.setField(vector, prop2, oPoints.pt2.y.toFixed(4));
 					Reflect.setField(vector, prop3, points[0][prop3]);
-					varr.push(new Vertex());
+					varr.push(new Vertex(vector.x, vector.y, vector.z));
 					Reflect.setField(vector2, prop1, oPoints.pt1.x.toFixed(4));
 					Reflect.setField(vector2, prop2, oPoints.pt1.y.toFixed(4));
 					Reflect.setField(vector2, prop3, points[0][prop3]);
-					varr2.push(new Vertex());
+					varr2.push(new Vertex(vector2.x, vector2.y, vector2.z));
 					elevate(subdivision, axis, vector, vector2, basemin, basemax, increase);
 					if (Lines.length == 1) {
 						vector3 = {};
@@ -218,43 +218,43 @@ class SegmentsExtrude extends Mesh  {
 						Reflect.setField(vector3, prop1, oPoints.pt4.x.toFixed(4));
 						Reflect.setField(vector3, prop2, oPoints.pt4.y.toFixed(4));
 						Reflect.setField(vector3, prop3, points[0][prop3]);
-						varr.push(new Vertex());
+						varr.push(new Vertex(vector3.x, vector3.y, vector3.z));
 						Reflect.setField(vector4, prop1, oPoints.pt3.x.toFixed(4));
 						Reflect.setField(vector4, prop2, oPoints.pt3.y.toFixed(4));
 						Reflect.setField(vector4, prop3, points[0][prop3]);
-						varr2.push(new Vertex());
+						varr2.push(new Vertex(vector4.x, vector4.y, vector4.z));
 						elevate(subdivision, axis, vector3, vector4, basemin, basemax, increase);
 					}
 				} else if (i == Lines.length - 1) {
 					Reflect.setField(vector, prop1, oPoints.pt2.x);
 					Reflect.setField(vector, prop2, oPoints.pt2.y);
 					Reflect.setField(vector, prop3, points[i][prop3]);
-					varr.push(new Vertex());
+					varr.push(new Vertex(vector.x, vector.y, vector.z));
 					Reflect.setField(vector2, prop1, oPoints.pt1.x);
 					Reflect.setField(vector2, prop2, oPoints.pt1.y);
 					Reflect.setField(vector2, prop3, points[i][prop3]);
-					varr2.push(new Vertex());
+					varr2.push(new Vertex(vector2.x, vector2.y, vector2.z));
 					elevate(subdivision, axis, vector, vector2, basemin, basemax, increase);
 					vector3 = {};
 					vector4 = {};
 					Reflect.setField(vector3, prop1, oPoints.pt4.x);
 					Reflect.setField(vector3, prop2, oPoints.pt4.y);
 					Reflect.setField(vector3, prop3, points[i][prop3]);
-					varr.push(new Vertex());
+					varr.push(new Vertex(vector3.x, vector3.y, vector3.z));
 					Reflect.setField(vector4, prop1, oPoints.pt3.x);
 					Reflect.setField(vector4, prop2, oPoints.pt3.y);
 					Reflect.setField(vector4, prop3, points[i][prop3]);
-					varr2.push(new Vertex());
+					varr2.push(new Vertex(vector4.x, vector4.y, vector4.z));
 					elevate(subdivision, axis, vector3, vector4, basemin, basemax, increase);
 				} else {
 					Reflect.setField(vector, prop1, oPoints.pt2.x);
 					Reflect.setField(vector, prop2, oPoints.pt2.y);
 					Reflect.setField(vector, prop3, points[i][prop3]);
-					varr.push(new Vertex());
+					varr.push(new Vertex(vector.x, vector.y, vector.z));
 					Reflect.setField(vector2, prop1, oPoints.pt1.x);
 					Reflect.setField(vector2, prop2, oPoints.pt1.y);
 					Reflect.setField(vector2, prop3, points[i][prop3]);
-					varr2.push(new Vertex());
+					varr2.push(new Vertex(vector2.x, vector2.y, vector2.z));
 					elevate(subdivision, axis, vector, vector2, basemin, basemax, increase);
 				}
 				
@@ -266,14 +266,14 @@ class SegmentsExtrude extends Mesh  {
 			i = 0;
 			while (i < points.length) {
 				vector = {x:points[i].x, y:points[i].y, z:points[i].z};
-				varr.push(new Vertex());
+				varr.push(new Vertex(vector.x, vector.y, vector.z));
 				switch (axis) {
 					case "x" :
-						uvarr.push(new UV());
+						uvarr.push(new UV(Math.abs(vector.z % basemin), vector.x % basemax));
 					case "y" :
-						uvarr.push(new UV());
+						uvarr.push(new UV(Math.abs(vector.x % basemin), vector.y % basemax));
 					case "z" :
-						uvarr.push(new UV());
+						uvarr.push(new UV(Math.abs(vector.y % basemin), vector.z % basemax));
 					
 
 				}
@@ -282,15 +282,15 @@ class SegmentsExtrude extends Mesh  {
 					Reflect.field(vector, axis) += increase;
 					switch (axis) {
 						case "x" :
-							uvarr.push(new UV());
+							uvarr.push(new UV(Math.abs(vector.z % basemin), vector.x % basemax));
 						case "y" :
-							uvarr.push(new UV());
+							uvarr.push(new UV(Math.abs(vector.x % basemin), vector.y % basemax));
 						case "z" :
-							uvarr.push(new UV());
+							uvarr.push(new UV(Math.abs(vector.y % basemin), vector.z % basemax));
 						
 
 					}
-					varr.push(new Vertex());
+					varr.push(new Vertex(vector.x, vector.y, vector.z));
 					
 					// update loop variables
 					j++;
@@ -343,23 +343,23 @@ class SegmentsExtrude extends Mesh  {
 			j = 0;
 			while (j < subdivision) {
 				if (coverall) {
-					uva = new UV();
-					uvb = new UV();
-					uvc = new UV();
-					uvd = new UV();
+					uva = new UV(pt1, j / subdivision);
+					uvb = new UV(pt1, (j + 1) / subdivision);
+					uvc = new UV(pt2, (j + 1) / subdivision);
+					uvd = new UV(pt2, j / subdivision);
 				} else {
-					uva = new UV();
-					uvb = new UV();
-					uvc = new UV();
-					uvd = new UV();
+					uva = new UV(0, j / subdivision);
+					uvb = new UV(0, (j + 1) / subdivision);
+					uvc = new UV(1, (j + 1) / subdivision);
+					uvd = new UV(1, j / subdivision);
 				}
 				if (thickness == 0) {
 					if (flip) {
-						addFace(new Face());
-						addFace(new Face());
+						addFace(new Face(varr[(index + j) + 1], varr[index + j], varr[((index + j) + (subdivision + 2))], null, uvb, uva, uvc));
+						addFace(new Face(varr[((index + j) + (subdivision + 2))], varr[(index + j)], varr[((index + j) + (subdivision + 1))], null, uvc, uva, uvd));
 					} else {
-						addFace(new Face());
-						addFace(new Face());
+						addFace(new Face(varr[index + j], varr[(index + j) + 1], varr[((index + j) + (subdivision + 2))], null, uva, uvb, uvc));
+						addFace(new Face(varr[(index + j)], varr[((index + j) + (subdivision + 2))], varr[((index + j) + (subdivision + 1))], null, uva, uvc, uvd));
 					}
 				} else {
 					var v1a:Vertex = varr[index + j];
@@ -378,20 +378,20 @@ class SegmentsExtrude extends Mesh  {
 					//body + reversed uv's
 					if (oRenderside.front) {
 						if (flip) {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v1b, v1a, v1c, mf, new UV(1 - uvb.u, uvb.v), new UV(1 - uva.u, uva.v), new UV(1 - uvc.u, uvc.v)));
+							addFace(new Face(v2b, v2a, v2c, mf, new UV(1 - uvc.u, uvc.v), new UV(1 - uva.u, uva.v), new UV(1 - uvd.u, uvd.v)));
 						} else {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v1a, v1b, v1c, mf, new UV(1 - uva.u, uva.v), new UV(1 - uvb.u, uvb.v), new UV(1 - uvc.u, uvc.v)));
+							addFace(new Face(v2a, v2b, v2c, mf, new UV(1 - uva.u, uva.v), new UV(1 - uvc.u, uvc.v), new UV(1 - uvd.u, uvd.v)));
 						}
 					}
 					if (oRenderside.back) {
 						if (flip) {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v3b, v4c, v3a, mb, uvb, uvd, uva));
+							addFace(new Face(v4b, v4c, v3b, mb, uvc, uvd, uvb));
 						} else {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v4c, v3b, v3a, mb, uvd, uvb, uva));
+							addFace(new Face(v4c, v4b, v3b, mb, uvd, uvc, uvb));
 						}
 					}
 					//bottom
@@ -405,21 +405,21 @@ class SegmentsExtrude extends Mesh  {
 					//left
 					if (i == 0 && oRenderside.left) {
 						if (flip) {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v3b, v3a, v1b, mr, new UV(1 - uvb.u, uvb.v), new UV(1 - uva.u, uva.v), new UV(1 - uvc.u, uvc.v)));
+							addFace(new Face(v1b, v3a, v1a, mr, new UV(1 - uvc.u, uvc.v), new UV(1 - uva.u, uva.v), new UV(1 - uvd.u, uvd.v)));
 						} else {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v3a, v3b, v1b, mr, new UV(1 - uva.u, uva.v), new UV(1 - uvb.u, uvb.v), new UV(1 - uvc.u, uvc.v)));
+							addFace(new Face(v3a, v1b, v1a, mr, new UV(1 - uva.u, uva.v), new UV(1 - uvc.u, uvc.v), new UV(1 - uvd.u, uvd.v)));
 						}
 					}
 					//right
 					if (i == points.length - 2 && oRenderside.right) {
 						if (flip) {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v2b, v2c, v3c, ml, new UV(1 - uvb.u, uvb.v), new UV(1 - uva.u, uva.v), new UV(1 - uvc.u, uvc.v)));
+							addFace(new Face(v3c, v2c, v4c, ml, new UV(1 - uvc.u, uvc.v), new UV(1 - uva.u, uva.v), new UV(1 - uvd.u, uvd.v)));
 						} else {
-							addFace(new Face());
-							addFace(new Face());
+							addFace(new Face(v2c, v2b, v3c, ml, new UV(1 - uva.u, uva.v), new UV(1 - uvb.u, uvb.v), new UV(1 - uvc.u, uvc.v)));
+							addFace(new Face(v2c, v3c, v4c, ml, new UV(1 - uva.u, uva.v), new UV(1 - uvc.u, uvc.v), new UV(1 - uvd.u, uvd.v)));
 						}
 					}
 				}
@@ -458,7 +458,7 @@ class SegmentsExtrude extends Mesh  {
 		//var bincu = 1/(points1.length-1);
 		var v1:Float = 0;
 		var v2:Float = 0;
-		var tmp:Array<Dynamic> = new Array<Dynamic>();
+		var tmp:Array<Dynamic> = new Array();
 		i = 0;
 		while (i < points1.length) {
 			stepx = (points2[i].x - points1[i].x) / subdivision;
@@ -466,7 +466,7 @@ class SegmentsExtrude extends Mesh  {
 			stepz = (points2[i].z - points1[i].z) / subdivision;
 			j = 0;
 			while (j < subdivision + 1) {
-				tmp.push(new Vertex());
+				tmp.push(new Vertex(points1[i].x + (stepx * j), points1[i].y + (stepy * j), points1[i].z + (stepz * j)));
 				
 				// update loop variables
 				j++;
@@ -483,20 +483,20 @@ class SegmentsExtrude extends Mesh  {
 			while (j < subdivision) {
 				v1 = j / subdivision;
 				v2 = (j + 1) / subdivision;
-				uva = new UV();
-				uvb = new UV();
-				uvc = new UV();
-				uvd = new UV();
+				uva = new UV(u1, v1);
+				uvb = new UV(u1, v2);
+				uvc = new UV(u2, v2);
+				uvd = new UV(u2, v1);
 				va = tmp[index + j];
 				vb = tmp[(index + j) + 1];
 				vc = tmp[((index + j) + (subdivision + 2))];
 				vd = tmp[((index + j) + (subdivision + 1))];
 				if (flip) {
-					addFace(new Face());
-					addFace(new Face());
+					addFace(new Face(vb, va, vc, (material == null) ? null : material, uvb, uva, uvc));
+					addFace(new Face(vc, va, vd, (material == null) ? null : material, uvc, uva, uvd));
 				} else {
-					addFace(new Face());
-					addFace(new Face());
+					addFace(new Face(va, vb, vc, (material == null) ? null : material, uva, uvb, uvc));
+					addFace(new Face(va, vc, vd, (material == null) ? null : material, uva, uvc, uvd));
 				}
 				
 				// update loop variables
@@ -515,11 +515,11 @@ class SegmentsExtrude extends Mesh  {
 		
 		switch (axis) {
 			case "x" :
-				uvarr.push(new UV());
+				uvarr.push(new UV(Math.abs(vector.z % basemin), vector.x % basemax));
 			case "y" :
-				uvarr.push(new UV());
+				uvarr.push(new UV(Math.abs(vector.x % basemin), vector.y % basemax));
 			case "z" :
-				uvarr.push(new UV());
+				uvarr.push(new UV(Math.abs(vector.y % basemin), vector.z % basemax));
 			
 
 		}
@@ -530,16 +530,16 @@ class SegmentsExtrude extends Mesh  {
 			Reflect.field(vector2, axis) += increase;
 			switch (axis) {
 				case "x" :
-					uvarr.push(new UV());
+					uvarr.push(new UV(Math.abs(vector.z % basemin), vector.x % basemax));
 				case "y" :
-					uvarr.push(new UV());
+					uvarr.push(new UV(Math.abs(vector.x % basemin), vector.y % basemax));
 				case "z" :
-					uvarr.push(new UV());
+					uvarr.push(new UV(Math.abs(vector.y % basemin), vector.z % basemax));
 				
 
 			}
-			varr.push(new Vertex());
-			varr2.push(new Vertex());
+			varr.push(new Vertex(vector.x, vector.y, vector.z));
+			varr2.push(new Vertex(vector2.x, vector2.y, vector2.z));
 			
 			// update loop variables
 			j++;
@@ -549,8 +549,8 @@ class SegmentsExtrude extends Mesh  {
 
 	private function buildThicknessPoints(aPoints:Array<Dynamic>, thickness:Float, prop1:String, prop2:String, closepath:Bool):Array<Dynamic> {
 		
-		var Anchors:Array<Dynamic> = new Array<Dynamic>();
-		var Lines:Array<Dynamic> = new Array<Dynamic>();
+		var Anchors:Array<Dynamic> = new Array();
+		var Lines:Array<Dynamic> = new Array();
 		var i:Int;
 		i = 0;
 		while (i < aPoints.length - 1) {
@@ -590,7 +590,7 @@ class SegmentsExtrude extends Mesh  {
 			if (closepath && Anchors.length > 2) {
 				Anchors.push(defineAnchors(aPoints[Anchors.length - 1], aPoints[0], thickness, prop1, prop2));
 				var tmparray:Array<Dynamic> = [Anchors[Anchors.length - 1], Anchors[0], Anchors[1], Anchors[2]];
-				var tmplines:Array<Dynamic> = new Array<Dynamic>();
+				var tmplines:Array<Dynamic> = new Array();
 				i = 0;
 				while (i < 2) {
 					oPointResult = defineLines(i, totallength, tmparray[i], tmparray[i + 1], tmparray);
@@ -646,11 +646,11 @@ class SegmentsExtrude extends Mesh  {
 		angle -= 270;
 		var angle2:Float = angle + 180;
 		//origin points
-		var pt1:Point = new Point();
-		var pt2:Point = new Point();
+		var pt1:Point = new Point(Reflect.field(base, prop1), Reflect.field(base, prop2));
+		var pt2:Point = new Point(Reflect.field(base, prop1), Reflect.field(base, prop2));
 		//dest points
-		var pt3:Point = new Point();
-		var pt4:Point = new Point();
+		var pt3:Point = new Point(Reflect.field(baseEnd, prop1), Reflect.field(baseEnd, prop2));
+		var pt4:Point = new Point(Reflect.field(baseEnd, prop1), Reflect.field(baseEnd, prop2));
 		var radius:Float = thickness * .5;
 		pt1.x = pt1.x + Math.cos(-angle / 180 * Math.PI) * radius;
 		pt1.y = pt1.y + Math.sin(angle / 180 * Math.PI) * radius;
@@ -680,7 +680,7 @@ class SegmentsExtrude extends Mesh  {
 		var ptx:Float = (b2 - b1) / (nzero);
 		var pty:Float = a1 * ptx + b1;
 		if (isFinite(ptx) && isFinite(pty)) {
-			return new Point();
+			return new Point(ptx, pty);
 		} else {
 			trace("infinity");
 			return null;

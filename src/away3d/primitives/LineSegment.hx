@@ -68,8 +68,8 @@ class LineSegment extends Mesh  {
 	 */
 	private function recalc(vp1:Dynamic, vp2:Dynamic):Void {
 		
-		p1 = new Number3D();
-		p2 = new Number3D();
+		p1 = new Number3D(vp1.x, vp1.y, vp1.z);
+		p2 = new Number3D(vp2.x, vp2.y, vp2.z);
 		if (lsegments > 1) {
 			var _index:Int = segments.length;
 			while ((_index-- > 0)) {
@@ -84,9 +84,9 @@ class LineSegment extends Mesh  {
 			difz = (p1.z - p2.z) / lsegments;
 			i = 1;
 			while (i <= lsegments) {
-				newsegmentstart = new Vertex();
-				newsegmentend = new Vertex();
-				_segment = new Segment();
+				newsegmentstart = new Vertex(p1.x - (difx * (i)), p1.y - (dify * (i)), p1.z - (difz * (i)));
+				newsegmentend = new Vertex(p2.x + (difx * (lsegments - (i - 1))), p2.y + (dify * (lsegments - (i - 1))), p2.z + (difz * (lsegments - (i - 1))));
+				_segment = new Segment(newsegmentstart, newsegmentend);
 				addSegment(_segment);
 				
 				// update loop variables
@@ -94,8 +94,8 @@ class LineSegment extends Mesh  {
 			}
 
 		} else {
-			_segment.v0 = new Vertex();
-			_segment.v1 = new Vertex();
+			_segment.v0 = new Vertex(p1.x, p1.y, p1.z);
+			_segment.v1 = new Vertex(p2.x, p2.y, p2.z);
 		}
 	}
 
@@ -132,16 +132,16 @@ class LineSegment extends Mesh  {
 		lsegments = ini.getNumber("segments", 1, {min:1});
 		p1 = ini.getPosition("start");
 		if (p1 == null)  {
-			p1 = new Number3D();
+			p1 = new Number3D(-edge, 0, 0);
 		};
 		p2 = ini.getPosition("end");
 		if (p2 == null)  {
-			p2 = new Number3D();
+			p2 = new Number3D(edge, 0, 0);
 		};
 		if (lsegments > 1) {
 			recalc(p1, p2);
 		} else {
-			_segment = new Segment();
+			_segment = new Segment(new Vertex(p1.x, p1.y, p1.z), new Vertex(p2.x, p2.y, p2.z));
 			addSegment(_segment);
 		}
 		type = "LineSegment";

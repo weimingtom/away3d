@@ -93,10 +93,12 @@ class ObjectContainer3D extends Object3D  {
 			for (__i in 0...children.length) {
 				var child:Object3D = children[__i];
 
-				num.sub(child.position, _pivotPoint);
-				cradius = num.modulo + child.parentBoundingRadius;
-				if (mradius < cradius) {
-					mradius = cradius;
+				if (child != null) {
+					num.sub(child.position, _pivotPoint);
+					cradius = num.modulo + child.parentBoundingRadius;
+					if (mradius < cradius) {
+						mradius = cradius;
+					}
 				}
 			}
 
@@ -134,7 +136,7 @@ class ObjectContainer3D extends Object3D  {
 	 * @param	...initarray		An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	 */
 	public function new(?initarray:Array<Dynamic>) {
-		this._children = new Array<Dynamic>();
+		this._children = new Array();
 		this._radiusChild = null;
 		
 		
@@ -143,10 +145,12 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...initarray.length) {
 			var object:Dynamic = initarray[__i];
 
-			if (Std.is(object, Object3D)) {
-				childarray.push(object);
-			} else {
-				init = object;
+			if (object != null) {
+				if (Std.is(object, Object3D)) {
+					childarray.push(object);
+				} else {
+					init = object;
+				}
 			}
 		}
 
@@ -155,7 +159,9 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...childarray.length) {
 			var child:Object3D = childarray[__i];
 
-			addChild(child);
+			if (child != null) {
+				addChild(child);
+			}
 		}
 
 	}
@@ -171,7 +177,9 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...childarray.length) {
 			var child:Object3D = childarray[__i];
 
-			addChild(child);
+			if (child != null) {
+				addChild(child);
+			}
 		}
 
 	}
@@ -185,7 +193,7 @@ class ObjectContainer3D extends Object3D  {
 	public function addChild(child:Object3D):Void {
 		
 		if (child == null) {
-			throw new Error();
+			throw new Error("ObjectContainer3D.addChild(null)");
 		}
 		child.parent = this;
 	}
@@ -199,7 +207,7 @@ class ObjectContainer3D extends Object3D  {
 	public function removeChild(child:Object3D):Void {
 		
 		if (child == null) {
-			throw new Error();
+			throw new Error("ObjectContainer3D.removeChild(null)");
 		}
 		if (child.parent != this) {
 			return;
@@ -219,15 +227,17 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...children.length) {
 			var object3D:Object3D = children[__i];
 
-			if (object3D.name) {
-				if (object3D.name == childName) {
-					return object3D;
+			if (object3D != null) {
+				if (object3D.name) {
+					if (object3D.name == childName) {
+						return object3D;
+					}
 				}
-			}
-			if (Std.is(object3D, ObjectContainer3D)) {
-				child = (cast(object3D, ObjectContainer3D)).getChildByName(childName);
-				if ((child != null)) {
-					return child;
+				if (Std.is(object3D, ObjectContainer3D)) {
+					child = (cast(object3D, ObjectContainer3D)).getChildByName(childName);
+					if ((child != null)) {
+						return child;
+					}
 				}
 			}
 		}
@@ -247,23 +257,25 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...children.length) {
 			var object3D:Object3D = children[__i];
 
-			if (Std.is(object3D, Bone)) {
-				bone = cast(object3D, Bone);
-				if ((bone.name != null)) {
-					if (bone.name == boneName) {
-						return bone;
+			if (object3D != null) {
+				if (Std.is(object3D, Bone)) {
+					bone = cast(object3D, Bone);
+					if ((bone.name != null)) {
+						if (bone.name == boneName) {
+							return bone;
+						}
+					}
+					if (bone.id) {
+						if (bone.id == boneName) {
+							return bone;
+						}
 					}
 				}
-				if (bone.id) {
-					if (bone.id == boneName) {
+				if (Std.is(object3D, ObjectContainer3D)) {
+					bone = (cast(object3D, ObjectContainer3D)).getBoneByName(boneName);
+					if ((bone != null)) {
 						return bone;
 					}
-				}
-			}
-			if (Std.is(object3D, ObjectContainer3D)) {
-				bone = (cast(object3D, ObjectContainer3D)).getBoneByName(boneName);
-				if ((bone != null)) {
-					return bone;
 				}
 			}
 		}
@@ -292,7 +304,9 @@ class ObjectContainer3D extends Object3D  {
 			for (__i in 0...children.length) {
 				var child:Object3D = children[__i];
 
-				child.traverse(traverser);
+				if (child != null) {
+					child.traverse(traverser);
+				}
 			}
 
 			traverser.leave(this);
@@ -323,19 +337,21 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...children.length) {
 			var child:Object3D = children[__i];
 
-			x = child.x;
-			y = child.y;
-			z = child.z;
-			y1 = y;
-			y = y1 * cosx + z * -sinx;
-			z = y1 * sinx + z * cosx;
-			x1 = x;
-			x = x1 * cosy + z * siny;
-			z = x1 * -siny + z * cosy;
-			x1 = x;
-			x = x1 * cosz + y * -sinz;
-			y = x1 * sinz + y * cosz;
-			child.moveTo(x, y, z);
+			if (child != null) {
+				x = child.x;
+				y = child.y;
+				z = child.z;
+				y1 = y;
+				y = y1 * cosx + z * -sinx;
+				z = y1 * sinx + z * cosx;
+				x1 = x;
+				x = x1 * cosy + z * siny;
+				z = x1 * -siny + z * cosy;
+				x1 = x;
+				x = x1 * cosz + y * -sinz;
+				y = x1 * sinz + y * cosz;
+				child.moveTo(x, y, z);
+			}
 		}
 
 		rotationX = 0;
@@ -354,13 +370,15 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...children.length) {
 			var child:Object3D = children[__i];
 
-			x = child.x;
-			y = child.y;
-			z = child.z;
-			child.moveTo(x - dx, y - dy, z - dz);
+			if (child != null) {
+				x = child.x;
+				y = child.y;
+				z = child.z;
+				child.moveTo(x - dx, y - dy, z - dz);
+			}
 		}
 
-		var dV:Number3D = new Number3D();
+		var dV:Number3D = new Number3D(dx, dy, dz);
 		dV.rotate(dV, _transform);
 		dV.add(dV, position);
 		moveTo(dV.x, dV.y, dV.z);
@@ -383,8 +401,10 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...children.length) {
 			child = children[__i];
 
-			if (!(Std.is(child, Bone))) {
-				container.addChild(child.clone());
+			if (child != null) {
+				if (!(Std.is(child, Bone))) {
+					container.addChild(child.clone());
+				}
 			}
 		}
 
@@ -408,18 +428,20 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...children.length) {
 			var child:Object3D = children[__i];
 
-			if (Std.is(child, Bone)) {
-				_child = new Bone();
-				container.addChild(_child);
-				(cast(child, Bone)).cloneAll(_child);
-			} else if (Std.is(child, ObjectContainer3D)) {
-				_child = new ObjectContainer3D();
-				container.addChild(_child);
-				(cast(child, ObjectContainer3D)).cloneAll(_child);
-			} else if (Std.is(child, Mesh)) {
-				container.addChild((cast(child, Mesh)).cloneAll());
-			} else {
-				container.addChild(child.clone());
+			if (child != null) {
+				if (Std.is(child, Bone)) {
+					_child = new Bone();
+					container.addChild(_child);
+					(cast(child, Bone)).cloneAll(_child);
+				} else if (Std.is(child, ObjectContainer3D)) {
+					_child = new ObjectContainer3D();
+					container.addChild(_child);
+					(cast(child, ObjectContainer3D)).cloneAll(_child);
+				} else if (Std.is(child, Mesh)) {
+					container.addChild((cast(child, Mesh)).cloneAll());
+				} else {
+					container.addChild(child.clone());
+				}
 			}
 		}
 
@@ -427,9 +449,11 @@ class ObjectContainer3D extends Object3D  {
 			container.animationLibrary = new AnimationLibrary();
 			var __keys:Iterator<Dynamic> = untyped (__keys__(animationLibrary)).iterator();
 			for (__key in __keys) {
-				var _animationData:AnimationData = animationLibrary[cast __key];
+				var _animationData:AnimationData = animationLibrary[untyped __key];
 
-				_animationData.clone(container);
+				if (_animationData != null) {
+					_animationData.clone(container);
+				}
 			}
 
 		}
@@ -437,9 +461,11 @@ class ObjectContainer3D extends Object3D  {
 			container.materialLibrary = new MaterialLibrary();
 			var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
 			for (__key in __keys) {
-				var _materialData:MaterialData = materialLibrary[cast __key];
+				var _materialData:MaterialData = materialLibrary[untyped __key];
 
-				_materialData.clone(container);
+				if (_materialData != null) {
+					_materialData.clone(container);
+				}
 			}
 
 		}
@@ -461,34 +487,40 @@ class ObjectContainer3D extends Object3D  {
 		for (__i in 0...container.children.length) {
 			var child:Object3D = container.children[__i];
 
-			if (Std.is(child, ObjectContainer3D)) {
-				(cast(child, ObjectContainer3D)).cloneBones(cast(child, ObjectContainer3D), root);
-			} else if (Std.is(child, Mesh)) {
-				var geometry:Geometry = (cast(child, Mesh)).geometry;
-				var skinControllers:Array<Dynamic> = geometry.skinControllers;
-				var rootBone:Bone;
-				var skinController:SkinController;
-				for (__i in 0...skinControllers.length) {
-					skinController = skinControllers[__i];
+			if (child != null) {
+				if (Std.is(child, ObjectContainer3D)) {
+					(cast(child, ObjectContainer3D)).cloneBones(cast(child, ObjectContainer3D), root);
+				} else if (Std.is(child, Mesh)) {
+					var geometry:Geometry = (cast(child, Mesh)).geometry;
+					var skinControllers:Array<Dynamic> = geometry.skinControllers;
+					var rootBone:Bone;
+					var skinController:SkinController;
+					for (__i in 0...skinControllers.length) {
+						skinController = skinControllers[__i];
 
-					var bone:Bone = root.getBoneByName(skinController.name);
-					if ((bone != null)) {
-						skinController.joint = bone.joint;
-						if (!(Std.is(bone.parent.parent, Bone))) {
-							rootBone = bone;
+						if (skinController != null) {
+							var bone:Bone = root.getBoneByName(skinController.name);
+							if ((bone != null)) {
+								skinController.joint = bone.joint;
+								if (!(Std.is(bone.parent.parent, Bone))) {
+									rootBone = bone;
+								}
+							} else {
+								Debug.warning("no joint found for " + skinController.name);
+							}
 						}
-					} else {
-						Debug.warning("no joint found for " + skinController.name);
 					}
+
+					//geometry.rootBone = rootBone;
+					for (__i in 0...skinControllers.length) {
+						skinController = skinControllers[__i];
+
+						if (skinController != null) {
+							skinController.inverseTransform = child.parent.inverseSceneTransform;
+						}
+					}
+
 				}
-
-				//geometry.rootBone = rootBone;
-				for (__i in 0...skinControllers.length) {
-					skinController = skinControllers[__i];
-
-					skinController.inverseTransform = child.parent.inverseSceneTransform;
-				}
-
 			}
 		}
 

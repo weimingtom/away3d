@@ -10,7 +10,7 @@ import flash.geom.Rectangle;
 import flash.geom.Point;
 import away3d.core.base.Object3D;
 import flash.geom.Matrix;
-import away3d.haxeutils.BlendMode;
+import flash.display.BlendMode;
 import flash.geom.ColorTransform;
 import away3d.core.utils.Init;
 import away3d.core.utils.FaceVO;
@@ -82,7 +82,7 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 			if (_faceMaterialVO.invalidated) {
 				_faceMaterialVO.invalidated = false;
 				//update face bitmapRect
-				_faceVO.bitmapRect = new Rectangle();
+				_faceVO.bitmapRect = new Rectangle(Std.int(_width * _faceVO.minU), Std.int(_height * (1 - _faceVO.maxV)), Std.int(_width * (_faceVO.maxU - _faceVO.minU) + 2), Std.int(_height * (_faceVO.maxV - _faceVO.minV) + 2));
 				_faceWidth = Std.int(_faceVO.bitmapRect.width);
 				_faceHeight = Std.int(_faceVO.bitmapRect.height);
 				//update texturemapping
@@ -97,14 +97,16 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 			for (__i in 0...materials.length) {
 				_material = materials[__i];
 
-				_fMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _fMaterialVO);
+				if (_material != null) {
+					_fMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _fMaterialVO);
+				}
 			}
 
-			_renderBitmap = _cacheDictionary[cast _faceVO] = _fMaterialVO.bitmap;
+			_renderBitmap = _cacheDictionary[untyped _faceVO] = _fMaterialVO.bitmap;
 			_fMaterialVO.updated = false;
 			return _faceMaterialVO.texturemapping;
 		}
-		_renderBitmap = _cacheDictionary[cast _faceVO];
+		_renderBitmap = _cacheDictionary[untyped _faceVO];
 		//check to see if tri texturemapping need updating
 		if (_faceMaterialVO.invalidated) {
 			_faceMaterialVO.invalidated = false;
@@ -124,20 +126,22 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	 */
 	public function new(width:Int, height:Int, ?init:Dynamic=null) {
-		this._containerDictionary = new Dictionary();
-		this._cacheDictionary = new Dictionary();
-		this._viewDictionary = new Dictionary();
+		this._containerDictionary = new Dictionary(true);
+		this._cacheDictionary = new Dictionary(true);
+		this._viewDictionary = new Dictionary(true);
 		
 		
-		super(new BitmapData(), init);
+		super(new BitmapData(width, height, true, 0x00FFFFFF), init);
 		materials = ini.getArray("materials");
 		_width = width;
 		_height = height;
-		_bitmapRect = new Rectangle();
+		_bitmapRect = new Rectangle(0, 0, _width, _height);
 		for (__i in 0...materials.length) {
 			_material = materials[__i];
 
-			_material.addOnMaterialUpdate(onMaterialUpdate);
+			if (_material != null) {
+				_material.addOnMaterialUpdate(onMaterialUpdate);
+			}
 		}
 
 		transparent = ini.getBoolean("transparent", true);
@@ -182,7 +186,9 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 		for (__i in 0...materials.length) {
 			_material = materials[__i];
 
-			_material.updateMaterial(source, view);
+			if (_material != null) {
+				_material.updateMaterial(source, view);
+			}
 		}
 
 		if (_colorTransformDirty) {
@@ -202,7 +208,7 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 	 */
 	public override function renderLayer(tri:DrawTriangle, layer:Sprite, level:Int):Void {
 		
-		throw new Error();
+		throw new Error("Not implemented");
 	}
 
 	/**
@@ -215,8 +221,8 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 		_faceWidth = tri.faceVO.bitmapRect.width;
 		_faceHeight = tri.faceVO.bitmapRect.height;
 		//check to see if bitmapContainer exists
-		if ((_containerVO = _containerDictionary[cast tri]) == null) {
-			_containerVO = _containerDictionary[cast tri] = new FaceMaterialVO();
+		if ((_containerVO = _containerDictionary[untyped tri]) == null) {
+			_containerVO = _containerDictionary[untyped tri] = new FaceMaterialVO();
 		}
 		//resize container
 		if (parentFaceMaterialVO.resized) {
@@ -227,7 +233,9 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 		for (__i in 0...materials.length) {
 			_material = materials[__i];
 
-			_containerVO = _material.renderBitmapLayer(tri, containerRect, _containerVO);
+			if (_material != null) {
+				_containerVO = _material.renderBitmapLayer(tri, containerRect, _containerVO);
+			}
 		}
 
 		//check to see if face update can be skipped

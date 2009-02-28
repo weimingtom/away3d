@@ -43,10 +43,10 @@ class SceneVO  {
 		SCALINGS[64] = [-1, -1, -1];
 		SCALINGS[128] = [1, -1, -1];
 		
-		this.cameras = new Array<Dynamic>();
-		this.geometry = new Array<Dynamic>();
-		this.sections = new Array<Dynamic>();
-		this.materials = new Array<Dynamic>();
+		this.cameras = new Array();
+		this.geometry = new Array();
+		this.sections = new Array();
+		this.materials = new Array();
 	}
 
 }

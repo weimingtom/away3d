@@ -111,7 +111,7 @@ class Elevation  {
 					cha = minElevation;
 				}
 				z = cha * elevate;
-				tmpArray.push(new Number3D());
+				tmpArray.push(new Number3D(x * scalingX, y * scalingY, z));
 				
 				// update loop variables
 				i += subdivisionX;

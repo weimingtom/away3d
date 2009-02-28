@@ -41,7 +41,7 @@ class LoaderEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new LoaderEvent();
+		return new LoaderEvent(type, loader);
 	}
 
 }

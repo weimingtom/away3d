@@ -5,7 +5,7 @@ import flash.utils.Dictionary;
 
 class CacheStore  {
 	
-	public static var whiteShadingCache:Dictionary = new Dictionary();
+	public static var whiteShadingCache:Dictionary = new Dictionary(true);
 	
 
 	

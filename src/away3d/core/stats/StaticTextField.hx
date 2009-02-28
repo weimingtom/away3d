@@ -13,7 +13,7 @@ class StaticTextField extends TextField  {
 		
 		
 		super();
-		defaultTextFormat = (textFormat != null) ? textFormat : new TextFormat();
+		defaultTextFormat = (textFormat != null) ? textFormat : new TextFormat("Verdana", 10, 0x000000);
 		selectable = false;
 		mouseEnabled = false;
 		mouseWheelEnabled = false;

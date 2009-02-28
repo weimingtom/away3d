@@ -61,8 +61,10 @@ class FogFilter implements IPrimitiveFilter {
 		for (__i in 0..._fogPrimitives.length) {
 			var fog:DrawFog = _fogPrimitives[__i];
 
-			if (Std.is(fog.material, ColorMaterial)) {
-				fog.material = new ColorMaterial();
+			if (fog != null) {
+				if (Std.is(fog.material, ColorMaterial)) {
+					fog.material = new ColorMaterial(color, {alpha:fog.material.alpha});
+				}
 			}
 		}
 
@@ -80,10 +82,10 @@ class FogFilter implements IPrimitiveFilter {
 		_subdivisions = ini.getInt("subdivisions", 20, {min:1, max:50});
 		_materials = ini.getArray("materials");
 		if (!(Std.is(_material, IFogMaterial))) {
-			throw new Error();
+			throw new Error("FogFilter requires IFogMaterial");
 		}
 		if (_material == null && _materials.length == 0) {
-			_material = new ColorMaterial();
+			_material = new ColorMaterial(0x000000);
 		}
 		//materials override subdivisions
 		if (_materials.length == 0) {
@@ -117,17 +119,21 @@ class FogFilter implements IPrimitiveFilter {
 		for (__i in 0..._fogPrimitives.length) {
 			fog = _fogPrimitives[__i];
 
-			fog.source = scene;
-			fog.clip = clip;
-			primitives.push(fog);
+			if (fog != null) {
+				fog.source = scene;
+				fog.clip = clip;
+				primitives.push(fog);
+			}
 		}
 
 		_primitives = [];
 		for (__i in 0...primitives.length) {
 			pri = primitives[__i];
 
-			if (pri.screenZ < _maxZ) {
-				_primitives.push(pri);
+			if (pri != null) {
+				if (pri.screenZ < _maxZ) {
+					_primitives.push(pri);
+				}
 			}
 		}
 

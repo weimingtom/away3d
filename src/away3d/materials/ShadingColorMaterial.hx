@@ -95,7 +95,7 @@ class ShadingColorMaterial extends CenterLightingMaterial  {
 				if (sfb > 0xFF) {
 					sfb = 0xFF;
 				}
-				tri.faceVO.material = new ColorMaterial();
+				tri.faceVO.material = new ColorMaterial(sfr << 16 | sfg << 8 | sfb);
 			}
 		}
 	}

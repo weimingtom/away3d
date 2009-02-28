@@ -6,7 +6,7 @@ import flash.utils.Dictionary;
 import flash.events.Event;
 import flash.geom.Rectangle;
 import away3d.core.clip.Clipping;
-import away3d.haxeutils.BlendMode;
+import flash.display.BlendMode;
 import flash.display.DisplayObject;
 import flash.display.Sprite;
 import flash.display.Shape;
@@ -47,10 +47,10 @@ class SpriteRenderSession extends AbstractRenderSession  {
 	 */
 	public override function getContainer(view:View3D):DisplayObject {
 		
-		if (_containers[cast view] == null) {
-			return _containers[cast view] = new Sprite();
+		if (_containers[untyped view] == null) {
+			return _containers[untyped view] = new Sprite();
 		}
-		return _containers[cast view];
+		return _containers[untyped view];
 	}
 
 	/**
@@ -62,7 +62,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 		_container.addChild(child);
 		child.visible = true;
 		//add child to children
-		children[cast child] = child;
+		children[untyped child] = child;
 		_layerDirty = true;
 	}
 
@@ -75,7 +75,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 		_container.addChild(child);
 		child.visible = true;
 		//add child to children
-		children[cast child] = child;
+		children[untyped child] = child;
 		newLayer = child;
 	}
 
@@ -111,7 +111,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 			//clip the edges of the root container with  scrollRect
 			if (this == view.session) {
 				_clip = view.screenClipping;
-				_container.scrollRect = new Rectangle();
+				_container.scrollRect = new Rectangle(_clip.minX - 1, _clip.minY - 1, _clip.maxX - _clip.minX + 2, _clip.maxY - _clip.minY + 2);
 				_container.x = _clip.minX - 1;
 				_container.y = _clip.minY - 1;
 			}
@@ -124,7 +124,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 				_container.removeChild(_container.getChildAt(i));
 			}
 
-			children = new Dictionary();
+			children = new Dictionary(true);
 			newLayer = null;
 		} else {
 			_container.cacheAsBitmap = cacheAsBitmap;

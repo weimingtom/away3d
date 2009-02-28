@@ -55,7 +55,9 @@ class SkinAnimation implements IMeshAnimation {
 		for (__i in 0..._channels.length) {
 			var channel:Channel = _channels[__i];
 
-			channel.update(time, interpolate);
+			if (channel != null) {
+				channel.update(time, interpolate);
+			}
 		}
 
 	}
@@ -69,7 +71,9 @@ class SkinAnimation implements IMeshAnimation {
 		for (__i in 0..._channels.length) {
 			var channel:Channel = _channels[__i];
 
-			skinAnimation.appendChannel(channel.clone(object));
+			if (channel != null) {
+				skinAnimation.appendChannel(channel.clone(object));
+			}
 		}
 
 		return skinAnimation;

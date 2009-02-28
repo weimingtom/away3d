@@ -15,7 +15,7 @@ import away3d.primitives.AbstractWirePrimitive;
 import away3d.core.draw.IPrimitiveConsumer;
 import away3d.core.render.BitmapRenderSession;
 import away3d.loaders.utils.AnimationLibrary;
-import away3d.haxeutils.BlendMode;
+import flash.display.BlendMode;
 import away3d.core.utils.Init;
 import away3d.core.utils.Debug;
 import away3d.core.render.AbstractRenderSession;
@@ -398,7 +398,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			return;
 		}
 		if (_parentupdated == null) {
-			_parentupdated = new Object3DEvent();
+			_parentupdated = new Object3DEvent(Object3DEvent.PARENT_UPDATED, this);
 		}
 		dispatchEvent(_parentupdated);
 	}
@@ -411,7 +411,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			return;
 		}
 		if (_transformchanged == null) {
-			_transformchanged = new Object3DEvent();
+			_transformchanged = new Object3DEvent(Object3DEvent.TRANSFORM_CHANGED, this);
 		}
 		dispatchEvent(_transformchanged);
 	}
@@ -425,7 +425,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			return;
 		}
 		if (_scenetransformchanged == null) {
-			_scenetransformchanged = new Object3DEvent();
+			_scenetransformchanged = new Object3DEvent(Object3DEvent.SCENETRANSFORM_CHANGED, this);
 		}
 		dispatchEvent(_scenetransformchanged);
 	}
@@ -438,7 +438,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			return;
 		}
 		if (_scenechanged == null) {
-			_scenechanged = new Object3DEvent();
+			_scenechanged = new Object3DEvent(Object3DEvent.SCENE_CHANGED, this);
 		}
 		dispatchEvent(_scenechanged);
 	}
@@ -451,7 +451,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			return;
 		}
 		if (_sessionchanged == null) {
-			_sessionchanged = new Object3DEvent();
+			_sessionchanged = new Object3DEvent(Object3DEvent.SESSION_CHANGED, this);
 		}
 		dispatchEvent(_sessionchanged);
 	}
@@ -460,13 +460,13 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function notifySessionUpdate():Void {
 		
 		if ((_scene != null)) {
-			_scene.updatedSessions[cast _session] = _session;
+			_scene.updatedSessions[untyped _session] = _session;
 		}
 		if (!hasEventListener(Object3DEvent.SESSION_UPDATED)) {
 			return;
 		}
 		if (_sessionupdated == null) {
-			_sessionupdated = new Object3DEvent();
+			_sessionupdated = new Object3DEvent(Object3DEvent.SESSION_UPDATED, this);
 		}
 		dispatchEvent(_sessionupdated);
 	}
@@ -479,7 +479,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			return;
 		}
 		if (_dimensionschanged == null) {
-			_dimensionschanged = new Object3DEvent();
+			_dimensionschanged = new Object3DEvent(Object3DEvent.DIMENSIONS_CHANGED, this);
 		}
 		dispatchEvent(_dimensionschanged);
 		_dispatchedDimensionsChange = true;
@@ -498,7 +498,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	private function onSessionUpdate(event:SessionEvent):Void {
 		
 		if (Std.is(event.target, BitmapRenderSession)) {
-			_scene.updatedSessions[cast event.target] = event.target;
+			_scene.updatedSessions[untyped event.target] = event.target;
 		}
 	}
 
@@ -601,7 +601,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 		_dispatchedDimensionsChange = false;
 		if (debugbb) {
 			if (_debugBoundingBox == null) {
-				_debugBoundingBox = new WireCube();
+				_debugBoundingBox = new WireCube({material:"#333333"});
 			}
 			if ((_boundingRadius > 0)) {
 				_debugBoundingBox.visible = true;
@@ -619,7 +619,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 		}
 		if (debugbs) {
 			if (_debugBoundingSphere == null) {
-				_debugBoundingSphere = new WireSphere();
+				_debugBoundingSphere = new WireSphere({material:"#cyan", segmentsW:16, segmentsH:12});
 			}
 			if ((_boundingRadius > 0)) {
 				_debugBoundingSphere.visible = true;
@@ -819,7 +819,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 		if (val) {
 			ownSession = new SpriteRenderSession();
 		} else if (Std.is(this, Scene3D)) {
-			throw new Error();
+			throw new Error("Scene cannot have ownCanvas set to false");
 		} else {
 			ownSession = null;
 		}
@@ -963,7 +963,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 			_ownSession.internalAddOwnSession(this);
 			_ownSession.addOnSessionUpdate(onSessionUpdate);
 		} else if (Std.is(this, Scene3D)) {
-			throw new Error();
+			throw new Error("Scene cannot have ownSession set to null");
 		} else if ((_parent != null) && (_parent.session != null)) {
 			_parent.session.internalAddOwnSession(this);
 		}
@@ -988,7 +988,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function setX(value:Float):Float {
 		
 		if (Math.isNaN(value)) {
-			throw new Error();
+			throw new Error("isNaN(x)");
 		}
 		if (_transform.tx == value) {
 			return value;
@@ -1016,7 +1016,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function setY(value:Float):Float {
 		
 		if (Math.isNaN(value)) {
-			throw new Error();
+			throw new Error("isNaN(y)");
 		}
 		if (_transform.ty == value) {
 			return value;
@@ -1044,7 +1044,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function setZ(value:Float):Float {
 		
 		if (Math.isNaN(value)) {
-			throw new Error();
+			throw new Error("isNaN(z)");
 		}
 		if (_transform.tz == value) {
 			return value;
@@ -1264,7 +1264,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function setParent(value:ObjectContainer3D):ObjectContainer3D {
 		
 		if (Std.is(this, Scene3D)) {
-			throw new Error();
+			throw new Error("Scene cannot be parented");
 		}
 		if (value == _parent) {
 			return value;
@@ -1492,7 +1492,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function updateObject():Void {
 		
 		if (_objectDirty) {
-			_scene.updatedObjects[cast this] = this;
+			_scene.updatedObjects[untyped this] = this;
 			_objectDirty = false;
 			_sessionDirty = true;
 		}
@@ -1770,7 +1770,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	 */
 	public function applyRotations():Void {
 		
-		throw new Error();
+		throw new Error("Not implemented in Object3D - Use Mesh or ObjectContainer3D");
 	}
 
 	/**
@@ -1778,7 +1778,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	 */
 	public function applyPosition(dx:Float, dy:Float, dz:Float):Void {
 		
-		throw new Error();
+		throw new Error("Not implemented in Object3D - Use Mesh or ObjectContainer3D");
 	}
 
 	/**

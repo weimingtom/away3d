@@ -66,7 +66,7 @@ class TweenMaxVars extends TweenLiteVars  {
 		
 		var vars:Dynamic = {protectedVars:{}};
 		appendCloneVars(vars, vars.protectedVars);
-		return new TweenMaxVars();
+		return new TweenMaxVars(vars);
 	}
 
 	/**

@@ -52,7 +52,7 @@ class Md2still extends AbstractParser  {
 		version = data.readInt();
 		// Make sure it is valid MD2 file
 		if (ident != 844121161 || version != 8) {
-			throw new Error();
+			throw new Error("Error loading MD2 file: Not a valid MD2 file/bad version");
 		}
 		skinwidth = data.readInt();
 		skinheight = data.readInt();
@@ -85,7 +85,7 @@ class Md2still extends AbstractParser  {
 		data.position = offset_st;
 		i = 0;
 		while (i < num_st) {
-			uvs.push(new UV());
+			uvs.push(new UV(data.readShort() / skinwidth, 1 - (data.readShort() / skinheight)));
 			
 			// update loop variables
 			i++;
@@ -101,7 +101,7 @@ class Md2still extends AbstractParser  {
 			var ta:Int = data.readUnsignedShort();
 			var tb:Int = data.readUnsignedShort();
 			var tc:Int = data.readUnsignedShort();
-			mesh.addFace(new Face());
+			mesh.addFace(new Face(vertices[a], vertices[b], vertices[c], null, uvs[ta], uvs[tb], uvs[tc]));
 			
 			// update loop variables
 			i++;
@@ -174,7 +174,7 @@ class Md2still extends AbstractParser  {
 		
 		ini = Init.parse(init);
 		scaling = ini.getNumber("scaling", 1) * 100;
-		mesh = cast((container = new Mesh()), Mesh);
+		mesh = cast((container = new Mesh(ini)), Mesh);
 		parseMd2still(Cast.bytearray(data));
 	}
 

@@ -57,7 +57,7 @@ class TargetCamera3D extends Camera3D  {
 	public override function setParent(value:ObjectContainer3D):ObjectContainer3D {
 		
 		if (value != null) {
-			throw new Error();
+			throw new Error("TargetCamera can't be parented");
 		}
 		return value;
 	}

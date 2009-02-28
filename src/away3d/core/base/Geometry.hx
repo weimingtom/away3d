@@ -147,7 +147,7 @@ class Geometry extends EventDispatcher  {
 		if (_vertfacesDirty) {
 			findVertFaces();
 		}
-		return _vertfaces[cast vertex];
+		return _vertfaces[untyped vertex];
 	}
 
 	/** @private */
@@ -159,7 +159,7 @@ class Geometry extends EventDispatcher  {
 		if (_vertnormalsDirty) {
 			findVertNormals();
 		}
-		return _vertnormals[cast vertex];
+		return _vertnormals[untyped vertex];
 	}
 
 	/** @private */
@@ -168,7 +168,7 @@ class Geometry extends EventDispatcher  {
 		if (_neighboursDirty) {
 			findNeighbours();
 		}
-		return _neighbour01[cast face];
+		return _neighbour01[untyped face];
 	}
 
 	/** @private */
@@ -177,7 +177,7 @@ class Geometry extends EventDispatcher  {
 		if (_neighboursDirty) {
 			findNeighbours();
 		}
-		return _neighbour12[cast face];
+		return _neighbour12[untyped face];
 	}
 
 	/** @private */
@@ -186,7 +186,7 @@ class Geometry extends EventDispatcher  {
 		if (_neighboursDirty) {
 			findNeighbours();
 		}
-		return _neighbour20[cast face];
+		return _neighbour20[untyped face];
 	}
 
 	/** @private */
@@ -196,7 +196,7 @@ class Geometry extends EventDispatcher  {
 			return;
 		}
 		if (_dimensionschanged == null) {
-			_dimensionschanged = new GeometryEvent();
+			_dimensionschanged = new GeometryEvent(GeometryEvent.DIMENSIONS_CHANGED, this);
 		}
 		dispatchEvent(_dimensionschanged);
 		_dispatchedDimensionsChange = true;
@@ -206,8 +206,8 @@ class Geometry extends EventDispatcher  {
 	public function addMaterial(element:Element, material:IMaterial):Void {
 		//detect if materialData exists
 		
-		if ((_materialData = materialDictionary[cast material]) == null) {
-			_materialData = materialDictionary[cast material] = new MaterialData();
+		if ((_materialData = materialDictionary[untyped material]) == null) {
+			_materialData = materialDictionary[untyped material] = new MaterialData();
 			//set material property of materialData
 			_materialData.material = material;
 			//add update listener
@@ -223,13 +223,13 @@ class Geometry extends EventDispatcher  {
 	public function removeMaterial(element:Element, material:IMaterial):Void {
 		//detect if materialData exists
 		
-		if (((_materialData = materialDictionary[cast material]) != null)) {
+		if (((_materialData = materialDictionary[untyped material]) != null)) {
 			if ((_index = _materialData.elements.indexOf(element)) != -1) {
 				_materialData.elements.splice(_index, 1);
 			}
 			//check if elements array is empty
 			if (_materialData.elements.length == 0) {
-				materialDictionary[cast material] = null;
+				materialDictionary[untyped material] = null;
 				//remove update listener
 				material.removeOnMaterialUpdate(onMaterialUpdate);
 			}
@@ -259,23 +259,25 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...faces.length) {
 			var face:Face = faces[__i];
 
-			var v0:Vertex = face.v0;
-			if (_vertfaces[cast v0] == null) {
-				_vertfaces[cast v0] = [face];
-			} else {
-				_vertfaces[cast v0].push(face);
-			}
-			var v1:Vertex = face.v1;
-			if (_vertfaces[cast v1] == null) {
-				_vertfaces[cast v1] = [face];
-			} else {
-				_vertfaces[cast v1].push(face);
-			}
-			var v2:Vertex = face.v2;
-			if (_vertfaces[cast v2] == null) {
-				_vertfaces[cast v2] = [face];
-			} else {
-				_vertfaces[cast v2].push(face);
+			if (face != null) {
+				var v0:Vertex = face.v0;
+				if (_vertfaces[untyped v0] == null) {
+					_vertfaces[untyped v0] = [face];
+				} else {
+					_vertfaces[untyped v0].push(face);
+				}
+				var v1:Vertex = face.v1;
+				if (_vertfaces[untyped v1] == null) {
+					_vertfaces[untyped v1] = [face];
+				} else {
+					_vertfaces[untyped v1].push(face);
+				}
+				var v2:Vertex = face.v2;
+				if (_vertfaces[untyped v2] == null) {
+					_vertfaces[untyped v2] = [face];
+				} else {
+					_vertfaces[untyped v2].push(face);
+				}
 			}
 		}
 
@@ -289,32 +291,38 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...vertices.length) {
 			var v:Vertex = vertices[__i];
 
-			var vF:Array<Dynamic> = _vertfaces[cast v];
-			var nX:Float = 0;
-			var nY:Float = 0;
-			var nZ:Float = 0;
-			for (__i in 0...vF.length) {
-				var f:Face = vF[__i];
+			if (v != null) {
+				var vF:Array<Dynamic> = _vertfaces[untyped v];
+				var nX:Float = 0;
+				var nY:Float = 0;
+				var nZ:Float = 0;
+				for (__i in 0...vF.length) {
+					var f:Face = vF[__i];
 
-				_fNormal = f.normal;
-				_fVectors = new Array<Dynamic>();
-				for (__i in 0...f.vertices.length) {
-					var fV:Vertex = f.vertices[__i];
+					if (f != null) {
+						_fNormal = f.normal;
+						_fVectors = new Array();
+						for (__i in 0...f.vertices.length) {
+							var fV:Vertex = f.vertices[__i];
 
-					if (fV != v) {
-						_fVectors.push(new Number3D());
+							if (fV != null) {
+								if (fV != v) {
+									_fVectors.push(new Number3D(fV.x - v.x, fV.y - v.y, fV.z - v.z, true));
+								}
+							}
+						}
+
+						_fAngle = Math.acos((cast(_fVectors[0], Number3D)).dot(cast(_fVectors[1], Number3D)));
+						nX += _fNormal.x * _fAngle;
+						nY += _fNormal.y * _fAngle;
+						nZ += _fNormal.z * _fAngle;
 					}
 				}
 
-				_fAngle = Math.acos((cast(_fVectors[0], Number3D)).dot(cast(_fVectors[1], Number3D)));
-				nX += _fNormal.x * _fAngle;
-				nY += _fNormal.y * _fAngle;
-				nZ += _fNormal.z * _fAngle;
+				var vertNormal:Number3D = new Number3D(nX, nY, nZ);
+				vertNormal.normalize();
+				_vertnormals[untyped v] = vertNormal;
 			}
-
-			var vertNormal:Number3D = new Number3D();
-			vertNormal.normalize();
-			_vertnormals[cast v] = vertNormal;
 		}
 
 		_vertnormalsDirty = false;
@@ -354,7 +362,9 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...frame.vertexpositions.length) {
 			var vertexPosition:VertexPosition = frame.vertexpositions[__i];
 
-			result.vertexpositions.push(cloneVertexPosition(vertexPosition));
+			if (vertexPosition != null) {
+				result.vertexpositions.push(cloneVertexPosition(vertexPosition));
+			}
 		}
 
 		return result;
@@ -362,7 +372,7 @@ class Geometry extends EventDispatcher  {
 
 	private function cloneVertexPosition(vertexPosition:VertexPosition):VertexPosition {
 		
-		var result:VertexPosition = new VertexPosition();
+		var result:VertexPosition = new VertexPosition(cloneVertex(vertexPosition.vertex));
 		result.x = vertexPosition.x;
 		result.y = vertexPosition.y;
 		result.z = vertexPosition.z;
@@ -371,40 +381,42 @@ class Geometry extends EventDispatcher  {
 
 	private function cloneVertex(vertex:Vertex):Vertex {
 		
-		var result:Vertex = clonedvertices[cast vertex];
+		var result:Vertex = clonedvertices[untyped vertex];
 		if (result == null) {
 			result = vertex.clone();
 			result.extra = (Std.is(vertex.extra, IClonable)) ? (cast(vertex.extra, IClonable)).clone() : vertex.extra;
-			clonedvertices[cast vertex] = result;
+			clonedvertices[untyped vertex] = result;
 		}
 		return result;
 	}
 
 	private function cloneSkinVertex(skinVertex:SkinVertex):SkinVertex {
 		
-		var result:SkinVertex = clonedskinvertices[cast skinVertex];
+		var result:SkinVertex = clonedskinvertices[untyped skinVertex];
 		if (result == null) {
-			result = new SkinVertex();
+			result = new SkinVertex(cloneVertex(skinVertex.skinnedVertex));
 			result.weights = skinVertex.weights.concat();
 			for (__i in 0...skinVertex.controllers.length) {
 				_skinController = skinVertex.controllers[__i];
 
-				result.controllers.push(cloneSkinController(_skinController));
+				if (_skinController != null) {
+					result.controllers.push(cloneSkinController(_skinController));
+				}
 			}
 
-			clonedskinvertices[cast skinVertex] = result;
+			clonedskinvertices[untyped skinVertex] = result;
 		}
 		return result;
 	}
 
 	private function cloneSkinController(skinController:SkinController):SkinController {
 		
-		var result:SkinController = clonedskincontrollers[cast skinController];
+		var result:SkinController = clonedskincontrollers[untyped skinController];
 		if (result == null) {
 			result = new SkinController();
 			result.name = skinController.name;
 			result.bindMatrix = skinController.bindMatrix;
-			clonedskincontrollers[cast skinController] = result;
+			clonedskincontrollers[untyped skinController] = result;
 		}
 		return result;
 	}
@@ -414,10 +426,10 @@ class Geometry extends EventDispatcher  {
 		if (uv == null) {
 			return null;
 		}
-		var result:UV = cloneduvs[cast uv];
+		var result:UV = cloneduvs[untyped uv];
 		if (result == null) {
-			result = new UV();
-			cloneduvs[cast uv] = result;
+			result = new UV(uv._u, uv._v);
+			cloneduvs[untyped uv] = result;
 		}
 		return result;
 	}
@@ -429,7 +441,7 @@ class Geometry extends EventDispatcher  {
 			_animation.sequenceEvent = false;
 			if (hasSequenceEvent) {
 				if (_sequencedone == null) {
-					_sequencedone = new AnimationEvent();
+					_sequencedone = new AnimationEvent(AnimationEvent.SEQUENCE_DONE, null);
 				}
 				dispatchEvent(_sequencedone);
 			}
@@ -461,8 +473,10 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...vertices.length) {
 			_vertex = vertices[__i];
 
-			if (_vertex.positionDirty) {
-				return true;
+			if (_vertex != null) {
+				if (_vertex.positionDirty) {
+					return true;
+				}
 			}
 		}
 
@@ -504,15 +518,19 @@ class Geometry extends EventDispatcher  {
 			for (__i in 0...elements.length) {
 				var element:Element = elements[__i];
 
-				for (__i in 0...element.vertices.length) {
-					var vertex:Vertex = element.vertices[__i];
+				if (element != null) {
+					for (__i in 0...element.vertices.length) {
+						var vertex:Vertex = element.vertices[__i];
 
-					if (processed[cast vertex] == null) {
-						_vertices.push(vertex);
-						processed[cast vertex] = true;
+						if (vertex != null) {
+							if (processed[untyped vertex] == null) {
+								_vertices.push(vertex);
+								processed[untyped vertex] = true;
+							}
+						}
 					}
-				}
 
+				}
 			}
 
 			_verticesDirty = false;
@@ -535,7 +553,7 @@ class Geometry extends EventDispatcher  {
 		}
 		_frame = value;
 		_animation.frame = value;
-		frames[cast value].adjust(1);
+		frames[untyped value].adjust(1);
 		return value;
 	}
 
@@ -728,7 +746,9 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0..._faces.length) {
 			var face:Face = _faces[__i];
 
-			face.invert();
+			if (face != null) {
+				face.invert();
+			}
 		}
 
 	}
@@ -745,7 +765,9 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0..._faces.concat([]).length) {
 			var face:Face = _faces.concat([])[__i];
 
-			quarterFace(face, medians);
+			if (face != null) {
+				quarterFace(face, medians);
+			}
 		}
 
 	}
@@ -763,32 +785,32 @@ class Geometry extends EventDispatcher  {
 		var v0:Vertex = face.v0;
 		var v1:Vertex = face.v1;
 		var v2:Vertex = face.v2;
-		if (medians[cast v0] == null) {
-			medians[cast v0] = new Dictionary();
+		if (medians[untyped v0] == null) {
+			medians[untyped v0] = new Dictionary();
 		}
-		if (medians[cast v1] == null) {
-			medians[cast v1] = new Dictionary();
+		if (medians[untyped v1] == null) {
+			medians[untyped v1] = new Dictionary();
 		}
-		if (medians[cast v2] == null) {
-			medians[cast v2] = new Dictionary();
+		if (medians[untyped v2] == null) {
+			medians[untyped v2] = new Dictionary();
 		}
-		var v01:Vertex = medians[cast v0][cast v1];
+		var v01:Vertex = medians[untyped v0][untyped v1];
 		if (v01 == null) {
 			v01 = Vertex.median(v0, v1);
-			medians[cast v0][cast v1] = v01;
-			medians[cast v1][cast v0] = v01;
+			medians[untyped v0][untyped v1] = v01;
+			medians[untyped v1][untyped v0] = v01;
 		}
-		var v12:Vertex = medians[cast v1][cast v2];
+		var v12:Vertex = medians[untyped v1][untyped v2];
 		if (v12 == null) {
 			v12 = Vertex.median(v1, v2);
-			medians[cast v1][cast v2] = v12;
-			medians[cast v2][cast v1] = v12;
+			medians[untyped v1][untyped v2] = v12;
+			medians[untyped v2][untyped v1] = v12;
 		}
-		var v20:Vertex = medians[cast v2][cast v0];
+		var v20:Vertex = medians[untyped v2][untyped v0];
 		if (v20 == null) {
 			v20 = Vertex.median(v2, v0);
-			medians[cast v2][cast v0] = v20;
-			medians[cast v0][cast v2] = v20;
+			medians[untyped v2][untyped v0] = v20;
+			medians[untyped v0][untyped v2] = v20;
 		}
 		var uv0:UV = face.uv0;
 		var uv1:UV = face.uv1;
@@ -798,10 +820,10 @@ class Geometry extends EventDispatcher  {
 		var uv20:UV = UV.median(uv2, uv0);
 		var material:ITriangleMaterial = face.material;
 		removeFace(face);
-		addFace(new Face());
-		addFace(new Face());
-		addFace(new Face());
-		addFace(new Face());
+		addFace(new Face(v0, v01, v20, material, uv0, uv01, uv20));
+		addFace(new Face(v01, v1, v12, material, uv01, uv1, uv12));
+		addFace(new Face(v20, v12, v2, material, uv20, uv12, uv2));
+		addFace(new Face(v12, v20, v01, material, uv12, uv20, uv01));
 	}
 
 	/**
@@ -813,7 +835,9 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0..._faces.concat([]).length) {
 			var face:Face = _faces.concat([])[__i];
 
-			triFace(face);
+			if (face != null) {
+				triFace(face);
+			}
 		}
 
 	}
@@ -828,16 +852,16 @@ class Geometry extends EventDispatcher  {
 		var v0:Vertex = face.v0;
 		var v1:Vertex = face.v1;
 		var v2:Vertex = face.v2;
-		var vc:Vertex = new Vertex();
+		var vc:Vertex = new Vertex((face.v0.x + face.v1.x + face.v2.x) / 3, (face.v0.y + face.v1.y + face.v2.y) / 3, (face.v0.z + face.v1.z + face.v2.z) / 3);
 		var uv0:UV = face.uv0;
 		var uv1:UV = face.uv1;
 		var uv2:UV = face.uv2;
-		var uvc:UV = new UV();
+		var uvc:UV = new UV((uv0.u + uv1.u + uv2.u) / 3, (uv0.v + uv1.v + uv2.v) / 3);
 		var material:ITriangleMaterial = face.material;
 		removeFace(face);
-		addFace(new Face());
-		addFace(new Face());
-		addFace(new Face());
+		addFace(new Face(v0, v1, vc, material, uv0, uv1, uvc));
+		addFace(new Face(vc, v1, v2, material, uvc, uv1, uv2));
+		addFace(new Face(v0, vc, v2, material, uv0, uvc, uv2));
 	}
 
 	/**
@@ -851,7 +875,9 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0..._faces.concat([]).length) {
 			var face:Face = _faces.concat([])[__i];
 
-			splitFace(face, side);
+			if (face != null) {
+				splitFace(face, side);
+			}
 		}
 
 	}
@@ -876,20 +902,20 @@ class Geometry extends EventDispatcher  {
 		removeFace(face);
 		switch (side) {
 			case 0 :
-				vc = new Vertex();
-				uvc = new UV();
-				addFace(new Face());
-				addFace(new Face());
+				vc = new Vertex((face.v0.x + face.v1.x) * .5, (face.v0.y + face.v1.y) * .5, (face.v0.z + face.v1.z) * .5);
+				uvc = new UV((uv0.u + uv1.u) * .5, (uv0.v + uv1.v) * .5);
+				addFace(new Face(vc, v1, v2, material, uvc, uv1, uv2));
+				addFace(new Face(v0, vc, v2, material, uv0, uvc, uv2));
 			case 1 :
-				vc = new Vertex();
-				uvc = new UV();
-				addFace(new Face());
-				addFace(new Face());
+				vc = new Vertex((face.v1.x + face.v2.x) * .5, (face.v1.y + face.v2.y) * .5, (face.v1.z + face.v2.z) * .5);
+				uvc = new UV((uv1.u + uv2.u) * .5, (uv1.v + uv2.v) * .5);
+				addFace(new Face(v0, v1, vc, material, uv0, uv1, uv2));
+				addFace(new Face(v0, vc, v2, material, uv0, uvc, uv2));
 			default :
-				vc = new Vertex();
-				uvc = new UV();
-				addFace(new Face());
-				addFace(new Face());
+				vc = new Vertex((face.v2.x + face.v0.x) * .5, (face.v2.y + face.v0.y) * .5, (face.v2.z + face.v0.z) * .5);
+				uvc = new UV((uv2.u + uv0.u) * .5, (uv2.v + uv0.v) * .5);
+				addFace(new Face(v0, v1, vc, material, uv0, uv1, uvc));
+				addFace(new Face(vc, v1, v2, material, uvc, uv1, uv2));
 			
 
 		}
@@ -903,54 +929,58 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0..._faces.length) {
 			var face:Face = _faces[__i];
 
-			var skip:Bool = true;
-			for (__i in 0..._faces.length) {
-				var another:Face = _faces[__i];
+			if (face != null) {
+				var skip:Bool = true;
+				for (__i in 0..._faces.length) {
+					var another:Face = _faces[__i];
 
-				if (skip) {
-					if (face == another) {
-						skip = false;
+					if (another != null) {
+						if (skip) {
+							if (face == another) {
+								skip = false;
+							}
+							continue;
+						}
+						if ((face._v0 == another._v2) && (face._v1 == another._v1)) {
+							_neighbour01[untyped face] = another;
+							_neighbour12[untyped another] = face;
+						}
+						if ((face._v0 == another._v0) && (face._v1 == another._v2)) {
+							_neighbour01[untyped face] = another;
+							_neighbour20[untyped another] = face;
+						}
+						if ((face._v0 == another._v1) && (face._v1 == another._v0)) {
+							_neighbour01[untyped face] = another;
+							_neighbour01[untyped another] = face;
+						}
+						if ((face._v1 == another._v2) && (face._v2 == another._v1)) {
+							_neighbour12[untyped face] = another;
+							_neighbour12[untyped another] = face;
+						}
+						if ((face._v1 == another._v0) && (face._v2 == another._v2)) {
+							_neighbour12[untyped face] = another;
+							_neighbour20[untyped another] = face;
+						}
+						if ((face._v1 == another._v1) && (face._v2 == another._v0)) {
+							_neighbour12[untyped face] = another;
+							_neighbour01[untyped another] = face;
+						}
+						if ((face._v2 == another._v2) && (face._v0 == another._v1)) {
+							_neighbour20[untyped face] = another;
+							_neighbour12[untyped another] = face;
+						}
+						if ((face._v2 == another._v0) && (face._v0 == another._v2)) {
+							_neighbour20[untyped face] = another;
+							_neighbour20[untyped another] = face;
+						}
+						if ((face._v2 == another._v1) && (face._v0 == another._v0)) {
+							_neighbour20[untyped face] = another;
+							_neighbour01[untyped another] = face;
+						}
 					}
-					continue;
 				}
-				if ((face._v0 == another._v2) && (face._v1 == another._v1)) {
-					_neighbour01[cast face] = another;
-					_neighbour12[cast another] = face;
-				}
-				if ((face._v0 == another._v0) && (face._v1 == another._v2)) {
-					_neighbour01[cast face] = another;
-					_neighbour20[cast another] = face;
-				}
-				if ((face._v0 == another._v1) && (face._v1 == another._v0)) {
-					_neighbour01[cast face] = another;
-					_neighbour01[cast another] = face;
-				}
-				if ((face._v1 == another._v2) && (face._v2 == another._v1)) {
-					_neighbour12[cast face] = another;
-					_neighbour12[cast another] = face;
-				}
-				if ((face._v1 == another._v0) && (face._v2 == another._v2)) {
-					_neighbour12[cast face] = another;
-					_neighbour20[cast another] = face;
-				}
-				if ((face._v1 == another._v1) && (face._v2 == another._v0)) {
-					_neighbour12[cast face] = another;
-					_neighbour01[cast another] = face;
-				}
-				if ((face._v2 == another._v2) && (face._v0 == another._v1)) {
-					_neighbour20[cast face] = another;
-					_neighbour12[cast another] = face;
-				}
-				if ((face._v2 == another._v0) && (face._v0 == another._v2)) {
-					_neighbour20[cast face] = another;
-					_neighbour20[cast another] = face;
-				}
-				if ((face._v2 == another._v1) && (face._v0 == another._v0)) {
-					_neighbour20[cast face] = another;
-					_neighbour01[cast another] = face;
-				}
-			}
 
+			}
 		}
 
 		_neighboursDirty = false;
@@ -974,13 +1004,17 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...skinControllers.length) {
 			_skinController = skinControllers[__i];
 
-			_skinController.update();
+			if (_skinController != null) {
+				_skinController.update();
+			}
 		}
 
 		for (__i in 0...skinVertices.length) {
 			_skinVertex = skinVertices[__i];
 
-			_skinVertex.update();
+			if (_skinVertex != null) {
+				_skinVertex.update();
+			}
 		}
 
 		if ((_animation != null) && (frames != null)) {
@@ -998,9 +1032,11 @@ class Geometry extends EventDispatcher  {
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(materialDictionary)).iterator();
 		for (__key in __keys) {
-			_materialData = materialDictionary[cast __key];
+			_materialData = materialDictionary[untyped __key];
 
-			_materialData.material.updateMaterial(source, view);
+			if (_materialData != null) {
+				_materialData.material.updateMaterial(source, view);
+			}
 		}
 
 	}
@@ -1016,54 +1052,64 @@ class Geometry extends EventDispatcher  {
 		clonedvertices = new Dictionary();
 		cloneduvs = new Dictionary();
 		if ((skinVertices != null)) {
-			clonedskinvertices = new Dictionary();
-			clonedskincontrollers = new Dictionary();
-			geometry.skinVertices = new Array<Dynamic>();
-			geometry.skinControllers = new Array<Dynamic>();
+			clonedskinvertices = new Dictionary(true);
+			clonedskincontrollers = new Dictionary(true);
+			geometry.skinVertices = new Array();
+			geometry.skinControllers = new Array();
 			for (__i in 0...skinVertices.length) {
 				var skinVertex:SkinVertex = skinVertices[__i];
 
-				geometry.skinVertices.push(cloneSkinVertex(skinVertex));
+				if (skinVertex != null) {
+					geometry.skinVertices.push(cloneSkinVertex(skinVertex));
+				}
 			}
 
 			var __keys:Iterator<Dynamic> = untyped (__keys__(clonedskincontrollers)).iterator();
 			for (__key in __keys) {
-				var skinController:SkinController = clonedskincontrollers[cast __key];
+				var skinController:SkinController = clonedskincontrollers[untyped __key];
 
-				geometry.skinControllers.push(skinController);
+				if (skinController != null) {
+					geometry.skinControllers.push(skinController);
+				}
 			}
 
 		}
 		for (__i in 0..._faces.length) {
 			var face:Face = _faces[__i];
 
-			var cloneFace:Face = new Face();
-			geometry.addFace(cloneFace);
-			cloneElementDictionary[cast face] = cloneFace;
+			if (face != null) {
+				var cloneFace:Face = new Face(cloneVertex(face._v0), cloneVertex(face._v1), cloneVertex(face._v2), face.material, cloneUV(face._uv0), cloneUV(face._uv1), cloneUV(face._uv2));
+				geometry.addFace(cloneFace);
+				cloneElementDictionary[untyped face] = cloneFace;
+			}
 		}
 
 		for (__i in 0..._segments.length) {
 			var segment:Segment = _segments[__i];
 
-			var cloneSegment:Segment = new Segment();
-			geometry.addSegment(cloneSegment);
-			cloneElementDictionary[cast segment] = cloneSegment;
+			if (segment != null) {
+				var cloneSegment:Segment = new Segment(cloneVertex(segment._v0), cloneVertex(segment._v1), segment.material);
+				geometry.addSegment(cloneSegment);
+				cloneElementDictionary[untyped segment] = cloneSegment;
+			}
 		}
 
-		geometry.frames = new Dictionary();
+		geometry.frames = new Dictionary(true);
 		var i:Int = 0;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(frames)).iterator();
 		for (__key in __keys) {
-			var frame:Frame = frames[cast __key];
+			var frame:Frame = frames[untyped __key];
 
-			geometry.frames[i++] = cloneFrame(frame);
+			if (frame != null) {
+				geometry.frames[i++] = cloneFrame(frame);
+			}
 		}
 
-		geometry.framenames = new Dictionary();
+		geometry.framenames = new Dictionary(true);
 		var framename:String;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(framenames)).iterator();
 		for (framename in __keys) {
-			Reflect.setField(geometry.framenames, framename, framenames[cast framename]);
+			Reflect.setField(geometry.framenames, framename, framenames[untyped framename]);
 			
 		}
 
@@ -1111,19 +1157,21 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...vertices.length) {
 			var vertex:Vertex = vertices[__i];
 
-			x = vertex.x;
-			y = vertex.y;
-			z = vertex.z;
-			y1 = y;
-			y = y1 * cosx + z * -sinx;
-			z = y1 * sinx + z * cosx;
-			x1 = x;
-			x = x1 * cosy + z * siny;
-			z = x1 * -siny + z * cosy;
-			x1 = x;
-			x = x1 * cosz + y * -sinz;
-			y = x1 * sinz + y * cosz;
-			updateVertex(vertex, x, y, z, false);
+			if (vertex != null) {
+				x = vertex.x;
+				y = vertex.y;
+				z = vertex.z;
+				y1 = y;
+				y = y1 * cosx + z * -sinx;
+				z = y1 * sinx + z * cosx;
+				x1 = x;
+				x = x1 * cosy + z * siny;
+				z = x1 * -siny + z * cosy;
+				x1 = x;
+				x = x1 * cosz + y * -sinz;
+				y = x1 * sinz + y * cosz;
+				updateVertex(vertex, x, y, z, false);
+			}
 		}
 
 	}
@@ -1139,10 +1187,12 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...vertices.length) {
 			var vertex:Vertex = vertices[__i];
 
-			x = vertex.x;
-			y = vertex.y;
-			z = vertex.z;
-			vertex.setValue(x - dx, y - dy, z - dz);
+			if (vertex != null) {
+				x = vertex.x;
+				y = vertex.y;
+				z = vertex.z;
+				vertex.setValue(x - dx, y - dy, z - dz);
+			}
 		}
 
 	}
@@ -1155,9 +1205,9 @@ class Geometry extends EventDispatcher  {
 	public function play(sequence:AnimationSequence):Void {
 		
 		if (_animation == null) {
-			_animation = new Animation();
+			_animation = new Animation(this);
 		} else {
-			_animation.sequence = new Array<Dynamic>();
+			_animation.sequence = new Array();
 		}
 		_animation.fps = sequence.fps;
 		_animation.smooth = sequence.smooth;
@@ -1173,14 +1223,14 @@ class Geometry extends EventDispatcher  {
 				if (framename.indexOf(sequence.prefix) == 0) {
 					bvalidprefix = true;
 					_activeprefix = (_activeprefix != sequence.prefix) ? sequence.prefix : _activeprefix;
-					_animation.sequence.push(new AnimationFrame());
+					_animation.sequence.push(new AnimationFrame(framenames[untyped framename], "" + Std.parseInt(framename.substr(sequence.prefix.length))));
 				}
 				
 			}
 
 			if (bvalidprefix) {
 				_animation.sequence.sortOn("sort", Array.NUMERIC);
-				frames[cast _frame].adjust(1);
+				frames[untyped _frame].adjust(1);
 				_animation.start();
 				//trace(">>>>>>>> [  start "+activeprefix+"  ]");
 				
@@ -1209,7 +1259,7 @@ class Geometry extends EventDispatcher  {
 	public function gotoAndPlay(value:Int):Void {
 		
 		_frame = _animation.frame = value;
-		frames[cast _frame].adjust(1);
+		frames[untyped _frame].adjust(1);
 		if (!_animation.isRunning) {
 			_animation.start();
 		}
@@ -1223,7 +1273,7 @@ class Geometry extends EventDispatcher  {
 	public function gotoAndStop(value:Int):Void {
 		
 		_frame = _animation.frame = value;
-		frames[cast _frame].adjust(1);
+		frames[untyped _frame].adjust(1);
 		if (_animation.isRunning) {
 			_animation.stop();
 		}
@@ -1242,7 +1292,7 @@ class Geometry extends EventDispatcher  {
 		if ((_animation != null)) {
 			_animation.sequence = [];
 		} else {
-			_animation = new Animation();
+			_animation = new Animation(this);
 		}
 		_animation.fps = fps;
 		_animation.smooth = smooth;
@@ -1253,8 +1303,10 @@ class Geometry extends EventDispatcher  {
 		for (__i in 0...prefixes.length) {
 			var framename:String = prefixes[__i];
 
-			if (framenames[cast framename] != null) {
-				_animation.sequence.push(new AnimationFrame());
+			if (framename != null) {
+				if (framenames[untyped framename] != null) {
+					_animation.sequence.push(new AnimationFrame(framenames[untyped framename]));
+				}
 			}
 		}
 
@@ -1275,14 +1327,14 @@ class Geometry extends EventDispatcher  {
 			return;
 		}
 		if (_animation == null) {
-			_animation = new Animation();
+			_animation = new Animation(this);
 		}
 		_animationgroup = new AnimationGroup();
 		_animationgroup.loopLast = loopLast;
 		_animationgroup.playlist = [];
 		var i:Int = 0;
 		while (i < playlist.length) {
-			_animationgroup.playlist[i] = new AnimationSequence();
+			_animationgroup.playlist[i] = new AnimationSequence(playlist[i].prefix, playlist[i].smooth, true, playlist[i].fps);
 			
 			// update loop variables
 			++i;
@@ -1324,7 +1376,7 @@ class Geometry extends EventDispatcher  {
 	public function addOnCycle(listener:Dynamic):Void {
 		
 		_animation.cycleEvent = true;
-		_cycle = new AnimationEvent();
+		_cycle = new AnimationEvent(AnimationEvent.CYCLE, _animation);
 		_animation.addEventListener(AnimationEvent.CYCLE, listener, false, 0, false);
 	}
 
@@ -1409,7 +1461,7 @@ class Geometry extends EventDispatcher  {
 		this._neighboursDirty = true;
 		this._vertfacesDirty = true;
 		this._vertnormalsDirty = true;
-		this.materialDictionary = new Dictionary();
+		this.materialDictionary = new Dictionary(true);
 		this.cloneElementDictionary = new Dictionary();
 		
 	}

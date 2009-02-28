@@ -70,7 +70,9 @@ class RoundedCube extends AbstractPrimitive  {
 		for (__i in 0..._cubeFaceArray.length) {
 			_cubeFace = _cubeFaceArray[__i];
 
-			_cubeFace.material = cast(event.material, ITriangleMaterial);
+			if (_cubeFace != null) {
+				_cubeFace.material = cast(event.material, ITriangleMaterial);
+			}
 		}
 
 	}
@@ -446,9 +448,9 @@ class RoundedCube extends AbstractPrimitive  {
 			v0 = createVertex(-face.v0.x, face.v0.y, face.v0.z);
 			v1 = createVertex(-face.v1.x, face.v1.y, face.v1.z);
 			v2 = createVertex(-face.v2.x, face.v2.y, face.v2.z);
-			uv0 = new UV();
-			uv1 = new UV();
-			uv2 = new UV();
+			uv0 = new UV(1 - face.uv0.u, face.uv0.v);
+			uv1 = new UV(1 - face.uv1.u, face.uv1.v);
+			uv2 = new UV(1 - face.uv2.u, face.uv2.v);
 			addFace(createFace(v1, v0, v2, (_cubeMaterials.left == null) ? faceMaterial : _cubeMaterials.left, uv1, uv0, uv2));
 			_leftFaces.push(faces[faces.length - 1]);
 			
@@ -462,9 +464,9 @@ class RoundedCube extends AbstractPrimitive  {
 			v0 = createVertex(face.v0.x, face.v0.y, -face.v0.z);
 			v1 = createVertex(face.v1.x, face.v1.y, -face.v1.z);
 			v2 = createVertex(face.v2.x, face.v2.y, -face.v2.z);
-			uv0 = new UV();
-			uv1 = new UV();
-			uv2 = new UV();
+			uv0 = new UV(1 - face.uv0.u, face.uv0.v);
+			uv1 = new UV(1 - face.uv1.u, face.uv1.v);
+			uv2 = new UV(1 - face.uv2.u, face.uv2.v);
 			addFace(createFace(v1, v0, v2, (_cubeMaterials.back == null) ? faceMaterial : _cubeMaterials.back, uv1, uv0, uv2));
 			_backFaces.push(faces[faces.length - 1]);
 			
@@ -478,9 +480,9 @@ class RoundedCube extends AbstractPrimitive  {
 			v0 = createVertex(face.v0.x, -face.v0.y, face.v0.z);
 			v1 = createVertex(face.v1.x, -face.v1.y, face.v1.z);
 			v2 = createVertex(face.v2.x, -face.v2.y, face.v2.z);
-			uv0 = new UV();
-			uv1 = new UV();
-			uv2 = new UV();
+			uv0 = new UV(1 - face.uv0.u, face.uv0.v);
+			uv1 = new UV(1 - face.uv1.u, face.uv1.v);
+			uv2 = new UV(1 - face.uv2.u, face.uv2.v);
 			addFace(createFace(v1, v0, v2, (_cubeMaterials.bottom == null) ? faceMaterial : _cubeMaterials.bottom, uv1, uv0, uv2));
 			_bottomFaces.push(faces[faces.length - 1]);
 			

@@ -41,7 +41,7 @@ class ZipEvent extends Event  {
 
 	public override function clone():Event {
 		
-		return new ZipEvent();
+		return new ZipEvent(type);
 	}
 
 }

@@ -38,7 +38,7 @@ class ClippingEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new ClippingEvent();
+		return new ClippingEvent(type, clipping);
 	}
 
 }

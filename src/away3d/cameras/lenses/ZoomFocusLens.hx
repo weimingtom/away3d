@@ -98,7 +98,7 @@ class ZoomFocusLens extends AbstractLens, implements ILens {
 		_vz = vertex.z;
 		_sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
 		if (Math.isNaN(_sz)) {
-			throw new Error();
+			throw new Error("isNaN(sz)");
 		}
 		if (_sz < _near && Std.is(_clipping, RectangleClipping)) {
 			_screenVertex.visible = false;

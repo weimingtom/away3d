@@ -98,7 +98,7 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function updateAmbientBitmap():Void {
 		
-		ambientBitmap = new BitmapData();
+		ambientBitmap = new BitmapData(256, 256, false, Std.int(ambient * red * 0xFF << 16) | Std.int(ambient * green * 0xFF << 8) | Std.int(ambient * blue * 0xFF));
 		ambientBitmap.lock();
 	}
 
@@ -109,12 +109,12 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function updateDiffuseBitmap():Void {
 		
-		diffuseBitmap = new BitmapData();
+		diffuseBitmap = new BitmapData(256, 256, false, 0x000000);
 		diffuseBitmap.lock();
 		_matrix.createGradientBox(256, 256, 0, 0, 0);
-		var colArray:Array<Dynamic> = new Array<Dynamic>();
-		var alphaArray:Array<Dynamic> = new Array<Dynamic>();
-		var pointArray:Array<Dynamic> = new Array<Dynamic>();
+		var colArray:Array<Dynamic> = new Array();
+		var alphaArray:Array<Dynamic> = new Array();
+		var pointArray:Array<Dynamic> = new Array();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			var r:Float = (i * diffuse / 14);
@@ -139,7 +139,7 @@ class DirectionalLight extends LightPrimitive  {
 		_shape.graphics.drawRect(0, 0, 256, 256);
 		diffuseBitmap.draw(_shape);
 		//update colortransform
-		diffuseColorTransform = new ColorTransform();
+		diffuseColorTransform = new ColorTransform(diffuse * red, diffuse * green, diffuse * blue, 1, 0, 0, 0, 0);
 	}
 
 	/**
@@ -150,12 +150,12 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function updateAmbientDiffuseBitmap():Void {
 		
-		ambientDiffuseBitmap = new BitmapData();
+		ambientDiffuseBitmap = new BitmapData(256, 256, false, 0x000000);
 		ambientDiffuseBitmap.lock();
 		_matrix.createGradientBox(256, 256, 0, 0, 0);
-		var colArray:Array<Dynamic> = new Array<Dynamic>();
-		var alphaArray:Array<Dynamic> = new Array<Dynamic>();
-		var pointArray:Array<Dynamic> = new Array<Dynamic>();
+		var colArray:Array<Dynamic> = new Array();
+		var alphaArray:Array<Dynamic> = new Array();
+		var pointArray:Array<Dynamic> = new Array();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			var r:Float = (i * diffuse / 14 + ambient);
@@ -180,7 +180,7 @@ class DirectionalLight extends LightPrimitive  {
 		_shape.graphics.drawRect(0, 0, 256, 256);
 		ambientDiffuseBitmap.draw(_shape);
 		//update colortransform
-		ambientDiffuseColorTransform = new ColorTransform();
+		ambientDiffuseColorTransform = new ColorTransform(diffuse * red, diffuse * green, diffuse * blue, 1, ambient * red * 0xFF, ambient * green * 0xFF, ambient * blue * 0xFF, 0);
 	}
 
 	/**
@@ -190,12 +190,12 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function updateSpecularBitmap():Void {
 		
-		specularBitmap = new BitmapData();
+		specularBitmap = new BitmapData(512, 512, false, 0x000000);
 		specularBitmap.lock();
 		_matrix.createGradientBox(512, 512, 0, 0, 0);
-		var colArray:Array<Dynamic> = new Array<Dynamic>();
-		var alphaArray:Array<Dynamic> = new Array<Dynamic>();
-		var pointArray:Array<Dynamic> = new Array<Dynamic>();
+		var colArray:Array<Dynamic> = new Array();
+		var alphaArray:Array<Dynamic> = new Array();
+		var pointArray:Array<Dynamic> = new Array();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			colArray.push((i * specular * red * 0xFF / 14 << 16) + (i * specular * green * 0xFF / 14 << 8) + i * specular * blue * 0xFF / 14);
@@ -214,10 +214,10 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function clearTransform():Void {
 		
-		diffuseTransform = new Dictionary();
-		specularTransform = new Dictionary();
-		colorMatrixTransform = new Dictionary();
-		normalMatrixTransform = new Dictionary();
+		diffuseTransform = new Dictionary(true);
+		specularTransform = new Dictionary(true);
+		colorMatrixTransform = new Dictionary(true);
+		normalMatrixTransform = new Dictionary(true);
 	}
 
 	/**
@@ -244,11 +244,11 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function setDiffuseTransform(source:Object3D):Void {
 		
-		if (diffuseTransform[cast source] == null) {
-			diffuseTransform[cast source] = new Matrix3D();
+		if (diffuseTransform[untyped source] == null) {
+			diffuseTransform[untyped source] = new Matrix3D();
 		}
-		diffuseTransform[cast source].multiply3x3(transform, source.sceneTransform);
-		diffuseTransform[cast source].normalize(diffuseTransform[cast source]);
+		diffuseTransform[untyped source].multiply3x3(transform, source.sceneTransform);
+		diffuseTransform[untyped source].normalize(diffuseTransform[untyped source]);
 	}
 
 	/**
@@ -269,11 +269,11 @@ class DirectionalLight extends LightPrimitive  {
 		ny = halfVector.y;
 		mod = Math.sqrt(nx * nx + ny * ny);
 		halfTransform.rotationMatrix(-ny / mod, nx / mod, 0, Math.acos(-halfVector.z));
-		if (specularTransform[cast source][cast view] == null) {
-			specularTransform[cast source][cast view] = new Matrix3D();
+		if (specularTransform[untyped source][untyped view] == null) {
+			specularTransform[untyped source][untyped view] = new Matrix3D();
 		}
-		specularTransform[cast source][cast view].multiply3x3(halfTransform, source.sceneTransform);
-		specularTransform[cast source][cast view].normalize(specularTransform[cast source][cast view]);
+		specularTransform[untyped source][untyped view].multiply3x3(halfTransform, source.sceneTransform);
+		specularTransform[untyped source][untyped view].normalize(specularTransform[untyped source][untyped view]);
 	}
 
 	/**
@@ -287,7 +287,7 @@ class DirectionalLight extends LightPrimitive  {
 		_green = green * 2;
 		_blue = blue * 2;
 		_colorMatrix.matrix = [_red, _red, _red, 0, -381 * _red, _green, _green, _green, 0, -381 * _green, _blue, _blue, _blue, 0, -381 * _blue, 0, 0, 0, 1, 0];
-		colorMatrixTransform[cast source] = _colorMatrix.clone();
+		colorMatrixTransform[untyped source] = _colorMatrix.clone();
 	}
 
 	/**
@@ -297,11 +297,11 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function setNormalMatrixTransform(source:Object3D):Void {
 		
-		_szx = diffuseTransform[cast source].szx;
-		_szy = diffuseTransform[cast source].szy;
-		_szz = diffuseTransform[cast source].szz;
+		_szx = diffuseTransform[untyped source].szx;
+		_szy = diffuseTransform[untyped source].szy;
+		_szz = diffuseTransform[untyped source].szz;
 		_normalMatrix.matrix = [_szx, 0, 0, 0, 127 - _szx * 127, 0, -_szy, 0, 0, 127 + _szy * 127, 0, 0, _szz, 0, 127 - _szz * 127, 0, 0, 0, 1, 0];
-		normalMatrixTransform[cast source] = _normalMatrix.clone();
+		normalMatrixTransform[untyped source] = _normalMatrix.clone();
 	}
 
 	// autogenerated
@@ -319,8 +319,8 @@ class DirectionalLight extends LightPrimitive  {
 		this.halfQuaternion = new Quaternion();
 		this.halfTransform = new Matrix3D();
 		this.direction = new Number3D();
-		this.colorMatrixTransform = new Dictionary();
-		this.normalMatrixTransform = new Dictionary();
+		this.colorMatrixTransform = new Dictionary(true);
+		this.normalMatrixTransform = new Dictionary(true);
 		
 	}
 

@@ -53,7 +53,7 @@ class CubeLoader extends Object3DLoader  {
 		geometryTitle = ini.getString("geometrytitle", "Loading Geometry...");
 		textureTitle = ini.getString("texturetitle", "Loading Texture...");
 		parsingTitle = ini.getString("parsingtitle", "Parsing Geometry...");
-		addChild(new Cube());
+		addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
 	}
 
 	/**

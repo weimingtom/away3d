@@ -24,7 +24,7 @@ class Line2D  {
 		var a:Float = v1.y - v0.y;
 		var b:Float = v0.x - v1.x;
 		var c:Float = -(b * v0.y + a * v0.x);
-		return new Line2D();
+		return new Line2D(a, b, c);
 	}
 
 	public static function cross(u:Line2D, v:Line2D):ScreenVertex {
@@ -32,7 +32,7 @@ class Line2D  {
 		var det:Float = u.a * v.b - u.b * v.a;
 		var xd:Float = u.b * v.c - u.c * v.b;
 		var yd:Float = v.a * u.c - u.a * v.c;
-		return new ScreenVertex();
+		return new ScreenVertex(xd / det, yd / det, 0);
 	}
 
 	public function sideV(v:ScreenVertex):Float {

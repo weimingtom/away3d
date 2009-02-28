@@ -79,17 +79,17 @@ class AbstractBuilder extends EventDispatcher, implements IBuilder, implements I
 
 	public function getCameras():Array<Dynamic> {
 		
-		return new Array<Dynamic>();
+		return new Array();
 	}
 
 	public function getGeometry():Array<Dynamic> {
 		
-		return new Array<Dynamic>();
+		return new Array();
 	}
 
 	public function getSections():Array<Dynamic> {
 		
-		return new Array<Dynamic>();
+		return new Array();
 	}
 
 }

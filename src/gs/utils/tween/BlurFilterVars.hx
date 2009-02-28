@@ -47,7 +47,7 @@ class BlurFilterVars extends FilterVars  {
 		if (Std.is($vars, BlurFilterVars)) {
 			return cast($vars, BlurFilterVars);
 		}
-		return new BlurFilterVars();
+		return new BlurFilterVars(($vars.blurX > 0) ? $vars.blurX : 0, ($vars.blurY > 0) ? $vars.blurY : 0, ($vars.quality > 0) ? $vars.quality : 2, $vars.remove || false, ($vars.index == null) ? -1 : $vars.index, $vars.addFilter || false);
 	}
 
 	//---- GETTERS / SETTERS ------------------------------------------------------------------------------

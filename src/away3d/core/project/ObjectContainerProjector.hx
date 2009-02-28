@@ -52,28 +52,30 @@ class ObjectContainerProjector implements IPrimitiveProvider {
 		for (__i in 0..._container.children.length) {
 			_child = _container.children[__i];
 
-			if (_child.ownCanvas && _child.visible) {
-				if (Std.is(_child.ownSession, SpriteRenderSession)) {
-					(cast(_child.ownSession, SpriteRenderSession)).cacheAsBitmap = true;
+			if (_child != null) {
+				if (_child.ownCanvas && _child.visible) {
+					if (Std.is(_child.ownSession, SpriteRenderSession)) {
+						(cast(_child.ownSession, SpriteRenderSession)).cacheAsBitmap = true;
+					}
+					_screenVertex = _drawPrimitiveStore.createScreenVertex(_child.center);
+					_screenVertex.x = 0;
+					_screenVertex.y = 0;
+					if (_child.scenePivotPoint.modulo) {
+						_depthPoint.clone(_child.scenePivotPoint);
+						_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
+						_depthPoint.add(_viewTransformDictionary[untyped _child].position, _depthPoint);
+						_screenVertex.z = _depthPoint.modulo;
+					} else {
+						_screenVertex.z = _viewTransformDictionary[untyped _child].position.modulo;
+					}
+					if (_child.pushback) {
+						_screenVertex.z += _child.boundingRadius;
+					}
+					if (_child.pushfront) {
+						_screenVertex.z -= _child.boundingRadius;
+					}
+					consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(_child, _screenVertex, _container.session, _child.session.getContainer(view)));
 				}
-				_screenVertex = _drawPrimitiveStore.createScreenVertex(_child.center);
-				_screenVertex.x = 0;
-				_screenVertex.y = 0;
-				if (_child.scenePivotPoint.modulo) {
-					_depthPoint.clone(_child.scenePivotPoint);
-					_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
-					_depthPoint.add(_viewTransformDictionary[cast _child].position, _depthPoint);
-					_screenVertex.z = _depthPoint.modulo;
-				} else {
-					_screenVertex.z = _viewTransformDictionary[cast _child].position.modulo;
-				}
-				if (_child.pushback) {
-					_screenVertex.z += _child.boundingRadius;
-				}
-				if (_child.pushfront) {
-					_screenVertex.z -= _child.boundingRadius;
-				}
-				consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(_child, _screenVertex, _container.session, _child.session.getContainer(view)));
 			}
 		}
 

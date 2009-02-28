@@ -38,7 +38,7 @@ class SessionEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new SessionEvent();
+		return new SessionEvent(type, session);
 	}
 
 }

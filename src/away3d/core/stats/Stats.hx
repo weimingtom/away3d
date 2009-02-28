@@ -92,12 +92,12 @@ class Stats extends Sprite  {
 		this.lowestfps = 999;
 		this.barwidth = 0;
 		this.barscale = 0;
-		this.rectclose = new Rectangle();
-		this.rectcam = new Rectangle();
-		this.rectclear = new Rectangle();
-		this.rectdetails = new Rectangle();
-		this.defautTF = new TextFormat();
-		this.defautTFBold = new TextFormat();
+		this.rectclose = new Rectangle(228, 4, 18, 17);
+		this.rectcam = new Rectangle(207, 4, 18, 17);
+		this.rectclear = new Rectangle(186, 4, 18, 17);
+		this.rectdetails = new Rectangle(165, 4, 18, 17);
+		this.defautTF = new TextFormat("Verdana", 10, 0x000000);
+		this.defautTFBold = new TextFormat("Verdana", 10, 0x000000, true);
 		this.stats = "";
 		
 		
@@ -106,9 +106,9 @@ class Stats extends Sprite  {
 		displayState = 0;
 		sourceURL = scope.sourceURL;
 		tabEnabled = false;
-		menu0 = new ContextMenuItem();
-		menu1 = new ContextMenuItem();
-		menu2 = new ContextMenuItem();
+		menu0 = new ContextMenuItem("Away3D Project stats", true, true, true);
+		menu1 = new ContextMenuItem("View Source", true, true, true);
+		menu2 = new ContextMenuItem(APPLICATION_NAME + "\tv" + VERSION + "." + REVISION, true, true, true);
 		var scopeMenuContextMenu:ContextMenu = new ContextMenu();
 		scopeMenuContextMenu = new ContextMenu();
 		scopeMenuContextMenu.customItems = (sourceURL != null) ? [menu0, menu1, menu2] : [menu0, menu2];
@@ -143,7 +143,7 @@ class Stats extends Sprite  {
 	public function visitWebsite(e:ContextMenuEvent):Void {
 		
 		var url:String = "http://www.away3d.com";
-		var request:URLRequest = new URLRequest();
+		var request:URLRequest = new URLRequest(url);
 		try {
 			flash.Lib.getURL(request);
 		} catch (error:Error) {
@@ -154,7 +154,7 @@ class Stats extends Sprite  {
 	//View Source files
 	public function viewSource(e:ContextMenuEvent):Void {
 		
-		var request:URLRequest = new URLRequest();
+		var request:URLRequest = new URLRequest(sourceURL);
 		try {
 			flash.Lib.getURL(request, "_blank");
 		} catch (error:Error) {
@@ -185,7 +185,7 @@ class Stats extends Sprite  {
 		if (scopeMenu != null) {
 			var x:Float = displayMenu.mouseX;
 			var y:Float = displayMenu.mouseY;
-			var pt:Point = new Point();
+			var pt:Point = new Point(x, y);
 			try {
 				if (rectcam.containsPoint(pt)) {
 					titleField.text = "CAMERA INFO";
@@ -208,7 +208,7 @@ class Stats extends Sprite  {
 		
 		var x:Float = displayMenu.mouseX;
 		var y:Float = displayMenu.mouseY;
-		var pt:Point = new Point();
+		var pt:Point = new Point(x, y);
 		if (rectcam.containsPoint(pt)) {
 			if (displayState != 1) {
 				closeOtherScreen(displayState);
@@ -362,14 +362,14 @@ class Stats extends Sprite  {
 		displayPicto();
 		// Generate textfields
 		// title
-		titleField = new StaticTextField();
+		titleField = new StaticTextField("AWAY3D PROJECT", new TextFormat("Verdana", 10, 0xFFFFFF, true));
 		titleField.height = 20;
 		titleField.width = 140;
 		titleField.x = 22;
 		titleField.y = 4;
 		displayMenu.addChild(titleField);
 		// fps
-		var fpst:StaticTextField = new StaticTextField();
+		var fpst:StaticTextField = new StaticTextField("FPS:", defautTFBold);
 		fpsLabel = new StaticTextField();
 		displayMenu.addChild(fpst);
 		displayMenu.addChild(fpsLabel);
@@ -377,7 +377,7 @@ class Stats extends Sprite  {
 		fpst.y = fpsLabel.y = 30;
 		fpsLabel.x = fpst.x + fpst.width - 2;
 		//average perf
-		var afpst:StaticTextField = new StaticTextField();
+		var afpst:StaticTextField = new StaticTextField("AFPS:", defautTFBold);
 		avfpsLabel = new StaticTextField();
 		displayMenu.addChild(afpst);
 		displayMenu.addChild(avfpsLabel);
@@ -385,7 +385,7 @@ class Stats extends Sprite  {
 		afpst.y = avfpsLabel.y = fpsLabel.y;
 		avfpsLabel.x = afpst.x + afpst.width - 2;
 		//Max peak
-		var peakfps:StaticTextField = new StaticTextField();
+		var peakfps:StaticTextField = new StaticTextField("Max:", defautTFBold);
 		peakLabel = new StaticTextField();
 		displayMenu.addChild(peakfps);
 		displayMenu.addChild(peakLabel);
@@ -394,7 +394,7 @@ class Stats extends Sprite  {
 		peakfps.autoSize = "left";
 		peakLabel.x = peakfps.x + peakfps.width - 2;
 		//MS
-		var pfps:StaticTextField = new StaticTextField();
+		var pfps:StaticTextField = new StaticTextField("MS:", defautTFBold);
 		perfLabel = new StaticTextField();
 		perfLabel.defaultTextFormat = defautTF;
 		displayMenu.addChild(pfps);
@@ -404,7 +404,7 @@ class Stats extends Sprite  {
 		pfps.autoSize = "left";
 		perfLabel.x = pfps.x + pfps.width - 2;
 		//ram usage
-		var ram:StaticTextField = new StaticTextField();
+		var ram:StaticTextField = new StaticTextField("RAM:", defautTFBold);
 		ramLabel = new StaticTextField();
 		displayMenu.addChild(ram);
 		displayMenu.addChild(ramLabel);
@@ -413,7 +413,7 @@ class Stats extends Sprite  {
 		ram.autoSize = "left";
 		ramLabel.x = ram.x + ram.width - 2;
 		//meshes count
-		var meshc:StaticTextField = new StaticTextField();
+		var meshc:StaticTextField = new StaticTextField("MESHES:", defautTFBold);
 		meshLabel = new StaticTextField();
 		displayMenu.addChild(meshc);
 		displayMenu.addChild(meshLabel);
@@ -422,7 +422,7 @@ class Stats extends Sprite  {
 		meshc.autoSize = "left";
 		meshLabel.x = meshc.x + meshc.width - 2;
 		//swf framerate
-		var rate:StaticTextField = new StaticTextField();
+		var rate:StaticTextField = new StaticTextField("SWF FR:", defautTFBold);
 		swfframerateLabel = new StaticTextField();
 		displayMenu.addChild(rate);
 		displayMenu.addChild(swfframerateLabel);
@@ -431,7 +431,7 @@ class Stats extends Sprite  {
 		rate.autoSize = "left";
 		swfframerateLabel.x = rate.x + rate.width - 2;
 		//faces
-		var faces:StaticTextField = new StaticTextField();
+		var faces:StaticTextField = new StaticTextField("T ELEMENTS:", defautTFBold);
 		faceLabel = new StaticTextField();
 		displayMenu.addChild(faces);
 		displayMenu.addChild(faceLabel);
@@ -440,7 +440,7 @@ class Stats extends Sprite  {
 		faces.autoSize = "left";
 		faceLabel.x = faces.x + faces.width - 2;
 		//shown faces
-		var facesrender:StaticTextField = new StaticTextField();
+		var facesrender:StaticTextField = new StaticTextField("R ELEMENTS:", defautTFBold);
 		faceRenderLabel = new StaticTextField();
 		displayMenu.addChild(facesrender);
 		displayMenu.addChild(faceRenderLabel);
@@ -489,7 +489,7 @@ class Stats extends Sprite  {
 						caminfo += Std.string(Reflect.field(camera, camProp[i])) + "\n";
 					} else {
 						var info:String = Std.string(Reflect.field(camera, camProp[i]));
-						caminfo += substr(0, 19 - 0) + "\n";
+						caminfo += info.substr(0, 19 - 0) + "\n";
 					}
 				} catch (e:Error) {
 					caminfo += "\n";
@@ -600,7 +600,7 @@ class Stats extends Sprite  {
 		camProp = ["x", "y", "z", "zoom", "focus", "distance", "panangle", "tiltangle", "targetpanangle", "targettiltangle", "mintiltangle", "maxtiltangle", "steps", "target"];
 		//props
 		var campropfield:TextField = new TextField();
-		tf = new TextFormat();
+		tf = new TextFormat("Verdana", 10, 0x000000, true);
 		tf.leading = 1.5;
 		tf.align = "right";
 		campropfield.defaultTextFormat = tf;

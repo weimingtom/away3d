@@ -55,7 +55,7 @@ class FaceMaterialVO  {
 		if ((bitmap != null)) {
 			bitmap.dispose();
 		}
-		bitmap = new BitmapData();
+		bitmap = new BitmapData(width, height, transparent, 0);
 		bitmap.lock();
 	}
 

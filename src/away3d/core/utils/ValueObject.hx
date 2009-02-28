@@ -25,7 +25,7 @@ class ValueObject extends EventDispatcher  {
 			return;
 		}
 		if (changed == null) {
-			changed = new Event();
+			changed = new Event("changed");
 		}
 		dispatchEvent(changed);
 	}

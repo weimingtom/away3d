@@ -46,7 +46,7 @@ class AnimationEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new AnimationEvent();
+		return new AnimationEvent(type, animation);
 	}
 
 }

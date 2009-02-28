@@ -89,18 +89,22 @@ class PathDuplicator extends Mesh  {
 			for (__i in 0...(cast(_mesh, Mesh)).faces.length) {
 				face = (cast(_mesh, Mesh)).faces[__i];
 
-				_points.push(face.v0, face.v1, face.v2);
-				_uvs.push(face.uv0, face.uv1, face.uv2);
-				_materials.push(face.material, null, null);
+				if (face != null) {
+					_points.push(face.v0, face.v1, face.v2);
+					_uvs.push(face.uv0, face.uv1, face.uv2);
+					_materials.push(face.material, null, null);
+				}
 			}
 
 		} else {
 			for (__i in 0...(cast(_meshes[_meshesindex], Mesh)).faces.length) {
 				face = (cast(_meshes[_meshesindex], Mesh)).faces[__i];
 
-				_points.push(face.v0, face.v1, face.v2);
-				_uvs.push(face.uv0, face.uv1, face.uv2);
-				_materials.push(face.material, null, null);
+				if (face != null) {
+					_points.push(face.v0, face.v1, face.v2);
+					_uvs.push(face.uv0, face.uv1, face.uv2);
+					_materials.push(face.material, null, null);
+				}
 			}
 
 			_meshesindex = (_meshesindex + 1 < _meshes.length) ? _meshesindex + 1 : 0;
@@ -118,20 +122,20 @@ class PathDuplicator extends Mesh  {
 		var m:Mesh = (_mesh == null) ? cast(_meshes[_meshesindex], Mesh) : cast(_mesh, Mesh);
 		var i:Int = 0;
 		while (i < aPointList.length) {
-			uva = new UV();
-			uvb = new UV();
-			uvc = new UV();
-			va = new Vertex();
-			vb = new Vertex();
-			vc = new Vertex();
+			uva = new UV(_uvs[i].u, _uvs[i].v);
+			uvb = new UV(_uvs[i + 1].u, _uvs[i + 1].v);
+			uvc = new UV(_uvs[i + 2].u, _uvs[i + 2].v);
+			va = new Vertex(aPointList[i].x, aPointList[i].y, aPointList[i].z);
+			vb = new Vertex(aPointList[i + 1].x, aPointList[i + 1].y, aPointList[i + 1].z);
+			vc = new Vertex(aPointList[i + 2].x, aPointList[i + 2].y, aPointList[i + 2].z);
 			if (_material == null) {
 				if (_materials[i] != null) {
-					addFace(new Face());
+					addFace(new Face(va, vb, vc, _materials[i], uva, uvb, uvc));
 				} else {
-					addFace(new Face());
+					addFace(new Face(va, vb, vc, cast(m.material, ITriangleMaterial), uva, uvb, uvc));
 				}
 			} else {
-				addFace(new Face());
+				addFace(new Face(va, vb, vc, null, uva, uvb, uvc));
 			}
 			
 			// update loop variables
@@ -144,7 +148,7 @@ class PathDuplicator extends Mesh  {
 		this.xAxis = new Number3D();
 		this.yAxis = new Number3D();
 		this.zAxis = new Number3D();
-		this._worldAxis = new Number3D();
+		this._worldAxis = new Number3D(0, 1, 0);
 		this._transform = new Matrix3D();
 		this._meshes = [];
 		this._meshesindex = 0;
@@ -209,12 +213,12 @@ class PathDuplicator extends Mesh  {
 			var aPointlist:Array<Dynamic> = [];
 			var aSegresult:Array<Dynamic> = [];
 			var atmp:Array<Dynamic>;
-			var tmppt:Number3D = new Number3D();
+			var tmppt:Number3D = new Number3D(0, 0, 0);
 			var i:Int;
 			var j:Int;
 			var k:Int;
 			var nextpt:Number3D;
-			var lastscale:Number3D = new Number3D();
+			var lastscale:Number3D = new Number3D(1, 1, 1);
 			var rescale:Bool = (_scales != null);
 			var rotate:Bool = (_rotations != null);
 			if (rotate && _rotations.length > 0) {
@@ -224,7 +228,7 @@ class PathDuplicator extends Mesh  {
 				var tweenrot:Number3D;
 			}
 			if (_smoothscale && rescale) {
-				var nextscale:Number3D = new Number3D();
+				var nextscale:Number3D = new Number3D(1, 1, 1);
 			}
 			var aTs:Array<Dynamic> = [];
 			if (_meshes.length == 0) {
@@ -289,7 +293,7 @@ class PathDuplicator extends Mesh  {
 							tmppt.z += aSegPoints[i][j].z;
 							aPointlist.push(tmppt);
 						} else {
-							tmppt = new Number3D();
+							tmppt = new Number3D(atmp[k].x + aSegPoints[i][j].x, atmp[k].y + aSegPoints[i][j].y, atmp[k].z + aSegPoints[i][j].z);
 							aPointlist.push(tmppt);
 						}
 						if (rescale && !_smoothscale) {

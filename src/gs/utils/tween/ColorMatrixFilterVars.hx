@@ -100,7 +100,7 @@ class ColorMatrixFilterVars extends FilterVars  {
 			v = new ColorMatrixFilterVars();
 			v.matrix = $vars.matrix;
 		} else {
-			v = new ColorMatrixFilterVars();
+			v = new ColorMatrixFilterVars($vars.colorize || 0xFFFFFF, ($vars.amount == null) ? 1 : $vars.amount, ($vars.saturation == null) ? 1 : $vars.saturation, ($vars.contrast == null) ? 1 : $vars.contrast, ($vars.brightness == null) ? 1 : $vars.brightness, ($vars.hue > 0) ? $vars.hue : 0, ($vars.threshold == null) ? -1 : $vars.threshold, $vars.remove || false, ($vars.index == null) ? -1 : $vars.index, $vars.addFilter || false);
 		}
 		return v;
 	}

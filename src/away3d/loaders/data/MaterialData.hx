@@ -98,14 +98,18 @@ class MaterialData  {
 			for (__i in 0...elements.length) {
 				_element = elements[__i];
 
-				(cast(_element, Face)).material = cast(_material, ITriangleMaterial);
+				if (_element != null) {
+					(cast(_element, Face)).material = cast(_material, ITriangleMaterial);
+				}
 			}
 
 		} else if (Std.is(_material, ISegmentMaterial)) {
 			for (__i in 0...elements.length) {
 				_element = elements[__i];
 
-				(cast(_element, Segment)).material = cast(_material, ISegmentMaterial);
+				if (_element != null) {
+					(cast(_element, Segment)).material = cast(_material, ISegmentMaterial);
+				}
 			}
 
 		}
@@ -126,9 +130,11 @@ class MaterialData  {
 		for (__i in 0...elements.length) {
 			var element:Element = elements[__i];
 
-			var parentGeometry:Geometry = element.parent;
-			var correspondingElement:Element = parentGeometry.cloneElementDictionary[cast element];
-			cloneMatData.elements.push(correspondingElement);
+			if (element != null) {
+				var parentGeometry:Geometry = element.parent;
+				var correspondingElement:Element = parentGeometry.cloneElementDictionary[untyped element];
+				cloneMatData.elements.push(correspondingElement);
+			}
 		}
 
 		return cloneMatData;

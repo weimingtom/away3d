@@ -31,9 +31,9 @@ class WireCone extends AbstractWirePrimitive  {
 		var j:Int;
 		height /= 2;
 		segmentsH += 1;
-		grid = new Array<Dynamic>();
+		grid = new Array(segmentsH + 1);
 		var bottom:Vertex = yUp ? createVertex(0, -height, 0) : createVertex(0, 0, -height);
-		grid[0] = new Array<Dynamic>();
+		grid[0] = new Array(segmentsW);
 		i = 0;
 		while (i < segmentsW) {
 			grid[0][i] = bottom;
@@ -45,7 +45,7 @@ class WireCone extends AbstractWirePrimitive  {
 		j = 1;
 		while (j < segmentsH) {
 			var z:Float = -height + 2 * height * (j - 1) / (segmentsH - 1);
-			grid[j] = new Array<Dynamic>();
+			grid[j] = new Array(segmentsW);
 			i = 0;
 			while (i < segmentsW) {
 				var verangle:Float = 2 * i / segmentsW * Math.PI;
@@ -68,7 +68,7 @@ class WireCone extends AbstractWirePrimitive  {
 		}
 
 		var top:Vertex = yUp ? createVertex(0, height, 0) : createVertex(0, 0, height);
-		grid[segmentsH] = new Array<Dynamic>();
+		grid[segmentsH] = new Array(segmentsW);
 		i = 0;
 		while (i < segmentsW) {
 			grid[segmentsH][i] = top;

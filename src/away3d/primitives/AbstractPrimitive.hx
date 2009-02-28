@@ -48,7 +48,7 @@ class AbstractPrimitive extends Mesh  {
 			_v._y = y;
 			_v._z = z;
 		} else {
-			_vActive.push(_v = new Vertex());
+			_vActive.push(_v = new Vertex(x, y, z));
 		}
 		return _v;
 	}
@@ -61,7 +61,7 @@ class AbstractPrimitive extends Mesh  {
 			_uv.u = u;
 			_uv.v = v;
 		} else {
-			_uvActive.push(_uv = new UV());
+			_uvActive.push(_uv = new UV(u, v));
 		}
 		return _uv;
 	}
@@ -79,7 +79,7 @@ class AbstractPrimitive extends Mesh  {
 			__face.uv1 = uv1;
 			__face.uv2 = uv2;
 		} else {
-			_faceActive.push(__face = new Face());
+			_faceActive.push(__face = new Face(v0, v1, v2, material, uv0, uv1, uv2));
 		}
 		return __face;
 	}
@@ -90,12 +90,12 @@ class AbstractPrimitive extends Mesh  {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties
 	 */
 	public function new(?init:Dynamic=null) {
-		this._vStore = new Array<Dynamic>();
-		this._vActive = new Array<Dynamic>();
-		this._uvStore = new Array<Dynamic>();
-		this._uvActive = new Array<Dynamic>();
-		this._faceStore = new Array<Dynamic>();
-		this._faceActive = new Array<Dynamic>();
+		this._vStore = new Array();
+		this._vActive = new Array();
+		this._uvStore = new Array();
+		this._uvActive = new Array();
+		this._faceStore = new Array();
+		this._faceActive = new Array();
 		
 		
 		super(init);

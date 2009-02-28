@@ -86,7 +86,7 @@ class ColorTransformVars extends SubVars  {
 		if (Std.is($vars, ColorTransformVars)) {
 			return cast($vars, ColorTransformVars);
 		}
-		return new ColorTransformVars();
+		return new ColorTransformVars($vars.tint, $vars.tintAmount, $vars.exposure, $vars.brightness, $vars.redMultiplier, $vars.greenMultiplier, $vars.blueMultiplier, $vars.alphaMultiplier, $vars.redOffset, $vars.greenOffset, $vars.blueOffset, $vars.alphaOffset);
 	}
 
 	//---- GETTERS / SETTERS ------------------------------------------------------------------------------

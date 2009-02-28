@@ -66,7 +66,7 @@ class PointLight3D extends Object3D, implements ILightProvider, implements IClon
 	public function getDebugPrimitive():Object3D {
 		
 		if (_debugPrimitive == null) {
-			_debugPrimitive = new Sphere();
+			_debugPrimitive = new Sphere({radius:10});
 		}
 		if (_debugMaterial == null) {
 			_debugMaterial = new ColorMaterial();

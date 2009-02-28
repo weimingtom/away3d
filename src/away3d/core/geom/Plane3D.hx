@@ -183,7 +183,7 @@ class Plane3D  {
 		var d0:Float = _point.x * v0.x + _point.y * v0.y + _point.z * v0.z - d;
 		var d1:Float = _point.x * v1.x + _point.y * v1.y + _point.z * v1.z - d;
 		var m:Float = d1 / (d1 - d0);
-		return new Number3D();
+		return new Number3D(v1.x + (v0.x - v1.x) * m, v1.y + (v0.y - v1.y) * m, v1.z + (v0.z - v1.z) * m);
 	}
 
 	public function getIntersectionLine(v0:Vertex, v1:Vertex):Vertex {
@@ -191,7 +191,7 @@ class Plane3D  {
 		var d0:Float = _point.x * v0.x + _point.y * v0.y + _point.z * v0.z - d;
 		var d1:Float = _point.x * v1.x + _point.y * v1.y + _point.z * v1.z - d;
 		var m:Float = d1 / (d1 - d0);
-		return new Vertex();
+		return new Vertex(v1.x + (v0.x - v1.x) * m, v1.y + (v0.y - v1.y) * m, v1.z + (v0.z - v1.z) * m);
 	}
 
 	/**

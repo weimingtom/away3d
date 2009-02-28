@@ -87,7 +87,7 @@ class Face extends Element  {
 			return;
 		}
 		if (_mappingchanged == null) {
-			_mappingchanged = new FaceEvent();
+			_mappingchanged = new FaceEvent(FaceEvent.MAPPING_CHANGED, this);
 		}
 		dispatchEvent(_mappingchanged);
 	}

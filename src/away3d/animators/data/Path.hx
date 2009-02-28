@@ -47,16 +47,16 @@ class Path  {
 	 * @param	 aVectors		An array of a series of number3D's organized in the following fashion. [a,b,c,a,b,c etc...] a = v1, b=vc (control point), c = v2
 	 */
 	public function new(aVectors:Array<Dynamic>) {
-		this.worldAxis = new Number3D();
+		this.worldAxis = new Number3D(0, 1, 0);
 		
 		
 		if (aVectors.length < 3) {
-			throw new Error();
+			throw new Error("Path array must contain at least 3 Number3D's");
 		}
 		this.aSegments = [];
 		var i:Int = 0;
 		while (i < aVectors.length) {
-			this.aSegments.push(new CurveSegment());
+			this.aSegments.push(new CurveSegment(aVectors[i], aVectors[i + 1], aVectors[i + 2]));
 			
 			// update loop variables
 			i += 3;
@@ -124,8 +124,8 @@ class Path  {
 		var seg1:Number3D;
 		var tmp:Array<Dynamic> = [];
 		var i:Int;
-		var startseg:Number3D = new Number3D();
-		var endseg:Number3D = new Number3D();
+		var startseg:Number3D = new Number3D(this.aSegments[0].v0.x, this.aSegments[0].v0.y, this.aSegments[0].v0.z);
+		var endseg:Number3D = new Number3D(this.aSegments[this.aSegments.length - 1].v1.x, this.aSegments[this.aSegments.length - 1].v1.y, this.aSegments[this.aSegments.length - 1].v1.z);
 		i = 0;
 		while (i < length - 1) {
 			if (this.aSegments[i].vc == null) {
@@ -139,8 +139,8 @@ class Path  {
 			x = (seg0.x + seg1.x) * .5;
 			y = (seg0.y + seg1.y) * .5;
 			z = (seg0.z + seg1.z) * .5;
-			tmp.push(startseg, new Number3D(), new Number3D());
-			startseg = new Number3D();
+			tmp.push(startseg, new Number3D(seg0.x, seg0.y, seg0.z), new Number3D(x, y, z));
+			startseg = new Number3D(x, y, z);
 			this.aSegments[i] = null;
 			
 			// update loop variables
@@ -148,12 +148,12 @@ class Path  {
 		}
 
 		seg0 = this.aSegments[this.aSegments.length - 1].vc;
-		tmp.push(startseg, new Number3D(), endseg);
+		tmp.push(startseg, new Number3D((seg0.x + seg1.x) * .5, (seg0.y + seg1.y) * .5, (seg0.z + seg1.z) * .5), endseg);
 		this.aSegments[0] = null;
 		this.aSegments = [];
 		i = 0;
 		while (i < tmp.length) {
-			this.aSegments.push(new CurveSegment());
+			this.aSegments.push(new CurveSegment(tmp[i], tmp[i + 1], tmp[i + 2]));
 			
 			// update loop variables
 			i += 3;

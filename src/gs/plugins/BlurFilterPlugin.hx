@@ -43,7 +43,7 @@ class BlurFilterPlugin extends FilterPlugin  {
 		
 		_target = $target;
 		_type = BlurFilter;
-		initFilter($value, new BlurFilter());
+		initFilter($value, new BlurFilter(0, 0, ($value.quality > 0) ? $value.quality : 2));
 		return true;
 	}
 

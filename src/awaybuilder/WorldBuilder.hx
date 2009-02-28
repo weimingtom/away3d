@@ -210,7 +210,7 @@ class WorldBuilder extends Sprite, implements IAssetContainer, implements IScene
 
 	private function createCameraController():Void {
 		
-		this.cameraController = new CameraController();
+		this.cameraController = new CameraController(this.view.camera);
 		this.cameraController.update = this.update;
 		this.cameraController.animationControl = this.animationControl;
 		if ((this.startCamera != null)) {
@@ -225,7 +225,7 @@ class WorldBuilder extends Sprite, implements IAssetContainer, implements IScene
 
 	private function createGeometryController():Void {
 		
-		this.geometryController = new GeometryController();
+		this.geometryController = new GeometryController(this.builder.getGeometry());
 		this.geometryController.addEventListener(GeometryEvent.DOWN, this.onGeometryEvent);
 		this.geometryController.addEventListener(GeometryEvent.MOVE, this.onGeometryEvent);
 		this.geometryController.addEventListener(GeometryEvent.OUT, this.onGeometryEvent);
@@ -255,7 +255,7 @@ class WorldBuilder extends Sprite, implements IAssetContainer, implements IScene
 			
 
 		}
-		this.dispatchEvent(new SceneEvent());
+		this.dispatchEvent(new SceneEvent(SceneEvent.RENDER));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -282,14 +282,14 @@ class WorldBuilder extends Sprite, implements IAssetContainer, implements IScene
 		this.setupSceneUpdate();
 		this.render();
 		this.visible = true;
-		this.dispatchEvent(new Event());
+		this.dispatchEvent(new Event(Event.COMPLETE));
 	}
 
 	private function onGeometryEvent(event:GeometryEvent):Void {
 		
 		var type:String = event.type;
 		var geometry:SceneGeometryVO = event.geometry;
-		var geometryEvent:GeometryEvent = new GeometryEvent();
+		var geometryEvent:GeometryEvent = new GeometryEvent(type);
 		switch (type) {
 			case GeometryEvent.UP :
 				if ((geometry.targetCamera != null)) {
@@ -306,7 +306,7 @@ class WorldBuilder extends Sprite, implements IAssetContainer, implements IScene
 
 	private function onCameraEvent(event:CameraEvent):Void {
 		
-		var cameraEvent:CameraEvent = new CameraEvent();
+		var cameraEvent:CameraEvent = new CameraEvent(event.type);
 		cameraEvent.targetCamera = event.targetCamera;
 		this.dispatchEvent(cameraEvent);
 	}

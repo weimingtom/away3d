@@ -190,10 +190,12 @@ class Mesh extends Object3D  {
 			for (__i in 0...vertices.length) {
 				var vertex:Vertex = vertices[__i];
 
-				num.sub(vertex.position, _pivotPoint);
-				vradius = num.modulo2;
-				if (mradius < vradius) {
-					mradius = vradius;
+				if (vertex != null) {
+					num.sub(vertex.position, _pivotPoint);
+					vradius = num.modulo2;
+					if (mradius < vradius) {
+						mradius = vradius;
+					}
 				}
 			}
 
@@ -829,8 +831,8 @@ class Mesh extends Object3D  {
 		var verticeslist:Array<Dynamic> = [];
 		var remembervertex:Dynamic = function (vertex:Vertex):Void {
 			
-			if (refvertices[cast vertex] == null) {
-				refvertices[cast vertex] = verticeslist.length;
+			if (refvertices[untyped vertex] == null) {
+				refvertices[untyped vertex] = verticeslist.length;
 				verticeslist.push(vertex);
 			}
 		};
@@ -841,20 +843,22 @@ class Mesh extends Object3D  {
 			if (uv == null) {
 				return;
 			}
-			if (refuvs[cast uv] == null) {
-				refuvs[cast uv] = uvslist.length;
+			if (refuvs[untyped uv] == null) {
+				refuvs[untyped uv] = uvslist.length;
 				uvslist.push(uv);
 			}
 		};
 		for (__i in 0..._geometry.faces.length) {
 			var face:Face = _geometry.faces[__i];
 
-			remembervertex(face._v0);
-			remembervertex(face._v1);
-			remembervertex(face._v2);
-			rememberuv(face._uv0);
-			rememberuv(face._uv1);
-			rememberuv(face._uv2);
+			if (face != null) {
+				remembervertex(face._v0);
+				remembervertex(face._v1);
+				remembervertex(face._v2);
+				rememberuv(face._uv0);
+				rememberuv(face._uv1);
+				rememberuv(face._uv2);
+			}
 		}
 
 		var uv:UV;
@@ -862,26 +866,30 @@ class Mesh extends Object3D  {
 		var myPattern:EReg;
 		var myPattern2:EReg;
 		if (animated) {
-			myPattern = new EReg();
+			myPattern = new RegExp("vcount", "g");
 			source = source.replace(myPattern, verticeslist.length);
 			source += "\n\t\t\tv();\n\n";
 		} else {
 			for (__i in 0...verticeslist.length) {
 				v = verticeslist[__i];
 
-				source += (round) ? "\t\t\tv(" + v._x.toFixed(4) + "," + v._y.toFixed(4) + "," + v._z.toFixed(4) + ");\n" : "\t\t\tv(" + v._x + "," + v._y + "," + v._z + ");\n";
+				if (v != null) {
+					source += (round) ? "\t\t\tv(" + v._x.toFixed(4) + "," + v._y.toFixed(4) + "," + v._z.toFixed(4) + ");\n" : "\t\t\tv(" + v._x + "," + v._y + "," + v._z + ");\n";
+				}
 			}
 
 		}
 		for (__i in 0...uvslist.length) {
 			uv = uvslist[__i];
 
-			source += (round) ? "\t\t\tuv(" + uv._u.toFixed(4) + "," + uv._v.toFixed(4) + ");\n" : "\t\t\tuv(" + uv._u + "," + uv._v + ");\n";
+			if (uv != null) {
+				source += (round) ? "\t\t\tuv(" + uv._u.toFixed(4) + "," + uv._v.toFixed(4) + ");\n" : "\t\t\tuv(" + uv._u + "," + uv._v + ");\n";
+			}
 		}
 
 		if (round) {
 			var tmp:String;
-			myPattern2 = new EReg();
+			myPattern2 = new RegExp(".0000", "g");
 		}
 		var f:Face;
 		if (animated) {
@@ -890,7 +898,9 @@ class Mesh extends Object3D  {
 			for (__i in 0..._geometry.faces.length) {
 				f = _geometry.faces[__i];
 
-				auv.push((round) ? refuvs[cast f._uv0].toFixed(4) + "," + refuvs[cast f._uv1].toFixed(4) + "," + refuvs[cast f._uv2].toFixed(4) : refuvs[cast f._uv0] + "," + refuvs[cast f._uv1] + "," + refuvs[cast f._uv2]);
+				if (f != null) {
+					auv.push((round) ? refuvs[untyped f._uv0].toFixed(4) + "," + refuvs[untyped f._uv1].toFixed(4) + "," + refuvs[untyped f._uv2].toFixed(4) : refuvs[untyped f._uv0] + "," + refuvs[untyped f._uv1] + "," + refuvs[untyped f._uv2]);
+				}
 			}
 
 			var i:Int = 0;
@@ -906,7 +916,9 @@ class Mesh extends Object3D  {
 			for (__i in 0..._geometry.faces.length) {
 				f = _geometry.faces[__i];
 
-				source += "\t\t\tf(" + refvertices[cast f._v0] + "," + refvertices[cast f._v1] + "," + refvertices[cast f._v2] + "," + refuvs[cast f._uv0] + "," + refuvs[cast f._uv1] + "," + refuvs[cast f._uv2] + ");\n";
+				if (f != null) {
+					source += "\t\t\tf(" + refvertices[untyped f._v0] + "," + refvertices[untyped f._v1] + "," + refvertices[untyped f._v2] + "," + refuvs[untyped f._uv0] + "," + refuvs[untyped f._uv1] + "," + refuvs[untyped f._uv2] + ");\n";
+				}
 			}
 
 		}
@@ -914,15 +926,15 @@ class Mesh extends Object3D  {
 			source = source.replace(myPattern2, "");
 		}
 		if (animated) {
-			var afn:Array<Dynamic> = new Array<Dynamic>();
+			var afn:Array<Dynamic> = new Array();
 			var avp:Array<Dynamic>;
-			var tmpnames:Array<Dynamic> = new Array<Dynamic>();
+			var tmpnames:Array<Dynamic> = new Array();
 			i = 0;
 			var y:Int = 0;
 			source += "\n\t\t\tgeometry.frames = new Dictionary();\n";
 			source += "\t\t\tgeometry.framenames = new Dictionary();\n";
 			source += "\t\t\tvar oFrames:Object = new Object();\n";
-			myPattern = new EReg();
+			myPattern = new RegExp(" ", "g");
 			var framename:String;
 			for (framename in geometry.framenames) {
 				tmpnames.push(framename);
@@ -933,7 +945,7 @@ class Mesh extends Object3D  {
 			var fr:Frame;
 			i = 0;
 			while (i < tmpnames.length) {
-				avp = new Array<Dynamic>();
+				avp = new Array();
 				fr = geometry.frames[geometry.framenames[tmpnames[i]]];
 				if (tmpnames[i].indexOf(" ") != -1) {
 					tmpnames[i] = tmpnames[i].replace(myPattern, "");
@@ -1007,8 +1019,8 @@ class Mesh extends Object3D  {
 		var verticeslist:Array<Dynamic> = [];
 		var remembervertex:Dynamic = function (vertex:Vertex):Void {
 			
-			if (refvertices[cast vertex] == null) {
-				refvertices[cast vertex] = verticeslist.length;
+			if (refvertices[untyped vertex] == null) {
+				refvertices[untyped vertex] = verticeslist.length;
 				verticeslist.push(vertex);
 			}
 		};
@@ -1019,42 +1031,50 @@ class Mesh extends Object3D  {
 			if (uv == null) {
 				return;
 			}
-			if (refuvs[cast uv] == null) {
-				refuvs[cast uv] = uvslist.length;
+			if (refuvs[untyped uv] == null) {
+				refuvs[untyped uv] = uvslist.length;
 				uvslist.push(uv);
 			}
 		};
 		for (__i in 0..._geometry.faces.length) {
 			var face:Face = _geometry.faces[__i];
 
-			remembervertex(face._v0);
-			remembervertex(face._v1);
-			remembervertex(face._v2);
-			rememberuv(face._uv0);
-			rememberuv(face._uv1);
-			rememberuv(face._uv2);
+			if (face != null) {
+				remembervertex(face._v0);
+				remembervertex(face._v1);
+				remembervertex(face._v2);
+				rememberuv(face._uv0);
+				rememberuv(face._uv1);
+				rememberuv(face._uv2);
+			}
 		}
 
 		var vn:Int = 0;
 		for (__i in 0...verticeslist.length) {
 			var v:Vertex = verticeslist[__i];
 
-			result.appendChild(Xml.parse("<vertex id={vn} x={v._x} y={v._y} z={v._z}/>"));
-			vn++;
+			if (v != null) {
+				result.appendChild(Xml.parse("<vertex id={vn} x={v._x} y={v._y} z={v._z}/>"));
+				vn++;
+			}
 		}
 
 		var uvn:Int = 0;
 		for (__i in 0...uvslist.length) {
 			var uv:UV = uvslist[__i];
 
-			result.appendChild(Xml.parse("<uv id={uvn} u={uv._u} v={uv._v}/>"));
-			uvn++;
+			if (uv != null) {
+				result.appendChild(Xml.parse("<uv id={uvn} u={uv._u} v={uv._v}/>"));
+				uvn++;
+			}
 		}
 
 		for (__i in 0..._geometry.faces.length) {
 			var f:Face = _geometry.faces[__i];
 
-			result.appendChild(Xml.parse("<face v0={refvertices[cast f._v0]} v1={refvertices[cast f._v1]} v2={refvertices[cast f._v2]} uv0={refuvs[cast f._uv0]} uv1={refuvs[cast f._uv1]} uv2={refuvs[cast f._uv2]}/>"));
+			if (f != null) {
+				result.appendChild(Xml.parse("<face v0={refvertices[untyped f._v0]} v1={refvertices[untyped f._v1]} v2={refvertices[untyped f._v2]} uv0={refuvs[untyped f._uv0]} uv1={refuvs[untyped f._uv1]} uv2={refuvs[untyped f._uv2]}/>"));
+			}
 		}
 
 		return result;
@@ -1092,7 +1112,7 @@ class Mesh extends Object3D  {
 	public override function applyPosition(dx:Float, dy:Float, dz:Float):Void {
 		
 		_geometry.applyPosition(dx, dy, dz);
-		var dV:Number3D = new Number3D();
+		var dV:Number3D = new Number3D(dx, dy, dz);
 		dV.rotate(dV, _transform);
 		dV.add(dV, position);
 		moveTo(dV.x, dV.y, dV.z);

@@ -5,6 +5,7 @@ import flash.display.BitmapData;
 import away3d.materials.shaders.SpecularPhongShader;
 import away3d.materials.shaders.AbstractShader;
 import away3d.materials.shaders.AmbientShader;
+import flash.display.BlendMode;
 import away3d.core.utils.Init;
 import away3d.materials.shaders.DiffuseDot3Shader;
 
@@ -89,10 +90,10 @@ class Dot3BitmapMaterialCache extends BitmapMaterialContainer  {
 		_shininess = ini.getNumber("shininess", 20);
 		_specular = ini.getNumber("specular", 0.7);
 		//create new materials
-		_bitmapMaterial = new BitmapMaterial();
-		_phongShader = new BitmapMaterialContainer();
-		_phongShader.addMaterial(_ambientShader = new AmbientShader());
-		_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader());
+		_bitmapMaterial = new BitmapMaterial(bitmap, ini);
+		_phongShader = new BitmapMaterialContainer(bitmap.width, bitmap.height, {blendMode:BlendMode.MULTIPLY, transparent:false});
+		_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+		_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
 		//add to materials array
 		addMaterial(_bitmapMaterial);
 		addMaterial(_phongShader);

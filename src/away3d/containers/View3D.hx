@@ -28,7 +28,7 @@ import away3d.core.project.DofSpriteProjector;
 import away3d.core.render.BitmapRenderSession;
 import away3d.materials.BitmapMaterialContainer;
 import away3d.events.CameraEvent;
-import away3d.haxeutils.BlendMode;
+import flash.display.BlendMode;
 import away3d.core.clip.RectangleClipping;
 import away3d.core.utils.Init;
 import flash.display.DisplayObject;
@@ -247,13 +247,17 @@ class View3D extends Sprite  {
 			for (__i in 0...session.getConsumer(this).list().length) {
 				primitive = session.getConsumer(this).list()[__i];
 
-				checkPrimitive(primitive);
+				if (primitive != null) {
+					checkPrimitive(primitive);
+				}
 			}
 
 			for (__i in 0...session.sessions.length) {
 				session = session.sessions[__i];
 
-				checkSession(session);
+				if (session != null) {
+					checkSession(session);
+				}
 			}
 
 		}
@@ -323,7 +327,7 @@ class View3D extends Sprite  {
 		//dispatch event
 		
 		if (_updatescene == null) {
-			_updatescene = new ViewEvent();
+			_updatescene = new ViewEvent(ViewEvent.UPDATE_SCENE, this);
 		}
 		dispatchEvent(_updatescene);
 	}
@@ -332,14 +336,14 @@ class View3D extends Sprite  {
 		//dispatch event
 		
 		if (_renderComplete == null) {
-			_renderComplete = new ViewEvent();
+			_renderComplete = new ViewEvent(ViewEvent.RENDER_COMPLETE, this);
 		}
 		dispatchEvent(_renderComplete);
 	}
 
 	private function createStatsMenu(event:Event):Void {
 		
-		statsPanel = new Stats();
+		statsPanel = new Stats(this, flash.Lib.current.stage.frameRate);
 		statsOpen = false;
 		flash.Lib.current.stage.addEventListener(Event.RESIZE, onStageResized);
 	}
@@ -352,7 +356,7 @@ class View3D extends Sprite  {
 	private function onSessionUpdate(event:SessionEvent):Void {
 		
 		if (Std.is(event.target, BitmapRenderSession)) {
-			_scene.updatedSessions[cast event.target] = event.target;
+			_scene.updatedSessions[untyped event.target] = event.target;
 		}
 	}
 
@@ -418,7 +422,9 @@ class View3D extends Sprite  {
 		for (__i in 0...array.length) {
 			var tar:Object3D = array[__i];
 
-			tar.dispatchMouseEvent(event);
+			if (tar != null) {
+				tar.dispatchMouseEvent(event);
+			}
 		}
 
 	}
@@ -439,7 +445,7 @@ class View3D extends Sprite  {
 		_renderer = val;
 		_updated = true;
 		if (_renderer == null) {
-			throw new Error();
+			throw new Error("View cannot have renderer set to null");
 		}
 		return val;
 	}
@@ -480,7 +486,7 @@ class View3D extends Sprite  {
 		if ((_clipping != null)) {
 			_clipping.addOnClippingUpdate(onClippingUpdated);
 		} else {
-			throw new Error();
+			throw new Error("View cannot have clip set to null");
 		}
 		_updated = true;
 		_screenClippingDirty = true;
@@ -513,7 +519,7 @@ class View3D extends Sprite  {
 			_camera.addOnSceneTransformChange(onCameraTransformChange);
 			_camera.addOnCameraUpdate(onCameraUpdated);
 		} else {
-			throw new Error();
+			throw new Error("View cannot have camera set to null");
 		}
 		return val;
 	}
@@ -535,7 +541,7 @@ class View3D extends Sprite  {
 		}
 		if ((_scene != null)) {
 			_scene.internalRemoveView(this);
-			_scene.viewDictionary[cast this] = null;
+			_scene.viewDictionary[untyped this] = null;
 			_scene.removeOnSessionChange(onSessionChange);
 			if ((_session != null)) {
 				_session.internalRemoveSceneSession(_scene.ownSession);
@@ -546,12 +552,12 @@ class View3D extends Sprite  {
 		if ((_scene != null)) {
 			_scene.internalAddView(this);
 			_scene.addOnSessionChange(onSessionChange);
-			_scene.viewDictionary[cast this] = this;
+			_scene.viewDictionary[untyped this] = this;
 			if ((_session != null)) {
 				_session.internalAddSceneSession(_scene.ownSession);
 			}
 		} else {
-			throw new Error();
+			throw new Error("View cannot have scene set to null");
 		}
 		return val;
 	}
@@ -586,7 +592,7 @@ class View3D extends Sprite  {
 				_session.internalAddSceneSession(_scene.ownSession);
 			}
 		} else {
-			throw new Error();
+			throw new Error("View cannot have session set to null");
 		}
 		//clear children
 		while ((numChildren > 0)) {
@@ -661,7 +667,7 @@ class View3D extends Sprite  {
 		};
 		camera = cast(_ini.getObjectOrInit("camera", Camera3D), Camera3D);
 		if (camera == null)  {
-			camera = new Camera3D();
+			camera = new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 		};
 		renderer = cast(_ini.getObject("renderer"), IRenderer);
 		if (renderer == null)  {
@@ -797,7 +803,7 @@ class View3D extends Sprite  {
 	 */
 	public function getMouseEvent(type:String):MouseEvent3D {
 		
-		var event:MouseEvent3D = new MouseEvent3D();
+		var event:MouseEvent3D = new MouseEvent3D(type);
 		event.screenX = screenX;
 		event.screenY = screenY;
 		event.screenZ = screenZ;
@@ -843,7 +849,7 @@ class View3D extends Sprite  {
 		if (Std.is(_session, BitmapRenderSession)) {
 			return (cast(_session, BitmapRenderSession)).getBitmapData(this);
 		} else {
-			throw new Error();
+			throw new Error("incorrect session object - require BitmapRenderSession");
 		}
 		
 		// autogenerated
@@ -930,9 +936,11 @@ class View3D extends Sprite  {
 		//traverse blockers
 		var __keys:Iterator<Dynamic> = untyped (__keys__(blockers)).iterator();
 		for (__key in __keys) {
-			_blocker = blockers[cast __key];
+			_blocker = blockers[untyped __key];
 
-			_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary[cast _blocker], blockerarray);
+			if (_blocker != null) {
+				_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary[untyped _blocker], blockerarray);
+			}
 		}
 
 		//traverse primitives

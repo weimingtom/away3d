@@ -90,7 +90,7 @@ class Animation extends EventDispatcher, implements IAnimation {
 	public function createTransition():Void {
 		
 		if (_transition == null) {
-			_transition = new AnimationTransition();
+			_transition = new AnimationTransition(geometry);
 		}
 	}
 
@@ -131,8 +131,8 @@ class Animation extends EventDispatcher, implements IAnimation {
 		
 		
 		geometry = geo;
-		_cycle = new AnimationEvent();
-		_sequenceupdate = new AnimationEvent();
+		_cycle = new AnimationEvent(AnimationEvent.CYCLE, this);
+		_sequenceupdate = new AnimationEvent(AnimationEvent.SEQUENCE_UPDATE, this);
 	}
 
 	/**

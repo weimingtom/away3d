@@ -96,7 +96,7 @@ class Camera3D extends Object3D  {
 			return;
 		}
 		if (_cameraupdated == null) {
-			_cameraupdated = new CameraEvent();
+			_cameraupdated = new CameraEvent(CameraEvent.CAMERA_UPDATED, this);
 		}
 		dispatchEvent(_cameraupdated);
 	}
@@ -318,7 +318,7 @@ class Camera3D extends Object3D  {
 		}
 		_cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
 		_drawPrimitiveStore.createVertexDictionary(object);
-		return lens.project(_cameraVarsStore.viewTransformDictionary[cast object], vertex);
+		return lens.project(_cameraVarsStore.viewTransformDictionary[untyped object], vertex);
 	}
 
 	/**
@@ -401,7 +401,7 @@ class Camera3D extends Object3D  {
 	public function unproject(mX:Float, mY:Float):Number3D {
 		
 		var persp:Float = (focus * zoom) / focus;
-		var vector:Number3D = new Number3D();
+		var vector:Number3D = new Number3D(mX / persp, -mY / persp, focus);
 		transform.multiplyVector3x3(vector);
 		return vector;
 	}

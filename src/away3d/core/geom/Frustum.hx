@@ -31,7 +31,7 @@ class Frustum  {
 		this._matrix = new Matrix3D();
 		
 		
-		planes = new Array<Dynamic>();
+		planes = new Array(6);
 		planes[LEFT] = new Plane3D();
 		planes[RIGHT] = new Plane3D();
 		planes[TOP] = new Plane3D();
@@ -58,12 +58,14 @@ class Frustum  {
 		for (__i in 0...planes.length) {
 			_plane = planes[__i];
 
-			_distance = _plane.distance(center);
-			if (_distance < -radius) {
-				return OUT;
-			}
-			if (Math.abs(_distance) < radius) {
-				return INTERSECT;
+			if (_plane != null) {
+				_distance = _plane.distance(center);
+				if (_distance < -radius) {
+					return OUT;
+				}
+				if (Math.abs(_distance) < radius) {
+					return INTERSECT;
+				}
 			}
 		}
 
@@ -79,11 +81,13 @@ class Frustum  {
 		for (__i in 0...planes.length) {
 			_plane = planes[__i];
 
-			if (_plane.d < -radius) {
-				return OUT;
-			}
-			if (Math.abs(_plane.d) < radius) {
-				return INTERSECT;
+			if (_plane != null) {
+				if (_plane.d < -radius) {
+					return OUT;
+				}
+				if (Math.abs(_plane.d) < radius) {
+					return INTERSECT;
+				}
 			}
 		}
 

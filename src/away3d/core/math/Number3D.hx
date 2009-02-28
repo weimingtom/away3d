@@ -38,27 +38,27 @@ class Number3D  {
 	/**
 	 * A 3d number object representing a relative direction forward.
 	 */
-	public static var FORWARD:Number3D = new Number3D();
+	public static var FORWARD:Number3D = new Number3D(0, 0, 1);
 	/**
 	 * A 3d number object representing a relative direction backward.
 	 */
-	public static var BACKWARD:Number3D = new Number3D();
+	public static var BACKWARD:Number3D = new Number3D(0, 0, -1);
 	/**
 	 * A 3d number object representing a relative direction left.
 	 */
-	public static var LEFT:Number3D = new Number3D();
+	public static var LEFT:Number3D = new Number3D(-1, 0, 0);
 	/**
 	 * A 3d number object representing a relative direction right.
 	 */
-	public static var RIGHT:Number3D = new Number3D();
+	public static var RIGHT:Number3D = new Number3D(1, 0, 0);
 	/**
 	 * A 3d number object representing a relative direction up.
 	 */
-	public static var UP:Number3D = new Number3D();
+	public static var UP:Number3D = new Number3D(0, 1, 0);
 	/**
 	 * A 3d number object representing a relative direction down.
 	 */
-	public static var DOWN:Number3D = new Number3D();
+	public static var DOWN:Number3D = new Number3D(0, -1, 0);
 	
 
 	/**
@@ -177,7 +177,7 @@ class Number3D  {
 	public function cross(v:Number3D, w:Number3D):Void {
 		
 		if (this == v || this == w) {
-			throw new Error();
+			throw new Error("resultant cross product cannot be the same instance as an input");
 		}
 		x = w.y * v.z - w.z * v.y;
 		y = w.z * v.x - w.x * v.z;
@@ -370,7 +370,7 @@ class Number3D  {
 	 */
 	public function interpolate(w:Number3D, f:Float):Void {
 		
-		var d:Number3D = new Number3D();
+		var d:Number3D = new Number3D;
 		d.sub(w, this);
 		d.scale(d, f);
 		add(this, d);
@@ -390,7 +390,7 @@ class Number3D  {
 	 */
 	public static function getInterpolated(w:Number3D, v:Number3D, f:Float):Number3D {
 		
-		var d:Number3D = new Number3D();
+		var d:Number3D = new Number3D;
 		d.sub(w, v);
 		d.scale(d, f);
 		d.add(d, v);

@@ -20,9 +20,11 @@ class ChannelLibrary extends Dictionary  {
 		_channelArray = [];
 		var __keys:Iterator<Dynamic> = untyped (__keys__(this)).iterator();
 		for (__key in __keys) {
-			_channel = this[cast __key];
+			_channel = this[untyped __key];
 
-			_channelArray.push(_channel);
+			if (_channel != null) {
+				_channelArray.push(_channel);
+			}
 		}
 
 	}
@@ -33,13 +35,13 @@ class ChannelLibrary extends Dictionary  {
 	public function addChannel(name:String, xml:Xml):ChannelData {
 		//return if animation already exists
 		
-		if ((this[cast name] != null)) {
-			return this[cast name];
+		if ((this[untyped name] != null)) {
+			return this[untyped name];
 		}
 		_channelArrayDirty = true;
 		var channelData:ChannelData = new ChannelData();
 		channelData.xml = xml;
-		this[cast channelData.name = name] = channelData;
+		this[untyped channelData.name = name] = channelData;
 		return channelData;
 	}
 
@@ -49,8 +51,8 @@ class ChannelLibrary extends Dictionary  {
 	public function getChannel(name:String):ChannelData {
 		//return if animation exists
 		
-		if ((this[cast name] != null)) {
-			return this[cast name];
+		if ((this[untyped name] != null)) {
+			return this[untyped name];
 		}
 		Debug.warning("Channel '" + name + "' does not exist");
 		return null;

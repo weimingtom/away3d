@@ -47,7 +47,7 @@ class BitmapFileMaterial extends TransformBitmapMaterial, implements ITriangleMa
 	private function onError(e:IOErrorEvent):Void {
 		
 		if (_materialloaderror == null) {
-			_materialloaderror = new MaterialEvent();
+			_materialloaderror = new MaterialEvent(MaterialEvent.LOAD_ERROR, this);
 		}
 		dispatchEvent(_materialloaderror);
 	}
@@ -55,7 +55,7 @@ class BitmapFileMaterial extends TransformBitmapMaterial, implements ITriangleMa
 	private function onProgress(e:ProgressEvent):Void {
 		
 		if (_materialloadprogress == null) {
-			_materialloadprogress = new MaterialEvent();
+			_materialloadprogress = new MaterialEvent(MaterialEvent.LOAD_PROGRESS, this);
 		}
 		dispatchEvent(_materialloadprogress);
 	}
@@ -64,7 +64,7 @@ class BitmapFileMaterial extends TransformBitmapMaterial, implements ITriangleMa
 		
 		bitmap = Bitmap(_loader.content).bitmapData;
 		if (_materialloadsuccess == null) {
-			_materialloadsuccess = new MaterialEvent();
+			_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
 		}
 		dispatchEvent(_materialloadsuccess);
 	}
@@ -78,12 +78,12 @@ class BitmapFileMaterial extends TransformBitmapMaterial, implements ITriangleMa
 	public function new(?url:String="", ?init:Dynamic=null) {
 		
 		
-		super(new BitmapData(), init);
+		super(new BitmapData(100, 100), init);
 		_loader = new Loader();
 		_loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
 		_loader.addEventListener(ProgressEvent.PROGRESS, onProgress);
 		_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
-		_loader.load(new URLRequest());
+		_loader.load(new URLRequest(url));
 	}
 
 	/**

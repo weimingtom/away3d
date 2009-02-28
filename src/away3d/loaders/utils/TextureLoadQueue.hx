@@ -51,9 +51,9 @@ class TextureLoadQueue extends EventDispatcher  {
 	private function loadNext():Void {
 		
 		if (_currentItemIndex >= numItems) {
-			dispatchEvent(new Event());
+			dispatchEvent(new Event(Event.COMPLETE));
 		} else {
-			var evt:ProgressEvent = new ProgressEvent();
+			var evt:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS);
 			evt.bytesTotal = 100;
 			evt.bytesLoaded = percentLoaded;
 			dispatchEvent(evt);
@@ -122,7 +122,9 @@ class TextureLoadQueue extends EventDispatcher  {
 		for (__i in 0..._queue.length) {
 			var item:LoaderAndRequest = _queue[__i];
 
-			items.push(item.loader);
+			if (item != null) {
+				items.push(item.loader);
+			}
 		}
 
 		return items;
@@ -169,7 +171,7 @@ class TextureLoadQueue extends EventDispatcher  {
 		super();
 		
 		
-		_queue = new Array<Dynamic>();
+		_queue = new Array();
 	}
 
 	/**
@@ -184,12 +186,14 @@ class TextureLoadQueue extends EventDispatcher  {
 		for (__i in 0..._queue.length) {
 			var _item:LoaderAndRequest = _queue[__i];
 
-			if (_item.request.url == request.url) {
-				return;
+			if (_item != null) {
+				if (_item.request.url == request.url) {
+					return;
+				}
 			}
 		}
 
-		_queue.push(new LoaderAndRequest());
+		_queue.push(Type.createInstance(LoaderAndRequest, []));
 	}
 
 	/**

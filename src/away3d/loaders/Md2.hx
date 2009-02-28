@@ -56,7 +56,7 @@ class Md2 extends AbstractParser  {
 		version = data.readInt();
 		// Make sure it is valid MD2 file
 		if (ident != 844121161 || version != 8) {
-			throw new Error();
+			throw new Error("Error loading MD2 file: Not a valid MD2 file/bad version");
 		}
 		skinwidth = data.readInt();
 		skinheight = data.readInt();
@@ -89,7 +89,7 @@ class Md2 extends AbstractParser  {
 		data.position = offset_st;
 		i = 0;
 		while (i < num_st) {
-			uvs.push(new UV());
+			uvs.push(new UV(data.readShort() / skinwidth, 1 - (data.readShort() / skinheight)));
 			
 			// update loop variables
 			i++;
@@ -98,7 +98,7 @@ class Md2 extends AbstractParser  {
 		// Faces
 		data.position = offset_tris;
 		// export requirement
-		mesh.indexes = new Array<Dynamic>();
+		mesh.indexes = new Array();
 		i = 0;
 		while (i < num_tris) {
 			var a:Int = data.readUnsignedShort();
@@ -108,7 +108,7 @@ class Md2 extends AbstractParser  {
 			var tb:Int = data.readUnsignedShort();
 			var tc:Int = data.readUnsignedShort();
 			mesh.indexes.push([a, b, c, ta, tb, tc]);
-			mesh.addFace(new Face());
+			mesh.addFace(new Face(vertices[a], vertices[b], vertices[c], null, uvs[ta], uvs[tb], uvs[tc]));
 			
 			// update loop variables
 			i++;
@@ -151,7 +151,7 @@ class Md2 extends AbstractParser  {
 			mesh.geometry.frames[i] = frame;
 			var h:Int = 0;
 			while (h < vertices.length) {
-				var vp:VertexPosition = new VertexPosition();
+				var vp:VertexPosition = new VertexPosition(vertices[h]);
 				vp.x = -((sx * data.readUnsignedByte()) + tx) * scaling;
 				vp.z = ((sy * data.readUnsignedByte()) + ty) * scaling;
 				vp.y = ((sz * data.readUnsignedByte()) + tz) * scaling;
@@ -189,7 +189,7 @@ class Md2 extends AbstractParser  {
 		
 		ini = Init.parse(init);
 		scaling = ini.getNumber("scaling", 1) * 100;
-		mesh = cast((container = new Mesh()), Mesh);
+		mesh = cast((container = new Mesh(ini)), Mesh);
 		parseMd2(Cast.bytearray(data));
 	}
 

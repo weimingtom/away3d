@@ -118,17 +118,17 @@ class NormalMapGenerator extends EventDispatcher  {
 			face = _mesh.faces[i];
 			fn = face.normal;
 			n0 = averageNormals(face.v0, n0, fn);
-			p0 = new Point();
+			p0 = new Point(face.uv0.u * _width, (1 - face.uv0.v) * _height);
 			col0r = Std.int(255 - ((127 * n0.x) + 127));
 			col0g = Std.int(255 - ((127 * n0.y) + 127));
 			col0b = Std.int((127 * n0.z) + 127);
 			n1 = averageNormals(face.v1, n1, fn);
-			p1 = new Point();
+			p1 = new Point(face.uv1.u * _width, (1 - face.uv1.v) * _height);
 			col1r = Std.int(255 - ((127 * n1.x) + 127));
 			col1g = Std.int(255 - ((127 * n1.y) + 127));
 			col1b = Std.int((127 * n1.z) + 127);
 			n2 = averageNormals(face.v2, n2, fn);
-			p2 = new Point();
+			p2 = new Point(face.uv2.u * _width, (1 - face.uv2.v) * _height);
 			col2r = Std.int(255 - ((127 * n2.x) + 127));
 			col2g = Std.int(255 - ((127 * n2.y) + 127));
 			col2b = Std.int((127 * n2.z) + 127);
@@ -207,13 +207,13 @@ class NormalMapGenerator extends EventDispatcher  {
 			}
 			_lines = null;
 			if (hasEventListener(TraceEvent.TRACE_COMPLETE)) {
-				te = new TraceEvent();
+				te = new TraceEvent(TraceEvent.TRACE_COMPLETE);
 				te.procent = 100;
 				dispatchEvent(te);
 			}
 		} else {
 			if (hasEventListener(TraceEvent.TRACE_PROGRESS)) {
-				te = new TraceEvent();
+				te = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 				te.procent = (_state / _mesh.faces.length) * 100;
 				dispatchEvent(te);
 			}
@@ -223,8 +223,8 @@ class NormalMapGenerator extends EventDispatcher  {
 
 	private function applyBlur(map:BitmapData):Void {
 		
-		var bf:BlurFilter = new BlurFilter();
-		var pt:Point = new Point();
+		var bf:BlurFilter = new BlurFilter(_blur, _blur);
+		var pt:Point = new Point(0, 0);
 		map.applyFilter(map, map.rect, pt, bf);
 		bf = null;
 		pt = null;
@@ -371,13 +371,13 @@ class NormalMapGenerator extends EventDispatcher  {
 
 	private function grow():Void {
 		
-		var tmp0:BitmapData = new BitmapData();
-		var tmp1:BitmapData = new BitmapData();
+		var tmp0:BitmapData = new BitmapData(_normalmap.width, _normalmap.height, true, 0);
+		var tmp1:BitmapData = new BitmapData(_normalmap.width, _normalmap.height, false, 0);
 		var tmp2:BitmapData = tmp1.clone();
 		var tmp3:BitmapData = tmp0.clone();
-		var cf:ConvolutionFilter = new ConvolutionFilter();
-		var dp:DisplacementMapFilter = new DisplacementMapFilter();
-		var zeropt:Point = new Point();
+		var cf:ConvolutionFilter = new ConvolutionFilter(3, 3, null, 0, 127);
+		var dp:DisplacementMapFilter = new DisplacementMapFilter(tmp1, tmp1.rect.topLeft, 1, 2, 2, 2, "color", 0, 0);
+		var zeropt:Point = new Point(0, 0);
 		var mat0:Array<Dynamic> = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
 		var mat1:Array<Dynamic> = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
 		var i:Int = 0;
@@ -422,22 +422,22 @@ class NormalMapGenerator extends EventDispatcher  {
 			var Wscl:Float = nm.width / gs.width;
 			var Hscl:Float = nm.height / gs.height;
 			sclmat.scale(Wscl, Hscl);
-			_bumpmap = new BitmapData();
+			_bumpmap = new BitmapData(gs.width * Wscl, gs.height * Hscl, false, 0);
 			_bumpmap.draw(gs, sclmat, null, "normal", _bumpmap.rect, true);
 		} else {
-			_bumpmap = new BitmapData();
-			_bumpmap.copyPixels(bm, bm.rect, new Point());
+			_bumpmap = new BitmapData(bm.width, bm.height, false, 0x000000);
+			_bumpmap.copyPixels(bm, bm.rect, new Point(0, 0));
 		}
-		var zero:Point = new Point();
-		var ct:ColorMatrixFilter = new ColorMatrixFilter();
+		var zero:Point = new Point(0, 0);
+		var ct:ColorMatrixFilter = new ColorMatrixFilter([0.33, 0.33, 0.33, 0, 0, 0.33, 0.33, 0.33, 0, 0, 0.33, 0.33, 0.33, 0, 0]);
 		_bumpmap.applyFilter(_bumpmap, nm.rect, zero, ct);
-		var cf:ConvolutionFilter = new ConvolutionFilter();
-		var dumX:BitmapData = new BitmapData();
+		var cf:ConvolutionFilter = new ConvolutionFilter(3, 6, null, 1, 127);
+		var dumX:BitmapData = new BitmapData(nm.width, nm.height, false, 0x000000);
 		cf.matrix = [0, 0, 0, -1, 0, 1, 0, 0, 0];
 		dumX.applyFilter(_bumpmap, nm.rect, zero, cf);
 		_bumpmap.copyChannel(dumX, nm.rect, zero, 1, 1);
-		var dumY:BitmapData = new BitmapData();
-		cf.matrix = new Array<Dynamic>();
+		var dumY:BitmapData = new BitmapData(nm.width, nm.height, false, 0x000000);
+		cf.matrix = new Array(0, -1, 0, 0, 0, 0, 0, 1, 0);
 		dumY.applyFilter(_bumpmap, nm.rect, zero, cf);
 		_bumpmap.copyChannel(dumY, nm.rect, zero, 2, 2);
 		dumX.dispose();
@@ -478,7 +478,7 @@ class NormalMapGenerator extends EventDispatcher  {
 		this.intPt0 = new Point();
 		this.intPt1 = new Point();
 		this.intPt2 = new Point();
-		this.rect = new Rectangle();
+		this.rect = new Rectangle(0, 0, 1, 1);
 		
 		
 		if (mesh != null && (cast(mesh, Mesh)).vertices != null) {
@@ -489,7 +489,7 @@ class NormalMapGenerator extends EventDispatcher  {
 			_step = Std.int(maxfaces * (1 - (1 / (2800 / Math.max(_width, _height)))));
 			_bumpsource = bumpsource;
 			_blur = blur;
-			_normalmap = new BitmapData();
+			_normalmap = new BitmapData(_width, _height, false, 0x000000);
 			generate(0, (_step > _mesh.faces.length) ? _mesh.faces.length : _step);
 		}
 	}

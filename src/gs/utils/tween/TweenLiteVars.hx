@@ -270,7 +270,7 @@ class TweenLiteVars  {
 		
 		var vars:Dynamic = {protectedVars:{}};
 		appendCloneVars(vars, vars.protectedVars);
-		return new TweenLiteVars();
+		return new TweenLiteVars(vars);
 	}
 
 	/**

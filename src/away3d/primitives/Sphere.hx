@@ -30,9 +30,9 @@ class Sphere extends AbstractPrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array<Dynamic>();
+		grid = new Array(segmentsH + 1);
 		var bottom:Vertex = yUp ? createVertex(0, -radius, 0) : createVertex(0, 0, -radius);
-		grid[0] = new Array<Dynamic>();
+		grid[0] = new Array(segmentsW);
 		i = 0;
 		while (i < segmentsW) {
 			grid[0][i] = bottom;
@@ -46,7 +46,7 @@ class Sphere extends AbstractPrimitive  {
 			var horangle:Float = j / segmentsH * Math.PI;
 			var z:Float = -radius * Math.cos(horangle);
 			var ringradius:Float = radius * Math.sin(horangle);
-			grid[j] = new Array<Dynamic>();
+			grid[j] = new Array(segmentsW);
 			i = 0;
 			while (i < segmentsW) {
 				var verangle:Float = 2 * i / segmentsW * Math.PI;
@@ -68,7 +68,7 @@ class Sphere extends AbstractPrimitive  {
 		}
 
 		var top:Vertex = yUp ? createVertex(0, radius, 0) : createVertex(0, 0, radius);
-		grid[segmentsH] = new Array<Dynamic>();
+		grid[segmentsH] = new Array(segmentsW);
 		i = 0;
 		while (i < segmentsW) {
 			grid[segmentsH][i] = top;

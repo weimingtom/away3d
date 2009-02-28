@@ -41,7 +41,7 @@ class ColorMaterial extends EventDispatcher, implements ITriangleMaterial, imple
 			return;
 		}
 		if (_materialupdated == null) {
-			_materialupdated = new MaterialEvent();
+			_materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
 		}
 		dispatchEvent(_materialupdated);
 	}
@@ -149,7 +149,7 @@ class ColorMaterial extends EventDispatcher, implements ITriangleMaterial, imple
 	 */
 	public function clone():IFogMaterial {
 		
-		return new ColorMaterial();
+		return new ColorMaterial(_color, {alpha:_alpha});
 	}
 
 	/**

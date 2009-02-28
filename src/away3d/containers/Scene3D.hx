@@ -109,7 +109,7 @@ class Scene3D extends ObjectContainer3D  {
 		this._projtraverser = new ProjectionTraverser();
 		this._sessiontraverser = new SessionTraverser();
 		this._lighttraverser = new LightTraverser();
-		this.viewDictionary = new Dictionary();
+		this.viewDictionary = new Dictionary(true);
 		this.tickTraverser = new TickTraverser();
 		
 		
@@ -118,10 +118,12 @@ class Scene3D extends ObjectContainer3D  {
 		for (__i in 0...initarray.length) {
 			var object:Dynamic = initarray[__i];
 
-			if (Std.is(object, Object3D)) {
-				childarray.push(object);
-			} else {
-				init = object;
+			if (object != null) {
+				if (Std.is(object, Object3D)) {
+					childarray.push(object);
+				} else {
+					init = object;
+				}
 			}
 		}
 
@@ -151,7 +153,9 @@ class Scene3D extends ObjectContainer3D  {
 		for (__i in 0...childarray.length) {
 			var child:Object3D = childarray[__i];
 
-			addChild(child);
+			if (child != null) {
+				addChild(child);
+			}
 		}
 
 	}
@@ -162,42 +166,46 @@ class Scene3D extends ObjectContainer3D  {
 	public function update():Void {
 		//clear updated objects
 		
-		updatedObjects = new Dictionary();
+		updatedObjects = new Dictionary(true);
 		//clear updated sessions
-		updatedSessions = new Dictionary();
+		updatedSessions = new Dictionary(true);
 		//traverse lights
 		traverse(_lighttraverser);
 		//execute projection traverser on each view
 		var __keys:Iterator<Dynamic> = untyped (__keys__(viewDictionary)).iterator();
 		for (__key in __keys) {
-			_view = viewDictionary[cast __key];
+			_view = viewDictionary[untyped __key];
 
-			_view.camera.update();
-			//clear meshes
-			meshes = new Dictionary();
-			//clear blockers
-			_view.blockers = new Dictionary();
-			_view.drawPrimitiveStore.blockerDictionary = new Dictionary();
-			//clear camera view transforms
-			_view.cameraVarsStore.reset();
-			//clear blockers
-			_view.blockerarray.clip = _view.screenClipping;
-			//traverse scene
-			_projtraverser.view = _view;
-			traverse(_projtraverser);
-			_time = flash.Lib.getTimer();
-			//update materials in meshes
-			var __keys:Iterator<Dynamic> = untyped (__keys__(meshes)).iterator();
-			for (__key in __keys) {
-				_mesh = meshes[cast __key];
+			if (_view != null) {
+				_view.camera.update();
+				//clear meshes
+				meshes = new Dictionary(true);
+				//clear blockers
+				_view.blockers = new Dictionary(true);
+				_view.drawPrimitiveStore.blockerDictionary = new Dictionary(true);
+				//clear camera view transforms
+				_view.cameraVarsStore.reset();
+				//clear blockers
+				_view.blockerarray.clip = _view.screenClipping;
+				//traverse scene
+				_projtraverser.view = _view;
+				traverse(_projtraverser);
+				_time = flash.Lib.getTimer();
+				//update materials in meshes
+				var __keys:Iterator<Dynamic> = untyped (__keys__(meshes)).iterator();
+				for (__key in __keys) {
+					_mesh = meshes[untyped __key];
 
-				_mesh.updateMaterials(_mesh, _view);
-				//update geometry materials
-				_mesh.geometry.updateMaterials(_mesh, _view);
-				//update elements
-				_mesh.geometry.updateElements(_time);
+					if (_mesh != null) {
+						_mesh.updateMaterials(_mesh, _view);
+						//update geometry materials
+						_mesh.geometry.updateMaterials(_mesh, _view);
+						//update elements
+						_mesh.geometry.updateElements(_time);
+					}
+				}
+
 			}
-
 		}
 
 		//traverse sessions

@@ -40,10 +40,10 @@ class Button extends SimpleButton  {
 		SCALINGS[64] = [-1, -1, -1];
 		SCALINGS[128] = [1, -1, -1];
 		
-		upState = new ButtonState();
-		overState = new ButtonState();
-		downState = new ButtonState();
-		hitTestState = new ButtonState();
+		upState = Type.createInstance(ButtonState, []);
+		overState = Type.createInstance(ButtonState, []);
+		downState = Type.createInstance(ButtonState, []);
+		hitTestState = Type.createInstance(ButtonState, []);
 	}
 
 }

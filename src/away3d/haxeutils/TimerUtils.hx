@@ -42,21 +42,21 @@ class TimerUtils extends Sprite  {
 
 	public function tickStart(id:String):Void {
 		
-		timeStart[cast id] = flash.Lib.getTimer();
+		timeStart[untyped id] = flash.Lib.getTimer();
 	}
 
 	public function tickEnd(id:String):Void {
 		
-		if (timeStart[cast id] != null) {
-			var timePassed:Int = flash.Lib.getTimer() - timeStart[cast id];
+		if (timeStart[untyped id] != null) {
+			var timePassed:Int = flash.Lib.getTimer() - timeStart[untyped id];
 			var cumulativeTime:Int = 0;
 			var iter:Int = 0;
-			if (timeEnd[cast id] != null) {
-				cumulativeTime = timeEnd[cast id];
-				iter = nPasses[cast id];
+			if (timeEnd[untyped id] != null) {
+				cumulativeTime = timeEnd[untyped id];
+				iter = nPasses[untyped id];
 			}
-			timeEnd[cast id] = timePassed + cumulativeTime;
-			nPasses[cast id] = iter + 1;
+			timeEnd[untyped id] = timePassed + cumulativeTime;
+			nPasses[untyped id] = iter + 1;
 		}
 	}
 
@@ -66,7 +66,7 @@ class TimerUtils extends Sprite  {
 		var key:String;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(timeEnd)).iterator();
 		for (key in __keys) {
-			text = text + key + " ----> " + timeEnd[cast key] + " / " + nPasses[cast key] + "\n";
+			text = text + key + " ----> " + timeEnd[untyped key] + " / " + nPasses[untyped key] + "\n";
 			
 		}
 

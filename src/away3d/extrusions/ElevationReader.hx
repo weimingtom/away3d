@@ -305,13 +305,13 @@ class ElevationReader  {
 			var Wscl:Float = gs.width / src.width;
 			var Hscl:Float = gs.height / src.height;
 			sclmat.scale(Wscl, Hscl);
-			var sclbmd:BitmapData = new BitmapData();
+			var sclbmd:BitmapData = new BitmapData(gs.width * Wscl, gs.height * Hscl, true, 0x00FFFFFF);
 			sclbmd.draw(gs, sclmat, null, "normal", sclbmd.rect, true);
 		} else {
 			gs = levelBmd;
 		}
-		var mskBmd:BitmapData = new BitmapData();
-		var z:Point = new Point();
+		var mskBmd:BitmapData = new BitmapData(gs.width, gs.height, true, color);
+		var z:Point = new Point(0, 0);
 		if (reverse) {
 			mskBmd.copyChannel(gs, gs.rect, z, 2, 8);
 		} else {

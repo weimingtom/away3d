@@ -94,55 +94,55 @@ class Mirror  {
 				uva = face.uv0;
 				uvb = face.uv1;
 				uvc = face.uv2;
-				uv0 = new UV();
-				uv1 = new UV();
-				uv2 = new UV();
+				uv0 = new UV(uva.u, uva.v);
+				uv1 = new UV(uvb.u, uvb.v);
+				uv2 = new UV(uvc.u, uvc.v);
 				face.v0 = face.v1 = face.v2 = null;
 				face.uv0 = face.uv1 = face.uv2 = null;
 			}
 			switch (axe) {
 				case "x" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(-va.x - (offset * 2), va.y, va.z);
+					v1 = new Vertex(-vb.x - (offset * 2), vb.y, vb.z);
+					v2 = new Vertex(-vc.x - (offset * 2), vc.y, vc.z);
 				case "x-" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(-va.x - offset, va.y, va.z);
+					v1 = new Vertex(-vb.x - offset, vb.y, vb.z);
+					v2 = new Vertex(-vc.x - offset, vc.y, vc.z);
 				case "x+" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(-va.x + offset, va.y, va.z);
+					v1 = new Vertex(-vb.x + offset, vb.y, vb.z);
+					v2 = new Vertex(-vc.x + offset, vc.y, vc.z);
 				case "y" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(va.x, -va.y - (offset * 2), va.z);
+					v1 = new Vertex(vb.x, -vb.y - (offset * 2), vb.z);
+					v2 = new Vertex(vc.x, -vc.y - (offset * 2), vc.z);
 				case "y-" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(va.x, -va.y - offset, va.z);
+					v1 = new Vertex(vb.x, -vb.y - offset, vb.z);
+					v2 = new Vertex(vc.x, -vc.y - offset, vc.z);
 				case "y+" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(va.x, -va.y + offset, va.z);
+					v1 = new Vertex(vb.x, -vb.y + offset, vb.z);
+					v2 = new Vertex(vc.x, -vc.y + offset, vc.z);
 				case "z" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(va.x, va.y, -va.z - (offset * 2));
+					v1 = new Vertex(vb.x, vb.y, -vb.z - (offset * 2));
+					v2 = new Vertex(vc.x, vc.y, -vc.z - (offset * 2));
 				case "z-" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(va.x, va.y, va.z - offset);
+					v1 = new Vertex(vb.x, vb.y, vb.z - offset);
+					v2 = new Vertex(vc.x, vc.y, vc.z - offset);
 				case "z+" :
-					v0 = new Vertex();
-					v1 = new Vertex();
-					v2 = new Vertex();
+					v0 = new Vertex(va.x, va.y, va.z + offset);
+					v1 = new Vertex(vb.x, vb.y, vb.z + offset);
+					v2 = new Vertex(vc.x, vc.y, vc.z + offset);
 				
 
 			}
 			if (flip) {
 				if (duplicate) {
-					obj.addFace(new Face());
+					obj.addFace(new Face(v1, v0, v2, mat, face.uv1, face.uv0, face.uv2));
 				} else {
 					face.v0 = v1;
 					face.v1 = v0;
@@ -153,7 +153,7 @@ class Mirror  {
 				}
 			} else {
 				if (duplicate) {
-					obj.addFace(new Face());
+					obj.addFace(new Face(v0, v1, v2, mat, face.uv0, face.uv1, face.uv2));
 				} else {
 					face.v0 = v0;
 					face.v1 = v1;

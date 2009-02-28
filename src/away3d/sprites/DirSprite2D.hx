@@ -55,7 +55,7 @@ class DirSprite2D extends Object3D  {
 	 */
 	public function new(?init:Dynamic=null) {
 		this._vertices = [];
-		this._bitmaps = new Dictionary();
+		this._bitmaps = new Dictionary(true);
 		
 		OPPOSITE_OR[X | X] = N;
 		OPPOSITE_OR[XY | X] = Y;
@@ -87,12 +87,14 @@ class DirSprite2D extends Object3D  {
 		for (__i in 0...btmps.length) {
 			var btmp:Init = btmps[__i];
 
-			btmp = Init.parse(btmp);
-			var x:Float = btmp.getNumber("x", 0);
-			var y:Float = btmp.getNumber("y", 0);
-			var z:Float = btmp.getNumber("z", 0);
-			var b:BitmapData = btmp.getBitmap("bitmap");
-			add(x, y, z, b);
+			if (btmp != null) {
+				btmp = Init.parse(btmp);
+				var x:Float = btmp.getNumber("x", 0);
+				var y:Float = btmp.getNumber("y", 0);
+				var z:Float = btmp.getNumber("z", 0);
+				var b:BitmapData = btmp.getBitmap("bitmap");
+				add(x, y, z, b);
+			}
 		}
 
 		projectorType = ProjectorType.DIR_SPRITE;
@@ -112,16 +114,18 @@ class DirSprite2D extends Object3D  {
 			for (__i in 0..._vertices.length) {
 				var v:Vertex = _vertices[__i];
 
-				if ((v.x == x) && (v.y == y) && (v.z == z)) {
-					Debug.warning("Same base point for two bitmaps: " + v);
-					return;
+				if (v != null) {
+					if ((v.x == x) && (v.y == y) && (v.z == z)) {
+						Debug.warning("Same base point for two bitmaps: " + v);
+						return;
+					}
 				}
 			}
 
 		}
-		var vertex:Vertex = new Vertex();
+		var vertex:Vertex = new Vertex(x, y, z);
 		_vertices.push(vertex);
-		_bitmaps[cast vertex] = bitmap;
+		_bitmaps[untyped vertex] = bitmap;
 	}
 
 }

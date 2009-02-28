@@ -82,14 +82,14 @@ class ProjectionTraverser extends Traverser  {
 		_viewTransform.multiply(_cameraViewMatrix, node.sceneTransform);
 		if (_clipping.objectCulling) {
 			_frustum = _lens.getFrustum(node, _viewTransform);
-			if ((Std.is(node, Scene3D) || _cameraVarsStore.nodeClassificationDictionary[cast node.parent] == Frustum.INTERSECT)) {
+			if ((Std.is(node, Scene3D) || _cameraVarsStore.nodeClassificationDictionary[untyped node.parent] == Frustum.INTERSECT)) {
 				if (node.pivotZero) {
-					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[cast node] = _frustum.classifyRadius(node.boundingRadius);
+					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[untyped node] = _frustum.classifyRadius(node.boundingRadius);
 				} else {
-					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[cast node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
+					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[untyped node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
 				}
 			} else {
-				_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[cast node] = _cameraVarsStore.nodeClassificationDictionary[cast node.parent];
+				_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[untyped node] = _cameraVarsStore.nodeClassificationDictionary[untyped node.parent];
 			}
 			if (_nodeClassification == Frustum.OUT) {
 				node.updateObject();
@@ -116,11 +116,11 @@ class ProjectionTraverser extends Traverser  {
 	public override function apply(node:Object3D):Void {
 		
 		if (node.projectorType == ProjectorType.CONVEX_BLOCK) {
-			_view.blockers[cast node] = node;
+			_view.blockers[untyped node] = node;
 		}
 		//add to scene meshes dictionary
 		if (Std.is(node, Mesh)) {
-			_view.scene.meshes[cast node] = node;
+			_view.scene.meshes[untyped node] = node;
 		}
 	}
 

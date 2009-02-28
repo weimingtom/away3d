@@ -38,7 +38,7 @@ class GeometryEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new GeometryEvent();
+		return new GeometryEvent(type, geometry);
 	}
 
 }

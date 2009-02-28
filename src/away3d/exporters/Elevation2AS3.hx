@@ -60,7 +60,7 @@ class Elevation2AS3  {
 		
 		
 		_exportmap = exportmap;
-		_classname = substr(0, 1 - 0).toUpperCase() + substr(1, classname.length - 1);
+		_classname = classname.substr(0, 1 - 0).toUpperCase() + classname.substr(1, classname.length - 1);
 		_packagename = packagename.toLowerCase();
 	}
 

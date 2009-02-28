@@ -71,7 +71,9 @@ class Cube extends AbstractPrimitive  {
 		for (__i in 0..._cubeFaceArray.length) {
 			_cubeFace = _cubeFaceArray[__i];
 
-			_cubeFace.material = cast(event.material, ITriangleMaterial);
+			if (_cubeFace != null) {
+				_cubeFace.material = cast(event.material, ITriangleMaterial);
+			}
 		}
 
 	}

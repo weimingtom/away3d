@@ -88,7 +88,7 @@ class PathExtrude extends Mesh  {
 		var uvlength:Int = (points.length - 1) + offsetV;
 		var i:Int = 0;
 		while (i < points.length - 1) {
-			varr = new Array<Dynamic>();
+			varr = new Array();
 			extrudePoints(points[i], points[i + 1], (1 / uvlength) * ((closedata) ? i + (uvlength - 1) : i), uvlength, ((closedata) ? i + (uvlength - 1) : i) / _subdivision);
 			if (i == 0 && _isClosedProfile) {
 				_doubles = varr.concat();
@@ -163,7 +163,7 @@ class PathExtrude extends Mesh  {
 				++i;
 			}
 
-			return new Vertex();
+			return new Vertex(x, y, z);
 		}
 
 		i = 0;
@@ -176,7 +176,7 @@ class PathExtrude extends Mesh  {
 				if (_isClosedProfile && _doubles.length > 0) {
 					varr.push(getDouble(points1[i].x + (stepx * j), points1[i].y + (stepy * j), points1[i].z + (stepz * j)));
 				} else {
-					varr.push(new Vertex());
+					varr.push(new Vertex(points1[i].x + (stepx * j), points1[i].y + (stepy * j), points1[i].z + (stepz * j)));
 				}
 				
 				// update loop variables
@@ -217,20 +217,20 @@ class PathExtrude extends Mesh  {
 			}
 			v1 = (_coverall) ? vscale : ((_coversegment) ? _segvstart : 0);
 			v2 = (_coverall) ? vscale + (1 / indexv) : ((_coversegment) ? _segvstart + _segv : 1);
-			uva = new UV();
-			uvb = new UV();
-			uvc = new UV();
-			uvd = new UV();
+			uva = new UV(u1, v1);
+			uvb = new UV(u1, v2);
+			uvc = new UV(u2, v2);
+			uvd = new UV(u2, v1);
 			va = varr[index];
 			vb = varr[index + 1];
 			vc = varr[index + 3];
 			vd = varr[index + 2];
 			if (flip) {
-				addFace(new Face());
-				addFace(new Face());
+				addFace(new Face(vb, va, vc, mat, uvb, uva, uvc));
+				addFace(new Face(vc, va, vd, mat, uvc, uva, uvd));
 			} else {
-				addFace(new Face());
-				addFace(new Face());
+				addFace(new Face(va, vb, vc, mat, uva, uvb, uvc));
+				addFace(new Face(va, vc, vd, mat, uva, uvc, uvd));
 			}
 			if (_mapfit) {
 				u1 = u2;
@@ -250,7 +250,7 @@ class PathExtrude extends Mesh  {
 		this.xAxis = new Number3D();
 		this.yAxis = new Number3D();
 		this.zAxis = new Number3D();
-		this._worldAxis = new Number3D();
+		this._worldAxis = new Number3D(0, 1, 0);
 		this._transform = new Matrix3D();
 		this._subdivision = 2;
 		this._scaling = 1;
@@ -306,7 +306,7 @@ class PathExtrude extends Mesh  {
 			var aPointlist:Array<Dynamic> = [];
 			var aSegresult:Array<Dynamic> = [];
 			var atmp:Array<Dynamic>;
-			var tmppt:Number3D = new Number3D();
+			var tmppt:Number3D = new Number3D(0, 0, 0);
 			var i:Int;
 			var j:Int;
 			var k:Int;
@@ -316,7 +316,7 @@ class PathExtrude extends Mesh  {
 			}
 			var rescale:Bool = (_scales != null);
 			if (rescale) {
-				var lastscale:Number3D = (_scales[0] == null) ? new Number3D() : _scales[0];
+				var lastscale:Number3D = (_scales[0] == null) ? new Number3D(1, 1, 1) : _scales[0];
 			}
 			var rotate:Bool = (_rotations != null);
 			if (rotate && _rotations.length > 0) {
@@ -326,7 +326,7 @@ class PathExtrude extends Mesh  {
 				var tweenrot:Number3D;
 			}
 			if (_smoothscale && rescale) {
-				var nextscale:Number3D = new Number3D();
+				var nextscale:Number3D = new Number3D(1, 1, 1);
 				var aScales:Array<Dynamic> = [lastscale];
 			}
 			var tmploop:Int = _points.length;
@@ -382,7 +382,7 @@ class PathExtrude extends Mesh  {
 							tmppt.y += aSegPoints[i][j].y;
 							tmppt.z += aSegPoints[i][j].z;
 						} else {
-							tmppt = new Number3D();
+							tmppt = new Number3D(atmp[k].x + aSegPoints[i][j].x, atmp[k].y + aSegPoints[i][j].y, atmp[k].z + aSegPoints[i][j].z);
 						}
 						aPointlist.push(tmppt);
 						if (rescale && !_smoothscale) {
@@ -461,7 +461,7 @@ class PathExtrude extends Mesh  {
 						stepx = (aSegresult[0][j].x - lastP[j].x) / _subdivision;
 						stepy = (aSegresult[0][j].y - lastP[j].y) / _subdivision;
 						stepz = (aSegresult[0][j].z - lastP[j].z) / _subdivision;
-						c.push(new Number3D());
+						c.push(new Number3D(lastP[j].x + (stepx * i), lastP[j].y + (stepy * i), lastP[j].z + (stepz * i)));
 						
 						// update loop variables
 						++j;
