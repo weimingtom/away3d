@@ -1,7 +1,5 @@
 package gs.plugins;
 
-import flash.display.Sprite;
-import gs.utils.tween.TweenInfo;
 import gs.TweenLite;
 
 
@@ -38,26 +36,6 @@ class TweenPlugin  {
 		this._tweens = [];
 		this._changeFactor = 0;
 		
-		OPPOSITE_OR[X | X] = N;
-		OPPOSITE_OR[XY | X] = Y;
-		OPPOSITE_OR[XZ | X] = Z;
-		OPPOSITE_OR[XYZ | X] = YZ;
-		OPPOSITE_OR[Y | Y] = N;
-		OPPOSITE_OR[XY | Y] = X;
-		OPPOSITE_OR[XYZ | Y] = XZ;
-		OPPOSITE_OR[YZ | Y] = Z;
-		OPPOSITE_OR[Z | Z] = N;
-		OPPOSITE_OR[XZ | Z] = X;
-		OPPOSITE_OR[XYZ | Z] = XY;
-		OPPOSITE_OR[YZ | Z] = Y;
-		SCALINGS[1] = [1, 1, 1];
-		SCALINGS[2] = [-1, 1, 1];
-		SCALINGS[4] = [-1, 1, -1];
-		SCALINGS[8] = [1, 1, -1];
-		SCALINGS[16] = [1, -1, 1];
-		SCALINGS[32] = [-1, -1, 1];
-		SCALINGS[64] = [-1, -1, -1];
-		SCALINGS[128] = [1, -1, -1];
 		//constructor
 		
 	}
@@ -95,7 +73,7 @@ class TweenPlugin  {
 			var change:Float = (typeof($end) == "number") ? $end - $start : ($end);
 			//don't tween values that aren't changing! It's a waste of CPU cycles
 			if (change != 0) {
-				_tweens[_tweens.length] = new TweenInfo($object, $propName, $start, change, ($overwriteProp != null) ? $overwriteProp : $propName, false);
+				_tweens[_tweens.length] = Type.createInstance(TweenInfo, []);
 			}
 		}
 	}
@@ -118,7 +96,7 @@ class TweenPlugin  {
 				val = ti.start + (ti.change * $changeFactor);
 				neg = (val < 0) ? -1 : 1;
 				//twice as fast as Math.round()
-				Reflect.setField(ti.target, ti.property, ((val % 1) * neg > 0.5) ? Std.int(val) + neg : Std.int(val));
+				ti.target[ti.property] = ((val % 1) * neg > 0.5) ? Std.int(val) + neg : Std.int(val);
 				
 				// update loop variables
 				i--;
@@ -128,7 +106,7 @@ class TweenPlugin  {
 			i = _tweens.length - 1;
 			while (i > -1) {
 				ti = _tweens[i];
-				Reflect.setField(ti.target, ti.property, ti.start + (ti.change * $changeFactor));
+				ti.target[ti.property] = ti.start + (ti.change * $changeFactor);
 				
 				// update loop variables
 				i--;
@@ -203,8 +181,7 @@ class TweenPlugin  {
 		var instance:Dynamic;
 		i = $plugins.length - 1;
 		while (i > -1) {
-			instance = Type.createInstance($plugins[i], ["hello"]);
-			isntance = new Sprite("test");
+			instance = Type.createInstance($plugins[i], []);
 			TweenLite.plugins[instance.propName] = $plugins[i];
 			
 			// update loop variables
