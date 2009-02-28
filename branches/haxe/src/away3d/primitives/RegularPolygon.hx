@@ -28,7 +28,7 @@ class RegularPolygon extends AbstractPrimitive  {
 
 	private function buildRegularPolygon(radius:Float, sides:Int, subdivision:Int, yUp:Bool):Void {
 		
-		var tmpPoints:Array<Dynamic> = new Array<Dynamic>();
+		var tmpPoints:Array<Dynamic> = new Array();
 		var i:Int = 0;
 		var j:Int = 0;
 		var innerstep:Float = radius / subdivision;
@@ -45,13 +45,13 @@ class RegularPolygon extends AbstractPrimitive  {
 		var faced:Vertex;
 		i;
 		while (i <= subdivision) {
-			tmpPoints.push(new Number3D());
+			tmpPoints.push(new Number3D(i * innerstep, 0, 0));
 			
 			// update loop variables
 			i++;
 		}
 
-		var base:Number3D = new Number3D();
+		var base:Number3D = new Number3D(0, 0, 0);
 		var zerouv:UV = createUV(0.5, 0.5);
 		i = 0;
 		while (i < sides) {

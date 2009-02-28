@@ -91,7 +91,7 @@ class SkinExtrude extends Mesh  {
 			stepz = (points2[i].z - points1[i].z) / subdivision;
 			j = 0;
 			while (j < subdivision + 1) {
-				varr.push(new Vertex());
+				varr.push(new Vertex(points1[i].x + (stepx * j), points1[i].y + (stepy * j), points1[i].z + (stepz * j)));
 				
 				// update loop variables
 				j++;
@@ -111,20 +111,20 @@ class SkinExtrude extends Mesh  {
 			while (j < subdivision) {
 				v1 = (coverall) ? vscale + ((j / subdivision) / indexv) : j / subdivision;
 				v2 = (coverall) ? vscale + (((j + 1) / subdivision) / indexv) : (j + 1) / subdivision;
-				uva = new UV();
-				uvb = new UV();
-				uvc = new UV();
-				uvd = new UV();
+				uva = new UV(u1, v1);
+				uvb = new UV(u1, v2);
+				uvc = new UV(u2, v2);
+				uvd = new UV(u2, v1);
 				va = varr[index + j];
 				vb = varr[(index + j) + 1];
 				vc = varr[((index + j) + (subdivision + 2))];
 				vd = varr[((index + j) + (subdivision + 1))];
 				if (flip) {
-					addFace(new Face());
-					addFace(new Face());
+					addFace(new Face(va, vb, vc, null, uva, uvb, uvc));
+					addFace(new Face(va, vc, vd, null, uva, uvc, uvd));
 				} else {
-					addFace(new Face());
-					addFace(new Face());
+					addFace(new Face(vb, va, vc, null, uvb, uva, uvc));
+					addFace(new Face(vc, va, vd, null, uvc, uva, uvd));
 				}
 				
 				// update loop variables

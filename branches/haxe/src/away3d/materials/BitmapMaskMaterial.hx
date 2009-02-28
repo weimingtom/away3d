@@ -12,7 +12,7 @@ import flash.geom.Point;
 import away3d.core.draw.ScreenVertex;
 import away3d.core.base.Object3D;
 import flash.geom.Matrix;
-import away3d.haxeutils.BlendMode;
+import flash.display.BlendMode;
 import flash.geom.ColorTransform;
 import away3d.core.utils.Init;
 import away3d.core.utils.FaceVO;
@@ -168,7 +168,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 			return;
 		}
 		if (_materialupdated == null) {
-			_materialupdated = new MaterialEvent();
+			_materialupdated = new MaterialEvent(MaterialEvent.MATERIAL_UPDATED, this);
 		}
 		dispatchEvent(_materialupdated);
 	}
@@ -178,9 +178,11 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_shapeDictionary)).iterator();
 		for (__key in __keys) {
-			_shape = _shapeDictionary[cast __key];
+			_shape = _shapeDictionary[untyped __key];
 
-			_shape.graphics.clear();
+			if (_shape != null) {
+				_shape.graphics.clear();
+			}
 		}
 
 	}
@@ -189,8 +191,8 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):Void {
 		//check to see if sourceDictionary exists
 		
-		if ((_sourceVO = _faceDictionary[cast source]) == null) {
-			_sourceVO = _faceDictionary[cast source] = new FaceMaterialVO();
+		if ((_sourceVO = _faceDictionary[untyped source]) == null) {
+			_sourceVO = _faceDictionary[untyped source] = new FaceMaterialVO();
 		}
 		_sourceVO.resize(containerRect.width, containerRect.height);
 		//check to see if rendering can be skipped
@@ -413,7 +415,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		_bitmapDirty = false;
 		if ((_colorTransform != null)) {
 			if (!_bitmap.transparent && _alpha != 1) {
-				_renderBitmap = new BitmapData();
+				_renderBitmap = new BitmapData(_bitmap.width, _bitmap.height, true);
 				_renderBitmap.draw(_bitmap);
 			} else {
 				_renderBitmap = _bitmap.clone();
@@ -676,13 +678,13 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		this._green = 1;
 		this._blue = 1;
 		this._alpha = 1;
-		this._faceDictionary = new Dictionary();
-		this._zeroPoint = new Point();
+		this._faceDictionary = new Dictionary(true);
+		this._zeroPoint = new Point(0, 0);
 		this._s = new Shape();
-		this._shapeDictionary = new Dictionary();
+		this._shapeDictionary = new Dictionary(true);
 		this.map = new Matrix();
 		this.triangle = new DrawTriangle();
-		this.svArray = new Array<Dynamic>();
+		this.svArray = new Array();
 		
 		
 		_bitmap = bitmap;
@@ -723,10 +725,10 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public function getFaceMaterialVO(faceVO:FaceVO, ?source:Object3D=null, ?view:View3D=null):FaceMaterialVO {
 		//check to see if faceMaterialVO exists
 		
-		if (((_faceMaterialVO = _faceDictionary[cast faceVO]) != null)) {
+		if (((_faceMaterialVO = _faceDictionary[untyped faceVO]) != null)) {
 			return _faceMaterialVO;
 		}
-		return _faceDictionary[cast faceVO] = new FaceMaterialVO();
+		return _faceDictionary[untyped faceVO] = new FaceMaterialVO();
 	}
 
 	/**
@@ -737,10 +739,12 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		notifyMaterialUpdate();
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			if (!_faceMaterialVO.cleared) {
-				_faceMaterialVO.clear();
+			if (_faceMaterialVO != null) {
+				if (!_faceMaterialVO.cleared) {
+					_faceMaterialVO.clear();
+				}
 			}
 		}
 
@@ -754,9 +758,11 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		_materialDirty = true;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			_faceMaterialVO.invalidated = true;
+			if (_faceMaterialVO != null) {
+				_faceMaterialVO.invalidated = true;
+			}
 		}
 
 	}
@@ -771,12 +777,12 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		} else {
 			_session = tri.source.session;
 			if (_session != tri.source.scene.session) {
-				if ((_shape = _shapeDictionary[cast _session]) == null) {
-					layer.addChild(_shape = _shapeDictionary[cast _session] = new Shape());
+				if ((_shape = _shapeDictionary[untyped _session]) == null) {
+					layer.addChild(_shape = _shapeDictionary[untyped _session] = new Shape());
 				}
 			} else {
-				if ((_shape = _shapeDictionary[cast tri.faceVO]) == null) {
-					layer.addChild(_shape = _shapeDictionary[cast tri.faceVO] = new Shape());
+				if ((_shape = _shapeDictionary[untyped tri.faceVO]) == null) {
+					layer.addChild(_shape = _shapeDictionary[untyped tri.faceVO] = new Shape());
 				}
 			}
 			_shape.blendMode = _blendMode;
@@ -817,7 +823,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 				_sv0 = new ScreenVertex();
 				_sv1 = new ScreenVertex();
 			}
-			var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[cast tri.source];
+			var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[untyped tri.source];
 			_nn.rotate(tri.faceVO.face.normal, t);
 			_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;
 			_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;

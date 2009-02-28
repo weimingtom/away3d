@@ -43,7 +43,7 @@ class DropShadowFilterPlugin extends FilterPlugin  {
 		
 		_target = $target;
 		_type = DropShadowFilter;
-		initFilter($value, new DropShadowFilter());
+		initFilter($value, new DropShadowFilter(0, 45, 0x000000, 0, 0, 0, 1, ($value.quality > 0) ? $value.quality : 2, $value.inner, $value.knockout, $value.hideObject));
 		return true;
 	}
 

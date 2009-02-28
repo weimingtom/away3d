@@ -147,7 +147,7 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 	/** @private */
 	private function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Float, kag:Float, kab:Float, kdr:Float, kdg:Float, kdb:Float, ksr:Float, ksg:Float, ksb:Float):Void {
 		
-		throw new Error();
+		throw new Error("Not implemented");
 	}
 
 	/**
@@ -179,22 +179,26 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 		for (__i in 0...source.lightarray.directionals.length) {
 			directional = source.lightarray.directionals[__i];
 
-			if (!directional.diffuseTransform[cast source] || view.scene.updatedObjects[cast source]) {
-				directional.setDiffuseTransform(source);
-			}
-			if (!directional.specularTransform[cast source]) {
-				directional.specularTransform[cast source] = new Dictionary();
-			}
-			if (!directional.specularTransform[cast source][cast view] || view.scene.updatedObjects[cast source] || view.updated) {
-				directional.setSpecularTransform(source, view);
+			if (directional != null) {
+				if (!directional.diffuseTransform[untyped source] || view.scene.updatedObjects[untyped source]) {
+					directional.setDiffuseTransform(source);
+				}
+				if (!directional.specularTransform[untyped source]) {
+					directional.specularTransform[untyped source] = new Dictionary(true);
+				}
+				if (!directional.specularTransform[untyped source][untyped view] || view.scene.updatedObjects[untyped source] || view.updated) {
+					directional.setSpecularTransform(source, view);
+				}
 			}
 		}
 
 		for (__i in 0...source.lightarray.points.length) {
 			point = source.lightarray.points[__i];
 
-			if (!point.viewPositions[cast view] || view.scene.updatedObjects[cast source] || view.updated) {
-				point.setViewPosition(view);
+			if (point != null) {
+				if (!point.viewPositions[untyped view] || view.scene.updatedObjects[untyped source] || view.updated) {
+					point.setViewPosition(view);
+				}
 			}
 		}
 
@@ -242,76 +246,80 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 		for (__i in 0...tri.source.lightarray.directionals.length) {
 			directional = tri.source.lightarray.directionals[__i];
 
-			_diffuseTransform = directional.diffuseTransform[cast _source];
-			red = directional.red;
-			green = directional.green;
-			blue = directional.blue;
-			dfx = _diffuseTransform.szx;
-			dfy = _diffuseTransform.szy;
-			dfz = _diffuseTransform.szz;
-			nx = tri.faceVO.face.normal.x;
-			ny = tri.faceVO.face.normal.y;
-			nz = tri.faceVO.face.normal.z;
-			amb = directional.ambient * ambient_brightness;
-			kar += red * amb;
-			kag += green * amb;
-			kab += blue * amb;
-			nf = dfx * nx + dfy * ny + dfz * nz;
-			if (nf < 0) {
-				continue;
+			if (directional != null) {
+				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				red = directional.red;
+				green = directional.green;
+				blue = directional.blue;
+				dfx = _diffuseTransform.szx;
+				dfy = _diffuseTransform.szy;
+				dfz = _diffuseTransform.szz;
+				nx = tri.faceVO.face.normal.x;
+				ny = tri.faceVO.face.normal.y;
+				nz = tri.faceVO.face.normal.z;
+				amb = directional.ambient * ambient_brightness;
+				kar += red * amb;
+				kag += green * amb;
+				kab += blue * amb;
+				nf = dfx * nx + dfy * ny + dfz * nz;
+				if (nf < 0) {
+					continue;
+				}
+				diff = directional.diffuse * nf * diffuse_brightness;
+				kdr += red * diff;
+				kdg += green * diff;
+				kdb += blue * diff;
+				_specularTransform = directional.specularTransform[untyped _source][untyped _view];
+				rfx = _specularTransform.szx;
+				rfy = _specularTransform.szy;
+				rfz = _specularTransform.szz;
+				rf = rfx * nx + rfy * ny + rfz * nz;
+				spec = directional.specular * Math.pow(rf, shininess) * specular_brightness;
+				ksr += red * spec;
+				ksg += green * spec;
+				ksb += blue * spec;
 			}
-			diff = directional.diffuse * nf * diffuse_brightness;
-			kdr += red * diff;
-			kdg += green * diff;
-			kdb += blue * diff;
-			_specularTransform = directional.specularTransform[cast _source][cast _view];
-			rfx = _specularTransform.szx;
-			rfy = _specularTransform.szy;
-			rfz = _specularTransform.szz;
-			rf = rfx * nx + rfy * ny + rfz * nz;
-			spec = directional.specular * Math.pow(rf, shininess) * specular_brightness;
-			ksr += red * spec;
-			ksg += green * spec;
-			ksb += blue * spec;
 		}
 
 		for (__i in 0...tri.source.lightarray.points.length) {
 			point = tri.source.lightarray.points[__i];
 
-			red = point.red;
-			green = point.green;
-			blue = point.blue;
-			_viewPosition = point.viewPositions[cast tri.view];
-			dfx = _viewPosition.x - c0x;
-			dfy = _viewPosition.y - c0y;
-			dfz = _viewPosition.z - c0z;
-			df = Math.sqrt(dfx * dfx + dfy * dfy + dfz * dfz);
-			dfx /= df;
-			dfy /= df;
-			dfz /= df;
-			fade = 1 / df / df;
-			amb = point.ambient * fade * ambient_brightness;
-			kar += red * amb;
-			kag += green * amb;
-			kab += blue * amb;
-			nf = dfx * pa + dfy * pb + dfz * pc;
-			if (nf < 0) {
-				continue;
+			if (point != null) {
+				red = point.red;
+				green = point.green;
+				blue = point.blue;
+				_viewPosition = point.viewPositions[untyped tri.view];
+				dfx = _viewPosition.x - c0x;
+				dfy = _viewPosition.y - c0y;
+				dfz = _viewPosition.z - c0z;
+				df = Math.sqrt(dfx * dfx + dfy * dfy + dfz * dfz);
+				dfx /= df;
+				dfy /= df;
+				dfz /= df;
+				fade = 1 / df / df;
+				amb = point.ambient * fade * ambient_brightness;
+				kar += red * amb;
+				kag += green * amb;
+				kab += blue * amb;
+				nf = dfx * pa + dfy * pb + dfz * pc;
+				if (nf < 0) {
+					continue;
+				}
+				diff = point.diffuse * fade * nf * diffuse_brightness;
+				kdr += red * diff;
+				kdg += green * diff;
+				kdb += blue * diff;
+				rfz = dfz - 2 * nf * pc;
+				if (rfz < 0) {
+					continue;
+				}
+				rfx = dfx - 2 * nf * pa;
+				rfy = dfy - 2 * nf * pb;
+				spec = point.specular * fade * Math.pow(rfz, shininess) * specular_brightness;
+				ksr += red * spec;
+				ksg += green * spec;
+				ksb += blue * spec;
 			}
-			diff = point.diffuse * fade * nf * diffuse_brightness;
-			kdr += red * diff;
-			kdg += green * diff;
-			kdb += blue * diff;
-			rfz = dfz - 2 * nf * pc;
-			if (rfz < 0) {
-				continue;
-			}
-			rfx = dfx - 2 * nf * pa;
-			rfy = dfy - 2 * nf * pb;
-			spec = point.specular * fade * Math.pow(rfz, shininess) * specular_brightness;
-			ksr += red * spec;
-			ksg += green * spec;
-			ksb += blue * spec;
 		}
 
 		renderTri(tri, session, kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb);
@@ -334,47 +342,49 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 				for (__i in 0...tri.source.lightarray.points.length) {
 					point = tri.source.lightarray.points[__i];
 
-					red = point.red;
-					green = point.green;
-					blue = point.blue;
-					sum = (red + green + blue) / 0xFF;
-					red /= sum;
-					green /= sum;
-					blue /= sum;
-					dfx = _viewPosition.x - c0x;
-					dfy = _viewPosition.y - c0y;
-					dfz = _viewPosition.z - c0z;
-					df = Math.sqrt(dfx * dfx + dfy * dfy + dfz * dfz);
-					dfx /= df;
-					dfy /= df;
-					dfz /= df;
-					nf = dfx * pa + dfy * pb + dfz * pc;
-					if (nf < 0) {
-						continue;
-					}
-					if (draw_fall) {
-						ffz = (c0z + 30 * dfz * (1 - draw_fall_k));
-						ffx = (c0x + 30 * dfx * (1 - draw_fall_k)) * zoom * focus / (focus + ffz);
-						ffy = (c0y + 30 * dfy * (1 - draw_fall_k)) * zoom * focus / (focus + ffz);
-						fz = (c0z + 30 * dfz);
-						fx = (c0x + 30 * dfx) * zoom * focus / (focus + fz);
-						fy = (c0y + 30 * dfy) * zoom * focus / (focus + fz);
-						graphics.lineStyle(1, Std.int(red) * 0x10000 + Std.int(green) * 0x100 + Std.int(blue), 1);
-						graphics.moveTo(ffx, ffy);
-						graphics.lineTo(fx, fy);
-						graphics.moveTo(ffx, ffy);
-					}
-					if (draw_reflect) {
-						rfx = dfx - 2 * nf * pa;
-						rfy = dfy - 2 * nf * pb;
-						rfz = dfz - 2 * nf * pc;
-						rz = (c0z - 30 * rfz * draw_reflect_k);
-						rx = (c0x - 30 * rfx * draw_reflect_k) * zoom * focus / (focus + rz);
-						ry = (c0y - 30 * rfy * draw_reflect_k) * zoom * focus / (focus + rz);
-						graphics.lineStyle(1, Std.int(red * 0.5) * 0x10000 + Std.int(green * 0.5) * 0x100 + Std.int(blue * 0.5), 1);
-						graphics.moveTo(cx, cy);
-						graphics.lineTo(rx, ry);
-						graphics.moveTo(cx, cy);
+					if (point != null) {
+						red = point.red;
+						green = point.green;
+						blue = point.blue;
+						sum = (red + green + blue) / 0xFF;
+						red /= sum;
+						green /= sum;
+						blue /= sum;
+						dfx = _viewPosition.x - c0x;
+						dfy = _viewPosition.y - c0y;
+						dfz = _viewPosition.z - c0z;
+						df = Math.sqrt(dfx * dfx + dfy * dfy + dfz * dfz);
+						dfx /= df;
+						dfy /= df;
+						dfz /= df;
+						nf = dfx * pa + dfy * pb + dfz * pc;
+						if (nf < 0) {
+							continue;
+						}
+						if (draw_fall) {
+							ffz = (c0z + 30 * dfz * (1 - draw_fall_k));
+							ffx = (c0x + 30 * dfx * (1 - draw_fall_k)) * zoom * focus / (focus + ffz);
+							ffy = (c0y + 30 * dfy * (1 - draw_fall_k)) * zoom * focus / (focus + ffz);
+							fz = (c0z + 30 * dfz);
+							fx = (c0x + 30 * dfx) * zoom * focus / (focus + fz);
+							fy = (c0y + 30 * dfy) * zoom * focus / (focus + fz);
+							graphics.lineStyle(1, Std.int(red) * 0x10000 + Std.int(green) * 0x100 + Std.int(blue), 1);
+							graphics.moveTo(ffx, ffy);
+							graphics.lineTo(fx, fy);
+							graphics.moveTo(ffx, ffy);
+						}
+						if (draw_reflect) {
+							rfx = dfx - 2 * nf * pa;
+							rfy = dfy - 2 * nf * pb;
+							rfz = dfz - 2 * nf * pc;
+							rz = (c0z - 30 * rfz * draw_reflect_k);
+							rx = (c0x - 30 * rfx * draw_reflect_k) * zoom * focus / (focus + rz);
+							ry = (c0y - 30 * rfy * draw_reflect_k) * zoom * focus / (focus + rz);
+							graphics.lineStyle(1, Std.int(red * 0.5) * 0x10000 + Std.int(green * 0.5) * 0x100 + Std.int(blue * 0.5), 1);
+							graphics.moveTo(cx, cy);
+							graphics.lineTo(rx, ry);
+							graphics.moveTo(cx, cy);
+						}
 					}
 				}
 
@@ -387,7 +397,7 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 	 */
 	public function getVisible():Bool {
 		
-		throw new Error();
+		throw new Error("Not implemented");
 		
 		// autogenerated
 		return false;

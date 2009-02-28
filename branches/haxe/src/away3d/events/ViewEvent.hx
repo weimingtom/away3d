@@ -42,7 +42,7 @@ class ViewEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new ViewEvent();
+		return new ViewEvent(type, view);
 	}
 
 }

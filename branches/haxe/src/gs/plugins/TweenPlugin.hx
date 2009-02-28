@@ -1,5 +1,6 @@
 package gs.plugins;
 
+import flash.display.Sprite;
 import gs.utils.tween.TweenInfo;
 import gs.TweenLite;
 
@@ -94,7 +95,7 @@ class TweenPlugin  {
 			var change:Float = (typeof($end) == "number") ? $end - $start : ($end);
 			//don't tween values that aren't changing! It's a waste of CPU cycles
 			if (change != 0) {
-				_tweens[_tweens.length] = new TweenInfo();
+				_tweens[_tweens.length] = new TweenInfo($object, $propName, $start, change, ($overwriteProp != null) ? $overwriteProp : $propName, false);
 			}
 		}
 	}
@@ -202,7 +203,8 @@ class TweenPlugin  {
 		var instance:Dynamic;
 		i = $plugins.length - 1;
 		while (i > -1) {
-			instance = Type.createInstance($plugins[i], []);
+			instance = Type.createInstance($plugins[i], ["hello"]);
+			isntance = new Sprite("test");
 			TweenLite.plugins[instance.propName] = $plugins[i];
 			
 			// update loop variables

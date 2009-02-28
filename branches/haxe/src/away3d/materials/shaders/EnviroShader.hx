@@ -118,13 +118,15 @@ class EnviroShader extends AbstractShader  {
 		notifyMaterialUpdate();
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			if (source == _faceMaterialVO.source && view == _faceMaterialVO.view) {
-				if (!_faceMaterialVO.cleared) {
-					_faceMaterialVO.clear();
+			if (_faceMaterialVO != null) {
+				if (source == _faceMaterialVO.source && view == _faceMaterialVO.view) {
+					if (!_faceMaterialVO.cleared) {
+						_faceMaterialVO.clear();
+					}
+					_faceMaterialVO.invalidated = true;
 				}
-				_faceMaterialVO.invalidated = true;
 			}
 		}
 
@@ -184,7 +186,7 @@ class EnviroShader extends AbstractShader  {
 	public function setReflectiveness(val:Float):Float {
 		
 		_reflectiveness = val;
-		_colorTransform = new ColorTransform();
+		_colorTransform = new ColorTransform(_reflectiveness, _reflectiveness, _reflectiveness, 1);
 		return val;
 	}
 
@@ -199,7 +201,7 @@ class EnviroShader extends AbstractShader  {
 		
 		super(init);
 		// ensure  that alpha is discarded
-		_bitmap = new BitmapData();
+		_bitmap = new BitmapData(bitmap.width, bitmap.height, true);
 		_bitmap.draw(bitmap);
 		mode = ini.getString("mode", "linear");
 		reflectiveness = ini.getNumber("reflectiveness", 0.5, {min:0, max:1});
@@ -215,7 +217,7 @@ class EnviroShader extends AbstractShader  {
 	public override function updateMaterial(source:Object3D, view:View3D):Void {
 		
 		clearShapeDictionary();
-		_enviroTransform = view.cameraVarsStore.viewTransformDictionary[cast source];
+		_enviroTransform = view.cameraVarsStore.viewTransformDictionary[untyped source];
 		_sxx = _enviroTransform.sxx;
 		_sxy = _enviroTransform.sxy;
 		_sxz = _enviroTransform.sxz;
@@ -230,7 +232,7 @@ class EnviroShader extends AbstractShader  {
 		_syx /= _syd;
 		_syy /= _syd;
 		_syz /= _syd;
-		if (view.scene.updatedObjects[cast source] || view.updated) {
+		if (view.scene.updatedObjects[untyped source] || view.updated) {
 			clearFaces(source, view);
 		}
 	}

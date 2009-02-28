@@ -55,11 +55,13 @@ class AmbientShader extends AbstractShader  {
 		notifyMaterialUpdate();
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			if (source == _faceMaterialVO.source) {
-				if (!_faceMaterialVO.cleared) {
-					_faceMaterialVO.clear();
+			if (_faceMaterialVO != null) {
+				if (source == _faceMaterialVO.source) {
+					if (!_faceMaterialVO.cleared) {
+						_faceMaterialVO.clear();
+					}
 				}
 			}
 		}
@@ -75,14 +77,16 @@ class AmbientShader extends AbstractShader  {
 		for (__i in 0...tri.source.lightarray.ambients.length) {
 			ambient = tri.source.lightarray.ambients[__i];
 
-			if (_lights.numLights > 1) {
-				_shape = getLightingShape(layer, ambient);
-				_shape.blendMode = blendMode;
-				_graphics = _shape.graphics;
-			} else {
-				_graphics = layer.graphics;
+			if (ambient != null) {
+				if (_lights.numLights > 1) {
+					_shape = getLightingShape(layer, ambient);
+					_shape.blendMode = blendMode;
+					_graphics = _shape.graphics;
+				} else {
+					_graphics = layer.graphics;
+				}
+				_source.session.renderTriangleBitmap(ambient.ambientBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
 			}
-			_source.session.renderTriangleBitmap(ambient.ambientBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
 		}
 
 		if (debug) {
@@ -98,13 +102,17 @@ class AmbientShader extends AbstractShader  {
 		for (__i in 0..._source.lightarray.ambients.length) {
 			ambient = _source.lightarray.ambients[__i];
 
-			_faceMaterialVO.bitmap.draw(ambient.ambientBitmap, null, null, blendMode);
+			if (ambient != null) {
+				_faceMaterialVO.bitmap.draw(ambient.ambientBitmap, null, null, blendMode);
+			}
 		}
 
 		for (__i in 0..._source.lightarray.directionals.length) {
 			directional = _source.lightarray.directionals[__i];
 
-			_faceMaterialVO.bitmap.draw(directional.ambientBitmap, null, null, blendMode);
+			if (directional != null) {
+				_faceMaterialVO.bitmap.draw(directional.ambientBitmap, null, null, blendMode);
+			}
 		}
 
 	}

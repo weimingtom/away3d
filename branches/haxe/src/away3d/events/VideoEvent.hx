@@ -57,7 +57,7 @@ class VideoEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new VideoEvent();
+		return new VideoEvent(type, stream, file, object);
 	}
 
 }

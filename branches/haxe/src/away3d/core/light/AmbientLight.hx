@@ -23,7 +23,7 @@ class AmbientLight extends LightPrimitive  {
 	public function updateAmbientBitmap(ambient:Float):Void {
 		
 		this.ambient = ambient;
-		ambientBitmap = new BitmapData();
+		ambientBitmap = new BitmapData(256, 256, false, Std.int(ambient * red << 16) | Std.int(ambient * green << 8) | Std.int(ambient * blue));
 		ambientBitmap.lock();
 	}
 

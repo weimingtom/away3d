@@ -65,8 +65,8 @@ class Tasks extends Sprite  {
 		this.isDirty = false;
 		
 		
-		tasks = new Dictionary();
-		times = new Dictionary();
+		tasks = new Dictionary(true);
+		times = new Dictionary(true);
 		graphBitmap = new Bitmap();
 		addChild(graphBitmap);
 		blendMode = BlendMode.MULTIPLY;
@@ -80,7 +80,7 @@ class Tasks extends Sprite  {
 		addTask("MS", "00CC00", _width, 1, "", 60);
 		addTask("MEM", "0000CC", _width, 1, "", 90);
 		// graph
-		graphBitmapData = graphBitmap.bitmapData = new BitmapData();
+		graphBitmapData = graphBitmap.bitmapData = new BitmapData(100, _height, false, 0x000000);
 		addEventListener(Event.ENTER_FRAME, update, false, 0, true);
 		draw();
 	}
@@ -101,13 +101,13 @@ class Tasks extends Sprite  {
 		x = (x > 0) ? x : _width;
 		rgb = (rgb != "") ? rgb : "DDDDDD";
 		text = (text != "") ? text : "<FONT COLOR='#" + rgb + "'><b>" + id + ":</b></FONT>";
-		var _text:StaticTextField = new StaticTextField();
+		var _text:StaticTextField = new StaticTextField(text);
 		_text.x = x;
 		_text.y = y;
 		span = (span > 0) ? span : _text.width + 20;
 		_width += span;
 		addChild(_text);
-		tasks[cast id] = _text;
+		tasks[untyped id] = _text;
 		_text.defaultText = text;
 		draw();
 		return _text;
@@ -171,18 +171,18 @@ class Tasks extends Sprite  {
 			mem = ((System.totalMemory / 1048576).toFixed(3));
 			var memGraph:Float = Math.min(_height, Math.sqrt(Math.sqrt(mem * 5000))) - 2;
 			graphBitmapData.scroll(1, 0);
-			graphBitmapData.fillRect(new Rectangle(), 0x333333);
+			graphBitmapData.fillRect(new Rectangle(0, 0, 1, _height), 0x333333);
 			//FPS
 			graphBitmapData.setPixel(0, _height - fsGraph, 0xFF0000);
 			//MS
 			graphBitmapData.setPixel(0, _height - ((timer - ms) * .5 << 0), 0x00FF00);
 			//MEM
 			graphBitmapData.setPixel(0, Std.int(_height - memGraph), 0x0000FF);
-			tasks[cast "FPS"].htmlText = tasks[cast "FPS"].defaultText + fps + "/" + flash.Lib.current.stage.frameRate;
-			tasks[cast "MEM"].htmlText = tasks[cast "MEM"].defaultText + mem;
+			tasks[untyped "FPS"].htmlText = tasks[untyped "FPS"].defaultText + fps + "/" + flash.Lib.current.stage.frameRate;
+			tasks[untyped "MEM"].htmlText = tasks[untyped "MEM"].defaultText + mem;
 			fs = 0;
 		}
-		tasks[cast "MS"].htmlText = tasks[cast "MS"].defaultText + (timer - ms);
+		tasks[untyped "MS"].htmlText = tasks[untyped "MS"].defaultText + (timer - ms);
 		ms = timer;
 	}
 

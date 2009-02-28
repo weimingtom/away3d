@@ -116,8 +116,8 @@ class SimpleShadow  {
 			scene.removeChild(_plane);
 			_plane = null;
 		}
-		var mat:BitmapMaterial = new BitmapMaterial();
-		_plane = new Plane();
+		var mat:BitmapMaterial = new BitmapMaterial(_shadebmd, {smooth:false, debug:false});
+		_plane = new Plane({material:mat, segmentsH:h, segmentsW:w, width:_width * _scaleX, height:_height * _scaleY, bothsides:true});
 		scene.addChild(_plane);
 		positionPlane();
 	}
@@ -230,12 +230,12 @@ class SimpleShadow  {
 		if (_shadebmd != null) {
 			if (_shadebmd.width != _width || _shadebmd.height != _height) {
 				_shadebmd.dispose();
-				_shadebmd = new BitmapData();
+				_shadebmd = new BitmapData(_width, _height, true, 0x00FFFFFF);
 			} else {
 				_shadebmd.fillRect(_shadebmd.rect, 0x00FFFFFF);
 			}
 		} else {
-			_shadebmd = new BitmapData();
+			_shadebmd = new BitmapData(_width, _height, true, 0x00FFFFFF);
 		}
 	}
 
@@ -282,7 +282,7 @@ class SimpleShadow  {
 	}
 
 	function new(object3d:Object3D, ?color:Int=0xFF666666, ?blur:Float=4, ?base:Float=Math.NaN, ?range:Float=Math.NaN) {
-		this._zero = new Point();
+		this._zero = new Point(0, 0);
 		this._scaleX = 1;
 		this._scaleY = 1;
 		this._rad = Math.PI / 180;
@@ -302,7 +302,7 @@ class SimpleShadow  {
 		_graphic.drawRect(0, 0, _width, _height);
 		_graphic.endFill();
 		if (_blur > 0) {
-			_shadesprite.filters = [new BlurFilter()];
+			_shadesprite.filters = [new BlurFilter(_blur, _blur)];
 		}
 		buildSource();
 		this.color = color;
@@ -370,7 +370,7 @@ class SimpleShadow  {
 		_graphic.drawRect(0, 0, _width, _height);
 		_graphic.endFill();
 		if (_blur > 0 && _shadesprite.filters.length == 0) {
-			_shadesprite.filters = [new BlurFilter()];
+			_shadesprite.filters = [new BlurFilter(_blur, _blur)];
 		}
 		if (_blur == 0 && _shadesprite.filters.length > 0) {
 			_shadesprite.filters = [];

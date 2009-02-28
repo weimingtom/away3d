@@ -119,31 +119,33 @@ class Collada extends AbstractParser  {
 		for (__i in 0...containerData.children.length) {
 			var _objectData:ObjectData = containerData.children[__i];
 
-			if (Std.is(_objectData, MeshData)) {
-				buildMesh(cast(_objectData, MeshData), parent);
-			} else if (Std.is(_objectData, BoneData)) {
-				var _boneData:BoneData = cast(_objectData, BoneData);
-				var bone:Bone = new Bone();
-				_boneData.container = cast(bone, ObjectContainer3D);
-				_containers[cast bone.name] = bone;
-				//ColladaMaya 3.05B
-				bone.id = _boneData.id;
-				bone.transform = _boneData.transform;
-				bone.joint.transform = _boneData.jointTransform;
-				buildContainers(_boneData, bone.joint);
-				parent.addChild(bone);
-			} else if (Std.is(_objectData, ContainerData)) {
-				var _containerData:ContainerData = cast(_objectData, ContainerData);
-				var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D();
-				_containers[cast objectContainer.name] = objectContainer;
-				objectContainer.transform = _objectData.transform;
-				buildContainers(_containerData, objectContainer);
-				if (centerMeshes && objectContainer.children.length) {
-					objectContainer.movePivot(_moveVector.x = (objectContainer.maxX + objectContainer.minX) / 2, _moveVector.y = (objectContainer.maxY + objectContainer.minY) / 2, _moveVector.z = (objectContainer.maxZ + objectContainer.minZ) / 2);
-					_moveVector.transform(_moveVector, _objectData.transform);
-					objectContainer.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
+			if (_objectData != null) {
+				if (Std.is(_objectData, MeshData)) {
+					buildMesh(cast(_objectData, MeshData), parent);
+				} else if (Std.is(_objectData, BoneData)) {
+					var _boneData:BoneData = cast(_objectData, BoneData);
+					var bone:Bone = new Bone({name:_boneData.name});
+					_boneData.container = cast(bone, ObjectContainer3D);
+					_containers[untyped bone.name] = bone;
+					//ColladaMaya 3.05B
+					bone.id = _boneData.id;
+					bone.transform = _boneData.transform;
+					bone.joint.transform = _boneData.jointTransform;
+					buildContainers(_boneData, bone.joint);
+					parent.addChild(bone);
+				} else if (Std.is(_objectData, ContainerData)) {
+					var _containerData:ContainerData = cast(_objectData, ContainerData);
+					var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D({name:_containerData.name});
+					_containers[untyped objectContainer.name] = objectContainer;
+					objectContainer.transform = _objectData.transform;
+					buildContainers(_containerData, objectContainer);
+					if (centerMeshes && objectContainer.children.length) {
+						objectContainer.movePivot(_moveVector.x = (objectContainer.maxX + objectContainer.minX) / 2, _moveVector.y = (objectContainer.maxY + objectContainer.minY) / 2, _moveVector.z = (objectContainer.maxZ + objectContainer.minZ) / 2);
+						_moveVector.transform(_moveVector, _objectData.transform);
+						objectContainer.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
+					}
+					parent.addChild(objectContainer);
 				}
-				parent.addChild(objectContainer);
 			}
 		}
 
@@ -152,7 +154,7 @@ class Collada extends AbstractParser  {
 	private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):Void {
 		
 		Debug.trace(" + Build Mesh : " + _meshData.name);
-		var mesh:Mesh = new Mesh();
+		var mesh:Mesh = new Mesh({name:_meshData.name});
 		mesh.transform = _meshData.transform;
 		mesh.bothsides = _meshData.geometry.bothsides;
 		_geometryData = _meshData.geometry;
@@ -164,13 +166,17 @@ class Collada extends AbstractParser  {
 			for (__i in 0..._geometryData.materials.length) {
 				_meshMaterialData = _geometryData.materials[__i];
 
-				for (__i in 0..._meshMaterialData.faceList.length) {
-					_faceListIndex = _meshMaterialData.faceList[__i];
+				if (_meshMaterialData != null) {
+					for (__i in 0..._meshMaterialData.faceList.length) {
+						_faceListIndex = _meshMaterialData.faceList[__i];
 
-					_faceData = cast(_geometryData.faces[_faceListIndex], FaceData);
-					_faceData.materialData = symbolLibrary[cast _meshMaterialData.symbol];
+						if (_faceListIndex != null) {
+							_faceData = cast(_geometryData.faces[_faceListIndex], FaceData);
+							_faceData.materialData = symbolLibrary[untyped _meshMaterialData.symbol];
+						}
+					}
+
 				}
-
 			}
 
 			if ((_geometryData.skinVertices.length > 0)) {
@@ -184,7 +190,9 @@ class Collada extends AbstractParser  {
 				for (__i in 0...geometry.skinControllers.length) {
 					_skinController = geometry.skinControllers[__i];
 
-					_skinController.inverseTransform = parent.inverseSceneTransform;
+					if (_skinController != null) {
+						_skinController.inverseTransform = parent.inverseSceneTransform;
+					}
 				}
 
 			}
@@ -193,15 +201,17 @@ class Collada extends AbstractParser  {
 			for (__i in 0..._geometryData.faces.length) {
 				_faceData = _geometryData.faces[__i];
 
-				if ((_faceData.materialData != null)) {
-					_faceMaterial = cast(_faceData.materialData.material, ITriangleMaterial);
-				} else {
-					_faceMaterial = null;
-				}
-				_face = new Face();
-				geometry.addFace(_face);
-				if ((_faceData.materialData != null)) {
-					_faceData.materialData.elements.push(_face);
+				if (_faceData != null) {
+					if ((_faceData.materialData != null)) {
+						_faceMaterial = cast(_faceData.materialData.material, ITriangleMaterial);
+					} else {
+						_faceMaterial = null;
+					}
+					_face = new Face(_geometryData.vertices[_faceData.v0], _geometryData.vertices[_faceData.v1], _geometryData.vertices[_faceData.v2], _faceMaterial, _geometryData.uvs[_faceData.uv0], _geometryData.uvs[_faceData.uv1], _geometryData.uvs[_faceData.uv2]);
+					geometry.addFace(_face);
+					if ((_faceData.materialData != null)) {
+						_faceData.materialData.elements.push(_face);
+					}
 				}
 			}
 
@@ -221,28 +231,30 @@ class Collada extends AbstractParser  {
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
 		for (__key in __keys) {
-			_materialData = materialLibrary[cast __key];
+			_materialData = materialLibrary[untyped __key];
 
-			Debug.trace(" + Build Material : " + _materialData.name);
-			//overridden by the material property in constructor
-			if ((material != null)) {
-				_materialData.material = material;
-			}
-			//overridden by materials passed in contructor
-			if ((_materialData.material != null)) {
-				continue;
-			}
-			switch (_materialData.materialType) {
-				case MaterialData.TEXTURE_MATERIAL :
-					materialLibrary.loadRequired = true;
-				case MaterialData.SHADING_MATERIAL :
-					_materialData.material = new ShadingColorMaterial();
-				case MaterialData.COLOR_MATERIAL :
-					_materialData.material = new ColorMaterial();
-				case MaterialData.WIREFRAME_MATERIAL :
-					_materialData.material = new WireColorMaterial();
-				
+			if (_materialData != null) {
+				Debug.trace(" + Build Material : " + _materialData.name);
+				//overridden by the material property in constructor
+				if ((material != null)) {
+					_materialData.material = material;
+				}
+				//overridden by materials passed in contructor
+				if ((_materialData.material != null)) {
+					continue;
+				}
+				switch (_materialData.materialType) {
+					case MaterialData.TEXTURE_MATERIAL :
+						materialLibrary.loadRequired = true;
+					case MaterialData.SHADING_MATERIAL :
+						_materialData.material = new ShadingColorMaterial(null, {ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor, shininess:_materialData.shininess});
+					case MaterialData.COLOR_MATERIAL :
+						_materialData.material = new ColorMaterial(_materialData.diffuseColor);
+					case MaterialData.WIREFRAME_MATERIAL :
+						_materialData.material = new WireColorMaterial();
+					
 
+				}
 			}
 		}
 
@@ -253,241 +265,275 @@ class Collada extends AbstractParser  {
 		var bone:Bone;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(geometryLibrary)).iterator();
 		for (__key in __keys) {
-			_geometryData = geometryLibrary[cast __key];
+			_geometryData = geometryLibrary[untyped __key];
 
-			for (__i in 0..._geometryData.geometry.skinControllers.length) {
-				_skinController = _geometryData.geometry.skinControllers[__i];
+			if (_geometryData != null) {
+				for (__i in 0..._geometryData.geometry.skinControllers.length) {
+					_skinController = _geometryData.geometry.skinControllers[__i];
 
-				bone = (cast(container, ObjectContainer3D)).getBoneByName(_skinController.name);
-				if ((bone != null)) {
-					_skinController.joint = bone.joint;
-				} else {
-					Debug.warning("no joint found for " + _skinController.name);
+					if (_skinController != null) {
+						bone = (cast(container, ObjectContainer3D)).getBoneByName(_skinController.name);
+						if ((bone != null)) {
+							_skinController.joint = bone.joint;
+						} else {
+							Debug.warning("no joint found for " + _skinController.name);
+						}
+					}
 				}
-			}
 
+			}
 		}
 
 		var __keys:Iterator<Dynamic> = untyped (__keys__(animationLibrary)).iterator();
 		for (__key in __keys) {
-			_animationData = animationLibrary[cast __key];
+			_animationData = animationLibrary[untyped __key];
 
-			switch (_animationData.animationType) {
-				case AnimationData.SKIN_ANIMATION :
-					var animation:SkinAnimation = new SkinAnimation();
-					var param:Array<Dynamic>;
-					var rX:String;
-					var rY:String;
-					var rZ:String;
-					var sX:String;
-					var sY:String;
-					var sZ:String;
-					var __keys:Iterator<Dynamic> = untyped (__keys__(_animationData.channels)).iterator();
-					for (__key in __keys) {
-						var channelData:ChannelData = _animationData.channels[cast __key];
+			if (_animationData != null) {
+				switch (_animationData.animationType) {
+					case AnimationData.SKIN_ANIMATION :
+						var animation:SkinAnimation = new SkinAnimation();
+						var param:Array<Dynamic>;
+						var rX:String;
+						var rY:String;
+						var rZ:String;
+						var sX:String;
+						var sY:String;
+						var sZ:String;
+						var __keys:Iterator<Dynamic> = untyped (__keys__(_animationData.channels)).iterator();
+						for (__key in __keys) {
+							var channelData:ChannelData = _animationData.channels[untyped __key];
 
-						var channel:Channel = channelData.channel;
-						channel.target = _containers[cast channel.name];
-						animation.appendChannel(channel);
-						var times:Array<Dynamic> = channel.times;
-						if (_animationData.start > times[0]) {
-							_animationData.start = times[0];
+							if (channelData != null) {
+								var channel:Channel = channelData.channel;
+								channel.target = _containers[untyped channel.name];
+								animation.appendChannel(channel);
+								var times:Array<Dynamic> = channel.times;
+								if (_animationData.start > times[0]) {
+									_animationData.start = times[0];
+								}
+								if (_animationData.end < times[times.length - 1]) {
+									_animationData.end = times[times.length - 1];
+								}
+								if (Std.is(channel.target, Bone)) {
+									rX = "jointRotationX";
+									rY = "jointRotationY";
+									rZ = "jointRotationZ";
+									sX = "jointScaleX";
+									sY = "jointScaleY";
+									sZ = "jointScaleZ";
+								} else {
+									rX = "rotationX";
+									rY = "rotationY";
+									rZ = "rotationZ";
+									sX = "scaleX";
+									sY = "scaleY";
+									sZ = "scaleZ";
+								}
+								switch (channelData.type) {
+									case "translateX" :
+										channel.type = ["x"];
+										if (yUp) {
+											for (__i in 0...channel.param.length) {
+												param = channel.param[__i];
+
+												if (param != null) {
+													param[0] *= -1 * scaling;
+												}
+											}
+
+										}
+									case "translateY" :
+										if (yUp) {
+											channel.type = ["y"];
+										} else {
+											channel.type = ["z"];
+										}
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= scaling;
+											}
+										}
+
+									case "translateZ" :
+										if (yUp) {
+											channel.type = ["z"];
+										} else {
+											channel.type = ["y"];
+										}
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= scaling;
+											}
+										}
+
+									case "jointOrientX" :
+										channel.type = ["rotationX"];
+										if (yUp) {
+											for (__i in 0...channel.param.length) {
+												param = channel.param[__i];
+
+												if (param != null) {
+													param[0] *= -1;
+												}
+											}
+
+										}
+									case "rotateX" :
+									case "RotX" :
+										channel.type = [rX];
+										if (yUp) {
+											for (__i in 0...channel.param.length) {
+												param = channel.param[__i];
+
+												if (param != null) {
+													param[0] *= -1;
+												}
+											}
+
+										}
+									case "jointOrientY" :
+										channel.type = ["rotationY"];
+										//if (yUp)
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= -1;
+											}
+										}
+
+									case "rotateY" :
+									case "RotY" :
+										if (yUp) {
+											channel.type = [rY];
+										} else {
+											channel.type = [rZ];
+										}
+										//if (yUp)
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= -1;
+											}
+										}
+
+									case "jointOrientZ" :
+										channel.type = ["rotationZ"];
+										//if (yUp)
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= -1;
+											}
+										}
+
+									case "rotateZ" :
+									case "RotZ" :
+										if (yUp) {
+											channel.type = [rZ];
+										} else {
+											channel.type = [rY];
+										}
+										//if (yUp)
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= -1;
+											}
+										}
+
+									case "scaleX" :
+										channel.type = [sX];
+									case "scaleY" :
+										if (yUp) {
+											channel.type = [sY];
+										} else {
+											channel.type = [sZ];
+										}
+									case "scaleZ" :
+										if (yUp) {
+											channel.type = [sZ];
+										} else {
+											channel.type = [sY];
+										}
+									case "translate" :
+									case "translation" :
+										if (yUp) {
+											channel.type = ["x", "y", "z"];
+											for (__i in 0...channel.param.length) {
+												param = channel.param[__i];
+
+												if (param != null) {
+													param[0] *= -1;
+												}
+											}
+
+										} else {
+											channel.type = ["x", "z", "y"];
+										}
+										for (__i in 0...channel.param.length) {
+											param = channel.param[__i];
+
+											if (param != null) {
+												param[0] *= scaling;
+												param[1] *= scaling;
+												param[2] *= scaling;
+											}
+										}
+
+									case "scale" :
+										if (yUp) {
+											channel.type = [sX, sY, sZ];
+										} else {
+											channel.type = [sX, sZ, sY];
+										}
+									case "rotate" :
+										if (yUp) {
+											channel.type = [rX, rY, rZ];
+											for (__i in 0...channel.param.length) {
+												param = channel.param[__i];
+
+												if (param != null) {
+													param[0] *= -1;
+													param[1] *= -1;
+													param[2] *= -1;
+												}
+											}
+
+										} else {
+											channel.type = [rX, rZ, rY];
+											for (__i in 0...channel.param.length) {
+												param = channel.param[__i];
+
+												if (param != null) {
+													param[1] *= -1;
+													param[2] *= -1;
+												}
+											}
+
+										}
+									case "transform" :
+										channel.type = ["transform"];
+									
+
+								}
+							}
 						}
-						if (_animationData.end < times[times.length - 1]) {
-							_animationData.end = times[times.length - 1];
-						}
-						if (Std.is(channel.target, Bone)) {
-							rX = "jointRotationX";
-							rY = "jointRotationY";
-							rZ = "jointRotationZ";
-							sX = "jointScaleX";
-							sY = "jointScaleY";
-							sZ = "jointScaleZ";
-						} else {
-							rX = "rotationX";
-							rY = "rotationY";
-							rZ = "rotationZ";
-							sX = "scaleX";
-							sY = "scaleY";
-							sZ = "scaleZ";
-						}
-						switch (channelData.type) {
-							case "translateX" :
-								channel.type = ["x"];
-								if (yUp) {
-									for (__i in 0...channel.param.length) {
-										param = channel.param[__i];
 
-										param[0] *= -1 * scaling;
-									}
+						animation.start = _animationData.start;
+						animation.length = _animationData.end - _animationData.start;
+						_animationData.animation = animation;
+					case AnimationData.VERTEX_ANIMATION :
+					
 
-								}
-							case "translateY" :
-								if (yUp) {
-									channel.type = ["y"];
-								} else {
-									channel.type = ["z"];
-								}
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= scaling;
-								}
-
-							case "translateZ" :
-								if (yUp) {
-									channel.type = ["z"];
-								} else {
-									channel.type = ["y"];
-								}
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= scaling;
-								}
-
-							case "jointOrientX" :
-								channel.type = ["rotationX"];
-								if (yUp) {
-									for (__i in 0...channel.param.length) {
-										param = channel.param[__i];
-
-										param[0] *= -1;
-									}
-
-								}
-							case "rotateX" :
-							case "RotX" :
-								channel.type = [rX];
-								if (yUp) {
-									for (__i in 0...channel.param.length) {
-										param = channel.param[__i];
-
-										param[0] *= -1;
-									}
-
-								}
-							case "jointOrientY" :
-								channel.type = ["rotationY"];
-								//if (yUp)
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= -1;
-								}
-
-							case "rotateY" :
-							case "RotY" :
-								if (yUp) {
-									channel.type = [rY];
-								} else {
-									channel.type = [rZ];
-								}
-								//if (yUp)
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= -1;
-								}
-
-							case "jointOrientZ" :
-								channel.type = ["rotationZ"];
-								//if (yUp)
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= -1;
-								}
-
-							case "rotateZ" :
-							case "RotZ" :
-								if (yUp) {
-									channel.type = [rZ];
-								} else {
-									channel.type = [rY];
-								}
-								//if (yUp)
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= -1;
-								}
-
-							case "scaleX" :
-								channel.type = [sX];
-							case "scaleY" :
-								if (yUp) {
-									channel.type = [sY];
-								} else {
-									channel.type = [sZ];
-								}
-							case "scaleZ" :
-								if (yUp) {
-									channel.type = [sZ];
-								} else {
-									channel.type = [sY];
-								}
-							case "translate" :
-							case "translation" :
-								if (yUp) {
-									channel.type = ["x", "y", "z"];
-									for (__i in 0...channel.param.length) {
-										param = channel.param[__i];
-
-										param[0] *= -1;
-									}
-
-								} else {
-									channel.type = ["x", "z", "y"];
-								}
-								for (__i in 0...channel.param.length) {
-									param = channel.param[__i];
-
-									param[0] *= scaling;
-									param[1] *= scaling;
-									param[2] *= scaling;
-								}
-
-							case "scale" :
-								if (yUp) {
-									channel.type = [sX, sY, sZ];
-								} else {
-									channel.type = [sX, sZ, sY];
-								}
-							case "rotate" :
-								if (yUp) {
-									channel.type = [rX, rY, rZ];
-									for (__i in 0...channel.param.length) {
-										param = channel.param[__i];
-
-										param[0] *= -1;
-										param[1] *= -1;
-										param[2] *= -1;
-									}
-
-								} else {
-									channel.type = [rX, rZ, rY];
-									for (__i in 0...channel.param.length) {
-										param = channel.param[__i];
-
-										param[1] *= -1;
-										param[2] *= -1;
-									}
-
-								}
-							case "transform" :
-								channel.type = ["transform"];
-							
-
-						}
-					}
-
-					animation.start = _animationData.start;
-					animation.length = _animationData.end - _animationData.start;
-					_animationData.animation = animation;
-				case AnimationData.VERTEX_ANIMATION :
-				
-
+				}
 			}
 		}
 
@@ -568,7 +614,7 @@ class Collada extends AbstractParser  {
 		this.VALUE_V = "T";
 		this._haveAnimation = false;
 		this._haveClips = false;
-		this._containers = new Dictionary();
+		this._containers = new Dictionary(true);
 		
 		
 		collada = Cast.xml(data);
@@ -584,13 +630,13 @@ class Collada extends AbstractParser  {
 			materials = {};
 		};
 		//create the container
-		container = new ObjectContainer3D();
+		container = new ObjectContainer3D(ini);
 		container.name = "collada";
 		materialLibrary = container.materialLibrary = new MaterialLibrary();
 		animationLibrary = container.animationLibrary = new AnimationLibrary();
 		geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 		channelLibrary = new ChannelLibrary();
-		symbolLibrary = new Dictionary();
+		symbolLibrary = new Dictionary(true);
 		materialLibrary.autoLoadTextures = autoLoadTextures;
 		materialLibrary.texturePath = texturePath;
 		//organise the materials
@@ -709,7 +755,9 @@ class Collada extends AbstractParser  {
 		for (__i in 0...scene.node.length) {
 			var node:Xml = scene.node[__i];
 
-			parseNode(node, containerData);
+			if (node != null) {
+				parseNode(node, containerData);
+			}
 		}
 
 		Debug.trace(" ! ------------- End Parse Scene -------------");
@@ -765,62 +813,68 @@ class Collada extends AbstractParser  {
 		for (__i in 0...node.children().length) {
 			var childNode:Xml = node.children()[__i];
 
-			arrayChild = getArray(childNode);
-			switch (childNode.name().localName) {
-				case "translate" :
-					_transform.multiply(_transform, translateMatrix(arrayChild));
-				case "rotate" :
-					sid = childNode.@sid;
-					if (Std.is(_objectData, BoneData) && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ")) {
-						boneData.jointTransform.multiply(boneData.jointTransform, rotateMatrix(arrayChild));
-					} else {
-						_transform.multiply(_transform, rotateMatrix(arrayChild));
-					}
-				case "scale" :
-					if (Std.is(_objectData, BoneData)) {
-						boneData.jointTransform.multiply(boneData.jointTransform, scaleMatrix(arrayChild));
-					} else {
-						_transform.multiply(_transform, scaleMatrix(arrayChild));
-					}
-				case "matrix" :
-					var m:Matrix3D = new Matrix3D();
-					m.array2matrix(arrayChild, yUp, scaling);
-					_transform.multiply(_transform, m);
-				case "node" :
-					//3dsMax 11 - Feeling ColladaMax v3.05B
-					//<node><node/></node>
-					if (Std.is(_objectData, MeshData)) {
-						parseNode(childNode, cast(parent, ContainerData));
-					} else {
-						parseNode(childNode, cast(_objectData, ContainerData));
-					}
-				case "instance_node" :
-					parseNode(collada.library_nodes.node.(@id == getId(childNode.@url))[0], cast(_objectData, ContainerData));
-				case "instance_geometry" :
-					if (Std.string(childNode).indexOf("lines") == -1) {
+			if (childNode != null) {
+				arrayChild = getArray(childNode);
+				switch (childNode.name().localName) {
+					case "translate" :
+						_transform.multiply(_transform, translateMatrix(arrayChild));
+					case "rotate" :
+						sid = childNode.@sid;
+						if (Std.is(_objectData, BoneData) && (sid == "rotateX" || sid == "rotateY" || sid == "rotateZ" || sid == "rotX" || sid == "rotY" || sid == "rotZ")) {
+							boneData.jointTransform.multiply(boneData.jointTransform, rotateMatrix(arrayChild));
+						} else {
+							_transform.multiply(_transform, rotateMatrix(arrayChild));
+						}
+					case "scale" :
+						if (Std.is(_objectData, BoneData)) {
+							boneData.jointTransform.multiply(boneData.jointTransform, scaleMatrix(arrayChild));
+						} else {
+							_transform.multiply(_transform, scaleMatrix(arrayChild));
+						}
+					case "matrix" :
+						var m:Matrix3D = new Matrix3D();
+						m.array2matrix(arrayChild, yUp, scaling);
+						_transform.multiply(_transform, m);
+					case "node" :
+						//3dsMax 11 - Feeling ColladaMax v3.05B
+						//<node><node/></node>
+						if (Std.is(_objectData, MeshData)) {
+							parseNode(childNode, cast(parent, ContainerData));
+						} else {
+							parseNode(childNode, cast(_objectData, ContainerData));
+						}
+					case "instance_node" :
+						parseNode(collada.library_nodes.node.(@id == getId(childNode.@url))[0], cast(_objectData, ContainerData));
+					case "instance_geometry" :
+						if (Std.string(childNode).indexOf("lines") == -1) {
+							for (__i in 0...childNode .. instance_material.length) {
+								instance_material = childNode .. instance_material[__i];
+
+								if (instance_material != null) {
+									parseMaterial(instance_material.@symbol, getId(instance_material.@target));
+								}
+							}
+
+							geo = collada.library_geometries.geometry.(@id == getId(childNode.@url))[0];
+							(cast(_objectData, MeshData)).geometry = geometryLibrary.addGeometry(geo.@id, geo);
+						}
+					case "instance_controller" :
+						//add materials to materialLibrary
 						for (__i in 0...childNode .. instance_material.length) {
 							instance_material = childNode .. instance_material[__i];
 
-							parseMaterial(instance_material.@symbol, getId(instance_material.@target));
+							if (instance_material != null) {
+								parseMaterial(instance_material.@symbol, getId(instance_material.@target));
+							}
 						}
 
-						geo = collada.library_geometries.geometry.(@id == getId(childNode.@url))[0];
-						(cast(_objectData, MeshData)).geometry = geometryLibrary.addGeometry(geo.@id, geo);
-					}
-				case "instance_controller" :
-					//add materials to materialLibrary
-					for (__i in 0...childNode .. instance_material.length) {
-						instance_material = childNode .. instance_material[__i];
+						ctrlr = collada.library_controllers.controller.(@id == getId(childNode.@url))[0];
+						geo = collada.library_geometries.geometry.(@id == getId(ctrlr.skin[0].@source))[0];
+						(cast(_objectData, MeshData)).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
+						(cast(_objectData, MeshData)).skeleton = getId(childNode.skeleton);
+					
 
-						parseMaterial(instance_material.@symbol, getId(instance_material.@target));
-					}
-
-					ctrlr = collada.library_controllers.controller.(@id == getId(childNode.@url))[0];
-					geo = collada.library_geometries.geometry.(@id == getId(ctrlr.skin[0].@source))[0];
-					(cast(_objectData, MeshData)).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
-					(cast(_objectData, MeshData)).skeleton = getId(childNode.skeleton);
-				
-
+				}
 			}
 		}
 
@@ -834,7 +888,7 @@ class Collada extends AbstractParser  {
 	private function parseMaterial(symbol:String, name:String):Void {
 		
 		_materialData = materialLibrary.addMaterial(name);
-		symbolLibrary[cast symbol] = _materialData;
+		symbolLibrary[untyped symbol] = _materialData;
 		if (symbol == "FrontColorNoCulling") {
 			_materialData.materialType = MaterialData.SHADING_MATERIAL;
 		} else {
@@ -860,73 +914,79 @@ class Collada extends AbstractParser  {
 	private function parseGeometry(geometryData:GeometryData):Void {
 		
 		Debug.trace(" + Parse Geometry : " + geometryData.name);
-		var verticesDictionary:Dictionary = new Dictionary();
+		var verticesDictionary:Dictionary = new Dictionary(true);
 		// Triangles
 		for (__i in 0...geometryData.geoXML.mesh.triangles.length) {
 			var triangles:Xml = geometryData.geoXML.mesh.triangles[__i];
 
-			var field:Array<Dynamic> = [];
-			for (__i in 0...triangles.input.length) {
-				var input:Xml = triangles.input[__i];
+			if (triangles != null) {
+				var field:Array<Dynamic> = [];
+				for (__i in 0...triangles.input.length) {
+					var input:Xml = triangles.input[__i];
 
-				var semantic:String = input.@semantic;
-				switch (semantic) {
-					case "VERTEX" :
-						deserialize(input, geometryData.geoXML, Vertex, geometryData.vertices);
-					case "TEXCOORD" :
-						deserialize(input, geometryData.geoXML, UV, geometryData.uvs);
-					default :
-					
-
-				}
-				field.push(input.@semantic);
-			}
-
-			var data:Array<Dynamic> = triangles.p.split(' ');
-			var len:Float = triangles.@count;
-			var symbol:String = triangles.@material;
-			Debug.trace(" + Parse MeshMaterialData");
-			_meshMaterialData = new MeshMaterialData();
-			_meshMaterialData.symbol = symbol;
-			geometryData.materials.push(_meshMaterialData);
-			//if (!materialLibrary[material])
-			//	parseMaterial(material, material);
-			var j:Float = 0;
-			while (j < len) {
-				var _faceData:FaceData = new FaceData();
-				var vn:Float = 0;
-				while (vn < 3) {
-					for (__i in 0...field.length) {
-						var fld:String = field[__i];
-
-						switch (fld) {
+					if (input != null) {
+						var semantic:String = input.@semantic;
+						switch (semantic) {
 							case "VERTEX" :
-								Reflect.setField(_faceData, "v" + vn, data.shift());
+								deserialize(input, geometryData.geoXML, Vertex, geometryData.vertices);
 							case "TEXCOORD" :
-								Reflect.setField(_faceData, "uv" + vn, data.shift());
+								deserialize(input, geometryData.geoXML, UV, geometryData.uvs);
 							default :
-								data.shift();
 							
 
 						}
+						field.push(input.@semantic);
 					}
-
-					
-					// update loop variables
-					vn++;
 				}
 
-				//trace(_faceData.v0);
-				verticesDictionary[cast _faceData.v0] = geometryData.vertices[_faceData.v0];
-				verticesDictionary[cast _faceData.v1] = geometryData.vertices[_faceData.v1];
-				verticesDictionary[cast _faceData.v2] = geometryData.vertices[_faceData.v2];
-				_meshMaterialData.faceList.push(geometryData.faces.length);
-				geometryData.faces.push(_faceData);
-				
-				// update loop variables
-				j++;
-			}
+				var data:Array<Dynamic> = triangles.p.split(' ');
+				var len:Float = triangles.@count;
+				var symbol:String = triangles.@material;
+				Debug.trace(" + Parse MeshMaterialData");
+				_meshMaterialData = new MeshMaterialData();
+				_meshMaterialData.symbol = symbol;
+				geometryData.materials.push(_meshMaterialData);
+				//if (!materialLibrary[material])
+				//	parseMaterial(material, material);
+				var j:Float = 0;
+				while (j < len) {
+					var _faceData:FaceData = new FaceData();
+					var vn:Float = 0;
+					while (vn < 3) {
+						for (__i in 0...field.length) {
+							var fld:String = field[__i];
 
+							if (fld != null) {
+								switch (fld) {
+									case "VERTEX" :
+										Reflect.setField(_faceData, "v" + vn, data.shift());
+									case "TEXCOORD" :
+										Reflect.setField(_faceData, "uv" + vn, data.shift());
+									default :
+										data.shift();
+									
+
+								}
+							}
+						}
+
+						
+						// update loop variables
+						vn++;
+					}
+
+					//trace(_faceData.v0);
+					verticesDictionary[untyped _faceData.v0] = geometryData.vertices[_faceData.v0];
+					verticesDictionary[untyped _faceData.v1] = geometryData.vertices[_faceData.v1];
+					verticesDictionary[untyped _faceData.v2] = geometryData.vertices[_faceData.v2];
+					_meshMaterialData.faceList.push(geometryData.faces.length);
+					geometryData.faces.push(_faceData);
+					
+					// update loop variables
+					j++;
+				}
+
+			}
 		}
 
 		//center vertex points in mesh for better bounding radius calulations
@@ -939,25 +999,27 @@ class Collada extends AbstractParser  {
 			geometryData.minZ = Math.POSITIVE_INFINITY;
 			var __keys:Iterator<Dynamic> = untyped (__keys__(verticesDictionary)).iterator();
 			for (__key in __keys) {
-				_vertex = verticesDictionary[cast __key];
+				_vertex = verticesDictionary[untyped __key];
 
-				if (geometryData.maxX < _vertex._x) {
-					geometryData.maxX = _vertex._x;
-				}
-				if (geometryData.minX > _vertex._x) {
-					geometryData.minX = _vertex._x;
-				}
-				if (geometryData.maxY < _vertex._y) {
-					geometryData.maxY = _vertex._y;
-				}
-				if (geometryData.minY > _vertex._y) {
-					geometryData.minY = _vertex._y;
-				}
-				if (geometryData.maxZ < _vertex._z) {
-					geometryData.maxZ = _vertex._z;
-				}
-				if (geometryData.minZ > _vertex._z) {
-					geometryData.minZ = _vertex._z;
+				if (_vertex != null) {
+					if (geometryData.maxX < _vertex._x) {
+						geometryData.maxX = _vertex._x;
+					}
+					if (geometryData.minX > _vertex._x) {
+						geometryData.minX = _vertex._x;
+					}
+					if (geometryData.maxY < _vertex._y) {
+						geometryData.maxY = _vertex._y;
+					}
+					if (geometryData.minY > _vertex._y) {
+						geometryData.minY = _vertex._y;
+					}
+					if (geometryData.maxZ < _vertex._z) {
+						geometryData.maxZ = _vertex._z;
+					}
+					if (geometryData.minZ > _vertex._z) {
+						geometryData.minZ = _vertex._z;
+					}
 				}
 			}
 
@@ -988,7 +1050,7 @@ class Collada extends AbstractParser  {
 		var v:Array<Dynamic>;
 		var matrix:Matrix3D;
 		var name:String;
-		var joints:Array<Dynamic> = new Array<Dynamic>();
+		var joints:Array<Dynamic> = new Array();
 		var skinController:SkinController;
 		var i:Int = 0;
 		while (i < float_array.length) {
@@ -1018,7 +1080,7 @@ class Collada extends AbstractParser  {
 		i = 0;
 		while (i < geometryData.vertices.length) {
 			c = Std.int(vcount[i]);
-			skinVertex = new SkinVertex();
+			skinVertex = new SkinVertex(geometryData.vertices[i]);
 			geometryData.skinVertices.push(skinVertex);
 			j = 0;
 			while (j < c) {
@@ -1053,14 +1115,18 @@ class Collada extends AbstractParser  {
 		for (__i in 0...anims.animation.length) {
 			var channel:Xml = anims.animation[__i];
 
-			channelLibrary.addChannel(channel.@id, channel);
+			if (channel != null) {
+				channelLibrary.addChannel(channel.@id, channel);
+			}
 		}
 
 		if (clips) {
 			for (__i in 0...clips.animation_clip.length) {
 				var clip:Xml = clips.animation_clip[__i];
 
-				parseAnimationClip(clip);
+				if (clip != null) {
+					parseAnimationClip(clip);
+				}
 			}
 
 		}
@@ -1068,9 +1134,11 @@ class Collada extends AbstractParser  {
 		_defaultAnimationClip = animationLibrary.addAnimation("default");
 		var __keys:Iterator<Dynamic> = untyped (__keys__(channelLibrary)).iterator();
 		for (__key in __keys) {
-			var channelData:ChannelData = channelLibrary[cast __key];
+			var channelData:ChannelData = channelLibrary[untyped __key];
 
-			_defaultAnimationClip.channels[cast channelData.name] = channelData;
+			if (channelData != null) {
+				_defaultAnimationClip.channels[untyped channelData.name] = channelData;
+			}
 		}
 
 		Debug.trace(" ! ------------- End Parse Animation -------------");
@@ -1085,7 +1153,9 @@ class Collada extends AbstractParser  {
 		for (__i in 0...clip.instance_animation.length) {
 			var channel:Xml = clip.instance_animation[__i];
 
-			animationClip.channels[cast (DictionaryUtils.__castVar = getId(channel.@url))] = channelLibrary[cast (DictionaryUtils.__castVar = getId(channel.@url))];
+			if (channel != null) {
+				animationClip.channels[untyped (DictionaryUtils.__castVar = getId(channel.@url))] = channelLibrary[untyped (DictionaryUtils.__castVar = getId(channel.@url))];
+			}
 		}
 
 	}
@@ -1106,90 +1176,96 @@ class Collada extends AbstractParser  {
 			Debug.trace(" ! Material animation not yet implemented");
 			return;
 		}
-		var channel:Channel = channelData.channel = new Channel();
+		var channel:Channel = channelData.channel = new Channel(name);
 		var i:Int;
 		var j:Int;
-		_defaultAnimationClip.channels[cast channelData.name] = channelData;
+		_defaultAnimationClip.channels[untyped channelData.name] = channelData;
 		Debug.trace(" ! channelType : " + type);
 		for (__i in 0...sampler.input.length) {
 			var input:Xml = sampler.input[__i];
 
-			var src:Xml = node.source.(@id == getId(input.@source))[0];
-			var count:Int = Std.int(src.float_array.@count);
-			var list:Array<Dynamic> = Std.string(src.float_array).split(" ");
-			var len:Int = Std.int(src.technique_common.accessor.@count);
-			var stride:Int = Std.int(src.technique_common.accessor.@stride);
-			var semantic:String = input.@semantic;
-			var p:String;
-			var sign:Int = (type.charAt(type.length - 1) == "X") ? -1 : 1;
-			switch (semantic) {
-				case "INPUT" :
-					for (__i in 0...list.length) {
-						p = list[__i];
+			if (input != null) {
+				var src:Xml = node.source.(@id == getId(input.@source))[0];
+				var count:Int = Std.int(src.float_array.@count);
+				var list:Array<Dynamic> = Std.string(src.float_array).split(" ");
+				var len:Int = Std.int(src.technique_common.accessor.@count);
+				var stride:Int = Std.int(src.technique_common.accessor.@stride);
+				var semantic:String = input.@semantic;
+				var p:String;
+				var sign:Int = (type.charAt(type.length - 1) == "X") ? -1 : 1;
+				switch (semantic) {
+					case "INPUT" :
+						for (__i in 0...list.length) {
+							p = list[__i];
 
-						channel.times.push((p));
-					}
+							if (p != null) {
+								channel.times.push((p));
+							}
+						}
 
-					if (_defaultAnimationClip.start > channel.times[0]) {
-						_defaultAnimationClip.start = channel.times[0];
-					}
-					if (_defaultAnimationClip.end < channel.times[channel.times.length - 1]) {
-						_defaultAnimationClip.end = channel.times[channel.times.length - 1];
-					}
-				case "OUTPUT" :
-					i = 0;
-					while (i < len) {
-						channel.param[i] = new Array<Dynamic>();
-						if (stride == 16) {
-							var m:Matrix3D = new Matrix3D();
-							m.array2matrix(list.slice(i * stride, i * stride + 16), yUp, scaling);
-							channel.param[i].push(m);
-						} else {
+						if (_defaultAnimationClip.start > channel.times[0]) {
+							_defaultAnimationClip.start = channel.times[0];
+						}
+						if (_defaultAnimationClip.end < channel.times[channel.times.length - 1]) {
+							_defaultAnimationClip.end = channel.times[channel.times.length - 1];
+						}
+					case "OUTPUT" :
+						i = 0;
+						while (i < len) {
+							channel.param[i] = new Array();
+							if (stride == 16) {
+								var m:Matrix3D = new Matrix3D();
+								m.array2matrix(list.slice(i * stride, i * stride + 16), yUp, scaling);
+								channel.param[i].push(m);
+							} else {
+								j = 0;
+								while (j < stride) {
+									channel.param[i].push((list[i * stride + j]));
+									j++;
+								}
+
+							}
+							i++;
+						}
+
+					case "INTERPOLATION" :
+						for (__i in 0...list.length) {
+							p = list[__i];
+
+							if (p != null) {
+								channel.interpolations.push(p);
+							}
+						}
+
+					case "IN_TANGENT" :
+						i = 0;
+						while (i < len) {
+							channel.inTangent[i] = new Array();
 							j = 0;
 							while (j < stride) {
-								channel.param[i].push((list[i * stride + j]));
+								channel.inTangent[i].push(new Number2D((list[stride * i + j]), (list[stride * i + j + 1])));
 								j++;
 							}
 
-						}
-						i++;
-					}
-
-				case "INTERPOLATION" :
-					for (__i in 0...list.length) {
-						p = list[__i];
-
-						channel.interpolations.push(p);
-					}
-
-				case "IN_TANGENT" :
-					i = 0;
-					while (i < len) {
-						channel.inTangent[i] = new Array<Dynamic>();
-						j = 0;
-						while (j < stride) {
-							channel.inTangent[i].push(new Number2D());
-							j++;
+							i++;
 						}
 
-						i++;
-					}
+					case "OUT_TANGENT" :
+						i = 0;
+						while (i < len) {
+							channel.outTangent[i] = new Array();
+							j = 0;
+							while (j < stride) {
+								channel.outTangent[i].push(new Number2D((list[stride * i + j]), (list[stride * i + j + 1])));
+								j++;
+							}
 
-				case "OUT_TANGENT" :
-					i = 0;
-					while (i < len) {
-						channel.outTangent[i] = new Array<Dynamic>();
-						j = 0;
-						while (j < stride) {
-							channel.outTangent[i].push(new Number2D());
-							j++;
+							i++;
 						}
 
-						i++;
-					}
+					
 
-				
-
+				}
 			}
 		}
 
@@ -1256,7 +1332,7 @@ class Collada extends AbstractParser  {
 	/**
 	 * Converts a data string to an array of objects. Handles vertex and uv objects
 	 */
-	private function deserialize(input:Xml, geo:Xml, VObject:Class<Dynamic>, output:Array<Dynamic>):Array<Dynamic> {
+	private function deserialize(input:Xml, geo:Xml, VObject:Class, output:Array<Dynamic>):Array<Dynamic> {
 		
 		var id:String = input.@source.split("#")[1];
 		// Source?
@@ -1273,7 +1349,9 @@ class Collada extends AbstractParser  {
 			for (__i in 0...acc.param.length) {
 				var par:Xml = acc.param[__i];
 
-				params.push(par.@name);
+				if (par != null) {
+					params.push(par.@name);
+				}
 			}
 
 			// Build output array
@@ -1288,23 +1366,25 @@ class Collada extends AbstractParser  {
 					for (__i in 0...params.length) {
 						param = params[__i];
 
-						float = floats[i];
-						switch (param) {
-							case VALUE_X :
-								if (yUp) {
-									vertex._x = -float * scaling;
-								} else {
-									vertex._x = float * scaling;
-								}
-							case VALUE_Y :
-								vertex._y = float * scaling;
-							case VALUE_Z :
-								vertex._z = float * scaling;
-							default :
-							
+						if (param != null) {
+							float = floats[i];
+							switch (param) {
+								case VALUE_X :
+									if (yUp) {
+										vertex._x = -float * scaling;
+									} else {
+										vertex._x = float * scaling;
+									}
+								case VALUE_Y :
+									vertex._y = float * scaling;
+								case VALUE_Z :
+									vertex._z = float * scaling;
+								default :
+								
 
+							}
+							i++;
 						}
-						i++;
 					}
 
 				} else if (Std.is(element, UV)) {
@@ -1312,17 +1392,19 @@ class Collada extends AbstractParser  {
 					for (__i in 0...params.length) {
 						param = params[__i];
 
-						float = floats[i];
-						switch (param) {
-							case VALUE_U :
-								uv._u = float;
-							case VALUE_V :
-								uv._v = float;
-							default :
-							
+						if (param != null) {
+							float = floats[i];
+							switch (param) {
+								case VALUE_U :
+									uv._u = float;
+								case VALUE_V :
+									uv._v = float;
+								default :
+								
 
+							}
+							i++;
 						}
-						i++;
 					}
 
 				}

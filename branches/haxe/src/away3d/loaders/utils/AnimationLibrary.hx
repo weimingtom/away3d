@@ -18,11 +18,11 @@ class AnimationLibrary extends Dictionary  {
 	public function addAnimation(name:String):AnimationData {
 		//return if animation already exists
 		
-		if ((this[cast name] != null)) {
-			return this[cast name];
+		if ((this[untyped name] != null)) {
+			return this[untyped name];
 		}
 		var animationData:AnimationData = new AnimationData();
-		this[cast animationData.name = name] = animationData;
+		this[untyped animationData.name = name] = animationData;
 		return animationData;
 	}
 
@@ -32,8 +32,8 @@ class AnimationLibrary extends Dictionary  {
 	public function getAnimation(name:String):AnimationData {
 		//return if animation exists
 		
-		if ((this[cast name] != null)) {
-			return this[cast name];
+		if ((this[untyped name] != null)) {
+			return this[untyped name];
 		}
 		Debug.warning("Animation '" + name + "' does not exist");
 		return null;

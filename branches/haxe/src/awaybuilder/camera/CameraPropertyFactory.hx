@@ -43,15 +43,17 @@ class CameraPropertyFactory  {
 		for (__i in 0...vo.extras.length) {
 			var attribute:DynamicAttributeVO = vo.extras[__i];
 
-			switch (attribute.key) {
-				case CameraAttributes.TRANSITION_TIME :
-					vo.transitionTime = (attribute.value);
-					break;
-				case CameraAttributes.TRANSITION_TYPE :
-					vo.transitionType = attribute.value;
-					break;
-				
+			if (attribute != null) {
+				switch (attribute.key) {
+					case CameraAttributes.TRANSITION_TIME :
+						vo.transitionTime = (attribute.value);
+						break;
+					case CameraAttributes.TRANSITION_TYPE :
+						vo.transitionType = attribute.value;
+						break;
+					
 
+				}
 			}
 		}
 

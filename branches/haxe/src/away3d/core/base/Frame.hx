@@ -31,7 +31,9 @@ class Frame implements IFrame {
 		for (__i in 0...vertexpositions.length) {
 			_vertexposition = vertexpositions[__i];
 
-			_vertexposition.adjust(k);
+			if (_vertexposition != null) {
+				_vertexposition.adjust(k);
+			}
 		}
 
 	}
@@ -43,7 +45,9 @@ class Frame implements IFrame {
 		for (__i in 0...vertexpositions.length) {
 			_vertexposition = vertexpositions[__i];
 
-			indexes.push(_vertexposition.getIndex(vertices));
+			if (_vertexposition != null) {
+				indexes.push(_vertexposition.getIndex(vertices));
+			}
 		}
 
 		return indexes;

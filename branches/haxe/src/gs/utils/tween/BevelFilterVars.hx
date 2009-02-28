@@ -68,7 +68,7 @@ class BevelFilterVars extends FilterVars  {
 		if (Std.is($vars, BevelFilterVars)) {
 			return cast($vars, BevelFilterVars);
 		}
-		return new BevelFilterVars();
+		return new BevelFilterVars(($vars.distance > 0) ? $vars.distance : 0, ($vars.blurX > 0) ? $vars.blurX : 0, ($vars.blurY > 0) ? $vars.blurY : 0, ($vars.strength == null) ? 1 : $vars.strength, ($vars.angle == null) ? 45 : $vars.angle, ($vars.highlightAlpha == null) ? 1 : $vars.highlightAlpha, ($vars.highlightColor == null) ? 0xFFFFFF : $vars.highlightColor, ($vars.shadowAlpha == null) ? 1 : $vars.shadowAlpha, ($vars.shadowColor == null) ? 0xFFFFFF : $vars.shadowColor, ($vars.quality > 0) ? $vars.quality : 2, $vars.remove || false, ($vars.index == null) ? -1 : $vars.index, $vars.addFilter || false);
 	}
 
 	//---- GETTERS / SETTERS --------------------------------------------------------------------------------------------

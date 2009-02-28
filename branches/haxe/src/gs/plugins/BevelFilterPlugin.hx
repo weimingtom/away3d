@@ -43,7 +43,7 @@ class BevelFilterPlugin extends FilterPlugin  {
 		
 		_target = $target;
 		_type = BevelFilter;
-		initFilter($value, new BevelFilter());
+		initFilter($value, new BevelFilter(0, 0, 0xFFFFFF, 0.5, 0x000000, 0.5, 2, 2, 0, ($value.quality > 0) ? $value.quality : 2));
 		return true;
 	}
 

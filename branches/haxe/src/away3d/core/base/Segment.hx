@@ -53,7 +53,7 @@ class Segment extends Element  {
 			return;
 		}
 		if (_materialchanged == null) {
-			_materialchanged = new SegmentEvent();
+			_materialchanged = new SegmentEvent(SegmentEvent.MATERIAL_CHANGED, this);
 		}
 		dispatchEvent(_materialchanged);
 	}

@@ -83,7 +83,7 @@ class Inflater extends EventDispatcher  {
 			inflateTimer.stop();
 			inflateTimer.removeEventListener(TimerEvent.TIMER, inflateNextChunk);
 		}
-		inflateTimer = new Timer();
+		inflateTimer = new Timer(TIMER_INTERVAL);
 		inflateTimer.addEventListener(TimerEvent.TIMER, inflateNextChunk);
 	}
 
@@ -110,7 +110,7 @@ class Inflater extends EventDispatcher  {
 			if (type == 0) {
 				stored(buf);
 			} else if (type == 3) {
-				throw new Error();
+				throw new Error('invalid block type (type == 3)', -1);
 			} else {
 				lencode = {count:[], symbol:[]};
 				distcode = {count:[], symbol:[]};
@@ -151,7 +151,7 @@ class Inflater extends EventDispatcher  {
 		if (type == 0) {
 			stored(currentBuf);
 		} else if (type == 3) {
-			throw new Error();
+			throw new Error('invalid block type (type == 3)', -1);
 		} else {
 			lencode = {count:[], symbol:[]};
 			distcode = {count:[], symbol:[]};
@@ -162,20 +162,20 @@ class Inflater extends EventDispatcher  {
 			}
 			if (err != 0) {
 				inflateTimer.stop();
-				dispatchEvent(new ZipErrorEvent());
+				dispatchEvent(new ZipErrorEvent(ZipErrorEvent.PARSE_ERROR, false, false, err));
 			}
 			// decode data until end-of-block code
 			err = codes(currentBuf);
 		}
 		if (err != 0) {
 			inflateTimer.stop();
-			dispatchEvent(new ZipErrorEvent());
+			dispatchEvent(new ZipErrorEvent(ZipErrorEvent.PARSE_ERROR, false, false, err));
 		}
 		if ((last > 0)) {
 			inflateTimer.stop();
-			dispatchEvent(new ZipEvent());
+			dispatchEvent(new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, currentBuf));
 		}
-		dispatchEvent(new ProgressEvent());
+		dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, incnt, currentBuf.length));
 	}
 
 	private function bits(need:Int):Int {
@@ -185,7 +185,7 @@ class Inflater extends EventDispatcher  {
 		var val:Int = bitbuf;
 		while (bitcnt < need) {
 			if (incnt == inbuf.length) {
-				throw new Error();
+				throw new Error('available inflate data did not terminate', 2);
 			}
 			// load eight bits
 			val |= Reflect.field(inbuf, incnt++) << bitcnt;
@@ -324,7 +324,7 @@ class Inflater extends EventDispatcher  {
 			} else if (symbol > 256) {
 				symbol -= 257;
 				if (symbol >= 29) {
-					throw new Error();
+					throw new Error("invalid literal/length or distance code in fixed or dynamic block", -9);
 				}
 				var len:Int = LENS[symbol] + bits(LEXT[symbol]);
 				symbol = decode(distcode);
@@ -333,7 +333,7 @@ class Inflater extends EventDispatcher  {
 				}
 				var dist:Int = DISTS[symbol] + bits(DEXT[symbol]);
 				if (dist > buf.length) {
-					throw new Error();
+					throw new Error("distance is too far back in fixed or dynamic block", -10);
 				}
 				while ((len-- > 0)) {
 					Reflect.setField(buf, buf.length, Reflect.field(buf, buf.length - dist));
@@ -353,16 +353,16 @@ class Inflater extends EventDispatcher  {
 		bitcnt = 0;
 		// get length and check against its one's complement
 		if (incnt + 4 > inbuf.length) {
-			throw new Error();
+			throw new Error('available inflate data did not terminate', 2);
 		}
 		// length of stored block
 		var len:Int = Reflect.field(inbuf, incnt++);
 		len |= Reflect.field(inbuf, incnt++) << 8;
 		if (Reflect.field(inbuf, incnt++) != (~len & 0xff) || Reflect.field(inbuf, incnt++) != ((~len >> 8) & 0xff)) {
-			throw new Error();
+			throw new Error("stored block length did not match one's complement", -2);
 		}
 		if (incnt + len > inbuf.length) {
-			throw new Error();
+			throw new Error('available inflate data did not terminate', 2);
 		}
 		// copy len bytes from in to out
 		while ((len-- > 0)) {
@@ -432,7 +432,7 @@ class Inflater extends EventDispatcher  {
 		// number of lengths in descriptor
 		var ncode:Int = bits(4) + 4;
 		if (nlen > MAXLCODES || ndist > MAXDCODES) {
-			throw new Error();
+			throw new Error("dynamic block code description: too many length or distance codes", -3);
 		}
 		// read code length code lengths (really), missing lengths are zero
 		var index:Int = 0;
@@ -454,7 +454,7 @@ class Inflater extends EventDispatcher  {
 		// build huffman table for code lengths codes (use lencode temporarily)
 		var err:Int = construct(lencode, lengths, 19);
 		if (err != 0) {
-			throw new Error();
+			throw new Error("dynamic block code description: code lengths codes incomplete", -4);
 		}
 		// read length/literal and distance code length tables
 		index = 0;
@@ -470,7 +470,7 @@ class Inflater extends EventDispatcher  {
 				// repeat last length 3..6 times
 				if (symbol == 16) {
 					if (index == 0) {
-						throw new Error();
+						throw new Error("dynamic block code description: repeat lengths with no first length", -5);
 					}
 					// last length
 					len = lengths[index - 1];
@@ -483,7 +483,7 @@ if (symbol == 17) {
 					symbol = 11 + bits(7);
 				}
 				if (index + symbol > nlen + ndist) {
-					throw new Error();
+					throw new Error("dynamic block code description: repeat more than specified lengths", -6);
 				}
 				// repeat last or zero symbol times
 				while ((symbol-- > 0)) {
@@ -497,13 +497,13 @@ if (symbol == 17) {
 		err = construct(lencode, lengths, nlen);
 		// only allow incomplete codes if just one code
 		if (err < 0 || (err > 0 && nlen - lencode.count[0] != 1)) {
-			throw new Error();
+			throw new Error("dynamic block code description: invalid literal/length code lengths", -7);
 		}
 		// build huffman table for distance codes
 		err = construct(distcode, lengths.slice(nlen), ndist);
 		// only allow incomplete codes if just one code
 		if (err < 0 || (err > 0 && ndist - distcode.count[0] != 1)) {
-			throw new Error();
+			throw new Error("dynamic block code description: invalid distance code lengths", -8);
 		}
 		return err;
 	}

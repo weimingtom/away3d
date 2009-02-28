@@ -93,11 +93,13 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		notifyMaterialUpdate();
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			if (source == _faceMaterialVO.source) {
-				if (!_faceMaterialVO.cleared) {
-					_faceMaterialVO.clear();
+			if (_faceMaterialVO != null) {
+				if (source == _faceMaterialVO.source) {
+					if (!_faceMaterialVO.cleared) {
+						_faceMaterialVO.clear();
+					}
 				}
 			}
 		}
@@ -111,9 +113,11 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			_faceMaterialVO.invalidated = true;
+			if (_faceMaterialVO != null) {
+				_faceMaterialVO.invalidated = true;
+			}
 		}
 
 	}
@@ -124,15 +128,15 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	private override function renderShader(tri:DrawTriangle):Void {
 		//check to see if sourceDictionary exists
 		
-		_sourceBitmap = _sourceDictionary[cast tri];
+		_sourceBitmap = _sourceDictionary[untyped tri];
 		if (_sourceBitmap == null || _faceMaterialVO.resized) {
-			_sourceBitmap = _sourceDictionary[cast tri] = _parentFaceMaterialVO.bitmap.clone();
+			_sourceBitmap = _sourceDictionary[untyped tri] = _parentFaceMaterialVO.bitmap.clone();
 			_sourceBitmap.lock();
 		}
 		//check to see if normalDictionary exists
-		_normalBitmap = _normalDictionary[cast tri];
+		_normalBitmap = _normalDictionary[untyped tri];
 		if (_normalBitmap == null || _faceMaterialVO.resized) {
-			_normalBitmap = _normalDictionary[cast tri] = _parentFaceMaterialVO.bitmap.clone();
+			_normalBitmap = _normalDictionary[untyped tri] = _parentFaceMaterialVO.bitmap.clone();
 			_normalBitmap.lock();
 		}
 		_n0 = _source.geometry.getVertexNormal(_face.v0);
@@ -141,28 +145,30 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		for (__i in 0..._source.lightarray.directionals.length) {
 			directional = _source.lightarray.directionals[__i];
 
-			_diffuseTransform = directional.diffuseTransform[cast _source];
-			_szx = _diffuseTransform.szx;
-			_szy = _diffuseTransform.szy;
-			_szz = _diffuseTransform.szz;
-			_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
-			_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
-			_normal2z = _n2.x * _szx + _n2.y * _szy + _n2.z * _szz;
-			//check to see if the uv triangle lies inside the bitmap area
-			if (_normal0z > -0.2 || _normal1z > -0.2 || _normal2z > -0.2) {
-				if (_faceMaterialVO.cleared && !_parentFaceMaterialVO.updated) {
-					_faceMaterialVO.bitmap = _parentFaceMaterialVO.bitmap.clone();
-					_faceMaterialVO.bitmap.lock();
+			if (directional != null) {
+				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_szx = _diffuseTransform.szx;
+				_szy = _diffuseTransform.szy;
+				_szz = _diffuseTransform.szz;
+				_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
+				_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
+				_normal2z = _n2.x * _szx + _n2.y * _szy + _n2.z * _szz;
+				//check to see if the uv triangle lies inside the bitmap area
+				if (_normal0z > -0.2 || _normal1z > -0.2 || _normal2z > -0.2) {
+					if (_faceMaterialVO.cleared && !_parentFaceMaterialVO.updated) {
+						_faceMaterialVO.bitmap = _parentFaceMaterialVO.bitmap.clone();
+						_faceMaterialVO.bitmap.lock();
+					}
+					//update booleans
+					_faceMaterialVO.cleared = false;
+					_faceMaterialVO.updated = true;
+					//resolve normal map
+					_sourceBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixTransform[untyped _source]);
+					//normalise bitmap
+					_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform[untyped _source]);
+					//draw into faceBitmap
+					_faceMaterialVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
 				}
-				//update booleans
-				_faceMaterialVO.cleared = false;
-				_faceMaterialVO.updated = true;
-				//resolve normal map
-				_sourceBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixTransform[cast _source]);
-				//normalise bitmap
-				_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform[cast _source]);
-				//draw into faceBitmap
-				_faceMaterialVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
 			}
 		}
 
@@ -211,9 +217,9 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	 */
 	public function new(bitmap:BitmapData, ?init:Dynamic=null) {
-		this._zeroPoint = new Point();
-		this._sourceDictionary = new Dictionary();
-		this._normalDictionary = new Dictionary();
+		this._zeroPoint = new Point(0, 0);
+		this._sourceDictionary = new Dictionary(true);
+		this._normalDictionary = new Dictionary(true);
 		
 		
 		super(init);
@@ -230,11 +236,13 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		for (__i in 0...source.lightarray.directionals.length) {
 			directional = source.lightarray.directionals[__i];
 
-			if (!directional.diffuseTransform[cast source] || view.scene.updatedObjects[cast source]) {
-				directional.setDiffuseTransform(source);
-				directional.setNormalMatrixTransform(source);
-				directional.setColorMatrixTransform(source);
-				clearFaces(source, view);
+			if (directional != null) {
+				if (!directional.diffuseTransform[untyped source] || view.scene.updatedObjects[untyped source]) {
+					directional.setDiffuseTransform(source);
+					directional.setNormalMatrixTransform(source);
+					directional.setColorMatrixTransform(source);
+					clearFaces(source, view);
+				}
 			}
 		}
 
@@ -249,19 +257,21 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		for (__i in 0..._lights.directionals.length) {
 			directional = _lights.directionals[__i];
 
-			if (_lights.numLights > 1) {
-				_shape = getLightingShape(layer, directional);
-				_shape.filters = [directional.normalMatrixTransform[cast _source], directional.colorMatrixTransform[cast _source]];
-				_shape.blendMode = blendMode;
-				_shape.transform.colorTransform = directional.ambientDiffuseColorTransform;
-				_graphics = _shape.graphics;
-			} else {
-				layer.filters = [directional.normalMatrixTransform[cast _source], directional.colorMatrixTransform[cast _source]];
-				layer.transform.colorTransform = directional.ambientDiffuseColorTransform;
-				_graphics = layer.graphics;
+			if (directional != null) {
+				if (_lights.numLights > 1) {
+					_shape = getLightingShape(layer, directional);
+					_shape.filters = [directional.normalMatrixTransform[untyped _source], directional.colorMatrixTransform[untyped _source]];
+					_shape.blendMode = blendMode;
+					_shape.transform.colorTransform = directional.ambientDiffuseColorTransform;
+					_graphics = _shape.graphics;
+				} else {
+					layer.filters = [directional.normalMatrixTransform[untyped _source], directional.colorMatrixTransform[untyped _source]];
+					layer.transform.colorTransform = directional.ambientDiffuseColorTransform;
+					_graphics = layer.graphics;
+				}
+				_mapping = getMapping(tri);
+				_source.session.renderTriangleBitmap(_bitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
 			}
-			_mapping = getMapping(tri);
-			_source.session.renderTriangleBitmap(_bitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
 		}
 
 		if (debug) {

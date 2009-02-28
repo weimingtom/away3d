@@ -36,7 +36,9 @@ class Morpher extends Object3D  {
 		for (__i in 0..._vertices.length) {
 			var v:Vertex = _vertices[__i];
 
-			v.reset();
+			if (v != null) {
+				v.reset();
+			}
 		}
 
 	}

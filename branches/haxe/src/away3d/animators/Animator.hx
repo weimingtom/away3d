@@ -47,17 +47,17 @@ class Animator extends Mesh  {
 		var j:Int;
 		var k:Int;
 		// export requirement
-		indexes = new Array<Dynamic>();
+		indexes = new Array();
 		var aVti:Array<Dynamic>;
 		if (doloop) {
-			var fr:Dynamic = new Dynamic();
+			var fr:Dynamic = new Object();
 			fr.vertices = aFrames[0].vertices;
 			fr.prefix = aFrames[0].prefix;
 			var pref:String = "";
 			i = 0;
 			while (i < fr.prefix.length) {
-				if (Math.isNaN(substr(i, i + 1 - i))) {
-					pref += substr(i, i + 1 - i);
+				if (Math.isNaN(fr.prefix.substr(i, i + 1 - i))) {
+					pref += fr.prefix.substr(i, i + 1 - i);
 				} else {
 					break;
 				}
@@ -86,11 +86,11 @@ class Animator extends Mesh  {
 		geometry.frames = new Dictionary();
 		geometry.framenames = new Dictionary();
 		fnarr = [];
-		var oFrames:Dynamic = new Dynamic();
+		var oFrames:Dynamic = new Object();
 		var arr:Array<Dynamic>;
 		i = 0;
 		while (i < aFrames.length) {
-			Reflect.setField(oFrames, aFrames[i].prefix, new Array<Dynamic>());
+			Reflect.setField(oFrames, aFrames[i].prefix, new Array());
 			fnarr.push(aFrames[i].prefix);
 			arr = aFrames[i].vertices;
 			j = 0;
@@ -116,7 +116,7 @@ class Animator extends Mesh  {
 			k = 0;
 			j = 0;
 			while (j < Reflect.field(oFrames, fnarr[i]).length) {
-				var vp:VertexPosition = new VertexPosition();
+				var vp:VertexPosition = new VertexPosition(varr[k]);
 				k++;
 				vp.x = Reflect.field(oFrames, fnarr[i])[j].x;
 				vp.y = Reflect.field(oFrames, fnarr[i])[j + 1].y;
@@ -153,11 +153,11 @@ class Animator extends Mesh  {
 		var i:Int;
 		var j:Int;
 		var k:Int;
-		var oFrames:Dynamic = new Dynamic();
+		var oFrames:Dynamic = new Object();
 		var arr:Array<Dynamic>;
 		i = 0;
 		while (i < aFrames.length) {
-			Reflect.setField(oFrames, aFrames[i].prefix, new Array<Dynamic>());
+			Reflect.setField(oFrames, aFrames[i].prefix, new Array());
 			fnarr.push(aFrames[i].prefix);
 			arr = aFrames[i].vertices;
 			j = 0;
@@ -183,7 +183,7 @@ class Animator extends Mesh  {
 			k = 0;
 			j = 0;
 			while (j < Reflect.field(oFrames, fnarr[i]).length) {
-				var vp:VertexPosition = new VertexPosition();
+				var vp:VertexPosition = new VertexPosition(varr[k]);
 				k++;
 				vp.x = Reflect.field(oFrames, fnarr[i])[j].x;
 				vp.y = Reflect.field(oFrames, fnarr[i])[j + 1].y;
@@ -232,7 +232,7 @@ class Animator extends Mesh  {
 	 */
 	public function scaleAnimation(scale:Float):Void {
 		
-		var tmpnames:Array<Dynamic> = new Array<Dynamic>();
+		var tmpnames:Array<Dynamic> = new Array();
 		var i:Int = 0;
 		var y:Int = 0;
 		var framename:String;

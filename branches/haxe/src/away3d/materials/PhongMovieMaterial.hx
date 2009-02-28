@@ -4,6 +4,7 @@ import flash.events.EventDispatcher;
 import away3d.materials.shaders.SpecularPhongShader;
 import away3d.materials.shaders.AbstractShader;
 import away3d.materials.shaders.AmbientShader;
+import flash.display.BlendMode;
 import away3d.core.utils.Init;
 import away3d.materials.shaders.DiffusePhongShader;
 import flash.display.Sprite;
@@ -79,11 +80,11 @@ class PhongMovieMaterial extends CompositeMaterial  {
 		_shininess = ini.getNumber("shininess", 20);
 		_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 		//create new materials
-		_movieMaterial = new MovieMaterial();
-		_phongShader = new CompositeMaterial();
-		_phongShader.addMaterial(_ambientShader = new AmbientShader());
-		_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader());
-		_specularPhongShader = new SpecularPhongShader();
+		_movieMaterial = new MovieMaterial(movie, ini);
+		_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
+		_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+		_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+		_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 		//add to materials array
 		addMaterial(_movieMaterial);
 		addMaterial(_phongShader);

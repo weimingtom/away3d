@@ -59,11 +59,13 @@ class DirSpriteProjector implements IPrimitiveProvider {
 		for (__i in 0..._vertices.length) {
 			_vertex = _vertices[__i];
 
-			_screenVertex = _lens.project(viewTransform, _vertex);
-			var z:Float = _screenVertex.z;
-			if (z < minz) {
-				minz = z;
-				bitmap = _bitmaps[cast _vertex];
+			if (_vertex != null) {
+				_screenVertex = _lens.project(viewTransform, _vertex);
+				var z:Float = _screenVertex.z;
+				if (z < minz) {
+					minz = z;
+					bitmap = _bitmaps[untyped _vertex];
+				}
 			}
 		}
 

@@ -104,7 +104,7 @@ class AnimatedBitmapMaterial extends TransformBitmapMaterial, implements ITriang
 	 */
 	public function setMovie(movie:MovieClip):Void {
 		
-		_cache = new Array<Dynamic>();
+		_cache = new Array();
 		var i:Int;
 		var rect:Rectangle;
 		var minX:Float = 100000;
@@ -132,18 +132,18 @@ class AnimatedBitmapMaterial extends TransformBitmapMaterial, implements ITriang
 		//draw the cached bitmaps
 		var W:Int = Std.int(maxX - minX);
 		var H:Int = Std.int(maxY - minY);
-		var mat:Matrix = new Matrix();
+		var mat:Matrix = new Matrix(1, 0, 0, 1, -minX, -minY);
 		var tmp_bmd:BitmapData;
 		var timer:Int = flash.Lib.getTimer();
 		i = 1;
 		while (i < movie.totalFrames + 1) {
 			movie.gotoAndStop(i);
-			tmp_bmd = new BitmapData();
+			tmp_bmd = new BitmapData(W, H, true, 0x00FFFFFF);
 			tmp_bmd.draw(movie, mat, null, null, tmp_bmd.rect, true);
 			_cache.push(tmp_bmd);
 			//error timeout for time over 2 seconds
 			if (flash.Lib.getTimer() - timer > 2000) {
-				throw new Error();
+				throw new Error("AnimatedBitmapMaterial contains too many frames. MovieMaterial should be used instead.");
 			}
 			
 			// update loop variables

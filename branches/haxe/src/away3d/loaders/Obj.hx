@@ -62,7 +62,7 @@ class Obj extends AbstractParser  {
 		vertices = [new Vertex()];
 		uvs = [new UV()];
 		var isNeg:Bool;
-		var myPattern:EReg = new EReg();
+		var myPattern:EReg = new RegExp("-", "g");
 		var face0:Array<Dynamic>;
 		var face1:Array<Dynamic>;
 		var face2:Array<Dynamic>;
@@ -70,78 +70,80 @@ class Obj extends AbstractParser  {
 		for (__i in 0...lines.length) {
 			var line:String = lines[__i];
 
-			trunk = line.replace("  ", " ").replace("  ", " ").replace("  ", " ").split(" ");
-			switch (trunk[0]) {
-				case "g" :
-					group = new ObjectContainer3D();
-					group.name = trunk[1];
-					if (container == null) {
-						if (aMeshes.length == 1) {
-							container = new ObjectContainer3D();
-						} else {
-							container = new ObjectContainer3D();
-						}
-					}
-					(cast(container, ObjectContainer3D)).addChild(group);
-					isNew = true;
-				case "usemtl" :
-					aMeshes[aMeshes.length - 1].materialid = trunk[1];
-				case "v" :
-					if (isNew) {
-						generateNewMesh();
-						isNew = false;
-						if (group != null) {
-							group.addChild(mesh);
-						}
-					}
-					vertices.push(new Vertex());
-				case "vt" :
-					uvs.push(new UV());
-				case "f" :
-					isNew = true;
-					if (trunk[1].indexOf("-") == -1) {
-						face0 = trysplit(trunk[1], "/");
-						face1 = trysplit(trunk[2], "/");
-						face2 = trysplit(trunk[3], "/");
-						if (trunk[4] != null) {
-							face3 = trysplit(trunk[4], "/");
-						} else {
-							face3 = null;
-						}
-						isNeg = false;
-					} else {
-						face0 = trysplit(trunk[1].replace(myPattern, ""), "/");
-						face1 = trysplit(trunk[2].replace(myPattern, ""), "/");
-						face2 = trysplit(trunk[3].replace(myPattern, ""), "/");
-						if (trunk[4] != null) {
-							face3 = trysplit(trunk[4].replace(myPattern, ""), "/");
-						} else {
-							face3 = null;
-						}
-						isNeg = true;
-					}
-					try {
-						if (face3 != null && face3.length > 0 && !Math.isNaN(Std.parseInt(face3[0]))) {
-							if (isNeg) {
-								mesh.addFace(new Face());
-								mesh.addFace(new Face());
+			if (line != null) {
+				trunk = line.replace("  ", " ").replace("  ", " ").replace("  ", " ").split(" ");
+				switch (trunk[0]) {
+					case "g" :
+						group = new ObjectContainer3D();
+						group.name = trunk[1];
+						if (container == null) {
+							if (aMeshes.length == 1) {
+								container = new ObjectContainer3D(aMeshes[0].mesh);
 							} else {
-								mesh.addFace(new Face());
-								mesh.addFace(new Face());
-							}
-						} else {
-							if (isNeg) {
-								mesh.addFace(new Face());
-							} else {
-								mesh.addFace(new Face());
+								container = new ObjectContainer3D();
 							}
 						}
-					} catch (e:Error) {
-						trace("Error while parsing obj file: unvalid face f " + face0 + "," + face1 + "," + face2 + "," + face3);
-					}
+						(cast(container, ObjectContainer3D)).addChild(group);
+						isNew = true;
+					case "usemtl" :
+						aMeshes[aMeshes.length - 1].materialid = trunk[1];
+					case "v" :
+						if (isNew) {
+							generateNewMesh();
+							isNew = false;
+							if (group != null) {
+								group.addChild(mesh);
+							}
+						}
+						vertices.push(new Vertex(-Std.parseFloat(trunk[1]) * scaling, Std.parseFloat(trunk[2]) * scaling, -Std.parseFloat(trunk[3]) * scaling));
+					case "vt" :
+						uvs.push(new UV(Std.parseFloat(trunk[1]), Std.parseFloat(trunk[2])));
+					case "f" :
+						isNew = true;
+						if (trunk[1].indexOf("-") == -1) {
+							face0 = trysplit(trunk[1], "/");
+							face1 = trysplit(trunk[2], "/");
+							face2 = trysplit(trunk[3], "/");
+							if (trunk[4] != null) {
+								face3 = trysplit(trunk[4], "/");
+							} else {
+								face3 = null;
+							}
+							isNeg = false;
+						} else {
+							face0 = trysplit(trunk[1].replace(myPattern, ""), "/");
+							face1 = trysplit(trunk[2].replace(myPattern, ""), "/");
+							face2 = trysplit(trunk[3].replace(myPattern, ""), "/");
+							if (trunk[4] != null) {
+								face3 = trysplit(trunk[4].replace(myPattern, ""), "/");
+							} else {
+								face3 = null;
+							}
+							isNeg = true;
+						}
+						try {
+							if (face3 != null && face3.length > 0 && !Math.isNaN(Std.parseInt(face3[0]))) {
+								if (isNeg) {
+									mesh.addFace(new Face(vertices[vertices.length - Std.parseInt(face1[0])], vertices[vertices.length - Std.parseInt(face0[0])], vertices[vertices.length - Std.parseInt(face3[0])], null, checkUV(1, uvs[uvs.length - Std.parseInt(face1[1])]), checkUV(2, uvs[uvs.length - Std.parseInt(face0[1])]), checkUV(3, uvs[uvs.length - Std.parseInt(face3[1])])));
+									mesh.addFace(new Face(vertices[vertices.length - Std.parseInt(face2[0])], vertices[vertices.length - Std.parseInt(face1[0])], vertices[vertices.length - Std.parseInt(face3[0])], null, checkUV(1, uvs[uvs.length - Std.parseInt(face2[1])]), checkUV(2, uvs[uvs.length - Std.parseInt(face1[1])]), checkUV(3, uvs[uvs.length - Std.parseInt(face3[1])])));
+								} else {
+									mesh.addFace(new Face(vertices[Std.parseInt(face1[0])], vertices[Std.parseInt(face0[0])], vertices[Std.parseInt(face3[0])], null, checkUV(1, uvs[Std.parseInt(face1[1])]), checkUV(2, uvs[Std.parseInt(face0[1])]), checkUV(3, uvs[Std.parseInt(face3[1])])));
+									mesh.addFace(new Face(vertices[Std.parseInt(face2[0])], vertices[Std.parseInt(face1[0])], vertices[Std.parseInt(face3[0])], null, checkUV(1, uvs[Std.parseInt(face2[1])]), checkUV(2, uvs[Std.parseInt(face1[1])]), checkUV(3, uvs[Std.parseInt(face3[1])])));
+								}
+							} else {
+								if (isNeg) {
+									mesh.addFace(new Face(vertices[vertices.length - Std.parseInt(face2[0])], vertices[vertices.length - Std.parseInt(face1[0])], vertices[vertices.length - Std.parseInt(face0[0])], null, checkUV(1, uvs[uvs.length - Std.parseInt(face2[1])]), checkUV(2, uvs[uvs.length - Std.parseInt(face1[1])]), checkUV(3, uvs[uvs.length - Std.parseInt(face0[1])])));
+								} else {
+									mesh.addFace(new Face(vertices[Std.parseInt(face2[0])], vertices[Std.parseInt(face1[0])], vertices[Std.parseInt(face0[0])], null, checkUV(1, uvs[Std.parseInt(face2[1])]), checkUV(2, uvs[Std.parseInt(face1[1])]), checkUV(3, uvs[Std.parseInt(face0[1])])));
+								}
+							}
+						} catch (e:Error) {
+							trace("Error while parsing obj file: unvalid face f " + face0 + "," + face1 + "," + face2 + "," + face3);
+						}
 
-				
+					
 
+				}
 			}
 		}
 
@@ -157,11 +159,11 @@ class Obj extends AbstractParser  {
 		if (uv == null) {
 			switch (id) {
 				case 1 :
-					return new UV();
+					return new UV(0, 1);
 				case 2 :
-					return new UV();
+					return new UV(.5, 0);
 				case 3 :
-					return new UV();
+					return new UV(1, 1);
 				
 
 			}
@@ -207,12 +209,12 @@ class Obj extends AbstractParser  {
 		loader.addEventListener(IOErrorEvent.IO_ERROR, errorMtl);
 		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, errorMtl);
 		loader.addEventListener(ProgressEvent.PROGRESS, mtlProgress);
-		loader.load(new URLRequest());
+		loader.load(new URLRequest(mtlPath + url));
 	}
 
 	private function parseUrl(index:Float, data:String):String {
 		
-		return substr(index + 7, data.indexOf(".mtl") + 4 - index + 7);
+		return data.substr(index + 7, data.indexOf(".mtl") + 4 - index + 7);
 	}
 
 	private function parseMtl(event:Event):Void {
@@ -228,16 +230,18 @@ class Obj extends AbstractParser  {
 		for (__i in 0...lines.length) {
 			var line:String = lines[__i];
 
-			trunk = line.split(" ");
-			switch (trunk[0]) {
-				case "newmtl" :
-					aSources.push({material:null, materialid:trunk[1]});
-				case "map_Kd" :
-					mat = checkDoubleMaterials(mtlPath + trunk[1]);
-					aSources[aSources.length - 1].material = mat;
-				
+			if (line != null) {
+				trunk = line.split(" ");
+				switch (trunk[0]) {
+					case "newmtl" :
+						aSources.push({material:null, materialid:trunk[1]});
+					case "map_Kd" :
+						mat = checkDoubleMaterials(mtlPath + trunk[1]);
+						aSources[aSources.length - 1].material = mat;
+					
 
-				//aSources[aSources.length-1].material = new BitmapFileMaterial(baseUrl+trunk[1]);
+					//aSources[aSources.length-1].material = new BitmapFileMaterial(baseUrl+trunk[1]);
+				}
 			}
 		}
 
@@ -250,7 +254,9 @@ class Obj extends AbstractParser  {
 					for (__i in 0...aMeshes[j].mesh.faces.length) {
 						_face = aMeshes[j].mesh.faces[__i];
 
-						_face.material = mat;
+						if (_face != null) {
+							_face.material = mat;
+						}
 					}
 
 				}
@@ -283,19 +289,19 @@ class Obj extends AbstractParser  {
 			++i;
 		}
 
-		mat = new BitmapFileMaterial();
+		mat = new BitmapFileMaterial(url.replace(String.fromCharCode(13), ""));
 		aMats.push({url:url, material:mat});
 		return mat;
 	}
 
 	private function generateNewMesh():Void {
 		
-		mesh = new Mesh();
+		mesh = new Mesh(ini);
 		mesh.name = "obj_" + aMeshes.length;
 		mesh.type = "Obj";
 		mesh.url = "External";
 		if (aMeshes.length == 1 && container == null) {
-			container = new ObjectContainer3D();
+			container = new ObjectContainer3D(aMeshes[0].mesh);
 		}
 		aMeshes.push({materialid:"", mesh:mesh});
 		if (aMeshes.length > 1 || container != null) {

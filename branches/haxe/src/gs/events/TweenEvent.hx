@@ -41,7 +41,7 @@ class TweenEvent extends Event  {
 
 	public override function clone():Event {
 		
-		return new TweenEvent();
+		return new TweenEvent(this.type, this.info, this.bubbles, this.cancelable);
 	}
 
 }

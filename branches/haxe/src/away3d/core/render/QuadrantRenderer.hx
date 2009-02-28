@@ -187,7 +187,7 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 		_camera = view.camera;
 		_screenClipping = view.screenClipping;
 		if (_root == null) {
-			_root = new PrimitiveQuadrantTreeNode();
+			_root = new PrimitiveQuadrantTreeNode((_screenClipping.minX + _screenClipping.maxX) / 2, (_screenClipping.minY + _screenClipping.maxY) / 2, _screenClipping.maxX - _screenClipping.minX, _screenClipping.maxY - _screenClipping.minY, 0);
 		} else {
 			_root.reset((_screenClipping.minX + _screenClipping.maxX) / 2, (_screenClipping.minY + _screenClipping.maxY) / 2, _screenClipping.maxX - _screenClipping.minX, _screenClipping.maxY - _screenClipping.minY);
 		}
@@ -199,7 +199,9 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 		for (__i in 0..._qdrntfilters.length) {
 			_filter = _qdrntfilters[__i];
 
-			_filter.filter(this, _scene, _camera, _screenClipping);
+			if (_filter != null) {
+				_filter.filter(this, _scene, _camera, _screenClipping);
+			}
 		}
 
 		// render all primitives

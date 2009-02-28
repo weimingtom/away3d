@@ -51,7 +51,9 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var geometry:SceneGeometryVO = this.geometry[__i];
 
-			this.enableGeometryInteraction(geometry);
+			if (geometry != null) {
+				this.enableGeometryInteraction(geometry);
+			}
 		}
 
 	}
@@ -61,7 +63,9 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var geometry:SceneGeometryVO = this.geometry[__i];
 
-			this.disableGeometryInteraction(geometry);
+			if (geometry != null) {
+				this.disableGeometryInteraction(geometry);
+			}
 		}
 
 	}
@@ -76,15 +80,19 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...mainSection.geometry.length) {
 			var geometry:SceneGeometryVO = mainSection.geometry[__i];
 
-			allGeometry.push(geometry);
+			if (geometry != null) {
+				allGeometry.push(geometry);
+			}
 		}
 
 		if (cascade) {
 			for (__i in 0...mainSection.sections.length) {
 				var subSection:SceneSectionVO = mainSection.sections[__i];
 
-				var a:Array<Dynamic> = this.extractGeometry(subSection, allGeometry);
-				allGeometry.concat(a);
+				if (subSection != null) {
+					var a:Array<Dynamic> = this.extractGeometry(subSection, allGeometry);
+					allGeometry.concat(a);
+				}
 			}
 
 		}
@@ -130,11 +138,13 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var vo:SceneGeometryVO = this.geometry[__i];
 
-			if (vo.mesh == event.target) {
-				var interactionEvent:GeometryEvent = new GeometryEvent();
-				interactionEvent.geometry = vo;
-				this.dispatchEvent(interactionEvent);
-				break;
+			if (vo != null) {
+				if (vo.mesh == event.target) {
+					var interactionEvent:GeometryEvent = new GeometryEvent(GeometryEvent.DOWN);
+					interactionEvent.geometry = vo;
+					this.dispatchEvent(interactionEvent);
+					break;
+				}
 			}
 		}
 
@@ -145,11 +155,13 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var vo:SceneGeometryVO = this.geometry[__i];
 
-			if (vo.mesh == event.target) {
-				var interactionEvent:GeometryEvent = new GeometryEvent();
-				interactionEvent.geometry = vo;
-				this.dispatchEvent(interactionEvent);
-				break;
+			if (vo != null) {
+				if (vo.mesh == event.target) {
+					var interactionEvent:GeometryEvent = new GeometryEvent(GeometryEvent.MOVE);
+					interactionEvent.geometry = vo;
+					this.dispatchEvent(interactionEvent);
+					break;
+				}
 			}
 		}
 
@@ -160,11 +172,13 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var vo:SceneGeometryVO = this.geometry[__i];
 
-			if (vo.mesh == event.target) {
-				var interactionEvent:GeometryEvent = new GeometryEvent();
-				interactionEvent.geometry = vo;
-				this.dispatchEvent(interactionEvent);
-				break;
+			if (vo != null) {
+				if (vo.mesh == event.target) {
+					var interactionEvent:GeometryEvent = new GeometryEvent(GeometryEvent.OUT);
+					interactionEvent.geometry = vo;
+					this.dispatchEvent(interactionEvent);
+					break;
+				}
 			}
 		}
 
@@ -175,11 +189,13 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var vo:SceneGeometryVO = this.geometry[__i];
 
-			if (vo.mesh == event.target) {
-				var interactionEvent:GeometryEvent = new GeometryEvent();
-				interactionEvent.geometry = vo;
-				this.dispatchEvent(interactionEvent);
-				break;
+			if (vo != null) {
+				if (vo.mesh == event.target) {
+					var interactionEvent:GeometryEvent = new GeometryEvent(GeometryEvent.OVER);
+					interactionEvent.geometry = vo;
+					this.dispatchEvent(interactionEvent);
+					break;
+				}
 			}
 		}
 
@@ -190,11 +206,13 @@ class GeometryController extends AbstractGeometryController, implements IGeometr
 		for (__i in 0...this.geometry.length) {
 			var vo:SceneGeometryVO = this.geometry[__i];
 
-			if (vo.mesh == event.target) {
-				var interactionEvent:GeometryEvent = new GeometryEvent();
-				interactionEvent.geometry = vo;
-				this.dispatchEvent(interactionEvent);
-				break;
+			if (vo != null) {
+				if (vo.mesh == event.target) {
+					var interactionEvent:GeometryEvent = new GeometryEvent(GeometryEvent.UP);
+					interactionEvent.geometry = vo;
+					this.dispatchEvent(interactionEvent);
+					break;
+				}
 			}
 		}
 

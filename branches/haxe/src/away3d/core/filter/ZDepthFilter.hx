@@ -31,8 +31,10 @@ class ZDepthFilter implements IPrimitiveFilter {
 		for (__i in 0...primitives.length) {
 			pri = primitives[__i];
 
-			if (pri.screenZ < _maxZ) {
-				_primitives.push(pri);
+			if (pri != null) {
+				if (pri.screenZ < _maxZ) {
+					_primitives.push(pri);
+				}
 			}
 		}
 

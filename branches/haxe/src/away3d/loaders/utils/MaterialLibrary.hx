@@ -40,12 +40,12 @@ class MaterialLibrary extends Dictionary  {
 	public function addMaterial(name:String):MaterialData {
 		//return if material already exists
 		
-		if ((this[cast name] != null)) {
-			return this[cast name];
+		if ((this[untyped name] != null)) {
+			return this[untyped name];
 		}
 		length++;
 		var materialData:MaterialData = new MaterialData();
-		this[cast materialData.name = name] = materialData;
+		this[untyped materialData.name = name] = materialData;
 		return materialData;
 	}
 
@@ -55,8 +55,8 @@ class MaterialLibrary extends Dictionary  {
 	public function getMaterial(name:String):MaterialData {
 		//return if material exists
 		
-		if ((this[cast name] != null)) {
-			return this[cast name];
+		if ((this[untyped name] != null)) {
+			return this[untyped name];
 		}
 		Debug.warning("Material '" + name + "' does not exist");
 		return null;
@@ -73,18 +73,22 @@ class MaterialLibrary extends Dictionary  {
 		var images:Array<Dynamic> = loadQueue.images;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(this)).iterator();
 		for (__key in __keys) {
-			_materialData = this[cast __key];
+			_materialData = this[untyped __key];
 
-			for (__i in 0...images.length) {
-				_image = images[__i];
+			if (_materialData != null) {
+				for (__i in 0...images.length) {
+					_image = images[__i];
 
-				if (texturePath + _materialData.textureFileName == _image.filename) {
-					_materialData.textureBitmap = new BitmapData();
-					_materialData.textureBitmap.draw(_image);
-					_materialData.material = new BitmapMaterial();
+					if (_image != null) {
+						if (texturePath + _materialData.textureFileName == _image.filename) {
+							_materialData.textureBitmap = new BitmapData(_image.width, _image.height, true, 0x00FFFFFF);
+							_materialData.textureBitmap.draw(_image);
+							_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
+						}
+					}
 				}
-			}
 
+			}
 		}
 
 	}

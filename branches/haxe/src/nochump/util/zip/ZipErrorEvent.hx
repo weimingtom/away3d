@@ -40,7 +40,7 @@ class ZipErrorEvent extends Event  {
 
 	public override function clone():Event {
 		
-		return new ZipErrorEvent();
+		return new ZipErrorEvent(type);
 	}
 
 }

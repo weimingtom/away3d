@@ -47,7 +47,7 @@ class NormalBumpMaker  {
 		if (geometryFunction != null) {
 			position = geometryFunction.call(this, u, v, bump);
 		} else {
-			position = new Number3D();
+			position = new Number3D(u, v, bump);
 		}
 		return position;
 	}
@@ -79,7 +79,7 @@ class NormalBumpMaker  {
 		var x:Float = ((pixel & 0xFF0000) >> 16) / 255.0 - 0.5;
 		var y:Float = ((pixel & 0x00FF00) >> 8) / 255.0 - 0.5;
 		var z:Float = ((pixel & 0x0000FF)) / 255.0 - 0.5;
-		return new Number3D();
+		return new Number3D(x, y, z);
 	}
 
 	/**
@@ -184,33 +184,33 @@ class NormalBumpMaker  {
 		
 		var width:Float = sourceData.width;
 		var height:Float = sourceData.height;
-		var rect:Rectangle = new Rectangle();
-		var point:Point = new Point();
+		var rect:Rectangle = new Rectangle(0, 0, width, height);
+		var point:Point = new Point(0, 0);
 		// Create new bitmapData for return result
-		var destData:BitmapData = new BitmapData();
+		var destData:BitmapData = new BitmapData(width, height, false, 0x000000);
 		var inverseSourceData:BitmapData;
 		if (invertRed || invertGreen || invertBlue) {
-			inverseSourceData = new BitmapData();
+			inverseSourceData = new BitmapData(width, height, false, 0xFFFFFF);
 			inverseSourceData.copyPixels(sourceData, rect, point);
-			inverseSourceData.draw(new Bitmap(), null, null, BlendMode.INVERT);
+			inverseSourceData.draw(new Bitmap(new BitmapData(width, height, false, 0x000000)), null, null, BlendMode.INVERT);
 		}
 		// Copy destination vector component to red channel, negating if necessary
 		if (invertRed) {
-			destData.copyChannel(inverseSourceData, new Rectangle(), new Point(), redSource, BitmapDataChannel.RED);
+			destData.copyChannel(inverseSourceData, new Rectangle(0, 0, width, height), new Point(0, 0), redSource, BitmapDataChannel.RED);
 		} else {
-			destData.copyChannel(sourceData, new Rectangle(), new Point(), redSource, BitmapDataChannel.RED);
+			destData.copyChannel(sourceData, new Rectangle(0, 0, width, height), new Point(0, 0), redSource, BitmapDataChannel.RED);
 		}
 		// Copy destination vector component to green channel, negating if necessary
 		if (invertGreen) {
-			destData.copyChannel(inverseSourceData, new Rectangle(), new Point(), greenSource, BitmapDataChannel.GREEN);
+			destData.copyChannel(inverseSourceData, new Rectangle(0, 0, width, height), new Point(0, 0), greenSource, BitmapDataChannel.GREEN);
 		} else {
-			destData.copyChannel(sourceData, new Rectangle(), new Point(), greenSource, BitmapDataChannel.GREEN);
+			destData.copyChannel(sourceData, new Rectangle(0, 0, width, height), new Point(0, 0), greenSource, BitmapDataChannel.GREEN);
 		}
 		// Copy destination vector component to blue channel, negating if necessary
 		if (invertBlue) {
-			destData.copyChannel(inverseSourceData, new Rectangle(), new Point(), blueSource, BitmapDataChannel.BLUE);
+			destData.copyChannel(inverseSourceData, new Rectangle(0, 0, width, height), new Point(0, 0), blueSource, BitmapDataChannel.BLUE);
 		} else {
-			destData.copyChannel(sourceData, new Rectangle(), new Point(), blueSource, BitmapDataChannel.BLUE);
+			destData.copyChannel(sourceData, new Rectangle(0, 0, width, height), new Point(0, 0), blueSource, BitmapDataChannel.BLUE);
 		}
 		return destData;
 	}
@@ -230,7 +230,7 @@ class NormalBumpMaker  {
 	public function addBumpsToNormalMap(normalMapData:BitmapData, bumpMapData:BitmapData, ?amplitude:Float=0.05, ?uRepeat:Bool=false, ?vRepeat:Bool=false):BitmapData {
 		// scale the bump map data to the same dimensions as the normal map data.
 		
-		var newBumpData:BitmapData = new BitmapData();
+		var newBumpData:BitmapData = new BitmapData(normalMapData.width, normalMapData.height, false, 0x00000);
 		if (normalMapData.width != bumpMapData.width || normalMapData.height != bumpMapData.height) {
 			var matrix:Matrix = new Matrix();
 			matrix.scale(normalMapData.width / bumpMapData.width, normalMapData.height / bumpMapData.height);
@@ -242,7 +242,7 @@ class NormalBumpMaker  {
 		// in the xy direction.
 		var bumpNormalData:BitmapData = convertToNormalMap(newBumpData, null, amplitude, uRepeat, vRepeat, "xyz");
 		// defines the zaxis vector
-		var zAxis:Number3D = new Number3D();
+		var zAxis:Number3D = new Number3D(0, 0, 1);
 		// loop over normal map data. Calculate rotation necessary to align bumps correctly.
 		var i:Float = 0;
 		while (i < normalMapData.width) {
@@ -338,25 +338,25 @@ class NormalBumpMaker  {
 		var width:Float = bumpMapData.width;
 		var height:Float = bumpMapData.height;
 		// Create new bitmap data to store normal map
-		var normalMapData:BitmapData = new BitmapData();
+		var normalMapData:BitmapData = new BitmapData(width, height, false, 0x000000);
 		// Copy bump map into a larger bitmap data so that we can more easily account for boundary conditions
-		var extendedBumpMapData:BitmapData = new BitmapData();
-		extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
+		var extendedBumpMapData:BitmapData = new BitmapData(width + 2, height + 2, false, 0xFFFFFF);
+		extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, 0, width, height), new Point(1, 1));
 		// Copy the left and right edges to the opposite sides if bump map is repeated in the u direction
 		if (uRepeat) {
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, 0, 1, height), new Point(width + 1, 1));
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(width - 1, 0, 1, height), new Point(0, 1));
 		} else {
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, 0, 1, height), new Point(0, 1));
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(width - 1, 0, 1, height), new Point(width + 1, 1));
 		}
 		// Copy the top and bottom edges to the opposite sides if bump map is repeated in the v direction
 		if (vRepeat) {
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, 0, width, 1), new Point(1, height + 1));
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, height - 1, width, 1), new Point(1, 0));
 		} else {
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
-			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(), new Point());
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, 0, width, 1), new Point(1, 0));
+			extendedBumpMapData.copyPixels(bumpMapData, new Rectangle(0, height - 1, width, 1), new Point(1, height + 1));
 		}
 		// Calculate normals over entire surface
 		var i:Float = 0;

@@ -49,7 +49,7 @@ class CubeMaterialsData extends EventDispatcher  {
 			return;
 		}
 		//if (!_materialchanged)
-		_materialchanged = new MaterialEvent();
+		_materialchanged = new MaterialEvent(MaterialEvent.MATERIAL_CHANGED, material);
 		/*else
 		 _materialchanged.material = material; */
 		_materialchanged.extra = faceString;

@@ -92,7 +92,7 @@ class DrawBillboard extends DrawPrimitive  {
 			bottomleft.y = screenvertex.y + sinw + cosh;
 			bottomright.x = screenvertex.x + cosw + sinh;
 			bottomright.y = screenvertex.y - sinw + cosh;
-			var boundsArray:Array<Dynamic> = new Array<Dynamic>();
+			var boundsArray:Array<Dynamic> = new Array();
 			boundsArray.push(topleft);
 			boundsArray.push(topright);
 			boundsArray.push(bottomleft);
@@ -104,17 +104,19 @@ class DrawBillboard extends DrawPrimitive  {
 			for (__i in 0...boundsArray.length) {
 				bounds = boundsArray[__i];
 
-				if (minX > bounds.x) {
-					minX = bounds.x;
-				}
-				if (maxX < bounds.x) {
-					maxX = bounds.x;
-				}
-				if (minY > bounds.y) {
-					minY = bounds.y;
-				}
-				if (maxY < bounds.y) {
-					maxY = bounds.y;
+				if (bounds != null) {
+					if (minX > bounds.x) {
+						minX = bounds.x;
+					}
+					if (maxX < bounds.x) {
+						maxX = bounds.x;
+					}
+					if (minY > bounds.y) {
+						minY = bounds.y;
+					}
+					if (maxY < bounds.y) {
+						maxY = bounds.y;
+					}
 				}
 			}
 
@@ -179,7 +181,7 @@ class DrawBillboard extends DrawPrimitive  {
 		}
 		pointMapping = mapping.clone();
 		pointMapping.invert();
-		var p:Point = pointMapping.transformPoint(new Point());
+		var p:Point = pointMapping.transformPoint(new Point(x, y));
 		if (p.x < 0) {
 			p.x = 0;
 		}

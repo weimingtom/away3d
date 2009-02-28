@@ -49,13 +49,15 @@ class DiffusePhongShader extends AbstractShader  {
 		notifyMaterialUpdate();
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
 		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[cast __key];
+			_faceMaterialVO = _faceDictionary[untyped __key];
 
-			if (source == _faceMaterialVO.source) {
-				if (!_faceMaterialVO.cleared) {
-					_faceMaterialVO.clear();
+			if (_faceMaterialVO != null) {
+				if (source == _faceMaterialVO.source) {
+					if (!_faceMaterialVO.cleared) {
+						_faceMaterialVO.clear();
+					}
+					_faceMaterialVO.invalidated = true;
 				}
-				_faceMaterialVO.invalidated = true;
 			}
 		}
 
@@ -73,41 +75,43 @@ class DiffusePhongShader extends AbstractShader  {
 		for (__i in 0..._source.lightarray.directionals.length) {
 			directional = _source.lightarray.directionals[__i];
 
-			_diffuseTransform = directional.diffuseTransform[cast _source];
-			_szx = _diffuseTransform.szx;
-			_szy = _diffuseTransform.szy;
-			_szz = _diffuseTransform.szz;
-			_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
-			_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
-			_normal2z = _n2.x * _szx + _n2.y * _szy + _n2.z * _szz;
-			//check to see if the uv triangle lies inside the bitmap area
-			if (_normal0z > 0 || _normal1z > 0 || _normal2z > 0) {
-				eTri0x = eTriConst * Math.acos(_normal0z);
-				//store a clone
-				if (_faceMaterialVO.cleared && !_parentFaceMaterialVO.updated) {
-					_faceMaterialVO.bitmap = _parentFaceMaterialVO.bitmap.clone();
-					_faceMaterialVO.bitmap.lock();
+			if (directional != null) {
+				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_szx = _diffuseTransform.szx;
+				_szy = _diffuseTransform.szy;
+				_szz = _diffuseTransform.szz;
+				_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
+				_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
+				_normal2z = _n2.x * _szx + _n2.y * _szy + _n2.z * _szz;
+				//check to see if the uv triangle lies inside the bitmap area
+				if (_normal0z > 0 || _normal1z > 0 || _normal2z > 0) {
+					eTri0x = eTriConst * Math.acos(_normal0z);
+					//store a clone
+					if (_faceMaterialVO.cleared && !_parentFaceMaterialVO.updated) {
+						_faceMaterialVO.bitmap = _parentFaceMaterialVO.bitmap.clone();
+						_faceMaterialVO.bitmap.lock();
+					}
+					_faceMaterialVO.cleared = false;
+					_faceMaterialVO.updated = true;
+					//calulate mapping
+					_mapping.a = eTriConst * Math.acos(_normal1z) - eTri0x;
+					_mapping.b = 127;
+					_mapping.c = eTriConst * Math.acos(_normal2z) - eTri0x;
+					_mapping.d = 255;
+					_mapping.tx = eTri0x;
+					_mapping.ty = 0;
+					_mapping.invert();
+					_mapping.concat(_faceMaterialVO.invtexturemapping);
+					//draw into faceBitmap
+					_graphics = _s.graphics;
+					_graphics.clear();
+					_graphics.beginBitmapFill(directional.diffuseBitmap, _mapping, false, smooth);
+					_graphics.drawRect(0, 0, _bitmapRect.width, _bitmapRect.height);
+					_graphics.endFill();
+					_faceMaterialVO.bitmap.draw(_s, null, null, blendMode);
+					//_faceMaterialVO.bitmap.draw(directional.diffuseBitmap, _mapping, null, blendMode, _faceMaterialVO.bitmap.rect, smooth);
+					
 				}
-				_faceMaterialVO.cleared = false;
-				_faceMaterialVO.updated = true;
-				//calulate mapping
-				_mapping.a = eTriConst * Math.acos(_normal1z) - eTri0x;
-				_mapping.b = 127;
-				_mapping.c = eTriConst * Math.acos(_normal2z) - eTri0x;
-				_mapping.d = 255;
-				_mapping.tx = eTri0x;
-				_mapping.ty = 0;
-				_mapping.invert();
-				_mapping.concat(_faceMaterialVO.invtexturemapping);
-				//draw into faceBitmap
-				_graphics = _s.graphics;
-				_graphics.clear();
-				_graphics.beginBitmapFill(directional.diffuseBitmap, _mapping, false, smooth);
-				_graphics.drawRect(0, 0, _bitmapRect.width, _bitmapRect.height);
-				_graphics.endFill();
-				_faceMaterialVO.bitmap.draw(_s, null, null, blendMode);
-				//_faceMaterialVO.bitmap.draw(directional.diffuseBitmap, _mapping, null, blendMode, _faceMaterialVO.bitmap.rect, smooth);
-				
 			}
 		}
 
@@ -134,10 +138,12 @@ class DiffusePhongShader extends AbstractShader  {
 		for (__i in 0...source.lightarray.directionals.length) {
 			directional = source.lightarray.directionals[__i];
 
-			if (!directional.diffuseTransform[cast source] || view.scene.updatedObjects[cast source]) {
-				directional.setDiffuseTransform(source);
-				clearFaces(source, view);
-				clearLightingShapeDictionary();
+			if (directional != null) {
+				if (!directional.diffuseTransform[untyped source] || view.scene.updatedObjects[untyped source]) {
+					directional.setDiffuseTransform(source);
+					clearFaces(source, view);
+					clearLightingShapeDictionary();
+				}
 			}
 		}
 
@@ -152,32 +158,34 @@ class DiffusePhongShader extends AbstractShader  {
 		for (__i in 0..._lights.directionals.length) {
 			directional = _lights.directionals[__i];
 
-			if (_lights.numLights > 1) {
-				_shape = getLightingShape(layer, directional);
-				_shape.blendMode = blendMode;
-				_graphics = _shape.graphics;
-			} else {
-				_graphics = layer.graphics;
+			if (directional != null) {
+				if (_lights.numLights > 1) {
+					_shape = getLightingShape(layer, directional);
+					_shape.blendMode = blendMode;
+					_graphics = _shape.graphics;
+				} else {
+					_graphics = layer.graphics;
+				}
+				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_n0 = _source.geometry.getVertexNormal(_face.v0);
+				_n1 = _source.geometry.getVertexNormal(_face.v1);
+				_n2 = _source.geometry.getVertexNormal(_face.v2);
+				_szx = _diffuseTransform.szx;
+				_szy = _diffuseTransform.szy;
+				_szz = _diffuseTransform.szz;
+				_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
+				_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
+				_normal2z = _n2.x * _szx + _n2.y * _szy + _n2.z * _szz;
+				eTri0x = eTriConst * Math.acos(_normal0z);
+				_mapping.a = eTriConst * Math.acos(_normal1z) - eTri0x;
+				_mapping.b = 127;
+				_mapping.c = eTriConst * Math.acos(_normal2z) - eTri0x;
+				_mapping.d = 255;
+				_mapping.tx = eTri0x;
+				_mapping.ty = 0;
+				_mapping.invert();
+				_source.session.renderTriangleBitmap(directional.ambientDiffuseBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
 			}
-			_diffuseTransform = directional.diffuseTransform[cast _source];
-			_n0 = _source.geometry.getVertexNormal(_face.v0);
-			_n1 = _source.geometry.getVertexNormal(_face.v1);
-			_n2 = _source.geometry.getVertexNormal(_face.v2);
-			_szx = _diffuseTransform.szx;
-			_szy = _diffuseTransform.szy;
-			_szz = _diffuseTransform.szz;
-			_normal0z = _n0.x * _szx + _n0.y * _szy + _n0.z * _szz;
-			_normal1z = _n1.x * _szx + _n1.y * _szy + _n1.z * _szz;
-			_normal2z = _n2.x * _szx + _n2.y * _szy + _n2.z * _szz;
-			eTri0x = eTriConst * Math.acos(_normal0z);
-			_mapping.a = eTriConst * Math.acos(_normal1z) - eTri0x;
-			_mapping.b = 127;
-			_mapping.c = eTriConst * Math.acos(_normal2z) - eTri0x;
-			_mapping.d = 255;
-			_mapping.tx = eTri0x;
-			_mapping.ty = 0;
-			_mapping.invert();
-			_source.session.renderTriangleBitmap(directional.ambientDiffuseBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
 		}
 
 		if (debug) {

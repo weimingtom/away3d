@@ -81,26 +81,30 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 		for (__i in 0..._vertices.length) {
 			_vertex = _vertices[__i];
 
-			_s += _vertex.toString() + "\n";
-			_screenVertex = _lens.project(viewTransform, _vertex);
-			if (_base == null) {
-				_base = _screenVertex;
-			} else if (_base.y > _screenVertex.y) {
-				_base = _screenVertex;
-			} else if (_base.y == _screenVertex.y) {
-				if (_base.x > _screenVertex.x) {
+			if (_vertex != null) {
+				_s += _vertex.toString() + "\n";
+				_screenVertex = _lens.project(viewTransform, _vertex);
+				if (_base == null) {
 					_base = _screenVertex;
+				} else if (_base.y > _screenVertex.y) {
+					_base = _screenVertex;
+				} else if (_base.y == _screenVertex.y) {
+					if (_base.x > _screenVertex.x) {
+						_base = _screenVertex;
+					}
 				}
+				_points.push(_screenVertex);
+				_p += _screenVertex.toString() + "\n";
 			}
-			_points.push(_screenVertex);
-			_p += _screenVertex.toString() + "\n";
 		}
 
 		//            throw new Error(s + p);
 		for (__i in 0..._points.length) {
 			_screenVertex = _points[__i];
 
-			_screenVertex.num = (_screenVertex.x - _base.x) / (_screenVertex.y - _base.y);
+			if (_screenVertex != null) {
+				_screenVertex.num = (_screenVertex.x - _base.x) / (_screenVertex.y - _base.y);
+			}
 		}
 
 		_base.num = -Math.POSITIVE_INFINITY;
@@ -135,7 +139,7 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 		
 		_convexBlock = cast(source, ConvexBlock);
 		if (_convexBlock.debug) {
-			consumer.primitive(_drawPrimitiveStore.blockerDictionary[cast source]);
+			consumer.primitive(_drawPrimitiveStore.blockerDictionary[untyped source]);
 		}
 	}
 

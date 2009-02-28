@@ -180,7 +180,7 @@ class Max3DS extends AbstractParser  {
 	private function parse3DS(chunk:Chunk3ds):Void {
 		
 		while (chunk.bytesRead < chunk.length) {
-			var subChunk:Chunk3ds = new Chunk3ds();
+			var subChunk:Chunk3ds = Type.createInstance(Chunk3ds, []);
 			readChunk(subChunk);
 			switch (subChunk.id) {
 				case EDIT3DS :
@@ -206,7 +206,7 @@ class Max3DS extends AbstractParser  {
 	private function parseEdit3DS(chunk:Chunk3ds):Void {
 		
 		while (chunk.bytesRead < chunk.length) {
-			var subChunk:Chunk3ds = new Chunk3ds();
+			var subChunk:Chunk3ds = Type.createInstance(Chunk3ds, []);
 			readChunk(subChunk);
 			switch (subChunk.id) {
 				case MATERIAL :
@@ -216,7 +216,7 @@ class Max3DS extends AbstractParser  {
 					readMeshName(subChunk);
 					_meshData.geometry = geometryLibrary.addGeometry(_meshData.name);
 					_geometryData = _meshData.geometry;
-					_verticesDictionary = new Dictionary();
+					_verticesDictionary = new Dictionary(true);
 					parseMesh(subChunk);
 					meshDataList.push(_meshData);
 					if (centerMeshes) {
@@ -228,25 +228,27 @@ class Max3DS extends AbstractParser  {
 						_geometryData.minZ = Math.POSITIVE_INFINITY;
 						var __keys:Iterator<Dynamic> = untyped (__keys__(_verticesDictionary)).iterator();
 						for (__key in __keys) {
-							_vertex = _verticesDictionary[cast __key];
+							_vertex = _verticesDictionary[untyped __key];
 
-							if (_geometryData.maxX < _vertex._x) {
-								_geometryData.maxX = _vertex._x;
-							}
-							if (_geometryData.minX > _vertex._x) {
-								_geometryData.minX = _vertex._x;
-							}
-							if (_geometryData.maxY < _vertex._y) {
-								_geometryData.maxY = _vertex._y;
-							}
-							if (_geometryData.minY > _vertex._y) {
-								_geometryData.minY = _vertex._y;
-							}
-							if (_geometryData.maxZ < _vertex._z) {
-								_geometryData.maxZ = _vertex._z;
-							}
-							if (_geometryData.minZ > _vertex._z) {
-								_geometryData.minZ = _vertex._z;
+							if (_vertex != null) {
+								if (_geometryData.maxX < _vertex._x) {
+									_geometryData.maxX = _vertex._x;
+								}
+								if (_geometryData.minX > _vertex._x) {
+									_geometryData.minX = _vertex._x;
+								}
+								if (_geometryData.maxY < _vertex._y) {
+									_geometryData.maxY = _vertex._y;
+								}
+								if (_geometryData.minY > _vertex._y) {
+									_geometryData.minY = _vertex._y;
+								}
+								if (_geometryData.maxZ < _vertex._z) {
+									_geometryData.maxZ = _vertex._z;
+								}
+								if (_geometryData.minZ > _vertex._z) {
+									_geometryData.minZ = _vertex._z;
+								}
 							}
 						}
 
@@ -264,7 +266,7 @@ class Max3DS extends AbstractParser  {
 	private function parseMaterial(chunk:Chunk3ds):Void {
 		
 		while (chunk.bytesRead < chunk.length) {
-			var subChunk:Chunk3ds = new Chunk3ds();
+			var subChunk:Chunk3ds = Type.createInstance(Chunk3ds, []);
 			readChunk(subChunk);
 			switch (subChunk.id) {
 				case MAT_NAME :
@@ -300,7 +302,7 @@ class Max3DS extends AbstractParser  {
 		
 		_materialData.materialType = MaterialData.SHADING_MATERIAL;
 		var color:Int;
-		var chunk:Chunk3ds = new Chunk3ds();
+		var chunk:Chunk3ds = Type.createInstance(Chunk3ds, []);
 		readChunk(chunk);
 		switch (chunk.id) {
 			case COLOR_RGB :
@@ -353,7 +355,7 @@ class Max3DS extends AbstractParser  {
 	private function parseMesh(chunk:Chunk3ds):Void {
 		
 		while (chunk.bytesRead < chunk.length) {
-			var subChunk:Chunk3ds = new Chunk3ds();
+			var subChunk:Chunk3ds = Type.createInstance(Chunk3ds, []);
 			readChunk(subChunk);
 			switch (subChunk.id) {
 				case MESH_OBJECT :
@@ -390,7 +392,7 @@ class Max3DS extends AbstractParser  {
 		chunk.bytesRead += 2;
 		var i:Int = 0;
 		while (i < numVerts) {
-			_meshData.geometry.vertices.push(new Vertex());
+			_meshData.geometry.vertices.push(new Vertex(-_data.readFloat(), _data.readFloat(), _data.readFloat()));
 			chunk.bytesRead += 12;
 			
 			// update loop variables
@@ -409,9 +411,9 @@ class Max3DS extends AbstractParser  {
 			_faceData.v0 = _data.readUnsignedShort();
 			_faceData.v1 = _data.readUnsignedShort();
 			_faceData.v2 = _data.readUnsignedShort();
-			_verticesDictionary[cast _faceData.v0] = _geometryData.vertices[_faceData.v0];
-			_verticesDictionary[cast _faceData.v1] = _geometryData.vertices[_faceData.v1];
-			_verticesDictionary[cast _faceData.v2] = _geometryData.vertices[_faceData.v2];
+			_verticesDictionary[untyped _faceData.v0] = _geometryData.vertices[_faceData.v0];
+			_verticesDictionary[untyped _faceData.v1] = _geometryData.vertices[_faceData.v1];
+			_verticesDictionary[untyped _faceData.v2] = _geometryData.vertices[_faceData.v2];
 			_faceData.visible = ((cast(_data.readUnsignedShort(), Bool)) != null);
 			chunk.bytesRead += 8;
 			_geometryData.faces.push(_faceData);
@@ -453,7 +455,7 @@ class Max3DS extends AbstractParser  {
 		chunk.bytesRead += 2;
 		var i:Int = 0;
 		while (i < numUVs) {
-			_meshData.geometry.uvs.push(new UV());
+			_meshData.geometry.uvs.push(new UV(_data.readFloat(), _data.readFloat()));
 			chunk.bytesRead += 8;
 			
 			// update loop variables
@@ -504,51 +506,59 @@ class Max3DS extends AbstractParser  {
 		for (__i in 0...meshDataList.length) {
 			_meshData = meshDataList[__i];
 
-			var mesh:Mesh = new Mesh();
-			_geometryData = _meshData.geometry;
-			var geometry:Geometry = _geometryData.geometry;
-			if (geometry == null) {
-				geometry = _geometryData.geometry = new Geometry();
-				mesh.geometry = geometry;
-				//set materialdata for each face
-				for (__i in 0..._geometryData.materials.length) {
-					_meshMaterialData = _geometryData.materials[__i];
+			if (_meshData != null) {
+				var mesh:Mesh = new Mesh({name:_meshData.name});
+				_geometryData = _meshData.geometry;
+				var geometry:Geometry = _geometryData.geometry;
+				if (geometry == null) {
+					geometry = _geometryData.geometry = new Geometry();
+					mesh.geometry = geometry;
+					//set materialdata for each face
+					for (__i in 0..._geometryData.materials.length) {
+						_meshMaterialData = _geometryData.materials[__i];
 
-					for (__i in 0..._meshMaterialData.faceList.length) {
-						_faceListIndex = _meshMaterialData.faceList[__i];
+						if (_meshMaterialData != null) {
+							for (__i in 0..._meshMaterialData.faceList.length) {
+								_faceListIndex = _meshMaterialData.faceList[__i];
 
-						_faceData = cast(_geometryData.faces[_faceListIndex], FaceData);
-						_faceData.materialData = materialLibrary[cast _meshMaterialData.symbol];
+								if (_faceListIndex != null) {
+									_faceData = cast(_geometryData.faces[_faceListIndex], FaceData);
+									_faceData.materialData = materialLibrary[untyped _meshMaterialData.symbol];
+								}
+							}
+
+						}
 					}
 
+					for (__i in 0..._geometryData.faces.length) {
+						_faceData = _geometryData.faces[__i];
+
+						if (_faceData != null) {
+							if ((_faceData.materialData != null)) {
+								_faceMaterial = cast(_faceData.materialData.material, ITriangleMaterial);
+							} else {
+								_faceMaterial = null;
+							}
+							_face = new Face(_geometryData.vertices[_faceData.v0], _geometryData.vertices[_faceData.v1], _geometryData.vertices[_faceData.v2], _faceMaterial, _geometryData.uvs[_faceData.v0], _geometryData.uvs[_faceData.v1], _geometryData.uvs[_faceData.v2]);
+							geometry.addFace(_face);
+							if ((_faceData.materialData != null)) {
+								_faceData.materialData.elements.push(_face);
+							}
+						}
+					}
+
+				} else {
+					mesh.geometry = geometry;
 				}
-
-				for (__i in 0..._geometryData.faces.length) {
-					_faceData = _geometryData.faces[__i];
-
-					if ((_faceData.materialData != null)) {
-						_faceMaterial = cast(_faceData.materialData.material, ITriangleMaterial);
-					} else {
-						_faceMaterial = null;
-					}
-					_face = new Face();
-					geometry.addFace(_face);
-					if ((_faceData.materialData != null)) {
-						_faceData.materialData.elements.push(_face);
-					}
+				//center vertex points in mesh for better bounding radius calulations
+				if (centerMeshes) {
+					mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX) / 2, _moveVector.y = (_geometryData.maxY + _geometryData.minY) / 2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ) / 2);
+					_moveVector.transform(_moveVector, _meshData.transform);
+					mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
 				}
-
-			} else {
-				mesh.geometry = geometry;
+				mesh.type = ".3ds";
+				(cast(container, ObjectContainer3D)).addChild(mesh);
 			}
-			//center vertex points in mesh for better bounding radius calulations
-			if (centerMeshes) {
-				mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX) / 2, _moveVector.y = (_geometryData.maxY + _geometryData.minY) / 2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ) / 2);
-				_moveVector.transform(_moveVector, _meshData.transform);
-				mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
-			}
-			mesh.type = ".3ds";
-			(cast(container, ObjectContainer3D)).addChild(mesh);
 		}
 
 	}
@@ -557,24 +567,26 @@ class Max3DS extends AbstractParser  {
 		
 		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
 		for (__key in __keys) {
-			_materialData = materialLibrary[cast __key];
+			_materialData = materialLibrary[untyped __key];
 
-			if ((material != null)) {
-				_materialData.material = material;
-			}
-			//overridden by materials passed in contructor
-			if ((_materialData.material != null)) {
-				continue;
-			}
-			switch (_materialData.materialType) {
-				case MaterialData.TEXTURE_MATERIAL :
-					materialLibrary.loadRequired = true;
-				case MaterialData.SHADING_MATERIAL :
-					_materialData.material = new ShadingColorMaterial();
-				case MaterialData.WIREFRAME_MATERIAL :
-					_materialData.material = new WireColorMaterial();
-				
+			if (_materialData != null) {
+				if ((material != null)) {
+					_materialData.material = material;
+				}
+				//overridden by materials passed in contructor
+				if ((_materialData.material != null)) {
+					continue;
+				}
+				switch (_materialData.materialType) {
+					case MaterialData.TEXTURE_MATERIAL :
+						materialLibrary.loadRequired = true;
+					case MaterialData.SHADING_MATERIAL :
+						_materialData.material = new ShadingColorMaterial({ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor});
+					case MaterialData.WIREFRAME_MATERIAL :
+						_materialData.material = new WireColorMaterial();
+					
 
+				}
 			}
 		}
 
@@ -625,7 +637,7 @@ class Max3DS extends AbstractParser  {
 			
 		}
 
-		container = new ObjectContainer3D();
+		container = new ObjectContainer3D(ini);
 		container.name = "max3ds";
 		materialLibrary = container.materialLibrary = new MaterialLibrary();
 		animationLibrary = container.animationLibrary = new AnimationLibrary();
@@ -633,7 +645,7 @@ class Max3DS extends AbstractParser  {
 		materialLibrary.autoLoadTextures = autoLoadTextures;
 		materialLibrary.texturePath = texturePath;
 		//first chunk is always the primary, so we simply read it and parse it
-		var chunk:Chunk3ds = new Chunk3ds();
+		var chunk:Chunk3ds = Type.createInstance(Chunk3ds, []);
 		readChunk(chunk);
 		parse3DS(chunk);
 		//build materials

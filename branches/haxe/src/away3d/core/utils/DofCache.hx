@@ -30,12 +30,14 @@ class DofCache  {
 		usedof = enabled;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(caches)).iterator();
 		for (__key in __keys) {
-			var cache:DofCache = caches[cast __key];
+			var cache:DofCache = caches[untyped __key];
 
-			if (!enabled) {
-				cache = new DofCache();
-			} else {
-				cache = new DofCache();
+			if (cache != null) {
+				if (!enabled) {
+					cache = new DofCache(1, cache.bitmaps[0]);
+				} else {
+					cache = new DofCache(doflevels, cache.bitmaps[0]);
+				}
 			}
 		}
 
@@ -43,14 +45,14 @@ class DofCache  {
 
 	static public function getDofCache(bitmap:BitmapData):DofCache {
 		
-		if (caches[cast bitmap] == null) {
+		if (caches[untyped bitmap] == null) {
 			if (!usedof) {
-				caches[cast bitmap] = new DofCache();
+				caches[untyped bitmap] = new DofCache(1, bitmap);
 			} else {
-				caches[cast bitmap] = new DofCache();
+				caches[untyped bitmap] = new DofCache(doflevels, bitmap);
 			}
 		}
-		return caches[cast bitmap];
+		return caches[untyped bitmap];
 	}
 
 	public function new(levels:Float, texture:BitmapData) {
@@ -58,16 +60,16 @@ class DofCache  {
 		
 		this.levels = levels;
 		var mat:Matrix = new Matrix();
-		var pnt:Point = new Point();
-		bitmaps = new Array<Dynamic>();
+		var pnt:Point = new Point(0, 0);
+		bitmaps = new Array(levels);
 		var j:Float = 0;
 		while (j < levels) {
-			var tfilter:BlurFilter = new BlurFilter();
+			var tfilter:BlurFilter = new BlurFilter(2 + maxblur * j / levels, 2 + maxblur * j / levels, 4);
 			mat.identity();
 			var t:Int = Std.int((texture.width * (1 + j / (levels / 2))));
 			mat.translate(-texture.width / 2, -texture.height / 2);
 			mat.translate(t / 2, t / 2);
-			var tbmp:BitmapData = new BitmapData();
+			var tbmp:BitmapData = new BitmapData(t, t, true, 0);
 			tbmp.draw(texture, mat);
 			tbmp.applyFilter(tbmp, tbmp.rect, pnt, tfilter);
 			bitmaps[j] = tbmp;

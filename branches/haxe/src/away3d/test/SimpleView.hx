@@ -52,7 +52,7 @@ class SimpleView extends Sprite  {
 		SCALINGS[128] = [1, -1, -1];
 		
 		this.task = task;
-		view = new View3D();
+		view = new View3D({x:flash.Lib.current.stage.stageWidth * .5, y:flash.Lib.current.stage.stageHeight * .5, camera:new Camera3D({y:2000 * Math.sin(Math.PI / 6), z:2000}), renderer:Renderer.BASIC});
 		target = new Object3D();
 		view.scene.addChild(target);
 		view.camera.lookAt(target.position);

@@ -53,7 +53,7 @@ class ParserEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new ParserEvent();
+		return new ParserEvent(type, parser, result);
 	}
 
 }

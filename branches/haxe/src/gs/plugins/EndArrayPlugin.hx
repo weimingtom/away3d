@@ -59,7 +59,7 @@ class EndArrayPlugin extends TweenPlugin  {
 		var i:Int = $end.length - 1;
 		while (i > -1) {
 			if ($start[i] != $end[i] && $start[i] != null) {
-				_info[_info.length] = new ArrayTweenInfo();
+				_info[_info.length] = new ArrayTweenInfo(i, _a[i], $end[i] - _a[i]);
 			}
 			
 			// update loop variables

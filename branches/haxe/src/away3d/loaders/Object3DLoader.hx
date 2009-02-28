@@ -47,7 +47,7 @@ class Object3DLoader extends ObjectContainer3D  {
 	public var handle(getHandle, null) : Object3D;
 	
 	private var _broadcaster:Sprite;
-	private var Parser:Class<Dynamic>;
+	private var Parser:Class;
 	public var parser:AbstractParser;
 	private var _parseStart:Int;
 	private var _parseTime:Int;
@@ -103,10 +103,10 @@ class Object3DLoader extends ObjectContainer3D  {
 	
 
 	/** @private */
-	public static function loadGeometry(url:String, Parser:Class<Dynamic>, binary:Bool, init:Dynamic):Object3DLoader {
+	public static function loadGeometry(url:String, Parser:Class, binary:Bool, init:Dynamic):Object3DLoader {
 		
 		var ini:Init = Init.parse(init);
-		var loaderClass:Class<Dynamic> = cast(ini.getObject("loader"), Class<Dynamic>);
+		var loaderClass:Class = cast(ini.getObject("loader"), Class);
 		if (loaderClass == null)  {
 			loaderClass = CubeLoader;
 		};
@@ -116,10 +116,10 @@ class Object3DLoader extends ObjectContainer3D  {
 	}
 
 	/** @private */
-	public static function parseGeometry(data:Dynamic, Parser:Class<Dynamic>, init:Dynamic):Object3DLoader {
+	public static function parseGeometry(data:Dynamic, Parser:Class, init:Dynamic):Object3DLoader {
 		
 		var ini:Init = Init.parse(init);
-		var loaderClass:Class<Dynamic> = cast(ini.getObject("loader"), Class<Dynamic>);
+		var loaderClass:Class = cast(ini.getObject("loader"), Class);
 		if (loaderClass == null)  {
 			loaderClass = CubeLoader;
 		};
@@ -134,7 +134,9 @@ class Object3DLoader extends ObjectContainer3D  {
 			for (__i in 0...(cast(object, ObjectContainer3D)).children.length) {
 				_child = (cast(object, ObjectContainer3D)).children[__i];
 
-				registerURL(_child);
+				if (_child != null) {
+					registerURL(_child);
+				}
 			}
 
 		} else if (Std.is(object, Mesh)) {
@@ -142,7 +144,7 @@ class Object3DLoader extends ObjectContainer3D  {
 		}
 	}
 
-	private function startLoadingGeometry(url:String, Parser:Class<Dynamic>, binary:Bool):Void {
+	private function startLoadingGeometry(url:String, Parser:Class, binary:Bool):Void {
 		
 		mode = LOADING_GEOMETRY;
 		this.Parser = Parser;
@@ -152,10 +154,10 @@ class Object3DLoader extends ObjectContainer3D  {
 		_urlloader.addEventListener(IOErrorEvent.IO_ERROR, onGeometryError);
 		_urlloader.addEventListener(ProgressEvent.PROGRESS, onGeometryProgress);
 		_urlloader.addEventListener(Event.COMPLETE, onGeometryComplete);
-		_urlloader.load(new URLRequest());
+		_urlloader.load(new URLRequest(url));
 	}
 
-	private function startParsingGeometry(data:Dynamic, Parser:Class<Dynamic>):Void {
+	private function startParsingGeometry(data:Dynamic, Parser:Class):Void {
 		
 		_broadcaster.addEventListener(Event.ENTER_FRAME, update);
 		mode = PARSING_GEOMETRY;
@@ -174,12 +176,14 @@ class Object3DLoader extends ObjectContainer3D  {
 		_loadQueue = new TextureLoadQueue();
 		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
 		for (__key in __keys) {
-			_materialData = materialLibrary[cast __key];
+			_materialData = materialLibrary[untyped __key];
 
-			if (_materialData.materialType == MaterialData.TEXTURE_MATERIAL && _materialData.material == null) {
-				var req:URLRequest = new URLRequest();
-				var loader:TextureLoader = new TextureLoader();
-				_loadQueue.addItem(loader, req);
+			if (_materialData != null) {
+				if (_materialData.materialType == MaterialData.TEXTURE_MATERIAL && _materialData.material == null) {
+					var req:URLRequest = new URLRequest(materialLibrary.texturePath + _materialData.textureFileName);
+					var loader:TextureLoader = new TextureLoader();
+					_loadQueue.addItem(loader, req);
+				}
 			}
 		}
 
@@ -219,7 +223,7 @@ class Object3DLoader extends ObjectContainer3D  {
 		registerURL(_result);
 		//dispatch event
 		if (_loadsuccess == null) {
-			_loadsuccess = new LoaderEvent();
+			_loadsuccess = new LoaderEvent(LoaderEvent.LOAD_SUCCESS, this);
 		}
 		dispatchEvent(_loadsuccess);
 	}
@@ -229,7 +233,7 @@ class Object3DLoader extends ObjectContainer3D  {
 		mode = ERROR;
 		//dispatch event
 		if (_loaderror == null) {
-			_loaderror = new LoaderEvent();
+			_loaderror = new LoaderEvent(LoaderEvent.LOAD_ERROR, this);
 		}
 		dispatchEvent(_loaderror);
 	}

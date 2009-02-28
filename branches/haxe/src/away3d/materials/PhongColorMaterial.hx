@@ -5,6 +5,7 @@ import away3d.materials.shaders.SpecularPhongShader;
 import away3d.materials.shaders.AbstractShader;
 import away3d.materials.shaders.AmbientShader;
 import away3d.core.utils.Cast;
+import flash.display.BlendMode;
 import flash.geom.ColorTransform;
 import away3d.core.utils.Init;
 import away3d.materials.shaders.DiffusePhongShader;
@@ -113,9 +114,9 @@ class PhongColorMaterial extends CompositeMaterial  {
 		_specular = ini.getNumber("specular", 0.7, {min:0, max:1});
 		//create new materials
 		_phongShader = new CompositeMaterial();
-		_phongShader.addMaterial(_ambientShader = new AmbientShader());
-		_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader());
-		_specularPhongShader = new SpecularPhongShader();
+		_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
+		_phongShader.addMaterial(_diffusePhongShader = new DiffusePhongShader({blendMode:BlendMode.ADD}));
+		_specularPhongShader = new SpecularPhongShader({shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 		//add to materials array
 		if ((_specular > 0)) {
 			addMaterial(_phongShader);

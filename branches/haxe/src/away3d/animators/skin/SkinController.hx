@@ -21,7 +21,7 @@ class SkinController  {
 		if (joint == null) {
 			return;
 		}
-		if (joint.scene.updatedObjects[cast joint] == null) {
+		if (joint.scene.updatedObjects[untyped joint] == null) {
 			updated = false;
 			return;
 		} else {

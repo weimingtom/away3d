@@ -111,7 +111,7 @@ class SphericalLens extends AbstractLens, implements ILens {
 		_c2 = (_wx2 + _wy2);
 		_sz = (_c != 0 && _wz != -_c) ? _c * Math.sqrt(0.5 + 0.5 * _wz / _c) : 0;
 		if (Math.isNaN(_sz)) {
-			throw new Error();
+			throw new Error("isNaN(sz)");
 		}
 		if (_sz < _near && Std.is(_clipping, RectangleClipping)) {
 			_screenVertex.visible = false;

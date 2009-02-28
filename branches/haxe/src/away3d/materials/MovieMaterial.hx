@@ -152,7 +152,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 		_movie = movie;
 		_lockW = ini.getNumber("lockW", movie.width);
 		_lockH = ini.getNumber("lockH", movie.height);
-		_bitmap = new BitmapData();
+		_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
 		super(_bitmap, ini);
 	}
 
@@ -203,7 +203,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 			} else {
 				_bMode = movie.blendMode;
 			}
-			_renderBitmap.draw(movie, new Matrix(), _colTransform, _bMode, rectsource);
+			_renderBitmap.draw(movie, new Matrix(movie.scaleX, 0, 0, movie.scaleY), _colTransform, _bMode, rectsource);
 			if (!rendered) {
 				rendered = true;
 			}
@@ -237,7 +237,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 		if (_renderBitmap != null) {
 			_bitmap.dispose();
 			_renderBitmap.dispose();
-			_bitmap = new BitmapData();
+			_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
 			_renderBitmap = _bitmap.clone();
 			update();
 		}
@@ -260,7 +260,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 		if (_renderBitmap != null) {
 			_bitmap.dispose();
 			_renderBitmap.dispose();
-			_bitmap = new BitmapData();
+			_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
 			_renderBitmap = _bitmap.clone();
 			update();
 		}

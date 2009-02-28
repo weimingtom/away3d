@@ -76,7 +76,7 @@ class TransformAroundPointVars extends SubVars  {
 		if (Std.is($vars, TransformAroundPointVars)) {
 			return cast($vars, TransformAroundPointVars);
 		}
-		return new TransformAroundPointVars();
+		return new TransformAroundPointVars($vars.point, $vars.scaleX, $vars.scaleY, $vars.rotation, $vars.width, $vars.height, $vars.shortRotation, $vars.x, $vars.y);
 	}
 
 	//---- GETTERS / SETTERS ------------------------------------------------------------------------------

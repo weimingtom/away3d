@@ -11,7 +11,7 @@ class FilterPlugin extends TweenPlugin  {
 	//If the API/Framework for plugins changes in the future, this number helps determine compatibility
 	public static inline var API:Float = 1.0;
 	private var _target:Dynamic;
-	private var _type:Class<Dynamic>;
+	private var _type:Class;
 	private var _filter:BitmapFilter;
 	private var _index:Int;
 	private var _remove:Bool;
@@ -83,7 +83,7 @@ class FilterPlugin extends TweenPlugin  {
 				if (p == "color" || p == "highlightColor" || p == "shadowColor") {
 					colorTween = new HexColorsPlugin();
 					colorTween.initColor(_filter, p, Reflect.field(_filter, p), Reflect.field(props, p));
-					_tweens[_tweens.length] = new TweenInfo();
+					_tweens[_tweens.length] = new TweenInfo(colorTween, "changeFactor", 0, 1, p, false);
 				} else if (p == "quality" || p == "inner" || p == "knockout" || p == "hideObject") {
 					Reflect.setField(_filter, p, Reflect.field(props, p));
 				} else {

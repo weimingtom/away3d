@@ -95,7 +95,7 @@ class PrimitiveVolumeBlockNode  {
 		
 		var index:Int = list.indexOf(pri);
 		if (index == -1) {
-			throw new Error();
+			throw new Error("Can't remove");
 		}
 		list.splice(index, 1);
 	}

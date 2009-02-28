@@ -71,7 +71,7 @@ class AS3Exporter  {
 		while (i < aTypes.length) {
 			if (Std.is(object3d, aTypes)) {
 				type = ("" + aTypes[i]);
-				type = substr(7, type.length - 1 - 7);
+				type = type.substr(7, type.length - 1 - 7);
 				if (i > 9) {
 					var linemat:WireframeMaterial = (cast((cast(object3d, Mesh)).material, WireframeMaterial));
 					var wirematinsert:String = " material: new WireframeMaterial(0x" + linemat.color.toString(16).toUpperCase() + ", {width:" + linemat.width + "*_scale})";
@@ -202,8 +202,8 @@ class AS3Exporter  {
 				i = 0;
 				while (i < aFaces.length) {
 					face = aFaces[i];
-					geonums[cast face] = geoIndex;
-					facenums[cast face] = i;
+					geonums[untyped face] = geoIndex;
+					facenums[untyped face] = i;
 					j = 0;
 					while (j < 3) {
 						tmp.x = Reflect.field(face, "v" + j).x;
@@ -257,11 +257,11 @@ class AS3Exporter  {
 					i++;
 				}
 
-				chunk = (substr(start, i - start)).toString(16);
+				chunk = (str.substr(start, i - start)).toString(16);
 				encstr += chunk;
 				i--;
 			} else {
-				encstr += substr(i, i + 1 - i);
+				encstr += str.substr(i, i + 1 - i);
 			}
 			
 			// update loop variables
@@ -289,7 +289,7 @@ class AS3Exporter  {
 		}
 
 		tmpnames.sort();
-		var myPattern:EReg = new EReg();
+		var myPattern:EReg = new RegExp(" ", "g");
 		i = 0;
 		while (i < tmpnames.length) {
 			avp = [];
@@ -538,26 +538,30 @@ class AS3Exporter  {
 					materialString += "\t\t\tmaterialLibrary = new MaterialLibrary();\n";
 					var __keys:Iterator<Dynamic> = untyped (__keys__(obj.materialLibrary)).iterator();
 					for (__key in __keys) {
-						var materialData:MaterialData = obj.materialLibrary[cast __key];
+						var materialData:MaterialData = obj.materialLibrary[untyped __key];
 
-						materialString += "\t\t\tvar mData_" + mcount + ":MaterialData = materialLibrary.addMaterial(\"" + materialData.name + "\");\n";
-						materialString += "\t\t\tmData_" + mcount + ".materialType = \"" + materialData.materialType + "\";\n";
-						materialString += "\t\t\tmData_" + mcount + ".ambientColor = " + materialData.ambientColor + ";\n";
-						materialString += "\t\t\tmData_" + mcount + ".diffuseColor = " + materialData.diffuseColor + ";\n";
-						materialString += "\t\t\tmData_" + mcount + ".shininess = " + materialData.shininess + ";\n";
-						materialString += "\t\t\tmData_" + mcount + ".specularColor = " + materialData.specularColor + ";\n";
-						materialString += "\t\t\tmData_" + mcount + ".textureFileName = \"" + materialData.textureFileName + "\";\n";
-						materialString += "\t\t\tvar mElements_" + mcount + ":Array = mData_" + mcount + ".elements;\n";
-						for (__i in 0...materialData.elements.length) {
-							var element:Element = materialData.elements[__i];
+						if (materialData != null) {
+							materialString += "\t\t\tvar mData_" + mcount + ":MaterialData = materialLibrary.addMaterial(\"" + materialData.name + "\");\n";
+							materialString += "\t\t\tmData_" + mcount + ".materialType = \"" + materialData.materialType + "\";\n";
+							materialString += "\t\t\tmData_" + mcount + ".ambientColor = " + materialData.ambientColor + ";\n";
+							materialString += "\t\t\tmData_" + mcount + ".diffuseColor = " + materialData.diffuseColor + ";\n";
+							materialString += "\t\t\tmData_" + mcount + ".shininess = " + materialData.shininess + ";\n";
+							materialString += "\t\t\tmData_" + mcount + ".specularColor = " + materialData.specularColor + ";\n";
+							materialString += "\t\t\tmData_" + mcount + ".textureFileName = \"" + materialData.textureFileName + "\";\n";
+							materialString += "\t\t\tvar mElements_" + mcount + ":Array = mData_" + mcount + ".elements;\n";
+							for (__i in 0...materialData.elements.length) {
+								var element:Element = materialData.elements[__i];
 
-							if (geonums[cast element] != null && facenums[cast element] != null) {
-								materialString += "\t\t\tmElements_" + mcount + ".push(geos[" + geonums[cast element] + "].geometry.faces[" + facenums[cast element] + "]);\n";
+								if (element != null) {
+									if (geonums[untyped element] != null && facenums[untyped element] != null) {
+										materialString += "\t\t\tmElements_" + mcount + ".push(geos[" + geonums[untyped element] + "].geometry.faces[" + facenums[untyped element] + "]);\n";
+									}
+								}
 							}
-						}
 
-						materialString += "\t\t\t\n";
-						mcount++;
+							materialString += "\t\t\t\n";
+							mcount++;
+						}
 					}
 
 				}
@@ -576,13 +580,13 @@ class AS3Exporter  {
 		this.mcount = 0;
 		this.objcount = 0;
 		this.geocount = 0;
-		this.geonums = new Dictionary();
-		this.facenums = new Dictionary();
+		this.geonums = new Dictionary(true);
+		this.facenums = new Dictionary(true);
 		this.indV = 0;
 		this.indVt = 0;
 		this.indF = 0;
 		this.geos = [];
-		this.p1 = new EReg();
+		this.p1 = new RegExp("/0.0000/", "g");
 		this.aTypes = [Plane, Sphere, Cube, Cone, Cylinder, RegularPolygon, Torus, GeodesicSphere, Skybox, Skybox6, LineSegment, GridPlane, WireTorus, WireCircle, WireCone, WireCube, WireCylinder, WirePlane, WireSphere];
 		
 		

@@ -29,10 +29,10 @@ class WirePlane extends AbstractWirePrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array<Dynamic>();
+		grid = new Array(segmentsW + 1);
 		i = 0;
 		while (i <= segmentsW) {
-			grid[i] = new Array<Dynamic>();
+			grid[i] = new Array(segmentsH + 1);
 			j = 0;
 			while (j <= segmentsH) {
 				if (yUp) {

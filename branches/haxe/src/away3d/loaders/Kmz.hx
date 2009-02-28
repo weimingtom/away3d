@@ -45,14 +45,14 @@ class Kmz extends AbstractParser  {
 
 	private function parseKmz(datastream:ByteArray, init:Dynamic):Void {
 		
-		kmzFile = new ZipFile();
+		kmzFile = new ZipFile(datastream);
 		var totalMaterials:Int = kmzFile.entries.join("@").split(".jpg").length;
 		var i:Int = 0;
 		while (i < kmzFile.entries.length) {
 			var entry:ZipEntry = kmzFile.entries[i];
 			var data:ByteArray = kmzFile.getInput(entry);
 			if (entry.name.indexOf(".dae") > -1 && entry.name.indexOf("models/") > -1) {
-				collada = new Xml();
+				collada = new XML(data.toString());
 				container = Collada.parse(collada, init);
 				if (Std.is(container, Object3DLoader)) {
 					(cast(container, Object3DLoader)).parser.container.materialLibrary.loadRequired = false;
@@ -102,17 +102,21 @@ class Kmz extends AbstractParser  {
 		//pass material instance to correct materialData
 		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
 		for (__key in __keys) {
-			_materialData = materialLibrary[cast __key];
+			_materialData = materialLibrary[untyped __key];
 
-			if (_materialData.textureFileName == loader.name) {
-				_materialData.textureBitmap = Bitmap(loader.content).bitmapData;
-				_materialData.material = new BitmapMaterial();
-				for (__i in 0..._materialData.elements.length) {
-					_face = _materialData.elements[__i];
+			if (_materialData != null) {
+				if (_materialData.textureFileName == loader.name) {
+					_materialData.textureBitmap = Bitmap(loader.content).bitmapData;
+					_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
+					for (__i in 0..._materialData.elements.length) {
+						_face = _materialData.elements[__i];
 
-					_face.material = cast(_materialData.material, ITriangleMaterial);
+						if (_face != null) {
+							_face.material = cast(_materialData.material, ITriangleMaterial);
+						}
+					}
+
 				}
-
 			}
 		}
 

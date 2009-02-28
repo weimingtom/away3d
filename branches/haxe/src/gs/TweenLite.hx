@@ -28,12 +28,12 @@ class TweenLite  {
 	public static var overwriteManager:Dynamic;
 	public static var currentTime:Int;
 	//Holds references to all our instances.
-	public static var masterList:Dictionary = new Dictionary();
+	public static var masterList:Dictionary = new Dictionary(false);
 	//A reference to the sprite that we use to drive all our ENTER_FRAME events.
 	public static var timingSprite:Sprite = new Sprite();
 	//TweenLite class initted
 	private static var _tlInitted:Bool;
-	private static var _timer:Timer = new Timer();
+	private static var _timer:Timer = new Timer(2000);
 	private static var _reservedProps:Dynamic = {ease:1, delay:1, overwrite:1, onComplete:1, onCompleteParams:1, runBackwards:1, startAt:1, onUpdate:1, onUpdateParams:1, roundProps:1, onStart:1, onStartParams:1, persist:1, renderOnStart:1, proxiedEase:1, easeParams:1, yoyo:1, loop:1, onCompleteListener:1, onUpdateListener:1, onStartListener:1, orientToBezier:1};
 	//Duration (in seconds)
 	public var duration:Float;
@@ -124,9 +124,9 @@ class TweenLite  {
 		this.startTime = this.initTime + (this.delay * 1000);
 		var mode:Int = ($vars.overwrite == undefined || (!overwriteManager.enabled && $vars.overwrite > 1)) ? overwriteManager.mode : Std.int($vars.overwrite);
 		if (!($target in masterList) || mode == 1) {
-			masterList[cast $target] = [this];
+			masterList[untyped $target] = [this];
 		} else {
-			masterList[cast $target].push(this);
+			masterList[untyped $target].push(this);
 		}
 		if ((this.vars.runBackwards == true && this.vars.renderOnStart != true) || this.active) {
 			initTweenVals();
@@ -152,13 +152,13 @@ class TweenLite  {
 			} else if (p in plugins) {
 				plugin = Type.createInstance(Reflect.field(plugins, p), []);
 				if (plugin.onInitTween(this.target, this.exposedVars[p], this) == false) {
-					this.tweens[this.tweens.length] = new TweenInfo();
+					this.tweens[this.tweens.length] = new TweenInfo(this.target, p, this.target[p], (typeof(this.exposedVars[p]) == "number") ? this.exposedVars[p] - this.target[p] : (this.exposedVars[p]), p, false);
 				} else {
-					this.tweens[this.tweens.length] = new TweenInfo();
+					this.tweens[this.tweens.length] = new TweenInfo(plugin, "changeFactor", 0, 1, (plugin.overwriteProps.length == 1) ? plugin.overwriteProps[0] : "_MULTIPLE_", true);
 					_hasPlugins = true;
 				}
 			} else {
-				this.tweens[this.tweens.length] = new TweenInfo();
+				this.tweens[this.tweens.length] = new TweenInfo(this.target, p, this.target[p], (typeof(this.exposedVars[p]) == "number") ? this.exposedVars[p] - this.target[p] : (this.exposedVars[p]), p, false);
 			}
 			
 		}
@@ -180,7 +180,7 @@ class TweenLite  {
 			_hasUpdate = true;
 		}
 		if (TweenLite.overwriteManager.enabled && this.target in masterList) {
-			overwriteManager.manageOverwrites(this, masterList[cast this.target]);
+			overwriteManager.manageOverwrites(this, masterList[untyped this.target]);
 		}
 		this.initted = true;
 	}
@@ -279,18 +279,18 @@ class TweenLite  {
 	//---- STATIC FUNCTIONS -------------------------------------------------------------------------
 	public static function to($target:Dynamic, $duration:Float, $vars:Dynamic):TweenLite {
 		
-		return new TweenLite();
+		return new TweenLite($target, $duration, $vars);
 	}
 
 	public static function from($target:Dynamic, $duration:Float, $vars:Dynamic):TweenLite {
 		
 		$vars.runBackwards = true;
-		return new TweenLite();
+		return new TweenLite($target, $duration, $vars);
 	}
 
 	public static function delayedCall($delay:Float, $onComplete:Dynamic, ?$onCompleteParams:Array<Dynamic>=null):TweenLite {
 		
-		return new TweenLite();
+		return new TweenLite($onComplete, 0, {delay:$delay, onComplete:$onComplete, onCompleteParams:$onCompleteParams, overwrite:0});
 	}
 
 	public static function updateAll(?$e:Event=null):Void {
@@ -302,24 +302,26 @@ class TweenLite  {
 		var tween:TweenLite;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(ml)).iterator();
 		for (__key in __keys) {
-			a = ml[cast __key];
+			a = ml[untyped __key];
 
-			i = a.length - 1;
-			while (i > -1) {
-				tween = a[i];
-				if (tween.active) {
-					tween.render(time);
-				} else if (tween.gc) {
-					a.splice(i, 1);
-				} else if (time >= tween.startTime) {
-					tween.activate();
-					tween.render(time);
+			if (a != null) {
+				i = a.length - 1;
+				while (i > -1) {
+					tween = a[i];
+					if (tween.active) {
+						tween.render(time);
+					} else if (tween.gc) {
+						a.splice(i, 1);
+					} else if (time >= tween.startTime) {
+						tween.activate();
+						tween.render(time);
+					}
+					
+					// update loop variables
+					i--;
 				}
-				
-				// update loop variables
-				i--;
-			}
 
+			}
 		}
 
 	}
@@ -337,7 +339,7 @@ class TweenLite  {
 	public static function killTweensOf(?$target:Dynamic=null, ?$complete:Bool=false):Void {
 		
 		if ($target != null && $target in masterList) {
-			var a:Array<Dynamic> = masterList[cast $target];
+			var a:Array<Dynamic> = masterList[untyped $target];
 			var i:Int;
 			var tween:TweenLite;
 			i = a.length - 1;
@@ -353,7 +355,7 @@ class TweenLite  {
 				i--;
 			}
 
-			masterList[cast $target] = null;
+			masterList[untyped $target] = null;
 		}
 	}
 
@@ -363,8 +365,8 @@ class TweenLite  {
 		var tgt:Dynamic;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(ml)).iterator();
 		for (tgt in __keys) {
-			if (ml[cast tgt].length == 0) {
-				ml[cast tgt] = null;
+			if (ml[untyped tgt].length == 0) {
+				ml[untyped tgt] = null;
 			}
 			
 		}
@@ -393,9 +395,9 @@ class TweenLite  {
 		
 		if ($b) {
 			if (!(this.target in masterList)) {
-				masterList[cast this.target] = [this];
+				masterList[untyped this.target] = [this];
 			} else {
-				var a:Array<Dynamic> = masterList[cast this.target];
+				var a:Array<Dynamic> = masterList[untyped this.target];
 				var found:Bool;
 				var i:Int;
 				i = a.length - 1;

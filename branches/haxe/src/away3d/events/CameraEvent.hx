@@ -37,7 +37,7 @@ class CameraEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new CameraEvent();
+		return new CameraEvent(type, camera);
 	}
 
 }

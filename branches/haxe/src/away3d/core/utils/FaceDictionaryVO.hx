@@ -13,7 +13,7 @@ class FaceDictionaryVO  {
 		
 		
 		if ((width > 0) && (height > 0)) {
-			bitmap = new BitmapData();
+			bitmap = new BitmapData(width, height, true, 0x00000000);
 		}
 	}
 
@@ -30,7 +30,7 @@ class FaceDictionaryVO  {
 		if ((bitmap != null)) {
 			bitmap.dispose();
 		}
-		bitmap = new BitmapData();
+		bitmap = new BitmapData(width, height, true, 0x00000000);
 		dirty = true;
 	}
 

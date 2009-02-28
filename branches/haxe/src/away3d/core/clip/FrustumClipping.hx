@@ -63,7 +63,7 @@ class FrustumClipping extends Clipping  {
 	public override function setObjectCulling(val:Bool):Bool {
 		
 		if (!val) {
-			throw new Error();
+			throw new Error("objectCulling requires setting to true for FrustumClipping");
 		}
 		_objectCulling = val;
 		return val;
@@ -79,7 +79,7 @@ class FrustumClipping extends Clipping  {
 	public override function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<Dynamic>):Void {
 		
 		_session = source.session;
-		_frustum = _cameraVarsStore.frustumDictionary[cast source];
+		_frustum = _cameraVarsStore.frustumDictionary[untyped source];
 		_pass = true;
 		_v0C = _cameraVarsStore.createVertexClassification(faceVO.v0);
 		_v1C = _cameraVarsStore.createVertexClassification(faceVO.v1);
@@ -108,15 +108,17 @@ class FrustumClipping extends Clipping  {
 			for (__i in 0..._frustum.planes.length) {
 				_plane = _frustum.planes[__i];
 
-				_v0d = _v0C.getDistance(_plane);
-				_v1d = _v1C.getDistance(_plane);
-				_v2d = _v2C.getDistance(_plane);
-				if (_v0d < 0 && _v1d < 0 && _v2d < 0) {
-					return;
-				}
-				if (_v0d < 0 || _v1d < 0 || _v2d < 0) {
-					_pass = false;
-					break;
+				if (_plane != null) {
+					_v0d = _v0C.getDistance(_plane);
+					_v1d = _v1C.getDistance(_plane);
+					_v2d = _v2C.getDistance(_plane);
+					if (_v0d < 0 && _v1d < 0 && _v2d < 0) {
+						return;
+					}
+					if (_v0d < 0 || _v1d < 0 || _v2d < 0) {
+						_pass = false;
+						break;
+					}
 				}
 			}
 

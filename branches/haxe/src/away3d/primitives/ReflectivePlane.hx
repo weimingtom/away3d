@@ -196,7 +196,7 @@ class ReflectivePlane extends Plane  {
 		}
 		_renderMode = value;
 		if (_renderMode == RENDER_MODE_BITMAP) {
-			_reflectionView.session = new BitmapRenderSession();
+			_reflectionView.session = new BitmapRenderSession(_bitmapRenderModeScale);
 		} else {
 			_reflectionView.session = new SpriteRenderSession();
 		}
@@ -215,7 +215,7 @@ class ReflectivePlane extends Plane  {
 			return value;
 		}
 		if (_renderMode == RENDER_MODE_BITMAP) {
-			_reflectionView.session = new BitmapRenderSession();
+			_reflectionView.session = new BitmapRenderSession(_bitmapRenderModeScale);
 		}
 		return value;
 	}
@@ -515,14 +515,14 @@ class ReflectivePlane extends Plane  {
 		_refractionColorTransform = new ColorTransform();
 		_reflectionColorTransform = new ColorTransform();
 		_identityColorTransform = new ColorTransform();
-		_reflectionBlur = new BlurFilter();
-		_refractionBlur = new BlurFilter();
-		_backgroundBmd = new BitmapData();
-		_refractionBmd = new BitmapData();
-		_refractionBmd = new BitmapData();
-		_backgroundMaterial = new BitmapMaterial();
-		_refractionMaterial = new BitmapMaskMaterial();
-		_reflectionMaterial = new BitmapMaskMaterial();
+		_reflectionBlur = new BlurFilter(0, 0, 1);
+		_refractionBlur = new BlurFilter(0, 0, 1);
+		_backgroundBmd = new BitmapData(1, 1, true, 0);
+		_refractionBmd = new BitmapData(1, 1, true, 0);
+		_refractionBmd = new BitmapData(1, 1, true, 0);
+		_backgroundMaterial = new BitmapMaterial(_backgroundBmd);
+		_refractionMaterial = new BitmapMaskMaterial(_refractionBmd);
+		_reflectionMaterial = new BitmapMaskMaterial(_reflectionBmd);
 		//Listens for scene change to trigger init().
 		this.addOnSceneChange(sceneChangeHandler);
 		//Listens for transform change to update plane data (normal and reflection matrixes) and dummy plane.
@@ -536,10 +536,12 @@ class ReflectivePlane extends Plane  {
 		var viewSet:Bool;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(this.scene.viewDictionary)).iterator();
 		for (__key in __keys) {
-			var view:View3D = this.scene.viewDictionary[cast __key];
+			var view:View3D = this.scene.viewDictionary[untyped __key];
 
-			if (!viewSet) {
-				_view = view;
+			if (view != null) {
+				if (!viewSet) {
+					_view = view;
+				}
 			}
 		}
 
@@ -558,16 +560,16 @@ class ReflectivePlane extends Plane  {
 		_reflectionCamera.focus = _camera.focus;
 		_reflectionCamera.zoom = _camera.zoom;
 		//_reflectionCamera.lens = _camera.lens; //TODO: Evaluate what other main view elements must be cloned.
-		_reflectionView = new View3D();
+		_reflectionView = new View3D({scene:this.scene, camera:_reflectionCamera});
 		_reflectionView.name = "virtualReflectionView";
 		//TODO: There could be a big performance boost here if the reflection view's clipping adapted more
 		//intelligently to what will be actually redrawn on the plane. For now, it mimics the clipping of the main view.
 		_reflectionView.clipping = _view.clipping;
 		_reflectionView.mouseEnabled = false;
 		_reflectionView.mouseChildren = false;
-		_viewRect = new Rectangle();
+		_viewRect = new Rectangle(0, 0, _view.clipping.maxX - _view.clipping.minX, _view.clipping.maxY - _view.clipping.minY);
 		if (_renderMode == RENDER_MODE_BITMAP) {
-			_reflectionView.session = new BitmapRenderSession();
+			_reflectionView.session = new BitmapRenderSession(_bitmapRenderModeScale);
 		}
 		//TODO: Remove in final version.
 		//-----------------------------------
@@ -652,7 +654,7 @@ class ReflectivePlane extends Plane  {
 			return;
 		}
 		if (redrawBmd) {
-			layerBmd = new BitmapData();
+			layerBmd = new BitmapData(_planeBounds.width / _scaling, _planeBounds.height / _scaling, true, 0x00000000);
 			_redrawMatrix = new Matrix();
 			_redrawMatrix.scale(1 / _scaling, 1 / _scaling);
 			_redrawMatrix.translate(-_planeBounds.x / _scaling, -_planeBounds.y / _scaling);
@@ -695,7 +697,7 @@ class ReflectivePlane extends Plane  {
 		if (_bumpMapContainer.width > 2880 || _bumpMapContainer.height > 2880) {
 			return;
 		}
-		_bumpMapBmd = new BitmapData();
+		_bumpMapBmd = new BitmapData(_planeBounds.width / _scaling, _planeBounds.height / _scaling, false, 0x000000);
 		_redrawMatrix = new Matrix();
 		_redrawMatrix.scale(1 / _scaling, 1 / _scaling);
 		_redrawMatrix.translate(-_planeBounds.x / _scaling, -_planeBounds.y / _scaling);
@@ -711,7 +713,7 @@ class ReflectivePlane extends Plane  {
 		}
 		//------------------------------
 		var k:Int = _cameraOnFrontSide ? 1 : -1;
-		_displacementMap = new DisplacementMapFilter();
+		_displacementMap = new DisplacementMapFilter(_bumpMapBmd, _zeroPoint, _distortionChannel, _distortionChannel, k * _distortionStrength, k * _distortionStrength, DisplacementMapFilterMode.IGNORE, 0xFFFF0000);
 	}
 
 	//Looks for the plane's edges and determines the screen bounds for it. This is used to
@@ -721,10 +723,10 @@ class ReflectivePlane extends Plane  {
 		//TODO: Perhaps there is a faster way to fetch the on-screen plane bounds.
 		//The array sorting below might be slow.
 		
-		_v0 = new Vertex();
-		_v1 = new Vertex();
-		_v2 = new Vertex();
-		_v3 = new Vertex();
+		_v0 = new Vertex(this.minX, this.minY, this.minZ);
+		_v1 = new Vertex(this.maxX, this.minY, this.minZ);
+		_v2 = new Vertex(this.maxX, this.maxY, this.maxZ);
+		_v3 = new Vertex(this.minX, this.minY, this.maxZ);
 		_sv0 = _view.camera.screen(this, _v0);
 		_sv1 = _view.camera.screen(this, _v1);
 		_sv2 = _view.camera.screen(this, _v2);
@@ -742,7 +744,7 @@ class ReflectivePlane extends Plane  {
 		_planeBounds.width = maxX - minX;
 		_planeBounds.height = maxY - minY;
 		_planeBounds.inflate(_materialBoundTolerance, _materialBoundTolerance);
-		_effectsBounds = new Rectangle();
+		_effectsBounds = new Rectangle(0, 0, _planeBounds.width, _planeBounds.height);
 		//TODO: Remove in final version.
 		//------------------------------
 		if (_enableDebugBoundingBox) {
@@ -764,9 +766,11 @@ class ReflectivePlane extends Plane  {
 		for (__i in 0...this.scene.children.length) {
 			var obj:Object3D = this.scene.children[__i];
 
-			if (!onFrontSide(obj.position)) {
-				obj.visible = false;
-				_hideList.push(obj);
+			if (obj != null) {
+				if (!onFrontSide(obj.position)) {
+					obj.visible = false;
+					_hideList.push(obj);
+				}
 			}
 		}
 
@@ -777,7 +781,9 @@ class ReflectivePlane extends Plane  {
 		for (__i in 0..._hideList.length) {
 			var obj:Object3D = _hideList[__i];
 
-			obj.visible = true;
+			if (obj != null) {
+				obj.visible = true;
+			}
 		}
 
 	}
@@ -800,11 +806,11 @@ class ReflectivePlane extends Plane  {
 		
 		if ((_backgroundImage != null)) {
 			_backgroundBmd = _backgroundImage;
-			_backgroundMaterial = new BitmapMaterial();
+			_backgroundMaterial = new BitmapMaterial(_backgroundBmd);
 		} else {
-			_backgroundBmd = new BitmapData();
+			_backgroundBmd = new BitmapData(800, 600, false, _backgroundColor);
 		}
-		_backgroundMaterial = new BitmapMaterial();
+		_backgroundMaterial = new BitmapMaterial(_backgroundBmd);
 		_compositeMaterial = new CompositeMaterial();
 		_compositeMaterial.addMaterial(_backgroundMaterial);
 		if (_opticalMode == OPTICAL_MODE_REFRACTIVE || _opticalMode == OPTICAL_MODE_DUAL) {
@@ -888,7 +894,7 @@ class ReflectivePlane extends Plane  {
 		m.ty = vertex.y;
 		m.tz = vertex.z;
 		m.multiply(this.transform, m);
-		return new Number3D();
+		return new Number3D(m.tx, m.ty, m.tz);
 	}
 
 	//This is the only way I found to obtain a perspectived image of the plane's background material
@@ -912,7 +918,7 @@ class ReflectivePlane extends Plane  {
 		updatePlaneDummyDimensions();
 		updatePlaneDummyPosition();
 		if ((_distortionImage != null)) {
-			_bumpMapDummyPlane.material = new BitmapMaterial();
+			_bumpMapDummyPlane.material = new BitmapMaterial(_distortionImage);
 		} else {
 			_bumpMapDummyPlane.material = _backgroundMaterial;
 			BitmapMaterial(_bumpMapDummyPlane.material).alpha = 1;
@@ -955,7 +961,7 @@ class ReflectivePlane extends Plane  {
 		if (_planeBounds.width > 2880 || _planeBounds.height > 2880) {
 			return;
 		}
-		_refractionBmd = new BitmapData();
+		_refractionBmd = new BitmapData(_planeBounds.width, _planeBounds.height, true, 0x00FF0000);
 		_redrawMatrix = new Matrix();
 		_redrawMatrix.translate(_planeBounds.width / 2, _planeBounds.height / 2);
 		_refractionBmd.draw(_view, _redrawMatrix);

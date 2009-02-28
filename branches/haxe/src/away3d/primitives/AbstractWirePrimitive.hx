@@ -44,7 +44,7 @@ class AbstractWirePrimitive extends Mesh  {
 			_v._y = y;
 			_v._z = z;
 		} else {
-			_vActive.push(_v = new Vertex());
+			_vActive.push(_v = new Vertex(x, y, z));
 		}
 		return _v;
 	}
@@ -58,7 +58,7 @@ class AbstractWirePrimitive extends Mesh  {
 			_segment.v1 = v1;
 			_segment.material = material;
 		} else {
-			_segmentActive.push(_segment = new Segment());
+			_segmentActive.push(_segment = new Segment(v0, v1, material));
 		}
 		return _segment;
 	}
@@ -74,10 +74,10 @@ class AbstractWirePrimitive extends Mesh  {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties
 	 */
 	public function new(?init:Dynamic=null) {
-		this._vStore = new Array<Dynamic>();
-		this._vActive = new Array<Dynamic>();
-		this._segmentStore = new Array<Dynamic>();
-		this._segmentActive = new Array<Dynamic>();
+		this._vStore = new Array();
+		this._vActive = new Array();
+		this._segmentStore = new Array();
+		this._segmentActive = new Array();
 		
 		
 		super(init);
@@ -105,10 +105,10 @@ class AbstractWirePrimitive extends Mesh  {
 
 		//clear vertex objects
 		_vStore = _vStore.concat(_vActive);
-		_vActive = new Array<Dynamic>();
+		_vActive = new Array();
 		//clear segment objects
 		_segmentStore = _segmentStore.concat(_segmentActive);
-		_segmentActive = new Array<Dynamic>();
+		_segmentActive = new Array();
 	}
 
 }

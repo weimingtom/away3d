@@ -171,14 +171,14 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 				_v2 += 0.06;
 			}
 		}
-		t = new Matrix();
+		t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
 		t.invert();
 		return t;
 	}
 
 	private function getContainerPoints(rect:Rectangle):Array<Dynamic> {
 		
-		return [rect.topLeft, new Point(), rect.bottomRight, new Point()];
+		return [rect.topLeft, new Point(rect.top, rect.right), rect.bottomRight, new Point(rect.bottom, rect.left)];
 	}
 
 	private function getFacePoints(map:Matrix):Array<Dynamic> {
@@ -248,11 +248,13 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 			for (__i in 0...points2.length) {
 				point = points2[__i];
 
-				dot = point.x * line.x + point.y * line.y;
-				//return if zero is greater than dot
-				if (zero * sign > dot * sign) {
-					flag = false;
-					break;
+				if (point != null) {
+					dot = point.x * line.x + point.y * line.y;
+					//return if zero is greater than dot
+					if (zero * sign > dot * sign) {
+						flag = false;
+						break;
+					}
 				}
 			}
 
@@ -383,7 +385,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 	public function setScaleX(val:Float):Float {
 		
 		if (Math.isNaN(val)) {
-			throw new Error();
+			throw new Error("isNaN(scaleX)");
 		}
 		if (val == Math.POSITIVE_INFINITY) {
 			Debug.warning("scaleX == Infinity");
@@ -410,7 +412,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 	public function setScaleY(val:Float):Float {
 		
 		if (Math.isNaN(val)) {
-			throw new Error();
+			throw new Error("isNaN(scaleY)");
 		}
 		if (val == Math.POSITIVE_INFINITY) {
 			Debug.warning("scaleY == Infinity");
@@ -437,7 +439,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 	public function setOffsetX(val:Float):Float {
 		
 		if (Math.isNaN(val)) {
-			throw new Error();
+			throw new Error("isNaN(offsetX)");
 		}
 		if (val == Math.POSITIVE_INFINITY) {
 			Debug.warning("offsetX == Infinity");
@@ -461,7 +463,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 	public function setOffsetY(val:Float):Float {
 		
 		if (Math.isNaN(val)) {
-			throw new Error();
+			throw new Error("isNaN(offsetY)");
 		}
 		if (val == Math.POSITIVE_INFINITY) {
 			Debug.warning("offsetY == Infinity");
@@ -485,7 +487,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 	public function setRotation(val:Float):Float {
 		
 		if (Math.isNaN(val)) {
-			throw new Error();
+			throw new Error("isNaN(rotation)");
 		}
 		if (val == Math.POSITIVE_INFINITY) {
 			Debug.warning("rotation == Infinity");
@@ -566,8 +568,8 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 		this._rotation = 0;
 		this._N = new Number3D();
 		this._M = new Number3D();
-		this.DOWN = new Number3D();
-		this.RIGHT = new Number3D();
+		this.DOWN = new Number3D(0, -1, 0);
+		this.RIGHT = new Number3D(1, 0, 0);
 		this.normalR = new Number3D();
 		this.v0 = new Number3D();
 		this.v1 = new Number3D();

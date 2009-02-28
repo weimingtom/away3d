@@ -80,7 +80,7 @@ class ElevationModifier  {
 			}
 
 		} else {
-			throw new Error();
+			throw new Error("ElevationModifier error: unvalid mesh");
 		}
 	}
 

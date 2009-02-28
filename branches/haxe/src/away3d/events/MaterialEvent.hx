@@ -57,7 +57,7 @@ class MaterialEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new MaterialEvent();
+		return new MaterialEvent(type, material);
 	}
 
 }

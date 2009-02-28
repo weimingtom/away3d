@@ -38,7 +38,7 @@ class BillboardEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new BillboardEvent();
+		return new BillboardEvent(type, billboard);
 	}
 
 }

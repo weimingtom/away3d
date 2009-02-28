@@ -57,7 +57,7 @@ class AWTweener  {
 	 */
 	public static function calculate(?fps:Float=30, ?startval:Float=0, ?endval:Float=1, ?duration:Float=250, ?easeIn:Bool=false, ?easeOut:Bool=false):Array<Dynamic> {
 		
-		var aTween:Array<Dynamic> = new Array<Dynamic>();
+		var aTween:Array<Dynamic> = new Array();
 		var elapT:Float = fps;
 		while (elapT < duration) {
 			aTween.push(AWTweener.tweenVal(elapT, startval, endval, duration, easeIn, easeOut));

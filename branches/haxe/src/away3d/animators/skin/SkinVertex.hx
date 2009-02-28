@@ -20,8 +20,8 @@ class SkinVertex  {
 	public function new(vertex:Vertex) {
 		this._position = new Number3D();
 		this._sceneTransform = new Matrix3D();
-		this.weights = new Array<Dynamic>();
-		this.controllers = new Array<Dynamic>();
+		this.weights = new Array();
+		this.controllers = new Array();
 		
 		
 		skinnedVertex = vertex;
@@ -34,7 +34,9 @@ class SkinVertex  {
 		for (__i in 0...controllers.length) {
 			_skinController = controllers[__i];
 
-			updated = updated || _skinController.updated;
+			if (_skinController != null) {
+				updated = updated || _skinController.updated;
+			}
 		}
 
 		if (!updated) {

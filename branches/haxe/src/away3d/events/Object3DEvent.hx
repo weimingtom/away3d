@@ -62,7 +62,7 @@ class Object3DEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new Object3DEvent();
+		return new Object3DEvent(type, object);
 	}
 
 }

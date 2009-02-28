@@ -61,7 +61,7 @@ class Billboard extends Element  {
 			return;
 		}
 		if (_materialchanged == null) {
-			_materialchanged = new BillboardEvent();
+			_materialchanged = new BillboardEvent(BillboardEvent.MATERIAL_CHANGED, this);
 		}
 		dispatchEvent(_materialchanged);
 	}
@@ -114,7 +114,7 @@ class Billboard extends Element  {
 	public function setX(value:Float):Float {
 		
 		if (Math.isNaN(value)) {
-			throw new Error();
+			throw new Error("isNaN(x)");
 		}
 		if (_vertex.x == value) {
 			return value;
@@ -140,7 +140,7 @@ class Billboard extends Element  {
 	public function setY(value:Float):Float {
 		
 		if (Math.isNaN(value)) {
-			throw new Error();
+			throw new Error("isNaN(y)");
 		}
 		if (_vertex.y == value) {
 			return value;
@@ -166,7 +166,7 @@ class Billboard extends Element  {
 	public function setZ(value:Float):Float {
 		
 		if (Math.isNaN(value)) {
-			throw new Error();
+			throw new Error("isNaN(z)");
 		}
 		if (_vertex.z == value) {
 			return value;

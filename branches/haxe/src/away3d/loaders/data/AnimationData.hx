@@ -63,7 +63,7 @@ class AnimationData  {
 		this.start = Math.POSITIVE_INFINITY;
 		this.end = 0;
 		this.animationType = SKIN_ANIMATION;
-		this.channels = new Dictionary();
+		this.channels = new Dictionary(true);
 		
 	}
 

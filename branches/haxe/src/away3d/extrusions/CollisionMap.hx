@@ -22,7 +22,7 @@ class CollisionMap extends EventDispatcher  {
 
 	private function fireColorEvent(eventID:String):Void {
 		
-		dispatchEvent(new Event());
+		dispatchEvent(new Event(eventID));
 	}
 
 	/**

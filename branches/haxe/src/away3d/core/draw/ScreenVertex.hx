@@ -95,7 +95,7 @@ class ScreenVertex  {
 	public function deperspective(focus:Float):Vertex {
 		
 		persp = 1 + z / focus;
-		return new Vertex();
+		return new Vertex(x * persp, y * persp, z);
 	}
 
 	/**
@@ -153,12 +153,12 @@ class ScreenVertex  {
 	public static function weighted(a:ScreenVertex, b:ScreenVertex, aw:Float, bw:Float, focus:Float):ScreenVertex {
 		
 		if ((bw == 0) && (aw == 0)) {
-			throw new Error();
+			throw new Error("Zero weights");
 		}
 		if (bw == 0) {
-			return new ScreenVertex();
+			return new ScreenVertex(a.x, a.y, a.z);
 		} else if (aw == 0) {
-			return new ScreenVertex();
+			return new ScreenVertex(b.x, b.y, b.z);
 		}
 		var d:Float = aw + bw;
 		var ak:Float = aw / d;
@@ -176,7 +176,7 @@ class ScreenVertex  {
 		var det:Float = axf * byf - bxf * ayf;
 		var da:Float = x * byf - bxf * y;
 		var db:Float = axf * y - x * ayf;
-		return new ScreenVertex();
+		return new ScreenVertex(x, y, (da * a.z + db * b.z) / det);
 	}
 
 	/**
@@ -193,7 +193,7 @@ class ScreenVertex  {
 		var faz:Float = focus + a.z;
 		var fbz:Float = focus + b.z;
 		var ifmz:Float = 1 / (focus + mz) / 2;
-		return new ScreenVertex();
+		return new ScreenVertex((a.x * faz + b.x * fbz) * ifmz, (a.y * faz + b.y * fbz) * ifmz, mz);
 		// ap = focus / (focus + saz) * zoom
 		// bp = focus / (focus + sbz) * zoom
 		//

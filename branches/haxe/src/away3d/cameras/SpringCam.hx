@@ -67,8 +67,8 @@ class SpringCam extends Camera3D  {
 		this.stiffness = 1;
 		this.damping = 4;
 		this.mass = 40;
-		this.positionOffset = new Number3D();
-		this.lookOffset = new Number3D();
+		this.positionOffset = new Number3D(0, 5, -50);
+		this.lookOffset = new Number3D(0, 2, 10);
 		this._zrot = 0;
 		this._velocity = new Number3D();
 		this._dv = new Number3D();

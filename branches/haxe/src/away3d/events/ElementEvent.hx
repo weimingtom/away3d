@@ -46,7 +46,7 @@ class ElementEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new ElementEvent();
+		return new ElementEvent(type, element);
 	}
 
 }

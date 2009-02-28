@@ -406,7 +406,7 @@ class DrawTriangle extends DrawPrimitive  {
 		da = x * (byf - cyf) + bxf * (cyf - y) + cxf * (y - byf);
 		db = axf * (y - cyf) + x * (cyf - ayf) + cxf * (ayf - y);
 		dc = axf * (byf - y) + bxf * (y - ayf) + x * (ayf - byf);
-		return new UV();
+		return new UV((da * au + db * bu + dc * cu) / det, (da * av + db * bv + dc * cv) / det);
 	}
 
 	/**

@@ -32,7 +32,7 @@ class UV extends ValueObject  {
 		if (b == null) {
 			return null;
 		}
-		return new UV();
+		return new UV((a._u + b._u) / 2, (a._v + b._v) / 2);
 	}
 
 	/** @private */
@@ -47,7 +47,7 @@ class UV extends ValueObject  {
 		var d:Float = aw + bw;
 		var ak:Float = aw / d;
 		var bk:Float = bw / d;
-		return new UV();
+		return new UV(a._u * ak + b._u * bk, a._v * ak + b._v * bk);
 	}
 
 	/**
@@ -108,7 +108,7 @@ class UV extends ValueObject  {
 	 */
 	public function clone():UV {
 		
-		return new UV();
+		return new UV(_u, _v);
 	}
 
 	/**

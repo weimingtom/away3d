@@ -76,11 +76,13 @@ class BasicRenderer implements IRenderer, implements IPrimitiveConsumer {
 		for (__i in 0..._blockers.length) {
 			_blocker = _blockers[__i];
 
-			if (_blocker.screenZ > pri.minZ) {
-				continue;
-			}
-			if (_blocker.block(pri)) {
-				return false;
+			if (_blocker != null) {
+				if (_blocker.screenZ > pri.minZ) {
+					continue;
+				}
+				if (_blocker.block(pri)) {
+					return false;
+				}
 			}
 		}
 
@@ -113,14 +115,18 @@ class BasicRenderer implements IRenderer, implements IPrimitiveConsumer {
 		for (__i in 0..._filters.length) {
 			_filter = _filters[__i];
 
-			_primitives = _filter.filter(_primitives, _scene, _camera, _screenClipping);
+			if (_filter != null) {
+				_primitives = _filter.filter(_primitives, _scene, _camera, _screenClipping);
+			}
 		}
 
 		// render all primitives
 		for (__i in 0..._primitives.length) {
 			_primitive = _primitives[__i];
 
-			_primitive.render();
+			if (_primitive != null) {
+				_primitive.render();
+			}
 		}
 
 	}

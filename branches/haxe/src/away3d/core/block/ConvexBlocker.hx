@@ -68,8 +68,10 @@ class ConvexBlocker extends Blocker  {
 		for (__i in 0..._boundlines.length) {
 			var boundline:Line2D = _boundlines[__i];
 
-			if (boundline.side(x, y) < 0) {
-				return false;
+			if (boundline != null) {
+				if (boundline.side(x, y) < 0) {
+					return false;
+				}
 			}
 		}
 

@@ -39,7 +39,7 @@ class TransformAroundCenterVars extends TransformAroundPointVars  {
 		if (Std.is($vars, TransformAroundCenterVars)) {
 			return cast($vars, TransformAroundCenterVars);
 		}
-		return new TransformAroundCenterVars();
+		return new TransformAroundCenterVars($vars.scaleX, $vars.scaleY, $vars.rotation, $vars.width, $vars.height, $vars.shortRotation, $vars.x, $vars.y);
 	}
 
 }

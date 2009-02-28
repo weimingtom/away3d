@@ -5,6 +5,7 @@ import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.materials.shaders.AbstractShader;
 import away3d.materials.shaders.EnviroShader;
+import flash.display.BlendMode;
 import away3d.core.utils.Init;
 
 
@@ -49,7 +50,7 @@ class EnviroBitmapMaterial extends CompositeMaterial  {
 	public function setReflectiveness(val:Float):Float {
 		
 		_reflectiveness = val;
-		_bitmapMaterial.colorTransform = new ColorTransform();
+		_bitmapMaterial.colorTransform = new ColorTransform(1 - _reflectiveness, 1 - _reflectiveness, 1 - _reflectiveness, 1);
 		_enviroShader.reflectiveness = val;
 		return val;
 	}
@@ -88,9 +89,9 @@ class EnviroBitmapMaterial extends CompositeMaterial  {
 		_mode = ini.getString("mode", "linear");
 		_reflectiveness = ini.getNumber("reflectiveness", 0.5, {min:0, max:1});
 		//create new materials
-		_bitmapMaterial = new BitmapMaterial();
-		_bitmapMaterial.colorTransform = new ColorTransform();
-		_enviroShader = new EnviroShader();
+		_bitmapMaterial = new BitmapMaterial(bitmap, ini);
+		_bitmapMaterial.colorTransform = new ColorTransform(1 - _reflectiveness, 1 - _reflectiveness, 1 - _reflectiveness, 1);
+		_enviroShader = new EnviroShader(enviroMap, {mode:_mode, reflectiveness:_reflectiveness, blendMode:BlendMode.ADD});
 		//add to materials array
 		addMaterial(_bitmapMaterial);
 		addMaterial(_enviroShader);

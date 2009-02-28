@@ -34,7 +34,7 @@ class AnimationTransition  {
 		_refFrame = [];
 		var i:Int = 0;
 		while (i < _geom.vertices.length) {
-			_refFrame.push(new Vertex());
+			_refFrame.push(new Vertex(_geom.vertices[i].x, _geom.vertices[i].y, _geom.vertices[i].z));
 			
 			// update loop variables
 			++i;

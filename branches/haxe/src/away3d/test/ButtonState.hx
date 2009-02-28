@@ -1,5 +1,6 @@
 package away3d.test;
 
+import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextFieldAutoSize;
 
@@ -33,13 +34,13 @@ class ButtonState extends Sprite  {
 		SCALINGS[64] = [-1, -1, -1];
 		SCALINGS[128] = [1, -1, -1];
 		
-		addChild(new Panel());
+		addChild(new Panel(0, 0, pwidth, pheight));
 		if ((text != null)) {
 			var label:TextField = new TextField();
 			label.autoSize = TextFieldAutoSize.LEFT;
 			label.x = 5;
 			label.y = 0;
-			label.defaultTextFormat = new TextFormat();
+			label.defaultTextFormat = new TextFormat("Arial", 14, color);
 			label.text = text;
 			addChild(label);
 		}

@@ -108,7 +108,7 @@ class PrimitiveQuadrantTreeNode  {
 		this.render_center_length = -1;
 		this.render_center_index = -1;
 		this.maxlevel = 4;
-		this.center = new Array<Dynamic>();
+		this.center = new Array();
 		this.onlysourceFlag = true;
 		
 		
@@ -136,7 +136,7 @@ class PrimitiveQuadrantTreeNode  {
 				if (pri.maxY <= ydiv) {
 					if (lefttop == null) {
 						lefttopFlag = true;
-						lefttop = new PrimitiveQuadrantTreeNode();
+						lefttop = new PrimitiveQuadrantTreeNode(xdiv - halfwidth / 2, ydiv - halfheight / 2, halfwidth, halfheight, level + 1, this);
 					} else if (!lefttopFlag) {
 						lefttopFlag = true;
 						lefttop.reset(xdiv - halfwidth / 2, ydiv - halfheight / 2, halfwidth, halfheight);
@@ -146,7 +146,7 @@ class PrimitiveQuadrantTreeNode  {
 				} else if (pri.minY >= ydiv) {
 					if (leftbottom == null) {
 						leftbottomFlag = true;
-						leftbottom = new PrimitiveQuadrantTreeNode();
+						leftbottom = new PrimitiveQuadrantTreeNode(xdiv - halfwidth / 2, ydiv + halfheight / 2, halfwidth, halfheight, level + 1, this);
 					} else if (!leftbottomFlag) {
 						leftbottomFlag = true;
 						leftbottom.reset(xdiv - halfwidth / 2, ydiv + halfheight / 2, halfwidth, halfheight);
@@ -158,7 +158,7 @@ class PrimitiveQuadrantTreeNode  {
 				if (pri.maxY <= ydiv) {
 					if (righttop == null) {
 						righttopFlag = true;
-						righttop = new PrimitiveQuadrantTreeNode();
+						righttop = new PrimitiveQuadrantTreeNode(xdiv + halfwidth / 2, ydiv - halfheight / 2, halfwidth, halfheight, level + 1, this);
 					} else if (!righttopFlag) {
 						righttopFlag = true;
 						righttop.reset(xdiv + halfwidth / 2, ydiv - halfheight / 2, halfwidth, halfheight);
@@ -168,7 +168,7 @@ class PrimitiveQuadrantTreeNode  {
 				} else if (pri.minY >= ydiv) {
 					if (rightbottom == null) {
 						rightbottomFlag = true;
-						rightbottom = new PrimitiveQuadrantTreeNode();
+						rightbottom = new PrimitiveQuadrantTreeNode(xdiv + halfwidth / 2, ydiv + halfheight / 2, halfwidth, halfheight, level + 1, this);
 					} else if (!rightbottomFlag) {
 						rightbottomFlag = true;
 						rightbottom.reset(xdiv + halfwidth / 2, ydiv + halfheight / 2, halfwidth, halfheight);
@@ -196,7 +196,7 @@ class PrimitiveQuadrantTreeNode  {
 		leftbottomFlag = false;
 		righttopFlag = false;
 		rightbottomFlag = false;
-		center = new Array<Dynamic>();
+		center = new Array();
 		onlysourceFlag = true;
 		onlysource = null;
 		render_center_length = -1;

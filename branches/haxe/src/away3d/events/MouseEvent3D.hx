@@ -118,7 +118,7 @@ class MouseEvent3D extends Event  {
 	 */
 	public override function clone():Event {
 		
-		var result:MouseEvent3D = new MouseEvent3D();
+		var result:MouseEvent3D = new MouseEvent3D(type);
 		result.screenX = screenX;
 		result.screenY = screenY;
 		result.screenZ = screenZ;

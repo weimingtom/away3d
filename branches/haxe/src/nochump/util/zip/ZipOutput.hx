@@ -85,7 +85,7 @@ class ZipOutput  {
 		}
 		// TODO:
 		if (e.dostime == 0) {
-			e.time = new Date();
+			e.time = new Date().time;
 		}
 		// use default method
 		if (e.method == -1) {
@@ -98,7 +98,7 @@ class ZipOutput  {
 				} else if (e.size != -1 && e.compressedSize != -1 && e.crc != 0) {
 					e.flag = 0;
 				} else {
-					throw new ZipError();
+					throw new ZipError("DEFLATED entry missing size, compressed size, or crc-32");
 				}
 				e.version = 20;
 			case ZipConstants.STORED :
@@ -109,23 +109,23 @@ class ZipOutput  {
 				} else if (e.compressedSize == -1) {
 					e.compressedSize = e.size;
 				} else if (e.size != e.compressedSize) {
-					throw new ZipError();
+					throw new ZipError("STORED entry where compressed != uncompressed size");
 				}
 				if (e.size == -1 || e.crc == 0) {
-					throw new ZipError();
+					throw new ZipError("STORED entry missing size, compressed size, or crc-32");
 				}
 				e.version = 10;
 				e.flag = 0;
 			default :
-				throw new ZipError();
+				throw new ZipError("unsupported compression method");
 			
 
 		}
 		e.offset = _buf.position;
-		if (_names[cast e.name] != null) {
-			throw new ZipError();
+		if (_names[untyped e.name] != null) {
+			throw new ZipError("duplicate entry: " + e.name);
 		} else {
-			_names[cast e.name] = e;
+			_names[untyped e.name] = e;
 		}
 		writeLOC(e);
 		_entries.push(e);
@@ -135,7 +135,7 @@ class ZipOutput  {
 	public function write(b:ByteArray):Void {
 		
 		if (_entry == null) {
-			throw new ZipError();
+			throw new ZipError("no current ZIP entry");
 		}
 		//*
 		switch (_entry.method) {
@@ -153,7 +153,7 @@ class ZipOutput  {
 				//out.write(b, off, len);
 				_buf.writeBytes(b);
 			default :
-				throw new Error();
+				throw new Error("invalid compression method");
 			
 
 		}
@@ -171,13 +171,13 @@ class ZipOutput  {
 				case ZipConstants.DEFLATED :
 					if ((e.flag & 8) == 0) {
 						if (e.size != _def.getBytesRead()) {
-							throw new ZipError();
+							throw new ZipError("invalid entry size (expected " + e.size + " but got " + _def.getBytesRead() + " bytes)");
 						}
 						if (e.compressedSize != _def.getBytesWritten()) {
-							throw new ZipError();
+							throw new ZipError("invalid entry compressed size (expected " + e.compressedSize + " but got " + _def.getBytesWritten() + " bytes)");
 						}
 						if (e.crc != _crc.getValue()) {
-							throw new ZipError();
+							throw new ZipError("invalid entry CRC-32 (expected 0x" + e.crc + " but got 0x" + _crc.getValue() + ")");
 						}
 					} else {
 						e.size = _def.getBytesRead();
@@ -189,7 +189,7 @@ class ZipOutput  {
 				case ZipConstants.STORED :
 				default :
 					// TODO:
-					throw new Error();
+					throw new Error("invalid compression method");
 				
 
 			}
@@ -204,7 +204,7 @@ class ZipOutput  {
 			closeEntry();
 		}
 		if (_entries.length < 1) {
-			throw new ZipError();
+			throw new ZipError("ZIP file must have at least one entry");
 		}
 		var off:Int = _buf.position;
 		// write central directory

@@ -102,29 +102,31 @@ class PatchData  {
 	public function setPatchInfo(value:Array<Dynamic>):Array<Dynamic> {
 		// Initialize the patch and generated patch arrays
 		
-		controlPoints = new Array<Dynamic>();
-		generatedPatch = new Array<Dynamic>();
+		controlPoints = new Array();
+		generatedPatch = new Array();
 		// Process each sub-patch in turn
 		for (__i in 0...value.length) {
 			var o:Dynamic = value[__i];
 
-			var otmp:Dynamic = objClone(o);
-			ini = Init.parse(otmp);
-			var key:String = ini.getString("key", "");
-			// Store the patch properties for later
-			Reflect.setField(_patchInfo, key, new Dynamic());
-			Reflect.setField(_patchInfo, key, ini.getInt("segmentsW", 5, {min:1}));
-			Reflect.setField(_patchInfo, key, ini.getInt("segmentsH", 3, {min:1}));
-			Reflect.setField(_patchInfo, key, ini.getInt("connectSegs", 3, {min:1}));
-			Reflect.setField(_patchInfo, key, ini.getInt("orientation", 1, {min:1}));
-			Reflect.setField(_patchInfo, key, ini.getInt("connectL", 0, {min:0}));
-			Reflect.setField(_patchInfo, key, ini.getInt("connectR", 0, {min:0}));
-			Reflect.setField(_patchInfo, key, ini.getInt("connectT", 0, {min:0}));
-			Reflect.setField(_patchInfo, key, ini.getInt("connectB", 0, {min:0}));
-			Reflect.setField(_patchInfo, key, ini.getArray("fillPoints"));
-			Reflect.setField(_patchInfo, key, 1 / Reflect.field(patchInfo, key).oSegW);
-			Reflect.setField(_patchInfo, key, 1 / Reflect.field(patchInfo, key).oSegH);
-			Reflect.setField(_patchInfo, key, Reflect.field(nodes, key).length / 16);
+			if (o != null) {
+				var otmp:Dynamic = objClone(o);
+				ini = Init.parse(otmp);
+				var key:String = ini.getString("key", "");
+				// Store the patch properties for later
+				Reflect.setField(_patchInfo, key, new Object());
+				Reflect.setField(_patchInfo, key, ini.getInt("segmentsW", 5, {min:1}));
+				Reflect.setField(_patchInfo, key, ini.getInt("segmentsH", 3, {min:1}));
+				Reflect.setField(_patchInfo, key, ini.getInt("connectSegs", 3, {min:1}));
+				Reflect.setField(_patchInfo, key, ini.getInt("orientation", 1, {min:1}));
+				Reflect.setField(_patchInfo, key, ini.getInt("connectL", 0, {min:0}));
+				Reflect.setField(_patchInfo, key, ini.getInt("connectR", 0, {min:0}));
+				Reflect.setField(_patchInfo, key, ini.getInt("connectT", 0, {min:0}));
+				Reflect.setField(_patchInfo, key, ini.getInt("connectB", 0, {min:0}));
+				Reflect.setField(_patchInfo, key, ini.getArray("fillPoints"));
+				Reflect.setField(_patchInfo, key, 1 / Reflect.field(patchInfo, key).oSegW);
+				Reflect.setField(_patchInfo, key, 1 / Reflect.field(patchInfo, key).oSegH);
+				Reflect.setField(_patchInfo, key, Reflect.field(nodes, key).length / 16);
+			}
 		}
 
 		// Data has changed so patch needs regenerating
@@ -136,10 +138,10 @@ class PatchData  {
 	 * Set up the patch data
 	 */
 	public function new(nodesPrms:Array<Dynamic>, verticesPrms:Array<Dynamic>, uvsPrms:Array<Dynamic>, patchInfoPrms:Array<Dynamic>, ?resize:Float=1) {
-		this._nodes = new Array<Dynamic>();
-		this._vertices = new Array<Dynamic>();
-		this._uvs = new Array<Dynamic>();
-		this._patchInfo = new Array<Dynamic>();
+		this._nodes = new Array();
+		this._vertices = new Array();
+		this._uvs = new Array();
+		this._patchInfo = new Array();
 		this._patchCache = new Dictionary();
 		this.tempV = new Vertex();
 		this.a = new Vertex();
@@ -188,9 +190,11 @@ class PatchData  {
 		for (__i in 0..._vertices.length) {
 			var v:Vertex = _vertices[__i];
 
-			v.x = v.x * resize;
-			v.y = v.y * resize;
-			v.z = v.z * resize;
+			if (v != null) {
+				v.x = v.x * resize;
+				v.y = v.y * resize;
+				v.z = v.z * resize;
+			}
 		}
 
 		build();
@@ -207,14 +211,14 @@ class PatchData  {
 				if ((Reflect.field(controlPoints, key) != null)) {
 					updateControlPoints(key);
 				} else {
-					Reflect.setField(controlPoints, key, new Array<Dynamic>());
+					Reflect.setField(controlPoints, key, new Array());
 					cacheControlPoints(key);
 				}
 				// Refresh or create the generated patch
 				if ((Reflect.field(generatedPatch, key)[0][0] != null)) {
 					updatePatchPoints(key);
 				} else {
-					Reflect.setField(generatedPatch, key, new Array<Dynamic>());
+					Reflect.setField(generatedPatch, key, new Array());
 					cachePatchPoints(key);
 				}
 				
@@ -230,20 +234,20 @@ class PatchData  {
 	private function cacheControlPoints(key:String):Void {
 		// Cache the patch control vertices in controlPoints
 		
-		Reflect.setField(controlPoints, key, new Array<Dynamic>());
-		Reflect.setField(generatedPatch, key, new Array<Dynamic>());
+		Reflect.setField(controlPoints, key, new Array());
+		Reflect.setField(generatedPatch, key, new Array());
 		_patchCache = new Dictionary();
 		var p:Int = 0;
 		while (p < Reflect.field(_patchInfo, key).patchCount) {
-			Reflect.setField(controlPoints, key, new Array<Dynamic>());
-			Reflect.setField(generatedPatch, key, new Array<Dynamic>());
+			Reflect.setField(controlPoints, key, new Array());
+			Reflect.setField(generatedPatch, key, new Array());
 			var i:Int = 0;
 			while (i < 4) {
-				Reflect.setField(controlPoints, key, new Array<Dynamic>());
+				Reflect.setField(controlPoints, key, new Array());
 				var j:Int = 0;
 				while (j < 4) {
 					var v:Vertex = _vertices[Reflect.field(_nodes, key)[(p * 16) + i * 4 + j]];
-					Reflect.setField(controlPoints, key, new Vertex());
+					Reflect.setField(controlPoints, key, new Vertex(v.x, v.y, v.z));
 					
 					// update loop variables
 					j++;
@@ -271,7 +275,7 @@ class PatchData  {
 				var j:Int = 0;
 				while (j < 4) {
 					tempV = vertices[Reflect.field(nodes, key)[(p * 16) + i * 4 + j]];
-					Reflect.setField(controlPoints, key, new Vertex());
+					Reflect.setField(controlPoints, key, new Vertex(tempV.x, tempV.y, tempV.z));
 					
 					// update loop variables
 					j++;
@@ -294,10 +298,10 @@ class PatchData  {
 		
 		var pId:Int = 0;
 		while (pId < Reflect.field(patchInfo, key).patchCount) {
-			Reflect.setField(generatedPatch, key, new Array<Dynamic>());
+			Reflect.setField(generatedPatch, key, new Array());
 			var yId:Int = 0;
 			while (yId <= Reflect.field(patchInfo, key).oSegH) {
-				Reflect.setField(generatedPatch, key, new Array<Dynamic>());
+				Reflect.setField(generatedPatch, key, new Array());
 				var xId:Int = 0;
 				while (xId <= Reflect.field(patchInfo, key).oSegW) {
 					Reflect.setField(generatedPatch, key, new Vertex());
@@ -353,19 +357,19 @@ class PatchData  {
 		p1 = pnts[1];
 		p2 = pnts[2];
 		p3 = pnts[3];
-		if ((_patchCache[cast pnts] != null)) {
-			c0.x = _patchCache[cast pnts][cast 0].x;
-			c0.y = _patchCache[cast pnts][cast 0].y;
-			c0.z = _patchCache[cast pnts][cast 0].z;
-			c1.x = _patchCache[cast pnts][cast 1].x;
-			c1.y = _patchCache[cast pnts][cast 1].y;
-			c1.z = _patchCache[cast pnts][cast 1].z;
-			c2.x = _patchCache[cast pnts][cast 2].x;
-			c2.y = _patchCache[cast pnts][cast 2].y;
-			c2.z = _patchCache[cast pnts][cast 2].z;
-			c3.x = _patchCache[cast pnts][cast 3].x;
-			c3.y = _patchCache[cast pnts][cast 3].y;
-			c3.z = _patchCache[cast pnts][cast 3].z;
+		if ((_patchCache[untyped pnts] != null)) {
+			c0.x = _patchCache[untyped pnts][untyped 0].x;
+			c0.y = _patchCache[untyped pnts][untyped 0].y;
+			c0.z = _patchCache[untyped pnts][untyped 0].z;
+			c1.x = _patchCache[untyped pnts][untyped 1].x;
+			c1.y = _patchCache[untyped pnts][untyped 1].y;
+			c1.z = _patchCache[untyped pnts][untyped 1].z;
+			c2.x = _patchCache[untyped pnts][untyped 2].x;
+			c2.y = _patchCache[untyped pnts][untyped 2].y;
+			c2.z = _patchCache[untyped pnts][untyped 2].z;
+			c3.x = _patchCache[untyped pnts][untyped 3].x;
+			c3.y = _patchCache[untyped pnts][untyped 3].y;
+			c3.z = _patchCache[untyped pnts][untyped 3].z;
 		} else {
 			a.x = p0.x * 3;
 			a.y = p0.y * 3;
@@ -388,7 +392,7 @@ class PatchData  {
 			c3.x = p3.x - p0.x + b.x - c.x;
 			c3.y = p3.y - p0.y + b.y - c.y;
 			c3.z = p3.z - p0.z + b.z - c.z;
-			_patchCache[cast pnts] = [new Vertex(), new Vertex(), new Vertex(), new Vertex()];
+			_patchCache[untyped pnts] = [new Vertex(c0.x, c0.y, c0.z), new Vertex(c1.x, c1.y, c1.z), new Vertex(c2.x, c2.y, c2.z), new Vertex(c3.x, c3.y, c3.z)];
 		}
 		v.x = c0.x + (pos * (c1.x + (pos * (c2.x + (pos * c3.x)))));
 		v.y = c0.y + (pos * (c1.y + (pos * (c2.y + (pos * c3.y)))));
@@ -398,17 +402,17 @@ class PatchData  {
 	private function getPatchPoint(v:Vertex, k:String, p:Float, s:Float, t:Float):Void {
 		
 		cacheKey = k + "/" + p + "/" + s;
-		if ((_patchCache[cast cacheKey] != null)) {
-			cv0 = _patchCache[cast cacheKey][cast 0];
-			cv1 = _patchCache[cast cacheKey][cast 1];
-			cv2 = _patchCache[cast cacheKey][cast 2];
-			cv3 = _patchCache[cast cacheKey][cast 3];
+		if ((_patchCache[untyped cacheKey] != null)) {
+			cv0 = _patchCache[untyped cacheKey][untyped 0];
+			cv1 = _patchCache[untyped cacheKey][untyped 1];
+			cv2 = _patchCache[untyped cacheKey][untyped 2];
+			cv3 = _patchCache[untyped cacheKey][untyped 3];
 		} else {
 			getCurvePoint(cv0, s, Reflect.field(controlPoints, k)[p][0]);
 			getCurvePoint(cv1, s, Reflect.field(controlPoints, k)[p][1]);
 			getCurvePoint(cv2, s, Reflect.field(controlPoints, k)[p][2]);
 			getCurvePoint(cv3, s, Reflect.field(controlPoints, k)[p][3]);
-			_patchCache[cast cacheKey] = [cv0.clone(), cv1.clone(), cv2.clone(), cv3.clone()];
+			_patchCache[untyped cacheKey] = [cv0.clone(), cv1.clone(), cv2.clone(), cv3.clone()];
 		}
 		getCurvePoint(vn, t, [cv0, cv1, cv2, cv3]);
 		v.x = vn.x;
@@ -427,13 +431,13 @@ class PatchData  {
 		var t2:Number3D = new Number3D();
 		var nd:Number3D = new Number3D();
 		// Copy our vectors into a temporary array
-		var tmp:Array<Dynamic> = new Array<Dynamic>();
-		var ntmp:Array<Dynamic> = new Array<Dynamic>();
+		var tmp:Array<Dynamic> = new Array();
+		var ntmp:Array<Dynamic> = new Array();
 		var n3D:Number3D = new Number3D();
 		i = 0;
 		while (i < 4) {
-			tmp[i] = new Array<Dynamic>();
-			ntmp[i] = new Array<Dynamic>();
+			tmp[i] = new Array();
+			ntmp[i] = new Array();
 			j = 0;
 			while (j < 4) {
 				ntmp[i][j] = VtoN(Reflect.field(controlPoints, k)[p][i][j]);
@@ -487,7 +491,7 @@ class PatchData  {
 	// Convert Vertex to Number3D
 	private function VtoN(v:Vertex):Number3D {
 		
-		return new Number3D();
+		return new Number3D(v.x, v.y, v.z);
 	}
 
 	// Deep clone an object

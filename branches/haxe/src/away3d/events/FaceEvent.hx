@@ -38,7 +38,7 @@ class FaceEvent extends Event  {
 	 */
 	public override function clone():Event {
 		
-		return new FaceEvent();
+		return new FaceEvent(type, face);
 	}
 
 }

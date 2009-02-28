@@ -43,7 +43,7 @@ class GlowFilterPlugin extends FilterPlugin  {
 		
 		_target = $target;
 		_type = GlowFilter;
-		initFilter($value, new GlowFilter());
+		initFilter($value, new GlowFilter(0xFFFFFF, 0, 0, 0, ($value.strength > 0) ? $value.strength : 1, ($value.quality > 0) ? $value.quality : 2, $value.inner, $value.knockout));
 		return true;
 	}
 

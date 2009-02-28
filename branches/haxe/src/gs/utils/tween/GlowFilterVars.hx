@@ -62,7 +62,7 @@ class GlowFilterVars extends FilterVars  {
 		if (Std.is($vars, GlowFilterVars)) {
 			return cast($vars, GlowFilterVars);
 		}
-		return new GlowFilterVars();
+		return new GlowFilterVars(($vars.blurX > 0) ? $vars.blurX : 0, ($vars.blurY > 0) ? $vars.blurY : 0, ($vars.color == null) ? 0x000000 : $vars.color, ($vars.alpha > 0) ? $vars.alpha : 0, ($vars.strength == null) ? 2 : $vars.strength, Boolean($vars.inner), Boolean($vars.knockout), ($vars.quality > 0) ? $vars.quality : 2, $vars.remove || false, ($vars.index == null) ? -1 : $vars.index, $vars.addFilter || false);
 	}
 
 	//---- GETTERS / SETTERS -------------------------------------------------------------------------------------

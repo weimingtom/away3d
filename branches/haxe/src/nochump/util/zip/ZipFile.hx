@@ -6,6 +6,7 @@ import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.Endian;
 import flash.utils.IDataInput;
+import flash.events.Event;
 
 
 // [Event(name="entryParsed", type="nochump.util.zip.ZipEvent")]
@@ -93,7 +94,7 @@ class ZipFile extends EventDispatcher  {
 	 */
 	public function getEntry(name:String):ZipEntry {
 		
-		return entryTable[cast name];
+		return entryTable[untyped name];
 	}
 
 	/**
@@ -107,7 +108,7 @@ class ZipFile extends EventDispatcher  {
 	public function getInput(entry:ZipEntry):ByteArray {
 		// extra field for local file header may not match one in central directory header
 		
-		buf.position = locOffsetTable[cast entry.name] + ZipConstants.LOCHDR - 2;
+		buf.position = locOffsetTable[untyped entry.name] + ZipConstants.LOCHDR - 2;
 		// extra length
 		var len:Int = buf.readShort();
 		buf.position += entry.name.length + len;
@@ -131,10 +132,10 @@ class ZipFile extends EventDispatcher  {
 				var inflater:Inflater = new Inflater();
 				inflater.setInput(b1);
 				inflater.inflate(b2);
-				dispatchEvent(new ZipEvent());
+				dispatchEvent(new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, b2));
 				return b2;
 			default :
-				throw new ZipError();
+				throw new ZipError("invalid compression method");
 			
 
 		}
@@ -144,7 +145,7 @@ class ZipFile extends EventDispatcher  {
 	public function parseInput(entry:ZipEntry):Void {
 		// extra field for local file header may not match one in central directory header
 		
-		buf.position = locOffsetTable[cast entry.name] + ZipConstants.LOCHDR - 2;
+		buf.position = locOffsetTable[untyped entry.name] + ZipConstants.LOCHDR - 2;
 		// extra length
 		var len:Int = buf.readShort();
 		buf.position += entry.name.length + len;
@@ -155,7 +156,7 @@ class ZipFile extends EventDispatcher  {
 		}
 		switch (entry.method) {
 			case ZipConstants.STORED :
-				dispatchEvent(new ZipEvent());
+				dispatchEvent(new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, b1));
 			case ZipConstants.DEFLATED :
 				var inflater:Inflater = new Inflater();
 				inflater.addEventListener(ZipEvent.ENTRY_PARSED, onZipEntryParsed);
@@ -164,7 +165,7 @@ class ZipFile extends EventDispatcher  {
 				inflater.setInput(b1);
 				inflater.queuedInflate(b2);
 			default :
-				throw new ZipError();
+				throw new ZipError("invalid compression method");
 			
 
 		}
@@ -172,12 +173,12 @@ class ZipFile extends EventDispatcher  {
 
 	private function onZipEntryParsed(event:ZipEvent):Void {
 		
-		dispatchEvent(new ZipEvent());
+		dispatchEvent(new ZipEvent(ZipEvent.ENTRY_PARSED, false, false, event.entry));
 	}
 
 	private function onZipEntryProgress(event:ProgressEvent):Void {
 		
-		dispatchEvent(new ProgressEvent());
+		dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, event.bytesLoaded, event.bytesTotal));
 	}
 
 	/**
@@ -196,15 +197,15 @@ class ZipFile extends EventDispatcher  {
 			tmpbuf.endian = Endian.LITTLE_ENDIAN;
 			buf.readBytes(tmpbuf, 0, ZipConstants.CENHDR);
 			if (tmpbuf.readUnsignedInt() != ZipConstants.CENSIG) {
-				throw new ZipError();
+				throw new ZipError("invalid CEN header (bad signature)");
 			}
 			// handle filename
 			tmpbuf.position = ZipConstants.CENNAM;
 			var len:Int = tmpbuf.readUnsignedShort();
 			if (len == 0) {
-				throw new ZipError();
+				throw new ZipError("missing entry name");
 			}
-			var e:ZipEntry = new ZipEntry();
+			var e:ZipEntry = new ZipEntry(buf.readUTFBytes(len));
 			// handle extra field
 			len = tmpbuf.readUnsignedShort();
 			e.extra = new ByteArray();
@@ -218,7 +219,7 @@ class ZipFile extends EventDispatcher  {
 			e.version = tmpbuf.readUnsignedShort();
 			e.flag = tmpbuf.readUnsignedShort();
 			if ((e.flag & 1) == 1) {
-				throw new ZipError();
+				throw new ZipError("encrypted ZIP entry not supported");
 			}
 			e.method = tmpbuf.readUnsignedShort();
 			e.dostime = tmpbuf.readUnsignedInt();
@@ -227,10 +228,10 @@ class ZipFile extends EventDispatcher  {
 			e.size = tmpbuf.readUnsignedInt();
 			// add to entries and table
 			entryList[i] = e;
-			entryTable[cast e.name] = e;
+			entryTable[untyped e.name] = e;
 			// loc offset
 			tmpbuf.position = ZipConstants.CENOFF;
-			locOffsetTable[cast e.name] = tmpbuf.readUnsignedInt();
+			locOffsetTable[untyped e.name] = tmpbuf.readUnsignedInt();
 			
 			// update loop variables
 			i++;
@@ -249,7 +250,7 @@ class ZipFile extends EventDispatcher  {
 		buf.position = findEND();
 		buf.readBytes(b, 0, ZipConstants.ENDHDR);
 		b.position = ZipConstants.ENDTOT;
-		entryList = new Array<Dynamic>();
+		entryList = new Array(b.readUnsignedShort());
 		b.position = ZipConstants.ENDOFF;
 		buf.position = b.readUnsignedInt();
 	}
@@ -274,7 +275,7 @@ class ZipFile extends EventDispatcher  {
 			i--;
 		}
 
-		throw new ZipError();
+		throw new ZipError("invalid zip");
 		return 0;
 	}
 
