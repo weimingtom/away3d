@@ -370,7 +370,7 @@ class Number3D  {
 	 */
 	public function interpolate(w:Number3D, f:Float):Void {
 		
-		var d:Number3D = new Number3D;
+		var d:Number3D = new Number3D();
 		d.sub(w, this);
 		d.scale(d, f);
 		add(this, d);
@@ -390,7 +390,7 @@ class Number3D  {
 	 */
 	public static function getInterpolated(w:Number3D, v:Number3D, f:Float):Number3D {
 		
-		var d:Number3D = new Number3D;
+		var d:Number3D = new Number3D();
 		d.sub(w, v);
 		d.scale(d, f);
 		d.add(d, v);
