@@ -117,7 +117,7 @@ class Init  {
 		return result;
 	}
 
-	public function getObject(name:String, ?type:Class=null):Dynamic {
+	public function getObject(name:String, ?type:Class<Dynamic>=null):Dynamic {
 		
 		if (init == null) {
 			return null;
@@ -138,7 +138,7 @@ class Init  {
 		return result;
 	}
 
-	public function getObjectOrInit(name:String, ?type:Class=null):Dynamic {
+	public function getObjectOrInit(name:String, ?type:Class<Dynamic>=null):Dynamic {
 		
 		if (init == null) {
 			return null;
