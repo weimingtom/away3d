@@ -212,7 +212,7 @@ class PrimitiveQuadrantTreeNode  {
 			render_center_length = center.length;
 			if ((render_center_length > 0)) {
 				if (render_center_length > 1) {
-					center.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
+					untyped center.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
 				}
 			}
 			render_center_index = 0;

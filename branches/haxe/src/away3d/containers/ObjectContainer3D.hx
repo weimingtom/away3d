@@ -48,7 +48,7 @@ class ObjectContainer3D extends Object3D  {
 	/** @private */
 	public function internalRemoveChild(child:Object3D):Void {
 		
-		var index:Int = children.indexOf(child);
+		var index:Int = untyped children.indexOf(child);
 		if (index == -1) {
 			return;
 		}
@@ -70,7 +70,7 @@ class ObjectContainer3D extends Object3D  {
 	private override function updateDimensions():Void {
 		//update bounding radius
 		
-		var children:Array<Dynamic> = _children.concat();
+		var children:Array<Dynamic> = _children.concat([]);
 		if ((children.length > 0)) {
 			if (_scaleX < 0) {
 				_boundingScale = -_scaleX;
@@ -104,19 +104,19 @@ class ObjectContainer3D extends Object3D  {
 
 			_boundingRadius = mradius;
 			//update max/min X
-			children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
+			untyped children.sortOn("parentmaxX", Array.DESCENDING | Array.NUMERIC);
 			_maxX = children[0].parentmaxX;
-			children.sortOn("parentminX", Array.NUMERIC);
+			untyped children.sortOn("parentminX", Array.NUMERIC);
 			_minX = children[0].parentminX;
 			//update max/min Y
-			children.sortOn("parentmaxY", Array.DESCENDING | Array.NUMERIC);
+			untyped children.sortOn("parentmaxY", Array.DESCENDING | Array.NUMERIC);
 			_maxY = children[0].parentmaxY;
-			children.sortOn("parentminY", Array.NUMERIC);
+			untyped children.sortOn("parentminY", Array.NUMERIC);
 			_minY = children[0].parentminY;
 			//update max/min Z
-			children.sortOn("parentmaxZ", Array.DESCENDING | Array.NUMERIC);
+			untyped children.sortOn("parentmaxZ", Array.DESCENDING | Array.NUMERIC);
 			_maxZ = children[0].parentmaxZ;
-			children.sortOn("parentminZ", Array.NUMERIC);
+			untyped children.sortOn("parentminZ", Array.NUMERIC);
 			_minZ = children[0].parentminZ;
 		}
 		super.updateDimensions();
@@ -140,7 +140,7 @@ class ObjectContainer3D extends Object3D  {
 		this._radiusChild = null;
 		
 		
-		var init:Dynamic;
+		var init:Dynamic = null;
 		var childarray:Array<Dynamic> = [];
 		for (__i in 0...initarray.length) {
 			var object:Dynamic = initarray[__i];
@@ -228,7 +228,7 @@ class ObjectContainer3D extends Object3D  {
 			var object3D:Object3D = children[__i];
 
 			if (object3D != null) {
-				if (object3D.name) {
+				if (object3D.name != null) {
 					if (object3D.name == childName) {
 						return object3D;
 					}
@@ -265,7 +265,7 @@ class ObjectContainer3D extends Object3D  {
 							return bone;
 						}
 					}
-					if (bone.id) {
+					if (bone.id != null) {
 						if (bone.id == boneName) {
 							return bone;
 						}

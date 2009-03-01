@@ -105,7 +105,7 @@ class PrimitiveTraverser extends Traverser  {
 		if (node.session.updated) {
 			_viewTransform = _cameraVarsStore.viewTransformDictionary[untyped node];
 			_consumer = node.session.getConsumer(_view);
-			if (node.projectorType) {
+			if (node.projectorType != null) {
 				(cast(_projectorDictionary[untyped node.projectorType], IPrimitiveProvider)).primitives(node, _viewTransform, _consumer);
 			}
 			if (node.debugbb && node.debugBoundingBox.visible) {

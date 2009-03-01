@@ -49,7 +49,9 @@ class Cast  {
 		if (Std.is(data, ByteArray)) {
 			return data;
 		}
-		return ByteArray(data);
+		var byteArray:ByteArray = new ByteArray();
+		byteArray.writeObject(data);
+		return byteArray;
 	}
 
 	public static function xml(data:Dynamic):Xml {
@@ -60,14 +62,15 @@ class Cast  {
 		if (Std.is(data, Xml)) {
 			return data;
 		}
-		return XML(data);
+		var xml:Xml = Xml.parse(data.toString());
+		return xml;
 	}
 
 	private static function hexstring(string:String):Bool {
 		
 		var i:Int = 0;
 		while (i < string.length) {
-			if (hexchars.indexOf(string.charAt(i)) == -1) {
+			if (untyped hexchars.indexOf(string.charAt(i)) == -1) {
 				return false;
 			}
 			
@@ -264,7 +267,7 @@ class Cast  {
 		if (Std.is(data, Class)) {
 			try {
 				data = Type.createInstance(data, []);
-			} catch (bitmaperror:ArgumentError) {
+			} catch (bitmaperror:Dynamic) {
 				data = Type.createInstance(data, []);
 			}
 
@@ -274,13 +277,13 @@ class Cast  {
 		}
 		if (Std.is(data, Bitmap)) {
 			// if (data is BitmapAsset)
-			if ((cast(data, Bitmap)).hasOwnProperty("bitmapData")) {
+			if (Reflect.hasField(cast(data, Bitmap), "bitmapData")) {
 				return (cast(data, Bitmap)).bitmapData;
 			}
 		}
 		if (Std.is(data, DisplayObject)) {
 			var ds:DisplayObject = cast(data, DisplayObject);
-			var bmd:BitmapData = new BitmapData(ds.width, ds.height, true, 0x00FFFFFF);
+			var bmd:BitmapData = new BitmapData(Std.int(ds.width), Std.int(ds.height), true, 0x00FFFFFF);
 			var mat:Matrix = ds.transform.matrix.clone();
 			mat.tx = 0;
 			mat.ty = 0;
@@ -298,12 +301,12 @@ class Cast  {
 		if ((notclasses[untyped name] != null)) {
 			return name;
 		}
-		var result:Class = classes[untyped name];
+		var result:Class<Dynamic> = classes[untyped name];
 		if (result != null) {
 			return result;
 		}
 		try {
-			result = cast(Type.resolveClass(name), Class);
+			result = cast(Type.resolveClass(name), Class<Dynamic>);
 			classes[untyped name] = result;
 			return result;
 		} catch (error:Dynamic) {
@@ -324,7 +327,7 @@ class Cast  {
 		if (Std.is(data, Class)) {
 			try {
 				data = Type.createInstance(data, []);
-			} catch (materialerror:ArgumentError) {
+			} catch (materialerror:Dynamic) {
 				data = Type.createInstance(data, []);
 			}
 
@@ -343,12 +346,12 @@ class Cast  {
 				return null;
 			}
 			var hash:Array<Dynamic>;
-			if ((cast(data, String)).indexOf("#") != -1) {
+			if (untyped (cast(data, String)).indexOf("#") != -1) {
 				hash = (cast(data, String)).split("#");
 				if (hash[1] == "") {
 					return new WireColorMaterial(color(hash[0]));
 				}
-				if (hash[1].indexOf("|") == -1) {
+				if (untyped hash[1].indexOf("|") == -1) {
 					if (hash[0] == "") {
 						return new WireframeMaterial(color(hash[1]));
 					} else {
@@ -362,7 +365,7 @@ class Cast  {
 						return new WireColorMaterial(color(hash[0]), {wirecolor:color(line[0]), width:Std.parseFloat(line[1])});
 					}
 				}
-			} else if ((cast(data, String)).indexOf("@") != -1) {
+			} else if (untyped (cast(data, String)).indexOf("@") != -1) {
 				hash = (cast(data, String)).split("@");
 				if (hash[1] == "") {
 					return new ShadingColorMaterial({color:color(hash[0])});
@@ -448,10 +451,10 @@ class Cast  {
 			if (data == "") {
 				return null;
 			}
-			if ((cast(data, String)).indexOf("#") == 0) {
+			if (untyped (cast(data, String)).indexOf("#") == 0) {
 				data = (cast(data, String)).substr(1);
 			}
-			if ((cast(data, String)).indexOf("|") == -1) {
+			if (untyped (cast(data, String)).indexOf("|") == -1) {
 				return new WireframeMaterial(color(data));
 			}
 			var line:Array<Dynamic> = (cast(data, String)).split("|");

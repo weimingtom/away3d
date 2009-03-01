@@ -2,6 +2,9 @@ package away3d.core.stats;
 
 import away3d.haxeutils.Error;
 import flash.display.Graphics;
+import flash.display.GradientType;
+import flash.display.InterpolationMethod;
+import flash.display.SpreadMethod;
 import flash.display.Shape;
 import flash.display.Sprite;
 import flash.geom.ColorTransform;
@@ -10,7 +13,9 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.system.System;
 import flash.text.TextField;
+import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
+import flash.text.TextFormatAlign;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
 import away3d.containers.View3D;
@@ -263,7 +268,7 @@ class Stats extends Sprite  {
 		displayMenu = new Sprite();
 		var myMatrix:Matrix = new Matrix();
 		myMatrix.rotate(90 * Math.PI / 180);
-		displayMenu.graphics.beginGradientFill("linear", [0x333366, 0xCCCCCC], [1, 1], [0, 255], myMatrix, "pad", "rgb", 0);
+		displayMenu.graphics.beginGradientFill(GradientType.LINEAR, [0x333366, 0xCCCCCC], [1, 1], [0, 255], myMatrix, SpreadMethod.PAD, InterpolationMethod.RGB, 0);
 		displayMenu.graphics.drawRect(0, 0, 250, 86);
 		displayMenu.graphics.beginFill(0x333366);
 		displayMenu.graphics.drawRect(3, 3, 244, 20);
@@ -347,7 +352,7 @@ class Stats extends Sprite  {
 		geombtn.x = 165;
 		geombtn.y = 4;
 		// generate bar
-		displayMenu.graphics.beginGradientFill("linear", [0x000000, 0xFFFFFF], [1, 1], [0, 255], new Matrix(), "pad", "rgb", 0);
+		displayMenu.graphics.beginGradientFill(GradientType.LINEAR, [0x000000, 0xFFFFFF], [1, 1], [0, 255], new Matrix(), SpreadMethod.PAD, InterpolationMethod.RGB, 0);
 		displayMenu.graphics.drawRect(3, 22, 244, 4);
 		displayMenu.graphics.endFill();
 		bar = new Sprite();
@@ -391,7 +396,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(peakLabel);
 		peakfps.x = 107;
 		peakfps.y = peakLabel.y = avfpsLabel.y;
-		peakfps.autoSize = "left";
+		peakfps.autoSize = TextFieldAutoSize.LEFT;
 		peakLabel.x = peakfps.x + peakfps.width - 2;
 		//MS
 		var pfps:StaticTextField = new StaticTextField("MS:", defautTFBold);
@@ -401,7 +406,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(perfLabel);
 		pfps.x = 177;
 		pfps.y = perfLabel.y = fpsLabel.y;
-		pfps.autoSize = "left";
+		pfps.autoSize = TextFieldAutoSize.LEFT;
 		perfLabel.x = pfps.x + pfps.width - 2;
 		//ram usage
 		var ram:StaticTextField = new StaticTextField("RAM:", defautTFBold);
@@ -410,7 +415,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(ramLabel);
 		ram.x = 3;
 		ram.y = ramLabel.y = 46;
-		ram.autoSize = "left";
+		ram.autoSize = TextFieldAutoSize.LEFT;
 		ramLabel.x = ram.x + ram.width - 2;
 		//meshes count
 		var meshc:StaticTextField = new StaticTextField("MESHES:", defautTFBold);
@@ -419,7 +424,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(meshLabel);
 		meshc.x = 90;
 		meshc.y = meshLabel.y = ramLabel.y;
-		meshc.autoSize = "left";
+		meshc.autoSize = TextFieldAutoSize.LEFT;
 		meshLabel.x = meshc.x + meshc.width - 2;
 		//swf framerate
 		var rate:StaticTextField = new StaticTextField("SWF FR:", defautTFBold);
@@ -428,7 +433,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(swfframerateLabel);
 		rate.x = 170;
 		rate.y = swfframerateLabel.y = ramLabel.y;
-		rate.autoSize = "left";
+		rate.autoSize = TextFieldAutoSize.LEFT;
 		swfframerateLabel.x = rate.x + rate.width - 2;
 		//faces
 		var faces:StaticTextField = new StaticTextField("T ELEMENTS:", defautTFBold);
@@ -437,7 +442,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(faceLabel);
 		faces.x = 3;
 		faces.y = faceLabel.y = 62;
-		faces.autoSize = "left";
+		faces.autoSize = TextFieldAutoSize.LEFT;
 		faceLabel.x = faces.x + faces.width - 2;
 		//shown faces
 		var facesrender:StaticTextField = new StaticTextField("R ELEMENTS:", defautTFBold);
@@ -446,7 +451,7 @@ class Stats extends Sprite  {
 		displayMenu.addChild(faceRenderLabel);
 		facesrender.x = 115;
 		facesrender.y = faceRenderLabel.y = faceLabel.y;
-		facesrender.autoSize = "left";
+		facesrender.autoSize = TextFieldAutoSize.LEFT;
 		faceRenderLabel.x = facesrender.x + facesrender.width - 2;
 	}
 
@@ -454,12 +459,14 @@ class Stats extends Sprite  {
 		
 		var now:Int = flash.Lib.getTimer();
 		var perf:Int = now - lastrender;
+		var fps:Int = 0;
+		var average:Int = 0;
 		lastrender = now;
 		if (perf < 1000) {
-			var fps:Int = Std.int(1000 / (perf + 0.001));
+			fps = Std.int(1000 / (perf + 0.001));
 			fpstotal += fps;
 			refreshes++;
-			var average:Int = Std.int(fpstotal / refreshes);
+			average = Std.int(fpstotal / refreshes);
 			bestfps = (fps > bestfps) ? fps : bestfps;
 			lowestfps = (fps < lowestfps) ? fps : lowestfps;
 			var w:Int = barscale * fps;
@@ -468,7 +475,7 @@ class Stats extends Sprite  {
 		//color
 		var procent:Int = Std.int((bar.width / barwidth) * 100);
 		var colorTransform:ColorTransform = bar.transform.colorTransform;
-		colorTransform.color = 255 - (2.55 * procent) << 16 | 2.55 * procent << 8 | 40;
+		colorTransform.color = Std.int(255 - (2.55 * procent)) << 16 | Std.int(2.55 * procent) << 8 | 40;
 		bar.transform.colorTransform = colorTransform;
 		if (displayState == 0) {
 			avfpsLabel.text = "" + average;
@@ -540,7 +547,7 @@ class Stats extends Sprite  {
 		geomMenu = new Sprite();
 		var myMatrix:Matrix = new Matrix();
 		myMatrix.rotate(90 * Math.PI / 180);
-		geomMenu.graphics.beginGradientFill("linear", [0x333366, 0xCCCCCC], [1, 1], [0, 255], myMatrix, "pad", "rgb", 0);
+		geomMenu.graphics.beginGradientFill(GradientType.LINEAR, [0x333366, 0xCCCCCC], [1, 1], [0, 255], myMatrix, SpreadMethod.PAD, InterpolationMethod.RGB, 0);
 		geomMenu.graphics.drawRect(0, 0, 250, 200);
 		displayMenu.addChild(geomMenu);
 		geomMenu.y = 26;
@@ -581,7 +588,7 @@ class Stats extends Sprite  {
 		camMenu = new Sprite();
 		var myMatrix:Matrix = new Matrix();
 		myMatrix.rotate(90 * Math.PI / 180);
-		camMenu.graphics.beginGradientFill("linear", [0x333366, 0xCCCCCC], [1, 1], [0, 255], myMatrix, "pad", "rgb", 0);
+		camMenu.graphics.beginGradientFill(GradientType.LINEAR, [0x333366, 0xCCCCCC], [1, 1], [0, 255], myMatrix, SpreadMethod.PAD, InterpolationMethod.RGB, 0);
 		camMenu.graphics.drawRect(0, 0, 250, 220);
 		displayMenu.addChild(camMenu);
 		camMenu.y = 26;
@@ -602,12 +609,12 @@ class Stats extends Sprite  {
 		var campropfield:TextField = new TextField();
 		tf = new TextFormat("Verdana", 10, 0x000000, true);
 		tf.leading = 1.5;
-		tf.align = "right";
+		tf.align = TextFormatAlign.RIGHT;
 		campropfield.defaultTextFormat = tf;
 		campropfield.x = campropfield.y = 3;
 		campropfield.multiline = true;
 		campropfield.selectable = false;
-		campropfield.autoSize = "left";
+		campropfield.autoSize = TextFieldAutoSize.LEFT;
 		campropfield.height = 210;
 		var i:Int = 0;
 		while (i < camProp.length) {

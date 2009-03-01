@@ -23,7 +23,6 @@ import away3d.core.traverse.Traverser;
  * The root container of all 3d objects in a single scene
  */
 class Scene3D extends ObjectContainer3D  {
-	public var sceneTransform(getSceneTransform, null) : Matrix3D;
 	
 	private var _view:View3D;
 	private var _currentView:View3D;
@@ -113,7 +112,7 @@ class Scene3D extends ObjectContainer3D  {
 		this.tickTraverser = new TickTraverser();
 		
 		
-		var init:Dynamic;
+		var init:Dynamic = null;
 		var childarray:Array<Dynamic> = [];
 		for (__i in 0...initarray.length) {
 			var object:Dynamic = initarray[__i];

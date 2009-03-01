@@ -56,7 +56,7 @@ class PrimitiveVolumeBlock  {
 
 	public function remove(pri:DrawPrimitive):Void {
 		
-		var index:Int = list.indexOf(pri);
+		var index:Int = untyped list.indexOf(pri);
 		if (index == -1) {
 			throw new Error("Can't remove");
 		}

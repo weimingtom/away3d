@@ -846,7 +846,7 @@ class Collada extends AbstractParser  {
 					case "instance_node" :
 						parseNode(collada.library_nodes.node.(@id == getId(childNode.@url))[0], cast(_objectData, ContainerData));
 					case "instance_geometry" :
-						if (Std.string(childNode).indexOf("lines") == -1) {
+						if (untyped Std.string(childNode).indexOf("lines") == -1) {
 							for (__i in 0...childNode .. instance_material.length) {
 								instance_material = childNode .. instance_material[__i];
 

@@ -60,7 +60,7 @@ class ObjectContainerProjector implements IPrimitiveProvider {
 					_screenVertex = _drawPrimitiveStore.createScreenVertex(_child.center);
 					_screenVertex.x = 0;
 					_screenVertex.y = 0;
-					if (_child.scenePivotPoint.modulo) {
+					if (_child.scenePivotPoint.modulo > 0) {
 						_depthPoint.clone(_child.scenePivotPoint);
 						_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
 						_depthPoint.add(_viewTransformDictionary[untyped _child].position, _depthPoint);

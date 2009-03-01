@@ -86,12 +86,12 @@ class Channel  {
 		
 		var channel:Channel = new Channel(name);
 		channel.target = object.getChildByName(name);
-		channel.type = type.concat();
-		channel.param = param.concat();
-		channel.inTangent = inTangent.concat();
-		channel.outTangent = outTangent.concat();
-		channel.times = times.concat();
-		channel.interpolations = interpolations.concat();
+		channel.type = type.concat([]);
+		channel.param = param.concat([]);
+		channel.inTangent = inTangent.concat([]);
+		channel.outTangent = outTangent.concat([]);
+		channel.times = times.concat([]);
+		channel.interpolations = interpolations.concat([]);
 		return channel;
 	}
 

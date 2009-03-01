@@ -26,8 +26,7 @@ import away3d.core.draw.DrawPrimitive;
 class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVMaterial {
 	public var width(getWidth, null) : Float;
 	public var height(getHeight, null) : Float;
-	public var bitmap(getBitmap, null) : BitmapData;
-	public var visible(getVisible, null) : Bool;
+	public var bitmap(getBitmap, setBitmap) : BitmapData;
 	
 	private var _bitmap:BitmapData;
 	private var _texturemapping:Matrix;
@@ -141,6 +140,11 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 		return _bitmap;
 	}
 
+	public function setBitmap(bitmap:BitmapData):BitmapData {
+		
+		return _bitmap = bitmap;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -154,7 +158,7 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 	 */
 	public function getPixel32(u:Float, v:Float):Int {
 		
-		return _bitmap.getPixel32(u * _bitmap.width, (1 - v) * _bitmap.height);
+		return _bitmap.getPixel32(Std.int(u * _bitmap.width), Std.int((1 - v) * _bitmap.height));
 	}
 
 	/**

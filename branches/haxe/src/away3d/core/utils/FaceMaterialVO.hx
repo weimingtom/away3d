@@ -51,11 +51,10 @@ class FaceMaterialVO  {
 		updated = true;
 		this.width = Std.int(width);
 		this.height = Std.int(height);
-		this.color = color;
 		if ((bitmap != null)) {
 			bitmap.dispose();
 		}
-		bitmap = new BitmapData(width, height, transparent, 0);
+		bitmap = new BitmapData(Std.int(width), Std.int(height), transparent, 0);
 		bitmap.lock();
 	}
 

@@ -136,7 +136,7 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 		var props:String = " progress progressWithDelay duration durationWithDelay paused reversed timeScale align stagger tweens ";
 		if (Reflect.hasField(_tweens, $name)) {
 			return true;
-		} else if (props.indexOf(" " + $name + " ") != -1) {
+		} else if (untyped props.indexOf(" " + $name + " ") != -1) {
 			return true;
 		} else {
 			return false;
@@ -764,8 +764,8 @@ class TweenGroup extends Proxy, implements IEventDispatcher {
 			i--;
 		}
 
-		postTweens.sortOn("start", Array.NUMERIC);
-		preTweens.sortOn("end", Array.NUMERIC);
+		untyped postTweens.sortOn("start", Array.NUMERIC);
+		untyped preTweens.sortOn("end", Array.NUMERIC);
 		i = postTweens.length - 1;
 		while (i > -1) {
 			a[i] = postTweens[i].tween;

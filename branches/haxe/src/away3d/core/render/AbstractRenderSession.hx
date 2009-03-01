@@ -21,6 +21,7 @@ import away3d.core.draw.DrawTriangle;
 import away3d.core.draw.DrawPrimitive;
 import flash.display.Shape;
 import flash.display.Graphics;
+import flash.display.BlendMode;
 
 
 /**
@@ -98,7 +99,7 @@ class AbstractRenderSession extends EventDispatcher  {
 	/**
 	 * Placeholder for blendMode property of containers
 	 */
-	public var blendMode:String;
+	public var blendMode:BlendMode;
 	/**
 	 * Array of child sessions.
 	 */
@@ -219,7 +220,7 @@ class AbstractRenderSession extends EventDispatcher  {
 	 */
 	public function addChildSession(session:AbstractRenderSession):Void {
 		
-		if (sessions.indexOf(session) != -1) {
+		if (untyped sessions.indexOf(session) != -1) {
 			return;
 		}
 		sessions.push(session);
@@ -235,7 +236,7 @@ class AbstractRenderSession extends EventDispatcher  {
 	public function removeChildSession(session:AbstractRenderSession):Void {
 		
 		session.removeOnSessionUpdate(onSessionUpdate);
-		var index:Int = sessions.indexOf(session);
+		var index:Int = untyped sessions.indexOf(session);
 		if (index == -1) {
 			return;
 		}

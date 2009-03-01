@@ -23,17 +23,9 @@ import away3d.events.SegmentEvent;
  * @see away3d.core.base.Mesh
  */
 class Segment extends Element  {
-	public var vertices(getVertices, null) : Array<Dynamic>;
 	public var v0(getV0, setV0) : Vertex;
 	public var v1(getV1, setV1) : Vertex;
 	public var material(getMaterial, setMaterial) : ISegmentMaterial;
-	public var radius2(getRadius2, null) : Float;
-	public var maxX(getMaxX, null) : Float;
-	public var minX(getMinX, null) : Float;
-	public var maxY(getMaxY, null) : Float;
-	public var minY(getMinY, null) : Float;
-	public var maxZ(getMaxZ, null) : Float;
-	public var minZ(getMinZ, null) : Float;
 	
 	/** @private */
 	public var _v0:Vertex;

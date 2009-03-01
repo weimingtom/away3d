@@ -46,7 +46,7 @@ class BlockerArray implements IBlockerConsumer {
 	 */
 	public function list():Array<Dynamic> {
 		
-		_blockers.sortOn("screenZ", Array.NUMERIC);
+		untyped _blockers.sortOn("screenZ", Array.NUMERIC);
 		return _blockers;
 	}
 

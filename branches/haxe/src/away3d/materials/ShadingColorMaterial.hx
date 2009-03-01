@@ -12,7 +12,6 @@ import away3d.core.draw.DrawPrimitive;
  * Color material with flat shading.
  */
 class ShadingColorMaterial extends CenterLightingMaterial  {
-	public var visible(getVisible, null) : Bool;
 	
 	private var fr:Int;
 	private var fg:Int;
@@ -68,9 +67,9 @@ class ShadingColorMaterial extends CenterLightingMaterial  {
 	 */
 	private override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Float, kag:Float, kab:Float, kdr:Float, kdg:Float, kdb:Float, ksr:Float, ksg:Float, ksb:Float):Void {
 		
-		fr = Std.int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
-		fg = Std.int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
-		fb = Std.int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
+		fr = (Std.int((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr + (specular & 0xFF0000) * ksr) >> 16);
+		fg = (Std.int((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg + (specular & 0x00FF00) * ksg) >> 8);
+		fb = (Std.int((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb + (specular & 0x0000FF) * ksb));
 		if (fr > 0xFF) {
 			fr = 0xFF;
 		}
@@ -83,9 +82,9 @@ class ShadingColorMaterial extends CenterLightingMaterial  {
 		session.renderTriangleColor(fr << 16 | fg << 8 | fb, alpha, tri.v0, tri.v1, tri.v2);
 		if (cache) {
 			if (tri.faceVO != null) {
-				sfr = Std.int(((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr) >> 16);
-				sfg = Std.int(((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg) >> 8);
-				sfb = Std.int(((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb));
+				sfr = (Std.int((ambient & 0xFF0000) * kar + (diffuse & 0xFF0000) * kdr) >> 16);
+				sfg = (Std.int((ambient & 0x00FF00) * kag + (diffuse & 0x00FF00) * kdg) >> 8);
+				sfb = (Std.int((ambient & 0x0000FF) * kab + (diffuse & 0x0000FF) * kdb));
 				if (sfr > 0xFF) {
 					sfr = 0xFF;
 				}

@@ -180,7 +180,7 @@ class Init  {
 		}
 		if (Std.is(value, Object3D)) {
 			var o:Object3D = cast(value, Object3D);
-			return o.scene ? o.scenePosition : o.position;
+			return (o.scene != null) ? o.scenePosition : o.position;
 		}
 		if (Std.is(value, String)) {
 			if (value == "center") {
@@ -227,7 +227,7 @@ class Init  {
 		if (!Reflect.hasField(init, name)) {
 			return null;
 		}
-		var result:CubeMaterialsData;
+		var result:CubeMaterialsData = null;
 		if (Std.is(Reflect.field(init, name), CubeMaterialsData)) {
 			result = cast(Reflect.field(init, name), CubeMaterialsData);
 		} else if (Std.is(Reflect.field(init, name), Dynamic)) {

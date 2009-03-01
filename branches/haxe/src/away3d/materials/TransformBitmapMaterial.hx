@@ -545,9 +545,9 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 				if (py < 0) {
 					py += _bitmap.height;
 				}
-				return _bitmap.getPixel32(px, py);
+				return _bitmap.getPixel32(Std.int(px), Std.int(py));
 			} else {
-				return _bitmap.getPixel32(__x * t.a + __y * t.c + t.tx, __x * t.b + __y * t.d + t.ty);
+				return _bitmap.getPixel32(Std.int(__x * t.a + __y * t.c + t.tx), Std.int(__x * t.b + __y * t.d + t.ty));
 			}
 		}
 		return super.getPixel32(u, v);

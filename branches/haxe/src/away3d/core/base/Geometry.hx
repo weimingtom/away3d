@@ -214,7 +214,7 @@ class Geometry extends EventDispatcher  {
 			material.addOnMaterialUpdate(onMaterialUpdate);
 		}
 		//check if element is added to elements array
-		if (_materialData.elements.indexOf(element) == -1) {
+		if (untyped _materialData.elements.indexOf(element) == -1) {
 			_materialData.elements.push(element);
 		}
 	}
@@ -224,7 +224,7 @@ class Geometry extends EventDispatcher  {
 		//detect if materialData exists
 		
 		if (((_materialData = materialDictionary[untyped material]) != null)) {
-			if ((_index = _materialData.elements.indexOf(element)) != -1) {
+			if ((_index = untyped _materialData.elements.indexOf(element)) != -1) {
 				_materialData.elements.splice(_index, 1);
 			}
 			//check if elements array is empty
@@ -395,7 +395,7 @@ class Geometry extends EventDispatcher  {
 		var result:SkinVertex = clonedskinvertices[untyped skinVertex];
 		if (result == null) {
 			result = new SkinVertex(cloneVertex(skinVertex.skinnedVertex));
-			result.weights = skinVertex.weights.concat();
+			result.weights = skinVertex.weights.concat([]);
 			for (__i in 0...skinVertex.controllers.length) {
 				_skinController = skinVertex.controllers[__i];
 
@@ -504,7 +504,7 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function getElements():Array<Dynamic> {
 		
-		return _billboards.concat(_faces, _segments);
+		return _billboards.concat(_faces).concat(_segments);
 	}
 
 	/**
@@ -543,7 +543,7 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function getFrame():Int {
 		
-		return _animation.frame;
+		return Std.int(_animation.frame);
 	}
 
 	public function setFrame(value:Int):Int {
@@ -631,7 +631,7 @@ class Geometry extends EventDispatcher  {
 	public function addFace(face:Face):Void {
 		
 		addElement(face);
-		if (face.material) {
+		if (face.material != null) {
 			addMaterial(face, face.material);
 		}
 		_vertfacesDirty = true;
@@ -649,12 +649,12 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function removeFace(face:Face):Void {
 		
-		var index:Int = _faces.indexOf(face);
+		var index:Int = untyped _faces.indexOf(face);
 		if (index == -1) {
 			return;
 		}
 		removeElement(face);
-		if (face.material) {
+		if (face.material != null) {
 			removeMaterial(face, face.material);
 		}
 		_vertfacesDirty = true;
@@ -674,7 +674,7 @@ class Geometry extends EventDispatcher  {
 	public function addSegment(segment:Segment):Void {
 		
 		addElement(segment);
-		if (segment.material) {
+		if (segment.material != null) {
 			addMaterial(segment, segment.material);
 		}
 		segment.v0.geometry = this;
@@ -689,12 +689,12 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function removeSegment(segment:Segment):Void {
 		
-		var index:Int = _segments.indexOf(segment);
+		var index:Int = untyped _segments.indexOf(segment);
 		if (index == -1) {
 			return;
 		}
 		removeElement(segment);
-		if (segment.material) {
+		if (segment.material != null) {
 			removeMaterial(segment, segment.material);
 		}
 		segment.v0.geometry = null;
@@ -710,7 +710,7 @@ class Geometry extends EventDispatcher  {
 	public function addBillboard(billboard:Billboard):Void {
 		
 		addElement(billboard);
-		if (billboard.material) {
+		if (billboard.material != null) {
 			addMaterial(billboard, billboard.material);
 		}
 		billboard.vertex.geometry = this;
@@ -724,12 +724,12 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function removeBillboard(billboard:Billboard):Void {
 		
-		var index:Int = _billboards.indexOf(billboard);
+		var index:Int = untyped _billboards.indexOf(billboard);
 		if (index == -1) {
 			return;
 		}
 		removeElement(billboard);
-		if (billboard.material) {
+		if (billboard.material != null) {
 			removeMaterial(billboard, billboard.material);
 		}
 		billboard.vertex.geometry = null;
@@ -1216,11 +1216,11 @@ class Geometry extends EventDispatcher  {
 			if (_animation.smooth) {
 				_animation.interpolate();
 			}
-			var bvalidprefix:Bool;
+			var bvalidprefix:Bool = false;
 			var framename:String;
 			var __keys:Iterator<Dynamic> = untyped (__keys__(framenames)).iterator();
 			for (framename in __keys) {
-				if (framename.indexOf(sequence.prefix) == 0) {
+				if (untyped framename.indexOf(sequence.prefix) == 0) {
 					bvalidprefix = true;
 					_activeprefix = (_activeprefix != sequence.prefix) ? sequence.prefix : _activeprefix;
 					_animation.sequence.push(new AnimationFrame(framenames[untyped framename], "" + Std.parseInt(framename.substr(sequence.prefix.length))));
@@ -1229,7 +1229,7 @@ class Geometry extends EventDispatcher  {
 			}
 
 			if (bvalidprefix) {
-				_animation.sequence.sortOn("sort", Array.NUMERIC);
+				untyped _animation.sequence.sortOn("sort", Array.NUMERIC);
 				frames[untyped _frame].adjust(1);
 				_animation.start();
 				//trace(">>>>>>>> [  start "+activeprefix+"  ]");
@@ -1258,7 +1258,7 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function gotoAndPlay(value:Int):Void {
 		
-		_frame = _animation.frame = value;
+		_animation.frame = _frame  = value;
 		frames[untyped _frame].adjust(1);
 		if (!_animation.isRunning) {
 			_animation.start();
@@ -1272,7 +1272,7 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function gotoAndStop(value:Int):Void {
 		
-		_frame = _animation.frame = value;
+		_animation.frame = _frame  = value;
 		frames[untyped _frame].adjust(1);
 		if (_animation.isRunning) {
 			_animation.stop();
@@ -1310,7 +1310,7 @@ class Geometry extends EventDispatcher  {
 			}
 		}
 
-		if (_animation.sequence.length) {
+		if (_animation.sequence.length > 0) {
 			_animation.start();
 		}
 	}

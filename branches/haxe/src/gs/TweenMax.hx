@@ -123,7 +123,7 @@ class TweenMax extends TweenLite, implements IEventDispatcher {
 						}
 					} else if (ti.isPlugin && ti.name == "_MULTIPLE_" && !ti.target.round) {
 						multiProps = " " + ti.target.overwriteProps.join(" ") + " ";
-						if (multiProps.indexOf(" " + prop + " ") != -1) {
+						if (untyped multiProps.indexOf(" " + prop + " ") != -1) {
 							ti.target.round = true;
 						}
 					}

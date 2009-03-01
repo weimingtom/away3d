@@ -156,7 +156,7 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 
 	public function removeMaterial(material:ILayerMaterial):Void {
 		
-		var index:Int = materials.indexOf(material);
+		var index:Int = untyped materials.indexOf(material);
 		if (index == -1) {
 			return;
 		}
@@ -218,8 +218,8 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 		
 		_faceMaterialVO = getFaceMaterialVO(tri.faceVO);
 		//get width and height values
-		_faceWidth = tri.faceVO.bitmapRect.width;
-		_faceHeight = tri.faceVO.bitmapRect.height;
+		_faceWidth = Std.int(tri.faceVO.bitmapRect.width);
+		_faceHeight = Std.int(tri.faceVO.bitmapRect.height);
 		//check to see if bitmapContainer exists
 		if ((_containerVO = _containerDictionary[untyped tri]) == null) {
 			_containerVO = _containerDictionary[untyped tri] = new FaceMaterialVO();

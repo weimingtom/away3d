@@ -28,6 +28,7 @@ import away3d.core.draw.DrawPrimitive;
 import away3d.core.math.Matrix3D;
 import flash.display.Shape;
 import flash.display.Graphics;
+import away3d.haxeutils.BlendModeUtils;
 
 
 // use namespace arcane;
@@ -46,7 +47,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 	public var color(getColor, setColor) : Int;
 	public var alpha(getAlpha, setAlpha) : Float;
 	public var colorTransform(getColorTransform, setColorTransform) : ColorTransform;
-	public var blendMode(getBlendMode, setBlendMode) : String;
+	public var blendMode(getBlendMode, setBlendMode) : BlendMode;
 	public var showNormals(getShowNormals, setShowNormals) : Bool;
 	public var visible(getVisible, null) : Bool;
 	
@@ -65,7 +66,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 	/** @private */
 	public var _colorTransformDirty:Bool;
 	/** @private */
-	public var _blendMode:String;
+	public var _blendMode:BlendMode;
 	/** @private */
 	public var _blendModeDirty:Bool;
 	/** @private */
@@ -218,7 +219,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 
 	}
 
-	private function renderRec(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex, index:Float):Void {
+	private function renderRec(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex, index:Int):Void {
 		
 		ax = a.x;
 		ay = a.y;
@@ -559,7 +560,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 			x = u;
 			y = (1 - v);
 		}
-		return _bitmap.getPixel32(x * _bitmap.width, y * _bitmap.height);
+		return _bitmap.getPixel32(Std.int(x * _bitmap.width), Std.int(y * _bitmap.height));
 	}
 
 	/**
@@ -623,7 +624,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 			_green = _colorTransform.greenMultiplier;
 			_blue = _colorTransform.blueMultiplier;
 			_alpha = _colorTransform.alphaMultiplier;
-			_color = Std.int((_red * 255 << 16) + (_green * 255 << 8) + _blue * 255);
+			_color = ((Std.int(_red * 255) << 16) + (Std.int(_green * 255) << 8) + Std.int(_blue * 255));
 		}
 		_colorTransformDirty = true;
 		return value;
@@ -636,12 +637,12 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 	 * @see away3d.materials.BitmapMaterialContainer
 	 * @see away3d.materials.CompositeMaterial
 	 */
-	public function getBlendMode():String {
+	public function getBlendMode():BlendMode {
 		
 		return _blendMode;
 	}
 
-	public function setBlendMode(val:String):String {
+	public function setBlendMode(val:BlendMode):BlendMode {
 		
 		if (_blendMode == val) {
 			return val;
@@ -698,7 +699,8 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 		debug = ini.getBoolean("debug", false);
 		repeat = ini.getBoolean("repeat", false);
 		precision = ini.getNumber("precision", 0);
-		_blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
+		_blendMode = BlendModeUtils.toHaxe(blendModeString);
 		alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
 		color = ini.getColor("color", _color);
 		colorTransform = cast(ini.getObject("colorTransform", ColorTransform), ColorTransform);
@@ -799,7 +801,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 		_session = tri.source.session;
 		_view = tri.view;
 		_near = _view.screenClipping.minZ;
-		if (_graphics == null && _session.newLayer) {
+		if (_graphics == null && _session.newLayer != null) {
 			_graphics = _session.newLayer.graphics;
 		}
 		if ((precision > 0)) {

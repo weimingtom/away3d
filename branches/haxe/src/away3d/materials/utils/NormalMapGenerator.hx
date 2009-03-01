@@ -139,7 +139,7 @@ class NormalMapGenerator extends EventDispatcher  {
 			line0 = [p0, p1];
 			line1 = [p1, p2];
 			line2 = [p2, p0];
-			_lines.sortOn("y", 16);
+			untyped _lines.sortOn("y", 16);
 			row = 0;
 			rect.x = _lines[0].x;
 			rect.y = _lines[0].y;

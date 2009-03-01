@@ -55,11 +55,11 @@ class TextureLoadQueue extends EventDispatcher  {
 		} else {
 			var evt:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS);
 			evt.bytesTotal = 100;
-			evt.bytesLoaded = percentLoaded;
+			evt.bytesLoaded = Std.int(percentLoaded);
 			dispatchEvent(evt);
 			if (currentLoader.contentLoaderInfo.bytesLoaded > 0 && currentLoader.contentLoaderInfo.bytesLoaded == currentLoader.contentLoaderInfo.bytesTotal) {
 			} else {
-				currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete, false, int.MIN_VALUE, true);
+				currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete, false, -2147483648, true);
 				currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false, 0, true);
 				currentLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false, 0, true);
 				currentLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, redispatchEvent, false, 0, true);

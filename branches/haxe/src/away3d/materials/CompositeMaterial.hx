@@ -197,7 +197,7 @@ class CompositeMaterial extends EventDispatcher, implements ITriangleMaterial, i
 
 	public function removeMaterial(material:ILayerMaterial):Void {
 		
-		var index:Int = materials.indexOf(material);
+		var index:Int = untyped materials.indexOf(material);
 		if (index == -1) {
 			return;
 		}

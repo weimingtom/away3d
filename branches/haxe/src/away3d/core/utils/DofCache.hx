@@ -61,8 +61,8 @@ class DofCache  {
 		this.levels = levels;
 		var mat:Matrix = new Matrix();
 		var pnt:Point = new Point(0, 0);
-		bitmaps = new Array(levels);
-		var j:Float = 0;
+		bitmaps = new Array();
+		var j:Int = 0;
 		while (j < levels) {
 			var tfilter:BlurFilter = new BlurFilter(2 + maxblur * j / levels, 2 + maxblur * j / levels, 4);
 			mat.identity();
@@ -96,7 +96,7 @@ class DofCache  {
 		if (t < 0) {
 			return minBitmap;
 		}
-		return bitmaps[t];
+		return bitmaps[Std.int(t)];
 	}
 
 }

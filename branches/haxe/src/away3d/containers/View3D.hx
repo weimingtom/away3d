@@ -304,8 +304,8 @@ class View3D extends Sprite  {
 							return;
 						}
 						uv = testuv;
+						material = testmaterial;
 					}
-					material = testmaterial;
 				} else {
 					uv = null;
 				}

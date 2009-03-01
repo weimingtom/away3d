@@ -68,7 +68,7 @@ class DrawPrimitiveStore  {
 		var __keys:Iterator<Dynamic> = untyped (__keys__(_sourceDictionary)).iterator();
 		for (_object in __keys) {
 			_source = cast(_object, Object3D);
-			if (_source.session && _source.session.updated) {
+			if (_source.session != null && _source.session.updated) {
 				var __keys:Iterator<Dynamic> = untyped (__keys__(_sourceDictionary[untyped _source])).iterator();
 				for (_vertex in __keys) {
 					_sv = _sourceDictionary[untyped _source][untyped _vertex];

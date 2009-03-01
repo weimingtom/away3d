@@ -98,7 +98,7 @@ class DirectionalLight extends LightPrimitive  {
 	 */
 	public function updateAmbientBitmap():Void {
 		
-		ambientBitmap = new BitmapData(256, 256, false, Std.int(ambient * red * 0xFF << 16) | Std.int(ambient * green * 0xFF << 8) | Std.int(ambient * blue * 0xFF));
+		ambientBitmap = new BitmapData(256, 256, false, Std.int(ambient * red * 0xFF) << 16 | Std.int(ambient * green * 0xFF) << 8 | Std.int(ambient * blue * 0xFF));
 		ambientBitmap.lock();
 	}
 
@@ -112,9 +112,9 @@ class DirectionalLight extends LightPrimitive  {
 		diffuseBitmap = new BitmapData(256, 256, false, 0x000000);
 		diffuseBitmap.lock();
 		_matrix.createGradientBox(256, 256, 0, 0, 0);
-		var colArray:Array<Dynamic> = new Array();
-		var alphaArray:Array<Dynamic> = new Array();
-		var pointArray:Array<Dynamic> = new Array();
+		var colArray:Array<Int> = new Array();
+		var alphaArray:Array<Int> = new Array();
+		var pointArray:Array<Int> = new Array();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			var r:Float = (i * diffuse / 14);
@@ -129,7 +129,7 @@ class DirectionalLight extends LightPrimitive  {
 			if (b > 1) {
 				b = 1;
 			}
-			colArray.push((r * red * 0xFF << 16) | (g * green * 0xFF << 8) | b * blue * 0xFF);
+			colArray.push((Std.int(r * red * 0xFF) << 16) | (Std.int(g * green * 0xFF) << 8) | Std.int(b * blue * 0xFF));
 			alphaArray.push(1);
 			pointArray.push(Std.int(30 + 225 * 2 * Math.acos(i / 14) / Math.PI));
 		}
@@ -153,9 +153,9 @@ class DirectionalLight extends LightPrimitive  {
 		ambientDiffuseBitmap = new BitmapData(256, 256, false, 0x000000);
 		ambientDiffuseBitmap.lock();
 		_matrix.createGradientBox(256, 256, 0, 0, 0);
-		var colArray:Array<Dynamic> = new Array();
-		var alphaArray:Array<Dynamic> = new Array();
-		var pointArray:Array<Dynamic> = new Array();
+		var colArray:Array<Int> = new Array();
+		var alphaArray:Array<Int> = new Array();
+		var pointArray:Array<Int> = new Array();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			var r:Float = (i * diffuse / 14 + ambient);
@@ -170,7 +170,7 @@ class DirectionalLight extends LightPrimitive  {
 			if (b > 1) {
 				b = 1;
 			}
-			colArray.push((r * red * 0xFF << 16) | (g * green * 0xFF << 8) | b * blue * 0xFF);
+			colArray.push((Std.int(r * red * 0xFF) << 16) | (Std.int(g * green * 0xFF) << 8) | Std.int(b * blue * 0xFF));
 			alphaArray.push(1);
 			pointArray.push(Std.int(30 + 225 * 2 * Math.acos(i / 14) / Math.PI));
 		}
@@ -193,12 +193,12 @@ class DirectionalLight extends LightPrimitive  {
 		specularBitmap = new BitmapData(512, 512, false, 0x000000);
 		specularBitmap.lock();
 		_matrix.createGradientBox(512, 512, 0, 0, 0);
-		var colArray:Array<Dynamic> = new Array();
-		var alphaArray:Array<Dynamic> = new Array();
-		var pointArray:Array<Dynamic> = new Array();
+		var colArray:Array<Int> = new Array();
+		var alphaArray:Array<Int> = new Array();
+		var pointArray:Array<Int> = new Array();
 		var i:Int = 15;
 		while ((i-- > 0)) {
-			colArray.push((i * specular * red * 0xFF / 14 << 16) + (i * specular * green * 0xFF / 14 << 8) + i * specular * blue * 0xFF / 14);
+			colArray.push((Std.int(i * specular * red * 0xFF / 14) << 16) + (Std.int(i * specular * green * 0xFF / 14) << 8) + Std.int(i * specular * blue * 0xFF / 14));
 			alphaArray.push(1);
 			pointArray.push(Std.int(30 + 225 * 2 * Math.acos(Math.pow(i / 14, 1 / 20)) / Math.PI));
 		}

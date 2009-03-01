@@ -17,7 +17,7 @@ class ZSortFilter implements IPrimitiveFilter {
 	 */
 	public function filter(primitives:Array<Dynamic>, scene:Scene3D, camera:Camera3D, clip:Clipping):Array<Dynamic> {
 		
-		primitives.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
+		untyped primitives.sortOn("screenZ", Array.DESCENDING | Array.NUMERIC);
 		return primitives;
 	}
 

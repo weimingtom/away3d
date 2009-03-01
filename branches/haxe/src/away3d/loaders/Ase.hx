@@ -34,19 +34,19 @@ class Ase extends AbstractParser  {
 		}
 		while (lines.length > 0) {
 			var line:String = lines.shift();
-			line = line.substr(line.indexOf('*') + 1);
-			if (line.indexOf('}') >= 0) {
+			line = line.substr(untyped line.indexOf('*') + 1);
+			if (untyped line.indexOf('}') >= 0) {
 				continue;
 			}
-			var chunk:String = line.substr(0, line.indexOf(' '));
+			var chunk:String = line.substr(0, untyped line.indexOf(' '));
 			switch (chunk) {
 				case 'MESH_VERTEX_LIST' :
 					while (true) {
 						var vertexline:String = lines.shift();
-						if (vertexline.indexOf('}') >= 0) {
+						if (untyped vertexline.indexOf('}') >= 0) {
 							break;
 						}
-						vertexline = vertexline.substr(vertexline.indexOf('*') + 1);
+						vertexline = vertexline.substr(untyped vertexline.indexOf('*') + 1);
 						var mvl:Array<Dynamic> = vertexline.split('\t');
 						// Swapped Y and Z
 						var x:Float = Std.parseFloat(mvl[1]) * scaling;
@@ -58,31 +58,31 @@ class Ase extends AbstractParser  {
 				case 'MESH_FACE_LIST' :
 					while (true) {
 						var faceline:String = lines.shift();
-						if (faceline.indexOf('}') >= 0) {
+						if (untyped faceline.indexOf('}') >= 0) {
 							break;
 						}
-						faceline = faceline.substr(faceline.indexOf('*') + 1);
+						faceline = faceline.substr(untyped faceline.indexOf('*') + 1);
 						// ignore: [MESH_SMOOTHING,MESH_MTLID]
 						var mfl:String = faceline.split('\t')[0];
 						// separate here
 						var drc:Array<Dynamic> = mfl.split(':');
 						var con:String;
 						con = drc[2];
-						var a:Vertex = vertices[Std.parseInt(con.substr(0, con.lastIndexOf(' ')))];
+						var a:Vertex = vertices[Std.parseInt(con.substr(0, untyped con.lastIndexOf(' ')))];
 						con = drc[3];
-						var b:Vertex = vertices[Std.parseInt(con.substr(0, con.lastIndexOf(' ')))];
+						var b:Vertex = vertices[Std.parseInt(con.substr(0, untyped con.lastIndexOf(' ')))];
 						con = drc[4];
-						var c:Vertex = vertices[Std.parseInt(con.substr(0, con.lastIndexOf(' ')))];
+						var c:Vertex = vertices[Std.parseInt(con.substr(0, untyped con.lastIndexOf(' ')))];
 						faces.push(new Face(a, b, c));
 					}
 
 				case 'MESH_TVERTLIST' :
 					while (true) {
 						var textureline:String = lines.shift();
-						if (textureline.indexOf('}') >= 0) {
+						if (untyped textureline.indexOf('}') >= 0) {
 							break;
 						}
-						textureline = textureline.substr(textureline.indexOf('*') + 1);
+						textureline = textureline.substr(untyped textureline.indexOf('*') + 1);
 						var mtvl:Array<Dynamic> = textureline.split('\t');
 						uvs.push(new UV(Std.parseFloat(mtvl[1]), Std.parseFloat(mtvl[2])));
 					}
@@ -91,10 +91,10 @@ class Ase extends AbstractParser  {
 					var num:Int = 0;
 					while (true) {
 						var mapline:String = lines.shift();
-						if (mapline.indexOf('}') >= 0) {
+						if (untyped mapline.indexOf('}') >= 0) {
 							break;
 						}
-						mapline = mapline.substr(mapline.indexOf('*') + 1);
+						mapline = mapline.substr(untyped mapline.indexOf('*') + 1);
 						var mtfl:Array<Dynamic> = mapline.split('\t');
 						var face:Face = faces[num];
 						face.uv0 = uvs[Std.parseInt(mtfl[1])];
