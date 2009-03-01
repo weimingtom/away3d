@@ -75,12 +75,12 @@ class ZoomFocusLens extends AbstractLens, implements ILens {
 	public function getFOV():Float {
 		//calculated from the arctan addition formula arctan(x) + arctan(y) = arctan(x + y / 1 - x*y)
 		
-		return Math.atan2(_clipTop - _clipBottom, _camera.focus * _camera.zoom + _clipTop * _clipBottom) * toDEGREES;
+		return Math.atan2(_clipTop - _clipBottom, _camera.focus * _camera.zoom + _clipTop * _clipBottom) * AbstractLens.toDEGREES;
 	}
 
 	public function getZoom():Float {
 		
-		return ((_clipTop - _clipBottom) / Math.tan(_camera.fov * toRADIANS) - _clipTop * _clipBottom) / _camera.focus;
+		return ((_clipTop - _clipBottom) / Math.tan(_camera.fov * AbstractLens.toRADIANS) - _clipTop * _clipBottom) / _camera.focus;
 	}
 
 	/**

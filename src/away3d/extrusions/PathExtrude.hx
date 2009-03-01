@@ -91,7 +91,7 @@ class PathExtrude extends Mesh  {
 			varr = new Array();
 			extrudePoints(points[i], points[i + 1], (1 / uvlength) * ((closedata) ? i + (uvlength - 1) : i), uvlength, ((closedata) ? i + (uvlength - 1) : i) / _subdivision);
 			if (i == 0 && _isClosedProfile) {
-				_doubles = varr.concat();
+				_doubles = varr.concat([]);
 			}
 			
 			// update loop variables

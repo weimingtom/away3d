@@ -170,7 +170,7 @@ class SegmentsExtrude extends Mesh  {
 			var oRenderside:Dynamic = {};
 			i = 0;
 			while (i < aListsides.length) {
-				Reflect.setField(oRenderside, aListsides[i], (omit.indexOf(aListsides[i]) == -1));
+				Reflect.setField(oRenderside, aListsides[i], (untyped omit.indexOf(aListsides[i]) == -1));
 				
 				// update loop variables
 				i++;

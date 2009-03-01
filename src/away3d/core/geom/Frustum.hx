@@ -31,7 +31,7 @@ class Frustum  {
 		this._matrix = new Matrix3D();
 		
 		
-		planes = new Array(6);
+		planes = new Array();
 		planes[LEFT] = new Plane3D();
 		planes[RIGHT] = new Plane3D();
 		planes[TOP] = new Plane3D();
@@ -103,7 +103,7 @@ class Frustum  {
 		var planesIn:Int = 0;
 		var p:Int = 0;
 		while (p < 6) {
-			var plane:Plane3D = Plane3D(planes[p]);
+			var plane:Plane3D = planes[p];
 			var pointsIn:Int = 0;
 			var i:Int = 0;
 			while (i < 8) {
@@ -154,37 +154,37 @@ class Frustum  {
 		var swy:Float = m.swy;
 		var swz:Float = m.swz;
 		var tw:Float = m.tw;
-		var near:Plane3D = Plane3D(planes[NEAR]);
+		var near:Plane3D = planes[NEAR];
 		near.a = swx + szx;
 		near.b = swy + szy;
 		near.c = swz + szz;
 		near.d = tw + tz;
 		near.normalize();
-		var far:Plane3D = Plane3D(planes[FAR]);
+		var far:Plane3D = planes[FAR];
 		far.a = -szx + swx;
 		far.b = -szy + swy;
 		far.c = -szz + swz;
 		far.d = -tz + tw;
 		far.normalize();
-		var left:Plane3D = Plane3D(planes[LEFT]);
+		var left:Plane3D = planes[LEFT];
 		left.a = swx + sxx;
 		left.b = swy + sxy;
 		left.c = swz + sxz;
 		left.d = tw + tx;
 		left.normalize();
-		var right:Plane3D = Plane3D(planes[RIGHT]);
+		var right:Plane3D = planes[RIGHT];
 		right.a = -sxx + swx;
 		right.b = -sxy + swy;
 		right.c = -sxz + swz;
 		right.d = -tx + tw;
 		right.normalize();
-		var top:Plane3D = Plane3D(planes[TOP]);
+		var top:Plane3D = planes[TOP];
 		top.a = swx + syx;
 		top.b = swy + syy;
 		top.c = swz + syz;
 		top.d = tw + ty;
 		top.normalize();
-		var bottom:Plane3D = Plane3D(planes[BOTTOM]);
+		var bottom:Plane3D = planes[BOTTOM];
 		bottom.a = -syx + swx;
 		bottom.b = -syy + swy;
 		bottom.c = -syz + swz;

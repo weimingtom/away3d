@@ -100,7 +100,7 @@ class Obj extends AbstractParser  {
 						uvs.push(new UV(Std.parseFloat(trunk[1]), Std.parseFloat(trunk[2])));
 					case "f" :
 						isNew = true;
-						if (trunk[1].indexOf("-") == -1) {
+						if (untyped trunk[1].indexOf("-") == -1) {
 							face0 = trysplit(trunk[1], "/");
 							face1 = trysplit(trunk[2], "/");
 							face2 = trysplit(trunk[3], "/");
@@ -176,7 +176,7 @@ class Obj extends AbstractParser  {
 		if (source == null) {
 			return null;
 		}
-		if (source.indexOf(by) == -1) {
+		if (untyped source.indexOf(by) == -1) {
 			return [source];
 		}
 		return source.split(by);
@@ -184,7 +184,7 @@ class Obj extends AbstractParser  {
 
 	private function checkMtl(data:String):Void {
 		
-		var index:Int = data.indexOf("mtllib");
+		var index:Int = untyped data.indexOf("mtllib");
 		if (index != -1) {
 			aSources = [];
 			loadMtl(parseUrl(index, data));
@@ -214,7 +214,7 @@ class Obj extends AbstractParser  {
 
 	private function parseUrl(index:Float, data:String):String {
 		
-		return data.substr(index + 7, data.indexOf(".mtl") + 4 - index + 7);
+		return data.substr(index + 7, untyped data.indexOf(".mtl") + 4 - index + 7);
 	}
 
 	private function parseMtl(event:Event):Void {

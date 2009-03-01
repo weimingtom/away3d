@@ -1,6 +1,7 @@
 package away3d.core.stats;
 
 import flash.text.TextField;
+import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
 
 
@@ -17,7 +18,7 @@ class StaticTextField extends TextField  {
 		selectable = false;
 		mouseEnabled = false;
 		mouseWheelEnabled = false;
-		autoSize = "left";
+		autoSize = TextFieldAutoSize.LEFT;
 		tabEnabled = false;
 		if ((text != null)) {
 			this.htmlText = text;

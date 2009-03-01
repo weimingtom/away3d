@@ -21,7 +21,7 @@ class Debug  {
 	public static function trace(message:Dynamic):Void {
 		
 		if (active) {
-			dotrace(message);
+			trace(message);
 		}
 	}
 

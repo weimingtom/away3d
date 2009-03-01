@@ -154,7 +154,7 @@ class ReflectivePlane extends Plane  {
 	//Optical modes.
 	public function setOpticalMode(value:String):String {
 		
-		if (_opticalModes.indexOf(value) == -1) {
+		if (untyped _opticalModes.indexOf(value) == -1) {
 			return value;
 		}
 		_opticalMode = value;
@@ -185,7 +185,7 @@ class ReflectivePlane extends Plane  {
 
 	public function setRenderMode(value:String):String {
 		
-		if (_renderModes.indexOf(value) == -1) {
+		if (untyped _renderModes.indexOf(value) == -1) {
 			return value;
 		}
 		if (_renderMode == value) {
@@ -713,8 +713,8 @@ class ReflectivePlane extends Plane  {
 		_sv3 = _view.camera.screen(this, _v3);
 		var xS:Array<Dynamic> = [{x:_sv0.x}, {x:_sv1.x}, {x:_sv2.x}, {x:_sv3.x}];
 		var yS:Array<Dynamic> = [{y:_sv0.y}, {y:_sv1.y}, {y:_sv2.y}, {y:_sv3.y}];
-		xS.sortOn("x", Array.NUMERIC);
-		yS.sortOn("y", Array.NUMERIC);
+		untyped xS.sortOn("x", Array.NUMERIC);
+		untyped yS.sortOn("y", Array.NUMERIC);
 		var minX:Float = Math.max(-_viewRect.width / 2, xS[0].x);
 		var minY:Float = Math.max(-_viewRect.height / 2, yS[0].y);
 		var maxX:Float = Math.min(_viewRect.width / 2, xS[xS.length - 1].x);
@@ -886,7 +886,7 @@ class ReflectivePlane extends Plane  {
 		if (this.scene == null) {
 			return;
 		}
-		if (this.scene.children.indexOf(_bumpMapDummyPlane) != -1) {
+		if (untyped this.scene.children.indexOf(_bumpMapDummyPlane) != -1) {
 			this.scene.removeChild(_bumpMapDummyPlane);
 		}
 		_bumpMapDummyPlane = new Plane();

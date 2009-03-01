@@ -25,7 +25,6 @@ import away3d.events.BillboardEvent;
  * @see away3d.core.base.Mesh
  */
 class Billboard extends Element  {
-	public var vertices(getVertices, null) : Array<Dynamic>;
 	public var vertex(getVertex, setVertex) : Vertex;
 	public var x(getX, setX) : Float;
 	public var y(getY, setY) : Float;
@@ -35,13 +34,6 @@ class Billboard extends Element  {
 	public var height(getHeight, setHeight) : Float;
 	public var scaling(getScaling, setScaling) : Float;
 	public var rotation(getRotation, setRotation) : Float;
-	public var radius2(getRadius2, null) : Float;
-	public var maxX(getMaxX, null) : Float;
-	public var minX(getMinX, null) : Float;
-	public var maxY(getMaxY, null) : Float;
-	public var minY(getMinY, null) : Float;
-	public var maxZ(getMaxZ, null) : Float;
-	public var minZ(getMinZ, null) : Float;
 	
 	/** @private */
 	public var _vertex:Vertex;

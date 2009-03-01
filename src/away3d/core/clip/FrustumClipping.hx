@@ -23,7 +23,6 @@ import away3d.core.geom.Frustum;
  * Frustum Clipping
  */
 class FrustumClipping extends Clipping  {
-	public var objectCulling(null, setObjectCulling) : Bool;
 	
 	private var tri:DrawTriangle;
 	private var _v0C:VertexClassification;
@@ -84,16 +83,19 @@ class FrustumClipping extends Clipping  {
 		_v0C = _cameraVarsStore.createVertexClassification(faceVO.v0);
 		_v1C = _cameraVarsStore.createVertexClassification(faceVO.v1);
 		_v2C = _cameraVarsStore.createVertexClassification(faceVO.v2);
-		if ((((_v0C.plane != null) ? _v0C.plane : _v1C.plane != null) ? (_v0C.plane != null) ? _v0C.plane : _v1C.plane : _v2C.plane != null)) {
-			if (((_plane = _v0C.plane) != null)) {
+		if ((_v0C.plane != null) || (_v1C.plane != null) || (_v0C.plane != null)) {
+			if (_v0C.plane != null) {
+				_plane = _v0C.plane;
 				_v0d = _v0C.distance;
 				_v1d = _v1C.getDistance(_plane);
 				_v2d = _v2C.getDistance(_plane);
-			} else if (((_plane = _v1C.plane) != null)) {
+			} else if (_v1C.plane != null) {
+				_plane = _v1C.plane;
 				_v0d = _v0C.getDistance(_plane);
 				_v1d = _v1C.distance;
 				_v2d = _v2C.getDistance(_plane);
-			} else if (((_plane = _v2C.plane) != null)) {
+			} else if (_v2C.plane != null) {
+				_plane = _v2C.plane;
 				_v0d = _v0C.getDistance(_plane);
 				_v1d = _v1C.getDistance(_plane);
 				_v2d = _v2C.distance;

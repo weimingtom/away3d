@@ -170,14 +170,14 @@ class MeshProjector implements IPrimitiveProvider {
 						continue;
 					}
 					_tri.material = _faceVO.back;
-					if (!_tri.material) {
+					if ((_tri.material == null)) {
 						_tri.material = _faceVO.material;
 					}
 				} else {
 					_tri.material = _faceVO.material;
 				}
 				//determine the material of the _triangle
-				if (!_tri.material) {
+				if (_tri.material == null) {
 					if (_backface) {
 						_tri.material = _backmat;
 					} else {
@@ -185,11 +185,11 @@ class MeshProjector implements IPrimitiveProvider {
 					}
 				}
 				//do not draw material if visible is false
-				if (_tri.material && !_tri.material.visible) {
+				if ((_tri.material != null) && !_tri.material.visible) {
 					_tri.material = null;
 				}
 				//if there is no material and no outline, continue
-				if (!_mesh.outline && !_tri.material) {
+				if ((_mesh.outline == null) && (_tri.material == null)) {
 					continue;
 				}
 				//check whether screenClipping removes triangle
@@ -202,7 +202,7 @@ class MeshProjector implements IPrimitiveProvider {
 				if (_mesh.pushfront) {
 					_tri.screenZ = _tri.minZ;
 				}
-				if (_mesh.outline && !_backface) {
+				if ((_mesh.outline != null) && !_backface) {
 					_n01 = _mesh.geometry.neighbour01(_face);
 					if (_n01 == null || front(_n01, viewTransform) <= 0) {
 						consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v0, _tri.v1));

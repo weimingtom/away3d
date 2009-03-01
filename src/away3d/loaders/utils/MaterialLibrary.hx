@@ -81,7 +81,7 @@ class MaterialLibrary extends Dictionary  {
 
 					if (_image != null) {
 						if (texturePath + _materialData.textureFileName == _image.filename) {
-							_materialData.textureBitmap = new BitmapData(_image.width, _image.height, true, 0x00FFFFFF);
+							_materialData.textureBitmap = new BitmapData(Std.int(_image.width), Std.int(_image.height), true, 0x00FFFFFF);
 							_materialData.textureBitmap.draw(_image);
 							_materialData.material = new BitmapMaterial(_materialData.textureBitmap);
 						}

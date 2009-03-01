@@ -13,13 +13,15 @@ import away3d.core.utils.FaceMaterialVO;
 interface IUVMaterial implements IMaterial  {
 	var width(getWidth, null) : Float;
 	var height(getHeight, null) : Float;
-	var bitmap(getBitmap, null) : BitmapData;
+	var bitmap(getBitmap, setBitmap) : BitmapData;
 	
 	function getWidth():Float;
 
 	function getHeight():Float;
 
 	function getBitmap():BitmapData;
+
+	function setBitmap(bitmap:BitmapData):BitmapData;
 
 	function getPixel32(u:Float, v:Float):Int;
 

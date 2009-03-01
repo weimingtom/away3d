@@ -90,8 +90,8 @@ class BitmapRenderSession extends AbstractRenderSession  {
 		
 		_container = cast(getContainer(view), Sprite);
 		if (_bitmapContainer.bitmapData == null) {
-			_bitmapwidth = Std.int((_width = view.screenClipping.maxX - view.screenClipping.minX) / _scale);
-			_bitmapheight = Std.int((_height = view.screenClipping.maxY - view.screenClipping.minY) / _scale);
+			_bitmapwidth = Std.int((_width = Std.int(view.screenClipping.maxX - view.screenClipping.minX)) / _scale);
+			_bitmapheight = Std.int((_height = Std.int(view.screenClipping.maxY - view.screenClipping.minY)) / _scale);
 			return _bitmapContainer.bitmapData = new BitmapData(_bitmapwidth, _bitmapheight, true, 0);
 		}
 		return _bitmapContainer.bitmapData;

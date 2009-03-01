@@ -140,7 +140,7 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 	public function remove(pri:DrawPrimitive):Void {
 		
 		_center = pri.quadrant.center;
-		_center.splice(_center.indexOf(pri), 1);
+		_center.splice(untyped _center.indexOf(pri), 1);
 	}
 
 	/**

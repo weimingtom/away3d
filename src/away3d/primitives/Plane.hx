@@ -34,10 +34,10 @@ class Plane extends AbstractPrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array(segmentsW + 1);
+		grid = new Array();
 		i = 0;
 		while (i <= segmentsW) {
-			grid[i] = new Array(segmentsH + 1);
+			grid[i] = new Array();
 			j = 0;
 			while (j <= segmentsH) {
 				if (yUp) {

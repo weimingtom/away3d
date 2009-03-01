@@ -32,10 +32,10 @@ class Torus extends AbstractPrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array(segmentsR);
+		grid = new Array();
 		i = 0;
 		while (i < segmentsR) {
-			grid[i] = new Array(segmentsT);
+			grid[i] = new Array();
 			j = 0;
 			while (j < segmentsT) {
 				var u:Float = i / segmentsR * 2 * Math.PI;

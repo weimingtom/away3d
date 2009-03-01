@@ -51,7 +51,7 @@ class Kmz extends AbstractParser  {
 		while (i < kmzFile.entries.length) {
 			var entry:ZipEntry = kmzFile.entries[i];
 			var data:ByteArray = kmzFile.getInput(entry);
-			if (entry.name.indexOf(".dae") > -1 && entry.name.indexOf("models/") > -1) {
+			if (untyped entry.name.indexOf(".dae") > -1 && untyped entry.name.indexOf("models/") > -1) {
 				collada = new XML(data.toString());
 				container = Collada.parse(collada, init);
 				if (Std.is(container, Object3DLoader)) {
@@ -83,7 +83,7 @@ class Kmz extends AbstractParser  {
 		while (i < kmzFile.entries.length) {
 			var entry:ZipEntry = kmzFile.entries[i];
 			var data:ByteArray = kmzFile.getInput(entry);
-			if ((entry.name.indexOf(".jpg") > -1 || entry.name.indexOf(".png") > -1) && entry.name.indexOf("images/") > -1) {
+			if ((untyped entry.name.indexOf(".jpg") > -1 || untyped entry.name.indexOf(".png") > -1) && untyped entry.name.indexOf("images/") > -1) {
 				var _loader:Loader = new Loader();
 				_loader.name = "../" + entry;
 				_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadBitmapCompleteHandler);

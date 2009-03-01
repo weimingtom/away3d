@@ -21,8 +21,6 @@ import away3d.events.MouseEvent3D;
  * Animated movie material.
  */
 class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMaterial, implements IUVMaterial {
-	public var width(getWidth, null) : Float;
-	public var height(getHeight, null) : Float;
 	public var movie(getMovie, setMovie) : Sprite;
 	public var clipRect(getClipRect, setClipRect) : Rectangle;
 	public var lockW(getLockW, setLockW) : Float;
@@ -31,7 +29,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 	private var _movie:Sprite;
 	private var _lastsession:Int;
 	private var _colTransform:ColorTransform;
-	private var _bMode:String;
+	private var _bMode:BlendMode;
 	private var __xx:Float;
 	private var __yy:Float;
 	private var __t:Matrix;
@@ -152,7 +150,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 		_movie = movie;
 		_lockW = ini.getNumber("lockW", movie.width);
 		_lockH = ini.getNumber("lockH", movie.height);
-		_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
+		_bitmap = new BitmapData(Std.int(Math.max(1, _lockW)), Std.int(Math.max(1, _lockH)), transparent, (transparent) ? 0x00ffffff : 0);
 		super(_bitmap, ini);
 	}
 
@@ -237,7 +235,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 		if (_renderBitmap != null) {
 			_bitmap.dispose();
 			_renderBitmap.dispose();
-			_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
+			_bitmap = new BitmapData(Std.int(Math.max(1, _lockW)), Std.int(Math.max(1, _lockH)), transparent, (transparent) ? 0x00ffffff : 0);
 			_renderBitmap = _bitmap.clone();
 			update();
 		}
@@ -260,7 +258,7 @@ class MovieMaterial extends TransformBitmapMaterial, implements ITriangleMateria
 		if (_renderBitmap != null) {
 			_bitmap.dispose();
 			_renderBitmap.dispose();
-			_bitmap = new BitmapData(Math.max(1, _lockW), Math.max(1, _lockH), transparent, (transparent) ? 0x00ffffff : 0);
+			_bitmap = new BitmapData(Std.int(Math.max(1, _lockW)), Std.int(Math.max(1, _lockH)), transparent, (transparent) ? 0x00ffffff : 0);
 			_renderBitmap = _bitmap.clone();
 			update();
 		}

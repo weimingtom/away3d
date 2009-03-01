@@ -86,9 +86,9 @@ class Color  {
 
 	public static function fromIntsCheck(red:Int, green:Int, blue:Int):Int {
 		
-		red = Math.max(0, Math.min(255, red));
-		green = Math.max(0, Math.min(255, green));
-		blue = Math.max(0, Math.min(255, blue));
+		red = Std.int(Math.max(0, Math.min(255, red)));
+		green = Std.int(Math.max(0, Math.min(255, green)));
+		blue = Std.int(Math.max(0, Math.min(255, blue)));
 		return 0x10000 * red + 0x100 * green + blue;
 	}
 

@@ -43,7 +43,7 @@ class Cylinder extends AbstractPrimitive  {
 			jMin = 1;
 			jMax = segmentsH - 1;
 			var bottom:Vertex = yUp ? createVertex(0, -height, 0) : createVertex(0, 0, -height);
-			grid[0] = new Array(segmentsW);
+			grid[0] = new Array();
 			i = 0;
 			while (i < segmentsW) {
 				grid[0][i] = bottom;
@@ -53,7 +53,7 @@ class Cylinder extends AbstractPrimitive  {
 			}
 
 			var top:Vertex = yUp ? createVertex(0, height, 0) : createVertex(0, 0, height);
-			grid[segmentsH] = new Array(segmentsW);
+			grid[segmentsH] = new Array();
 			i = 0;
 			while (i < segmentsW) {
 				grid[segmentsH][i] = top;
@@ -69,7 +69,7 @@ class Cylinder extends AbstractPrimitive  {
 		j = jMin;
 		while (j <= jMax) {
 			var z:Float = -height + 2 * height * (j - jMin) / (jMax - jMin);
-			grid[j] = new Array(segmentsW);
+			grid[j] = new Array();
 			i = 0;
 			while (i < segmentsW) {
 				var verangle:Float = 2 * i / segmentsW * Math.PI;

@@ -11,7 +11,7 @@ interface IFogMaterial implements ITriangleMaterial  {
 	
 	function getAlpha():Float;
 
-	function setAlpha(val:Float):Void;
+	function setAlpha(val:Float):Float;
 
 	function renderFog(fog:DrawFog):Void;
 

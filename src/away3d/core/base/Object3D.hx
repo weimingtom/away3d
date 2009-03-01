@@ -1,6 +1,7 @@
 package away3d.core.base;
 
 import away3d.haxeutils.Error;
+import away3d.haxeutils.BlendModeUtils;
 import flash.events.EventDispatcher;
 import away3d.containers.Scene3D;
 import away3d.containers.ObjectContainer3D;
@@ -164,7 +165,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public var renderer(getRenderer, setRenderer) : IPrimitiveConsumer;
 	public var filters(getFilters, setFilters) : Array<Dynamic>;
 	public var alpha(getAlpha, setAlpha) : Float;
-	public var blendMode(getBlendMode, setBlendMode) : String;
+	public var blendMode(getBlendMode, setBlendMode) : BlendMode;
 	public var ownSession(getOwnSession, setOwnSession) : AbstractRenderSession;
 	public var x(getX, setX) : Float;
 	public var y(getY, setY) : Float;
@@ -260,7 +261,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	private var _ownCanvas:Bool;
 	private var _filters:Array<Dynamic>;
 	private var _alpha:Float;
-	private var _blendMode:String;
+	private var _blendMode:BlendMode;
 	private var _renderer:IPrimitiveConsumer;
 	private var _ownLights:Bool;
 	private var _lightsDirty:Bool;
@@ -533,7 +534,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 
 	private function onParentSessionChange(event:Object3DEvent):Void {
 		
-		if ((_ownSession != null) && event.object.parent) {
+		if ((_ownSession != null) && (event.object.parent != null)) {
 			event.object.parent.session.removeChildSession(_ownSession);
 		}
 		if ((_ownSession != null) && (_parent.session != null)) {
@@ -906,12 +907,12 @@ class Object3D extends EventDispatcher, implements IClonable {
 	 * 
 	 * @see #ownCanvas
 	 */
-	public function getBlendMode():String {
+	public function getBlendMode():BlendMode {
 		
 		return _blendMode;
 	}
 
-	public function setBlendMode(val:String):String {
+	public function setBlendMode(val:BlendMode):BlendMode {
 		
 		if (_blendMode == val) {
 			return val;
@@ -1459,7 +1460,8 @@ class Object3D extends EventDispatcher, implements IClonable {
 		renderer = cast(ini.getObject("renderer", IPrimitiveConsumer), IPrimitiveConsumer);
 		filters = ini.getArray("filters");
 		alpha = ini.getNumber("alpha", 1);
-		blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
+		blendMode = BlendModeUtils.toHaxe(blendModeString);
 		debugbb = ini.getBoolean("debugbb", false);
 		debugbs = ini.getBoolean("debugbs", false);
 		pushback = ini.getBoolean("pushback", false);
@@ -1820,7 +1822,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 		object3D.name = name;
 		object3D.ownCanvas = _ownCanvas;
 		object3D.renderer = _renderer;
-		object3D.filters = _filters.concat();
+		object3D.filters = _filters.concat([]);
 		object3D.alpha = _alpha;
 		object3D.visible = visible;
 		object3D.mouseEnabled = mouseEnabled;

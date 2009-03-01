@@ -106,7 +106,7 @@ class Lathe extends Mesh  {
 		var oRenderside:Dynamic = {};
 		i = 0;
 		while (i < aListsides.length) {
-			Reflect.setField(oRenderside, aListsides[i], (omit.indexOf(aListsides[i]) == -1));
+			Reflect.setField(oRenderside, aListsides[i], (untyped omit.indexOf(aListsides[i]) == -1));
 			
 			// update loop variables
 			i++;
@@ -385,7 +385,7 @@ class Lathe extends Mesh  {
 		i = 0;
 		while (i <= subdivision * rotations) {
 			tmpPoints = new Array();
-			tmpPoints = aPoints.concat();
+			tmpPoints = aPoints.concat([]);
 			j = 0;
 			while (j < tmpPoints.length) {
 				factor = ((rotations - 1) / (varr.length + 1));

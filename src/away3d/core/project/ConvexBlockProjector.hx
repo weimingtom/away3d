@@ -108,7 +108,7 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 		}
 
 		_base.num = -Math.POSITIVE_INFINITY;
-		_points.sortOn("num", Array.NUMERIC);
+		untyped _points.sortOn("num", Array.NUMERIC);
 		var result:Array<Dynamic> = [_points[0], _points[1]];
 		var o:Float;
 		var i:Int = 2;

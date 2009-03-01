@@ -340,7 +340,8 @@ class Cube extends AbstractPrimitive  {
 					addFace(createFace(vb, va, vc, material, uvb, uva, uvc));
 					addFace(createFace(vc, va, vd, material, uvc, uva, uvd));
 				}
-				aFs.push(faces[faces.length - 2], faces[faces.length - 1]);
+				aFs.push(faces[faces.length - 2]);
+				aFs.push(faces[faces.length - 1]);
 				
 				// update loop variables
 				++j;
