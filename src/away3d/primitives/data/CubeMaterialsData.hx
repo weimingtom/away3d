@@ -175,12 +175,30 @@ class CubeMaterialsData extends EventDispatcher  {
 		
 		
 		ini = Init.parse(init);
-		_left = cast(ini.getMaterial("left"), ITriangleMaterial);
-		_right = cast(ini.getMaterial("right"), ITriangleMaterial);
-		_bottom = cast(ini.getMaterial("bottom"), ITriangleMaterial);
-		_top = cast(ini.getMaterial("top"), ITriangleMaterial);
-		_front = cast(ini.getMaterial("front"), ITriangleMaterial);
-		_back = cast(ini.getMaterial("back"), ITriangleMaterial);
+		var tmpObject:Dynamic = ini.getMaterial("left");
+		if (tmpObject != null) {
+			_left = cast(tmpObject, ITriangleMaterial);
+		}
+		tmpObject = ini.getMaterial("right");
+		if (tmpObject != null) {
+			_right = cast(tmpObject, ITriangleMaterial);
+		}
+		tmpObject = ini.getMaterial("bottom");
+		if (tmpObject != null) {
+			_bottom = cast(tmpObject, ITriangleMaterial);
+		}
+		tmpObject = ini.getMaterial("top");
+		if (tmpObject != null) {
+			_top = cast(tmpObject, ITriangleMaterial);
+		}
+		tmpObject = ini.getMaterial("front");
+		if (tmpObject != null) {
+			_front = cast(tmpObject, ITriangleMaterial);
+		}
+		tmpObject = ini.getMaterial("back");
+		if (tmpObject != null) {
+			_back = cast(tmpObject, ITriangleMaterial);
+		}
 	}
 
 	/**

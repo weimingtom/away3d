@@ -65,7 +65,7 @@ class CompositeMaterial extends EventDispatcher, implements ITriangleMaterial, i
 	/**
 	 * Defines a blendMode value for the layer container.
 	 */
-	public var blendMode:String;
+	public var blendMode:BlendMode;
 	
 
 	private function clearSpriteDictionary():Void {
@@ -175,7 +175,8 @@ class CompositeMaterial extends EventDispatcher, implements ITriangleMaterial, i
 		
 		ini = Init.parse(init);
 		materials = ini.getArray("materials");
-		blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
+		blendMode = BlendModeUtils.toHaxe(blendModeString);
 		alpha = ini.getNumber("alpha", 1, {min:0, max:1});
 		color = ini.getColor("color", 0xFFFFFF);
 		for (__i in 0...materials.length) {

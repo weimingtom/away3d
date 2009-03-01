@@ -657,23 +657,26 @@ class View3D extends Sprite  {
 		
 		_ini = cast(Init.parse(init), Init);
 		var stats:Bool = _ini.getBoolean("stats", true);
-		session = cast(_ini.getObject("session"), AbstractRenderSession);
+		var iniObject:Dynamic = _ini.getObject("session");
+		if (iniObject != null) {
+			session = cast(iniObject, AbstractRenderSession);
+		}
 		if (session == null)  {
 			session = new SpriteRenderSession();
 		};
-		scene = cast(_ini.getObjectOrInit("scene", Scene3D), Scene3D);
+		scene = _ini.getObjectOrInit("scene", Scene3D);
 		if (scene == null)  {
 			scene = new Scene3D();
 		};
-		camera = cast(_ini.getObjectOrInit("camera", Camera3D), Camera3D);
+		camera = _ini.getObjectOrInit("camera", Camera3D);
 		if (camera == null)  {
 			camera = new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 		};
-		renderer = cast(_ini.getObject("renderer"), IRenderer);
+		renderer = _ini.getObject("renderer");
 		if (renderer == null)  {
 			renderer = new BasicRenderer();
 		};
-		clipping = cast(_ini.getObject("clipping", Clipping), Clipping);
+		clipping = _ini.getObject("clipping", Clipping);
 		if (clipping == null)  {
 			clipping = new RectangleClipping();
 		};
@@ -866,7 +869,7 @@ class View3D extends Sprite  {
 				_loaderDirty = false;
 				_screenClippingDirty = true;
 			}
-		} catch (error:Error) {
+		} catch (error:Dynamic) {
 			_loaderDirty = true;
 			_loaderWidth = flash.Lib.current.stage.stageWidth;
 			_loaderHeight = flash.Lib.current.stage.stageHeight;

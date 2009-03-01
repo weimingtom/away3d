@@ -122,7 +122,7 @@ class AbstractShader extends EventDispatcher, implements ILayerMaterial {
 	/**
 	 * Defines a blendMode value for the shader bitmap.
 	 */
-	public var blendMode:String;
+	public var blendMode:BlendMode;
 	
 
 	/** @private */
@@ -255,7 +255,8 @@ class AbstractShader extends EventDispatcher, implements ILayerMaterial {
 		ini = Init.parse(init);
 		smooth = ini.getBoolean("smooth", false);
 		debug = ini.getBoolean("debug", false);
-		blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
+		blendMode = BlendModeUtils.toHaxe(blendModeString);
 	}
 
 	/**

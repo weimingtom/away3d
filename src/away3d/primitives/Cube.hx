@@ -245,7 +245,7 @@ class Cube extends AbstractPrimitive  {
 
 	}
 
-	private function generateFaces(aPt1:Array<Dynamic>, aPt2:Array<Dynamic>, vscale:Float, indexv:Int, material:ITriangleMaterial, aFs:Array<Dynamic>, side:String):Void {
+	private function generateFaces(aPt1:Array<Vertex>, aPt2:Array<Vertex>, vscale:Float, indexv:Int, material:ITriangleMaterial, aFs:Array<Dynamic>, side:String):Void {
 		
 		var varr:Array<Dynamic> = [];
 		var i:Int;

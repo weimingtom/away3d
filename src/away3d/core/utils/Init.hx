@@ -161,12 +161,18 @@ class Init  {
 
 	public function getObject3D(name:String):Object3D {
 		
-		return cast(getObject(name, Object3D), Object3D);
+		if (getObject(name, Object3D) != null) {
+			return cast(getObject(name, Object3D), Object3D);
+		}
+		return null;
 	}
 
 	public function getNumber3D(name:String):Number3D {
 		
-		return cast(getObject(name, Number3D), Number3D);
+		if (getObject(name, Number3D) != null) {
+			return cast(getObject(name, Number3D), Number3D);
+		}
+		return null;
 	}
 
 	public function getPosition(name:String):Number3D {

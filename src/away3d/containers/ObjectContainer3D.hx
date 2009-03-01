@@ -136,24 +136,26 @@ class ObjectContainer3D extends Object3D  {
 	 * @param	...initarray		An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	 */
 	public function new(?initarray:Array<Dynamic>) {
-		this._children = new Array();
+		this._children = new Array<Dynamic>();
 		this._radiusChild = null;
 		
 		
 		var init:Dynamic = null;
 		var childarray:Array<Dynamic> = [];
-		for (__i in 0...initarray.length) {
-			var object:Dynamic = initarray[__i];
-
-			if (object != null) {
-				if (Std.is(object, Object3D)) {
-					childarray.push(object);
-				} else {
-					init = object;
+		if (initarray != null) {
+			for (__i in 0...initarray.length) {
+				var object:Dynamic = initarray[__i];
+	
+				if (object != null) {
+					if (Std.is(object, Object3D)) {
+						childarray.push(object);
+					} else {
+						init = object;
+					}
 				}
 			}
 		}
-
+		
 		super(init);
 		projectorType = ProjectorType.OBJECT_CONTAINER;
 		for (__i in 0...childarray.length) {

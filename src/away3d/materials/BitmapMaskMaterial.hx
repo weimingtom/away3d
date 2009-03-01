@@ -45,7 +45,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public var scaling(null, setScaling) : Float;
 	public var color(getColor, setColor) : Int;
 	public var alpha(getAlpha, setAlpha) : Float;
-	public var blendMode(getBlendMode, setBlendMode) : String;
+	public var blendMode(getBlendMode, setBlendMode) : BlendMode;
 	public var showNormals(getShowNormals, setShowNormals) : Bool;
 	public var visible(getVisible, null) : Bool;
 	
@@ -64,7 +64,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	/** @private */
 	public var _colorTransformDirty:Bool;
 	/** @private */
-	public var _blendMode:String;
+	public var _blendMode:BlendMode;
 	/** @private */
 	public var _blendModeDirty:Bool;
 	/** @private */
@@ -637,12 +637,12 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	 * @see away3d.materials.BitmapMaskMaterialContainer
 	 * @see away3d.materials.CompositeMaterial
 	 */
-	public function getBlendMode():String {
+	public function getBlendMode():BlendMode {
 		
 		return _blendMode;
 	}
 
-	public function setBlendMode(val:String):String {
+	public function setBlendMode(val:BlendMode):BlendMode {
 		
 		if (_blendMode == val) {
 			return val;
@@ -693,7 +693,8 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		debug = ini.getBoolean("debug", false);
 		repeat = ini.getBoolean("repeat", false);
 		precision = ini.getNumber("precision", 0);
-		_blendMode = ini.getString("blendMode", BlendMode.NORMAL);
+		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
+		_blendMode = BlendModeUtils.toHaxe(blendModeString);
 		alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
 		color = ini.getColor("color", _color);
 		showNormals = ini.getBoolean("showNormals", false);

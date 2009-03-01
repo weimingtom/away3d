@@ -519,8 +519,8 @@ class Geometry extends EventDispatcher  {
 				var element:Element = elements[__i];
 
 				if (element != null) {
-					for (__i in 0...element.vertices.length) {
-						var vertex:Vertex = element.vertices[__i];
+					for (__j in 0...element.vertices.length) {
+						var vertex:Vertex = element.vertices[__j];
 
 						if (vertex != null) {
 							if (processed[untyped vertex] == null) {
@@ -1001,19 +1001,23 @@ class Geometry extends EventDispatcher  {
 			return;
 		}
 		_renderTime = time;
-		for (__i in 0...skinControllers.length) {
-			_skinController = skinControllers[__i];
-
-			if (_skinController != null) {
-				_skinController.update();
+		if (skinControllers != null) {
+			for (__i in 0...skinControllers.length) {
+				_skinController = skinControllers[__i];
+	
+				if (_skinController != null) {
+					_skinController.update();
+				}
 			}
 		}
-
-		for (__i in 0...skinVertices.length) {
-			_skinVertex = skinVertices[__i];
-
-			if (_skinVertex != null) {
-				_skinVertex.update();
+		
+		if (skinVertices != null) {
+			for (__i in 0...skinVertices.length) {
+				_skinVertex = skinVertices[__i];
+	
+				if (_skinVertex != null) {
+					_skinVertex.update();
+				}
 			}
 		}
 

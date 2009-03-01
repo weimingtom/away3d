@@ -146,7 +146,8 @@ class DrawPrimitiveStore  {
 	public function createVertexDictionary(source:Object3D):Dictionary {
 		
 		if ((_vertexDictionary = _sourceDictionary[untyped source]) == null) {
-			_vertexDictionary = _sourceDictionary[untyped source] = new Dictionary(true);
+			_sourceDictionary[untyped source] = new Dictionary(true);
+			_vertexDictionary = _sourceDictionary[untyped source];
 		}
 		return _vertexDictionary;
 	}
@@ -157,17 +158,22 @@ class DrawPrimitiveStore  {
 			return _sv;
 		}
 		if ((_svStore.length > 0)) {
-			_sv = _vertexDictionary[untyped vertex] = _svStore.pop();
+			_vertexDictionary[untyped vertex] = _svStore.pop();
+			_sv = _vertexDictionary[untyped vertex];
 		} else {
-			_sv = _vertexDictionary[untyped vertex] = new ScreenVertex();
+			_vertexDictionary[untyped vertex] = new ScreenVertex();
+			_sv = _vertexDictionary[untyped vertex];
 		}
 		return _sv;
 	}
 
 	public function createDrawBillboard(source:Object3D, material:IBillboardMaterial, screenvertex:ScreenVertex, width:Float, height:Float, scale:Float, rotation:Float, ?generated:Bool=false):DrawBillboard {
 		
-		if ((_dbArray = _dbDictionary[untyped source.session]) == null) {
-			_dbArray = _dbDictionary[untyped source.session] = [];
+		var session:AbstractRenderSession = source.session;
+		
+		if ((_dbArray = _dbDictionary[untyped session]) == null) {
+			_dbDictionary[untyped session] = [];
+			_dbArray = _dbDictionary[untyped session];
 		}
 		if ((_dbStore.length > 0)) {
 			_dbArray.push(_bill = _dbStore.pop());
@@ -190,8 +196,11 @@ class DrawPrimitiveStore  {
 
 	public function createDrawSegment(source:Object3D, material:ISegmentMaterial, v0:ScreenVertex, v1:ScreenVertex, ?generated:Bool=false):DrawSegment {
 		
-		if ((_dsArray = _dsDictionary[untyped source.session]) == null) {
-			_dsArray = _dsDictionary[untyped source.session] = [];
+		var session:AbstractRenderSession = source.session;
+		
+		if ((_dsArray = _dsDictionary[untyped session]) == null) {
+			_dsDictionary[untyped session] = [];
+			_dsArray = _dsDictionary[untyped session];
 		}
 		if ((_dsStore.length > 0)) {
 			_dsArray.push(_seg = _dsStore.pop());
@@ -211,8 +220,11 @@ class DrawPrimitiveStore  {
 
 	public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, ?generated:Bool=false):DrawTriangle {
 		
-		if ((_dtArray = _dtDictionary[untyped source.session]) == null) {
-			_dtArray = _dtDictionary[untyped source.session] = [];
+		var session:AbstractRenderSession = source.session;
+		
+		if ((_dtArray = _dtDictionary[untyped session]) == null) {
+			_dtDictionary[untyped session] = [];
+			_dtArray = _dtDictionary[untyped session];
 		}
 		if ((_dtStore.length > 0)) {
 			_dtArray.push(_tri = _dtStore.pop());
@@ -237,13 +249,20 @@ class DrawPrimitiveStore  {
 
 	public function createConvexBlocker(source:Object3D, vertices:Array<Dynamic>):ConvexBlocker {
 		
-		if ((_cbArray = _cbDictionary[untyped source.session]) == null) {
-			_cbArray = _cbDictionary[untyped source.session] = [];
+		var session:AbstractRenderSession = source.session;
+		
+		if ((_cbArray = _cbDictionary[untyped session]) == null) {
+			_cbDictionary[untyped session] = [];
+			_cbArray = _cbDictionary[untyped session];
 		}
 		if ((_cbStore.length > 0)) {
-			_cbArray.push(_cblocker = blockerDictionary[untyped source] = _cbStore.pop());
+			blockerDictionary[untyped source] = _cbStore.pop();
+			_cblocker = blockerDictionary[untyped source];
+			_cbArray.push(_cblocker);
 		} else {
-			_cbArray.push(_cblocker = blockerDictionary[untyped source] = new ConvexBlocker());
+			blockerDictionary[untyped source] = new ConvexBlocker();
+			_cblocker = blockerDictionary[untyped source];
+			_cbArray.push(_cblocker);
 			_cblocker.view = view;
 			_cblocker.create = createConvexBlocker;
 		}
@@ -255,8 +274,11 @@ class DrawPrimitiveStore  {
 
 	public function createDrawScaledBitmap(source:Object3D, screenvertex:ScreenVertex, smooth:Bool, bitmap:BitmapData, scale:Float, rotation:Float, ?generated:Bool=false):DrawScaledBitmap {
 		
-		if ((_sbArray = _sbDictionary[untyped source.session]) == null) {
-			_sbArray = _sbDictionary[untyped source.session] = [];
+		var session:AbstractRenderSession = source.session;
+		
+		if ((_sbArray = _sbDictionary[untyped session]) == null) {
+			_sbDictionary[untyped session] = [];
+			_sbArray = _sbDictionary[untyped session];
 		}
 		if ((_sbStore.length > 0)) {
 			_sbArray.push(_sbitmap = _sbStore.pop());
@@ -278,8 +300,11 @@ class DrawPrimitiveStore  {
 
 	public function createDrawDisplayObject(source:Object3D, screenvertex:ScreenVertex, session:AbstractRenderSession, displayobject:DisplayObject, ?generated:Bool=false):DrawDisplayObject {
 		
-		if ((_doArray = _doDictionary[untyped source.session]) == null) {
-			_doArray = _doDictionary[untyped source.session] = [];
+		var session:AbstractRenderSession = source.session;
+		
+		if ((_doArray = _doDictionary[untyped session]) == null) {
+			_doDictionary[untyped session] = [];
+			_doArray = _doDictionary[untyped session];
 		}
 		if ((_doStore.length > 0)) {
 			_doArray.push(_dobject = _doStore.pop());

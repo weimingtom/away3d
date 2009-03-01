@@ -1451,13 +1451,13 @@ class Object3D extends EventDispatcher, implements IClonable {
 		
 		ini = Init.parse(init);
 		name = ini.getString("name", name);
-		ownSession = cast(ini.getObject("ownSession", AbstractRenderSession), AbstractRenderSession);
+		ownSession = ini.getObject("ownSession", AbstractRenderSession);
 		ownCanvas = ini.getBoolean("ownCanvas", ownCanvas);
 		ownLights = ini.getBoolean("ownLights", false);
 		visible = ini.getBoolean("visible", true);
 		mouseEnabled = ini.getBoolean("mouseEnabled", mouseEnabled);
 		useHandCursor = ini.getBoolean("useHandCursor", useHandCursor);
-		renderer = cast(ini.getObject("renderer", IPrimitiveConsumer), IPrimitiveConsumer);
+		renderer = ini.getObject("renderer", IPrimitiveConsumer);
 		filters = ini.getArray("filters");
 		alpha = ini.getNumber("alpha", 1);
 		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
@@ -1472,15 +1472,19 @@ class Object3D extends EventDispatcher, implements IClonable {
 		rotationX = ini.getNumber("rotationX", 0);
 		rotationY = ini.getNumber("rotationY", 0);
 		rotationZ = ini.getNumber("rotationZ", 0);
-		pivotPoint = ini.getNumber3D("pivotPoint");
-		if (pivotPoint == null)  {
+		var tmpPivot:Number3D = ini.getNumber3D("pivotPoint");
+		if (tmpPivot == null)  {
 			pivotPoint = new Number3D();
-		};
+		} else {
+			pivotPoint = tmpPivot;
+		}
 		extra = ini.getObject("extra");
 		if (Std.is(this, Scene3D)) {
 			_scene = cast(this, Scene3D);
 		} else {
-			parent = cast(ini.getObject3D("parent"), ObjectContainer3D);
+			if (ini.getObject3D("parent") != null) {
+				parent = cast(ini.getObject3D("parent"), ObjectContainer3D);
+			}
 		}
 		/*
 		 var scaling:Number = init.getNumber("scale", 1);

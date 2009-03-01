@@ -245,14 +245,16 @@ class AbstractRenderSession extends EventDispatcher  {
 
 	public function clearChildSessions():Void {
 		
-		for (__i in 0...sessions.length) {
-			_session = sessions[__i];
-
-			if (_session != null) {
-				_session.removeOnSessionUpdate(onSessionUpdate);
+		if (sessions != null) {
+			for (__i in 0...sessions.length) {
+				_session = sessions[__i];
+	
+				if (_session != null) {
+					_session.removeOnSessionUpdate(onSessionUpdate);
+				}
 			}
 		}
-
+		
 		sessions = new Array();
 	}
 

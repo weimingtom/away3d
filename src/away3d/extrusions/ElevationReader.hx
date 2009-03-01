@@ -294,7 +294,7 @@ class ElevationReader  {
 	 * @param	reverse			[optional]	Defines if the color is set using the heightmap from 0-255 or 255-0. Default = true, if a black is used, the darkest are will be at the base of the elevation. 
 	 * @param	blendmode			[optional] Blendmode to be applyed in the merge. Possible string values are: lighten, multiply, overlay, screen, substract, add, darken, difference, erase, hardlight, invert and layer.Default = "normal";
 	 */
-	public function applyHeightGradient(src:BitmapData, ?color:Int=0x80000000, ?reverse:Bool=true, ?blendmode:String="normal"):Void {
+	public function applyHeightGradient(src:BitmapData, ?color:Int=0x80000000, ?reverse:Bool=true, ?blendmode:BlendMode=BlendMode.NORMAL):Void {
 		
 		var gs:BitmapData;
 		var scl:Bool;
@@ -317,7 +317,7 @@ class ElevationReader  {
 		} else {
 			mskBmd.copyChannel(gs, gs.rect, z, 1, 8);
 		}
-		if (blendmode == "normal") {
+		if (blendmode == BlendMode.NORMAL) {
 			src.copyPixels(mskBmd, mskBmd.rect, z, mskBmd, z, true);
 		} else {
 			src.draw(mskBmd, null, null, blendmode, mskBmd.rect, true);
