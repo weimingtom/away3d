@@ -133,7 +133,11 @@ class SpriteRenderSession extends AbstractRenderSession  {
 			_container.filters = filters;
 		}
 		_container.alpha = alpha;
-		_container.blendMode = (blendMode != null) ? blendMode : BlendMode.NORMAL;
+		if (blendMode == null) {
+			_container.blendMode = BlendMode.NORMAL;
+		} else {
+			_container.blendMode = blendMode;
+		}
 	}
 
 	/**

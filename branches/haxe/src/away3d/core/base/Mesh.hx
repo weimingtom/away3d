@@ -495,19 +495,28 @@ class Mesh extends Object3D  {
 		geometry = new Geometry();
 		outline = ini.getSegmentMaterial("outline");
 		material = ini.getMaterial("material");
-		faceMaterial = cast(ini.getMaterial("faceMaterial"), ITriangleMaterial);
-		if (faceMaterial == null)  {
+		var tmpMaterial:IMaterial = ini.getMaterial("faceMaterial");
+		if (tmpMaterial != null) {
+			faceMaterial = cast(tmpMaterial, ITriangleMaterial);
+		} else {
 			faceMaterial = _faceMaterial;
 		};
-		segmentMaterial = cast(ini.getMaterial("segmentMaterial"), ISegmentMaterial);
-		if (segmentMaterial == null)  {
+		tmpMaterial = ini.getMaterial("segmentMaterial");
+		if (tmpMaterial != null) {
+			segmentMaterial = cast(tmpMaterial, ISegmentMaterial);
+		} else {
 			segmentMaterial = _segmentMaterial;
 		};
-		billboardMaterial = cast(ini.getMaterial("billboardMaterial"), IBillboardMaterial);
-		if (billboardMaterial == null)  {
+		tmpMaterial = ini.getMaterial("billboardMaterial");
+		if (tmpMaterial != null) {
+			billboardMaterial = cast(tmpMaterial, IBillboardMaterial);
+		} else {
 			billboardMaterial = _billboardMaterial;
 		};
-		back = cast(ini.getMaterial("back"), ITriangleMaterial);
+		tmpMaterial = ini.getMaterial("back");
+		if (tmpMaterial != null) {
+			back = cast(tmpMaterial, ITriangleMaterial);
+		}
 		bothsides = ini.getBoolean("bothsides", false);
 		projectorType = ProjectorType.MESH;
 	}

@@ -264,7 +264,7 @@ class Camera3D extends Object3D  {
 		focus = ini.getNumber("focus", 100);
 		zoom = ini.getNumber("zoom", _zoom);
 		fixedZoom = ini.getBoolean("fixedZoom", true);
-		lens = cast(ini.getObject("lens", AbstractLens), ILens);
+		lens = ini.getObject("lens", AbstractLens);
 		if (lens == null)  {
 			lens = new ZoomFocusLens();
 		};

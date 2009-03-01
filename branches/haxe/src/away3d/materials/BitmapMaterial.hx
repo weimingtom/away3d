@@ -703,7 +703,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 		_blendMode = BlendModeUtils.toHaxe(blendModeString);
 		alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
 		color = ini.getColor("color", _color);
-		colorTransform = cast(ini.getObject("colorTransform", ColorTransform), ColorTransform);
+		colorTransform = ini.getObject("colorTransform", ColorTransform);
 		showNormals = ini.getBoolean("showNormals", false);
 		_colorTransformDirty = true;
 		createVertexArray();

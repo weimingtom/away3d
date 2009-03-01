@@ -133,7 +133,7 @@ class Scene3D extends ObjectContainer3D  {
 		} else {
 			init = {ownCanvas:true, ownLights:true};
 		}
-		super(init);
+		super([init]);
 		autoUpdate = ini.getBoolean("autoUpdate", true);
 		var ph:Dynamic = ini.getObject("physics");
 		if (Std.is(ph, IPhysicsScene)) {
@@ -191,9 +191,9 @@ class Scene3D extends ObjectContainer3D  {
 				traverse(_projtraverser);
 				_time = flash.Lib.getTimer();
 				//update materials in meshes
-				var __keys:Iterator<Dynamic> = untyped (__keys__(meshes)).iterator();
-				for (__key in __keys) {
-					_mesh = meshes[untyped __key];
+				var __keys2:Iterator<Dynamic> = untyped (__keys__(meshes)).iterator();
+				for (__key2 in __keys2) {
+					_mesh = meshes[untyped __key2];
 
 					if (_mesh != null) {
 						_mesh.updateMaterials(_mesh, _view);

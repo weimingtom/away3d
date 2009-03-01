@@ -55,7 +55,8 @@ class CameraVarsStore  {
 	public function createVertexClassificationDictionary(source:Object3D):Dictionary {
 		
 		if ((_vertexClassificationDictionary = _sourceDictionary[untyped source]) == null) {
-			_vertexClassificationDictionary = _sourceDictionary[untyped source] = new Dictionary(true);
+			_sourceDictionary[untyped source] = new Dictionary(true);
+			_vertexClassificationDictionary = _sourceDictionary[untyped source];
 		}
 		return _vertexClassificationDictionary;
 	}
@@ -66,7 +67,8 @@ class CameraVarsStore  {
 			return _vc;
 		}
 		if ((_vcStore.length > 0)) {
-			_vc = _vertexClassificationDictionary[untyped vertex] = _vcStore.pop();
+			_vertexClassificationDictionary[untyped vertex] = _vcStore.pop();
+			_vc = _vertexClassificationDictionary[untyped vertex];
 		} else {
 			_vc = _vertexClassificationDictionary[untyped vertex] = new VertexClassification();
 		}
@@ -78,9 +80,13 @@ class CameraVarsStore  {
 	public function createViewTransform(node:Object3D):Matrix3D {
 		
 		if ((_vtStore.length > 0)) {
-			_vtActive.push(_vt = viewTransformDictionary[untyped node] = _vtStore.pop());
+			viewTransformDictionary[untyped node] = _vtStore.pop();
+			_vt = viewTransformDictionary[untyped node];
+			_vtActive.push(_vt);
 		} else {
-			_vtActive.push(_vt = viewTransformDictionary[untyped node] = new Matrix3D());
+			viewTransformDictionary[untyped node] = new Matrix3D();
+			_vt = viewTransformDictionary[untyped node];
+			_vtActive.push(_vt);
 		}
 		return _vt;
 	}
@@ -88,9 +94,13 @@ class CameraVarsStore  {
 	public function createFrustum(node:Object3D):Frustum {
 		
 		if ((_frStore.length > 0)) {
-			_frActive.push(_frustum = frustumDictionary[untyped node] = _frStore.pop());
+			frustumDictionary[untyped node] = _frStore.pop();
+			_frustum = frustumDictionary[untyped node];
+			_frActive.push(_frustum);
 		} else {
-			_frActive.push(_frustum = frustumDictionary[untyped node] = new Frustum());
+			frustumDictionary[untyped node] = new Frustum();
+			_frustum = frustumDictionary[untyped node];
+			_frActive.push(_frustum);
 		}
 		return _frustum;
 	}
@@ -111,7 +121,8 @@ class CameraVarsStore  {
 	public function createUV(u:Float, v:Float, session:AbstractRenderSession):UV {
 		
 		if ((_uvArray = _uvDictionary[untyped session]) == null) {
-			_uvArray = _uvDictionary[untyped session] = [];
+			_uvDictionary[untyped session] = [];
+			_uvArray = _uvDictionary[untyped session];
 		}
 		if ((_uvStore.length > 0)) {
 			_uvArray.push(_uv = _uvStore.pop());
@@ -149,8 +160,8 @@ class CameraVarsStore  {
 		for (_object in __keys) {
 			_source = cast(_object, Object3D);
 			if (_source.session != null && _source.session.updated) {
-				var __keys:Iterator<Dynamic> = untyped (__keys__(_sourceDictionary[untyped _source])).iterator();
-				for (_v in __keys) {
+				var __keys2:Iterator<Dynamic> = untyped (__keys__(_sourceDictionary[untyped _source])).iterator();
+				for (_v in __keys2) {
 					_vcStore.push(_sourceDictionary[untyped _source][untyped _v]);
 					_sourceDictionary[untyped _source][untyped _v] = null;
 					
