@@ -50,7 +50,7 @@ class Animator extends Mesh  {
 		indexes = new Array();
 		var aVti:Array<Dynamic>;
 		if (doloop) {
-			var fr:Dynamic = new Object();
+			var fr:Dynamic = {};
 			fr.vertices = aFrames[0].vertices;
 			fr.prefix = aFrames[0].prefix;
 			var pref:String = "";
@@ -74,7 +74,9 @@ class Animator extends Mesh  {
 		i = 0;
 		while (i < baseObject.faces.length) {
 			face = baseObject.faces[i];
-			uvarr.push(face.uv0, face.uv1, face.uv2);
+			uvarr.push(face.uv0);
+			uvarr.push(face.uv1);
+			uvarr.push(face.uv2);
 			addFace(face);
 			aVti = getVertIndex(face);
 			indexes.push([aVti[0], aVti[1], aVti[2], uvarr.length - 3, uvarr.length - 2, uvarr.length - 1]);
@@ -86,7 +88,7 @@ class Animator extends Mesh  {
 		geometry.frames = new Dictionary();
 		geometry.framenames = new Dictionary();
 		fnarr = [];
-		var oFrames:Dynamic = new Object();
+		var oFrames:Dynamic = {};
 		var arr:Array<Dynamic>;
 		i = 0;
 		while (i < aFrames.length) {
@@ -153,7 +155,7 @@ class Animator extends Mesh  {
 		var i:Int;
 		var j:Int;
 		var k:Int;
-		var oFrames:Dynamic = new Object();
+		var oFrames:Dynamic = {};
 		var arr:Array<Dynamic>;
 		i = 0;
 		while (i < aFrames.length) {
@@ -236,7 +238,8 @@ class Animator extends Mesh  {
 		var i:Int = 0;
 		var y:Int = 0;
 		var framename:String;
-		for (framename in geometry.framenames) {
+		var __keys:Iterator<Dynamic> = untyped (__keys__(geometry.framenames)).iterator();
+		for (framename in __keys) {
 			tmpnames.push(framename);
 			
 		}

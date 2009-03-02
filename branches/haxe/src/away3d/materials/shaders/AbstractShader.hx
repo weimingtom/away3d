@@ -29,6 +29,7 @@ import away3d.core.draw.DrawPrimitive;
 import flash.display.Shape;
 import flash.display.Graphics;
 import away3d.core.base.Element;
+import away3d.haxeutils.BlendModeUtils;
 
 
 // use namespace arcane;

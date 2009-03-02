@@ -14,8 +14,6 @@ import away3d.core.base.Object3D;
  * @see away3d.containers.View3D
  */
 class TargetCamera3D extends Camera3D  {
-	public var viewMatrix(getViewMatrix, null) : Matrix3D;
-	public var parent(null, setParent) : ObjectContainer3D;
 	
 	/**
 	 * The 3d object targeted by the camera.
@@ -44,9 +42,9 @@ class TargetCamera3D extends Camera3D  {
 	public override function getViewMatrix():Matrix3D {
 		
 		if (target != null) {
-			lookAt(target.scene ? target.scenePosition : target.position);
+			lookAt(target.scene != null ? target.scenePosition : target.position);
 		}
-		return super.viewMatrix;
+		return super.getViewMatrix();
 	}
 
 	/**

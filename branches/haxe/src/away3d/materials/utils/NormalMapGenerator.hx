@@ -1,14 +1,15 @@
 package away3d.materials.utils;
 
 import flash.display.BitmapData;
+import flash.display.BlendMode;
 import flash.filters.BlurFilter;
 import flash.filters.ColorMatrixFilter;
 import flash.filters.ConvolutionFilter;
 import flash.filters.DisplacementMapFilter;
+import flash.filters.DisplacementMapFilterMode;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.geom.Matrix;
-import flash.utils.setTimeout;
 import flash.events.EventDispatcher;
 import away3d.core.math.Number3D;
 import away3d.events.TraceEvent;
@@ -18,6 +19,7 @@ import away3d.core.base.Object3D;
 import away3d.core.base.Mesh;
 import away3d.core.base.Vertex;
 import away3d.core.base.Element;
+import away3d.haxeutils.GlobalTimer;
 
 
 /**
@@ -63,31 +65,31 @@ class NormalMapGenerator extends EventDispatcher  {
 		
 		var i:Int;
 		var j:Int;
-		var p0:Point;
-		var p1:Point;
-		var p2:Point;
-		var col0r:Int;
-		var col0g:Int;
-		var col0b:Int;
-		var col1r:Int;
-		var col1g:Int;
-		var col1b:Int;
-		var col2r:Int;
-		var col2g:Int;
-		var col2b:Int;
-		var line0:Array<Dynamic>;
-		var line1:Array<Dynamic>;
-		var line2:Array<Dynamic>;
-		var per0:Float;
-		var per1:Float;
-		var per2:Float;
+		var p0:Point = null;
+		var p1:Point = null;
+		var p2:Point = null;
+		var col0r:Int = 0;
+		var col0g:Int = 0;
+		var col0b:Int = 0;
+		var col1r:Int = 0;
+		var col1g:Int = 0;
+		var col1b:Int = 0;
+		var col2r:Int = 0;
+		var col2g:Int = 0;
+		var col2b:Int = 0;
+		var line0:Array<Dynamic> = null;
+		var line1:Array<Dynamic> = null;
+		var line2:Array<Dynamic> = null;
+		var per0:Float = 0;
+		var per1:Float = 0;
+		var per2:Float = 0;
 		var face:Face;
 		var fn:Number3D;
 		var row:Int;
-		var s:Int;
-		var e:Int;
+		var s:Int = 0;
+		var e:Int = 0;
 		var colorpt:Point = new Point();
-		function meet(pt:Point, x1:Int, y1:Int, x2:Int, y2:Int, x3:Int, y3:Int, x4:Int, y4:Int):Point {
+		var meet = function(pt:Point, x1:Int, y1:Int, x2:Int, y2:Int, x3:Int, y3:Int, x4:Int, y4:Int):Point {
 			var d:Int = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 			if (d == 0) {
 				return null;
@@ -97,19 +99,21 @@ class NormalMapGenerator extends EventDispatcher  {
 			return pt;
 		}
 
-		function applyColorAt(x:Int, y:Int):Void {
+		var __this = this;
+
+		var applyColorAt = function(x:Int, y:Int):Void {
 			colorpt.x = x;
 			colorpt.y = y;
-			var cross0:Point = meet(intPt0, line1[0].x, line1[0].y, line1[1].x, line1[1].y, p0.x, p0.y, x, y);
-			var cross1:Point = meet(intPt1, line2[0].x, line2[0].y, line2[1].x, line2[1].y, p1.x, p1.y, x, y);
-			var cross2:Point = meet(intPt2, line0[0].x, line0[0].y, line0[1].x, line0[1].y, p2.x, p2.y, x, y);
+			var cross0:Point = meet(__this.intPt0, line1[0].x, line1[0].y, line1[1].x, line1[1].y, Std.int(p0.x), Std.int(p0.y), x, y);
+			var cross1:Point = meet(__this.intPt1, line2[0].x, line2[0].y, line2[1].x, line2[1].y, Std.int(p1.x), Std.int(p1.y), x, y);
+			var cross2:Point = meet(__this.intPt2, line0[0].x, line0[0].y, line0[1].x, line0[1].y, Std.int(p2.x), Std.int(p2.y), x, y);
 			per0 = (cross0 == null) ? 1 : Point.distance(cross0, colorpt) / Point.distance(p0, cross0);
 			per1 = (cross1 == null) ? 1 : Point.distance(cross1, colorpt) / Point.distance(p1, cross1);
 			per2 = (cross2 == null) ? 1 : Point.distance(cross2, colorpt) / Point.distance(p2, cross2);
 			var r:Int = Std.int((per0 * col0r) + (per1 * col1r) + (per2 * col2r));
 			var g:Int = Std.int((per0 * col0g) + (per1 * col1g) + (per2 * col2g));
 			var b:Int = Std.int((per0 * col0b) + (per1 * col1b) + (per2 * col2b));
-			_normalmap.setPixel(x, y, ((r > 255) ? 255 : r) << 16 | ((g > 255) ? 255 : g) << 8 | ((b > 255) ? 255 : b));
+			__this._normalmap.setPixel(x, y, ((r > 255) ? 255 : r) << 16 | ((g > 255) ? 255 : g) << 8 | ((b > 255) ? 255 : b));
 		}
 
 		_normalmap.lock();
@@ -133,9 +137,9 @@ class NormalMapGenerator extends EventDispatcher  {
 			col2g = Std.int(255 - ((127 * n2.y) + 127));
 			col2b = Std.int((127 * n2.z) + 127);
 			_lines = [];
-			setBounds(p0.x, p0.y, p1.x, p1.y, col0r, col0g, col0b, col1r, col1g, col1b, Point.distance(p0, p1));
-			setBounds(p1.x, p1.y, p2.x, p2.y, col1r, col1g, col1b, col2r, col2g, col2b, Point.distance(p1, p2));
-			setBounds(p2.x, p2.y, p0.x, p0.y, col2r, col2g, col2b, col0r, col0g, col0b, Point.distance(p2, p0));
+			setBounds(Std.int(p0.x), Std.int(p0.y), Std.int(p1.x), Std.int(p1.y), col0r, col0g, col0b, col1r, col1g, col1b, Point.distance(p0, p1));
+			setBounds(Std.int(p1.x), Std.int(p1.y), Std.int(p2.x), Std.int(p2.y), col1r, col1g, col1b, col2r, col2g, col2b, Point.distance(p1, p2));
+			setBounds(Std.int(p2.x), Std.int(p2.y), Std.int(p0.x), Std.int(p0.y), col2r, col2g, col2b, col0r, col0g, col0b, Point.distance(p2, p0));
 			line0 = [p0, p1];
 			line1 = [p1, p2];
 			line2 = [p2, p0];
@@ -159,7 +163,7 @@ class NormalMapGenerator extends EventDispatcher  {
 					if (rect.width > 2) {
 						var k:Int = Std.int(rect.x + 1);
 						while (k < rect.x + rect.width) {
-							applyColorAt(k, rect.y);
+							applyColorAt(k, Std.int(rect.y));
 							
 							// update loop variables
 							++k;
@@ -217,7 +221,7 @@ class NormalMapGenerator extends EventDispatcher  {
 				te.procent = (_state / _mesh.faces.length) * 100;
 				dispatchEvent(te);
 			}
-			setTimeout(generate, 1, _state, (_state + _step > _mesh.faces.length) ? _mesh.faces.length : _state + _step);
+			GlobalTimer.setTimeout(generate, 1, [_state, (_state + _step > _mesh.faces.length) ? _mesh.faces.length : _state + _step]);
 		}
 	}
 
@@ -271,14 +275,14 @@ class NormalMapGenerator extends EventDispatcher  {
 		return n;
 	}
 
-	private function setBounds(x1:Int, y1:Int, x2:Int, y2:Int, r0:Float, g0:Float, b0:Float, r1:Float, g1:Float, b1:Float, dist:Float):Void {
+	private function setBounds(x1:Int, y1:Int, x2:Int, y2:Int, r0:Int, g0:Int, b0:Int, r1:Int, g1:Int, b1:Int, dist:Float):Void {
 		
 		var line:Array<Dynamic> = [x1, y1];
 		var dist2:Float;
 		var scale:Float;
-		var r:Float;
-		var g:Float;
-		var b:Float;
+		var r:Int;
+		var g:Int;
+		var b:Int;
 		var o:Dynamic;
 		o = {x:x1, y:y1, col:r0 << 16 | g0 << 8 | b0};
 		_lines[_lines.length] = o;
@@ -312,13 +316,12 @@ class NormalMapGenerator extends EventDispatcher  {
 		}
 		if (dy > dx) {
 			error = -(dy >> 1);
-			;
 			while (y2 < y1) {
 				dist2 = Math.sqrt((x2 - line[0]) * (x2 - line[0]) + (y2 - line[1]) * (y2 - line[1]));
 				scale = dist2 / dist;
-				r = (r1 * scale) + (r0 * (1 - scale));
-				g = (g1 * scale) + (g0 * (1 - scale));
-				b = (b1 * scale) + (b0 * (1 - scale));
+				r = Std.int((r1 * scale) + (r0 * (1 - scale)));
+				g = Std.int((g1 * scale) + (g0 * (1 - scale)));
+				b = Std.int((b1 * scale) + (b0 * (1 - scale)));
 				o = {x:x2, y:y2, col:r << 16 | g << 8 | b};
 				_lines[_lines.length] = o;
 				error += dx;
@@ -326,9 +329,9 @@ class NormalMapGenerator extends EventDispatcher  {
 					x2 += yi;
 					dist2 = Math.sqrt((x2 - line[0]) * (x2 - line[0]) + (y2 - line[1]) * (y2 - line[1]));
 					scale = dist2 / dist;
-					r = (r1 * scale) + (r0 * (1 - scale));
-					g = (g1 * scale) + (g0 * (1 - scale));
-					b = (b1 * scale) + (b0 * (1 - scale));
+					r = Std.int((r1 * scale) + (r0 * (1 - scale)));
+					g = Std.int((g1 * scale) + (g0 * (1 - scale)));
+					b = Std.int((b1 * scale) + (b0 * (1 - scale)));
 					o = {x:x2, y:y2, col:r << 16 | g << 8 | b};
 					_lines[_lines.length] = o;
 					error -= dy;
@@ -340,13 +343,12 @@ class NormalMapGenerator extends EventDispatcher  {
 
 		} else {
 			error = -(dx >> 1);
-			;
 			while (x1 < x2) {
 				dist2 = Math.sqrt((x1 - line[0]) * (x1 - line[0]) + (y1 - line[1]) * (y1 - line[1]));
 				scale = dist2 / dist;
-				r = (r1 * scale) + (r0 * (1 - scale));
-				g = (g1 * scale) + (g0 * (1 - scale));
-				b = (b1 * scale) + (b0 * (1 - scale));
+				r = Std.int((r1 * scale) + (r0 * (1 - scale)));
+				g = Std.int((g1 * scale) + (g0 * (1 - scale)));
+				b = Std.int((b1 * scale) + (b0 * (1 - scale)));
 				o = {x:x1, y:y1, col:r << 16 | g << 8 | b};
 				_lines[_lines.length] = o;
 				error += dy;
@@ -354,9 +356,9 @@ class NormalMapGenerator extends EventDispatcher  {
 					y1 += yi;
 					dist2 = Math.sqrt((x1 - line[0]) * (x1 - line[0]) + (y1 - line[1]) * (y1 - line[1]));
 					scale = dist2 / dist;
-					r = (r1 * scale) + (r0 * (1 - scale));
-					g = (g1 * scale) + (g0 * (1 - scale));
-					b = (b1 * scale) + (b0 * (1 - scale));
+					r = Std.int((r1 * scale) + (r0 * (1 - scale)));
+					g = Std.int((g1 * scale) + (g0 * (1 - scale)));
+					b = Std.int((b1 * scale) + (b0 * (1 - scale)));
 					o = {x:x1, y:y1, col:r << 16 | g << 8 | b};
 					_lines[_lines.length] = o;
 					error -= dx;
@@ -376,7 +378,7 @@ class NormalMapGenerator extends EventDispatcher  {
 		var tmp2:BitmapData = tmp1.clone();
 		var tmp3:BitmapData = tmp0.clone();
 		var cf:ConvolutionFilter = new ConvolutionFilter(3, 3, null, 0, 127);
-		var dp:DisplacementMapFilter = new DisplacementMapFilter(tmp1, tmp1.rect.topLeft, 1, 2, 2, 2, "color", 0, 0);
+		var dp:DisplacementMapFilter = new DisplacementMapFilter(tmp1, tmp1.rect.topLeft, 1, 2, 2, 2, DisplacementMapFilterMode.COLOR, 0, 0);
 		var zeropt:Point = new Point(0, 0);
 		var mat0:Array<Dynamic> = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
 		var mat1:Array<Dynamic> = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
@@ -422,8 +424,8 @@ class NormalMapGenerator extends EventDispatcher  {
 			var Wscl:Float = nm.width / gs.width;
 			var Hscl:Float = nm.height / gs.height;
 			sclmat.scale(Wscl, Hscl);
-			_bumpmap = new BitmapData(gs.width * Wscl, gs.height * Hscl, false, 0);
-			_bumpmap.draw(gs, sclmat, null, "normal", _bumpmap.rect, true);
+			_bumpmap = new BitmapData(Std.int(gs.width * Wscl), Std.int(gs.height * Hscl), false, 0);
+			_bumpmap.draw(gs, sclmat, null, BlendMode.NORMAL, _bumpmap.rect, true);
 		} else {
 			_bumpmap = new BitmapData(bm.width, bm.height, false, 0x000000);
 			_bumpmap.copyPixels(bm, bm.rect, new Point(0, 0));
@@ -437,7 +439,7 @@ class NormalMapGenerator extends EventDispatcher  {
 		dumX.applyFilter(_bumpmap, nm.rect, zero, cf);
 		_bumpmap.copyChannel(dumX, nm.rect, zero, 1, 1);
 		var dumY:BitmapData = new BitmapData(nm.width, nm.height, false, 0x000000);
-		cf.matrix = new Array(0, -1, 0, 0, 0, 0, 0, 1, 0);
+		cf.matrix = [0, -1, 0, 0, 0, 0, 0, 1, 0];
 		dumY.applyFilter(_bumpmap, nm.rect, zero, cf);
 		_bumpmap.copyChannel(dumY, nm.rect, zero, 2, 2);
 		dumX.dispose();
@@ -449,7 +451,7 @@ class NormalMapGenerator extends EventDispatcher  {
 		dp.componentY = 2;
 		dp.scaleX = -127;
 		dp.scaleY = -127;
-		dp.mode = "wrap";
+		dp.mode = DisplacementMapFilterMode.WRAP;
 		dp.color = 0;
 		dp.alpha = 0;
 		nm.applyFilter(nm, _bumpmap.rect, zero, dp);

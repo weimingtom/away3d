@@ -32,9 +32,9 @@ import away3d.core.base.Element;
  * @see away3d.lights.DirectionalLight3D
  */
 class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
+	public var bitmap(getBitmap, setBitmap) : BitmapData;
 	public var width(getWidth, null) : Float;
 	public var height(getHeight, null) : Float;
-	public var bitmap(getBitmap, null) : BitmapData;
 	
 	private var _zeroPoint:Point;
 	private var _bitmap:BitmapData;
@@ -198,6 +198,12 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		return _bitmap;
 	}
 
+	public function setBitmap(value:BitmapData):BitmapData {
+		_bitmap = value;
+		return value;
+	}
+	 
+
 	/**
 	 * Returns the argb value of the bitmapData pixel at the given u v coordinate.
 	 * 
@@ -207,7 +213,7 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	 */
 	public function getPixel32(u:Float, v:Float):Int {
 		
-		return _bitmap.getPixel32(u * _bitmap.width, (1 - v) * _bitmap.height);
+		return _bitmap.getPixel32(Std.int(u * _bitmap.width), Std.int((1 - v) * _bitmap.height));
 	}
 
 	/**
