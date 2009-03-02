@@ -16,7 +16,7 @@ class TraceEvent extends Event  {
 	public static inline var TRACE_PROGRESS:String = "traceprogress";
 	
 
-	function new(type:String, ?bubbles:Bool=false, ?cancelable:Bool=false) {
+	public function new(type:String, ?bubbles:Bool=false, ?cancelable:Bool=false) {
 		this.procent = 0;
 		
 		

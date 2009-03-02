@@ -16,6 +16,7 @@ import away3d.core.utils.FaceMaterialVO;
 import flash.display.Sprite;
 import away3d.core.draw.DrawTriangle;
 import away3d.core.draw.DrawPrimitive;
+import away3d.haxeutils.BlendModeUtils;
 
 
 // use namespace arcane;
