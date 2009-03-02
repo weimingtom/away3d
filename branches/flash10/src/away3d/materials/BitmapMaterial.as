@@ -1,6 +1,4 @@
 ﻿package away3d.materials{
-    import __AS3__.vec.Vector;
-    
     import away3d.arcane;
     import away3d.cameras.lenses.*;
     import away3d.containers.*;

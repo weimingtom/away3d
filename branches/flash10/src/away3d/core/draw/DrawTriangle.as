@@ -1,7 +1,5 @@
 package away3d.core.draw
 {
-    import __AS3__.vec.Vector;
-    
     import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.utils.FaceVO;

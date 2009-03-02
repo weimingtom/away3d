@@ -1,7 +1,5 @@
 package away3d.core.utils
 {
-	import __AS3__.vec.Vector;
-	
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	

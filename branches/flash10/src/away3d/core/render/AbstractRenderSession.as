@@ -1,7 +1,5 @@
 package away3d.core.render
 {
-	import __AS3__.vec.Vector;
-	
 	import away3d.arcane;
 	import away3d.containers.*;
 	import away3d.core.base.*;
