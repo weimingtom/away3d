@@ -24,6 +24,8 @@ package awaybuilder.vo
 		public var materialType : String ;
 		public var materialData : Object ;
 		public var targetCamera : String ;
+		public var flipTexture : Boolean ;
+		public var smoothTexture : Boolean ;
 		
 		protected var _assetClass : String ;
 		protected var _assetFile : String ;

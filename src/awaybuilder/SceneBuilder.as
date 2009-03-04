@@ -1,5 +1,9 @@
 package awaybuilder
 {
+	import away3d.loaders.data.MaterialData;	
+	import away3d.loaders.utils.MaterialLibrary;	
+	import away3d.core.base.UV;	
+	import away3d.loaders.data.GeometryData;	
 	import away3d.containers.ObjectContainer3D;	import away3d.containers.View3D;	import away3d.core.base.Mesh;	import away3d.core.base.Object3D;	import away3d.loaders.Collada;	import away3d.loaders.Object3DLoader;	import away3d.materials.BitmapFileMaterial;	import away3d.materials.BitmapMaterial;	import away3d.materials.MovieMaterial;		import awaybuilder.abstracts.AbstractBuilder;	import awaybuilder.camera.CameraFactory;	import awaybuilder.events.SceneEvent;	import awaybuilder.geometry.GeometryAttributes;	import awaybuilder.geometry.GeometryFactory;	import awaybuilder.geometry.GeometryType;	import awaybuilder.interfaces.IAssetContainer;	import awaybuilder.interfaces.IBuilder;	import awaybuilder.interfaces.ISceneContainer;	import awaybuilder.material.MaterialAttributes;	import awaybuilder.material.MaterialFactory;	import awaybuilder.material.MaterialType;	import awaybuilder.utils.ConvertCoordinates;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.display.BitmapData;	import flash.display.DisplayObject;	import flash.display.MovieClip;	import flash.events.Event;
 	
 	
@@ -42,13 +46,11 @@ package awaybuilder
 		{
 			this.view = view ;
 			this.mainSections = sections ;
-			
 			this.createCameraFactory ( ) ;
 			this.createGeometryFactory ( ) ;
 			this.createMaterialFactory ( ) ;
 			this.createSections ( ) ;
 			this.applyValues ( ) ;
-			
 			this.dispatchEvent ( new Event ( Event.COMPLETE ) ) ;
 		}
 		
@@ -246,11 +248,37 @@ package awaybuilder
 		
 		
 		
-		protected function applyColladaValues ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyColladaValues ( target : Object3D , values : SceneObjectVO , vo : SceneGeometryVO ) : void
 		{
+			if ( vo.flipTexture ) this.flipTexture ( target ) ;
+			if ( vo.smoothTexture ) this.smoothMaterials ( target.materialLibrary ) ;
 			this.applyPosition ( target , values ) ;
 			this.applyColladaRotation ( target , values ) ;
 			this.applyColladaScale ( target , values ) ;
+		}
+		
+		
+		
+		protected function flipTexture ( handle : Object3D ) : void
+		{
+			for each ( var geometryData : GeometryData in handle.geometryLibrary.getGeometryArray ( ) )
+			{
+				for each ( var uv : UV in geometryData.uvs )
+				{
+					uv.u = 1 - uv.u ;
+					uv.v = 1 - uv.v ;
+				}
+			}
+		}
+
+		
+		
+		protected function smoothMaterials ( materialLibrary : MaterialLibrary ) : void
+		{
+			for each ( var materialData : MaterialData in materialLibrary )
+			{
+				materialData.material[ MaterialAttributes.SMOOTH ] = true ;
+			}
 		}
 		
 		
@@ -295,7 +323,6 @@ package awaybuilder
 				}
 				
 				if ( useDefaultGeometry ) geometry = geometryFactory.buildDefault ( geometry ) ;
-				
 				this.applyExternalAssets ( section , geometry ) ;
 			}
 		}
@@ -319,10 +346,7 @@ package awaybuilder
 				}
 			}
 			
-			if ( useDefaultMaterial )
-			{
-				geometry = materialFactory.buildDefault ( geometry ) ;
-			}
+			if ( useDefaultMaterial ) geometry = materialFactory.buildDefault ( geometry ) ;
 		}
 		
 		
@@ -381,7 +405,7 @@ package awaybuilder
 						
 						vo.mesh = container ;
 						section.pivot.addChild ( container ) ;
-						this.applyColladaValues ( container , vo.values ) ;
+						this.applyColladaValues ( container , vo.values , vo ) ;
 					}
 					else if ( vo.assetFile != null )
 					{
@@ -397,10 +421,7 @@ package awaybuilder
 				}
 				default :
 				{
-					if ( vo.enabled )
-					{
-						section.pivot.addChild ( vo.mesh ) ;
-					}
+					if ( vo.enabled ) section.pivot.addChild ( vo.mesh ) ;
 				}
 			}
 			
@@ -409,67 +430,55 @@ package awaybuilder
 						protected function onColladaLoadSuccess ( event : Event ) : void
 		{
 			var loader : Object3DLoader = event.target as Object3DLoader ;
-			var handle : Object3D = loader.handle ;
 			var vo : SceneGeometryVO = loader.extra as SceneGeometryVO ;
 			
-			this.applyColladaValues ( handle , vo.values ) ;
+			this.applyColladaValues ( loader.handle , vo.values , vo ) ;
 			this.dispatchEvent ( new SceneEvent ( SceneEvent.RENDER ) ) ;
 		}
-
+		
 		
 		
 		protected function applyPosition ( target : Object3D , values : SceneObjectVO ) : void
 		{
-			var s : uint = this.precision ;
-			var c : String = this.coordinateSystem ;
-			
-			target.x = s * ConvertCoordinates.positionX ( values.x , c ) ;
-			target.y = s * ConvertCoordinates.positionY ( values.y , c ) ;
-			target.z = s * ConvertCoordinates.positionZ ( values.z , c ) ;
+			target.x = this.precision * ConvertCoordinates.positionX ( values.x , this.coordinateSystem ) ;
+			target.y = this.precision * ConvertCoordinates.positionY ( values.y , this.coordinateSystem ) ;
+			target.z = this.precision * ConvertCoordinates.positionZ ( values.z , this.coordinateSystem ) ;
 		}
 		
 		
 		
 		protected function applyMeshRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
-			var c : String = this.coordinateSystem ;
-			
-			target.rotationX = ConvertCoordinates.meshRotationX ( values.rotationX , c ) ;
-			target.rotationY = ConvertCoordinates.meshRotationY ( values.rotationY , c ) ;
-			target.rotationZ = ConvertCoordinates.meshRotationZ ( values.rotationZ , c ) ;
+			target.rotationX = ConvertCoordinates.meshRotationX ( values.rotationX , this.coordinateSystem ) ;
+			target.rotationY = ConvertCoordinates.meshRotationY ( values.rotationY , this.coordinateSystem ) ;
+			target.rotationZ = ConvertCoordinates.meshRotationZ ( values.rotationZ , this.coordinateSystem ) ;
 		}
 		
 		
 		
 		protected function applyGroupRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
-			var c : String = this.coordinateSystem ;
-			
-			target.rotationX = ConvertCoordinates.groupRotationX ( values.rotationX , c ) ;
-			target.rotationY = ConvertCoordinates.groupRotationY ( values.rotationY , c ) ;
-			target.rotationZ = ConvertCoordinates.groupRotationZ ( values.rotationZ , c ) ;
+			target.rotationX = ConvertCoordinates.groupRotationX ( values.rotationX , this.coordinateSystem ) ;
+			target.rotationY = ConvertCoordinates.groupRotationY ( values.rotationY , this.coordinateSystem ) ;
+			target.rotationZ = ConvertCoordinates.groupRotationZ ( values.rotationZ , this.coordinateSystem ) ;
 		}
 		
 		
 		
 		protected function applyColladaRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
-			var c : String = this.coordinateSystem ;
-			
-			target.rotationX = ConvertCoordinates.colladaRotationX ( values.rotationX , c ) ;
-			target.rotationY = ConvertCoordinates.colladaRotationY ( values.rotationY , c ) ;
-			target.rotationZ = ConvertCoordinates.colladaRotationZ ( values.rotationZ , c ) ;
+			target.rotationX = ConvertCoordinates.colladaRotationX ( values.rotationX , this.coordinateSystem ) ;
+			target.rotationY = ConvertCoordinates.colladaRotationY ( values.rotationY , this.coordinateSystem ) ;
+			target.rotationZ = ConvertCoordinates.colladaRotationZ ( values.rotationZ , this.coordinateSystem ) ;
 		}
 		
 		
 		
 		protected function applyCameraRotation ( target : Object3D , values : SceneObjectVO ) : void
 		{
-			var c : String = this.coordinateSystem ;
-			
-			target.rotationX = ConvertCoordinates.cameraRotationX ( values.rotationX , c ) ;
-			target.rotationY = ConvertCoordinates.cameraRotationY ( values.rotationY , c ) ;
-			target.rotationZ = ConvertCoordinates.cameraRotationZ ( values.rotationZ , c ) ;
+			target.rotationX = ConvertCoordinates.cameraRotationX ( values.rotationX , this.coordinateSystem ) ;
+			target.rotationY = ConvertCoordinates.cameraRotationY ( values.rotationY , this.coordinateSystem ) ;
+			target.rotationZ = ConvertCoordinates.cameraRotationZ ( values.rotationZ , this.coordinateSystem ) ;
 		}
 		
 		
