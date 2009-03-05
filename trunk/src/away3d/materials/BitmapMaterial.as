@@ -387,7 +387,7 @@
 	           }
 	            _renderBitmap.colorTransform(_renderBitmap.rect, _colorTransform);
 	        } else {
-	        	_renderBitmap = _bitmap.clone();
+	        	_renderBitmap = _bitmap;
 	        }
 	        	        invalidateFaces();
         }
