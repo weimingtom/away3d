@@ -11,6 +11,7 @@ kernel normalMapping
     parameter float4 diffuseMatrixG;
     parameter float4 diffuseMatrixB;
     parameter float4 diffuseMatrixO;
+    parameter float4 ambientMatrixO;
     
     parameter float4 specularMatrixR;
     parameter float4 specularMatrixG;
@@ -37,7 +38,7 @@ kernel normalMapping
         float4 mapColor = sampleNearest(normalmap, outCoord());
         
         // set the output
-        float4 diffuse = textureColor*(mapColor.r*diffuseMatrixR + mapColor.g*diffuseMatrixG + mapColor.b*diffuseMatrixB + diffuseMatrixO);
+        float4 diffuse = textureColor*(max(mapColor.r*diffuseMatrixR + mapColor.g*diffuseMatrixG + mapColor.b*diffuseMatrixB + diffuseMatrixO, float4(0.0, 0.0, 0.0, 0.0)) + ambientMatrixO);
         float4 specular = mapColor.r*specularMatrixR + mapColor.g*specularMatrixG + mapColor.b*specularMatrixB + specularMatrixO;
         dst = diffuse + clamp(specular, float4(0.0, 0.0, 0.0, 0.0), float4(1.0, 1.0, 1.0, 1.0));
     }
