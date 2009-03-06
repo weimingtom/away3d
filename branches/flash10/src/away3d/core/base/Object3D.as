@@ -1560,9 +1560,9 @@
     	 */
 		public function rotateTo(ax:Number, ay:Number, az:Number):void
 		{
-			_rotationX = -ax*toRADIANS;
-            _rotationY = -ay*toRADIANS;
-            _rotationZ = -az*toRADIANS;
+			_rotationX = ax*toRADIANS;
+            _rotationY = ay*toRADIANS;
+            _rotationZ = az*toRADIANS;
             _rotationDirty = false;
             _transformDirty = true;
 		}
