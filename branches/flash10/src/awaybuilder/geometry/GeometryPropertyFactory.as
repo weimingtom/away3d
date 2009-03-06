@@ -1,9 +1,11 @@
 package awaybuilder.geometry
-{	import awaybuilder.vo.SceneGeometryVO;
+{
+	import awaybuilder.vo.SceneGeometryVO;
 	import awaybuilder.vo.DynamicAttributeVO;
 	
 	
-		public class GeometryPropertyFactory
+	
+	public class GeometryPropertyFactory
 	{
 		public var precision : uint ;
 		
@@ -14,7 +16,8 @@ package awaybuilder.geometry
 		}
 		
 		
-				////////////////////////////////////////////////////////////////////////////////
+		
+		////////////////////////////////////////////////////////////////////////////////
 		//
 		// Public Methods
 		//
@@ -60,6 +63,12 @@ package awaybuilder.geometry
 					{
 						attribute.value == "1" ? boolean = true : boolean = false ;
 						vo.enabled = boolean ;
+						break ;
+					}
+					case GeometryAttributes.FLIP_TEXTURE :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo.flipTexture = boolean ;
 						break ;
 					}
 					case GeometryAttributes.HEIGHT :
@@ -128,6 +137,12 @@ package awaybuilder.geometry
 						vo.mesh[ attribute.key ] = uint ( attribute.value ) ;
 						break ;
 					}
+					case GeometryAttributes.SMOOTH_TEXTURE :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo.smoothTexture = boolean ;
+						break ;
+					}
 					case GeometryAttributes.TARGET_CAMERA :
 					{
 						vo.targetCamera = attribute.value ;
@@ -160,4 +175,5 @@ package awaybuilder.geometry
 			
 			return vo ;
 		}
-	}}
+	}
+}

@@ -52,24 +52,29 @@ package away3d.core.project
 					_screenVertex.x = 0;
 					_screenVertex.y = 0;
 					
-					if (_child.scenePivotPoint.modulo) {
-						_depthPoint.clone(_child.scenePivotPoint);
-						_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
-						_depthPoint.add(_viewTransformDictionary[_child].position, _depthPoint);
-						
-		             	_screenVertex.z = _depthPoint.modulo;
-						
+					if (!isNaN(_child.ownSession.screenZ)) {
+						_screenVertex.z = _child.ownSession.screenZ;
 					} else {
-						_screenVertex.z = _viewTransformDictionary[_child].position.modulo;
-					}
-		             
-	             	
-	             	if (_child.pushback)
-	             		_screenVertex.z += _child.boundingRadius;
-	             		
-	             	if (_child.pushfront)
-	             		_screenVertex.z -= _child.boundingRadius;
-	            	
+						if (_child.scenePivotPoint.modulo) {
+							_depthPoint.clone(_child.scenePivotPoint);
+							_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
+							_depthPoint.add(_viewTransformDictionary[_child].position, _depthPoint);
+							
+			             	_screenVertex.z = _depthPoint.modulo;
+							
+						} else {
+							_screenVertex.z = _viewTransformDictionary[_child].position.modulo;
+						}
+			            
+		             	if (_child.pushback)
+		             		_screenVertex.z += _child.parentBoundingRadius;
+		             		
+		             	if (_child.pushfront)
+		             		_screenVertex.z -= _child.parentBoundingRadius;
+		             		
+		             	_screenVertex.z += _child.screenZOffset;
+	    			}
+	    			
 	             	consumer.primitive(_drawPrimitiveStore.createDrawDisplayObject(_child, _screenVertex, _container.session, _child.session.getContainer(view)));
 	   			}
         	}

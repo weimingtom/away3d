@@ -123,7 +123,7 @@ package away3d.materials
         private var draw_reflect_k:Number = 1;
         private var _diffuseTransform:MatrixAway3D;
         private var _specularTransform:MatrixAway3D;
-        private var _viewPosition:Number3D
+        private var _viewPosition:Number3D;
         private var _source:Mesh;
         private var _view:View3D;
         private var _materialDirty:Boolean;

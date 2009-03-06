@@ -550,6 +550,11 @@ package away3d.core.draw
             screenZ = (v0.z + v1.z + v2.z) / 3;
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
             
+            if (area > 0)
+        		_areaSign = 1;
+        	else
+        		_areaSign = -1;
+        	
             vertices[0] = v0.x;
             vertices[1] = v0.y;
             vertices[2] = v1.x;

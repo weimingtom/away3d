@@ -36,8 +36,6 @@ package away3d.core.render
 		/** @private */
 		arcane var _sprite:Sprite;
 		/** @private */
-		arcane var _spriteLayer:Sprite;
-		/** @private */
 		arcane var _level:int = -1;
 		/** @private */
 		arcane var _material:IMaterial;
