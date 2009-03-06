@@ -1,12 +1,10 @@
-package away3d.materials
-{
-	import away3d.containers.*;
+package away3d.materials {
+	import away3d.cameras.lenses.*;		import away3d.containers.*;
 	import away3d.arcane;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	import away3d.events.*;
 	
 	import flash.display.*;
 	import flash.filters.*;
@@ -20,6 +18,9 @@ package away3d.materials
     */
     public class WhiteShadingBitmapMaterial extends CenterLightingMaterial implements IUVMaterial
     {
+    	private var _view:View3D;
+    	private var _uvtData:Vector.<Number> = new Vector.<Number>(9, true);
+    	private var _focus:Number;
         private var _bitmap:BitmapData;
         private var _texturemapping:Matrix;
         private var _faceMaterialVO:FaceMaterialVO;
@@ -31,7 +32,7 @@ package away3d.materials
 		private var colorTransform:ColorMatrixFilter = new ColorMatrixFilter();
         private var cache:Dictionary;
         private var step:int = 1;
-		private var mapping:Matrix;
+		//private var mapping:Matrix;
 		private var br:Number;
          
         private function ladder(v:Number):Number
@@ -69,12 +70,55 @@ package away3d.materials
 			return _faceMaterialVO.texturemapping = _texturemapping;
 		}
 		
+		protected function getUVData(tri:DrawTriangle):Vector.<Number>
+		{
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
+			
+			if (_view.camera.lens is ZoomFocusLens)
+        		_focus = tri.view.camera.focus;
+        	else
+        		_focus = 0;
+			
+			if (tri.generated) {
+				_uvtData[2] = 1/(_focus + tri.v0.z);
+				_uvtData[5] = 1/(_focus + tri.v1.z);
+				_uvtData[8] = 1/(_focus + tri.v2.z);
+				_uvtData[0] = tri.uv0.u;
+	    		_uvtData[1] = 1 - tri.uv0.v;
+	    		_uvtData[3] = tri.uv1.u;
+	    		_uvtData[4] = 1 - tri.uv1.v;
+	    		_uvtData[6] = tri.uv2.u;
+	    		_uvtData[7] = 1 - tri.uv2.v;
+	    		
+	    		return _uvtData;
+			}
+			
+			_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0.z);
+			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1.z);
+			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2.z);
+			
+			if (!_faceMaterialVO.invalidated)
+				return _faceMaterialVO.uvtData;
+			
+			_faceMaterialVO.invalidated = false;
+        	
+        	_faceMaterialVO.uvtData[0] = tri.uv0.u;
+    		_faceMaterialVO.uvtData[1] = 1 - tri.uv0.v;
+    		_faceMaterialVO.uvtData[3] = tri.uv1.u;
+    		_faceMaterialVO.uvtData[4] = 1 - tri.uv1.v;
+    		_faceMaterialVO.uvtData[6] = tri.uv2.u;
+    		_faceMaterialVO.uvtData[7] = 1 - tri.uv2.v;
+        	
+			return _faceMaterialVO.uvtData;
+		}
+		
         /** @private */
         protected override function renderTri(tri:DrawTriangle, session:AbstractRenderSession, kar:Number, kag:Number, kab:Number, kdr:Number, kdg:Number, kdb:Number, ksr:Number, ksg:Number, ksb:Number):void
         {
             br = (kar + kag + kab + kdr + kdg + kdb + ksr + ksg + ksb)/3;
 			
-            mapping = getMapping(tri);
+            //mapping = getMapping(tri);
+            _view = tri.view;
             
             v0 = tri.v0;
             v1 = tri.v1;
@@ -82,13 +126,13 @@ package away3d.materials
             
             if ((br < 1) && (blackrender || ((step < 16) && (!_bitmap.transparent))))
             {
-                session.renderTriangleBitmap(_bitmap, mapping, v0, v1, v2, smooth, repeat);
+            	session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
                 session.renderTriangleColor(0x000000, 1 - br, v0, v1, v2);
             }
             else
             if ((br > 1) && (whiterender))
             {
-                session.renderTriangleBitmap(_bitmap, mapping, v0, v1, v2, smooth, repeat);
+            	session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
                 session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, v0, v1, v2);
             }
             else
@@ -105,7 +149,7 @@ package away3d.materials
                 	bitmap.applyFilter(_bitmap, bitmap.rect, bitmapPoint, colorTransform);
                     cache[brightness] = bitmap;
                 }
-                session.renderTriangleBitmap(bitmap, mapping, v0, v1, v2, smooth, repeat);
+                session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
             }
         }
         
