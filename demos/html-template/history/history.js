@@ -131,18 +131,6 @@ BrowserHistory = (function() {
         return players;
     }
 
-	function getIframeHash() {
-		var doc = getHistoryFrame().contentWindow.document;
-		var hash = String(doc.location.search);
-		if (hash.length == 1 && hash.charAt(0) == "?") {
-			hash = "";
-		}
-		else if (hash.length >= 2 && hash.charAt(0) == "?") {
-			hash = hash.substring(1);
-		}
-		return hash;
-	}
-
     /* Get the current location hash excluding the '#' symbol. */
     function getHash() {
        // It would be nice if we could use document.location.hash here,
@@ -277,11 +265,7 @@ BrowserHistory = (function() {
                     currentHref = document.location.href;
                     document.location.reload();
                 } else {
-					if (getHash() != getIframeHash()) {
-						// this.iframe.src = this.blankURL + hash;
-						var sourceToSet = historyFrameSourcePrefix + getHash();
-						getHistoryFrame().src = sourceToSet;
-					}
+                    //getHistoryFrame().src = historyFrameSourcePrefix + getHash();
                 }
             }
         }

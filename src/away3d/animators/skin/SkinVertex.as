@@ -8,7 +8,7 @@ package away3d.animators.skin
     	private var _i:int;
     	private var _skinController:SkinController;
     	private var _position:Number3D = new Number3D();
-		private var _sceneTransform:Matrix3D = new Matrix3D();
+		private var _sceneTransform:MatrixAway3D = new MatrixAway3D();
 		
 		public var baseVertex:Vertex;
         public var skinnedVertex:Vertex;

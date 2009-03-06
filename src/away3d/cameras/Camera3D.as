@@ -30,7 +30,7 @@ package away3d.cameras
     	private var _zoomDirty:Boolean;
         private var _aperture:Number = 22;
     	private var _dof:Boolean = false;
-        private var _flipY:Matrix3D = new Matrix3D();
+        private var _flipY:MatrixAway3D = new MatrixAway3D();
         private var _focus:Number;
         private var _zoom:Number = 10;
         private var _lens:ILens;
@@ -40,11 +40,11 @@ package away3d.cameras
         private var _clipBottom:Number;
         private var _clipLeft:Number;
         private var _clipRight:Number;
-    	private var _viewMatrix:Matrix3D = new Matrix3D();
+    	private var _viewMatrix:MatrixAway3D = new MatrixAway3D();
     	private var _view:View3D;
     	private var _drawPrimitiveStore:DrawPrimitiveStore;
     	private var _cameraVarsStore:CameraVarsStore;
-        private var _vt:Matrix3D;
+        private var _vt:MatrixAway3D;
 		private var _cameraupdated:CameraEvent;
 		private var _x:Number;
 		private var _y:Number;
@@ -66,7 +66,7 @@ package away3d.cameras
         protected const toRADIANS:Number = Math.PI/180;
 		protected const toDEGREES:Number = 180/Math.PI;
 		
-    	public var invViewMatrix:Matrix3D = new Matrix3D();
+    	public var invViewMatrix:MatrixAway3D = new MatrixAway3D();
         
 		public var fixedZoom:Boolean;
 		
@@ -213,7 +213,7 @@ package away3d.cameras
 		 * 
 		 * @see	away3d.core.traverse.ProjectionTraverser
 		 */
-        public function get viewMatrix():Matrix3D
+        public function get viewMatrix():MatrixAway3D
         {
         	invViewMatrix.multiply(sceneTransform, _flipY);
         	_viewMatrix.inverse(invViewMatrix);

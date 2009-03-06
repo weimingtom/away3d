@@ -3,7 +3,8 @@ package awaybuilder.utils
 	import awaybuilder.CoordinateSystem;
 	
 	
-		public class ConvertCoordinates
+	
+	public class ConvertCoordinates
 	{
 		public static function groupPositionX ( n : Number , coordinateSystem : String ) : Number
 		{

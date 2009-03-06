@@ -10,7 +10,7 @@ package away3d.cameras.lenses
 	{
 		function setView(val:View3D):void
 		
-		function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum;
+		function getFrustum(node:Object3D, viewTransform:MatrixAway3D):Frustum;
 		
 		function getFOV():Number;
 		
@@ -19,6 +19,6 @@ package away3d.cameras.lenses
        /**
         * Projects the vertex to the screen space of the view.
         */
-        function project(viewTransform:Matrix3D, vertex:Vertex):ScreenVertex;
+        function project(viewTransform:MatrixAway3D, vertex:Vertex):ScreenVertex;
 	}
 }

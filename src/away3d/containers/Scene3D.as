@@ -93,7 +93,7 @@ package away3d.containers
 		/**
 		 * @inheritDoc
 		 */
-        public override function get sceneTransform():Matrix3D
+        public override function get sceneTransform():MatrixAway3D
         {
         	if (_transformDirty)
         		 _sceneTransformDirty = true;

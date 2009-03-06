@@ -24,16 +24,16 @@ package away3d.core.light
     	private var _matrix:Matrix = new Matrix();
     	private var _shape:Shape = new Shape();
         private var quaternion:Quaternion = new Quaternion();
-        private var invTransform:Matrix3D = new Matrix3D();
-    	private var transform:Matrix3D = new Matrix3D();
+        private var invTransform:MatrixAway3D = new MatrixAway3D();
+    	private var transform:MatrixAway3D = new MatrixAway3D();
     	private var nx:Number;
     	private var ny:Number;
     	private var mod:Number;
-        private var cameraTransform:Matrix3D;
+        private var cameraTransform:MatrixAway3D;
         private var cameraDirection:Number3D = new Number3D();
         private var halfVector:Number3D = new Number3D();
         private var halfQuaternion:Quaternion = new Quaternion();
-        private var halfTransform:Matrix3D = new Matrix3D();
+        private var halfTransform:MatrixAway3D = new MatrixAway3D();
         private var _red:Number;
 		private var _green:Number;
 		private var _blue:Number;
@@ -228,7 +228,7 @@ package away3d.core.light
         public function setDiffuseTransform(source:Object3D):void
         {
         	if (!diffuseTransform[source])
-        		diffuseTransform[source] = new Matrix3D();
+        		diffuseTransform[source] = new MatrixAway3D();
         	
         	diffuseTransform[source].multiply3x3(transform, source.sceneTransform);
         	diffuseTransform[source].normalize(diffuseTransform[source]);
@@ -248,13 +248,14 @@ package away3d.core.light
 			cameraDirection.z = -cameraTransform.szz;
 			halfVector.add(cameraDirection, direction);
 			halfVector.normalize();
+			
 			nx = halfVector.x;
         	ny = halfVector.y;
         	mod = Math.sqrt(nx*nx + ny*ny);
         	halfTransform.rotationMatrix(-ny/mod, nx/mod, 0, Math.acos(-halfVector.z));
 			
 			if (!specularTransform[source][view])
-				specularTransform[source][view] = new Matrix3D();
+				specularTransform[source][view] = new MatrixAway3D();
 				
         	specularTransform[source][view].multiply3x3(halfTransform, source.sceneTransform);
         	specularTransform[source][view].normalize(specularTransform[source][view]);

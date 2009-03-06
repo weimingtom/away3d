@@ -23,7 +23,7 @@ package away3d.core.project
 		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
 		private var _persp:Number;
-        
+		
         public function get view():View3D
         {
         	return _view;
@@ -34,7 +34,7 @@ package away3d.core.project
         	_drawPrimitiveStore = view.drawPrimitiveStore;
         }
         
-		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			

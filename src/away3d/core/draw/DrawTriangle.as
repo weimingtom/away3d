@@ -223,6 +223,10 @@ package away3d.core.draw
 		 */
         public var uv2:UV;
         
+        public var vertices:Vector.<Number> = new Vector.<Number>();
+        
+        public var uvtData:Vector.<Number> = new Vector.<Number>();
+        
 		/**
 		 * The calulated area of the triangle primitive.
 		 */
@@ -550,6 +554,14 @@ package away3d.core.draw
         		_areaSign = 1;
         	else
         		_areaSign = -1;
+        	
+            vertices[0] = v0.x;
+            vertices[1] = v0.y;
+            vertices[2] = v1.x;
+            vertices[3] = v1.y;
+            vertices[4] = v2.x;
+            vertices[5] = v2.y;
+            
         }
         
 		/**

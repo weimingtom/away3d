@@ -13,7 +13,7 @@ package away3d.core.utils
 	{
 		private var _sourceDictionary:Dictionary = new Dictionary(true);
         private var _vertexClassificationDictionary:Dictionary;
-		private var _vt:Matrix3D;
+		private var _vt:MatrixAway3D;
 		private var _frustum:Frustum;
 		private var _vertex:Vertex;
 		private var _uv:UV;
@@ -71,12 +71,12 @@ package away3d.core.utils
 	        return _vc;
   		}
   		
-		public function createViewTransform(node:Object3D):Matrix3D
+		public function createViewTransform(node:Object3D):MatrixAway3D
         {
         	if (_vtStore.length)
         		_vtActive.push(_vt = viewTransformDictionary[node] = _vtStore.pop());
         	else
-        		_vtActive.push(_vt = viewTransformDictionary[node] = new Matrix3D());
+        		_vtActive.push(_vt = viewTransformDictionary[node] = new MatrixAway3D());
         	
         	return _vt;
         }

@@ -158,7 +158,7 @@ package away3d.core.base
 			positionDirty = true;
         }
         
-        public function transform(m:Matrix3D):void
+        public function transform(m:MatrixAway3D):void
         {
             setValue(_x * m.sxx + _y * m.sxy + _z * m.sxz + m.tx, _x * m.syx + _y * m.syy + _z * m.syz + m.ty, _x * m.szx + _y * m.szy + _z * m.szz + m.tz);
         }

@@ -1,10 +1,13 @@
 package awaybuilder.vo
-{	import away3d.core.base.Object3D;
+{
+	import away3d.core.base.Object3D;
 	import away3d.materials.IMaterial;
 	
 	
-		public class SceneGeometryVO
-	{		public var id : String ;
+	
+	public class SceneGeometryVO
+	{
+		public var id : String ;
 		public var name : String ;
 		public var values : SceneObjectVO ;
 		public var geometryExtras : Array = [ ] ;
@@ -90,4 +93,5 @@ package awaybuilder.vo
 		{
 			return this._assetFileBack ;
 		}
-	}}
+	}
+}

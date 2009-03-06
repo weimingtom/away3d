@@ -15,7 +15,7 @@ package away3d.core.project
 		private var _view:View3D;
 		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
-		private var _cameraViewMatrix:Matrix3D;
+		private var _cameraViewMatrix:MatrixAway3D;
 		private var _viewTransformDictionary:Dictionary;
 		private var _container:ObjectContainer3D;
 		private var _camera:Camera3D;
@@ -33,7 +33,7 @@ package away3d.core.project
         	_drawPrimitiveStore = view.drawPrimitiveStore;
         }
         
-		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			

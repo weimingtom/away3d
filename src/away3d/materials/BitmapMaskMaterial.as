@@ -806,7 +806,7 @@ package away3d.materials
 					_sv1 = new ScreenVertex();
 				}
 				
-        		var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];
+        		var t:MatrixAway3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];
 				_nn.rotate(tri.faceVO.face.normal, t);
 				 
 				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;

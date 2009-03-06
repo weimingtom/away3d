@@ -100,11 +100,11 @@
 		/** @private */
         arcane var _transformDirty:Boolean;
         /** @private */
-        arcane var _transform:Matrix3D = new Matrix3D();
+        arcane var _transform:MatrixAway3D = new MatrixAway3D();
         /** @private */
         arcane var _sceneTransformDirty:Boolean;
         /** @private */
-        arcane var _sceneTransform:Matrix3D = new Matrix3D();
+        arcane var _sceneTransform:MatrixAway3D = new MatrixAway3D();
         /** @private */
         arcane var _localTransformDirty:Boolean;
         /** @private */
@@ -124,7 +124,8 @@
         /** @private */
         arcane var _maxZ:Number = 0;
         /** @private */
-        arcane var _minZ:Number = 0;        /** @private */        arcane var _lookingAtTarget:Number3D = new Number3D();         /** @private */        public function get lookingAtTarget():Number3D        {            return _lookingAtTarget;        }
+        arcane var _minZ:Number = 0;
+        /** @private */        arcane var _lookingAtTarget:Number3D = new Number3D();         /** @private */        public function get lookingAtTarget():Number3D        {            return _lookingAtTarget;        }
         /** @private */
         public function get parentmaxX():Number
         {
@@ -280,7 +281,7 @@
 		private var _sca:Number3D = new Number3D();
         private var _pivotZero:Boolean;
 		private var _vector:Number3D = new Number3D();
-		private var _m:Matrix3D = new Matrix3D();
+		private var _m:MatrixAway3D = new MatrixAway3D();
     	private var _xAxis:Number3D = new Number3D();
     	private var _yAxis:Number3D = new Number3D();
     	private var _zAxis:Number3D = new Number3D();
@@ -396,8 +397,7 @@
         		
         	_sessionDirty = true;
         }
-        
-        /**
+                /**
          * Instance of the Init object used to hold and parse default property values
          * specified by the initialiser object in the 3d object constructor.
          */
@@ -406,7 +406,8 @@
         protected function updateTransform():void
         {
         	if (_rotationDirty) 
-                updateRotation();            
+                updateRotation();
+            
             _quaternion.euler2quaternion(_rotationY, _rotationZ, -_rotationX); // Swapped
             _transform.quaternion2matrix(_quaternion);
             
@@ -466,13 +467,14 @@
 		 * Elements use their nearest point to the camera when z-sorting
 		 */
         public var pushfront:Boolean;
-        		/**		 * Defines an additional offset to the z-sorting algorithm used on mesh elements or objects with ownCanvas set to true		 */        public var screenZOffset:Number;        
+        
+		/**		 * Defines an additional offset to the z-sorting algorithm used on mesh elements or objects with ownCanvas set to true		 */        public var screenZOffset:Number;        
     	/**
     	 * Returns the inverse of sceneTransform.
     	 * 
     	 * @see #sceneTransform
     	 */
-        public var inverseSceneTransform:Matrix3D = new Matrix3D();
+        public var inverseSceneTransform:MatrixAway3D = new MatrixAway3D();
 		
     	/**
     	 * An optional name string for the 3d object.
@@ -566,7 +568,8 @@
             if (_dimensionsDirty)
             	updateDimensions();
            
-           return _boundingRadius;        }
+           return _boundingRadius;
+        }
         
     	/**
     	 * Returns the maximum x value of the 3d object
@@ -746,7 +749,8 @@
         	_renderer = val;
         	
         	if (_ownSession)
-        		_ownSession.renderer = _renderer;        	        	_sessionDirty = true;
+        		_ownSession.renderer = _renderer;
+        	        	_sessionDirty = true;
         }
         
     	/**
@@ -1121,7 +1125,7 @@
     	/**
     	 * Defines the transformation of the 3d object, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
     	 */
-        public function get transform():Matrix3D
+        public function get transform():MatrixAway3D
         {
             if (_transformDirty) 
                 updateTransform();
@@ -1129,7 +1133,7 @@
             return _transform;
         }
 
-        public function set transform(value:Matrix3D):void
+        public function set transform(value:MatrixAway3D):void
         {
             if (_transform.compare(value))
                 return;
@@ -1209,7 +1213,7 @@
     	/**
     	 * Returns the transformation of the 3d object, relative to the global coordinates of the <code>Scene3D</code> object.
     	 */
-        public function get sceneTransform():Matrix3D
+        public function get sceneTransform():MatrixAway3D
         {
         	//for camera transforms
             if (_scene == null || _scene == this) {
@@ -1305,7 +1309,8 @@
             debugbb = ini.getBoolean("debugbb", false);
             debugbs = ini.getBoolean("debugbs", false);
             pushback = ini.getBoolean("pushback", false);
-            pushfront = ini.getBoolean("pushfront", false);            screenZOffset = ini.getNumber("screenZOffset", 0);
+            pushfront = ini.getBoolean("pushfront", false);
+            screenZOffset = ini.getNumber("screenZOffset", 0);
             x = ini.getNumber("x", 0);
             y = ini.getNumber("y", 0);
             z = ini.getNumber("z", 0);        
@@ -1367,8 +1372,8 @@
     	 */
         public function distanceTo(obj:Object3D):Number
         {
-            var m1:Matrix3D = _scene == this ? transform : sceneTransform;
-            var m2:Matrix3D = obj.scene == obj ? obj.transform : obj.sceneTransform;
+            var m1:MatrixAway3D = _scene == this ? transform : sceneTransform;
+            var m2:MatrixAway3D = obj.scene == obj ? obj.transform : obj.sceneTransform;
 
             var dx:Number = m1.tx - m2.tx;
             var dy:Number = m1.ty - m2.ty;
@@ -1479,7 +1484,8 @@
             _localTransformDirty = true;
             _sceneTransformDirty = true;
         }
-				public function centerPivot():void        {        	var offset:Number3D = new Number3D((maxX + minX)/2, (maxY + minY)/2, (maxZ + minZ)/2);        	movePivot(offset.x, offset.y, offset.z);			moveTo(offset.x, offset.y, offset.z);
+		
+		public function centerPivot():void        {        	var offset:Number3D = new Number3D((maxX + minX)/2, (maxY + minY)/2, (maxZ + minZ)/2);        	movePivot(offset.x, offset.y, offset.z);			moveTo(offset.x, offset.y, offset.z);
         }
 		/**
 		 * Moves the local point around which the object rotates.
@@ -1587,7 +1593,8 @@
 		 * @param	upAxis		An optional vector used to define the desired up orientation of the 3d object after rotation has occurred
 		 */
         public function lookAt(target:Number3D, upAxis:Number3D = null):void
-        {        	_lookingAtTarget = target;        	
+        {
+        	_lookingAtTarget = target;        	
             _zAxis.sub(target, position);
             _zAxis.normalize();
     
@@ -1669,8 +1676,8 @@
             object3D.mouseEnabled = mouseEnabled;
             object3D.useHandCursor = useHandCursor;
             object3D.pushback = pushback;
-            object3D.pushfront = pushfront;            object3D.screenZOffset = screenZOffset;
-            object3D.pivotPoint = pivotPoint;            object3D.projectorType = projectorType;            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
+            object3D.pushfront = pushfront;
+            object3D.screenZOffset = screenZOffset;            object3D.pivotPoint = pivotPoint;            object3D.projectorType = projectorType;            object3D.extra = (extra is IClonable) ? (extra as IClonable).clone() : extra;
             
             return object3D;
         }

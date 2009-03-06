@@ -1,9 +1,11 @@
 package awaybuilder.geometry
-{	import awaybuilder.vo.SceneGeometryVO;
+{
+	import awaybuilder.vo.SceneGeometryVO;
 	import awaybuilder.vo.DynamicAttributeVO;
 	
 	
-		public class GeometryPropertyFactory
+	
+	public class GeometryPropertyFactory
 	{
 		public var precision : uint ;
 		
@@ -14,7 +16,8 @@ package awaybuilder.geometry
 		}
 		
 		
-				////////////////////////////////////////////////////////////////////////////////
+		
+		////////////////////////////////////////////////////////////////////////////////
 		//
 		// Public Methods
 		//
@@ -172,4 +175,5 @@ package awaybuilder.geometry
 			
 			return vo ;
 		}
-	}}
+	}
+}

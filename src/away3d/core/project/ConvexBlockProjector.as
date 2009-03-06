@@ -53,7 +53,7 @@ package away3d.core.project
     	 * @see	away3d.core.traverse.BlockerTraverser
     	 * @see	away3d.core.block.Blocker
 		 */
-        public function blockers(source:Object3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
+        public function blockers(source:Object3D, viewTransform:MatrixAway3D, consumer:IBlockerConsumer):void
         {
 			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
 			
@@ -123,7 +123,7 @@ package away3d.core.project
             consumer.blocker(_drawPrimitiveStore.createConvexBlocker(source, result));
  		}
  		
-		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			_convexBlock = source as ConvexBlock;
 			

@@ -24,7 +24,7 @@ package away3d.core.traverse
     {
     	private var _view:View3D;
     	private var _clipping:Clipping;
-    	private var _viewTransform:Matrix3D;
+    	private var _viewTransform:MatrixAway3D;
     	private var _cameraVarsStore:CameraVarsStore;
     	private var _nodeClassification:int;
     	private var _consumer:IPrimitiveConsumer;

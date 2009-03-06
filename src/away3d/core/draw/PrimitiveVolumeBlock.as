@@ -1,6 +1,6 @@
 package away3d.core.draw
 {
-    import away3d.core.base.*;
+	import away3d.core.base.*;
 
 
     /** Volume block containing drawing primitives */
@@ -50,7 +50,7 @@ package away3d.core.draw
 
         public function toString():String
         {
-            return "VolumeBlock " + list.length;
+           return "VolumeBlock " + list.length;
         }
 
     }

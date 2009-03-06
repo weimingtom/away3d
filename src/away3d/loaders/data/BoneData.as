@@ -9,6 +9,6 @@ package away3d.loaders.data
 		/**
 		 * Transform information for the joint in a SkinAnimation
 		 */
-		public var jointTransform:Matrix3D = new Matrix3D();
+		public var jointTransform:MatrixAway3D = new MatrixAway3D();
 	}
 }

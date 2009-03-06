@@ -87,7 +87,7 @@ package away3d.materials
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.5, {min:0, max:1});
 			
-            var renderNormalMap:BitmapData = new BitmapData(normalMap.width, normalMap.height, true, 0);
+			var renderNormalMap:BitmapData = new BitmapData(normalMap.width, normalMap.height, true, 0);
             
             var w:int = normalMap.width;
 			var h:int = normalMap.height;

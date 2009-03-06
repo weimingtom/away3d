@@ -32,7 +32,7 @@ package away3d.materials.shaders
         private var _normalBitmap:BitmapData;
         private var _shininess:Number;
 		private var _specular:Number;
-		private var _specularTransform:Matrix3D;
+		private var _specularTransform:MatrixAway3D;
 		private var _szx:Number;
 		private var _szy:Number;
 		private var _szz:Number;

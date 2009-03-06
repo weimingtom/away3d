@@ -109,7 +109,7 @@ package
 		private var mouseVector:Number3D = new Number3D();
 		private var mouseDiff:Number3D = new Number3D();
 		private var mouseDistance:Number;
-		private var mouseMatrix:Matrix3D = new Matrix3D();
+		private var mouseMatrix:MatrixAway3D = new MatrixAway3D();
 		
 		
 		/**

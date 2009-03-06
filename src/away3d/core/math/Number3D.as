@@ -16,8 +16,8 @@
         private var nx:Number;
         private var ny:Number;
         private var nz:Number;
-        private var m1:Matrix3D;
-        private var m2:Matrix3D;
+        private var m1:MatrixAway3D;
+        private var m2:MatrixAway3D;
         
         /**
         * The horizontal coordinate of the 3d number object.
@@ -205,7 +205,7 @@
     	 * @param	v	The 3d number object to use in the calculation.
     	 * @param	m	The 3d matrix object representing the rotation.
     	 */
-        public function rotate(v:Number3D, m:Matrix3D):void
+        public function rotate(v:Number3D, m:MatrixAway3D):void
         {
         	vx = v.x;
         	vy = v.y;
@@ -222,7 +222,7 @@
     	 * @param	v	The 3d number object to use in the calculation.
     	 * @param	m	The 3d matrix object representing the tranformation.
     	 */
-        public function transform(v:Number3D, m:Matrix3D):void
+        public function transform(v:Number3D, m:MatrixAway3D):void
         {
         	vx = v.x;
         	vy = v.y;
@@ -238,10 +238,10 @@
     	 * 
     	 * @param	m	The 3d matrix object to use in the calculation.
     	 */
-        public function matrix2euler(m:Matrix3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
+        public function matrix2euler(m:MatrixAway3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
         {
             if (!m1)
-            	m1 = new Matrix3D();
+            	m1 = new MatrixAway3D();
             
 		    // Extract the first angle, rotationX
 			x = -Math.atan2(m.szy, m.szz); // rot.x = Math<T>::atan2 (M[1][2], M[2][2]);
@@ -340,7 +340,7 @@
     	 * 
     	 * @param	m	The 3d matrix object to use in the calculation.
     	 */
-        public function matrix2scale(m:Matrix3D):void
+        public function matrix2scale(m:MatrixAway3D):void
         {
             x = Math.sqrt(m.sxx*m.sxx + m.syx*m.syx + m.szx*m.szx);
             y = Math.sqrt(m.sxy*m.sxy + m.syy*m.syy + m.szy*m.szy);

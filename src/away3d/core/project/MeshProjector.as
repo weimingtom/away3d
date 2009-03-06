@@ -62,7 +62,7 @@ package away3d.core.project
 		private var _sv1:ScreenVertex;
 		private var _sv2:ScreenVertex;
 		
-        private function front(face:Face, viewTransform:Matrix3D):Number
+        private function front(face:Face, viewTransform:MatrixAway3D):Number
         {
             _sv0 = _lens.project(viewTransform, face.v0);
 			_sv1 = _lens.project(viewTransform, face.v1);
@@ -82,7 +82,7 @@ package away3d.core.project
         	_cameraVarsStore = view.cameraVarsStore;
         }
         
-		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			_drawPrimitiveStore.createVertexDictionary(source);
 			_cameraVarsStore.createVertexClassificationDictionary(source);
@@ -178,8 +178,6 @@ package away3d.core.project
 				
                 if (_mesh.pushfront)
                     _tri.screenZ = _tri.minZ;
-				
-				_tri.screenZ += _mesh.screenZOffset;
 				
                 if (_mesh.outline && !_backface)
                 {

@@ -1,6 +1,7 @@
 package away3d.materials
 {
     import away3d.arcane;
+    import away3d.cameras.lenses.ZoomFocusLens;
     import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
@@ -46,6 +47,8 @@ package away3d.materials
         private var _v0:Number;
         private var _v1:Number;
         private var _v2:Number;
+        private var _cos:Number;
+        private var _sin:Number;
         private var v0x:Number;
         private var v0y:Number;
         private var v0z:Number;
@@ -103,7 +106,7 @@ package away3d.materials
 	        _materialDirty = true;
         }
         
-		private function projectUV(tri:DrawTriangle):Matrix
+		private function projectUV(tri:DrawTriangle):Vector.<Number>
         {
         	faceVO = tri.faceVO;
         	
@@ -127,43 +130,14 @@ package away3d.materials
         	v2y = v2.y;
         	v2z = v2.z;
     		
-    		_u0 = v0x*_N.x + v0y*_N.y + v0z*_N.z;
-    		_u1 = v1x*_N.x + v1y*_N.y + v1z*_N.z;
-    		_u2 = v2x*_N.x + v2y*_N.y + v2z*_N.z;
-    		_v0 = v0x*_M.x + v0y*_M.y + v0z*_M.z;
-    		_v1 = v1x*_M.x + v1y*_M.y + v1z*_M.z;
-    		_v2 = v2x*_M.x + v2y*_M.y + v2z*_M.z;
-      
-            // Fix perpendicular projections
-            if ((_u0 == _u1 && _v0 == _v1) || (_u0 == _u2 && _v0 == _v2))
-            {
-            	if (_u0 > 0.05)
-                	_u0 -= 0.05;
-                else
-                	_u0 += 0.05;
-                	
-                if (_v0 > 0.07)           
-                	_v0 -= 0.07;
-                else
-                	_v0 += 0.07;
-            }
-    
-            if (_u2 == _u1 && _v2 == _v1)
-            {
-            	if (_u2 > 0.04)
-                	_u2 -= 0.04;
-                else
-                	_u2 += 0.04;
-                	
-                if (_v2 > 0.06)           
-                	_v2 -= 0.06;
-                else
-                	_v2 += 0.06;
-            }
-            
-            t = new Matrix(_u1 - _u0, _v1 - _v0, _u2 - _u0, _v2 - _v0, _u0, _v0);
-            t.invert();
-            return t;
+    		_uvtData[0] = v0x*_N.x + v0y*_N.y + v0z*_N.z;
+    		_uvtData[1] = v0x*_M.x + v0y*_M.y + v0z*_M.z;
+    		_uvtData[3] = v1x*_N.x + v1y*_N.y + v1z*_N.z;
+    		_uvtData[4] = v1x*_M.x + v1y*_M.y + v1z*_M.z;
+    		_uvtData[6] = v2x*_N.x + v2y*_N.y + v2z*_N.z;
+    		_uvtData[7] = v2x*_M.x + v2y*_M.y + v2z*_M.z;
+    		
+            return _uvtData;
         }
 		
 		private function getContainerPoints(rect:Rectangle):Array
@@ -258,7 +232,7 @@ package away3d.materials
 			if (tri.generated) {
 		        //use projectUV if projection vector detected
 	    		if (projectionVector) {
-	    			_texturemapping = projectUV(tri);
+	    			//_texturemapping = projectUV(tri);
 	    		} else {
 	    			_texturemapping = tri.transformUV(this).clone();
 	        		_texturemapping.invert();
@@ -285,7 +259,7 @@ package away3d.materials
     		
     		//use projectUV if projection vector detected
     		if (projectionVector) {
-    			_texturemapping = projectUV(tri);
+    			//_texturemapping = projectUV(tri);
     		} else {
     			_texturemapping = tri.transformUV(this).clone();
         		_texturemapping.invert();
@@ -300,6 +274,101 @@ package away3d.materials
         	}
         	
         	return _faceMaterialVO.texturemapping = _texturemapping;
+		}
+		
+		protected override function getUVData(tri:DrawTriangle):Vector.<Number>
+		{
+			if (tri.view.camera.lens is ZoomFocusLens)
+        		_focus = tri.view.camera.focus;
+        	else
+        		_focus = 0;
+			
+			if (tri.generated) {
+				_uvtData[2] = 1/(_focus + tri.v0.z);
+				_uvtData[5] = 1/(_focus + tri.v1.z);
+				_uvtData[8] = 1/(_focus + tri.v2.z);
+				
+				if (projectionVector) {
+		    		_uvtData = projectUV(tri);
+		        	_u0 = (_uvtData[0] - _offsetX)/width;
+		        	_u1 = (_uvtData[3] - _offsetX)/width;
+		        	_u2 = (_uvtData[6] - _offsetX)/width;
+		        	_v0 = (_uvtData[1] - _offsetY)/height;
+		        	_v1 = (_uvtData[4] - _offsetY)/height;
+		        	_v2 = (_uvtData[7] - _offsetY)/height;
+		   		} else {
+		   			_u0 = tri.uv0.u - _offsetX/width;
+		        	_u1 = tri.uv1.u - _offsetX/width;
+		        	_u2 = tri.uv2.u - _offsetX/width;
+		        	_v0 = 1 - tri.uv0.v - _offsetY/height;
+		        	_v1 = 1 - tri.uv1.v - _offsetY/height;
+		        	_v2 = 1 - tri.uv2.v - _offsetY/height;
+		   		}
+	        	
+	        	if (_rotation) {
+	        		_uvtData[0] = (_u0*_cos - _v0*_sin)/_scaleX;
+	        		_uvtData[1] = (_u0*_sin + _v0*_cos)/_scaleY;
+	        		_uvtData[3] = (_u1*_cos - _v1*_sin)/_scaleX;
+	        		_uvtData[4] = (_u1*_sin + _v1*_cos)/_scaleY;
+	        		_uvtData[6] = (_u2*_cos - _v2*_sin)/_scaleX;
+	        		_uvtData[7] = (_u2*_sin + _v2*_cos)/_scaleY;
+	        	} else {
+	        		_uvtData[0] = _u0/_scaleX;
+	        		_uvtData[1] = _v0/_scaleY;
+	        		_uvtData[3] = _u1/_scaleX;
+	        		_uvtData[4] = _v1/_scaleY;
+	        		_uvtData[6] = _u2/_scaleX;
+	        		_uvtData[7] = _v2/_scaleY;
+	        	}
+	        	
+	    		return _uvtData;
+			}
+			
+			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
+			
+			_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0.z);
+			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1.z);
+			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2.z);
+			
+			if (!_faceMaterialVO.invalidated)
+				return _faceMaterialVO.uvtData;
+			
+			_faceMaterialVO.invalidated = false;
+        	
+        	if (projectionVector) {
+	    		_uvtData = projectUV(tri);
+	        	_u0 = (_uvtData[0] - _offsetX)/width;
+	        	_u1 = (_uvtData[3] - _offsetX)/width;
+	        	_u2 = (_uvtData[6] - _offsetX)/width;
+	        	_v0 = (_uvtData[1] - _offsetY)/height;
+	        	_v1 = (_uvtData[4] - _offsetY)/height;
+	        	_v2 = (_uvtData[7] - _offsetY)/height;
+	   		} else {
+	   			_u0 = tri.uv0.u - _offsetX/width;
+	        	_u1 = tri.uv1.u - _offsetX/width;
+	        	_u2 = tri.uv2.u - _offsetX/width;
+	        	_v0 = 1 - tri.uv0.v - _offsetY/height;
+	        	_v1 = 1 - tri.uv1.v - _offsetY/height;
+	        	_v2 = 1 - tri.uv2.v - _offsetY/height;
+	   		}
+        	
+        	if (_rotation) {
+        		_faceMaterialVO.uvtData[0] = (_u0*_cos - _v0*_sin)/_scaleX;
+	        	_faceMaterialVO.uvtData[1] = (_u0*_sin + _v0*_cos)/_scaleY;
+	        	_faceMaterialVO.uvtData[3] = (_u1*_cos - _v1*_sin)/_scaleX;
+	        	_faceMaterialVO.uvtData[4] = (_u1*_sin + _v1*_cos)/_scaleY;
+	        	_faceMaterialVO.uvtData[6] = (_u2*_cos - _v2*_sin)/_scaleX;
+	        	_faceMaterialVO.uvtData[7] = (_u2*_sin + _v2*_cos)/_scaleY;
+        	} else {
+        		_faceMaterialVO.uvtData[0] = _u0/_scaleX;
+        		_faceMaterialVO.uvtData[1] = _v0/_scaleY;
+        		_faceMaterialVO.uvtData[3] = _u1/_scaleX;
+        		_faceMaterialVO.uvtData[4] = _v1/_scaleY;
+        		_faceMaterialVO.uvtData[6] = _u2/_scaleX;
+        		_faceMaterialVO.uvtData[7] = _v2/_scaleY;
+        	}
+        	 	
+			return _faceMaterialVO.uvtData;
 		}
 		
 		/**
@@ -352,7 +421,9 @@ package away3d.materials
 	        	
 	        	//recalculate rotation
 	        	_rotation = Math.atan2(_transform.b, _transform.a);
-
+				_cos = Math.cos(_rotation);
+				_sin = Math.sin(_rotation);
+				
 	        	//recalculate scale
 	        	_scaleX = _transform.a/Math.cos(_rotation);
 	        	_scaleY = _transform.d/Math.cos(_rotation);
@@ -491,6 +562,9 @@ package away3d.materials
             
         	_rotation = val;
         	
+        	_cos = Math.cos(_rotation);
+			_sin = Math.sin(_rotation);
+			
         	_transformDirty = true;
         }
         
@@ -655,7 +729,7 @@ package away3d.materials
 					
 					//calulate mapping
 					_invtexturemapping = _faceMaterialVO.invtexturemapping;
-					_mapping.concat(projectUV(tri));
+					//_mapping.concat(projectUV(tri));
 					_mapping.concat(_invtexturemapping);
 					
 					normalR.clone(tri.faceVO.face.normal);

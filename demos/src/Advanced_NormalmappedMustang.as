@@ -1,85 +1,141 @@
-﻿package
-{
-	import AS3s.*;
-	
-	import away3d.cameras.*;
-	import away3d.cameras.lenses.SphericalLens;
+﻿/*
+
+Flash 10 Normal mapping example in Away3d
+
+Demonstrates:
+
+How to use Dot3BitmapMaterialF10 to apply diffuse and specular lighting to a normap-mapped material.
+The advantage of using Dot3BitmapMaterialF10 over Dot3BitmapMaterial or WhiteShadingBitmapMaterial
+How to group objects in RenderSession objects to solve sorting problems
+How to how to apply a HDR (Hight dynamic range) effect to an Away3d view
+
+Code by Rob Bateman
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
+
+Design by Eddie Carbin
+http://www.carbin.com/
+
+HDR pixel bender kernel by David Lenaerts
+http://www.derschmale.com/
+ 
+This code is distributed under the MIT License
+
+Copyright (c) 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+package {
+	import AS3s.*;
+		import away3d.cameras.*;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	import away3d.events.*;
 	import away3d.lights.*;
-	import away3d.loaders.*;
-	import away3d.loaders.data.*;
 	import away3d.materials.*;
-	import away3d.primitives.*;
+	import away3d.test.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.utils.*;
+	import flash.filters.*;
 	
 	[SWF(backgroundColor="#677999", frameRate="30", quality="LOW", width="800", height="600")]
 	 
-	public class Advanced_NormalmappedMustang extends Sprite
+	public class Advanced_NormalmappedMustang extends MovieClip
 	{
-		//cracks texture for desert
+		//license plate texture
+		[Embed(source="assets/licenseplate.jpg")]
+    	public var LicenseTexture:Class;
+    	
+		//brakes texture for wheels
 		[Embed(source="assets/discbrakes.png")]
     	public var BrakesTexture:Class;
     	
-    	//horizon texture for gradient
-    	[Embed(source="assets/dragradial.png")]
-    	public var TiresTexture1:Class;
-    	
-    	//skydome texture
-    	[Embed(source="assets/dragradialbump.jpg")]
-    	public var TiresTexture2:Class;
+    	//tire texture for wheels
+    	[Embed(source="assets/dragradial.jpg")]
+    	public var TiresTexture:Class;
 		
-		//ferrari texture
+		//hubcap texture for wheels
 		[Embed(source="assets/eleanor_hub.png")]
 		private var HubTexture:Class;
 		
-		//ferrari texture
+		//shadow texture
 		[Embed(source="assets/eleanor_shadow_256.png")]
 		private var ShadowTexture:Class;
 				
-		//ferrari texture
-		[Embed(source="assets/Mustang_diffuse.png")]
+		//body texture
+		[Embed(source="assets/Mustang_diffuse.jpg")]
 		private var BodyTexture:Class;
-				
-		//ferrari texture
-		[Embed(source="assets/MustangObject_NRM.png")]
+		
+		//normalmap for body
+		[Embed(source="assets/MustangObject_NRM_512.png")]
 		private var Normalmap:Class;
 		
     	//signature swf
-    	[Embed(source="assets/signature.swf", symbol="Signature")]
+    	[Embed(source="assets/signature_eddie_david.swf", symbol="Signature")]
     	public var SignatureSwf:Class;
     	
+    	//pixel bender filter for HDR effect
+    	[Embed(source="pbks/BloomBrightness.pbj", mimeType="application/octet-stream")]
+		private var BloomBrightness:Class;
+		
     	//engine variables
     	private var scene:Scene3D;
 		private var camera:HoverCamera3D;
 		private var view:View3D;
-		
-		//signature variables
+		private var bloomShader:Shader;
+		private var bloomFilter:ShaderFilter;
+		private var bloomBitmap:Bitmap;
+		private var bloom:Boolean = true;
+				//signature variables
 		private var Signature:Sprite;
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var bodyMaterial:Dot3BitmapMaterial;
-		//private var hubMaterial:Dot3BitmapMaterial;
+		private var f10Material:Dot3BitmapMaterialF10;
+		private var f9Material:Dot3BitmapMaterial;
+		private var flatMaterial:WhiteShadingBitmapMaterial;
 		private var hubMaterial:WhiteShadingBitmapMaterial;
 		private var brakesMaterial:WhiteShadingBitmapMaterial;
 		private var tiresMaterial:WhiteShadingBitmapMaterial;
+		private var licenseMaterial:WhiteShadingBitmapMaterial;
 		private var shadowMaterial:BitmapMaterial;
 		
 		//scene objects
 		private var mustang:MustangGT500;
 		private var shadow:Mesh;
-		private var floor:RegularPolygon;
-		private var sky:Sphere;
+		private var bodyMesh:Mesh;
 		
 		//scene lights
 		private var light:DirectionalLight3D;
+		
+		//button objects
+		private var buttonGroup:Sprite;
+		private var f10BloomButton:Button;
+		private var f10Button:Button;
+		private var f9Button:Button;
+		private var flatButton:Button;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -105,6 +161,7 @@
 			initMaterials();
 			initObjects();
 			initLights();
+			initButtons();
 			initListeners();
 		}
 		
@@ -118,13 +175,15 @@
 			camera.lens = new SphericalLens();
 			camera.distance = 600;
 			camera.maxtiltangle = 70;
-			camera.mintiltangle = 0;
+			camera.mintiltangle = 5;
 			camera.targetpanangle = camera.panangle = -140;
 			camera.targettiltangle = camera.tiltangle = 20;
 			view = new View3D({scene:scene, camera:camera});
 			view.x = 400;
 			view.y = 300;
 			view.addSourceURL("srcview/index.html");
+			view.session = new BitmapRenderSession(1);
+			
 			addChild( view );
 			
 			//add signature
@@ -134,17 +193,30 @@
             SignatureBitmap.bitmapData.draw(Signature);
             stage.quality = StageQuality.LOW;
             addChild(SignatureBitmap);
+            
+            //add filters
+            bloomShader = new Shader(new BloomBrightness());
+            bloomShader.data.threshold.value = [0.99];
+            bloomShader.data.exposure.value = [1];
+			bloomFilter = new ShaderFilter(bloomShader);
+			bloomBitmap = new Bitmap();
+			bloomBitmap.filters = [bloomFilter, new BlurFilter(20, 20, 3)];
+			bloomBitmap.blendMode = BlendMode.ADD;
+			addChild(bloomBitmap);
 		}
-		
+
 		/**
 		 * Initialise the materials
 		 */
 		private function initMaterials():void
 		{
-			bodyMaterial = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.5, shininess:40});
+			f10Material = new Dot3BitmapMaterialF10(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
+			f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
+			flatMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(BodyTexture));
 			hubMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(HubTexture));
 			brakesMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(BrakesTexture));
-			tiresMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(TiresTexture1));
+			tiresMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(TiresTexture));
+			licenseMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(LicenseTexture));
 			shadowMaterial = new BitmapMaterial(Cast.bitmap(ShadowTexture));
 		}
 		
@@ -238,7 +310,11 @@
 			shadow.ownCanvas = true;
 			shadow.pushback = true;
 			
-			mustang.meshes[11].material = bodyMaterial;
+			bodyMesh = mustang.meshes[11];
+			bodyMesh.material = f10Material;
+			
+			bodyMesh.faces[0].material = licenseMaterial;
+			bodyMesh.faces[1].material = licenseMaterial;
 			
 			scene.addChild(mustang);
 		}
@@ -248,9 +324,34 @@
 		 */
 		private function initLights():void
 		{
-			light = new DirectionalLight3D({x:0, y:700, z:1000, color:0xFFFFFF, ambient:0.4, diffuse:0.7});
+			light = new DirectionalLight3D({x:0, y:700, z:1000, color:0xFFFFFF, ambient:0.2, diffuse:0.7});
 			light.debug = true;
 			scene.addChild( light );
+		}
+				
+		/**
+		 * Initialise the buttons
+		 */
+		private function initButtons():void
+		{
+			buttonGroup = new Sprite();
+			addChild(buttonGroup);
+			f10BloomButton = new Button("Flash 10 + HDR", 120);
+            f10BloomButton.x = 170;
+            f10BloomButton.y = 0;
+            buttonGroup.addChild(f10BloomButton);
+            f10Button = new Button("Flash 10", 75);
+            f10Button.x = 310;
+            f10Button.y = 0;
+            buttonGroup.addChild(f10Button);
+            f9Button = new Button("Flash 9", 65);
+            f9Button.x = 405;
+            f9Button.y = 0;
+            buttonGroup.addChild(f9Button);
+            flatButton = new Button("Flat Shading", 95);
+            flatButton.x = 490;
+            flatButton.y = 0;
+            buttonGroup.addChild(flatButton);
 		}
 		
 		/**
@@ -261,6 +362,10 @@
 			addEventListener( Event.ENTER_FRAME, onEnterFrame );
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			f10BloomButton.addEventListener(MouseEvent.CLICK, onF10BloomClick);
+			f10Button.addEventListener(MouseEvent.CLICK, onF10Click);
+			f9Button.addEventListener(MouseEvent.CLICK, onF9Click);
+			flatButton.addEventListener(MouseEvent.CLICK, onFlatClick);
 			onResize(null);
 		}
 		
@@ -278,6 +383,11 @@
 			
 			camera.hover();  
 			view.render();
+			
+			bloomBitmap.visible = bloom;
+			
+			if (bloom)
+				bloomBitmap.bitmapData = view.getBitmapData().clone();
 		}
 		
 		/**
@@ -310,6 +420,42 @@
         	move = false;
         	stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);     
         }
+				
+		/**
+		 * button listener for viewing flash10 normalmapping with bloom HDR
+		 */
+		private function onF10BloomClick(event:MouseEvent):void
+		{
+			bodyMesh.material = f10Material;
+			bloom = true;
+		}
+				
+		/**
+		 * button listener for viewing flash10 normalmapping
+		 */
+		private function onF10Click(event:MouseEvent):void
+		{
+			bodyMesh.material = f10Material;
+			bloom = false;
+		}
+		
+		/**
+		 * button listener for viewing flash9 normalmapping
+		 */
+		private function onF9Click(event:MouseEvent):void
+		{
+			bodyMesh.material = f9Material;
+			bloom = false;
+		}
+		
+		/**
+		 * button listener for viewing flat shading
+		 */
+		private function onFlatClick(event:MouseEvent):void
+		{
+			bodyMesh.material = flatMaterial;
+			bloom = false;
+		}
 		
 		/**
 		 * stage listener for resize events
@@ -319,8 +465,13 @@
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;
             SignatureBitmap.y = stage.stageHeight - Signature.height;
+            buttonGroup.x = stage.stageWidth - 700;
+            buttonGroup.y = stage.stageHeight - 40;
 		}
 		
+		/**
+		 * Time function for updating time-based scene objects
+		 */
         private function tick(time:int):void
 	    {
 	    	light.x = 1000*Math.cos(time/2000);

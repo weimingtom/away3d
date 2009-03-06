@@ -17,6 +17,6 @@ package away3d.core.block
     	 * @see	away3d.core.traverse.BlockerTraverser
     	 * @see	away3d.core.block.Blocker
     	 */
-        function blockers(source:Object3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void;
+        function blockers(source:Object3D, viewTransform:MatrixAway3D, consumer:IBlockerConsumer):void;
     }
 }

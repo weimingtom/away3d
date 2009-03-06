@@ -98,6 +98,11 @@ package away3d.core.render
         private var _dictionary:Dictionary;
         private var _array:Array;
         private var _defaultColorTransform:ColorTransform = new ColorTransform();
+		private var _layerGraphics:Graphics;
+		private var fill:GraphicsBitmapFill = new GraphicsBitmapFill();
+        private var path:GraphicsTrianglePath = new GraphicsTrianglePath(new Vector.<Number>(3), null, new Vector.<Number>(3));
+        private var end:GraphicsEndFill = new GraphicsEndFill();
+        private var drawing:Vector.<IGraphicsData> = Vector.<IGraphicsData>([fill, path, end]);
 		private var _renderers:Dictionary = new Dictionary(true);
 		private var _renderer:IPrimitiveConsumer;
         private var _session:AbstractRenderSession;
@@ -406,8 +411,13 @@ package away3d.core.render
         	for each(_session in sessions)
        			_session.render(view);
        		
+        	//fill.bitmapData = null;
+        	
         	if (updated)
 	            (getConsumer(view) as IRenderer).render(view);
+	        
+	        //if (fill.bitmapData)
+	        //	drawBitmapTriangles();
         }
         
         public function clearRenderers():void
@@ -637,6 +647,29 @@ package away3d.core.render
 	            graphics.lineTo(v1x, v1y);
 	            graphics.lineTo(v2x, v2y);
 	            graphics.endFill();
+	  		}
+        }
+        
+        /**
+         * Draws a triangle element with a bitmap texture into the graphics object (Flash 10)
+         */
+        public function renderTriangleBitmapF10(bitmap:BitmapData, vertices:Vector.<Number>, uvtData:Vector.<Number>, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        {
+        	if (_layerDirty)
+        		createLayer();
+        	
+        	
+        	fill.bitmapData = bitmap;
+			fill.repeat = repeat;
+			fill.smooth = smooth;
+			
+        	path.vertices = vertices;
+        	path.uvtData = uvtData;
+			
+			if (layerGraphics) {
+				layerGraphics.drawGraphicsData(drawing);
+	  		} else {
+	  			graphics.drawGraphicsData(drawing);
 	  		}
         }
         

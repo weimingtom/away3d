@@ -29,7 +29,7 @@ package away3d.materials.shaders
         private var _sourceBitmap:BitmapData;
         private var _normalDictionary:Dictionary = new Dictionary(true);
         private var _normalBitmap:BitmapData;
-		private var _diffuseTransform:Matrix3D;
+		private var _diffuseTransform:MatrixAway3D;
 		private var _szx:Number;
 		private var _szy:Number;
 		private var _szz:Number;
