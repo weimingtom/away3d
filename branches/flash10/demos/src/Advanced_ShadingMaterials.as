@@ -77,7 +77,7 @@ package
 		private var pedestalMaterial:WhiteShadingBitmapMaterial;
 		
 		//torso materials
-		private var torsoNormalMaterial:Dot3BitmapMaterial;
+		private var torsoNormalMaterial:Dot3BitmapMaterialF10;
 		private var torsoEnviroMaterial:EnviroBitmapMaterial;
 		private var torsoPhongMaterial:PhongBitmapMaterial;
 		private var torsoFlatMaterial:WhiteShadingBitmapMaterial;
@@ -165,7 +165,7 @@ package
 			
 			pedestalMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(PedestalImage));
 			
-			torsoNormalMaterial = new Dot3BitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(TorsoNormal));
+			torsoNormalMaterial = new Dot3BitmapMaterialF10(Cast.bitmap(TorsoImage), Cast.bitmap(TorsoNormal));
 			torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR), {reflectiveness:0.2});
 			torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage), {specular:0.5});
 			torsoFlatMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(TorsoImage));
