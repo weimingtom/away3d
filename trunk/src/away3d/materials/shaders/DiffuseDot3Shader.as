@@ -25,7 +25,6 @@ package away3d.materials.shaders
     {
         private var _zeroPoint:Point = new Point(0, 0);
         private var _bitmap:BitmapData;
-        private var _renderBitmap:BitmapData;
         private var _sourceDictionary:Dictionary = new Dictionary(true);
         private var _sourceBitmap:BitmapData;
         private var _normalDictionary:Dictionary = new Dictionary(true);
@@ -143,7 +142,7 @@ package away3d.materials.shaders
 					_faceMaterialVO.updated = true;
 					
 					//resolve normal map
-					_normalBitmap.applyFilter(_renderBitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixDiffuseTransform[_source]);
+					_normalBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixDiffuseTransform[_source]);
 		            
 					//draw into faceBitmap
 					_faceMaterialVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
@@ -190,7 +189,7 @@ package away3d.materials.shaders
         */
         public function getPixel32(u:Number, v:Number):uint
         {
-        	return _renderBitmap.getPixel32(u*_renderBitmap.width, (1 - v)*_renderBitmap.height);
+        	return _bitmap.getPixel32(u*_bitmap.width, (1 - v)*_bitmap.height);
         }
 		
 		/**
@@ -204,37 +203,6 @@ package away3d.materials.shaders
             super(init);
             
 			_bitmap = bitmap;
-            
-            _renderBitmap = new BitmapData(_bitmap.width, _bitmap.height, true, 0);
-            
-            var w:int = _bitmap.width;
-			var h:int = _bitmap.height;
-			
-			var i:int = h;
-			var j:int;
-			var pixelValue:int;
-			var rValue:Number;
-			var gValue:Number;
-			var bValue:Number;
-			var mod:Number;
-			
-			//normalise map
-			while (i--) {
-				j = w;
-				while (j--) {
-					//get values
-					pixelValue = _bitmap.getPixel32(j, i);
-					rValue = ((pixelValue & 0x00FF0000) >> 16) - 127;
-					gValue = ((pixelValue & 0x0000FF00) >> 8) - 127;
-					bValue = ((pixelValue & 0x000000FF)) - 127;
-					
-					//calculate modulus
-					mod = Math.sqrt(rValue*rValue + gValue*gValue + bValue*bValue)*2;
-					
-					//set normalised values
-					_renderBitmap.setPixel32(j, i, (0xFF << 24) + (int(0xFF*(rValue/mod + 0.5)) << 16) + (int(0xFF*(gValue/mod + 0.5)) << 8) + int(0xFF*(bValue/mod + 0.5)));
-				}
-			}
 			
             tangentSpace = ini.getBoolean("tangentSpace", false);
         }
@@ -276,7 +244,7 @@ package away3d.materials.shaders
         		
         		_mapping = getMapping(tri);
         		
-				_source.session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
+				_source.session.renderTriangleBitmap(_bitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
         	}
 			
 			if (debug)
