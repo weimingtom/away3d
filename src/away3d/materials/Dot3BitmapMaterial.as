@@ -87,12 +87,43 @@ package away3d.materials
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.5, {min:0, max:1});
 			
+            var renderNormalMap:BitmapData = new BitmapData(normalMap.width, normalMap.height, true, 0);
+            
+            var w:int = normalMap.width;
+			var h:int = normalMap.height;
+			
+			var i:int = h;
+			var j:int;
+			var pixelValue:int;
+			var rValue:Number;
+			var gValue:Number;
+			var bValue:Number;
+			var mod:Number;
+			
+			//normalise map
+			while (i--) {
+				j = w;
+				while (j--) {
+					//get values
+					pixelValue = normalMap.getPixel32(j, i);
+					rValue = ((pixelValue & 0x00FF0000) >> 16) - 127;
+					gValue = ((pixelValue & 0x0000FF00) >> 8) - 127;
+					bValue = ((pixelValue & 0x000000FF)) - 127;
+					
+					//calculate modulus
+					mod = Math.sqrt(rValue*rValue + gValue*gValue + bValue*bValue)*2;
+					
+					//set normalised values
+					renderNormalMap.setPixel32(j, i, (0xFF << 24) + (int(0xFF*(rValue/mod + 0.5)) << 16) + (int(0xFF*(gValue/mod + 0.5)) << 8) + int(0xFF*(bValue/mod + 0.5)));
+				}
+			}
+			
 			//create new materials
 			_bitmapMaterial = new BitmapMaterial(bitmap, ini);
 			_phongShader = new CompositeMaterial({blendMode:BlendMode.MULTIPLY});
 			_phongShader.addMaterial(_ambientShader = new AmbientShader({blendMode:BlendMode.ADD}));
-			_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader(normalMap, {blendMode:BlendMode.ADD}));
-			_specularDot3Shader = new SpecularDot3Shader(normalMap, {shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
+			_phongShader.addMaterial(_diffuseDot3Shader = new DiffuseDot3Shader(renderNormalMap, {blendMode:BlendMode.ADD}));
+			_specularDot3Shader = new SpecularDot3Shader(renderNormalMap, {shininess:_shininess, specular:_specular, blendMode:BlendMode.ADD});
 			
 			//add to materials array
 			addMaterial(_bitmapMaterial);
