@@ -1,6 +1,6 @@
 /*
-VERSION: 1.0
-DATE: 12/30/2008
+VERSION: 1.01
+DATE: 2/23/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -26,7 +26,7 @@ package gs.plugins {
 	import gs.plugins.*;
 	
 	public class FrameLabelPlugin extends FramePlugin {
-		public static const VERSION:Number = 1.0;
+		public static const VERSION:Number = 1.01;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		public function FrameLabelPlugin() {
@@ -39,6 +39,7 @@ package gs.plugins {
 				return false;
 			}
 			_target = $target as MovieClip;
+			this.frame = _target.currentFrame;
 			var labels:Array = _target.currentLabels, label:String = $value, endFrame:int = _target.currentFrame, i:int;
 			for (i = labels.length - 1; i > -1; i--) {
 				if (labels[i].name == label) {
@@ -46,8 +47,8 @@ package gs.plugins {
 					break;
 				}
 			}
-			if (_target.currentFrame != endFrame) {
-				addTween(this, "frame", _target.currentFrame, endFrame, "frame");
+			if (this.frame != endFrame) {
+				addTween(this, "frame", this.frame, endFrame, "frame");
 			}
 			return true;
 		}

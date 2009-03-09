@@ -1,6 +1,6 @@
 ﻿/*
-VERSION: 1.01
-DATE: 1/21/2009
+VERSION: 1.02
+DATE: 2/8/2009
 ACTIONSCRIPT VERSION: 3.0 
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -27,7 +27,7 @@ package gs.plugins {
 	import gs.*;
 	
 	public class FastTransformPlugin extends TweenPlugin {
-		public static const VERSION:Number = 1.01;
+		public static const VERSION:Number = 1.02;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		protected var _target:DisplayObject;
@@ -94,7 +94,7 @@ package gs.plugins {
 		
 		override public function killProps($lookup:Object):void {
 			for (var p:String in $lookup) {
-				if (!isNaN(this[p + "Change"])) {
+				if (p + "Change" in this && !isNaN(this[p + "Change"])) {
 					this[p + "Change"] = 0;
 				}
 			}

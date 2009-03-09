@@ -1,6 +1,6 @@
 ﻿/*
-VERSION: 10.07
-DATE: 2/2/2009
+VERSION: 10.11
+DATE: 2/25/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com 
 DESCRIPTION:
@@ -291,6 +291,17 @@ NOTES / HINTS:
 	  
 	  
 CHANGE LOG:
+	10.11:
+		- Fixed bug in setDestination() when adjustStartValues was false
+		- Fixed bug in startAt that caused it to wait one frame when the delay was zero.
+	10.1:
+		- Fixed bug that caused error when "omit trace actions" was selected in publish settings.
+	10.09:
+		- Fixed bug with timeScale
+	10.08:
+		- Fixed bug in setDestination()
+		- Fixed bug in SetSizePlugin
+		- Fixed bug in isTweening() which didn't report true immediately after a tween was created.
 	10.07:
 		- Fixed reporting of "paused" property being reversed
 	10.06:
@@ -374,7 +385,7 @@ package gs {
 	import gs.utils.tween.*;
 
 	public class TweenMax extends TweenLite implements IEventDispatcher {
-		public static const version:Number = 10.07;
+		public static const version:Number = 10.1;
 		
 		private static var _activatedPlugins:Boolean = TweenPlugin.activate([
 			
@@ -403,7 +414,6 @@ package gs {
 			
 			]); //activated in static var instead of constructor because otherwise if there's a from() tween, TweenLite's constructor would get called first and initTweenVals() would run before the plugins were activated.
 		
-		private static var _versionCheck:Boolean = (TweenLite.version < 10.06) ? trace("TweenMax error! Please update your TweenLite class or try deleting your ASO files. TweenMax requires a more recent version. Download updates at http://www.TweenMax.com.") : true;
 		private static var _overwriteMode:int = (OverwriteManager.enabled) ? OverwriteManager.mode : OverwriteManager.init(); //OverwriteManager is optional for TweenLite and TweenFilterLite, but it is used by default in TweenMax.
 		public static var killTweensOf:Function = TweenLite.killTweensOf;
 		public static var killDelayedCallsTo:Function = TweenLite.killTweensOf;
@@ -418,6 +428,9 @@ package gs {
 		
 		public function TweenMax($target:Object, $duration:Number, $vars:Object) {
 			super($target, $duration, $vars);
+			if (TweenLite.version < 10.09) {
+				trace("TweenMax error! Please update your TweenLite class or try deleting your ASO files. TweenMax requires a more recent version. Download updates at http://www.TweenMax.com.");
+			}
 			if (this.combinedTimeScale != 1 && this.target is TweenMax) { //in case the user is trying to tween the timeScale of another TweenFilterLite/TweenMax instance
 				_timeScale = 1;
 				this.combinedTimeScale = _globalTimeScale;
@@ -440,10 +453,14 @@ package gs {
 			if (!isNaN(this.vars.yoyo) || !isNaN(this.vars.loop)) {
 				this.vars.persist = true;
 			}
+			if (this.delay == 0 && this.exposedVars.startAt != null) {
+				this.exposedVars.startAt.overwrite = 0;
+				new TweenMax(this.target, 0, this.exposedVars.startAt);
+			}
 		}
 				
 		override public function initTweenVals():void {
-			if (this.exposedVars.startAt != null) {
+			if (this.exposedVars.startAt != null && this.delay != 0) {
 				this.exposedVars.startAt.overwrite = 0;
 				new TweenMax(this.target, 0, this.exposedVars.startAt);
 			}
@@ -579,17 +596,18 @@ package gs {
 		}
 		
 		public function setDestination($property:String, $value:*, $adjustStartValues:Boolean=true):void {
-			var p:Number = this.progress, i:int;
+			var p:Number = this.progress, i:int, ti:TweenInfo;
 			if (this.initted) {
-				if (!$adjustStartValues && p != 0) {
+				if (!$adjustStartValues) {
 					for (i = this.tweens.length - 1; i > -1; i--) {
-						if (this.tweens[i].name == $property) {
-							this.tweens[i].target[this.tweens[i].property] = this.tweens[i].start; //return it to its start value (tween index values: [object, property, start, change, name])
+						ti = this.tweens[i];
+						if (ti.name == $property) {
+							ti.target[ti.property] = ti.start; //return it to its start value (tween index values: [object, property, start, change, name])
 						}
 					}
 				}
-				
 				var varsOld:Object = this.vars;
+				var exposedVarsOld:Object = this.exposedVars;
 				var tweensOld:Array = this.tweens;
 				var hadPlugins:Boolean = _hasPlugins;
 				this.tweens = [];
@@ -606,25 +624,27 @@ package gs {
 				var addedTweens:Array = this.tweens;
 				
 				this.vars = varsOld;
+				this.exposedVars = exposedVarsOld;
 				this.tweens = tweensOld;
 				
-				var v:Object = {}, j:int, overwriteProps:Array;
-				for (i = addedTweens.length - 1; i > -1; i--) {
-					if (addedTweens[i][4] == "_MULTIPLE_") {
-						overwriteProps = addedTweens[i][0].overwriteProps;
-						for (j = overwriteProps.length - 1; j > -1; j--) {
-							v[overwriteProps[j]] = true;
+				var killVars:Object = {};
+				killVars[$property] = true;
+				for (i = this.tweens.length - 1; i > -1; i--) {
+					ti = this.tweens[i];
+					if (ti.name == $property) {
+						this.tweens.splice(i, 1);
+					} else if (ti.isPlugin && ti.name == "_MULTIPLE_") { //is a plugin with multiple overwritable properties
+						ti.target.killProps(killVars);
+						if (ti.target.overwriteProps.length == 0) {
+							this.tweens.splice(i, 1);
 						}
-					} else {
-						v[addedTweens[i][4]] = true;
 					}
-				}
-				killVars(v);
+				}				
 				
 				this.tweens = this.tweens.concat(addedTweens);
 				_hasPlugins = Boolean(hadPlugins || _hasPlugins);
 			}
-			this.vars[$property] = $value;
+			this.vars[$property] = this.exposedVars[$property] = $value;
 		}
 		
 		protected function adjustStartValues():void { //adjusts the start values in the tweens so that the current progress and end values are maintained which prevents "skipping" when changing destination values mid-way through the tween.
@@ -681,7 +701,7 @@ package gs {
 					this.ease = (this.vars.ease == this.ease) ? reverseEase : this.vars.ease;
 				}
 				this.startTime = ($skipRender) ? this.startTime + (this.duration * (1000 / this.combinedTimeScale)) : currentTime; //for more accurate results, add the duration to the startTime, otherwise a few milliseconds might be skipped. You can occassionally see this if you have two simultaneous looping tweens with different end times that move objects that are butted up against each other.
-				this.initTime = this.startTime - (this.delay * (1000 / this.combinedTimeScale));
+				this.initTime = this.startTime - (this.delay * (1000 / this.combinedTimeScale));				
 			} else if (this.vars.persist == true) {
 				//super.complete($skipRender);
 				pause();
@@ -837,7 +857,7 @@ package gs {
 		public static function isTweening($target:Object):Boolean {
 			var a:Array = getTweensOf($target);
 			for (var i:int = a.length - 1; i > -1; i--) {
-				if (a[i].active && !a[i].gc) {
+				if ((a[i].active || a[i].startTime == currentTime) && !a[i].gc) {
 					return true;
 				}
 			}

@@ -1,6 +1,6 @@
 /*
-VERSION: 1.0
-DATE: 12/30/2008
+VERSION: 1.01
+DATE: 2/23/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -25,7 +25,7 @@ package gs.plugins {
 	import gs.*;
 	
 	public class FramePlugin extends TweenPlugin {
-		public static const VERSION:Number = 1.0;
+		public static const VERSION:Number = 1.01;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		public var frame:int;
@@ -43,7 +43,8 @@ package gs.plugins {
 				return false;
 			}
 			_target = $target as MovieClip;
-			addTween(this, "frame", _target.currentFrame, $value, "frame");
+			this.frame = _target.currentFrame;
+			addTween(this, "frame", this.frame, $value, "frame");
 			return true;
 		}
 		
