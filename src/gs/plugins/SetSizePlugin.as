@@ -1,6 +1,6 @@
 /*
-VERSION: 1.0
-DATE: 1/8/2009
+VERSION: 1.01
+DATE: 2/6/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -28,7 +28,7 @@ package gs.plugins {
 	import gs.*;
 	
 	public class SetSizePlugin extends TweenPlugin {
-		public static const VERSION:Number = 1.0;
+		public static const VERSION:Number = 1.01;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		public var width:Number;
@@ -42,18 +42,18 @@ package gs.plugins {
 		public function SetSizePlugin() {
 			super();
 			this.propName = "setSize";
-			this.overwriteProps = ["setSize","width","height"];
+			this.overwriteProps = ["setSize","width","height","scaleX","scaleY"];
 			this.round = true;
 		}
 		
 		override public function onInitTween($target:Object, $value:*, $tween:TweenLite):Boolean {
 			_target = $target;
 			_hasSetSize = Boolean("setSize" in _target);
-			if ("width" in $value) {
+			if ("width" in $value && _target.width != $value.width) {
 				addTween((_hasSetSize) ? this : _target, "width", _target.width, $value.width, "width");
 				_setWidth = _hasSetSize;
 			}
-			if ("height" in $value) {
+			if ("height" in $value && _target.height != $value.height) {
 				addTween((_hasSetSize) ? this : _target, "height", _target.height, $value.height, "height");
 				_setHeight = _hasSetSize;
 			}			

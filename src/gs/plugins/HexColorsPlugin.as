@@ -1,6 +1,6 @@
 /*
-VERSION: 1.0
-DATE: 1/8/2009
+VERSION: 1.01
+DATE: 2/5/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -46,7 +46,7 @@ package gs.plugins {
 	import gs.*;
 	
 	public class HexColorsPlugin extends TweenPlugin {
-		public static const VERSION:Number = 1.0;
+		public static const VERSION:Number = 1.01;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		protected var _colors:Array;
@@ -55,6 +55,7 @@ package gs.plugins {
 			super();
 			this.propName = "hexColors";
 			this.overwriteProps = [];
+			_colors = [];
 		}
 		
 		override public function onInitTween($target:Object, $value:*, $tween:TweenLite):Boolean {
@@ -66,9 +67,6 @@ package gs.plugins {
 		
 		public function initColor($target:Object, $propName:String, $start:uint, $end:uint):void {
 			if ($start != $end) {
-				if (_colors == null) {
-					_colors = [];
-				}
 				var r:Number = $start >> 16;
 				var g:Number = ($start >> 8) & 0xff;
 				var b:Number = $start & 0xff;

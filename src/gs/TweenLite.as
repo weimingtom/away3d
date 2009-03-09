@@ -1,6 +1,6 @@
 ﻿/*
-VERSION: 10.06
-DATE: 1/30/2009
+VERSION: 10.09
+DATE: 2/9/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenLite.com
 DESCRIPTION:
@@ -156,6 +156,8 @@ NOTES:
 	  
 	  
 CHANGE LOG:
+	10.09:
+		- Fixed bug with timeScale
 	10.06:
 		- Speed improvements
 		- Integrated a new gs.utils.tween.TweenInfo class
@@ -226,7 +228,7 @@ package gs {
 	import gs.utils.tween.*;
 
 	public class TweenLite {
-		public static const version:Number = 10.06;
+		public static const version:Number = 10.09;
 		public static var plugins:Object = {};
 		public static var killDelayedCallsTo:Function = TweenLite.killTweensOf;
 		public static var defaultEase:Function = TweenLite.easeOut;
@@ -236,7 +238,7 @@ package gs {
 		public static var timingSprite:Sprite = new Sprite(); //A reference to the sprite that we use to drive all our ENTER_FRAME events.
 		private static var _tlInitted:Boolean; //TweenLite class initted
 		private static var _timer:Timer = new Timer(2000);
-		protected static var _reservedProps:Object = {ease:1, delay:1, overwrite:1, onComplete:1, onCompleteParams:1, runBackwards:1, startAt:1, onUpdate:1, onUpdateParams:1, roundProps:1, onStart:1, onStartParams:1, persist:1, renderOnStart:1, proxiedEase:1, easeParams:1, yoyo:1, loop:1, onCompleteListener:1, onUpdateListener:1, onStartListener:1, orientToBezier:1};
+		protected static var _reservedProps:Object = {ease:1, delay:1, overwrite:1, onComplete:1, onCompleteParams:1, runBackwards:1, startAt:1, onUpdate:1, onUpdateParams:1, roundProps:1, onStart:1, onStartParams:1, persist:1, renderOnStart:1, proxiedEase:1, easeParams:1, yoyo:1, loop:1, onCompleteListener:1, onUpdateListener:1, onStartListener:1, orientToBezier:1, timeScale:1};
 	
 		public var duration:Number; //Duration (in seconds)
 		public var vars:Object; //Variables (holds things like alpha or y or whatever we're tweening)
@@ -329,6 +331,9 @@ package gs {
 		
 		public function initTweenVals():void {
 			var p:String, i:int, plugin:*;
+			if (this.exposedVars.timeScale != undefined && this.target is TweenLite) {
+				this.tweens[this.tweens.length] = new TweenInfo(this.target, "timeScale", this.target.timeScale, this.exposedVars.timeScale - this.target.timeScale, "timeScale", false); //[object, property, start, change, name, isPlugin]
+			}
 			for (p in this.exposedVars) {
 				if (p in _reservedProps) { 
 					//ignore

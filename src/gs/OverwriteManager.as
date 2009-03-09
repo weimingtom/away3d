@@ -1,6 +1,6 @@
 ﻿/*
-VERSION: 3.11
-DATE: 2/3/2009
+VERSION: 3.12
+DATE: 2/9/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is available)
 UPDATES & DOCUMENTATION AT: http://blog.greensock.com/overwritemanager/
 DESCRIPTION:
@@ -104,7 +104,7 @@ package gs {
 	import gs.utils.tween.*;
 	
 	public class OverwriteManager {
-		public static const version:Number = 3.11;
+		public static const version:Number = 3.12;
 		public static const NONE:int = 0;
 		public static const ALL:int = 1;
 		public static const AUTO:int = 2;
@@ -113,7 +113,7 @@ package gs {
 		public static var enabled:Boolean;
 		
 		public static function init($mode:int=2):int {
-			if (TweenLite.version < 10.04) {
+			if (TweenLite.version < 10.09) {
 				trace("TweenLite warning: Your TweenLite class needs to be updated to work with OverwriteManager (or you may need to clear your ASO files). Please download and install the latest version from http://www.tweenlite.com.");
 			}
 			TweenLite.overwriteManager = OverwriteManager;
@@ -129,10 +129,12 @@ package gs {
 				return;
 			}
 			
-			var startTime:Number = $tween.startTime, a:Array = [], i:int, tween:TweenLite;
+			var startTime:Number = $tween.startTime, a:Array = [], i:int, tween:TweenLite, index:int = -1;
 			for (i = $targetTweens.length - 1; i > -1; i--) {
 				tween = $targetTweens[i];
-				if (tween != $tween && tween.startTime <= startTime && tween.startTime + (tween.duration * 1000 / tween.combinedTimeScale) > startTime) {
+				if (tween == $tween) {
+					index = i;
+				} else if (i < index && tween.startTime <= startTime && tween.startTime + (tween.duration * 1000 / tween.combinedTimeScale) > startTime) {
 					a[a.length] = tween;
 				}
 			}
@@ -143,10 +145,14 @@ package gs {
 				var tweens:Array = $tween.tweens, v:Object = {}, j:int, ti:TweenInfo, overwriteProps:Array;
 				for (i = tweens.length - 1; i > -1; i--) {
 					ti = tweens[i];
-					if (ti.isPlugin && ti.name == "_MULTIPLE_") { //is a plugin with multiple overwritable properties
-						overwriteProps = ti.target.overwriteProps;
-						for (j = overwriteProps.length - 1; j > -1; j--) {
-							v[overwriteProps[j]] = true;
+					if (ti.isPlugin) { //is a plugin with multiple overwritable properties
+						if (ti.name == "_MULTIPLE_") {
+							overwriteProps = ti.target.overwriteProps;
+							for (j = overwriteProps.length - 1; j > -1; j--) {
+								v[overwriteProps[j]] = true;
+							}
+						} else {
+							v[ti.name] = true;
 						}
 						v[ti.target.propName] = true;
 					} else {
