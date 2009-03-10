@@ -74,10 +74,10 @@ class AbstractWirePrimitive extends Mesh  {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties
 	 */
 	public function new(?init:Dynamic=null) {
-		this._vStore = new Array();
-		this._vActive = new Array();
-		this._segmentStore = new Array();
-		this._segmentActive = new Array();
+		this._vStore = new Array<Dynamic>();
+		this._vActive = new Array<Dynamic>();
+		this._segmentStore = new Array<Dynamic>();
+		this._segmentActive = new Array<Dynamic>();
 		
 		
 		super(init);
@@ -105,10 +105,10 @@ class AbstractWirePrimitive extends Mesh  {
 
 		//clear vertex objects
 		_vStore = _vStore.concat(_vActive);
-		_vActive = new Array();
+		_vActive = new Array<Dynamic>();
 		//clear segment objects
 		_segmentStore = _segmentStore.concat(_segmentActive);
-		_segmentActive = new Array();
+		_segmentActive = new Array<Dynamic>();
 	}
 
 }

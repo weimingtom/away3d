@@ -9,6 +9,7 @@ import away3d.core.base.Object3D;
 import away3d.core.base.VertexPosition;
 import away3d.core.base.Mesh;
 import away3d.core.base.Frame;
+import away3d.core.base.Vertex;
 
 
 class Animator extends Mesh  {
@@ -16,7 +17,7 @@ class Animator extends Mesh  {
 	
 	private var varr:Array<Dynamic>;
 	private var uvarr:Array<Dynamic>;
-	private var fnarr:Array<Dynamic>;
+	private var fnarr:Array<String>;
 	
 
 	private function getVertIndex(face:Face):Array<Dynamic> {
@@ -47,7 +48,7 @@ class Animator extends Mesh  {
 		var j:Int;
 		var k:Int;
 		// export requirement
-		indexes = new Array();
+		indexes = new Array<Dynamic>();
 		var aVti:Array<Dynamic>;
 		if (doloop) {
 			var fr:Dynamic = {};
@@ -86,7 +87,7 @@ class Animator extends Mesh  {
 		}
 
 		geometry.frames = new Dictionary();
-		geometry.framenames = new Dictionary();
+		geometry.framenames = new Hash<Int>();
 		fnarr = [];
 		var oFrames:Dynamic = {};
 		var arr:Array<Dynamic>;
@@ -109,20 +110,26 @@ class Animator extends Mesh  {
 		}
 
 		var frame:Frame;
+		var vertex:Vertex;
 		i = 0;
 		while (i < fnarr.length) {
-			trace("[ " + fnarr[i] + " ]");
+			//trace("[ " + fnarr[i] + " ]");
 			frame = new Frame();
-			geometry.framenames[fnarr[i]] = i;
-			geometry.frames[i] = frame;
+			geometry.framenames.set(fnarr[i], i);
+			geometry.frames[untyped i] = frame;
 			k = 0;
 			j = 0;
 			while (j < Reflect.field(oFrames, fnarr[i]).length) {
 				var vp:VertexPosition = new VertexPosition(varr[k]);
 				k++;
-				vp.x = Reflect.field(oFrames, fnarr[i])[j].x;
-				vp.y = Reflect.field(oFrames, fnarr[i])[j + 1].y;
-				vp.z = Reflect.field(oFrames, fnarr[i])[j + 2].z;
+			
+				vertex = Reflect.field(oFrames, fnarr[i])[j];
+				vp.x = vertex.x;
+				vertex = Reflect.field(oFrames, fnarr[i])[j + 1];
+				vp.y = vertex.y;
+				vertex = Reflect.field(oFrames, fnarr[i])[j + 2];
+				vp.z = vertex.z;
+				
 				frame.vertexpositions.push(vp);
 				
 				// update loop variables
@@ -176,20 +183,27 @@ class Animator extends Mesh  {
 		}
 
 		var frame:Frame;
+		var vertex:Vertex;
 		i = 0;
 		while (i < fnarr.length) {
-			trace("[ " + fnarr[i] + " ]");
+			//trace("[ " + fnarr[i] + " ]");
 			frame = new Frame();
-			geometry.framenames[fnarr[i]] = i;
-			geometry.frames[i] = frame;
+			geometry.framenames.set(fnarr[i], i);
+			geometry.frames[untyped i] = frame;
 			k = 0;
 			j = 0;
 			while (j < Reflect.field(oFrames, fnarr[i]).length) {
 				var vp:VertexPosition = new VertexPosition(varr[k]);
 				k++;
-				vp.x = Reflect.field(oFrames, fnarr[i])[j].x;
-				vp.y = Reflect.field(oFrames, fnarr[i])[j + 1].y;
-				vp.z = Reflect.field(oFrames, fnarr[i])[j + 2].z;
+
+		
+				vertex = Reflect.field(oFrames, fnarr[i])[j];
+				vp.x = vertex.x;
+				vertex = Reflect.field(oFrames, fnarr[i])[j + 1];
+				vp.y = vertex.y;
+				vertex = Reflect.field(oFrames, fnarr[i])[j + 2];
+				vp.z = vertex.z;
+
 				frame.vertexpositions.push(vp);
 				
 				// update loop variables
@@ -234,20 +248,18 @@ class Animator extends Mesh  {
 	 */
 	public function scaleAnimation(scale:Float):Void {
 		
-		var tmpnames:Array<Dynamic> = new Array();
+		var tmpnames:Array<Dynamic> = new Array<Dynamic>();
 		var i:Int = 0;
 		var y:Int = 0;
 		var framename:String;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(geometry.framenames)).iterator();
-		for (framename in __keys) {
+		for (framename in geometry.framenames.keys()) {
 			tmpnames.push(framename);
-			
 		}
 
 		var fr:Frame;
 		i = 0;
 		while (i < tmpnames.length) {
-			fr = geometry.frames[geometry.framenames[tmpnames[i]]];
+			fr = geometry.frames[untyped geometry.framenames.get(tmpnames[i])];
 			y = 0;
 			while (y < fr.vertexpositions.length) {
 				fr.vertexpositions[y].x *= scale;

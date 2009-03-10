@@ -441,7 +441,7 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 		primitives = tree.list();
 		turn = 0;
 		while (primitives.length > 0) {
-			var leftover:Array<Dynamic> = new Array();
+			var leftover:Array<Dynamic> = new Array<Dynamic>();
 			for (__i in 0...primitives.length) {
 				pri = primitives[__i];
 

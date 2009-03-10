@@ -23,10 +23,10 @@ class SceneVO  {
 	public function new() {
 		
 		
-		this.cameras = new Array();
-		this.geometry = new Array();
-		this.sections = new Array();
-		this.materials = new Array();
+		this.cameras = new Array<Dynamic>();
+		this.geometry = new Array<Dynamic>();
+		this.sections = new Array<Dynamic>();
+		this.materials = new Array<Dynamic>();
 	}
 
 }

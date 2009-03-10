@@ -127,7 +127,7 @@ class MeshProjector implements IPrimitiveProvider {
 		if (_backmat == null)  {
 			_backmat = _faceMaterial;
 		};
-		_clippedFaceVOs = new Array();
+		_clippedFaceVOs = new Array<Dynamic>();
 		if (_cameraVarsStore.nodeClassificationDictionary[untyped source] == Frustum.INTERSECT) {
 			_clipFaceVOs = true;
 		} else {

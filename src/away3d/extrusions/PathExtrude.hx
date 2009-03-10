@@ -88,7 +88,7 @@ class PathExtrude extends Mesh  {
 		var uvlength:Int = (points.length - 1) + offsetV;
 		var i:Int = 0;
 		while (i < points.length - 1) {
-			varr = new Array();
+			varr = new Array<Dynamic>();
 			extrudePoints(points[i], points[i + 1], (1 / uvlength) * ((closedata) ? i + (uvlength - 1) : i), uvlength, ((closedata) ? i + (uvlength - 1) : i) / _subdivision);
 			if (i == 0 && _isClosedProfile) {
 				_doubles = varr.concat([]);

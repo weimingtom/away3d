@@ -108,7 +108,7 @@ class PrimitiveQuadrantTreeNode  {
 		this.render_center_length = -1;
 		this.render_center_index = -1;
 		this.maxlevel = 4;
-		this.center = new Array();
+		this.center = new Array<Dynamic>();
 		this.onlysourceFlag = true;
 		
 		
@@ -196,7 +196,7 @@ class PrimitiveQuadrantTreeNode  {
 		leftbottomFlag = false;
 		righttopFlag = false;
 		rightbottomFlag = false;
-		center = new Array();
+		center = new Array<Dynamic>();
 		onlysourceFlag = true;
 		onlysource = null;
 		render_center_length = -1;

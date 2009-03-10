@@ -293,7 +293,7 @@ class AS3Exporter  {
 		i = 0;
 		while (i < tmpnames.length) {
 			avp = [];
-			fr = obj.geometry.frames[obj.geometry.framenames[tmpnames[i]]];
+			fr = obj.geometry.frames[untyped obj.geometry.framenames[untyped tmpnames[i]]];
 			if (tmpnames[i].indexOf(" ") != -1) {
 				tmpnames[i] = tmpnames[i].replace(myPattern, "");
 			}

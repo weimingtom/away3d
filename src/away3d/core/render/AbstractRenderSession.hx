@@ -172,7 +172,7 @@ class AbstractRenderSession extends EventDispatcher  {
 	private function getDOStore(view:View3D):Array<Dynamic> {
 		
 		if (_doStores[untyped view] == null) {
-			return _doStores[untyped view] = new Array();
+			return _doStores[untyped view] = new Array<Dynamic>();
 		}
 		return _doStores[untyped view];
 	}
@@ -180,7 +180,7 @@ class AbstractRenderSession extends EventDispatcher  {
 	private function getDOActive(view:View3D):Array<Dynamic> {
 		
 		if (_doActives[untyped view] == null) {
-			return _doActives[untyped view] = new Array();
+			return _doActives[untyped view] = new Array<Dynamic>();
 		}
 		return _doActives[untyped view];
 	}
@@ -255,7 +255,7 @@ class AbstractRenderSession extends EventDispatcher  {
 			}
 		}
 		
-		sessions = new Array();
+		sessions = new Array<Dynamic>();
 	}
 
 	/**
@@ -701,14 +701,14 @@ class AbstractRenderSession extends EventDispatcher  {
 	public function new () {
 		super();
 		this._containers = new Dictionary(true);
-		this._doStore = new Array();
-		this._doActive = new Array();
+		this._doStore = new Array<Dynamic>();
+		this._doActive = new Array<Dynamic>();
 		this._doStores = new Dictionary(true);
 		this._doActives = new Dictionary(true);
 		this._renderers = new Dictionary(true);
 		this.m = new Matrix();
 		this.alpha = 1;
-		this.spriteLayers = new Array();
+		this.spriteLayers = new Array<Dynamic>();
 		this.children = new Dictionary(true);
 		this.priconsumers = new Dictionary(true);
 		

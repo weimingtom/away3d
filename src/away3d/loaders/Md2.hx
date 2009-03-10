@@ -98,7 +98,7 @@ class Md2 extends AbstractParser  {
 		// Faces
 		data.position = offset_tris;
 		// export requirement
-		mesh.indexes = new Array();
+		mesh.indexes = new Array<Dynamic>();
 		i = 0;
 		while (i < num_tris) {
 			var a:Int = data.readUnsignedShort();

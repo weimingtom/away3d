@@ -66,7 +66,8 @@ class ObjectContainerProjector implements IPrimitiveProvider {
 						_depthPoint.add(_viewTransformDictionary[untyped _child].position, _depthPoint);
 						_screenVertex.z = _depthPoint.modulo;
 					} else {
-						_screenVertex.z = _viewTransformDictionary[untyped _child].position.modulo;
+						var matrix:Matrix3D = _viewTransformDictionary[untyped _child]; 
+						_screenVertex.z = matrix.position.modulo;
 					}
 					if (_child.pushback) {
 						_screenVertex.z += _child.boundingRadius;

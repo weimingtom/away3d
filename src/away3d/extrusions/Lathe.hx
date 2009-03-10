@@ -18,9 +18,9 @@ class Lathe extends Mesh  {
 	
 
 	public function new(aPoints:Array<Dynamic>, ?init:Dynamic=null) {
-		this.varr = new Array();
-		this.varr2 = new Array();
-		this.uvarr = new Array();
+		this.varr = new Array<Dynamic>();
+		this.varr2 = new Array<Dynamic>();
+		this.uvarr = new Array<Dynamic>();
 		
 		
 		if (init.material != null) {
@@ -117,8 +117,8 @@ class Lathe extends Mesh  {
 		var vector2:Dynamic;
 		var vector3:Dynamic;
 		var vector4:Dynamic;
-		var aPointlist1:Array<Dynamic> = new Array();
-		var aPointlist2:Array<Dynamic> = new Array();
+		var aPointlist1:Array<Dynamic> = new Array<Dynamic>();
+		var aPointlist2:Array<Dynamic> = new Array<Dynamic>();
 		i = 0;
 		while (i < Lines.length) {
 			oPoints = Lines[i];
@@ -193,11 +193,11 @@ class Lathe extends Mesh  {
 			mr = (oMat.right != null) ? oMat.right : null;
 			ml = (oMat.left != null) ? oMat.left : null;
 		}
-		varr = new Array();
+		varr = new Array<Dynamic>();
 		generate(aPointlist1, axis, offsetradius, rotations, subdivision, tweek, coverall, false, mf, oRenderside.front, flip);
-		varr2 = new Array();
+		varr2 = new Array<Dynamic>();
 		varr2 = varr2.concat(varr);
-		varr = new Array();
+		varr = new Array<Dynamic>();
 		generate(aPointlist2, axis, offsetradius, rotations, subdivision, tweek, coverall, true, mb, oRenderside.back, flip);
 		if (rotations != 1) {
 			closeSides(points.length, subdivision, rotations, coverall, mr, ml, oRenderside, flip);
@@ -367,7 +367,7 @@ class Lathe extends Mesh  {
 		var tweekradius:Float = 0;
 		var tweekrotation:Float = 0;
 		var tmpPoints:Array<Dynamic>;
-		var aRads:Array<Dynamic> = new Array();
+		var aRads:Array<Dynamic> = new Array<Dynamic>();
 		var nuv1:Float;
 		var nuv2:Float;
 		var i:Int = 0;
@@ -384,7 +384,7 @@ class Lathe extends Mesh  {
 		var factor:Float = 0;
 		i = 0;
 		while (i <= subdivision * rotations) {
-			tmpPoints = new Array();
+			tmpPoints = new Array<Dynamic>();
 			tmpPoints = aPoints.concat([]);
 			j = 0;
 			while (j < tmpPoints.length) {
@@ -510,8 +510,8 @@ class Lathe extends Mesh  {
 	//
 	private function buildThicknessPoints(aPoints:Array<Dynamic>, thickness:Float, prop1:String, prop2:String):Array<Dynamic> {
 		
-		var Anchors:Array<Dynamic> = new Array();
-		var Lines:Array<Dynamic> = new Array();
+		var Anchors:Array<Dynamic> = new Array<Dynamic>();
+		var Lines:Array<Dynamic> = new Array<Dynamic>();
 		var i:Int;
 		i = 0;
 		while (i < aPoints.length - 1) {
