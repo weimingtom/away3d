@@ -1050,7 +1050,7 @@ class Collada extends AbstractParser  {
 		var v:Array<Dynamic>;
 		var matrix:Matrix3D;
 		var name:String;
-		var joints:Array<Dynamic> = new Array();
+		var joints:Array<Dynamic> = new Array<Dynamic>();
 		var skinController:SkinController;
 		var i:Int = 0;
 		while (i < float_array.length) {
@@ -1212,7 +1212,7 @@ class Collada extends AbstractParser  {
 					case "OUTPUT" :
 						i = 0;
 						while (i < len) {
-							channel.param[i] = new Array();
+							channel.param[i] = new Array<Dynamic>();
 							if (stride == 16) {
 								var m:Matrix3D = new Matrix3D();
 								m.array2matrix(list.slice(i * stride, i * stride + 16), yUp, scaling);
@@ -1240,7 +1240,7 @@ class Collada extends AbstractParser  {
 					case "IN_TANGENT" :
 						i = 0;
 						while (i < len) {
-							channel.inTangent[i] = new Array();
+							channel.inTangent[i] = new Array<Dynamic>();
 							j = 0;
 							while (j < stride) {
 								channel.inTangent[i].push(new Number2D((list[stride * i + j]), (list[stride * i + j + 1])));
@@ -1253,7 +1253,7 @@ class Collada extends AbstractParser  {
 					case "OUT_TANGENT" :
 						i = 0;
 						while (i < len) {
-							channel.outTangent[i] = new Array();
+							channel.outTangent[i] = new Array<Dynamic>();
 							j = 0;
 							while (j < stride) {
 								channel.outTangent[i].push(new Number2D((list[stride * i + j]), (list[stride * i + j + 1])));

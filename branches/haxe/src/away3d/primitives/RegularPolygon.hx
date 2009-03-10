@@ -28,7 +28,7 @@ class RegularPolygon extends AbstractPrimitive  {
 
 	private function buildRegularPolygon(radius:Float, sides:Int, subdivision:Int, yUp:Bool):Void {
 		
-		var tmpPoints:Array<Dynamic> = new Array();
+		var tmpPoints:Array<Dynamic> = new Array<Dynamic>();
 		var i:Int = 0;
 		var j:Int = 0;
 		var innerstep:Float = radius / subdivision;

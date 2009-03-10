@@ -228,12 +228,12 @@ class Animation extends EventDispatcher, implements IAnimation {
 			rf = sequence.length - 1;
 		}
 		if (rf == Math.round(rf)) {
-			geometry.frames[sequence[Std.int(rf)].frame].adjust(1);
+			geometry.frames[untyped sequence[Std.int(rf)].frame].adjust(1);
 		} else {
 			var lf:Float = Math.floor(rf);
 			var hf:Float = Math.ceil(rf);
-			geometry.frames[sequence[Std.int(lf)].frame].adjust(1);
-			geometry.frames[sequence[Std.int(hf)].frame].adjust(rf - lf);
+			geometry.frames[untyped sequence[Std.int(lf)].frame].adjust(1);
+			geometry.frames[untyped sequence[Std.int(hf)].frame].adjust(rf - lf);
 			if (loop || sequenceEvent) {
 				if (_latest == 0 || _latest + 1 == sequence[Std.int(lf)].frame || _latest == sequence[Std.int(lf)].frame) {
 					_latest = sequence[Std.int(lf)].frame;

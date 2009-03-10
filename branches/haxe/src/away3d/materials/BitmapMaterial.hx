@@ -690,7 +690,7 @@ class BitmapMaterial extends EventDispatcher, implements ITriangleMaterial, impl
 		this._shapeDictionary = new Dictionary(true);
 		this.map = new Matrix();
 		this.triangle = new DrawTriangle();
-		this.svArray = new Array();
+		this.svArray = new Array<Dynamic>();
 		
 		
 		_bitmap = bitmap;

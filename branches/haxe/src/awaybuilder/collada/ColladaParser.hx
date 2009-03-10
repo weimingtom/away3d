@@ -90,7 +90,7 @@ class ColladaParser extends AbstractParser  {
 
 	private function extractGroup(group:Int, section:SceneSectionVO, list:XMLList):Array<Dynamic> {
 		
-		var a:Array<Dynamic> = new Array();
+		var a:Array<Dynamic> = new Array<Dynamic>();
 		var counter:Int = 0;
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
@@ -124,7 +124,7 @@ class ColladaParser extends AbstractParser  {
 	/*section : SceneSectionVO ,*/
 	private function extractSection(xml:Xml):Array<Dynamic> {
 		
-		var a:Array<Dynamic> = new Array();
+		var a:Array<Dynamic> = new Array<Dynamic>();
 		for (__i in 0...xml[ColladaNode.NODE].length) {
 			var node:Xml = xml[ColladaNode.NODE][__i];
 
@@ -148,7 +148,7 @@ class ColladaParser extends AbstractParser  {
 
 	private function extractCameras(section:SceneSectionVO, list:XMLList):Array<Dynamic> {
 		
-		var cameras:Array<Dynamic> = new Array();
+		var cameras:Array<Dynamic> = new Array<Dynamic>();
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
 
@@ -208,7 +208,7 @@ class ColladaParser extends AbstractParser  {
 
 	private function extractGeometry(section:SceneSectionVO, list:XMLList):Array<Dynamic> {
 		
-		var geometry:Array<Dynamic> = new Array();
+		var geometry:Array<Dynamic> = new Array<Dynamic>();
 		for (__i in 0...list.length) {
 			var node:Xml = list[__i];
 

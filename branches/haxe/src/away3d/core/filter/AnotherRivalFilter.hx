@@ -575,7 +575,7 @@ class AnotherRivalFilter implements IPrimitiveQuadrantFilter {
 		primitives = tree.list();
 		turn = 0;
 		while (primitives.length > 0) {
-			leftover = new Array();
+			leftover = new Array<Dynamic>();
 			for (__i in 0...primitives.length) {
 				pri = primitives[__i];
 

@@ -112,9 +112,9 @@ class DirectionalLight extends LightPrimitive  {
 		diffuseBitmap = new BitmapData(256, 256, false, 0x000000);
 		diffuseBitmap.lock();
 		_matrix.createGradientBox(256, 256, 0, 0, 0);
-		var colArray:Array<Int> = new Array();
-		var alphaArray:Array<Int> = new Array();
-		var pointArray:Array<Int> = new Array();
+		var colArray:Array<Int> = new Array<Int>();
+		var alphaArray:Array<Int> = new Array<Int>();
+		var pointArray:Array<Int> = new Array<Int>();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			var r:Float = (i * diffuse / 14);
@@ -153,9 +153,9 @@ class DirectionalLight extends LightPrimitive  {
 		ambientDiffuseBitmap = new BitmapData(256, 256, false, 0x000000);
 		ambientDiffuseBitmap.lock();
 		_matrix.createGradientBox(256, 256, 0, 0, 0);
-		var colArray:Array<Int> = new Array();
-		var alphaArray:Array<Int> = new Array();
-		var pointArray:Array<Int> = new Array();
+		var colArray:Array<Int> = new Array<Int>();
+		var alphaArray:Array<Int> = new Array<Int>();
+		var pointArray:Array<Int> = new Array<Int>();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			var r:Float = (i * diffuse / 14 + ambient);
@@ -193,9 +193,9 @@ class DirectionalLight extends LightPrimitive  {
 		specularBitmap = new BitmapData(512, 512, false, 0x000000);
 		specularBitmap.lock();
 		_matrix.createGradientBox(512, 512, 0, 0, 0);
-		var colArray:Array<Int> = new Array();
-		var alphaArray:Array<Int> = new Array();
-		var pointArray:Array<Int> = new Array();
+		var colArray:Array<Int> = new Array<Int>();
+		var alphaArray:Array<Int> = new Array<Int>();
+		var pointArray:Array<Int> = new Array<Int>();
 		var i:Int = 15;
 		while ((i-- > 0)) {
 			colArray.push((Std.int(i * specular * red * 0xFF / 14) << 16) + (Std.int(i * specular * green * 0xFF / 14) << 8) + Std.int(i * specular * blue * 0xFF / 14));

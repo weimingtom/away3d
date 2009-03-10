@@ -930,6 +930,8 @@ class View3D extends Sprite  {
 			}
 			_ddo.view = this;
 			_ddo.displayobject = _scene.session.getContainer(this);
+			trace(_ddo + " AND ");
+			trace(_scene.session.getContainer(this));
 			_ddo.session = _session;
 			_ddo.screenvertex = _sc;
 			_ddo.calc();

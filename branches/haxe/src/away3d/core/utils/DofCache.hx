@@ -61,7 +61,7 @@ class DofCache  {
 		this.levels = levels;
 		var mat:Matrix = new Matrix();
 		var pnt:Point = new Point(0, 0);
-		bitmaps = new Array();
+		bitmaps = new Array<Dynamic>();
 		var j:Int = 0;
 		while (j < levels) {
 			var tfilter:BlurFilter = new BlurFilter(2 + maxblur * j / levels, 2 + maxblur * j / levels, 4);

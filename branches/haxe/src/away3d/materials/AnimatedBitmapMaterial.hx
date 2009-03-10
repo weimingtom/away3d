@@ -104,7 +104,7 @@ class AnimatedBitmapMaterial extends TransformBitmapMaterial, implements ITriang
 	 */
 	public function setMovie(movie:MovieClip):Void {
 		
-		_cache = new Array();
+		_cache = new Array<Dynamic>();
 		var i:Int;
 		var rect:Rectangle;
 		var minX:Float = 100000;

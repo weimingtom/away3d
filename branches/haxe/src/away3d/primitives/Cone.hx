@@ -36,7 +36,7 @@ class Cone extends AbstractPrimitive  {
 		var i:Int;
 		var j:Int;
 		height /= 2;
-		grid = new Array();
+		grid = new Array<Dynamic>();
 		if (!openEnded) {
 			jMin = 1;
 			segmentsH += 1;

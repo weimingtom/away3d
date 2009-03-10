@@ -18,9 +18,9 @@ class SegmentsExtrude extends Mesh  {
 	
 
 	public function new(aPoints:Dynamic, ?init:Dynamic=null) {
-		this.varr = new Array();
-		this.varr2 = new Array();
-		this.uvarr = new Array();
+		this.varr = new Array<Dynamic>();
+		this.varr2 = new Array<Dynamic>();
+		this.uvarr = new Array<Dynamic>();
 		
 		
 		if (init.material != null) {
@@ -50,9 +50,9 @@ class SegmentsExtrude extends Mesh  {
 			var i:Int = 0;
 			while (i < aPoints.length) {
 				if (aPoints[i].length > 1) {
-					varr = new Array();
-					varr2 = new Array();
-					uvarr = new Array();
+					varr = new Array<Dynamic>();
+					varr2 = new Array<Dynamic>();
+					uvarr = new Array<Dynamic>();
 					generate(aPoints[i], oMat, axis, offset, subdivision, thickness, thickness_subdivision, scaling, omit, coverall, closepath, flip);
 				} else {
 					trace("SegmentsExtrude error: at index " + i + " , at least 2 points are required per extrude!");
@@ -458,7 +458,7 @@ class SegmentsExtrude extends Mesh  {
 		//var bincu = 1/(points1.length-1);
 		var v1:Float = 0;
 		var v2:Float = 0;
-		var tmp:Array<Dynamic> = new Array();
+		var tmp:Array<Dynamic> = new Array<Dynamic>();
 		i = 0;
 		while (i < points1.length) {
 			stepx = (points2[i].x - points1[i].x) / subdivision;
@@ -549,8 +549,8 @@ class SegmentsExtrude extends Mesh  {
 
 	private function buildThicknessPoints(aPoints:Array<Dynamic>, thickness:Float, prop1:String, prop2:String, closepath:Bool):Array<Dynamic> {
 		
-		var Anchors:Array<Dynamic> = new Array();
-		var Lines:Array<Dynamic> = new Array();
+		var Anchors:Array<Dynamic> = new Array<Dynamic>();
+		var Lines:Array<Dynamic> = new Array<Dynamic>();
 		var i:Int;
 		i = 0;
 		while (i < aPoints.length - 1) {
@@ -590,7 +590,7 @@ class SegmentsExtrude extends Mesh  {
 			if (closepath && Anchors.length > 2) {
 				Anchors.push(defineAnchors(aPoints[Anchors.length - 1], aPoints[0], thickness, prop1, prop2));
 				var tmparray:Array<Dynamic> = [Anchors[Anchors.length - 1], Anchors[0], Anchors[1], Anchors[2]];
-				var tmplines:Array<Dynamic> = new Array();
+				var tmplines:Array<Dynamic> = new Array<Dynamic>();
 				i = 0;
 				while (i < 2) {
 					oPointResult = defineLines(i, totallength, tmparray[i], tmparray[i + 1], tmparray);

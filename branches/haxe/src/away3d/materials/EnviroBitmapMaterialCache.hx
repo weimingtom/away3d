@@ -85,7 +85,7 @@ class EnviroBitmapMaterialCache extends BitmapMaterialContainer  {
 		_bitmapMaterial = new BitmapMaterial(bitmap, ini);
 		_enviroShader = new EnviroShader(enviroMap, {mode:_mode, reflectiveness:_reflectiveness});
 		//add to materials array
-		materials = new Array();
+		materials = new Array<Dynamic>();
 		materials.push(_bitmapMaterial);
 		materials.push(_enviroShader);
 		super(bitmap.width, bitmap.height);

@@ -79,8 +79,8 @@ class BezierPatch extends Mesh  {
 	public static inline var TOPRIGHT:Int = 2;
 	public static inline var BOTTOMLEFT:Int = 3;
 	public static inline var BOTTOMRIGHT:Int = 4;
-	private static inline var OPPOSITE_OR:Array<Dynamic> = new Array();
-	private static inline var SCALINGS:Array<Dynamic> = new Array();
+	private static inline var OPPOSITE_OR:Array<Dynamic> = new Array<Dynamic>();
+	private static inline var SCALINGS:Array<Dynamic> = new Array<Dynamic>();
 	private var uva:UV;
 	private var uvb:UV;
 	private var uvc:UV;
@@ -111,7 +111,7 @@ class BezierPatch extends Mesh  {
 	 */
 	public function new(patchDataPrm:PatchData, ?init:Dynamic=null) {
 		this._patchVertices = new Dictionary();
-		this._gen = new Array();
+		this._gen = new Array<Dynamic>();
 		this.vx0 = new Vertex();
 		this.vx1 = new Vertex();
 		this.vx2 = new Vertex();
@@ -158,7 +158,7 @@ class BezierPatch extends Mesh  {
 		
 		var start:Int = flash.Lib.getTimer();
 		_patchVertices = new Dictionary();
-		_edgeCache = new Array();
+		_edgeCache = new Array<Dynamic>();
 		geometry = new Geometry();
 		// Iterate through all the items in the patch array
 		var key:String;
@@ -374,15 +374,15 @@ class BezierPatch extends Mesh  {
 		var xCtr:Int = 0;
 		var yCtr:Int = 0;
 		var thisOr:Int = 0;
-		_gen[p] = new Array();
+		_gen[p] = new Array<Dynamic>();
 		// Generate mesh for base patch and apply to the other orientations and store
 		var yPos:Float = 0;
 		while (yPos <= 1 + (Reflect.field(_pI, key).yStp / 2)) {
-			_gen[p][yCtr] = new Array();
+			_gen[p][yCtr] = new Array<Dynamic>();
 			xCtr = 0;
 			var xPos:Float = 0;
 			while (xPos <= 1 + (Reflect.field(_pI, key).xStp / 2)) {
-				_gen[p][yCtr][xCtr] = new Array();
+				_gen[p][yCtr][xCtr] = new Array<Dynamic>();
 				for (__i in 0...[1, 2, 4, 8, 16, 32, 64, 128].length) {
 					var orientation:Int = [1, 2, 4, 8, 16, 32, 64, 128][__i];
 

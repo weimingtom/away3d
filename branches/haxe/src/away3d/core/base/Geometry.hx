@@ -130,7 +130,8 @@ class Geometry extends EventDispatcher  {
 	/**
 	 * A dictionary containing all frame names of the geometry.
 	 */
-	public var framenames:Dictionary;
+	public var framenames:Hash<Int>;
+	
 	/**
 	 * An dictionary containing all the materials included in the geometry.
 	 */
@@ -301,7 +302,7 @@ class Geometry extends EventDispatcher  {
 
 					if (f != null) {
 						_fNormal = f.normal;
-						_fVectors = new Array();
+						_fVectors = new Array<Dynamic>();
 						for (__i in 0...f.vertices.length) {
 							var fV:Vertex = f.vertices[__i];
 
@@ -1058,8 +1059,8 @@ class Geometry extends EventDispatcher  {
 		if ((skinVertices != null)) {
 			clonedskinvertices = new Dictionary(true);
 			clonedskincontrollers = new Dictionary(true);
-			geometry.skinVertices = new Array();
-			geometry.skinControllers = new Array();
+			geometry.skinVertices = new Array<Dynamic>();
+			geometry.skinControllers = new Array<Dynamic>();
 			for (__i in 0...skinVertices.length) {
 				var skinVertex:SkinVertex = skinVertices[__i];
 
@@ -1109,11 +1110,11 @@ class Geometry extends EventDispatcher  {
 			}
 		}
 
-		geometry.framenames = new Dictionary(true);
+		geometry.framenames = new Hash<Int>();
 		var framename:String;
 		var __keys:Iterator<Dynamic> = untyped (__keys__(framenames)).iterator();
-		for (framename in __keys) {
-			Reflect.setField(geometry.framenames, framename, framenames[untyped framename]);
+		for (framename in framenames.keys()) {
+			geometry.framenames.set(framename, framenames.get(framename));
 			
 		}
 
@@ -1211,7 +1212,7 @@ class Geometry extends EventDispatcher  {
 		if (_animation == null) {
 			_animation = new Animation(this);
 		} else {
-			_animation.sequence = new Array();
+			_animation.sequence = new Array<Dynamic>();
 		}
 		_animation.fps = sequence.fps;
 		_animation.smooth = sequence.smooth;
@@ -1222,12 +1223,11 @@ class Geometry extends EventDispatcher  {
 			}
 			var bvalidprefix:Bool = false;
 			var framename:String;
-			var __keys:Iterator<Dynamic> = untyped (__keys__(framenames)).iterator();
-			for (framename in __keys) {
-				if (untyped framename.indexOf(sequence.prefix) == 0) {
+			for (framename in framenames.keys()) {
+				if (framename.indexOf(sequence.prefix) == 0) {
 					bvalidprefix = true;
 					_activeprefix = (_activeprefix != sequence.prefix) ? sequence.prefix : _activeprefix;
-					_animation.sequence.push(new AnimationFrame(framenames[untyped framename], "" + Std.parseInt(framename.substr(sequence.prefix.length))));
+					_animation.sequence.push(new AnimationFrame(framenames.get(framename), "" + Std.parseInt(framename.substr(0, sequence.prefix.length))));
 				}
 				
 			}
@@ -1308,8 +1308,8 @@ class Geometry extends EventDispatcher  {
 			var framename:String = prefixes[__i];
 
 			if (framename != null) {
-				if (framenames[untyped framename] != null) {
-					_animation.sequence.push(new AnimationFrame(framenames[untyped framename]));
+				if (framenames.get(framename) != null) {
+					_animation.sequence.push(new AnimationFrame(framenames.get(framename)));
 				}
 			}
 		}

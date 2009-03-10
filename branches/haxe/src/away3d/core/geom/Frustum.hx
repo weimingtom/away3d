@@ -31,7 +31,7 @@ class Frustum  {
 		this._matrix = new Matrix3D();
 		
 		
-		planes = new Array();
+		planes = new Array<Dynamic>();
 		planes[LEFT] = new Plane3D();
 		planes[RIGHT] = new Plane3D();
 		planes[TOP] = new Plane3D();

@@ -90,12 +90,12 @@ class AbstractPrimitive extends Mesh  {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties
 	 */
 	public function new(?init:Dynamic=null) {
-		this._vStore = new Array();
-		this._vActive = new Array();
-		this._uvStore = new Array();
-		this._uvActive = new Array();
-		this._faceStore = new Array();
-		this._faceActive = new Array();
+		this._vStore = new Array<Dynamic>();
+		this._vActive = new Array<Dynamic>();
+		this._uvStore = new Array<Dynamic>();
+		this._uvActive = new Array<Dynamic>();
+		this._faceStore = new Array<Dynamic>();
+		this._faceActive = new Array<Dynamic>();
 		
 		
 		super(init);

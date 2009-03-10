@@ -96,8 +96,8 @@ class GeometryData  {
 		this.uvs = [];
 		this.faces = [];
 		this.materials = [];
-		this.skinVertices = new Array();
-		this.skinControllers = new Array();
+		this.skinVertices = new Array<Dynamic>();
+		this.skinControllers = new Array<Dynamic>();
 		
 	}
 

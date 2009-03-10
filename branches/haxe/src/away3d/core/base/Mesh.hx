@@ -937,9 +937,9 @@ class Mesh extends Object3D  {
 			source = myPattern2.replace(source, "");
 		}
 		if (animated) {
-			var afn:Array<Dynamic> = new Array();
+			var afn:Array<Dynamic> = new Array<Dynamic>();
 			var avp:Array<Dynamic>;
-			var tmpnames:Array<Dynamic> = new Array();
+			var tmpnames:Array<Dynamic> = new Array<Dynamic>();
 			var i:Int = 0;
 			var y:Int = 0;
 			source += "\n\t\t\tgeometry.frames = new Dictionary();\n";
@@ -957,8 +957,8 @@ class Mesh extends Object3D  {
 			var fr:Frame;
 			i = 0;
 			while (i < tmpnames.length) {
-				avp = new Array();
-				fr = geometry.frames[geometry.framenames[tmpnames[i]]];
+				avp = new Array<Dynamic>();
+				fr = geometry.frames[untyped geometry.framenames[untyped tmpnames[i]]];
 				if (untyped tmpnames[i].indexOf(" ") != -1) {
 					tmpnames[i] = tmpnames[i].replace(myPattern, "");
 				}

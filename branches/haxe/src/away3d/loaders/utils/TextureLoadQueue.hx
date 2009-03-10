@@ -171,7 +171,7 @@ class TextureLoadQueue extends EventDispatcher  {
 		super();
 		
 		
-		_queue = new Array();
+		_queue = new Array<Dynamic>();
 	}
 
 	/**
