@@ -667,8 +667,10 @@ package away3d.core.render
         	path.uvtData = uvtData;
 			
 			if (layerGraphics) {
+				layerGraphics.lineStyle();
 				layerGraphics.drawGraphicsData(drawing);
 	  		} else {
+	  			graphics.lineStyle();
 	  			graphics.drawGraphicsData(drawing);
 	  		}
         }
