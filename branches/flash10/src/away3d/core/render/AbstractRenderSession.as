@@ -655,7 +655,7 @@ package away3d.core.render
          */
         public function renderTriangleBitmapF10(bitmap:BitmapData, vertices:Vector.<Number>, uvtData:Vector.<Number>, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
         {
-        	if (_layerDirty)
+        	if (!layerGraphics && _layerDirty)
         		createLayer();
         	
         	
