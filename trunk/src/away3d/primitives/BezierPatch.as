@@ -66,12 +66,12 @@
 		public static const BY:int = Y | B;
 		public static const BZ:int = Z | B;
 		                             
-		public static const TOP:Array = [N, XZ, Z, X];
-		public static const BOTTOM:Array = [Y, XYZ, XY, YZ];
-		public static const FRONT:Array = [N, XY, X, Y];
-		public static const BACK:Array = [Z, XYZ, YZ, XZ];
-		public static const LEFT:Array = [N, YZ, Y, Z];
-		public static const RIGHT:Array = [X, XYZ, XZ, XY];
+		public static const TOP:Array = [N, XZ, Z, X, Y, XYZ, XY, YZ];
+		public static const BOTTOM:Array = [Y, XYZ, XY, YZ, N, XZ, Z, X];
+		public static const FRONT:Array = [N, XY, X, Y, Z, XYZ, YZ, XZ];
+		public static const BACK:Array = [Z, XYZ, YZ, XZ, N, XY, X, Y];
+		public static const LEFT:Array = [N, YZ, Y, Z, X, XYZ, XZ, XY];
+		public static const RIGHT:Array = [X, XYZ, XZ, XY, N, YZ, Y, Z];
 		public static const TOPLEFT:int = 1;
 		public static const TOPRIGHT:int = 2;
 		public static const BOTTOMLEFT:int = 3;
@@ -141,7 +141,6 @@
 				if (renderMode == WIRE_ONLY || renderMode == BASEWIRE_ONLY || renderMode == MIRRORWIRE_ONLY) buildWirePatch( key );
 				if (renderMode == PATCH) buildTrianglePatch( key );
 			}
-//trace("Generated '" + name + "' in : " + (getTimer() - start) + "ms");	
 		}
 		
 		// Render the wireframe of the patch
@@ -207,6 +206,10 @@
 		private var vx1:Vertex = new Vertex();
 		private var vx2:Vertex = new Vertex();
 		private var vx3:Vertex = new Vertex();
+		private var vx4:Vertex = new Vertex();
+		private var vx5:Vertex = new Vertex();
+		private var vx6:Vertex = new Vertex();
+		private var vx7:Vertex = new Vertex();
 		private var ovx0:Vertex;
 		private var ovx1:Vertex;
 		private var ovx2:Vertex;
@@ -405,7 +408,6 @@
 					}
 				}
 			}
-//trace("Refreshed '" + name + "' in : " + (getTimer() - start) + "ms");	
 			_objectDirty = true;
 			updateObject();
 		}
@@ -510,6 +512,10 @@
 				vx1 = _gen[p][y][x][vOr[1]];
 				vx2 = _gen[p][y][x][vOr[2]];
 				vx3 = _gen[p][y][x][vOr[3]];
+				vx4 = _gen[p][y][x][vOr[4]];
+				vx5 = _gen[p][y][x][vOr[5]];
+				vx6 = _gen[p][y][x][vOr[6]];
+				vx7 = _gen[p][y][x][vOr[7]];
 				if (vx0 && vx1 && vx2 && vx3) {
 					u1 = v1 = 0; u2 = v2 = 1;
 					if (pUV) {
@@ -527,6 +533,23 @@
 					}
 					addFace(new Face(vx0, vx3, vx1, _material, uva, uvb, uvc));
 					addFace(new Face(vx0, vx1, vx2, _material, uva, uvc, uvd));
+				} else if (vx4 && vx5 && vx6 && vx7) {
+					u1 = v1 = 0; u2 = v2 = 1;
+					if (pUV) {
+						if (pUV[vOr]) {
+							u1 = pUV[vOr][p][0];
+							v1 = pUV[vOr][p][1];
+							u2 = pUV[vOr][p][2];
+							v2 = pUV[vOr][p][3];
+						}      
+						// Set up the UVs
+						uva = new UV(u2, 1 - v2);
+						uvb = new UV(u2, 1 - v1);
+						uvc = new UV(u1, 1 - v1);
+						uvd = new UV(u1, 1 - v2);
+					}
+					addFace(new Face(vx4, vx5, vx7, _material, uvb, uvc, uvd));
+					addFace(new Face(vx4, vx6, vx5, _material, uvb, uvb, uvc));
 				} else {
 					trace("BezierPatch Error-fillPatchMirrorHoles: Incorrect orientations defined for this hole fill");
 				}
