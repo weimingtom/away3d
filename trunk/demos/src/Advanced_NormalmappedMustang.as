@@ -1,13 +1,12 @@
 ﻿/*
 
-Flash 10 Normal mapping example in Away3d
+Flash 9 Normal mapping example in Away3d
 
 Demonstrates:
 
-How to use Dot3BitmapMaterialF10 to apply diffuse and specular lighting to a normap-mapped material.
-The advantage of using Dot3BitmapMaterialF10 over Dot3BitmapMaterial or WhiteShadingBitmapMaterial
+How to use Dot3BitmapMaterial to apply diffuse and specular lighting to a normap-mapped material.
+The advantage of using Dot3BitmapMaterial over WhiteShadingBitmapMaterial
 How to group objects in RenderSession objects to solve sorting problems
-How to how to apply a HDR (Hight dynamic range) effect to an Away3d view
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -15,9 +14,6 @@ http://www.infiniteturtles.co.uk
 
 Design by Eddie Carbin
 http://www.carbin.com/
-
-HDR pixel bender kernel by David Lenaerts
-http://www.derschmale.com/
  
 This code is distributed under the MIT License
 
