@@ -8,7 +8,7 @@
 	import flash.utils.getTimer;
 	
 	/**
-	 * PatchData definition for constructing BezierPatches.
+	 * PatchData class to provide base patch generation from control points and caching for faster updates.
 	 */
 	public class PatchData
 	{
@@ -25,36 +25,24 @@
 		
 		private var tempV:Vertex = new Vertex();
 
-		/**
-		 * The nodes which represent the vertices making up the patch.  
-		 */
 		public function get nodes():Array { return _nodes; }
 		public function set nodes(value:Array):void {
 			_nodes = value;
 			_dirtyVertices = true;
 		}
 		
-		/**
-		 * The vertices of the patch tha are referenced by the nodes  
-		 */
 		public function get vertices():Array { return _vertices; }
 		public function set vertices(value:Array):void {
 			_vertices = value;
 			_dirtyVertices = true;
 		}
 		
-		/**
-		 * UV definitions for the orientations for the patch 
-		 */
 		public function get uvs():Array { return _uvs; }
 		public function set uvs(value:Array):void {
 			_uvs = value;
 			_dirtyVertices = true;
 		}
 		
-		/**
-		 * Patch information to define segments, connectors, fills and orientations
-		 */
 		public function get patchInfo():Array { return _patchInfo; }
 		public function set patchInfo(value:Array):void {
 			
@@ -90,7 +78,13 @@
 		}
 		
 		/**
-		 * Set up the patch data
+		 * Creates a new <code>PatchData</code> object to be used in a BezierPatch primitive.
+		 * 
+		 * @param	nodesPrms  	 		Multi-dimensional array of nodes that reference the vertices.
+		 * @param	verticesPrms  	Multi-dimensional array of vertices that define the control points of the patches.
+		 * @param	uvsPrms   			Multi-dimensional array of UV coordinates for the patches.
+		 * @param	patchInfoPrms 	Array of parameters to define the patch.
+		 * @param	resize   				Scaling parameter to resize the patch coordinates.
 		 */
 		public function PatchData(nodesPrms:Array, verticesPrms:Array, uvsPrms:Array, patchInfoPrms:Array, resize:Number = 1) {
 			_nodes = nodesPrms;
@@ -136,8 +130,6 @@
 			
 			// Reset the dirty flags
 			_dirtyVertices = false;
-			
-//trace("Generated/refreshed in : " + (getTimer() - start) + "ms\n\n");	
 		}
 
 		private function cacheControlPoints(key:String):void {
@@ -260,52 +252,6 @@
 			v.x = vn.x; v.y = vn.y; v.z = vn.z;
 		}
 
-		// Get the point in the patch based on the s, t (0-1) coordinate.
-		private function getPatchPoint1( v:Vertex, k:String, p:Number, s:Number, t:Number ):void {
-			var i:int;
-			var j:int;
-			var n1:Number3D = new Number3D();
-			var n2:Number3D = new Number3D();
-			var t1:Number3D = new Number3D();
-			var t2:Number3D = new Number3D();	
-			var nd:Number3D = new Number3D();
-			
-			
-			// Copy our vectors into a temporary array
-			var tmp:Array = new Array();
-			var ntmp:Array = new Array();
-			var n3D:Number3D = new Number3D();
-			for (i = 0; i < 4; i++) {
-				tmp[i] = new Array();
-				ntmp[i] = new Array();
-				for (j = 0; j < 4; j++) {					
-					ntmp[i][j] = VtoN(controlPoints[k][p][i][j]);
-				}
-			}
-
-			// The sum the patch point
-			for (var size:int = 3; size > 0; size--) {
-				for (i = 0; i < size; i++) {
-					for (j = 0; j < size; j++) {
-						n1.sub(ntmp[i + 1][j], ntmp[i][j]);
-						n2.sub(ntmp[i + 1][j + 1], ntmp[i][j + 1]);
-						n1.scale(n1, t);
-						n2.scale(n2, t);
-						t1.add(ntmp[i][j], n1);
-						t2.add(ntmp[i][j + 1], n2);
-						nd.sub(t2, t1);
-						nd.scale(nd, s);
-						ntmp[i][j].add(t1, nd);
-					}
-				}
-			}
-		
-			// After that loop, tmp[0,0] will contain the requested point
-			v.x = ntmp[0][0].x;
-			v.y = ntmp[0][0].y;
-			v.z = ntmp[0][0].z;
-		}
-		
 		// Convert Vertex to Number3D
 		private function VtoN(v:Vertex):Number3D {
 			return new Number3D(v.x, v.y, v.z);
