@@ -12,10 +12,10 @@ exportNormals=1;exportTexCoords=1;
 exportVertexColors=0;exportVertexColorsAnimation=0;exportTangents=0;
 exportTexTangents=1;exportConstraints=0;exportPhysics=0;exportXRefs=1;
 dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
-      <source_data>file:///Users/andreasengstrom/Documents/Workspaces/FDT/away3d/examples/Awaybuilder/layered_scene/maya/top.mb</source_data>
+      <source_data>file:///Users/andreasengstrom/Documents/Workspaces/FDT/away3d/examples/Awaybuilder/basic_scene/maya/world.mb</source_data>
     </contributor>
-    <created>2009-03-04T19:03:52Z</created>
-    <modified>2009-03-04T19:03:52Z</modified>
+    <created>2009-03-16T22:27:24Z</created>
+    <modified>2009-03-16T22:27:24Z</modified>
     <unit meter="0.01" name="centimeter"/>
     <up_axis>Y_UP</up_axis>
   </asset>
@@ -69,7 +69,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
   </library_cameras>
   <library_images>
     <image id="fClubsAce" name="fClubsAce">
-      <init_from>../../basic_scene/textures/clubs_ace.png</init_from>
+      <init_from>../textures/clubs_ace.png</init_from>
       <extra>
         <technique profile="MAYA">
           <dgnode_type>kFile</dgnode_type>
@@ -78,7 +78,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       </extra>
     </image>
     <image id="fDiamondsAce" name="fDiamondsAce">
-      <init_from>../../basic_scene/textures/diamonds_ace.png</init_from>
+      <init_from>../textures/diamonds_ace.png</init_from>
       <extra>
         <technique profile="MAYA">
           <dgnode_type>kFile</dgnode_type>
@@ -87,7 +87,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       </extra>
     </image>
     <image id="fHeartsAce" name="fHeartsAce">
-      <init_from>../../basic_scene/textures/hearts_ace.png</init_from>
+      <init_from>../textures/hearts_ace.png</init_from>
       <extra>
         <technique profile="MAYA">
           <dgnode_type>kFile</dgnode_type>
@@ -96,7 +96,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       </extra>
     </image>
     <image id="fSpadesAce" name="fSpadesAce">
-      <init_from>../../basic_scene/textures/spades_ace.png</init_from>
+      <init_from>../textures/spades_ace.png</init_from>
       <extra>
         <technique profile="MAYA">
           <dgnode_type>kFile</dgnode_type>
@@ -114,7 +114,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       </extra>
     </image>
     <image id="file2" name="file1">
-      <init_from>../../basic_scene/maya/marker.png</init_from>
+      <init_from>./marker.png</init_from>
       <extra>
         <technique profile="MAYA">
           <dgnode_type>kFile</dgnode_type>
@@ -1124,6 +1124,12 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       <extra>
         <technique profile="MAYA">
           <double_sided>1</double_sided>
+          <dynamic_attributes>
+            <miShadingSamplesOverride short_name="mso" type="bool">0</miShadingSamplesOverride>
+            <miShadingSamples short_name="msh" type="float">0</miShadingSamples>
+            <miMaxDisplaceOverride short_name="mdo" type="bool">0</miMaxDisplaceOverride>
+            <miMaxDisplace short_name="mmd" type="float">0</miMaxDisplace>
+          </dynamic_attributes>
         </technique>
       </extra>
     </geometry>
@@ -1204,7 +1210,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
     </geometry>
   </library_geometries>
   <library_visual_scenes>
-    <visual_scene id="VisualSceneNode" name="top">
+    <visual_scene id="VisualSceneNode" name="world">
       <node id="section" name="section" type="NODE">
         <rotate sid="rotateZ">0 0 1 0</rotate>
         <rotate sid="rotateY">0 1 0 0</rotate>
@@ -1279,8 +1285,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_targetCamera short_name="geometry_targetCamera" type="string">clubsCam</geometry_targetCamera>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/clubs_ace.png</material_assetFile>
-                  <material_assetFileBack short_name="material_assetFileBack" type="string">textures/backside.png</material_assetFileBack>
-                  <geometry_bothsides short_name="geometry_bothsides" type="bool">1</geometry_bothsides>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
                 </dynamic_attributes>
               </technique>
@@ -1313,8 +1317,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_targetCamera short_name="geometry_targetCamera" type="string">heartsCam</geometry_targetCamera>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/hearts_ace.png</material_assetFile>
-                  <material_assetFileBack short_name="material_assetFileBack" type="string">textures/backside.png</material_assetFileBack>
-                  <geometry_bothsides short_name="geometry_bothsides" type="bool">1</geometry_bothsides>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
                 </dynamic_attributes>
               </technique>
@@ -1347,8 +1349,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_targetCamera short_name="geometry_targetCamera" type="string">diamondsCam</geometry_targetCamera>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/diamonds_ace.png</material_assetFile>
-                  <material_assetFileBack short_name="material_assetFileBack" type="string">textures/backside.png</material_assetFileBack>
-                  <geometry_bothsides short_name="geometry_bothsides" type="bool">1</geometry_bothsides>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
                 </dynamic_attributes>
               </technique>
@@ -1381,8 +1381,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_targetCamera short_name="geometry_targetCamera" type="string">spadesCam</geometry_targetCamera>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/spades_ace.png</material_assetFile>
-                  <material_assetFileBack short_name="material_assetFileBack" type="string">textures/backside.png</material_assetFileBack>
-                  <geometry_bothsides short_name="geometry_bothsides" type="bool">1</geometry_bothsides>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
                 </dynamic_attributes>
               </technique>
@@ -1410,7 +1408,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1437,7 +1434,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1464,7 +1460,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1491,7 +1486,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1518,7 +1512,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1545,7 +1538,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1572,7 +1564,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1599,7 +1590,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1626,7 +1616,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -1653,7 +1642,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
                   <geometry_class short_name="geometry_class" type="string">Collada</geometry_class>
                   <geometry_assetFile short_name="geometry_assetFile" type="string">maya/marker.dae</geometry_assetFile>
                   <geometry_flipTexture short_name="geometry_flipTexture" type="bool">1</geometry_flipTexture>
-                  <geometry_smoothTexture short_name="geometry_smoothTexture" type="bool">1</geometry_smoothTexture>
                 </dynamic_attributes>
               </technique>
             </extra>
