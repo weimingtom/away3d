@@ -1,12 +1,14 @@
 package awaybuilder.vo
 {
+	import awaybuilder.interfaces.IValueObject;	
+	
 	import flash.display.Sprite;
 	
 	import away3d.containers.View3D;
 	
 	
 	
-	public class SceneVO	{
+	public class SceneVO implements IValueObject	{
 		public var id : String ;
 		public var name : String ;
 		public var container : Sprite ;

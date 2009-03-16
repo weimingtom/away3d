@@ -109,6 +109,18 @@ package awaybuilder.geometry
 						vo.mesh[ attribute.key ] = boolean ;
 						break ;
 					}
+					case GeometryAttributes.PUSHBACK :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo.mesh[ attribute.key ] = boolean ;
+						break ;
+					}
+					case GeometryAttributes.PUSHFRONT :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo.mesh[ attribute.key ] = boolean ;
+						break ;
+					}
 					case GeometryAttributes.RADIUS :
 					{
 						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;

@@ -1,5 +1,9 @@
 package awaybuilder.vo
-{	public class SceneObjectVO
+{	import awaybuilder.interfaces.IValueObject;
+	
+	
+	
+	public class SceneObjectVO implements IValueObject
 	{
 		public var x : Number = 0 ;
 		public var y : Number = 0 ;

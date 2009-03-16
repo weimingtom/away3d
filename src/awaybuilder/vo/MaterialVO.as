@@ -1,6 +1,10 @@
 package awaybuilder.vo
 {
-	public class MaterialVO
+	import awaybuilder.interfaces.IValueObject;
+	
+	
+	
+	public class MaterialVO implements IValueObject
 	{
 		public var id : String ;
 		public var name : String ;
