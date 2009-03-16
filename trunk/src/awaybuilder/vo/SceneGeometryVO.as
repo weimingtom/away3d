@@ -1,9 +1,11 @@
 package awaybuilder.vo
-{	import away3d.core.base.Object3D;
+{	import awaybuilder.interfaces.IValueObject;	
+	
+	import away3d.core.base.Object3D;
 	import away3d.materials.IMaterial;
 	
 	
-		public class SceneGeometryVO
+		public class SceneGeometryVO implements IValueObject
 	{		public var id : String ;
 		public var name : String ;
 		public var values : SceneObjectVO ;

@@ -14,7 +14,6 @@ package awaybuilder.collada
 		public static const PREFIX_GEOMETRY : String = "geometry" ;
 		public static const PREFIX_MATERIAL : String = "material" ;
 		
-		protected var xml : XML ;
 		protected var mainSections : Array = [ ] ;
 		protected var geometry : Array = [ ] ;
 		protected var cameras : Array = [ ] ;
@@ -41,8 +40,7 @@ package awaybuilder.collada
 		{
 			var xml : XML = data as XML ;
 			
-			this.xml = xml ;
-			this.extractMainSections ( ) ;
+			this.extractMainSections ( xml ) ;
 			this._sections = this.mainSections ;
 			this.dispatchEvent ( new Event ( Event.COMPLETE ) ) ;
 		}
@@ -57,9 +55,9 @@ package awaybuilder.collada
 		
 		
 		
-		protected function extractMainSections ( ) : void
+		protected function extractMainSections ( xml : XML ) : void
 		{
-			var list : XMLList = this.xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].node as XMLList ;
+			var list : XMLList = xml[ ColladaNode.LIBRARY_VISUAL_SCENES ][ ColladaNode.VISUAL_SCENE ].node as XMLList ;
 			
 			for each ( var node : XML in list )
 			{
@@ -72,7 +70,6 @@ package awaybuilder.collada
 				vo.cameras = this.extractGroup ( ColladaParser.GROUP_CAMERA , vo , children ) ;
 				vo.geometry = this.extractGroup ( ColladaParser.GROUP_GEOMETRY , vo , children ) ;
 				vo.sections = this.extractGroup ( ColladaParser.GROUP_SECTION , vo , children ) ;
-				
 				this.mainSections.push ( vo ) ;
 				this.sections.push ( vo ) ;
 			}
@@ -90,7 +87,6 @@ package awaybuilder.collada
 			this.applyPosition ( pivot , positions ) ;
 			this.applyRotation ( pivot , rotations ) ;
 			this.applyScale ( pivot , scales ) ;
-			
 			return pivot ;
 		}
 		
@@ -111,7 +107,7 @@ package awaybuilder.collada
 					{
 						case ColladaParser.GROUP_CAMERA :
 						{
-							a = this.extractCameras ( section , node.children ( ) ) ;
+							a = this.extractCameras ( /*section ,*/ node.children ( ) ) ;
 							break ;
 						}
 						case ColladaParser.GROUP_GEOMETRY :
@@ -151,7 +147,6 @@ package awaybuilder.collada
 				vo.cameras = this.extractGroup ( ColladaParser.GROUP_CAMERA , vo , children ) ;
 				vo.geometry = this.extractGroup ( ColladaParser.GROUP_GEOMETRY , vo , children ) ;
 				vo.sections = this.extractGroup ( ColladaParser.GROUP_SECTION , vo , children ) ;
-				
 				a.push ( vo ) ;
 				this.allSections.push ( vo ) ;
 			}
@@ -161,7 +156,7 @@ package awaybuilder.collada
 		
 		
 		
-		protected function extractCameras ( section : SceneSectionVO , list : XMLList ) : Array
+		protected function extractCameras ( /*section : SceneSectionVO ,*/ list : XMLList ) : Array
 		{
 			var cameras : Array = new Array ( ) ;
 			
@@ -180,14 +175,11 @@ package awaybuilder.collada
 					
 					this.applyPosition ( values , positions ) ;
 					this.applyRotation ( values , rotations ) ;
-					
 					vo.id = node.@id ;
 					vo.name = node.@name ;
-					vo.parentSection = section ;
+					//vo.parentSection = section ;
 					vo.values = values ;
-					
 					if ( extras.toString ( ) != "" ) vo = this.extractCameraExtras ( vo , extras ) ;
-					
 					cameras.push ( vo ) ;
 					this.cameras.push ( vo ) ;
 				}
@@ -248,14 +240,11 @@ package awaybuilder.collada
 					this.applyPosition ( values , positions ) ;
 					this.applyRotation ( values , rotations ) ;
 					this.applyScale ( values , scales ) ;
-					
 					vo.id = node.@id ;
 					vo.name = node.@name ;
 					vo.values = values ;
 					vo.enabled = section.enabled ;
-					
 					if ( extras.toString ( ) != "" ) vo = this.extractGeometryExtras ( vo , extras ) ;
-					
 					geometry.push ( vo ) ;
 					this.geometry.push ( vo ) ;
 				}
