@@ -16,6 +16,7 @@ package awaybuilder
 	
 	import awaybuilder.abstracts.AbstractBuilder;
 	import awaybuilder.camera.CameraFactory;
+	import awaybuilder.events.GeometryEvent;
 	import awaybuilder.events.SceneEvent;
 	import awaybuilder.geometry.GeometryAttributes;
 	import awaybuilder.geometry.GeometryFactory;
@@ -288,7 +289,7 @@ package awaybuilder
 			this.applyColladaRotation ( target , values ) ;
 			this.applyColladaScale ( target , values ) ;
 		}
-		
+
 		
 		
 		protected function flipTexture ( handle : Object3D ) : void
@@ -443,7 +444,6 @@ package awaybuilder
 					{
 						var loader : Object3DLoader = Collada.load ( vo.assetFile ) ;
 						
-						vo.mesh = ( loader.handle ) ;
 						loader.extra = vo ;
 						loader.addOnSuccess ( this.onColladaLoadSuccess ) ;
 						section.pivot.addChild ( loader ) ;
@@ -463,9 +463,12 @@ package awaybuilder
 		{
 			var loader : Object3DLoader = event.target as Object3DLoader ;
 			var vo : SceneGeometryVO = loader.extra as SceneGeometryVO ;
+			var geometryEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.COLLADA_COMPLETE ) ;
 			
+			vo.mesh = loader.handle ;
 			this.applyColladaValues ( loader.handle , vo.values , vo ) ;
-			this.dispatchEvent ( new SceneEvent ( SceneEvent.RENDER ) ) ;
+			geometryEvent.data = vo ;
+			this.dispatchEvent ( geometryEvent ) ;
 		}
 		
 		

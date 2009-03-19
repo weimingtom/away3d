@@ -27,7 +27,7 @@ package awaybuilder.geometry
 		
 		////////////////////////////////////////////////////////////////////////////////
 		//
-		// Public Methods
+		// Override Methods
 		//
 		////////////////////////////////////////////////////////////////////////////////
 		
@@ -48,6 +48,21 @@ package awaybuilder.geometry
 			for each ( var geometry : SceneGeometryVO in this.geometry )
 			{
 				this.disableGeometryInteraction ( geometry ) ;
+			}
+		}
+		
+		
+		
+		override public function enableGeometryInteraction ( geometry : SceneGeometryVO ) : void
+		{
+			if ( geometry.mesh )
+			{
+				this.disableGeometryInteraction ( geometry ) ;
+				if ( geometry.mouseDownEnabled ) geometry.mesh.addOnMouseDown ( this.geometryMouseDown ) ;
+				if ( geometry.mouseMoveEnabled ) geometry.mesh.addOnMouseMove ( this.geometryMouseMove) ;
+				if ( geometry.mouseOutEnabled ) geometry.mesh.addOnMouseOut ( this.geometryMouseOut ) ;
+				if ( geometry.mouseOverEnabled ) geometry.mesh.addOnMouseOver ( this.geometryMouseOver ) ;
+				if ( geometry.mouseUpEnabled ) geometry.mesh.addOnMouseUp ( this.geometryMouseUp ) ;
 			}
 		}
 		
@@ -82,38 +97,6 @@ package awaybuilder.geometry
 		
 		
 		
-		protected function enableGeometryInteraction ( geometry : SceneGeometryVO ) : void
-		{
-			this.disableGeometryInteraction ( geometry ) ;
-			
-			if ( geometry.mouseDownEnabled )
-			{
-				geometry.mesh.addOnMouseDown ( this.geometryMouseDown ) ;
-			}
-			
-			if ( geometry.mouseMoveEnabled )
-			{
-				geometry.mesh.addOnMouseMove ( this.geometryMouseMove) ;
-			}
-			
-			if ( geometry.mouseOutEnabled )
-			{
-				geometry.mesh.addOnMouseOut ( this.geometryMouseOut ) ;
-			}
-			
-			if ( geometry.mouseOverEnabled )
-			{
-				geometry.mesh.addOnMouseOver ( this.geometryMouseOver ) ;
-			}
-			
-			if ( geometry.mouseUpEnabled )
-			{
-				geometry.mesh.addOnMouseUp ( this.geometryMouseUp ) ;
-			}
-		}
-		
-		
-		
 		protected function disableGeometryInteraction ( geometry : SceneGeometryVO ) : void
 		{
 			geometry.mesh.removeOnMouseDown ( this.geometryMouseDown ) ;
@@ -141,7 +124,7 @@ package awaybuilder.geometry
 				{
 					var interactionEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.DOWN ) ;
 					
-					interactionEvent.geometry = vo ;
+					interactionEvent.data = vo ;
 					this.dispatchEvent ( interactionEvent ) ;
 					break ;
 				}
@@ -158,7 +141,7 @@ package awaybuilder.geometry
 				{
 					var interactionEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.MOVE ) ;
 					
-					interactionEvent.geometry = vo ;
+					interactionEvent.data = vo ;
 					this.dispatchEvent ( interactionEvent ) ;
 					break ;
 				}
@@ -175,7 +158,7 @@ package awaybuilder.geometry
 				{
 					var interactionEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.OUT ) ;
 					
-					interactionEvent.geometry = vo ;
+					interactionEvent.data = vo ;
 					this.dispatchEvent ( interactionEvent ) ;
 					break ;
 				}
@@ -192,7 +175,7 @@ package awaybuilder.geometry
 				{
 					var interactionEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.OVER ) ;
 					
-					interactionEvent.geometry = vo ;
+					interactionEvent.data = vo ;
 					this.dispatchEvent ( interactionEvent ) ;
 					break ;
 				}
@@ -209,7 +192,7 @@ package awaybuilder.geometry
 				{
 					var interactionEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.UP ) ;
 					
-					interactionEvent.geometry = vo ;
+					interactionEvent.data = vo ;
 					this.dispatchEvent ( interactionEvent ) ;
 					break ;
 				}
