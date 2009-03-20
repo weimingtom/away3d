@@ -317,10 +317,15 @@ package away3d.containers
             return tarArray;
         }
         
-        private function traverseRollEvent(event:MouseEvent3D, array:Array):void
+        private function traverseRollEvent(event:MouseEvent3D, array:Array, overFlag:Boolean):void
         {
-        	for each (var tar:Object3D in array)
+        	for each (var tar:Object3D in array) {
         		tar.dispatchMouseEvent(event)
+        		if (overFlag)
+        			buttonMode = buttonMode || object.useHandCursor;
+        		else if (buttonMode && object.useHandCursor)
+        			buttonMode = false;
+        	}
         }
         
         public var viewTimer:int;
@@ -674,7 +679,6 @@ package away3d.containers
             		event.shiftKey = shiftKey;
                     dispatchMouseEvent(event);
                     outArray = bubbleMouseEvent(event);
-                    buttonMode = false;
                 }
                 if (object != null) {
                     event = getMouseEvent(MouseEvent3D.MOUSE_OVER);
@@ -682,7 +686,6 @@ package away3d.containers
             		event.shiftKey = shiftKey;
                     dispatchMouseEvent(event);
                     overArray = bubbleMouseEvent(event);
-                    buttonMode = object.useHandCursor;
                 }
                 
                 if (mouseObject != object) {
@@ -698,11 +701,11 @@ package away3d.containers
 	                	event.material = mouseMaterial;
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
-		                traverseRollEvent(event, outArray.slice(i));
+		                traverseRollEvent(event, outArray.slice(i), false);
 	                }
 	                
 	                if (object != null) {
-	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER);
+	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER, true);
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
 		                traverseRollEvent(event, overArray.slice(i));
