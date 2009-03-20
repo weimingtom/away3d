@@ -705,10 +705,10 @@ package away3d.containers
 	                }
 	                
 	                if (object != null) {
-	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER, true);
+	                	event = getMouseEvent(MouseEvent3D.ROLL_OVER);
 	                	event.ctrlKey = ctrlKey;
 	            		event.shiftKey = shiftKey;
-		                traverseRollEvent(event, overArray.slice(i));
+		                traverseRollEvent(event, overArray.slice(i), true);
 	                }
                 }
                 
