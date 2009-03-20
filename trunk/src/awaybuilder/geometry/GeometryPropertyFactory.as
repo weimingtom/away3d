@@ -165,7 +165,7 @@ package awaybuilder.geometry
 					case GeometryAttributes.USE_HAND_CURSOR :
 					{
 						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mesh[ attribute.key ] = boolean ;
+						vo.useHandCursor = boolean ;
 						break ;
 					}
 					case GeometryAttributes.WIDTH :
