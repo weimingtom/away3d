@@ -55,6 +55,16 @@ package away3d.cameras.lenses
     	protected var viewTransform:Matrix3D;
     	protected var view:Matrix3D = new Matrix3D();
 		
+		public function get near():Number
+		{
+			return _near;
+		}
+		
+		public function get far():Number
+		{
+			return _far;
+		}
+		
 		public function setView(val:View3D):void
 		{
 			_view = val;
