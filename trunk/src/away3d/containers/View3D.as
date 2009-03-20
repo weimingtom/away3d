@@ -322,8 +322,8 @@ package away3d.containers
         	for each (var tar:Object3D in array) {
         		tar.dispatchMouseEvent(event)
         		if (overFlag)
-        			buttonMode = buttonMode || object.useHandCursor;
-        		else if (buttonMode && object.useHandCursor)
+        			buttonMode = buttonMode || tar.useHandCursor;
+        		else if (buttonMode && tar.useHandCursor)
         			buttonMode = false;
         	}
         }
