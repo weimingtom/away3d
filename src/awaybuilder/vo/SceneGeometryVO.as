@@ -28,6 +28,7 @@ package awaybuilder.vo
 		public var targetCamera : String ;
 		public var flipTexture : Boolean ;
 		public var smoothTexture : Boolean ;
+		public var useHandCursor : Boolean ;
 		
 		protected var _assetClass : String ;
 		protected var _assetFile : String ;
