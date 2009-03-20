@@ -8,6 +8,10 @@ package away3d.cameras.lenses
 	
 	public interface ILens
 	{
+		function get near():Number;
+		
+		function get far():Number;
+		
 		function setView(val:View3D):void
 		
 		function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum;

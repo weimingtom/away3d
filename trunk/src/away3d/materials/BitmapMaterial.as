@@ -676,7 +676,7 @@
         	_mapping = getMapping(tri);
 			_session = tri.source.session;
         	_view = tri.view;
-        	_near = _view.screenClipping.minZ;        	
+        	_near = _view.camera.lens.near;        	
         	//if (!_graphics && _session.newLayer)        	//	_graphics = _session.newLayer.graphics;
         	
 			if (precision) {				if (_view.camera.lens is ZoomFocusLens)

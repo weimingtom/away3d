@@ -15,7 +15,7 @@ package away3d.cameras.lenses
 			super.setView(val);
 			
 			if (_clipping.minZ == -Infinity)
-        		_near = _clipping.minZ = -_camera.focus/2;
+        		_near = -_camera.focus/2;
         	else
         		_near = _clipping.minZ;
 		}
