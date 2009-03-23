@@ -1,6 +1,6 @@
 ﻿/*
-VERSION: 10.09
-DATE: 2/9/2009
+VERSION: 10.091
+DATE: 3/20/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenLite.com
 DESCRIPTION:
@@ -156,6 +156,8 @@ NOTES:
 	  
 	  
 CHANGE LOG:
+	10.091:
+		- Fixed bug that prevented timeScale tweens of TweenGroups 
 	10.09:
 		- Fixed bug with timeScale
 	10.06:
@@ -228,7 +230,7 @@ package gs {
 	import gs.utils.tween.*;
 
 	public class TweenLite {
-		public static const version:Number = 10.09;
+		public static const version:Number = 10.091;
 		public static var plugins:Object = {};
 		public static var killDelayedCallsTo:Function = TweenLite.killTweensOf;
 		public static var defaultEase:Function = TweenLite.easeOut;
@@ -331,7 +333,7 @@ package gs {
 		
 		public function initTweenVals():void {
 			var p:String, i:int, plugin:*;
-			if (this.exposedVars.timeScale != undefined && this.target is TweenLite) {
+			if (this.exposedVars.timeScale != undefined && this.target.hasOwnProperty("timeScale")) {
 				this.tweens[this.tweens.length] = new TweenInfo(this.target, "timeScale", this.target.timeScale, this.exposedVars.timeScale - this.target.timeScale, "timeScale", false); //[object, property, start, change, name, isPlugin]
 			}
 			for (p in this.exposedVars) {
