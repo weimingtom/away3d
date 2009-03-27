@@ -124,7 +124,7 @@ package away3d.events
 		 */
         public function MouseEvent3D(type:String)
         {
-            super(type);
+            super(type, false, true);
         }
 		
 		/**
@@ -133,6 +133,9 @@ package away3d.events
         public override function clone():Event
         {
             var result:MouseEvent3D = new MouseEvent3D(type);
+
+			if(isDefaultPrevented())
+            	result.preventDefault();
 
             result.screenX = screenX;
             result.screenY = screenY;
