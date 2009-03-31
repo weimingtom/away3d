@@ -51,7 +51,6 @@
 		
 		public function IKDemo1()
 		{
-			stage.frameRate=30;
 			
 			away3dcreate();
 			
@@ -64,8 +63,8 @@
 		private function away3dcreate():void 
 		{
 			addChild(view=new View3D({x:sw, y:sh})); 
-			swapChildren(view, infoBox);
-			swapChildren(sig, infoBox);
+			//swapChildren(view, infoBox);
+			//swapChildren(sig, infoBox);
 			
 			view.x-=sw/2;
 			view.y-=sh/2;
