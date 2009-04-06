@@ -51,6 +51,11 @@ package awaybuilder.geometry
 						vo.mesh[ attribute.key ] = boolean ;
 						break ;
 					}
+					case GeometryAttributes.COLLADA_SCALE :
+					{
+						vo.colladaScale = Number ( attribute.value ) ;
+						break ;
+					}
 					case GeometryAttributes.DEPTH :
 					{
 						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;

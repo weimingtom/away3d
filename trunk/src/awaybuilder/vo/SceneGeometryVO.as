@@ -29,6 +29,7 @@ package awaybuilder.vo
 		public var flipTexture : Boolean ;
 		public var smoothTexture : Boolean ;
 		public var useHandCursor : Boolean ;
+		public var colladaScale : Number = -1 ;
 		
 		protected var _assetClass : String ;
 		protected var _assetFile : String ;
