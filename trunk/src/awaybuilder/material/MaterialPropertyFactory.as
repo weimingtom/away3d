@@ -54,6 +54,12 @@ package awaybuilder.material
 						vo[ attribute.key ] = attribute.value ;
 						break ;
 					}
+					case MaterialAttributes.AUTO_UPDATE :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo[ attribute.key ] = boolean ;
+						break ;
+					}
 					case MaterialAttributes.COLOR :
 					{
 						vo.material[ attribute.key ] = uint ( attribute.value ) ;
@@ -62,6 +68,22 @@ package awaybuilder.material
 					case MaterialAttributes.DIFFUSE :
 					{
 						vo.material[ attribute.key ] = uint ( attribute.value ) ;
+						break ;
+					}
+					case MaterialAttributes.INTERACTIVE :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo[ attribute.key ] = boolean ;
+						break ;
+					}
+					case MaterialAttributes.LOCK_H :
+					{
+						vo[ attribute.key ] = Number ( attribute.value ) ;
+						break ;
+					}
+					case MaterialAttributes.LOCK_W :
+					{
+						vo[ attribute.key ] = Number ( attribute.value ) ;
 						break ;
 					}
 					case MaterialAttributes.PRECISION :
@@ -78,6 +100,12 @@ package awaybuilder.material
 					case MaterialAttributes.SPECULAR :
 					{
 						vo.material[ attribute.key ] = uint ( attribute.value ) ;
+						break ;
+					}
+					case MaterialAttributes.TRANSPARENT :
+					{
+						attribute.value == "1" ? boolean = true : boolean = false ;
+						vo[ attribute.key ] = boolean ;
 						break ;
 					}
 					case MaterialAttributes.WIDTH :
