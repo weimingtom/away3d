@@ -37,10 +37,7 @@ package awaybuilder
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
-	import flash.events.Event;
-	
-	
-	
+	import flash.events.Event;		
 	public class SceneBuilder extends AbstractBuilder implements IBuilder , IAssetContainer , ISceneContainer
 	{
 		public var coordinateSystem : String ;
@@ -287,7 +284,7 @@ package awaybuilder
 			if ( vo.smoothTexture ) this.smoothMaterials ( target.materialLibrary ) ;
 			this.applyPosition ( target , values ) ;
 			this.applyColladaRotation ( target , values ) ;
-			this.applyColladaScale ( target , values ) ;
+			this.applyColladaScale ( target , values , vo ) ;
 		}
 
 		
@@ -535,9 +532,10 @@ package awaybuilder
 
 		
 		
-		protected function applyColladaScale ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyColladaScale ( target : Object3D , values : SceneObjectVO , vo : SceneGeometryVO ) : void
 		{
 			var multiplier : uint = 1 ;
+			var scale : Number = values.scaleX ;
 			
 			switch ( this.coordinateSystem )
 			{
@@ -548,8 +546,9 @@ package awaybuilder
 					break ;
 				}
 			}
-			// FIXME: Use custom geometry scaling property instead of geometry x scale value?
-			target.scale ( multiplier * values.scaleX ) ;
+			
+			if ( vo.colladaScale > 0 ) scale = vo.colladaScale ;
+			target.scale ( multiplier * scale ) ;
 		}
 	}
 }
