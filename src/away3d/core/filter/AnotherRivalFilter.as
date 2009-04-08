@@ -677,7 +677,8 @@ package away3d.core.filter
             primitives = tree.list();
             turn = 0;
             
-            while (primitives.length > 0)
+            var _length:int = primitives.length;
+            while (_length > 0)
             {
                 leftover = new Array();
                 for each (pri in primitives)

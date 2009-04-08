@@ -31,10 +31,12 @@ package away3d.core.block
             maxY = -Infinity;
             minX = Infinity;
             minY = Infinity;
-            for (var i:int = 0; i < vertices.length; i++)
+            
+            var _length:int = vertices.length;
+            for (var i:int = 0; i < _length; i++)
             {
                 var v:ScreenVertex = vertices[i];
-                _boundlines.push(Line2D.from2points(v, vertices[(i+1) % vertices.length]));
+                _boundlines.push(Line2D.from2points(v, vertices[(i+1) % _length]));
                 if (screenZ < v.z)
                     screenZ = v.z;
                 if (minX > v.x)
@@ -81,11 +83,12 @@ package away3d.core.block
         {
             var graphics:Graphics = source.session.graphics;
             graphics.lineStyle(2, Color.fromHSV(0, 0, (Math.sin(getTimer()/1000)+1)/2));
-            for (var i:int = 0; i < _boundlines.length; i++)
+            var _length:int = _boundlines.length;
+            for (var i:int = 0; i < _length; i++)
             {
                 var line:Line2D = _boundlines[i];
-                var prev:Line2D = _boundlines[(i-1+_boundlines.length) % _boundlines.length];
-                var next:Line2D = _boundlines[(i+1+_boundlines.length) % _boundlines.length];
+                var prev:Line2D = _boundlines[(i-1+_length) % _length];
+                var next:Line2D = _boundlines[(i+1+_length) % _length];
 
                 var a:ScreenVertex = Line2D.cross(prev, line);
                 var b:ScreenVertex = Line2D.cross(line, next);
