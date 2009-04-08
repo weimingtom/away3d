@@ -37,7 +37,10 @@ package awaybuilder
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
-	import flash.events.Event;		
+	import flash.events.Event;
+	
+	
+	
 	public class SceneBuilder extends AbstractBuilder implements IBuilder , IAssetContainer , ISceneContainer
 	{
 		public var coordinateSystem : String ;
@@ -383,6 +386,8 @@ package awaybuilder
 		
 		protected function applyExternalAssets ( section : SceneSectionVO , vo : SceneGeometryVO ) : void
 		{
+			var applySpecialProperties : Boolean ;
+			
 			switch ( vo.materialType )
 			{
 				case MaterialType.BITMAP_MATERIAL :
@@ -391,26 +396,22 @@ package awaybuilder
 					
 					vo.materialData = bitmapData ;
 					vo.material = new BitmapMaterial ( bitmapData ) ;
-					vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
-					vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 					Mesh ( vo.mesh ).material = vo.material as BitmapMaterial ;
+					applySpecialProperties = true ;
 					break ;
 				}
 				case MaterialType.BITMAP_FILE_MATERIAL :
 				{
 					vo.material = new BitmapFileMaterial ( vo.assetFile ) ;
-					vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
-					vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 					Mesh ( vo.mesh ).material = vo.material as BitmapFileMaterial ;
 					
 					if ( vo.assetFileBack )
 					{
 						vo.materialBack = new BitmapFileMaterial ( vo.assetFileBack ) ;
-						vo.materialBack[ MaterialAttributes.SMOOTH ] = vo.smooth ;
-						vo.materialBack[ MaterialAttributes.PRECISION ] = vo.precision ;
 						Mesh ( vo.mesh ).back = vo.materialBack as BitmapFileMaterial ;
 					}
 					
+					applySpecialProperties = true ;
 					break ;
 				}
 				case MaterialType.MOVIE_MATERIAL :
@@ -420,8 +421,15 @@ package awaybuilder
 					vo.materialData = movieClip ;
 					vo.material = new MovieMaterial ( movieClip ) ;
 					Mesh ( vo.mesh ).material = vo.material as MovieMaterial ;
+					applySpecialProperties = true ;
 					break ;
 				}
+			}
+			
+			if ( applySpecialProperties )
+			{
+				vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
+				vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 			}
 			
 			switch ( vo.geometryType )
