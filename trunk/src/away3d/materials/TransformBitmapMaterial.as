@@ -212,18 +212,19 @@ package away3d.materials
 		
 		private function checkEdge(points1:Array, points2:Array):Boolean
 		{
+            var _length:int = points1.length;
             for (i in points1) {
             	//get point 1
             	point2 = points1[i];
             	
             	//get point 2
             	if (int(i) == 0) {
-            		point1 = points1[points1.length-1];
-            		point3 = points1[points1.length-2];
+            		point1 = points1[_length-1];
+            		point3 = points1[_length-2];
             	} else {
             		point1 = points1[int(i)-1];
             		if (int(i) == 1)
-            			point3 = points1[points1.length-1];
+            			point3 = points1[_length-1];
             		else
             			point3 = points1[int(i)-2];
             	}

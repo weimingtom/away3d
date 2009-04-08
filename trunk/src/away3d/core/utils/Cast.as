@@ -50,7 +50,8 @@ package away3d.core.utils {
 
         private static function hexstring(string:String):Boolean
         {
-            for (var i:int = 0; i < string.length; i++)
+            var _length:int = string.length;
+            for (var i:int = 0; i < _length; i++)
                 if (hexchars.indexOf(string.charAt(i)) == -1)
                     return false;
 
