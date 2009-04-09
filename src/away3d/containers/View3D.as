@@ -229,10 +229,12 @@ package away3d.containers
 		
 		private function notifyRenderComplete():void
 		{
+			if(!hasEventListener(ViewEvent.RENDER_COMPLETE))return;
+			
 			//dispatch event
 			if(!_renderComplete)
 				_renderComplete = new ViewEvent(ViewEvent.RENDER_COMPLETE, this);
-				
+			
 			dispatchEvent(_renderComplete);
 		}
 		
@@ -802,14 +804,16 @@ package away3d.containers
 		public function updateScreenClipping():void
 		{
         	//check for loaderInfo update
-        	try {
+        	if(loaderInfo && loaderInfo.width) 
+        	{
         		_loaderWidth = loaderInfo.width;
         		_loaderHeight = loaderInfo.height;
-        		if (_loaderDirty) {
+        		if (_loaderDirty) 
+        		{
         			_loaderDirty = false;
         			_screenClippingDirty = true;
         		}
-        	} catch (error:Error) {
+        	} else {
         		_loaderDirty = true;
         		_loaderWidth = stage.stageWidth;
         		_loaderHeight = stage.stageHeight;

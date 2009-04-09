@@ -84,7 +84,12 @@ package away3d.containers
         * Defines whether scene events are automatically triggered by the view, or manually by <code>updateScene()</code>
         */
 		public var autoUpdate:Boolean;
-        
+		
+        /**
+        * Defines whether scene is need to calculate light
+        */
+		public var updateLight:Boolean;
+		
     	/**
     	 * Interface for physics (not implemented)
     	 */
@@ -131,6 +136,7 @@ package away3d.containers
             super(init);
 			
 			autoUpdate = ini.getBoolean("autoUpdate", true);
+			updateLight = ini.getBoolean("updateLight", true);
 			
             var ph:Object = ini.getObject("physics");
             if (ph is IPhysicsScene)
@@ -163,7 +169,8 @@ package away3d.containers
         	geometries = new Dictionary(true);
         	
         	//traverse lights
-			traverse(_lighttraverser);
+			if(updateLight)
+				traverse(_lighttraverser);
 				
         	//execute projection traverser on each view
         	for each(_view in viewDictionary) {
