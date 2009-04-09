@@ -21,9 +21,7 @@ package away3d.core.traverse
 		 */
 		public override function match(node:Object3D):Boolean
         {
-            if (!node.visible)
-                return false;
-            return true;
+			return node.visible;
         }
         
 		/**
