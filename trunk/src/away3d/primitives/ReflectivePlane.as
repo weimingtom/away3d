@@ -513,7 +513,8 @@ package away3d.primitives
 		{
 			_hideList = [];
 			
-			for each(var obj:Object3D in this.scene.children)
+			var _scene_children:Array  = this.scene.children;
+			for each(var obj:Object3D in _scene_children)
 			{
 				if(obj.visible && !onFrontSide(obj.position))
 				{

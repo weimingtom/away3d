@@ -115,7 +115,8 @@ package away3d.materials.shaders
 			_n1 = _source.geometry.getVertexNormal(_face.v1);
 			_n2 = _source.geometry.getVertexNormal(_face.v2);
 			
-			for each (directional in _source.lightarray.directionals)
+			var _source_lightarray_directionals:Array = _source.lightarray.directionals;
+			for each (directional in _source_lightarray_directionals)
 	    	{
 				_diffuseTransform = directional.diffuseTransform[_source];
 				
@@ -212,7 +213,8 @@ package away3d.materials.shaders
 		 */
 		public override function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (directional in source.lightarray.directionals) {
+        	var _source_lightarray_directionals:Array = source.lightarray.directionals;
+        	for each (directional in _source_lightarray_directionals) {
         		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         			directional.setNormalMatrixDiffuseTransform(source);
@@ -228,7 +230,8 @@ package away3d.materials.shaders
         {
         	super.renderLayer(tri, layer, level);
         	
-        	for each (directional in _lights.directionals)
+        	var _lights_directionals:Array = _lights.directionals;
+        	for each (directional in _lights_directionals)
         	{
         		if (_lights.numLights > 1) {
 					_shape = _session.getLightShape(this, level++, layer, directional);

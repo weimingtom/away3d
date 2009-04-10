@@ -42,7 +42,8 @@ package away3d.core.project
 			_cameraViewMatrix = _view.camera.viewMatrix;
 			_viewTransformDictionary = _view.cameraVarsStore.viewTransformDictionary;
 			
-        	for each (_child in _container.children) {
+			var _container_children:Array = _container.children;
+        	for each (_child in _container_children) {
 				if (_child.ownCanvas && _child.visible) {
 					
 					if (_child.ownSession is SpriteRenderSession)

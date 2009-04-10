@@ -416,7 +416,8 @@
         private function cloneBones(container:ObjectContainer3D, root:ObjectContainer3D):void
         {
         	//wire up new bones to new skincontrollers if available
-            for each (var child:Object3D in container.children) {
+        	var _container_children:Array = container.children;
+            for each (var child:Object3D in _container_children) {
             	if (child is ObjectContainer3D) {
             		(child as ObjectContainer3D).cloneBones(child as ObjectContainer3D, root);
              	} else if (child is Mesh) {
