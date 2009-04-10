@@ -680,7 +680,7 @@ package away3d.core.filter
             var _length:int = primitives.length;
             while (_length > 0)
             {
-                leftover = new Array();
+                leftover = [];
                 for each (pri in primitives)
                 {
                     check++;

@@ -517,7 +517,7 @@ package away3d.core.filter
             
             while (primitives.length > 0)
             {
-                var leftover:Array = new Array();
+                var leftover:Array = [];
                 for each (pri in primitives)
                 {
                     

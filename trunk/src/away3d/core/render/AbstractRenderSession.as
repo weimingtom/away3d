@@ -134,7 +134,7 @@ package away3d.core.render
 		private function getShapeStore(view:View3D):Array
 		{
 			if (!_shapeStores[view])
-        		return _shapeStores[view] = new Array();
+        		return _shapeStores[view] = [];
         	
 			return _shapeStores[view];
 		}
@@ -142,7 +142,7 @@ package away3d.core.render
 		private function getShapeActive(view:View3D):Array
 		{
 			if (!_shapeActives[view])
-        		return _shapeActives[view] = new Array();
+        		return _shapeActives[view] = [];
         	
 			return _shapeActives[view];
 		}
@@ -150,7 +150,7 @@ package away3d.core.render
 		private function getSpriteStore(view:View3D):Array
 		{
 			if (!_spriteStores[view])
-        		return _spriteStores[view] = new Array();
+        		return _spriteStores[view] = [];
         	
 			return _spriteStores[view];
 		}
@@ -158,7 +158,7 @@ package away3d.core.render
 		private function getSpriteActive(view:View3D):Array
 		{
 			if (!_spriteActives[view])
-        		return _spriteActives[view] = new Array();
+        		return _spriteActives[view] = [];
         	
 			return _spriteActives[view];
 		}
@@ -287,7 +287,7 @@ package away3d.core.render
         	for each (_session in sessions)
         		_session.removeOnSessionUpdate(onSessionUpdate);
         		
-        	sessions = new Array();
+        	sessions = [];
         }
         
        	/**
@@ -428,7 +428,7 @@ package away3d.core.render
         public function getSprite(material:ILayerMaterial, level:int, parent:Sprite = null):Sprite
         {
         	if (!(_array = _spriteLayer[material])) 
-        		_array = _spriteLayer[material] = new Array();
+        		_array = _spriteLayer[material] = [];
         	
         	if (!level && material != _material) {
         		_level = -1;
@@ -447,7 +447,7 @@ package away3d.core.render
         public function getShape(material:ILayerMaterial, level:int, parent:Sprite):Shape
         {
         	if (!(_array = _shapeLayer[material]))
-        		_array = _shapeLayer[material] = new Array();
+        		_array = _shapeLayer[material] = [];
         	
         	if (_level >= level && _array.length) {
         		_shape = _array[0];
@@ -466,7 +466,7 @@ package away3d.core.render
         		_dictionary = _lightShapeLayer[material] = new Dictionary(true);
         	
         	if (!(_array = _dictionary[light]))
-        		_array = _dictionary[light] = new Array();
+        		_array = _dictionary[light] = [];
         	
         	if (_level >= level && _array.length) {
         		_shape = _array[0];

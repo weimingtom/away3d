@@ -806,7 +806,7 @@ package away3d.containers
 		public function updateScreenClipping():void
 		{
         	//check for loaderInfo update
-        	if(loaderInfo && loaderInfo.width) 
+        	if(loaderInfo && loaderInfo.width && loaderInfo.height) 
         	{
         		_loaderWidth = loaderInfo.width;
         		_loaderHeight = loaderInfo.height;

@@ -25,25 +25,25 @@ package away3d.core.utils
 		private var _cblocker:ConvexBlocker;
 		private var _sbitmap:DrawScaledBitmap;
 		private var _dobject:DrawDisplayObject;
-		private var _svStore:Array = new Array();
+		private var _svStore:Array = [];
 		private var _dtDictionary:Dictionary = new Dictionary(true);
 		private var _dtArray:Array;
-		private var _dtStore:Array = new Array();
+		private var _dtStore:Array = [];
 		private var _dsDictionary:Dictionary = new Dictionary(true);
 		private var _dsArray:Array;
-        private var _dsStore:Array = new Array();
+        private var _dsStore:Array = [];
         private var _dbDictionary:Dictionary = new Dictionary(true);
 		private var _dbArray:Array;
-        private var _dbStore:Array = new Array();
+        private var _dbStore:Array = [];
         private var _cbDictionary:Dictionary = new Dictionary(true);
 		private var _cbArray:Array;
-		private var _cbStore:Array = new Array();
+		private var _cbStore:Array = [];
 		private var _sbDictionary:Dictionary = new Dictionary(true);
 		private var _sbArray:Array;
-		private var _sbStore:Array = new Array();
+		private var _sbStore:Array = [];
 		private var _doDictionary:Dictionary = new Dictionary(true);
 		private var _doArray:Array;
-        private var _doStore:Array = new Array();
+        private var _doStore:Array = [];
         
 		public var view:View3D;
 		

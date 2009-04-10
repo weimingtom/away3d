@@ -12,8 +12,8 @@ package away3d.animators.skin
 		
 		public var baseVertex:Vertex;
         public var skinnedVertex:Vertex;
-        public var weights:Array = new Array();
-        public var controllers:Array = new Array();
+        public var weights:Array = [];
+        public var controllers:Array = [];
 		
         public function SkinVertex(vertex:Vertex)
         {
