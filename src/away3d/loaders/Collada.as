@@ -1232,10 +1232,13 @@
 			if (!colorXML || colorXML.length() == 0)
 				return 0xFFFFFF;
 			
-			if(colorXML.color.length() == 0)
+			if(!colorXML.color || colorXML.color.length() == 0)
 				return 0xFFFFFF;
 			
 			var colorArray:Array = colorXML.color.split(" ");
+			if(colorArray.length <= 0)
+				return 0xFFFFFF;
+			
 			return int(colorArray[0]*255 << 16) | int(colorArray[1]*255 << 8) | int(colorArray[2]*255);
 		}
 		
