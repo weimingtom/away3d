@@ -23,19 +23,19 @@ package away3d.core.utils
 		private var _v:Object;
 		private var _source:Object3D;
 		private var _session:AbstractRenderSession;
-		private var _vtActive:Array = new Array();
-        private var _vtStore:Array = new Array();
-		private var _frActive:Array = new Array();
-        private var _frStore:Array = new Array();
-        private var _vActive:Array = new Array();
-		private var _vStore:Array = new Array();
-		private var _vcStore:Array = new Array();
+		private var _vtActive:Array = [];
+        private var _vtStore:Array = [];
+		private var _frActive:Array = [];
+        private var _frStore:Array = [];
+        private var _vActive:Array = [];
+		private var _vStore:Array = [];
+		private var _vcStore:Array = [];
 		private var _vcArray:Array;
 		private var _uvDictionary:Dictionary = new Dictionary(true);
 		private var _uvArray:Array;
-        private var _uvStore:Array = new Array();
-        private var _fActive:Array = new Array();
-        private var _fStore:Array = new Array();
+        private var _uvStore:Array = [];
+        private var _fActive:Array = [];
+        private var _fStore:Array = [];
 		public var view:View3D;
     	
         /**
@@ -157,11 +157,11 @@ package away3d.core.utils
         	nodeClassificationDictionary = new Dictionary(true);
         	
         	_vtStore = _vtStore.concat(_vtActive);
-        	_vtActive = new Array();
+        	_vtActive = [];
         	_frStore = _frStore.concat(_frActive);
-        	_frActive = new Array();
+        	_frActive = [];
         	_vStore = _vStore.concat(_vActive);
-        	_vActive = new Array();
+        	_vActive = [];
         	
         	for (_object in _uvDictionary) {
 				_session = _object as AbstractRenderSession;
@@ -172,7 +172,7 @@ package away3d.core.utils
 			}
 			
 			_fStore = _fStore.concat(_fActive);
-        	_fActive = new Array();
+        	_fActive = [];
         }
 	}
 }

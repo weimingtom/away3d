@@ -53,7 +53,7 @@
             _sessionDirty = true;
         }
         
-        private var _children:Array = new Array();
+        private var _children:Array = [];
         private var _radiusChild:Object3D = null;
         
         private function onChildChange(event:Object3DEvent):void

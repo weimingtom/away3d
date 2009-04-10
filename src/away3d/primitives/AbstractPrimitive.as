@@ -14,21 +14,21 @@
 		/** @private */
 		arcane var _v:Vertex;
 		/** @private */
-		arcane var _vStore:Array = new Array();
+		arcane var _vStore:Array = [];
 		/** @private */
-        arcane var _vActive:Array = new Array();
+        arcane var _vActive:Array = [];
 		/** @private */
 		arcane var _uv:UV;
 		/** @private */
-		arcane var _uvStore:Array = new Array();
+		arcane var _uvStore:Array = [];
 		/** @private */
-        arcane var _uvActive:Array = new Array();
+        arcane var _uvActive:Array = [];
 		/** @private */
 		arcane var _face:Face;
 		/** @private */
-		arcane var _faceStore:Array = new Array();
+		arcane var _faceStore:Array = [];
 		/** @private */
-        arcane var _faceActive:Array = new Array();
+        arcane var _faceActive:Array = [];
 		/** @private */
         arcane var _primitiveDirty:Boolean;
 		/** @private */

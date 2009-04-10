@@ -26,8 +26,8 @@ package away3d.core.render
 		private var _cx:Number;
 		private var _cy:Number;
 		private var _base:BitmapData;
-		private var mStore:Array = new Array();
-		private var mActive:Array = new Array();
+		private var mStore:Array = [];
+		private var mActive:Array = [];
 		private var layers:Array = [];
 		private var _layer:DisplayObject;
 		

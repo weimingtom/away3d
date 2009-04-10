@@ -948,7 +948,7 @@
             var v:Array;
             var matrix:Matrix3D;
             var name:String;
-            var joints:Array = new Array();
+            var joints:Array = [];
 			var skinController:SkinController;
             var i:int = 0;
             
@@ -1112,7 +1112,7 @@
                     case "OUTPUT":
                         i=0;
                         while (i < len) {
-                            channel.param[i] = new Array();
+                            channel.param[i] = [];
                             
                             if (stride == 16) {
 		                    	var m:Matrix3D = new Matrix3D();
@@ -1138,7 +1138,7 @@
                         i=0;
                         while (i < len)
                         {
-                        	channel.inTangent[i] = new Array();
+                        	channel.inTangent[i] = [];
                         	j = 0;
                             while (j < stride) {
                                 channel.inTangent[i].push(new Number2D(Number(list[stride * i + j]), Number(list[stride * i + j + 1])));
@@ -1151,7 +1151,7 @@
                         i=0;
                         while (i < len)
                         {
-                        	channel.outTangent[i] = new Array();
+                        	channel.outTangent[i] = [];
                         	j = 0;
                             while (j < stride) {
                                 channel.outTangent[i].push(new Number2D(Number(list[stride * i + j]), Number(list[stride * i + j + 1])));

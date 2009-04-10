@@ -37,7 +37,7 @@ package away3d.core.base
         
         public var positionDirty:Boolean;
         
-        public var parents:Array = new Array();
+        public var parents:Array = [];
         
         public var geometry:Geometry;
         

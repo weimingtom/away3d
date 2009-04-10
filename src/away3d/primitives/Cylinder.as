@@ -28,7 +28,7 @@
 
             height /= 2;
 
-            grid = new Array();
+            grid = [];
             
 			if (!openEnded) {
 	            segmentsH += 2;

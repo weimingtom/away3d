@@ -25,7 +25,7 @@
 		private var _pI:Array;
 		private var _patchVertices:Dictionary = new Dictionary();
 		private var _edgeCache:Array;
-		private var _gen:Array = new Array();
+		private var _gen:Array = [];
 		private var _patchName:String;
 		private var _patchCount:int;
 		private var _normDir:Boolean;
@@ -77,7 +77,7 @@
 		public static const BOTTOMLEFT:int = 3;
 		public static const BOTTOMRIGHT:int = 4;
 		
-		private static const OPPOSITE_OR:Array = new Array();
+		private static const OPPOSITE_OR:Array = [];
 		OPPOSITE_OR[X | X] = N;
 		OPPOSITE_OR[XY | X] = Y;
 		OPPOSITE_OR[XZ | X] = Z;
@@ -93,7 +93,7 @@
 		OPPOSITE_OR[XYZ | Z] = XY;
 		OPPOSITE_OR[YZ | Z] = Y;
 		           
-		private static const SCALINGS:Array = new Array();
+		private static const SCALINGS:Array = [];
 		SCALINGS[1] = [1, 1, 1];
 		SCALINGS[2] = [-1, 1, 1];
 		SCALINGS[4] = [-1, 1, -1];
@@ -133,7 +133,7 @@
 			var start:int = getTimer();
 			
 			_patchVertices = new Dictionary();
-			_edgeCache = new Array();
+			_edgeCache = [];
 			geometry = new Geometry();
 			
 			// Iterate through all the items in the patch array
@@ -347,13 +347,13 @@
 			var yCtr:int = 0;
 			var thisOr:int = 0;
 
-			_gen[p] = new Array();
+			_gen[p] = [];
 			// Generate mesh for base patch and apply to the other orientations and store
 			for (var yPos:Number = 0; yPos <= 1 + (_pI[key].yStp / 2); yPos += _pI[key].yStp) {
-				_gen[p][yCtr] = new Array();
+				_gen[p][yCtr] = [];
 				xCtr = 0;				
 				for (var xPos:Number = 0; xPos <= 1 + (_pI[key].xStp / 2); xPos += _pI[key].xStp) {
-					_gen[p][yCtr][xCtr] = new Array();
+					_gen[p][yCtr][xCtr] = [];
 
 					for each (var orientation:int in [1, 2, 4, 8, 16, 32, 64, 128]) {
 						thisOr = _pI[key].oOr & orientation;

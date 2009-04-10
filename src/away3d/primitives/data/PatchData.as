@@ -16,10 +16,10 @@
 		public var generatedPatch:Array;
 		
 		private var ini:Object;
-		private var _nodes:Array = new Array();
-		private var _vertices:Array = new Array();
-		private var _uvs:Array = new Array();
-		private var _patchInfo:Array = new Array();
+		private var _nodes:Array = [];
+		private var _vertices:Array = [];
+		private var _uvs:Array = [];
+		private var _patchInfo:Array = [];
 		private var _patchCache:Dictionary = new Dictionary();
 		private var _dirtyVertices:Boolean;
 		
@@ -47,8 +47,8 @@
 		public function set patchInfo(value:Array):void {
 			
 			// Initialize the patch and generated patch arrays
-			controlPoints = new Array();
-			generatedPatch = new Array();
+			controlPoints = [];
+			generatedPatch = [];
 			
 			// Process each sub-patch in turn
 			for each (var o:Object in value) {		
@@ -58,7 +58,7 @@
 				var key:String = ini.getString("key", "");
 				
 				// Store the patch properties for later
-				_patchInfo[key] = new Object();
+				_patchInfo[key] = {};
 				_patchInfo[key].oSegW = ini.getInt("segmentsW", 5, {min:1});
 				_patchInfo[key].oSegH = ini.getInt("segmentsH", 3, {min:1});
 				_patchInfo[key].oSegC = ini.getInt("connectSegs", 3, {min:1});
@@ -114,7 +114,7 @@
 					if (controlPoints[key]) {			
 						updateControlPoints(key);
 					} else {				
-						controlPoints[key] = new Array();
+						controlPoints[key] = [];
 						cacheControlPoints(key);
 					}
 					
@@ -122,7 +122,7 @@
 					if (generatedPatch[key][0][0]) {				
 						updatePatchPoints(key);
 					} else {				
-						generatedPatch[key] = new Array();
+						generatedPatch[key] = [];
 						cachePatchPoints(key);
 					}
 				}
@@ -134,15 +134,15 @@
 
 		private function cacheControlPoints(key:String):void {
 			// Cache the patch control vertices in controlPoints
-			controlPoints[key] = new Array();
-			generatedPatch[key] = new Array();
+			controlPoints[key] = [];
+			generatedPatch[key] = [];
 			_patchCache = new Dictionary();
 			
 			for (var p:int = 0; p < _patchInfo[key].patchCount; p++) {
-				controlPoints[key][p] = new Array();
-				generatedPatch[key][p] = new Array();
+				controlPoints[key][p] = [];
+				generatedPatch[key][p] = [];
 				for (var i:int = 0; i < 4; i++ ) {
-					controlPoints[key][p][i] = new Array();
+					controlPoints[key][p][i] = [];
 					for (var j:int = 0; j < 4; j++ ) {
 						var v:Vertex = _vertices[_nodes[key][(p * 16) + i * 4 + j]];
 						controlPoints[key][p][i][j] = new Vertex(v.x, v.y, v.z);
@@ -166,9 +166,9 @@
 		private function cachePatchPoints(key:String):void {
 			// Create the patch with new array elements and vertices
 			for (var pId:int = 0; pId < patchInfo[key].patchCount; pId++) {
-				generatedPatch[key][pId] = new Array();
+				generatedPatch[key][pId] = [];
 				for (var yId:int = 0; yId <= patchInfo[key].oSegH; yId++ ) {                                        
-					generatedPatch[key][pId][yId] = new Array();
+					generatedPatch[key][pId][yId] = [];
 					for (var xId:int = 0; xId <= patchInfo[key].oSegW; xId++) {
 						generatedPatch[key][pId][yId][xId] = new Vertex();
 						getPatchPoint(generatedPatch[key][pId][yId][xId], key, pId, xId * patchInfo[key].xStp, yId * patchInfo[key].yStp) 

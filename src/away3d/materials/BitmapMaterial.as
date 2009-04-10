@@ -108,7 +108,7 @@
         private var focus:Number;
         private var map:Matrix = new Matrix();
         private var triangle:DrawTriangle = new DrawTriangle(); 
-        private var svArray:Array = new Array();
+        private var svArray:Array = [];
         private var x:Number;
 		private var y:Number;
         private var faz:Number;

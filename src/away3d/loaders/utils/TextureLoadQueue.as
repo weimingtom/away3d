@@ -154,7 +154,7 @@ package away3d.loaders.utils
 		 */
 		public function TextureLoadQueue()
 		{
-			_queue = new Array();
+			_queue = [];
 			
 		}
 		

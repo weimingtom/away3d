@@ -110,9 +110,9 @@ package away3d.core.light
     		diffuseBitmap = new BitmapData(256, 256, false, 0x000000);
     		diffuseBitmap.lock();
     		_matrix.createGradientBox(256, 256, 0, 0, 0);
-    		var colArray:Array = new Array();
-    		var alphaArray:Array = new Array();
-    		var pointArray:Array = new Array();
+    		var colArray:Array = [];
+    		var alphaArray:Array = [];
+    		var pointArray:Array = [];
     		var i:int = 15;
     		while (i--) {
     			var r:Number = (i*diffuse/14);
@@ -145,9 +145,9 @@ package away3d.core.light
     		ambientDiffuseBitmap = new BitmapData(256, 256, false, 0x000000);
     		ambientDiffuseBitmap.lock();
     		_matrix.createGradientBox(256, 256, 0, 0, 0);
-    		var colArray:Array = new Array();
-    		var alphaArray:Array = new Array();
-    		var pointArray:Array = new Array();
+    		var colArray:Array = [];
+    		var alphaArray:Array = [];
+    		var pointArray:Array = [];
     		var i:int = 15;
     		while (i--) {
     			var r:Number = (i*diffuse/14 + ambient);
@@ -176,9 +176,9 @@ package away3d.core.light
     		specularBitmap = new BitmapData(512, 512, false, 0x000000);
     		specularBitmap.lock();
     		_matrix.createGradientBox(512, 512, 0, 0, 0);
-    		var colArray:Array = new Array();
-    		var alphaArray:Array = new Array();
-    		var pointArray:Array = new Array();
+    		var colArray:Array = [];
+    		var alphaArray:Array = [];
+    		var pointArray:Array = [];
     		var i:int = 15;
     		while (i--) {
     			colArray.push((i*specular*red*0xFF/14 << 16) + (i*specular*green*0xFF/14 << 8) + i*specular*blue*0xFF/14);

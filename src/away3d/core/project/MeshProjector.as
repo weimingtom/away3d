@@ -105,7 +105,7 @@ package away3d.core.project
 			
 			_backmat = _mesh.back || _faceMaterial;
 			
-			_clippedFaceVOs = new Array();
+			_clippedFaceVOs = [];
 			
 			if (_cameraVarsStore.nodeClassificationDictionary[source] == Frustum.INTERSECT)
 				_clipFaceVOs = true;
