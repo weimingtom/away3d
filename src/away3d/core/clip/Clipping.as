@@ -56,6 +56,9 @@ package away3d.core.clip
 		private var _maY:Number;
 		private var _clippingupdated:ClippingEvent;
 		
+		//keep silent
+		public var notify:Boolean = true;
+		
 		private function onScreenUpdate(event:ClippingEvent):void
 		{
 			dispatchEvent(event);
@@ -63,7 +66,7 @@ package away3d.core.clip
 		
         private function notifyClippingUpdate():void
         {
-            if (!hasEventListener(ClippingEvent.CLIPPING_UPDATED))
+            if (!notify || !hasEventListener(ClippingEvent.CLIPPING_UPDATED))
                 return;
 			
             if (_clippingupdated == null)
@@ -72,6 +75,11 @@ package away3d.core.clip
             dispatchEvent(_clippingupdated);
         }
         
+		private function forceNotifyClippingUpdate():void
+		{
+			notifyClippingUpdate();
+		}
+		
         protected var ini:Init;
 		
 		
@@ -384,7 +392,9 @@ package away3d.core.clip
                 _maY = _globalPoint.y + _stageHeight/2;
         	}
         	
-	
+        	// keep silent until updated finish
+			_clippingClone.notify = false;
+			
             if (_minX == -Infinity)
             	_clippingClone.minX = _miX;
             else
@@ -408,6 +418,9 @@ package away3d.core.clip
             _clippingClone.minZ = _minZ;
             _clippingClone.maxZ = _maxZ;
             _clippingClone.objectCulling = _objectCulling;
+            
+            _clippingClone.notify = true;
+            _clippingClone.forceNotifyClippingUpdate();
             
             return _clippingClone;
         }

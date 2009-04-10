@@ -95,7 +95,8 @@ package away3d.core.clip
 				if (_v0d < 0 || _v1d < 0 || _v2d < 0)
 					_pass = false;
 			} else {
-				for each (_plane in _frustum.planes) {
+				var _frustum_planes:Array = _frustum.planes;
+				for each (_plane in _frustum_planes) {
 					_v0d = _v0C.getDistance(_plane);
 					_v1d = _v1C.getDistance(_plane);
 					_v2d = _v2C.getDistance(_plane);

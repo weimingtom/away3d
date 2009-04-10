@@ -148,9 +148,11 @@ package away3d.containers
         	}
         	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
-	        	for each (primitive in session.getConsumer(this).list())
+        		var _lists:Array = session.getConsumer(this).list();
+	        	for each (primitive in _lists)
 	               checkPrimitive(primitive);
-	        	for each (session in session.sessions)
+	        	var _sessions:Array = session.sessions;
+	        	for each (session in _sessions)
 	        		checkSession(session);
 	        }
 	        

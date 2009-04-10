@@ -176,7 +176,8 @@ package away3d.materials
 		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (directional in source.lightarray.directionals) {
+        	var _source_lightarray_directionals:Array = source.lightarray.directionals;
+        	for each (directional in _source_lightarray_directionals) {
         		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         			_materialDirty = true;
@@ -191,7 +192,8 @@ package away3d.materials
         		}
         	}
         	
-        	for each (point in source.lightarray.points) {
+        	var source_lightarray_points:Array = source.lightarray.points;
+        	for each (point in source_lightarray_points) {
         		if (!point.viewPositions[view] || view.scene.updatedObjects[source] || view.updated) {
         			point.setViewPosition(view);
         			_materialDirty = true;
@@ -257,7 +259,8 @@ package away3d.materials
 			_source = tri.source as Mesh;
 			_view = tri.view;
 			
-			for each (directional in tri.source.lightarray.directionals)
+			var _tri_source_lightarray_directionals:Array = tri.source.lightarray.directionals;
+			for each (directional in _tri_source_lightarray_directionals)
             {
             	_diffuseTransform = directional.diffuseTransform[_source];
             	
@@ -305,7 +308,8 @@ package away3d.materials
                 ksb += blue * spec;
             }
             
-            for each (point in tri.source.lightarray.points)
+            var _tri_source_lightarray_points:Array = tri.source.lightarray.points;
+            for each (point in _tri_source_lightarray_points)
             {
                 red = point.red;
                 green = point.green;
@@ -377,7 +381,9 @@ package away3d.materials
                 }
 
                 if (draw_fall || draw_reflect)
-                    for each (point in tri.source.lightarray.points)
+                {
+                    var _tri_source_lightarray_points:Array = tri.source.lightarray.points;
+            		for each (point in _tri_source_lightarray_points)
                     {
                         red = point.red;
                         green = point.green;
@@ -431,6 +437,7 @@ package away3d.materials
                             graphics.moveTo(cx, cy);
                         }
                     }
+                }
             }
         }
         
