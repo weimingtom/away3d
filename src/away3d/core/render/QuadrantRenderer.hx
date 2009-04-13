@@ -16,27 +16,25 @@ import away3d.core.draw.DrawPrimitive;
 
 /** Renderer that uses quadrant tree for storing and operating drawing primitives. Quadrant tree speeds up all proximity based calculations. */
 class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
-	public var filters(getFilters, setFilters) : Array<Dynamic>;
+	public var filters(getFilters, setFilters) : Array<IPrimitiveQuadrantFilter>;
 	
-	private var _qdrntfilters:Array<Dynamic>;
+	private var _qdrntfilters:Array<IPrimitiveQuadrantFilter>;
 	private var _root:PrimitiveQuadrantTreeNode;
-	private var _center:Array<Dynamic>;
-	private var _result:Array<Dynamic>;
+	private var _center:Array<DrawPrimitive>;
+	private var _result:Array<DrawPrimitive>;
 	private var _except:Object3D;
 	private var _minX:Float;
 	private var _minY:Float;
 	private var _maxX:Float;
 	private var _maxY:Float;
 	private var _child:DrawPrimitive;
-	private var _children:Array<Dynamic>;
+	private var _children:Array<DrawPrimitive>;
 	private var i:Int;
-	private var _primitives:Array<Dynamic>;
-	private var _clippedPrimitives:Array<Dynamic>;
+	private var _primitives:Array<DrawPrimitive>;
 	private var _view:View3D;
 	private var _scene:Scene3D;
 	private var _camera:Camera3D;
 	private var _screenClipping:Clipping;
-	private var _blockers:Array<Dynamic>;
 	private var _filter:IPrimitiveQuadrantFilter;
 	
 
@@ -97,12 +95,12 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 	/**
 	 * Defines the array of filters to be used on the drawing primitives.
 	 */
-	public function getFilters():Array<Dynamic> {
+	public function getFilters():Array<IPrimitiveQuadrantFilter> {
 		
 		return _qdrntfilters;
 	}
 
-	public function setFilters(val:Array<Dynamic>):Array<Dynamic> {
+	public function setFilters(val:Array<IPrimitiveQuadrantFilter>):Array<IPrimitiveQuadrantFilter> {
 		
 		_qdrntfilters = val;
 		return val;
@@ -113,8 +111,8 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 	 *
 	 * @param	filters	[optional]	An array of filters to use on projected drawing primitives before rendering them to screen.
 	 */
-	public function new(?filters:Array<Dynamic>) {
-		if (filters == null) filters = new Array<Dynamic>();
+	public function new(?filters:Array<IPrimitiveQuadrantFilter>) {
+		if (filters == null) filters = new Array<IPrimitiveQuadrantFilter>();
 		
 		
 		_qdrntfilters = filters;
@@ -150,7 +148,7 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 	 * @param	ex		[optional]	Excludes primitives that are children of the 3d object.
 	 * @return						An array of drawing primitives.
 	 */
-	public function get(pri:DrawPrimitive, ?ex:Object3D=null):Array<Dynamic> {
+	public function get(pri:DrawPrimitive, ?ex:Object3D=null):Array<DrawPrimitive> {
 		
 		_result = [];
 		_minX = pri.minX;
@@ -168,7 +166,7 @@ class QuadrantRenderer implements IPrimitiveConsumer, implements IRenderer {
 	 * 
 	 * @return	An array containing the primitives to be rendered.
 	 */
-	public function list():Array<Dynamic> {
+	public function list():Array<DrawPrimitive> {
 		
 		_result = [];
 		_minX = -1000000;

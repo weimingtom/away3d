@@ -26,13 +26,13 @@ import flash.display.Loader;
 class TextureLoadQueue extends HashableEventDispatcher  {
 	public var numItems(getNumItems, null) : Int;
 	public var currentItemIndex(getCurrentItemIndex, null) : Int;
-	public var images(getImages, null) : Array<Dynamic>;
+	public var images(getImages, null) : Array<TextureLoader>;
 	public var currentLoader(getCurrentLoader, null) : TextureLoader;
 	public var currentURLRequest(getCurrentURLRequest, null) : URLRequest;
 	public var progress(getProgress, null) : Float;
 	public var percentLoaded(getPercentLoaded, null) : Float;
 	
-	private var _queue:Array<Dynamic>;
+	private var _queue:Array<LoaderAndRequest>;
 	private var _currentItemIndex:Int;
 	
 
@@ -116,9 +116,9 @@ class TextureLoadQueue extends HashableEventDispatcher  {
 	/**
 	 * Returns an array of loader objects containing the loaded images
 	 */
-	public function getImages():Array<Dynamic> {
+	public function getImages():Array<TextureLoader> {
 		
-		var items:Array<Dynamic> = [];
+		var items:Array<TextureLoader> = [];
 		for (__i in 0..._queue.length) {
 			var item:LoaderAndRequest = _queue[__i];
 
@@ -171,7 +171,7 @@ class TextureLoadQueue extends HashableEventDispatcher  {
 		super();
 		
 		
-		_queue = new Array<Dynamic>();
+		_queue = new Array<LoaderAndRequest>();
 	}
 
 	/**

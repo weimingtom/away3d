@@ -46,7 +46,7 @@ class ElevationModifier  {
 			_sourceBmd = sourceBmd;
 			_mesh = (cast(mesh, Mesh));
 			_axis = axis;
-			var flist:Array<Dynamic> = _mesh.geometry.faces;
+			var flist:Array<Face> = _mesh.geometry.faces;
 			var face:Face;
 			var vr0:Vertex;
 			var vr1:Vertex;

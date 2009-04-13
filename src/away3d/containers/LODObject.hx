@@ -27,8 +27,8 @@ class LODObject extends ObjectContainer3D, implements ILODObject {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties.
 	 * @param	...childarray				An array of children to be added on instatiation.
 	 */
-	public function new(?init:Dynamic=null, ?childarray:Array<Dynamic>) {
-		if (childarray == null) childarray = new Array<Dynamic>();
+	public function new(?init:Dynamic=null, ?childarray:Array<Object3D>) {
+		if (childarray == null) childarray = new Array<Object3D>();
 		
 		
 		super(init);

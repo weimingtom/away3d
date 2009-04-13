@@ -54,7 +54,7 @@ class DrawSegment extends DrawPrimitive  {
 	
 
 	/** @private */
-	public function onepointcut(v01:ScreenVertex):Array<Dynamic> {
+	public function onepointcut(v01:ScreenVertex):Array<DrawPrimitive> {
 		
 		return [create(source, material, v0, v01, true), create(source, material, v01, v1, true)];
 	}
@@ -136,7 +136,7 @@ class DrawSegment extends DrawPrimitive  {
 	/**
 	 * @inheritDoc
 	 */
-	public override function quarter(focus:Float):Array<Dynamic> {
+	public override function quarter(focus:Float):Array<DrawPrimitive> {
 		
 		if (length < 5) {
 			return null;

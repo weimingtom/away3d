@@ -17,7 +17,7 @@ class WireTorus extends AbstractWirePrimitive  {
 	public var segmentsT(getSegmentsT, setSegmentsT) : Float;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var _radius:Float;
 	private var _tube:Float;
 	private var _segmentsR:Int;
@@ -29,10 +29,10 @@ class WireTorus extends AbstractWirePrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array(segmentsR);
+		grid = new Array<Array<Vertex>>();
 		i = 0;
 		while (i < segmentsR) {
-			grid[i] = new Array(segmentsT);
+			grid[i] = new Array<Vertex>();
 			j = 0;
 			while (j < segmentsT) {
 				var u:Float = i / segmentsR * 2 * Math.PI;

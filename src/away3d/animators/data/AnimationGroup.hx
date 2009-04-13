@@ -10,7 +10,7 @@ class AnimationGroup  {
 	/**
 	 * An array of animation sequence objects.
 	 */
-	public var playlist:Array<Dynamic>;
+	public var playlist:Array<AnimationSequence>;
 	/**
 	 * Determines if the last animation sequence should be looped.
 	 */
@@ -31,7 +31,7 @@ class AnimationGroup  {
 	 * @param	playlist		An array of animation sequence objects.
 	 * @param	loopLast		Determines if the last animation sequence should be looped.
 	 */
-	public function new(?playlist:Array<Dynamic>=null, ?loopLast:Bool=false) {
+	public function new(?playlist:Array<AnimationSequence>=null, ?loopLast:Bool=false) {
 		
 		
 		this.playlist = playlist;

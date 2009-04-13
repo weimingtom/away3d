@@ -6,21 +6,21 @@ package away3d.core.light;
  * Array for storing light primitives.
  */
 class LightArray implements ILightConsumer {
-	public var ambients(getAmbients, null) : Array<Dynamic>;
-	public var directionals(getDirectionals, null) : Array<Dynamic>;
-	public var points(getPoints, null) : Array<Dynamic>;
+	public var ambients(getAmbients, null) : Array<AmbientLight>;
+	public var directionals(getDirectionals, null) : Array<DirectionalLight>;
+	public var points(getPoints, null) : Array<PointLight>;
 	public var numLights(getNumLights, null) : Int;
 	
-	private var _ambients:Array<Dynamic>;
-	private var _directionals:Array<Dynamic>;
-	private var _points:Array<Dynamic>;
+	private var _ambients:Array<AmbientLight>;
+	private var _directionals:Array<DirectionalLight>;
+	private var _points:Array<PointLight>;
 	private var _numLights:Int;
 	
 
 	/**
 	 * The ambient light primitives stored in the consumer.
 	 */
-	public function getAmbients():Array<Dynamic> {
+	public function getAmbients():Array<AmbientLight> {
 		
 		return _ambients;
 	}
@@ -28,7 +28,7 @@ class LightArray implements ILightConsumer {
 	/**
 	 * The directional light primitives stored in the consumer.
 	 */
-	public function getDirectionals():Array<Dynamic> {
+	public function getDirectionals():Array<DirectionalLight> {
 		
 		return _directionals;
 	}
@@ -36,7 +36,7 @@ class LightArray implements ILightConsumer {
 	/**
 	 * The point light primitives stored in the consumer.
 	 */
-	public function getPoints():Array<Dynamic> {
+	public function getPoints():Array<PointLight> {
 		
 		return _points;
 	}

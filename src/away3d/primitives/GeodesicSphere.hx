@@ -22,8 +22,8 @@ class GeodesicSphere extends AbstractPrimitive  {
 	private function buildGeodesicSphere(radius_in:Float, fractures_in:Int):Void {
 		// Set up variables for keeping track of the vertices, faces, and texture coords.
 		
-		var aVertice:Array<Dynamic> = [];
-		var aUV:Array<Dynamic> = [];
+		var aVertice:Array<Vertex> = [];
+		var aUV:Array<UV> = [];
 		// Set up variables for keeping track of the number of iterations and the angles
 		var iVerts:Int = fractures_in + 1;
 		var jVerts:Int;

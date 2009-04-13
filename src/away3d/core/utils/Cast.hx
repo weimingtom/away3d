@@ -345,7 +345,7 @@ class Cast  {
 			if (data == "") {
 				return null;
 			}
-			var hash:Array<Dynamic>;
+			var hash:Array<String>;
 			if (untyped (cast(data, String)).indexOf("#") != -1) {
 				hash = (cast(data, String)).split("#");
 				if (hash[1] == "") {
@@ -358,7 +358,7 @@ class Cast  {
 						return new WireColorMaterial(color(hash[0]), {wirecolor:color(hash[1])});
 					}
 				} else {
-					var line:Array<Dynamic> = hash[1].split("|");
+					var line:Array<String> = hash[1].split("|");
 					if (hash[0] == "") {
 						return new WireframeMaterial(color(line[0]), {width:Std.parseFloat(line[1])});
 					} else {
@@ -457,7 +457,7 @@ class Cast  {
 			if (untyped (cast(data, String)).indexOf("|") == -1) {
 				return new WireframeMaterial(color(data));
 			}
-			var line:Array<Dynamic> = (cast(data, String)).split("|");
+			var line:Array<String> = (cast(data, String)).split("|");
 			return new WireframeMaterial(color(line[0]), {width:Std.parseFloat(line[1])});
 		}
 		if (Std.is(data, Dynamic)) {

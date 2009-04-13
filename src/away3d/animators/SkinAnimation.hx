@@ -7,7 +7,7 @@ import away3d.core.utils.Debug;
 
 class SkinAnimation implements IMeshAnimation {
 	
-	private var _channels:Array<Dynamic>;
+	private var _channels:Array<Channel>;
 	/**
 	 * Defines wether the animation will loop
 	 */

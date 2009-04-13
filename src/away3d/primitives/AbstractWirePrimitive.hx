@@ -21,15 +21,15 @@ class AbstractWirePrimitive extends Mesh  {
 	/** @private */
 	public var _v:Vertex;
 	/** @private */
-	public var _vStore:Array<Dynamic>;
+	public var _vStore:Array<Vertex>;
 	/** @private */
-	public var _vActive:Array<Dynamic>;
+	public var _vActive:Array<Vertex>;
 	/** @private */
 	public var _segment:Segment;
 	/** @private */
-	public var _segmentStore:Array<Dynamic>;
+	public var _segmentStore:Array<Segment>;
 	/** @private */
-	public var _segmentActive:Array<Dynamic>;
+	public var _segmentActive:Array<Segment>;
 	/** @private */
 	public var _primitiveDirty:Bool;
 	private var _index:Int;
@@ -74,10 +74,10 @@ class AbstractWirePrimitive extends Mesh  {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties
 	 */
 	public function new(?init:Dynamic=null) {
-		this._vStore = new Array<Dynamic>();
-		this._vActive = new Array<Dynamic>();
-		this._segmentStore = new Array<Dynamic>();
-		this._segmentActive = new Array<Dynamic>();
+		this._vStore = new Array<Vertex>();
+		this._vActive = new Array<Vertex>();
+		this._segmentStore = new Array<Segment>();
+		this._segmentActive = new Array<Segment>();
 		
 		
 		super(init);
@@ -105,10 +105,10 @@ class AbstractWirePrimitive extends Mesh  {
 
 		//clear vertex objects
 		_vStore = _vStore.concat(_vActive);
-		_vActive = new Array<Dynamic>();
+		_vActive = new Array<Vertex>();
 		//clear segment objects
 		_segmentStore = _segmentStore.concat(_segmentActive);
-		_segmentActive = new Array<Dynamic>();
+		_segmentActive = new Array<Segment>();
 	}
 
 }

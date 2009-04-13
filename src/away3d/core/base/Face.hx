@@ -33,7 +33,7 @@ import away3d.events.FaceEvent;
  */
 class Face extends Element {
 	public var normalDirty(null, setNormalDirty) : Bool;
-	public var uvs(getUvs, null) : Array<Dynamic>;
+	public var uvs(getUvs, null) : Array<UV>;
 	public var v0(getV0, setV0) : Vertex;
 	public var v1(getV1, setV1) : Vertex;
 	public var v2(getV2, setV2) : Vertex;
@@ -120,7 +120,7 @@ class Face extends Element {
 	/**
 	 * Returns an array of vertex objects that are used by the face.
 	 */
-	public override function getVertices():Array<Dynamic> {
+	public override function getVertices():Array<Vertex> {
 		
 		return [_v0, _v1, _v2];
 	}
@@ -128,7 +128,7 @@ class Face extends Element {
 	/**
 	 * Returns an array of uv objects that are used by the face.
 	 */
-	public function getUvs():Array<Dynamic> {
+	public function getUvs():Array<UV> {
 		
 		return [_uv0, _uv1, _uv2];
 	}

@@ -1064,8 +1064,8 @@ class Geometry extends HashableEventDispatcher  {
 		if ((skinVertices != null)) {
 			clonedskinvertices = new HashMap<SkinVertex, SkinVertex>();
 			clonedskincontrollers = new HashMap<SkinController, SkinController>();
-			geometry.skinVertices = new Array();
-			geometry.skinControllers = new Array();
+			geometry.skinVertices = new Array<SkinVertex>();
+			geometry.skinControllers = new Array<SkinController>();
 			for (__i in 0...skinVertices.length) {
 				var skinVertex:SkinVertex = skinVertices[__i];
 
@@ -1289,7 +1289,7 @@ class Geometry extends HashableEventDispatcher  {
 	 * @param	smooth		[optional] Boolean. if the animation must interpolate. Default = true.
 	 * @param	loop			[optional] Boolean. if the animation must loop. Default = false.
 	 */
-	public function playFrames(prefixes:Array<Dynamic>, fps:Int, ?smooth:Bool=true, ?loop:Bool=false):Void {
+	public function playFrames(prefixes:Array<String>, fps:Int, ?smooth:Bool=true, ?loop:Bool=false):Void {
 		
 		if ((_animation != null)) {
 			_animation.sequence = [];

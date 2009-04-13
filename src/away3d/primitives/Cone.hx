@@ -21,7 +21,7 @@ class Cone extends AbstractPrimitive  {
 	public var openEnded(getOpenEnded, setOpenEnded) : Bool;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var jMin:Int;
 	private var _radius:Float;
 	private var _height:Float;
@@ -36,12 +36,12 @@ class Cone extends AbstractPrimitive  {
 		var i:Int;
 		var j:Int;
 		height /= 2;
-		grid = new Array<Dynamic>();
+		grid = new Array<Array<Vertex>>();
 		if (!openEnded) {
 			jMin = 1;
 			segmentsH += 1;
 			var bottom:Vertex = yUp ? createVertex(0, -height, 0) : createVertex(0, 0, -height);
-			grid[0] = new Array(segmentsW);
+			grid[0] = new Array<Vertex>();
 			i = 0;
 			while (i < segmentsW) {
 				grid[0][i] = bottom;

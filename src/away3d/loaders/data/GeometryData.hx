@@ -1,6 +1,12 @@
 package away3d.loaders.data;
 
 import away3d.core.base.Geometry;
+import away3d.core.base.Vertex;
+import away3d.core.base.UV;
+import away3d.loaders.data.FaceData;
+import away3d.materials.IMaterial;
+import away3d.animators.skin.SkinVertex;
+import away3d.animators.skin.SkinController;
 
 
 /**
@@ -17,23 +23,23 @@ class GeometryData  {
 	 *
 	 * @see away3d.core.base.Vertex
 	 */
-	public var vertices:Array<Dynamic>;
+	public var vertices:Array<Vertex>;
 	/**
 	 * Array of uv objects.
 	 *
 	 * see@ away3d.core.base.UV
 	 */
-	public var uvs:Array<Dynamic>;
+	public var uvs:Array<UV>;
 	/**
 	 * Array of face data objects.
 	 *
 	 * @see away3d.loaders.data.FaceData
 	 */
-	public var faces:Array<Dynamic>;
+	public var faces:Array<FaceData>;
 	/**
 	 * Optional assigned materials to the geometry.
 	 */
-	public var materials:Array<Dynamic>;
+	public var materials:Array<IMaterial>;
 	/**
 	 * Defines whether both sides of the geometry are visible
 	 */
@@ -43,13 +49,13 @@ class GeometryData  {
 	 * 
 	 * @see away3d.animators.skin.SkinVertex
 	 */
-	public var skinVertices:Array<Dynamic>;
+	public var skinVertices:Array<SkinVertex>;
 	/**
 	 * Array of skin controller objects used in bone animations
 	 * 
 	 * @see away3d.animators.skin.SkinController
 	 */
-	public var skinControllers:Array<Dynamic>;
+	public var skinControllers:Array<SkinController>;
 	/**
 	 * Reference to the geometry object of the resulting geometry.
 	 */
@@ -96,8 +102,8 @@ class GeometryData  {
 		this.uvs = [];
 		this.faces = [];
 		this.materials = [];
-		this.skinVertices = new Array<Dynamic>();
-		this.skinControllers = new Array<Dynamic>();
+		this.skinVertices = new Array<SkinVertex>();
+		this.skinControllers = new Array<SkinController>();
 		
 	}
 

@@ -22,6 +22,7 @@ import away3d.core.draw.DrawPrimitive;
 import flash.display.Shape;
 import flash.display.Graphics;
 import flash.display.BlendMode;
+import flash.filters.BitmapFilter;
 
 
 /**
@@ -86,11 +87,11 @@ class AbstractRenderSession extends HashableEventDispatcher {
 	private var i:Int;
 	public var parent:AbstractRenderSession;
 	public var updated:Bool;
-	public var primitives:Array<Dynamic>;
+	public var primitives:Array<DrawPrimitive>;
 	/**
 	 * Placeholder for filters property of containers
 	 */
-	public var filters:Array<Dynamic>;
+	public var filters:Array<BitmapFilter>;
 	/**
 	 * Placeholder for alpha property of containers
 	 */
@@ -102,13 +103,13 @@ class AbstractRenderSession extends HashableEventDispatcher {
 	/**
 	 * Array of child sessions.
 	 */
-	public var sessions:Array<Dynamic>;
+	public var sessions:Array<AbstractRenderSession>;
 	/**
 	 * Dictionary of sprite layers for rendering composite materials.
 	 * 
 	 * @see away3d.materials.CompositeMaterial#renderTriangle()
 	 */
-	public var spriteLayers:Array<Dynamic>;
+	public var spriteLayers:Array<Sprite>;
 	/**
 	 * Holds the last added layer sprite.
 	 */
@@ -252,7 +253,7 @@ class AbstractRenderSession extends HashableEventDispatcher {
 			}
 		}
 		
-		sessions = new Array<Dynamic>();
+		sessions = new Array<AbstractRenderSession>();
 	}
 
 	/**
@@ -705,7 +706,7 @@ class AbstractRenderSession extends HashableEventDispatcher {
 		this._renderers = new HashMap<View3D, IPrimitiveConsumer>();
 		this.m = new Matrix();
 		this.alpha = 1;
-		this.spriteLayers = new Array();
+		this.spriteLayers = new Array<Sprite>();
 		this.children = new Array<DisplayObject>();
 		
 	}

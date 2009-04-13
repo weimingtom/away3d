@@ -30,12 +30,12 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 	private var _convexBlock:ConvexBlock;
 	private var _camera:Camera3D;
 	private var _lens:ILens;
-	private var _vertices:Array<Dynamic>;
+	private var _vertices:Array<Vertex>;
 	private var _displayObject:DisplayObject;
 	private var _segmentMaterial:ISegmentMaterial;
 	private var _vertex:Vertex;
 	private var _screenVertex:ScreenVertex;
-	private var _points:Array<Dynamic>;
+	private var _points:Array<ScreenVertex>;
 	private var _base:ScreenVertex;
 	private var _s:String;
 	private var _p:String;

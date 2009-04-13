@@ -18,7 +18,7 @@ import away3d.core.base.Element;
  */
 class Mirror  {
 	
-	private static var Axes:Array<Dynamic> = ["x-", "x+", "x", "y-", "y+", "y", "z-", "z+", "z"];
+	private static var Axes:Array<String> = ["x-", "x+", "x", "y-", "y+", "y", "z-", "z+", "z"];
 	
 
 	private static function validate(axe:String):Bool {
@@ -39,7 +39,7 @@ class Mirror  {
 	private static function build(object3d:Object3D, axe:String, recenter:Bool, ?duplicate:Bool=true):Void {
 		
 		var obj:Mesh = (cast(object3d, Mesh));
-		var aFaces:Array<Dynamic> = obj.faces;
+		var aFaces:Array<Face> = obj.faces;
 		var face:Face;
 		var i:Int;
 		var uva:UV;

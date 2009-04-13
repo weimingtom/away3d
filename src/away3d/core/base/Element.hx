@@ -35,7 +35,7 @@ import away3d.events.ElementEvent;
  * Not intended for direct use - use <code>Segment</code> or <code>Face</code>.
  */
 class Element extends HashableEventDispatcher  {
-	public var vertices(getVertices, null) : Array<Dynamic>;
+	public var vertices(getVertices, null) : Array<Vertex>;
 	public var visible(getVisible, setVisible) : Bool;
 	public var radius2(getRadius2, null) : Float;
 	public var maxX(getMaxX, null) : Float;
@@ -99,7 +99,7 @@ class Element extends HashableEventDispatcher  {
 	/**
 	 * Returns an array of vertex objects that make up the 3d element.
 	 */
-	public function getVertices():Array<Dynamic> {
+	public function getVertices():Array<Vertex> {
 		
 		throw new Error("Not implemented");
 		

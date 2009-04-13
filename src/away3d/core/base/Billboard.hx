@@ -66,7 +66,7 @@ class Billboard extends Element  {
 	/**
 	 * Returns an array of vertex objects that are used by the segment.
 	 */
-	public override function getVertices():Array<Dynamic> {
+	public override function getVertices():Array<Vertex> {
 		
 		return [_vertex];
 	}

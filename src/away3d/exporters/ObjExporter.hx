@@ -59,7 +59,7 @@ class ObjExporter  {
 		var nPos:Number3D = object3d.scenePosition;
 		var tmp:Number3D = new Number3D();
 		var j:Int;
-		var aRef:Array<Dynamic> = [vc, vb, va];
+		var aRef:Array<Int> = [vc, vb, va];
 		var i:Int = 0;
 		while (i < aFaces.length) {
 			face = aFaces[i];

@@ -3,7 +3,8 @@ package away3d.animators.skin;
 import away3d.containers.ObjectContainer3D;
 import flash.events.EventDispatcher;
 import away3d.core.base.Object3D;
-
+import away3d.core.math.Matrix3D;
+import away3d.core.math.Number2D;
 
 class Channel  {
 	
@@ -13,12 +14,12 @@ class Channel  {
 	private var _oldlength:Int;
 	public var name:String;
 	public var target:Object3D;
-	public var type:Array<Dynamic>;
-	public var param:Array<Dynamic>;
-	public var inTangent:Array<Dynamic>;
-	public var outTangent:Array<Dynamic>;
-	public var times:Array<Dynamic>;
-	public var interpolations:Array<Dynamic>;
+	public var type:Array<String>;
+	public var param:Array<Array<Dynamic>>;
+	public var inTangent:Array<Array<Number2D>>;
+	public var outTangent:Array<Array<Number2D>>;
+	public var times:Array<Float>;
+	public var interpolations:Array<String>;
 	
 
 	public function new(name:String):Void {

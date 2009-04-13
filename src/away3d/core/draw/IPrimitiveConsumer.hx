@@ -10,7 +10,7 @@ interface IPrimitiveConsumer  {
 	
 	function primitive(pri:DrawPrimitive):Bool;
 
-	function list():Array<Dynamic>;
+	function list():Array<DrawPrimitive>;
 
 	function clear(view:View3D):Void;
 

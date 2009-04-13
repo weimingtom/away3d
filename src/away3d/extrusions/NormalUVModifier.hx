@@ -51,7 +51,7 @@ class NormalUVModifier  {
 
 	private function setVertices():Void {
 		
-		var basevertices:Array<Dynamic> = [];
+		var basevertices:Array<Vertex> = [];
 		_geom = [];
 		var j:Int;
 		var i:Int = 0;

@@ -13,8 +13,8 @@ import away3d.core.base.Vertex;
  */
 class SeaTurtle extends Mesh  {
 	
-	private var varr:Array<Dynamic>;
-	private var uvarr:Array<Dynamic>;
+	private var varr:Array<Vertex>;
+	private var uvarr:Array<UV>;
 	
 
 	private function v(x:Float, y:Float, z:Float):Void {

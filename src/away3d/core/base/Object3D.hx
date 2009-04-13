@@ -8,6 +8,7 @@ import away3d.containers.ObjectContainer3D;
 import away3d.primitives.WireSphere;
 import away3d.loaders.utils.MaterialLibrary;
 import flash.events.Event;
+import flash.filters.BitmapFilter;
 import away3d.loaders.utils.GeometryLibrary;
 import away3d.core.render.SpriteRenderSession;
 import away3d.core.light.ILightConsumer;
@@ -162,7 +163,7 @@ class Object3D extends HashableEventDispatcher, implements IClonable {
 	public var visible(getVisible, setVisible) : Bool;
 	public var ownCanvas(getOwnCanvas, setOwnCanvas) : Bool;
 	public var renderer(getRenderer, setRenderer) : IPrimitiveConsumer;
-	public var filters(getFilters, setFilters) : Array<Dynamic>;
+	public var filters(getFilters, setFilters) : Array<BitmapFilter>;
 	public var alpha(getAlpha, setAlpha) : Float;
 	public var blendMode(getBlendMode, setBlendMode) : BlendMode;
 	public var ownSession(getOwnSession, setOwnSession) : AbstractRenderSession;
@@ -258,7 +259,7 @@ class Object3D extends HashableEventDispatcher, implements IClonable {
 	public var _session:AbstractRenderSession;
 	private var _ownSession:AbstractRenderSession;
 	private var _ownCanvas:Bool;
-	private var _filters:Array<Dynamic>;
+	private var _filters:Array<BitmapFilter>;
 	private var _alpha:Float;
 	private var _blendMode:BlendMode;
 	private var _renderer:IPrimitiveConsumer;
@@ -857,12 +858,12 @@ class Object3D extends HashableEventDispatcher, implements IClonable {
 	 * 
 	 * @see #ownCanvas
 	 */
-	public function getFilters():Array<Dynamic> {
+	public function getFilters():Array<BitmapFilter> {
 		
 		return _filters;
 	}
 
-	public function setFilters(val:Array<Dynamic>):Array<Dynamic> {
+	public function setFilters(val:Array<BitmapFilter>):Array<BitmapFilter> {
 		
 		if (_filters == val) {
 			return val;
@@ -1459,7 +1460,7 @@ class Object3D extends HashableEventDispatcher, implements IClonable {
 		if (ini.hasField("renderer")) {
 			renderer = cast(ini.getObject("renderer", IPrimitiveConsumer), IPrimitiveConsumer);
 		}
-		filters = ini.getArray("filters");
+		filters = untyped ini.getArray("filters");
 		alpha = ini.getNumber("alpha", 1);
 		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
 		blendMode = BlendModeUtils.toHaxe(blendModeString);

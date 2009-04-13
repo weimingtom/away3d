@@ -74,7 +74,7 @@ class MaterialData  {
 	/**
 	 * Array of indexes representing the elements that use the material.
 	 */
-	public var elements:Array<Dynamic>;
+	public var elements:Array<Element>;
 	
 
 	/**

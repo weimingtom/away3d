@@ -11,7 +11,7 @@ import away3d.core.draw.DrawPrimitive;
  */
 class ZDepthFilter implements IPrimitiveFilter {
 	
-	private var _primitives:Array<Dynamic>;
+	private var _primitives:Array<DrawPrimitive>;
 	private var pri:DrawPrimitive;
 	private var _maxZ:Float;
 	
@@ -25,7 +25,7 @@ class ZDepthFilter implements IPrimitiveFilter {
 	/**
 	 * @inheritDoc
 	 */
-	public function filter(primitives:Array<Dynamic>, scene:Scene3D, camera:Camera3D, clip:Clipping):Array<Dynamic> {
+	public function filter(primitives:Array<DrawPrimitive>, scene:Scene3D, camera:Camera3D, clip:Clipping):Array<DrawPrimitive> {
 		
 		_primitives = [];
 		for (__i in 0...primitives.length) {

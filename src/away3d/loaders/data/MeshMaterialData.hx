@@ -14,7 +14,7 @@ class MeshMaterialData  {
 	/**
 	 * A list of faces which are to be drawn with the material.
 	 */
-	public var faceList:Array<Dynamic>;
+	public var faceList:Array<Int>;
 	
 
 	

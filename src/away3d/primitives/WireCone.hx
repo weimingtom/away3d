@@ -17,7 +17,7 @@ class WireCone extends AbstractWirePrimitive  {
 	public var segmentsH(getSegmentsH, setSegmentsH) : Float;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var _radius:Float;
 	private var _height:Float;
 	private var _segmentsW:Int;
@@ -31,9 +31,9 @@ class WireCone extends AbstractWirePrimitive  {
 		var j:Int;
 		height /= 2;
 		segmentsH += 1;
-		grid = new Array(segmentsH + 1);
+		grid = new Array<Array<Vertex>>();
 		var bottom:Vertex = yUp ? createVertex(0, -height, 0) : createVertex(0, 0, -height);
-		grid[0] = new Array(segmentsW);
+		grid[0] = new Array<Vertex>();
 		i = 0;
 		while (i < segmentsW) {
 			grid[0][i] = bottom;
@@ -45,7 +45,7 @@ class WireCone extends AbstractWirePrimitive  {
 		j = 1;
 		while (j < segmentsH) {
 			var z:Float = -height + 2 * height * (j - 1) / (segmentsH - 1);
-			grid[j] = new Array(segmentsW);
+			grid[j] = new Array<Vertex>();
 			i = 0;
 			while (i < segmentsW) {
 				var verangle:Float = 2 * i / segmentsW * Math.PI;
@@ -68,7 +68,7 @@ class WireCone extends AbstractWirePrimitive  {
 		}
 
 		var top:Vertex = yUp ? createVertex(0, height, 0) : createVertex(0, 0, height);
-		grid[segmentsH] = new Array(segmentsW);
+		grid[segmentsH] = new Array<Vertex>();
 		i = 0;
 		while (i < segmentsW) {
 			grid[segmentsH][i] = top;

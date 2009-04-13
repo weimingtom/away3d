@@ -153,7 +153,7 @@ class DrawTriangle extends DrawPrimitive  {
 	}
 
 	/** @private */
-	public function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array<Dynamic> {
+	public function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array<DrawPrimitive> {
 		
 		if (v0.distanceSqr(v12) < v01.distanceSqr(v2)) {
 			return [create(source, faceVO, material, v0, v01, v12, uv0, uv01, uv12, true), create(source, faceVO, material, v01, v1, v12, uv01, uv1, uv12, true), create(source, faceVO, material, v0, v12, v2, uv0, uv12, uv2, true)];
@@ -166,7 +166,7 @@ class DrawTriangle extends DrawPrimitive  {
 	}
 
 	/** @private */
-	public function bisect(focus:Float):Array<Dynamic> {
+	public function bisect(focus:Float):Array<DrawPrimitive> {
 		
 		d01 = v0.distanceSqr(v1);
 		d12 = v1.distanceSqr(v2);
@@ -184,7 +184,7 @@ class DrawTriangle extends DrawPrimitive  {
 	}
 
 	/** @private */
-	public function distortbisect(focus:Float):Array<Dynamic> {
+	public function distortbisect(focus:Float):Array<DrawPrimitive> {
 		
 		d01 = v0.distortSqr(v1, focus);
 		d12 = v1.distortSqr(v2, focus);
@@ -206,21 +206,21 @@ class DrawTriangle extends DrawPrimitive  {
 		return Std.int(n * 1000) / 1000;
 	}
 
-	private function bisect01(focus:Float):Array<Dynamic> {
+	private function bisect01(focus:Float):Array<DrawPrimitive> {
 		
 		var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 		var uv01:UV = UV.median(uv0, uv1);
 		return [create(source, faceVO, material, v2, v0, v01, uv2, uv0, uv01, true), create(source, faceVO, material, v01, v1, v2, uv01, uv1, uv2, true)];
 	}
 
-	private function bisect12(focus:Float):Array<Dynamic> {
+	private function bisect12(focus:Float):Array<DrawPrimitive> {
 		
 		var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus);
 		var uv12:UV = UV.median(uv1, uv2);
 		return [create(source, faceVO, material, v0, v1, v12, uv0, uv1, uv12, true), create(source, faceVO, material, v12, v2, v0, uv12, uv2, uv0, true)];
 	}
 
-	private function bisect20(focus:Float):Array<Dynamic> {
+	private function bisect20(focus:Float):Array<DrawPrimitive> {
 		
 		var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus);
 		var uv20:UV = UV.median(uv2, uv0);
@@ -412,7 +412,7 @@ class DrawTriangle extends DrawPrimitive  {
 	/**
 	 * @inheritDoc
 	 */
-	public override function quarter(focus:Float):Array<Dynamic> {
+	public override function quarter(focus:Float):Array<DrawPrimitive> {
 		
 		if (area > -20 && area < 20) {
 			return null;

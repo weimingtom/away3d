@@ -7,7 +7,7 @@ import flash.display.Graphics;
 
 class Logo extends Shape  {
 	
-	private var arr:Array<Dynamic>;
+	private var arr:Array<Array<Int>>;
 	
 
 	public function new() {

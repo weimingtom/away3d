@@ -26,7 +26,7 @@ class PathAnimator extends HashableEventDispatcher  {
 	public var offsetZ(getOffsetZ, setOffsetZ) : Float;
 	public var object3d(getObject3d, setObject3d) : Dynamic;
 	public var targetobject(getTargetobject, setTargetobject) : Dynamic;
-	public var rotations(getRotations, setRotations) : Array<Dynamic>;
+	public var rotations(getRotations, setRotations) : Array<Number3D>;
 	public var easein(getEasein, setEasein) : Bool;
 	public var easeout(getEaseout, setEaseout) : Bool;
 	public var aligntopath(getAligntopath, setAligntopath) : Bool;
@@ -40,8 +40,8 @@ class PathAnimator extends HashableEventDispatcher  {
 	private var _index:Float;
 	private var _indextime:Float;
 	private var _duration:Float;
-	private var _aTime:Array<Dynamic>;
-	private var _rotations:Array<Dynamic>;
+	private var _aTime:Array<Float>;
+	private var _rotations:Array<Number3D>;
 	private var _lookAt:Bool;
 	private var _alignToPath:Bool;
 	private var _object3d:Dynamic;
@@ -414,7 +414,7 @@ class PathAnimator extends HashableEventDispatcher  {
 	/**
 	 * sets an optional array of rotations, probably same as the PathExtrude or PathDuplicator rotation array in order to follow the twisted shape.
 	 */
-	public function setRotations(rot:Array<Dynamic>):Array<Dynamic> {
+	public function setRotations(rot:Array<Number3D>):Array<Number3D> {
 		
 		_rotations = (rot != null && rot.length > 0) ? rot : null;
 		if (_rotations != null && _nRot == null) {
@@ -423,7 +423,7 @@ class PathAnimator extends HashableEventDispatcher  {
 		return rot;
 	}
 
-	public function getRotations():Array<Dynamic> {
+	public function getRotations():Array<Number3D> {
 		
 		return _rotations;
 	}

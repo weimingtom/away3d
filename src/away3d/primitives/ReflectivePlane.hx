@@ -76,8 +76,8 @@ class ReflectivePlane extends Plane  {
 	//---------------------------------------------------------------------------------------------------------
 	// private fields
 	//---------------------------------------------------------------------------------------------------------
-	private var _opticalModes:Array<Dynamic>;
-	private var _renderModes:Array<Dynamic>;
+	private var _opticalModes:Array<String>;
+	private var _renderModes:Array<String>;
 	private var _zeroPoint:Point;
 	private var _viewRect:Rectangle;
 	private var _effectsBounds:Rectangle;
@@ -98,7 +98,7 @@ class ReflectivePlane extends Plane  {
 	private var _identityColorTransform:ColorTransform;
 	private var _reflectionBlur:BlurFilter;
 	private var _refractionBlur:BlurFilter;
-	private var _hideList:Array<Dynamic>;
+	private var _hideList:Array<Object3D>;
 	private var _opticalMode:String;
 	private var _cameraOnFrontSide:Bool;
 	private var _materialBoundTolerance:Float;

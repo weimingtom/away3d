@@ -109,7 +109,7 @@ class Mesh extends Object3D  {
 	/**
 	 * Placeholder for md2 frame indexes
 	 */
-	public var indexes:Array<Dynamic>;
+	public var indexes:Array<Int>;
 	
 
 	private function onMaterialUpdate(event:MaterialEvent):Void {

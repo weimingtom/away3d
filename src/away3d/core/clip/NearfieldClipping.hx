@@ -97,7 +97,7 @@ class NearfieldClipping extends Clipping  {
 		return true;
 	}
 
-	public override function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<Dynamic>):Void {
+	public override function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<FaceVO>):Void {
 		
 		_session = source.session;
 		_frustum = _cameraVarsStore.frustumDictionary.get(source);

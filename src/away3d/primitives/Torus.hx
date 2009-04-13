@@ -20,7 +20,7 @@ class Torus extends AbstractPrimitive  {
 	public var segmentsT(getSegmentsT, setSegmentsT) : Float;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var _radius:Float;
 	private var _tube:Float;
 	private var _segmentsR:Int;
@@ -32,10 +32,10 @@ class Torus extends AbstractPrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array<Dynamic>();
+		grid = new Array<Array<Vertex>>();
 		i = 0;
 		while (i < segmentsR) {
-			grid[i] = new Array<Dynamic>();
+			grid[i] = new Array<Vertex>();
 			j = 0;
 			while (j < segmentsT) {
 				var u:Float = i / segmentsR * 2 * Math.PI;

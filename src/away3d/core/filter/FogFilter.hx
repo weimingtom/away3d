@@ -22,14 +22,14 @@ class FogFilter implements IPrimitiveFilter {
 	public var material(getMaterial, setMaterial) : IFogMaterial;
 	
 	private var i:Int;
-	private var _primitives:Array<Dynamic>;
+	private var _primitives:Array<DrawPrimitive>;
 	private var pri:DrawPrimitive;
 	private var _material:IFogMaterial;
 	private var _minZ:Float;
 	private var _maxZ:Int;
 	private var _subdivisions:Int;
-	private var _materials:Array<Dynamic>;
-	private var _fogPrimitives:Array<Dynamic>;
+	private var _materials:Array<IFogMaterial>;
+	private var _fogPrimitives:Array<DrawFog>;
 	private var fog:DrawFog;
 	/**
 	 * Instance of the Init object used to hold and parse default property values
@@ -80,7 +80,7 @@ class FogFilter implements IPrimitiveFilter {
 		_minZ = ini.getNumber("minZ", 1000, {min:0});
 		_maxZ = Std.int(ini.getNumber("maxZ", 5000, {min:0}));
 		_subdivisions = ini.getInt("subdivisions", 20, {min:1, max:50});
-		_materials = ini.getArray("materials");
+		_materials = untyped ini.getArray("materials");
 		if (!(Std.is(_material, IFogMaterial))) {
 			throw new Error("FogFilter requires IFogMaterial");
 		}
@@ -111,7 +111,7 @@ class FogFilter implements IPrimitiveFilter {
 	/**
 	 * @inheritDoc
 	 */
-	public function filter(primitives:Array<Dynamic>, scene:Scene3D, camera:Camera3D, clip:Clipping):Array<Dynamic> {
+	public function filter(primitives:Array<DrawPrimitive>, scene:Scene3D, camera:Camera3D, clip:Clipping):Array<DrawPrimitive> {
 		
 		if (primitives.length == 0 || !primitives[0].source || primitives[0].source.session != scene.session) {
 			return primitives;

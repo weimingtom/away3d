@@ -53,7 +53,7 @@ class CompositeMaterial extends HashableEventDispatcher, implements ITriangleMat
 	/**
 	 * An array of bitmapmaterial objects to be overlayed sequentially.
 	 */
-	private var materials:Array<Dynamic>;
+	private var materials:Array<ILayerMaterial>;
 	/**
 	 * Instance of the Init object used to hold and parse default property values
 	 * specified by the initialiser object in the 3d object constructor.
@@ -157,7 +157,7 @@ class CompositeMaterial extends HashableEventDispatcher, implements ITriangleMat
 		
 		
 		ini = Init.parse(init);
-		materials = ini.getArray("materials");
+		materials = untyped ini.getArray("materials");
 		blendMode = BlendModeUtils.toHaxe(ini.getString("blendMode", BlendModeUtils.NORMAL));
 		alpha = ini.getNumber("alpha", 1, {min:0, max:1});
 		color = ini.getColor("color", 0xFFFFFF);

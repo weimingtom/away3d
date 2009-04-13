@@ -115,7 +115,7 @@ class Scene3D extends ObjectContainer3D  {
 		
 		
 		var init:Dynamic = null;
-		var childarray:Array<Dynamic> = [];
+		var childarray:Array<Object3D> = [];
 		for (__i in 0...initarray.length) {
 			var object:Dynamic = initarray[__i];
 

@@ -145,7 +145,7 @@ class SimpleShadow  {
 		var n0:Number3D = new Number3D();
 		var n1:Number3D = new Number3D();
 		var n2:Number3D = new Number3D();
-		var trifaces:Array<Dynamic> = [];
+		var trifaces:Array<Number3D> = [];
 		var j:Int;
 		var i:Int;
 		while (i < myObj.faces.length) {
