@@ -1,7 +1,7 @@
 package nochump.util.zip;
 
 import away3d.haxeutils.Error;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.utils.Endian;
 import flash.utils.ByteArray;
 

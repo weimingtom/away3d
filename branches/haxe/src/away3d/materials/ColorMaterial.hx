@@ -1,6 +1,6 @@
 package away3d.materials;
 
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.core.draw.DrawFog;
 import away3d.containers.View3D;
 import flash.events.Event;
@@ -18,7 +18,7 @@ import away3d.core.draw.DrawPrimitive;
 /**
  * Material for solid color drawing
  */
-class ColorMaterial extends EventDispatcher, implements ITriangleMaterial, implements IFogMaterial, implements IBillboardMaterial {
+class ColorMaterial extends HashableEventDispatcher, implements ITriangleMaterial, implements IFogMaterial, implements IBillboardMaterial {
 	public var color(getColor, setColor) : Int;
 	public var alpha(getAlpha, setAlpha) : Float;
 	public var visible(getVisible, null) : Bool;

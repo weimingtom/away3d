@@ -82,13 +82,15 @@ class RectangleClipping extends Clipping  {
 
 	public override function clone(?object:Clipping=null):Clipping {
 		
-		if (object == null) {
-			return super.clone();
-		}
-		var clipping:RectangleClipping = (cast(object, RectangleClipping));
-		if (clipping == null)  {
+		var clipping:RectangleClipping;
+		if (object != null) {
+			clipping = (cast(object, RectangleClipping));
+			if (clipping == null)  {
+				clipping = new RectangleClipping();
+			};
+		} else {
 			clipping = new RectangleClipping();
-		};
+		}
 		super.clone(clipping);
 		return clipping;
 	}

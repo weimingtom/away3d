@@ -1,6 +1,6 @@
 package away3d.materials;
 
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.containers.View3D;
 import away3d.events.MaterialEvent;
 import away3d.core.draw.DrawSegment;
@@ -14,7 +14,7 @@ import away3d.core.draw.DrawPrimitive;
 /**
  * Wire material for face border outlining only
  */
-class WireframeMaterial extends EventDispatcher, implements ITriangleMaterial, implements ISegmentMaterial {
+class WireframeMaterial extends HashableEventDispatcher, implements ITriangleMaterial, implements ISegmentMaterial {
 	public var visible(getVisible, null) : Bool;
 	
 	/**

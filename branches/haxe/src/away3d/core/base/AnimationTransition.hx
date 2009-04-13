@@ -16,7 +16,7 @@ class AnimationTransition  {
 	private var _transitionvalue:Float;
 	private var _geom:Geometry;
 	private var _interpolate:Float;
-	private var _refFrame:Array<Dynamic>;
+	private var _refFrame:Array<Vertex>;
 	
 
 	public function new(geo:Geometry) {
@@ -43,7 +43,6 @@ class AnimationTransition  {
 	}
 
 	private function updateRef():Void {
-		
 		var i:Int = 0;
 		while (i < _refFrame.length) {
 			_refFrame[i].x = _geom.vertices[i].x;

@@ -2,7 +2,7 @@ package away3d.core.base;
 
 import away3d.haxeutils.Error;
 import away3d.haxeutils.BlendModeUtils;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.containers.Scene3D;
 import away3d.containers.ObjectContainer3D;
 import away3d.primitives.WireSphere;
@@ -29,7 +29,6 @@ import away3d.primitives.WireCube;
 import away3d.events.MouseEvent3D;
 import away3d.events.SessionEvent;
 import away3d.core.traverse.Traverser;
-
 
 /**
  * Dispatched when the local transform matrix of the 3d object changes.
@@ -138,7 +137,7 @@ import away3d.core.traverse.Traverser;
 /**
  * Base class for all 3d objects.
  */
-class Object3D extends EventDispatcher, implements IClonable {
+class Object3D extends HashableEventDispatcher, implements IClonable {
 	public var lookingAtTarget(getLookingAtTarget, null) : Number3D;
 	public var parentmaxX(getParentmaxX, null) : Float;
 	public var parentminX(getParentminX, null) : Float;
@@ -339,7 +338,6 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public var debugbs:Bool;
 	public var center:Vertex;
 	public var projectorType:String;
-	
 
 	/** @private */
 	public function getLookingAtTarget():Number3D {
@@ -461,7 +459,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function notifySessionUpdate():Void {
 		
 		if ((_scene != null)) {
-			_scene.updatedSessions[untyped _session] = _session;
+			_scene.updatedSessions.push(_session);
 		}
 		if (!hasEventListener(Object3DEvent.SESSION_UPDATED)) {
 			return;
@@ -499,7 +497,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	private function onSessionUpdate(event:SessionEvent):Void {
 		
 		if (Std.is(event.target, BitmapRenderSession)) {
-			_scene.updatedSessions[untyped event.target] = event.target;
+			_scene.updatedSessions.push(cast(event.target, AbstractRenderSession));
 		}
 	}
 
@@ -1448,16 +1446,19 @@ class Object3D extends EventDispatcher, implements IClonable {
 		this.useHandCursor = false;
 		this.center = new Vertex();
 		
-		
 		ini = Init.parse(init);
 		name = ini.getString("name", name);
-		ownSession = ini.getObject("ownSession", AbstractRenderSession);
+		if (ini.hasField("ownSession")) {
+			ownSession = cast(ini.getObject("ownSession", AbstractRenderSession), AbstractRenderSession);
+		}
 		ownCanvas = ini.getBoolean("ownCanvas", ownCanvas);
 		ownLights = ini.getBoolean("ownLights", false);
 		visible = ini.getBoolean("visible", true);
 		mouseEnabled = ini.getBoolean("mouseEnabled", mouseEnabled);
 		useHandCursor = ini.getBoolean("useHandCursor", useHandCursor);
-		renderer = ini.getObject("renderer", IPrimitiveConsumer);
+		if (ini.hasField("renderer")) {
+			renderer = cast(ini.getObject("renderer", IPrimitiveConsumer), IPrimitiveConsumer);
+		}
 		filters = ini.getArray("filters");
 		alpha = ini.getNumber("alpha", 1);
 		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
@@ -1472,17 +1473,17 @@ class Object3D extends EventDispatcher, implements IClonable {
 		rotationX = ini.getNumber("rotationX", 0);
 		rotationY = ini.getNumber("rotationY", 0);
 		rotationZ = ini.getNumber("rotationZ", 0);
-		var tmpPivot:Number3D = ini.getNumber3D("pivotPoint");
-		if (tmpPivot == null)  {
-			pivotPoint = new Number3D();
-		} else {
-			pivotPoint = tmpPivot;
+		if (ini.hasField("pivotPoint")) {
+			pivotPoint = ini.getNumber3D("pivotPoint");
 		}
+		if (pivotPoint == null)  {
+			pivotPoint = new Number3D();
+		};
 		extra = ini.getObject("extra");
 		if (Std.is(this, Scene3D)) {
 			_scene = cast(this, Scene3D);
 		} else {
-			if (ini.getObject3D("parent") != null) {
+			if (ini.hasField("parent")) {
 				parent = cast(ini.getObject3D("parent"), ObjectContainer3D);
 			}
 		}
@@ -1498,7 +1499,7 @@ class Object3D extends EventDispatcher, implements IClonable {
 	public function updateObject():Void {
 		
 		if (_objectDirty) {
-			_scene.updatedObjects[untyped this] = this;
+			_scene.updatedObjects.push(this);
 			_objectDirty = false;
 			_sessionDirty = true;
 		}

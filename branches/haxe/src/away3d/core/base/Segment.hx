@@ -79,7 +79,6 @@ class Segment extends Element  {
 	}
 
 	public function setV0(value:Vertex):Vertex {
-		
 		if (value == _v0) {
 			return value;
 		}
@@ -275,8 +274,8 @@ class Segment extends Element  {
 		super();
 		
 		
-		this.v0 = v0;
-		this.v1 = v1;
+		_v0 = v0;
+		_v1 = v1;
 		this.material = material;
 		vertexDirty = true;
 	}

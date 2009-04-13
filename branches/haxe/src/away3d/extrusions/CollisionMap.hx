@@ -1,11 +1,11 @@
 package away3d.extrusions;
 
 import flash.display.BitmapData;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.events.Event;
 
 
-class CollisionMap extends EventDispatcher  {
+class CollisionMap extends HashableEventDispatcher  {
 	public var offsetX(getOffsetX, setOffsetX) : Float;
 	public var offsetY(getOffsetY, setOffsetY) : Float;
 	public var factorX(getFactorX, setFactorX) : Float;

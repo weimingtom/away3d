@@ -7,7 +7,7 @@ import flash.display.BitmapData;
 import away3d.materials.ITriangleMaterial;
 import away3d.materials.ISegmentMaterial;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.draw.DrawScaledBitmap;
 import away3d.core.draw.DrawBillboard;
 import away3d.core.draw.DrawSegment;
@@ -27,10 +27,9 @@ import away3d.core.block.Blocker;
 
 class DrawPrimitiveStore  {
 	
-	private var _sourceDictionary:Dictionary;
-	private var _vertexDictionary:Dictionary;
-	private var _object:Dynamic;
-	private var _vertex:Dynamic;
+	private var _sourceDictionary:HashMap<Object3D, HashMap<Vertex, ScreenVertex>>;
+	private var _vertexDictionary:HashMap<Vertex, ScreenVertex>;
+	private var _vertex:Vertex;
 	private var _source:Object3D;
 	private var _session:AbstractRenderSession;
 	private var _sv:ScreenVertex;
@@ -40,140 +39,116 @@ class DrawPrimitiveStore  {
 	private var _cblocker:ConvexBlocker;
 	private var _sbitmap:DrawScaledBitmap;
 	private var _dobject:DrawDisplayObject;
-	private var _svStore:Array<Dynamic>;
-	private var _dtDictionary:Dictionary;
-	private var _dtArray:Array<Dynamic>;
-	private var _dtStore:Array<Dynamic>;
-	private var _dsDictionary:Dictionary;
-	private var _dsArray:Array<Dynamic>;
-	private var _dsStore:Array<Dynamic>;
-	private var _dbDictionary:Dictionary;
-	private var _dbArray:Array<Dynamic>;
-	private var _dbStore:Array<Dynamic>;
-	private var _cbDictionary:Dictionary;
-	private var _cbArray:Array<Dynamic>;
-	private var _cbStore:Array<Dynamic>;
-	private var _sbDictionary:Dictionary;
-	private var _sbArray:Array<Dynamic>;
-	private var _sbStore:Array<Dynamic>;
-	private var _doDictionary:Dictionary;
-	private var _doArray:Array<Dynamic>;
-	private var _doStore:Array<Dynamic>;
+	private var _svStore:Array<ScreenVertex>;
+	private var _dtDictionary:HashMap<AbstractRenderSession, Array<DrawTriangle>>;
+	private var _dtArray:Array<DrawTriangle>;
+	private var _dtStore:Array<DrawTriangle>;
+	private var _dsDictionary:HashMap<AbstractRenderSession, Array<DrawSegment>>;
+	private var _dsArray:Array<DrawSegment>;
+	private var _dsStore:Array<DrawSegment>;
+	private var _dbDictionary:HashMap<AbstractRenderSession, Array<DrawBillboard>>;
+	private var _dbArray:Array<DrawBillboard>;
+	private var _dbStore:Array<DrawBillboard>;
+	private var _cbDictionary:HashMap<AbstractRenderSession, Array<ConvexBlocker>>;
+	private var _cbArray:Array<ConvexBlocker>;
+	private var _cbStore:Array<ConvexBlocker>;
+	private var _sbDictionary:HashMap<AbstractRenderSession, Array<DrawScaledBitmap>>;
+	private var _sbArray:Array<DrawScaledBitmap>;
+	private var _sbStore:Array<DrawScaledBitmap>;
+	private var _doDictionary:HashMap<AbstractRenderSession, Array<DrawDisplayObject>>;
+	private var _doArray:Array<DrawDisplayObject>;
+	private var _doStore:Array<DrawDisplayObject>;
 	public var view:View3D;
-	public var blockerDictionary:Dictionary;
+	public var blockerDictionary:HashMap<Object3D, ConvexBlocker>;
 	
 
 	public function reset():Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_sourceDictionary)).iterator();
-		for (_object in __keys) {
-			_source = cast(_object, Object3D);
+		for (_source in _sourceDictionary.keys()) {
 			if (_source.session != null && _source.session.updated) {
-				var __keys:Iterator<Dynamic> = untyped (__keys__(_sourceDictionary[untyped _source])).iterator();
-				for (_vertex in __keys) {
-					_sv = _sourceDictionary[untyped _source][untyped _vertex];
+				for (_vertex in _sourceDictionary.get(_source).keys()) {
+					_sv = _sourceDictionary.get(_source).get(_vertex);
 					_svStore.push(_sv);
-					_sourceDictionary[untyped _source][untyped _vertex] = null;
-					
+					_sourceDictionary.get(_source).remove(_vertex);
 				}
+			}
+		}
 
+		for (_session in _dtDictionary.keys()) {
+			if (_session.updated) {
+				_dtStore = _dtStore.concat(_dtDictionary.get(_session));
+				_dtDictionary.remove(_session);
 			}
 			
 		}
 
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_dtDictionary)).iterator();
-		for (_object in __keys) {
-			_session = cast(_object, AbstractRenderSession);
+		for (_session in _dsDictionary.keys()) {
 			if (_session.updated) {
-				_dtStore = _dtStore.concat(cast(_dtDictionary[untyped _session], Array<Dynamic>));
-				_dtDictionary[untyped _session] = null;
+				_dsStore = _dsStore.concat(_dsDictionary.get(_session));
+				_dsDictionary.remove(_session);
 			}
 			
 		}
 
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_dsDictionary)).iterator();
-		for (_object in __keys) {
-			_session = cast(_object, AbstractRenderSession);
+		for (_session in _dbDictionary.keys()) {
 			if (_session.updated) {
-				_dsStore = _dsStore.concat(cast(_dsDictionary[untyped _session], Array<Dynamic>));
-				_dsDictionary[untyped _session] = null;
+				_dbStore = _dbStore.concat(_dbDictionary.get(_session));
+				_dbDictionary.remove(_session);
 			}
 			
 		}
 
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_dbDictionary)).iterator();
-		for (_object in __keys) {
-			_session = cast(_object, AbstractRenderSession);
+		for (_session in _cbDictionary.keys()) {
 			if (_session.updated) {
-				_dbStore = _dbStore.concat(cast(_dbDictionary[untyped _session], Array<Dynamic>));
-				_dbDictionary[untyped _session] = null;
+				_cbStore = _cbStore.concat(_cbDictionary.get(_session));
+				_cbDictionary.remove(_session);
 			}
 			
 		}
 
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_cbDictionary)).iterator();
-		for (_object in __keys) {
-			_session = cast(_object, AbstractRenderSession);
+		for (_session in _sbDictionary.keys()) {
 			if (_session.updated) {
-				_cbStore = _cbStore.concat(cast(_cbDictionary[untyped _session], Array<Dynamic>));
-				_cbDictionary[untyped _session] = null;
+				_sbStore = _sbStore.concat(_sbDictionary.get(_session));
+				_sbDictionary.remove(_session);
 			}
 			
 		}
 
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_sbDictionary)).iterator();
-		for (_object in __keys) {
-			_session = cast(_object, AbstractRenderSession);
+		for (_session in _doDictionary.keys()) {
 			if (_session.updated) {
-				_sbStore = _sbStore.concat(cast(_sbDictionary[untyped _session], Array<Dynamic>));
-				_sbDictionary[untyped _session] = null;
-			}
-			
-		}
-
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_doDictionary)).iterator();
-		for (_object in __keys) {
-			_session = cast(_object, AbstractRenderSession);
-			if (_session.updated) {
-				_doStore = _doStore.concat(cast(_doDictionary[untyped _session], Array<Dynamic>));
-				_doDictionary[untyped _session] = null;
+				_doStore = _doStore.concat(_doDictionary.get(_session));
+				_doDictionary.remove(_session);
 			}
 			
 		}
 
 	}
 
-	public function createVertexDictionary(source:Object3D):Dictionary {
+	public function createVertexDictionary(source:Object3D):HashMap<Vertex, ScreenVertex> {
 		
-		if ((_vertexDictionary = _sourceDictionary[untyped source]) == null) {
-			_sourceDictionary[untyped source] = new Dictionary(true);
-			_vertexDictionary = _sourceDictionary[untyped source];
+		if ((_vertexDictionary = _sourceDictionary.get(source)) == null) {
+			_vertexDictionary = _sourceDictionary.put(source, new HashMap<Vertex, ScreenVertex>());
 		}
 		return _vertexDictionary;
 	}
 
 	public function createScreenVertex(vertex:Vertex):ScreenVertex {
 		
-		if (((_sv = _vertexDictionary[untyped vertex]) != null)) {
+		if (((_sv = _vertexDictionary.get(vertex)) != null)) {
 			return _sv;
 		}
 		if ((_svStore.length > 0)) {
-			_vertexDictionary[untyped vertex] = _svStore.pop();
-			_sv = _vertexDictionary[untyped vertex];
+			_sv = _vertexDictionary.put(vertex, _svStore.pop());
 		} else {
-			_vertexDictionary[untyped vertex] = new ScreenVertex();
-			_sv = _vertexDictionary[untyped vertex];
+			_sv = _vertexDictionary.put(vertex, new ScreenVertex());
 		}
 		return _sv;
 	}
 
 	public function createDrawBillboard(source:Object3D, material:IBillboardMaterial, screenvertex:ScreenVertex, width:Float, height:Float, scale:Float, rotation:Float, ?generated:Bool=false):DrawBillboard {
 		
-		var session:AbstractRenderSession = source.session;
-		
-		if ((_dbArray = _dbDictionary[untyped session]) == null) {
-			_dbDictionary[untyped session] = [];
-			_dbArray = _dbDictionary[untyped session];
+		if ((_dbArray = _dbDictionary.get(source.session)) == null) {
+			_dbArray = _dbDictionary.put(source.session, new Array<DrawBillboard>());
 		}
 		if ((_dbStore.length > 0)) {
 			_dbArray.push(_bill = _dbStore.pop());
@@ -196,11 +171,8 @@ class DrawPrimitiveStore  {
 
 	public function createDrawSegment(source:Object3D, material:ISegmentMaterial, v0:ScreenVertex, v1:ScreenVertex, ?generated:Bool=false):DrawSegment {
 		
-		var session:AbstractRenderSession = source.session;
-		
-		if ((_dsArray = _dsDictionary[untyped session]) == null) {
-			_dsDictionary[untyped session] = [];
-			_dsArray = _dsDictionary[untyped session];
+		if ((_dsArray = _dsDictionary.get(source.session)) == null) {
+			_dsArray = _dsDictionary.put(source.session, new Array<DrawSegment>());
 		}
 		if ((_dsStore.length > 0)) {
 			_dsArray.push(_seg = _dsStore.pop());
@@ -220,11 +192,8 @@ class DrawPrimitiveStore  {
 
 	public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, ?generated:Bool=false):DrawTriangle {
 		
-		var session:AbstractRenderSession = source.session;
-		
-		if ((_dtArray = _dtDictionary[untyped session]) == null) {
-			_dtDictionary[untyped session] = [];
-			_dtArray = _dtDictionary[untyped session];
+		if ((_dtArray = _dtDictionary.get(source.session)) == null) {
+			_dtArray = _dtDictionary.put(source.session, new Array<DrawTriangle>());
 		}
 		if ((_dtStore.length > 0)) {
 			_dtArray.push(_tri = _dtStore.pop());
@@ -247,22 +216,15 @@ class DrawPrimitiveStore  {
 		return _tri;
 	}
 
-	public function createConvexBlocker(source:Object3D, vertices:Array<Dynamic>):ConvexBlocker {
+	public function createConvexBlocker(source:Object3D, vertices:Array<ScreenVertex>):ConvexBlocker {
 		
-		var session:AbstractRenderSession = source.session;
-		
-		if ((_cbArray = _cbDictionary[untyped session]) == null) {
-			_cbDictionary[untyped session] = [];
-			_cbArray = _cbDictionary[untyped session];
+		if ((_cbArray = _cbDictionary.get(source.session)) == null) {
+			_cbArray = _cbDictionary.put(source.session, new Array<ConvexBlocker>());
 		}
 		if ((_cbStore.length > 0)) {
-			blockerDictionary[untyped source] = _cbStore.pop();
-			_cblocker = blockerDictionary[untyped source];
-			_cbArray.push(_cblocker);
+			_cbArray.push(_cblocker = blockerDictionary.put(source, _cbStore.pop()));
 		} else {
-			blockerDictionary[untyped source] = new ConvexBlocker();
-			_cblocker = blockerDictionary[untyped source];
-			_cbArray.push(_cblocker);
+			_cbArray.push(_cblocker = blockerDictionary.put(source, new ConvexBlocker()));
 			_cblocker.view = view;
 			_cblocker.create = createConvexBlocker;
 		}
@@ -274,11 +236,8 @@ class DrawPrimitiveStore  {
 
 	public function createDrawScaledBitmap(source:Object3D, screenvertex:ScreenVertex, smooth:Bool, bitmap:BitmapData, scale:Float, rotation:Float, ?generated:Bool=false):DrawScaledBitmap {
 		
-		var session:AbstractRenderSession = source.session;
-		
-		if ((_sbArray = _sbDictionary[untyped session]) == null) {
-			_sbDictionary[untyped session] = [];
-			_sbArray = _sbDictionary[untyped session];
+		if ((_sbArray = _sbDictionary.get(source.session)) == null) {
+			_sbArray = _sbDictionary.put(source.session, new Array<DrawScaledBitmap>());
 		}
 		if ((_sbStore.length > 0)) {
 			_sbArray.push(_sbitmap = _sbStore.pop());
@@ -300,19 +259,13 @@ class DrawPrimitiveStore  {
 
 	public function createDrawDisplayObject(source:Object3D, screenvertex:ScreenVertex, session:AbstractRenderSession, displayobject:DisplayObject, ?generated:Bool=false):DrawDisplayObject {
 		
-		var session:AbstractRenderSession = source.session;
-		
-		if ((_doArray = _doDictionary[untyped session]) == null) {
-			_doDictionary[untyped session] = [];
-			_doArray = _doDictionary[untyped session];
+		if ((_doArray = _doDictionary.get(source.session)) == null) {
+			_doArray = _doDictionary.put(source.session, new Array<DrawDisplayObject>());
 		}
 		if ((_doStore.length > 0)) {
-			_dobject = _doStore.pop();
-			_doArray.push(_dobject);
+			_doArray.push(_dobject = _doStore.pop());
 		} else {
-			trace("creating new ddo");
-			_dobject = new DrawDisplayObject();
-			_doArray.push(_dobject);
+			_doArray.push(_dobject = new DrawDisplayObject());
 			_dobject.view = view;
 			_dobject.create = createDrawSegment;
 		}
@@ -321,28 +274,26 @@ class DrawPrimitiveStore  {
 		_dobject.screenvertex = screenvertex;
 		_dobject.session = session;
 		_dobject.displayobject = displayobject;
-		trace(_dobject + " AND AND ");
-		trace(displayobject);
 		_dobject.calc();
 		return _dobject;
 	}
 
 	// autogenerated
 	public function new () {
-		this._sourceDictionary = new Dictionary(true);
-		this._svStore = new Array<Dynamic>();
-		this._dtDictionary = new Dictionary(true);
-		this._dtStore = new Array<Dynamic>();
-		this._dsDictionary = new Dictionary(true);
-		this._dsStore = new Array<Dynamic>();
-		this._dbDictionary = new Dictionary(true);
-		this._dbStore = new Array<Dynamic>();
-		this._cbDictionary = new Dictionary(true);
-		this._cbStore = new Array<Dynamic>();
-		this._sbDictionary = new Dictionary(true);
-		this._sbStore = new Array<Dynamic>();
-		this._doDictionary = new Dictionary(true);
-		this._doStore = new Array<Dynamic>();
+		this._sourceDictionary = new HashMap<Object3D, HashMap<Vertex, ScreenVertex>>();
+		this._svStore = new Array<ScreenVertex>();
+		this._dtDictionary = new HashMap<AbstractRenderSession, Array<DrawTriangle>>();
+		this._dtStore = new Array<DrawTriangle>();
+		this._dsDictionary = new HashMap<AbstractRenderSession, Array<DrawSegment>>();
+		this._dsStore = new Array<DrawSegment>();
+		this._dbDictionary = new HashMap<AbstractRenderSession, Array<DrawBillboard>>();
+		this._dbStore = new Array<DrawBillboard>();
+		this._cbDictionary = new HashMap<AbstractRenderSession, Array<ConvexBlocker>>();
+		this._cbStore = new Array<ConvexBlocker>();
+		this._sbDictionary = new HashMap<AbstractRenderSession, Array<DrawScaledBitmap>>();
+		this._sbStore = new Array<DrawScaledBitmap>();
+		this._doDictionary = new HashMap<AbstractRenderSession, Array<DrawDisplayObject>>();
+		this._doStore = new Array<DrawDisplayObject>();
 		
 	}
 

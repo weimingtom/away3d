@@ -11,7 +11,7 @@ class Frame implements IFrame {
 	/**
 	 * An array of vertex position objects.
 	 */
-	public var vertexpositions:Array<Dynamic>;
+	public var vertexpositions:Array<VertexPosition>;
 	
 
 	/**
@@ -39,9 +39,9 @@ class Frame implements IFrame {
 	}
 
 	// temp undocumented patch for missing indexes on md2 files and as3 outputs for as3exporters
-	public function getIndexes(vertices:Array<Dynamic>):Array<Dynamic> {
+	public function getIndexes(vertices:Array<Vertex>):Array<Int> {
 		
-		var indexes:Array<Dynamic> = [];
+		var indexes:Array<Int> = [];
 		for (__i in 0...vertexpositions.length) {
 			_vertexposition = vertexpositions[__i];
 

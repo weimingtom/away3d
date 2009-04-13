@@ -1,6 +1,6 @@
 package away3d.animators;
 
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.animators.data.Path;
 import away3d.animators.data.CurveSegment;
 import away3d.core.base.Object3D;
@@ -13,7 +13,7 @@ import flash.events.Event;
 import away3d.animators.utils.PathUtils;
 
 
-class PathAnimator extends EventDispatcher  {
+class PathAnimator extends HashableEventDispatcher  {
 	public var time(getTime, null) : Float;
 	public var offsetTime(null, setOffsetTime) : Float;
 	public var pathlength(getPathlength, null) : Float;

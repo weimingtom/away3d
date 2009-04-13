@@ -7,7 +7,7 @@ import flash.events.ProgressEvent;
 import flash.events.EventDispatcher;
 import away3d.loaders.data.MaterialData;
 import away3d.loaders.utils.MaterialLibrary;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.events.Event;
 import away3d.events.LoaderEvent;
 import away3d.core.utils.IClonable;
@@ -174,10 +174,7 @@ class Object3DLoader extends ObjectContainer3D  {
 		
 		mode = LOADING_TEXTURES;
 		_loadQueue = new TextureLoadQueue();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
-		for (__key in __keys) {
-			_materialData = materialLibrary[untyped __key];
-
+		for (_materialData in materialLibrary.iterator()) {
 			if (_materialData != null) {
 				if (_materialData.materialType == MaterialData.TEXTURE_MATERIAL && _materialData.material == null) {
 					var req:URLRequest = new URLRequest(materialLibrary.texturePath + _materialData.textureFileName);

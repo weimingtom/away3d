@@ -3,7 +3,7 @@ package away3d.materials.shaders;
 import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.geom.Rectangle;
 import away3d.core.base.Face;
 import away3d.core.base.Object3D;
@@ -65,10 +65,7 @@ class SpecularPhongShader extends AbstractShader  {
 	private function clearFaces(source:Object3D, view:View3D):Void {
 		
 		notifyMaterialUpdate();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (source == _faceMaterialVO.source && view == _faceMaterialVO.view) {
 					if (!_faceMaterialVO.cleared) {
@@ -93,7 +90,7 @@ class SpecularPhongShader extends AbstractShader  {
 			directional = _source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				_specularTransform = directional.specularTransform[untyped _source][untyped _view];
+				_specularTransform = directional.specularTransform.get(_source).get(_view);
 				_nFace = _face.normal;
 				_szx = _specularTransform.szx;
 				_szy = _specularTransform.szy;
@@ -219,10 +216,10 @@ class SpecularPhongShader extends AbstractShader  {
 			directional = source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				if (!directional.specularTransform[untyped source]) {
-					directional.specularTransform[untyped source] = new Dictionary(true);
+				if (!directional.specularTransform.contains(source)) {
+					directional.specularTransform.put(source, new HashMap<View3D, Matrix3D>());
 				}
-				if (!directional.specularTransform[untyped source][untyped view] || view.scene.updatedObjects[untyped source] || view.updated) {
+				if (!directional.specularTransform.get(source).contains(view) || untyped view.scene.updatedObjects.indexOf(source) != -1 || view.updated) {
 					directional.setSpecularTransform(source, view);
 					clearFaces(source, view);
 					clearLightingShapeDictionary();
@@ -242,7 +239,7 @@ class SpecularPhongShader extends AbstractShader  {
 			directional = _lights.directionals[__i];
 
 			if (directional != null) {
-				_specularTransform = directional.specularTransform[untyped _source][untyped _view];
+				_specularTransform = directional.specularTransform.get(_source).get(_view);
 				_n0 = _source.geometry.getVertexNormal(_face.v0);
 				_n1 = _source.geometry.getVertexNormal(_face.v1);
 				_n2 = _source.geometry.getVertexNormal(_face.v2);

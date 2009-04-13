@@ -9,7 +9,7 @@ import flash.events.EventDispatcher;
 import away3d.loaders.data.MaterialData;
 import away3d.loaders.utils.MaterialLibrary;
 import away3d.materials.ITriangleMaterial;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.materials.ShadingColorMaterial;
 import away3d.loaders.data.FaceData;
 import away3d.materials.WireframeMaterial;
@@ -45,7 +45,7 @@ class Max3DS extends AbstractParser  {
 	public var ini:Init;
 	/** An array of bytes from the 3ds files. */
 	private var _data:ByteArray;
-	private var _verticesDictionary:Dictionary;
+	private var _verticesDictionary:IntHash<Vertex>;
 	private var _materialData:MaterialData;
 	private var _faceMaterial:ITriangleMaterial;
 	private var _meshData:MeshData;
@@ -216,7 +216,7 @@ class Max3DS extends AbstractParser  {
 					readMeshName(subChunk);
 					_meshData.geometry = geometryLibrary.addGeometry(_meshData.name);
 					_geometryData = _meshData.geometry;
-					_verticesDictionary = new Dictionary(true);
+					_verticesDictionary = new IntHash<Vertex>();
 					parseMesh(subChunk);
 					meshDataList.push(_meshData);
 					if (centerMeshes) {
@@ -226,9 +226,7 @@ class Max3DS extends AbstractParser  {
 						_geometryData.minY = Math.POSITIVE_INFINITY;
 						_geometryData.maxZ = -Math.POSITIVE_INFINITY;
 						_geometryData.minZ = Math.POSITIVE_INFINITY;
-						var __keys:Iterator<Dynamic> = untyped (__keys__(_verticesDictionary)).iterator();
-						for (__key in __keys) {
-							_vertex = _verticesDictionary[untyped __key];
+						for (_vertex in _verticesDictionary.iterator()) {
 
 							if (_vertex != null) {
 								if (_geometryData.maxX < _vertex._x) {
@@ -411,9 +409,9 @@ class Max3DS extends AbstractParser  {
 			_faceData.v0 = _data.readUnsignedShort();
 			_faceData.v1 = _data.readUnsignedShort();
 			_faceData.v2 = _data.readUnsignedShort();
-			_verticesDictionary[untyped _faceData.v0] = _geometryData.vertices[_faceData.v0];
-			_verticesDictionary[untyped _faceData.v1] = _geometryData.vertices[_faceData.v1];
-			_verticesDictionary[untyped _faceData.v2] = _geometryData.vertices[_faceData.v2];
+			_verticesDictionary.put(_faceData.v0, _geometryData.vertices[_faceData.v0]);
+			_verticesDictionary.put(_faceData.v1, _geometryData.vertices[_faceData.v1]);
+			_verticesDictionary.put(_faceData.v2, _geometryData.vertices[_faceData.v2]);
 			_faceData.visible = ((cast(_data.readUnsignedShort(), Bool)) != null);
 			chunk.bytesRead += 8;
 			_geometryData.faces.push(_faceData);
@@ -523,7 +521,7 @@ class Max3DS extends AbstractParser  {
 
 								if (_faceListIndex != null) {
 									_faceData = cast(_geometryData.faces[_faceListIndex], FaceData);
-									_faceData.materialData = materialLibrary[untyped _meshMaterialData.symbol];
+									_faceData.materialData = materialLibrary.get(_meshMaterialData.symbol);
 								}
 							}
 
@@ -565,10 +563,7 @@ class Max3DS extends AbstractParser  {
 
 	private function buildMaterials():Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
-		for (__key in __keys) {
-			_materialData = materialLibrary[untyped __key];
-
+		for (_materialData in materialLibrary.iterator()) {
 			if (_materialData != null) {
 				if ((material != null)) {
 					_materialData.material = material;

@@ -5,7 +5,7 @@ import away3d.core.utils.ValueObject;
 import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.DrawPrimitiveStore;
 import away3d.core.draw.IPrimitiveConsumer;
 import away3d.core.draw.ScreenVertex;
@@ -21,11 +21,11 @@ class DirSpriteProjector implements IPrimitiveProvider {
 	public var view(getView, setView) : View3D;
 	
 	private var _view:View3D;
-	private var _vertexDictionary:Dictionary;
+	private var _vertexDictionary:HashMap<Vertex, ScreenVertex>;
 	private var _drawPrimitiveStore:DrawPrimitiveStore;
 	private var _dirsprite:DirSprite2D;
-	private var _vertices:Array<Dynamic>;
-	private var _bitmaps:Dictionary;
+	private var _vertices:Array<Vertex>;
+	private var _bitmaps:HashMap<Vertex, BitmapData>;
 	private var _lens:ILens;
 	private var _vertex:Vertex;
 	private var _screenVertex:ScreenVertex;
@@ -64,7 +64,7 @@ class DirSpriteProjector implements IPrimitiveProvider {
 				var z:Float = _screenVertex.z;
 				if (z < minz) {
 					minz = z;
-					bitmap = _bitmaps[untyped _vertex];
+					bitmap = _bitmaps.get(_vertex);
 				}
 			}
 		}

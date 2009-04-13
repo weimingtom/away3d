@@ -13,7 +13,7 @@ import away3d.loaders.data.MaterialData;
 import away3d.loaders.utils.MaterialLibrary;
 import flash.display.BitmapData;
 import away3d.materials.ITriangleMaterial;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Face;
 import nochump.util.zip.ZipEntry;
 import away3d.core.utils.Cast;
@@ -100,10 +100,7 @@ class Kmz extends AbstractParser  {
 		
 		var loader:Loader = Loader(e.target.loader);
 		//pass material instance to correct materialData
-		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
-		for (__key in __keys) {
-			_materialData = materialLibrary[untyped __key];
-
+		for (_materialData in materialLibrary.iterator()) {
 			if (_materialData != null) {
 				if (_materialData.textureFileName == loader.name) {
 					_materialData.textureBitmap = Bitmap(loader.content).bitmapData;

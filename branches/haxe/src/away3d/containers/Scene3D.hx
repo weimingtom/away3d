@@ -5,7 +5,7 @@ import away3d.events.ViewEvent;
 import flash.events.EventDispatcher;
 import away3d.core.math.Matrix3D;
 import away3d.core.traverse.ProjectionTraverser;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.Init;
 import flash.events.Event;
 import away3d.core.traverse.LightTraverser;
@@ -14,8 +14,10 @@ import away3d.core.base.Object3D;
 import away3d.core.traverse.TickTraverser;
 import away3d.core.traverse.SessionTraverser;
 import away3d.core.base.Mesh;
+import away3d.core.render.AbstractRenderSession;
 import away3d.core.traverse.Traverser;
-
+import away3d.blockers.ConvexBlock;
+import away3d.core.block.ConvexBlocker;
 
 // use namespace arcane;
 
@@ -32,7 +34,7 @@ class Scene3D extends ObjectContainer3D  {
 	private var _projtraverser:ProjectionTraverser;
 	private var _sessiontraverser:SessionTraverser;
 	private var _lighttraverser:LightTraverser;
-	public var viewDictionary:Dictionary;
+	public var viewArray:Array<View3D>;
 	/**
 	 * Traverser object for all custom <code>tick()</code> methods
 	 * 
@@ -42,15 +44,15 @@ class Scene3D extends ObjectContainer3D  {
 	/**
 	 * Library of updated 3d objects in the scene.
 	 */
-	public var updatedObjects:Dictionary;
+	public var updatedObjects:Array<Object3D>;
 	/**
 	 * Library of updated sessions in the scene.
 	 */
-	public var updatedSessions:Dictionary;
+	public var updatedSessions:Array<AbstractRenderSession>;
 	/**
 	 * Library of  all meshes in the scene.
 	 */
-	public var meshes:Dictionary;
+	public var meshes:Array<Mesh>;
 	/**
 	 * Defines whether scene events are automatically triggered by the view, or manually by <code>updateScene()</code>
 	 */
@@ -108,7 +110,7 @@ class Scene3D extends ObjectContainer3D  {
 		this._projtraverser = new ProjectionTraverser();
 		this._sessiontraverser = new SessionTraverser();
 		this._lighttraverser = new LightTraverser();
-		this.viewDictionary = new Dictionary(true);
+		this.viewArray = new Array<View3D>();
 		this.tickTraverser = new TickTraverser();
 		
 		
@@ -165,23 +167,21 @@ class Scene3D extends ObjectContainer3D  {
 	public function update():Void {
 		//clear updated objects
 		
-		updatedObjects = new Dictionary(true);
+		updatedObjects = new Array<Object3D>();
 		//clear updated sessions
-		updatedSessions = new Dictionary(true);
+		updatedSessions = new Array<AbstractRenderSession>();
 		//traverse lights
 		traverse(_lighttraverser);
 		//execute projection traverser on each view
-		var __keys:Iterator<Dynamic> = untyped (__keys__(viewDictionary)).iterator();
-		for (__key in __keys) {
-			_view = viewDictionary[untyped __key];
+		for (_view in viewArray) {
 
 			if (_view != null) {
 				_view.camera.update();
 				//clear meshes
-				meshes = new Dictionary(true);
+				meshes = new Array<Mesh>();
 				//clear blockers
-				_view.blockers = new Dictionary(true);
-				_view.drawPrimitiveStore.blockerDictionary = new Dictionary(true);
+				_view.blockers = new Array<ConvexBlock>();
+				_view.drawPrimitiveStore.blockerDictionary = new HashMap<Object3D, ConvexBlocker>();
 				//clear camera view transforms
 				_view.cameraVarsStore.reset();
 				//clear blockers
@@ -191,10 +191,7 @@ class Scene3D extends ObjectContainer3D  {
 				traverse(_projtraverser);
 				_time = flash.Lib.getTimer();
 				//update materials in meshes
-				var __keys2:Iterator<Dynamic> = untyped (__keys__(meshes)).iterator();
-				for (__key2 in __keys2) {
-					_mesh = meshes[untyped __key2];
-
+				for (_mesh in meshes) {
 					if (_mesh != null) {
 						_mesh.updateMaterials(_mesh, _view);
 						//update geometry materials

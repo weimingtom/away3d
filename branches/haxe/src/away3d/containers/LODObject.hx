@@ -53,7 +53,7 @@ class LODObject extends ObjectContainer3D, implements ILODObject {
 	 */
 	public function matchLOD(camera:Camera3D):Bool {
 		
-		var z:Float = camera.view.cameraVarsStore.viewTransformDictionary[untyped this].tz;
+		var z:Float = camera.view.cameraVarsStore.viewTransformDictionary.get(this).tz;
 		var persp:Float = camera.zoom / (1 + z / camera.focus);
 		if (persp < minp) {
 			return false;

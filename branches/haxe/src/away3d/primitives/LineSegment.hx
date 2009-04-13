@@ -20,8 +20,6 @@ class LineSegment extends Mesh  {
 	private var _segment:Segment;
 	private var i:Int;
 	private var lsegments:Float;
-	public var p1:Number3D;
-	public var p2:Number3D;
 	private var newsegmentstart:Vertex;
 	private var newsegmentend:Vertex;
 	
@@ -43,7 +41,7 @@ class LineSegment extends Mesh  {
 
 	public function setStart(value:Vertex):Vertex {
 		
-		recalc(value, p2);
+		recalc(value, _segment.v1);
 		return value;
 	}
 
@@ -59,17 +57,15 @@ class LineSegment extends Mesh  {
 
 	public function setEnd(value:Vertex):Vertex {
 		
-		recalc(p1, value);
+		recalc(_segment.v0, value);
 		return value;
 	}
 
 	/**
 	 * Recalculate start and end Vertex positions 
 	 */
-	private function recalc(vp1:Dynamic, vp2:Dynamic):Void {
+	private function recalc(vp1:Vertex, vp2:Vertex):Void {
 		
-		p1 = new Number3D(vp1.x, vp1.y, vp1.z);
-		p2 = new Number3D(vp2.x, vp2.y, vp2.z);
 		if (lsegments > 1) {
 			var _index:Int = segments.length;
 			while ((_index-- > 0)) {
@@ -79,13 +75,13 @@ class LineSegment extends Mesh  {
 			var difx:Float;
 			var dify:Float;
 			var difz:Float;
-			difx = (p1.x - p2.x) / lsegments;
-			dify = (p1.y - p2.y) / lsegments;
-			difz = (p1.z - p2.z) / lsegments;
+			difx = (vp1.x - vp2.x) / lsegments;
+			dify = (vp1.y - vp2.y) / lsegments;
+			difz = (vp1.z - vp2.z) / lsegments;
 			i = 1;
 			while (i <= lsegments) {
-				newsegmentstart = new Vertex(p1.x - (difx * (i)), p1.y - (dify * (i)), p1.z - (difz * (i)));
-				newsegmentend = new Vertex(p2.x + (difx * (lsegments - (i - 1))), p2.y + (dify * (lsegments - (i - 1))), p2.z + (difz * (lsegments - (i - 1))));
+				newsegmentstart = new Vertex(vp1.x - (difx * (i)), vp1.y - (dify * (i)), vp1.z - (difz * (i)));
+				newsegmentend = new Vertex(vp2.x + (difx * (lsegments - (i - 1))), vp2.y + (dify * (lsegments - (i - 1))), vp2.z + (difz * (lsegments - (i - 1))));
 				_segment = new Segment(newsegmentstart, newsegmentend);
 				addSegment(_segment);
 				
@@ -94,8 +90,8 @@ class LineSegment extends Mesh  {
 			}
 
 		} else {
-			_segment.v0 = new Vertex(p1.x, p1.y, p1.z);
-			_segment.v1 = new Vertex(p2.x, p2.y, p2.z);
+			_segment.v0 = vp1;
+			_segment.v1 = vp2;
 		}
 	}
 
@@ -110,18 +106,20 @@ class LineSegment extends Mesh  {
 		super(init);
 		var edge:Float = ini.getNumber("edge", 100, {min:0}) / 2;
 		lsegments = ini.getNumber("segments", 1, {min:1});
-		p1 = ini.getPosition("start");
+		var p1:Number3D = ini.getPosition("start");
 		if (p1 == null)  {
 			p1 = new Number3D(-edge, 0, 0);
 		};
-		p2 = ini.getPosition("end");
+		var p2:Number3D = ini.getPosition("end");
 		if (p2 == null)  {
 			p2 = new Number3D(edge, 0, 0);
 		};
+		var vp1:Vertex = new Vertex(p1.x, p1.y, p1.z);
+		var vp2:Vertex = new Vertex(p2.x, p2.y, p2.z);
 		if (lsegments > 1) {
-			recalc(p1, p2);
+			recalc(vp1, vp2);
 		} else {
-			_segment = new Segment(new Vertex(p1.x, p1.y, p1.z), new Vertex(p2.x, p2.y, p2.z));
+			_segment = new Segment(vp1, vp2);
 			addSegment(_segment);
 		}
 		type = "LineSegment";

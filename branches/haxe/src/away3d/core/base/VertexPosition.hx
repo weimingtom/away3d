@@ -78,7 +78,7 @@ class VertexPosition  {
 
 	//temp patch, to retreive the missing async indexes for md2 files and as3 animated outputs.
 	//returns position into vertices array
-	public function getIndex(vertices:Array<Dynamic>):Int {
+	public function getIndex(vertices:Array<Vertex>):Int {
 		
 		var ox:Float = vertex.x;
 		var oy:Float = vertex.y;

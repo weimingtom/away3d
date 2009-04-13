@@ -1,8 +1,8 @@
 package away3d.core.base;
 
 import away3d.loaders.data.MaterialData;
-import flash.events.EventDispatcher;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashableEventDispatcher;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.ValueObject;
 import away3d.materials.IMaterial;
 import away3d.animators.skin.Bone;
@@ -52,13 +52,13 @@ import away3d.events.FaceEvent;
 /**
  * 3d object containing face and segment elements 
  */
-class Geometry extends EventDispatcher  {
-	public var faces(getFaces, null) : Array<Dynamic>;
+class Geometry extends HashableEventDispatcher  {
+	public var faces(getFaces, null) : Array<Face>;
 	public var vertexDirty(getVertexDirty, null) : Bool;
-	public var segments(getSegments, null) : Array<Dynamic>;
-	public var billboards(getBillboards, null) : Array<Dynamic>;
-	public var elements(getElements, null) : Array<Dynamic>;
-	public var vertices(getVertices, null) : Array<Dynamic>;
+	public var segments(getSegments, null) : Array<Segment>;
+	public var billboards(getBillboards, null) : Array<Billboard>;
+	public var elements(getElements, null) : Array<Element>;
+	public var vertices(getVertices, null) : Array<Vertex>;
 	public var frame(getFrame, setFrame) : Int;
 	public var hasCycleEvent(getHasCycleEvent, null) : Bool;
 	public var hasSequenceEvent(getHasSequenceEvent, null) : Bool;
@@ -70,34 +70,34 @@ class Geometry extends EventDispatcher  {
 	public var activePrefix(getActivePrefix, null) : String;
 	
 	private var _renderTime:Int;
-	private var _faces:Array<Dynamic>;
-	private var _segments:Array<Dynamic>;
-	private var _billboards:Array<Dynamic>;
-	private var _vertices:Array<Dynamic>;
+	private var _faces:Array<Face>;
+	private var _segments:Array<Segment>;
+	private var _billboards:Array<Billboard>;
+	private var _vertices:Array<Vertex>;
 	private var _verticesDirty:Bool;
 	private var _dispatchedDimensionsChange:Bool;
 	private var _dimensionschanged:GeometryEvent;
 	private var _neighboursDirty:Bool;
-	private var _neighbour01:Dictionary;
-	private var _neighbour12:Dictionary;
-	private var _neighbour20:Dictionary;
+	private var _neighbour01:HashMap<Face, Face>;
+	private var _neighbour12:HashMap<Face, Face>;
+	private var _neighbour20:HashMap<Face, Face>;
 	private var _vertfacesDirty:Bool;
-	private var _vertfaces:Dictionary;
+	private var _vertfaces:HashMap<Vertex, Array<Face>>;
 	private var _vertnormalsDirty:Bool;
-	private var _vertnormals:Dictionary;
+	private var _vertnormals:HashMap<Vertex, Number3D>;
 	private var _fNormal:Number3D;
 	private var _fAngle:Float;
-	private var _fVectors:Array<Dynamic>;
+	private var _fVectors:Array<Number3D>;
 	private var _n01:Face;
 	private var _n12:Face;
 	private var _n20:Face;
 	private var _vertex:Vertex;
 	private var _skinVertex:SkinVertex;
 	private var _skinController:SkinController;
-	private var clonedvertices:Dictionary;
-	private var clonedskinvertices:Dictionary;
-	private var clonedskincontrollers:Dictionary;
-	private var cloneduvs:Dictionary;
+	private var clonedvertices:HashMap<Vertex, Vertex>;
+	private var clonedskinvertices:HashMap<SkinVertex, SkinVertex>;
+	private var clonedskincontrollers:HashMap<SkinController, SkinController>;
+	private var cloneduvs:HashMap<UV, UV>;
 	private var _frame:Int;
 	private var _animation:Animation;
 	private var _animationgroup:AnimationGroup;
@@ -118,37 +118,36 @@ class Geometry extends EventDispatcher  {
 	/**
 	 * Array of vertices used in a skin.
 	 */
-	public var skinVertices:Array<Dynamic>;
+	public var skinVertices:Array<SkinVertex>;
 	/**
 	 * Array of controller objects used to bind vertices with joints in a skin.
 	 */
-	public var skinControllers:Array<Dynamic>;
+	public var skinControllers:Array<SkinController>;
 	/**
 	 * A dictionary containing all frames of the geometry.
 	 */
-	public var frames:Dictionary;
+	public var frames:IntHash<Frame>;
 	/**
 	 * A dictionary containing all frame names of the geometry.
 	 */
 	public var framenames:Hash<Int>;
-	
 	/**
 	 * An dictionary containing all the materials included in the geometry.
 	 */
-	public var materialDictionary:Dictionary;
+	public var materialDictionary:HashMap<IMaterial, MaterialData>;
 	/**
 	 * An dictionary containing associations between cloned elements.
 	 */
-	public var cloneElementDictionary:Dictionary;
+	public var cloneElementDictionary:HashMap<Element, Element>;
 	
 
 	/** @private */
-	public function getFacesByVertex(vertex:Vertex):Array<Dynamic> {
+	public function getFacesByVertex(vertex:Vertex):Array<Face> {
 		
 		if (_vertfacesDirty) {
 			findVertFaces();
 		}
-		return _vertfaces[untyped vertex];
+		return _vertfaces.get(vertex);
 	}
 
 	/** @private */
@@ -160,7 +159,7 @@ class Geometry extends EventDispatcher  {
 		if (_vertnormalsDirty) {
 			findVertNormals();
 		}
-		return _vertnormals[untyped vertex];
+		return _vertnormals.get(vertex);
 	}
 
 	/** @private */
@@ -169,7 +168,7 @@ class Geometry extends EventDispatcher  {
 		if (_neighboursDirty) {
 			findNeighbours();
 		}
-		return _neighbour01[untyped face];
+		return _neighbour01.get(face);
 	}
 
 	/** @private */
@@ -178,7 +177,7 @@ class Geometry extends EventDispatcher  {
 		if (_neighboursDirty) {
 			findNeighbours();
 		}
-		return _neighbour12[untyped face];
+		return _neighbour12.get(face);
 	}
 
 	/** @private */
@@ -187,7 +186,7 @@ class Geometry extends EventDispatcher  {
 		if (_neighboursDirty) {
 			findNeighbours();
 		}
-		return _neighbour20[untyped face];
+		return _neighbour20.get(face);
 	}
 
 	/** @private */
@@ -207,8 +206,8 @@ class Geometry extends EventDispatcher  {
 	public function addMaterial(element:Element, material:IMaterial):Void {
 		//detect if materialData exists
 		
-		if ((_materialData = materialDictionary[untyped material]) == null) {
-			_materialData = materialDictionary[untyped material] = new MaterialData();
+		if ((_materialData = materialDictionary.get(material)) == null) {
+			_materialData = materialDictionary.put(material, new MaterialData());
 			//set material property of materialData
 			_materialData.material = material;
 			//add update listener
@@ -224,13 +223,13 @@ class Geometry extends EventDispatcher  {
 	public function removeMaterial(element:Element, material:IMaterial):Void {
 		//detect if materialData exists
 		
-		if (((_materialData = materialDictionary[untyped material]) != null)) {
+		if (((_materialData = materialDictionary.get(material)) != null)) {
 			if ((_index = untyped _materialData.elements.indexOf(element)) != -1) {
 				_materialData.elements.splice(_index, 1);
 			}
 			//check if elements array is empty
 			if (_materialData.elements.length == 0) {
-				materialDictionary[untyped material] = null;
+				materialDictionary.remove(material);
 				//remove update listener
 				material.removeOnMaterialUpdate(onMaterialUpdate);
 			}
@@ -256,28 +255,28 @@ class Geometry extends EventDispatcher  {
 
 	private function findVertFaces():Void {
 		
-		_vertfaces = new Dictionary();
+		_vertfaces = new HashMap<Vertex, Array<Face>>();
 		for (__i in 0...faces.length) {
 			var face:Face = faces[__i];
 
 			if (face != null) {
 				var v0:Vertex = face.v0;
-				if (_vertfaces[untyped v0] == null) {
-					_vertfaces[untyped v0] = [face];
+				if (!_vertfaces.contains(v0)) {
+					_vertfaces.put(v0, [face]);
 				} else {
-					_vertfaces[untyped v0].push(face);
+					_vertfaces.get(v0).push(face);
 				}
 				var v1:Vertex = face.v1;
-				if (_vertfaces[untyped v1] == null) {
-					_vertfaces[untyped v1] = [face];
+				if (!_vertfaces.contains(v1)) {
+					_vertfaces.put(v1, [face]);
 				} else {
-					_vertfaces[untyped v1].push(face);
+					_vertfaces.get(v1).push(face);
 				}
 				var v2:Vertex = face.v2;
-				if (_vertfaces[untyped v2] == null) {
-					_vertfaces[untyped v2] = [face];
+				if (!_vertfaces.contains(v2)) {
+					_vertfaces.put(v2, [face]);
 				} else {
-					_vertfaces[untyped v2].push(face);
+					_vertfaces.get(v2).push(face);
 				}
 			}
 		}
@@ -288,12 +287,12 @@ class Geometry extends EventDispatcher  {
 
 	private function findVertNormals():Void {
 		
-		_vertnormals = new Dictionary();
+		_vertnormals = new HashMap<Vertex, Number3D>();
 		for (__i in 0...vertices.length) {
 			var v:Vertex = vertices[__i];
 
 			if (v != null) {
-				var vF:Array<Dynamic> = _vertfaces[untyped v];
+				var vF:Array<Face> = _vertfaces.get(v);
 				var nX:Float = 0;
 				var nY:Float = 0;
 				var nZ:Float = 0;
@@ -302,7 +301,7 @@ class Geometry extends EventDispatcher  {
 
 					if (f != null) {
 						_fNormal = f.normal;
-						_fVectors = new Array<Dynamic>();
+						_fVectors = new Array<Number3D>();
 						for (__i in 0...f.vertices.length) {
 							var fV:Vertex = f.vertices[__i];
 
@@ -322,7 +321,7 @@ class Geometry extends EventDispatcher  {
 
 				var vertNormal:Number3D = new Number3D(nX, nY, nZ);
 				vertNormal.normalize();
-				_vertnormals[untyped v] = vertNormal;
+				_vertnormals.put(v, vertNormal);
 			}
 		}
 
@@ -382,18 +381,18 @@ class Geometry extends EventDispatcher  {
 
 	private function cloneVertex(vertex:Vertex):Vertex {
 		
-		var result:Vertex = clonedvertices[untyped vertex];
+		var result:Vertex = clonedvertices.get(vertex);
 		if (result == null) {
 			result = vertex.clone();
 			result.extra = (Std.is(vertex.extra, IClonable)) ? (cast(vertex.extra, IClonable)).clone() : vertex.extra;
-			clonedvertices[untyped vertex] = result;
+			clonedvertices.put(vertex, result);
 		}
 		return result;
 	}
 
 	private function cloneSkinVertex(skinVertex:SkinVertex):SkinVertex {
 		
-		var result:SkinVertex = clonedskinvertices[untyped skinVertex];
+		var result:SkinVertex = clonedskinvertices.get(skinVertex);
 		if (result == null) {
 			result = new SkinVertex(cloneVertex(skinVertex.skinnedVertex));
 			result.weights = skinVertex.weights.concat([]);
@@ -405,19 +404,19 @@ class Geometry extends EventDispatcher  {
 				}
 			}
 
-			clonedskinvertices[untyped skinVertex] = result;
+			clonedskinvertices.put(skinVertex, result);
 		}
 		return result;
 	}
 
 	private function cloneSkinController(skinController:SkinController):SkinController {
 		
-		var result:SkinController = clonedskincontrollers[untyped skinController];
+		var result:SkinController = clonedskincontrollers.get(skinController);
 		if (result == null) {
 			result = new SkinController();
 			result.name = skinController.name;
 			result.bindMatrix = skinController.bindMatrix;
-			clonedskincontrollers[untyped skinController] = result;
+			clonedskincontrollers.put(skinController, result);
 		}
 		return result;
 	}
@@ -427,10 +426,10 @@ class Geometry extends EventDispatcher  {
 		if (uv == null) {
 			return null;
 		}
-		var result:UV = cloneduvs[untyped uv];
+		var result:UV = cloneduvs.get(uv);
 		if (result == null) {
 			result = new UV(uv._u, uv._v);
-			cloneduvs[untyped uv] = result;
+			cloneduvs.put(uv, result);
 		}
 		return result;
 	}
@@ -464,8 +463,7 @@ class Geometry extends EventDispatcher  {
 	/**
 	 * Returns an array of the faces contained in the geometry object.
 	 */
-	public function getFaces():Array<Dynamic> {
-		
+	public function getFaces():Array<Face> {
 		return _faces;
 	}
 
@@ -487,15 +485,14 @@ class Geometry extends EventDispatcher  {
 	/**
 	 * Returns an array of the segments contained in the geometry object.
 	 */
-	public function getSegments():Array<Dynamic> {
-		
+	public function getSegments():Array<Segment> {
 		return _segments;
 	}
 
 	/**
 	 * Returns an array of the billboards contained in the geometry object.
 	 */
-	public function getBillboards():Array<Dynamic> {
+	public function getBillboards():Array<Billboard> {
 		
 		return _billboards;
 	}
@@ -503,30 +500,39 @@ class Geometry extends EventDispatcher  {
 	/**
 	 * Returns an array of all elements contained in the geometry object.
 	 */
-	public function getElements():Array<Dynamic> {
+	public function getElements():Array<Element> {
+		var elements:Array<Element> = new Array<Element>();
+		for (billboard in _billboards) {
+			elements.push(billboard);
+		}
 		
-		return _billboards.concat(_faces).concat(_segments);
+		for (face in _faces) {
+			elements.push(face);
+		}
+		
+		for (segment in _segments) {
+			elements.push(segment);
+		}
+		return elements;
 	}
 
 	/**
 	 * Returns an array of all vertices contained in the geometry object
 	 */
-	public function getVertices():Array<Dynamic> {
+	public function getVertices():Array<Vertex> {
 		
 		if (_verticesDirty) {
 			_vertices = [];
-			var processed:Dictionary = new Dictionary();
 			for (__i in 0...elements.length) {
 				var element:Element = elements[__i];
 
 				if (element != null) {
-					for (__j in 0...element.vertices.length) {
-						var vertex:Vertex = element.vertices[__j];
+					for (__i in 0...element.vertices.length) {
+						var vertex:Vertex = element.vertices[__i];
 
 						if (vertex != null) {
-							if (processed[untyped vertex] == null) {
+							if (untyped _vertices.indexOf(vertex) == -1) {
 								_vertices.push(vertex);
-								processed[untyped vertex] = true;
 							}
 						}
 					}
@@ -554,7 +560,7 @@ class Geometry extends EventDispatcher  {
 		}
 		_frame = value;
 		_animation.frame = value;
-		frames[untyped value].adjust(1);
+		frames.get(value).adjust(1);
 		return value;
 	}
 
@@ -680,6 +686,7 @@ class Geometry extends EventDispatcher  {
 		}
 		segment.v0.geometry = this;
 		segment.v1.geometry = this;
+		
 		_segments.push(segment);
 	}
 
@@ -762,7 +769,7 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function quarterFaces():Void {
 		
-		var medians:Dictionary = new Dictionary();
+		var medians:HashMap<Vertex, HashMap<Vertex, Vertex>> = new HashMap<Vertex, HashMap<Vertex, Vertex>>();
 		for (__i in 0..._faces.concat([]).length) {
 			var face:Face = _faces.concat([])[__i];
 
@@ -778,41 +785,42 @@ class Geometry extends EventDispatcher  {
 	 * 
 	 * @param	face	The face to split in 4 equal faces.
 	 */
-	public function quarterFace(face:Face, ?medians:Dictionary=null):Void {
+	public function quarterFace(face:Face, ?medians:HashMap<Vertex, HashMap<Vertex, Vertex>>=null):Void {
 		
 		if (medians == null) {
-			medians = new Dictionary();
+			medians = new HashMap<Vertex, HashMap<Vertex, Vertex>>();
 		}
 		var v0:Vertex = face.v0;
 		var v1:Vertex = face.v1;
 		var v2:Vertex = face.v2;
-		if (medians[untyped v0] == null) {
-			medians[untyped v0] = new Dictionary();
+		if (!medians.contains(v0)) {
+			medians.put(v0, new HashMap<Vertex, Vertex>());
 		}
-		if (medians[untyped v1] == null) {
-			medians[untyped v1] = new Dictionary();
+		if (!medians.contains(v1)) {
+			medians.put(v1, new HashMap<Vertex, Vertex>());
 		}
-		if (medians[untyped v2] == null) {
-			medians[untyped v2] = new Dictionary();
+		if (!medians.contains(v2)) {
+			medians.put(v2, new HashMap<Vertex, Vertex>());
 		}
-		var v01:Vertex = medians[untyped v0][untyped v1];
+		var v01:Vertex = medians.get(v0).get(v1);
 		if (v01 == null) {
 			v01 = Vertex.median(v0, v1);
-			medians[untyped v0][untyped v1] = v01;
-			medians[untyped v1][untyped v0] = v01;
+			medians.get(v0).put(v1, v01);
+			medians.get(v1).put(v0, v01);
 		}
-		var v12:Vertex = medians[untyped v1][untyped v2];
+		var v12:Vertex = medians.get(v1).get(v2);
 		if (v12 == null) {
 			v12 = Vertex.median(v1, v2);
-			medians[untyped v1][untyped v2] = v12;
-			medians[untyped v2][untyped v1] = v12;
+			medians.get(v1).put(v2, v12);
+			medians.get(v2).put(v1, v12);
 		}
-		var v20:Vertex = medians[untyped v2][untyped v0];
+		var v20:Vertex = medians.get(v2).get(v0);
 		if (v20 == null) {
 			v20 = Vertex.median(v2, v0);
-			medians[untyped v2][untyped v0] = v20;
-			medians[untyped v0][untyped v2] = v20;
+			medians.get(v2).put(v0, v20);
+			medians.get(v0).put(v2, v20);
 		}
+
 		var uv0:UV = face.uv0;
 		var uv1:UV = face.uv1;
 		var uv2:UV = face.uv2;
@@ -924,9 +932,9 @@ class Geometry extends EventDispatcher  {
 
 	private function findNeighbours():Void {
 		
-		_neighbour01 = new Dictionary();
-		_neighbour12 = new Dictionary();
-		_neighbour20 = new Dictionary();
+		_neighbour01 = new HashMap<Face, Face>();
+		_neighbour12 = new HashMap<Face, Face>();
+		_neighbour20 = new HashMap<Face, Face>();
 		for (__i in 0..._faces.length) {
 			var face:Face = _faces[__i];
 
@@ -943,40 +951,40 @@ class Geometry extends EventDispatcher  {
 							continue;
 						}
 						if ((face._v0 == another._v2) && (face._v1 == another._v1)) {
-							_neighbour01[untyped face] = another;
-							_neighbour12[untyped another] = face;
+							_neighbour01.put(face, another);
+							_neighbour12.put(another, face);
 						}
 						if ((face._v0 == another._v0) && (face._v1 == another._v2)) {
-							_neighbour01[untyped face] = another;
-							_neighbour20[untyped another] = face;
+							_neighbour01.put(face, another);
+							_neighbour20.put(another, face);
 						}
 						if ((face._v0 == another._v1) && (face._v1 == another._v0)) {
-							_neighbour01[untyped face] = another;
-							_neighbour01[untyped another] = face;
+							_neighbour01.put(face, another);
+							_neighbour01.put(another, face);
 						}
 						if ((face._v1 == another._v2) && (face._v2 == another._v1)) {
-							_neighbour12[untyped face] = another;
-							_neighbour12[untyped another] = face;
+							_neighbour12.put(face, another);
+							_neighbour12.put(another, face);
 						}
 						if ((face._v1 == another._v0) && (face._v2 == another._v2)) {
-							_neighbour12[untyped face] = another;
-							_neighbour20[untyped another] = face;
+							_neighbour12.put(face, another);
+							_neighbour20.put(another, face);
 						}
 						if ((face._v1 == another._v1) && (face._v2 == another._v0)) {
-							_neighbour12[untyped face] = another;
-							_neighbour01[untyped another] = face;
+							_neighbour12.put(face, another);
+							_neighbour01.put(another, face);
 						}
 						if ((face._v2 == another._v2) && (face._v0 == another._v1)) {
-							_neighbour20[untyped face] = another;
-							_neighbour12[untyped another] = face;
+							_neighbour20.put(face, another);
+							_neighbour12.put(another, face);
 						}
 						if ((face._v2 == another._v0) && (face._v0 == another._v2)) {
-							_neighbour20[untyped face] = another;
-							_neighbour20[untyped another] = face;
+							_neighbour20.put(face, another);
+							_neighbour20.put(another, face);
 						}
 						if ((face._v2 == another._v1) && (face._v0 == another._v0)) {
-							_neighbour20[untyped face] = another;
-							_neighbour01[untyped another] = face;
+							_neighbour20.put(face, another);
+							_neighbour01.put(another, face);
 						}
 					}
 				}
@@ -1021,7 +1029,7 @@ class Geometry extends EventDispatcher  {
 				}
 			}
 		}
-
+		
 		if ((_animation != null) && (frames != null)) {
 			_animation.update();
 		}
@@ -1035,10 +1043,7 @@ class Geometry extends EventDispatcher  {
 	 */
 	public function updateMaterials(source:Object3D, view:View3D):Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(materialDictionary)).iterator();
-		for (__key in __keys) {
-			_materialData = materialDictionary[untyped __key];
-
+		for (_materialData in materialDictionary) {
 			if (_materialData != null) {
 				_materialData.material.updateMaterial(source, view);
 			}
@@ -1054,13 +1059,13 @@ class Geometry extends EventDispatcher  {
 	public function clone():Geometry {
 		
 		var geometry:Geometry = new Geometry();
-		clonedvertices = new Dictionary();
-		cloneduvs = new Dictionary();
+		clonedvertices = new HashMap<Vertex, Vertex>();
+		cloneduvs = new HashMap<UV, UV>();
 		if ((skinVertices != null)) {
-			clonedskinvertices = new Dictionary(true);
-			clonedskincontrollers = new Dictionary(true);
-			geometry.skinVertices = new Array<Dynamic>();
-			geometry.skinControllers = new Array<Dynamic>();
+			clonedskinvertices = new HashMap<SkinVertex, SkinVertex>();
+			clonedskincontrollers = new HashMap<SkinController, SkinController>();
+			geometry.skinVertices = new Array();
+			geometry.skinControllers = new Array();
 			for (__i in 0...skinVertices.length) {
 				var skinVertex:SkinVertex = skinVertices[__i];
 
@@ -1069,9 +1074,7 @@ class Geometry extends EventDispatcher  {
 				}
 			}
 
-			var __keys:Iterator<Dynamic> = untyped (__keys__(clonedskincontrollers)).iterator();
-			for (__key in __keys) {
-				var skinController:SkinController = clonedskincontrollers[untyped __key];
+			for (skinController in clonedskincontrollers) {
 
 				if (skinController != null) {
 					geometry.skinControllers.push(skinController);
@@ -1085,7 +1088,7 @@ class Geometry extends EventDispatcher  {
 			if (face != null) {
 				var cloneFace:Face = new Face(cloneVertex(face._v0), cloneVertex(face._v1), cloneVertex(face._v2), face.material, cloneUV(face._uv0), cloneUV(face._uv1), cloneUV(face._uv2));
 				geometry.addFace(cloneFace);
-				cloneElementDictionary[untyped face] = cloneFace;
+				cloneElementDictionary.put(face, cloneFace);
 			}
 		}
 
@@ -1095,27 +1098,22 @@ class Geometry extends EventDispatcher  {
 			if (segment != null) {
 				var cloneSegment:Segment = new Segment(cloneVertex(segment._v0), cloneVertex(segment._v1), segment.material);
 				geometry.addSegment(cloneSegment);
-				cloneElementDictionary[untyped segment] = cloneSegment;
+				cloneElementDictionary.put(segment, cloneSegment);
 			}
 		}
 
-		geometry.frames = new Dictionary(true);
+		geometry.frames = new IntHash<Frame>();
 		var i:Int = 0;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(frames)).iterator();
-		for (__key in __keys) {
-			var frame:Frame = frames[untyped __key];
+		for (frame in frames) {
 
 			if (frame != null) {
-				geometry.frames[i++] = cloneFrame(frame);
+				geometry.frames.set(i++, cloneFrame(frame));
 			}
 		}
 
 		geometry.framenames = new Hash<Int>();
-		var framename:String;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(framenames)).iterator();
 		for (framename in framenames.keys()) {
 			geometry.framenames.set(framename, framenames.get(framename));
-			
 		}
 
 		return geometry;
@@ -1212,7 +1210,7 @@ class Geometry extends EventDispatcher  {
 		if (_animation == null) {
 			_animation = new Animation(this);
 		} else {
-			_animation.sequence = new Array<Dynamic>();
+			_animation.sequence = new Array<AnimationFrame>();
 		}
 		_animation.fps = sequence.fps;
 		_animation.smooth = sequence.smooth;
@@ -1224,17 +1222,17 @@ class Geometry extends EventDispatcher  {
 			var bvalidprefix:Bool = false;
 			var framename:String;
 			for (framename in framenames.keys()) {
-				if (framename.indexOf(sequence.prefix) == 0) {
+				if (untyped framename.indexOf(sequence.prefix) == 0) {
 					bvalidprefix = true;
 					_activeprefix = (_activeprefix != sequence.prefix) ? sequence.prefix : _activeprefix;
-					_animation.sequence.push(new AnimationFrame(framenames.get(framename), "" + Std.parseInt(framename.substr(0, sequence.prefix.length))));
+					_animation.sequence.push(new AnimationFrame(framenames.get(framename), "" + Std.parseInt(framename.substr(sequence.prefix.length))));
 				}
 				
 			}
 
 			if (bvalidprefix) {
 				untyped _animation.sequence.sortOn("sort", Array.NUMERIC);
-				frames[untyped _frame].adjust(1);
+				frames.get(_frame).adjust(1);
 				_animation.start();
 				//trace(">>>>>>>> [  start "+activeprefix+"  ]");
 				
@@ -1263,7 +1261,7 @@ class Geometry extends EventDispatcher  {
 	public function gotoAndPlay(value:Int):Void {
 		
 		_animation.frame = _frame  = value;
-		frames[untyped _frame].adjust(1);
+		frames.get(_frame).adjust(1);
 		if (!_animation.isRunning) {
 			_animation.start();
 		}
@@ -1277,7 +1275,7 @@ class Geometry extends EventDispatcher  {
 	public function gotoAndStop(value:Int):Void {
 		
 		_animation.frame = _frame  = value;
-		frames[untyped _frame].adjust(1);
+		frames.get(_frame).adjust(1);
 		if (_animation.isRunning) {
 			_animation.stop();
 		}
@@ -1325,7 +1323,7 @@ class Geometry extends EventDispatcher  {
 	 * @param	playlist				An array of animationsequence objects.
 	 * @param	loopLast	[optional]	Determines whether the last sequence will loop. Defaults to false.
 	 */
-	public function setPlaySequences(playlist:Array<Dynamic>, ?loopLast:Bool=false):Void {
+	public function setPlaySequences(playlist:Array<AnimationSequence>, ?loopLast:Bool=false):Void {
 		
 		if (playlist.length == 0) {
 			return;
@@ -1465,8 +1463,8 @@ class Geometry extends EventDispatcher  {
 		this._neighboursDirty = true;
 		this._vertfacesDirty = true;
 		this._vertnormalsDirty = true;
-		this.materialDictionary = new Dictionary(true);
-		this.cloneElementDictionary = new Dictionary();
+		this.materialDictionary = new HashMap<IMaterial, MaterialData>();
+		this.cloneElementDictionary = new HashMap<Element, Element>();
 		
 	}
 

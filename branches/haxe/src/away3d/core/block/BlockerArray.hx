@@ -10,7 +10,7 @@ import away3d.core.clip.Clipping;
 class BlockerArray implements IBlockerConsumer {
 	public var clip(getClip, setClip) : Clipping;
 	
-	private var _blockers:Array<Dynamic>;
+	private var _blockers:Array<Blocker>;
 	private var _clip:Clipping;
 	
 

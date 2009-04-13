@@ -36,18 +36,18 @@ class Cube extends AbstractPrimitive  {
 	private var _segmentsH:Int;
 	private var _flip:Bool;
 	private var _cubeMaterials:CubeMaterialsData;
-	private var _leftFaces:Array<Dynamic>;
-	private var _rightFaces:Array<Dynamic>;
-	private var _bottomFaces:Array<Dynamic>;
-	private var _topFaces:Array<Dynamic>;
-	private var _frontFaces:Array<Dynamic>;
-	private var _backFaces:Array<Dynamic>;
+	private var _leftFaces:Array<Face>;
+	private var _rightFaces:Array<Face>;
+	private var _bottomFaces:Array<Face>;
+	private var _topFaces:Array<Face>;
+	private var _frontFaces:Array<Face>;
+	private var _backFaces:Array<Face>;
 	private var _cubeFace:Face;
-	private var _cubeFaceArray:Array<Dynamic>;
+	private var _cubeFaceArray:Array<Face>;
 	private var _map6:Bool;
 	private var _offset:Float;
-	private var _dbv:Array<Dynamic>;
-	private var _dbu:Array<Dynamic>;
+	private var _dbv:Array<Vertex>;
+	private var _dbu:Array<UV>;
 	
 
 	private function onCubeMaterialChange(event:MaterialEvent):Void {
@@ -86,8 +86,8 @@ class Cube extends AbstractPrimitive  {
 		_topFaces = [];
 		_frontFaces = [];
 		_backFaces = [];
-		var aVs:Array<Dynamic> = [];
-		var aVds:Array<Dynamic> = [];
+		var aVs:Array<Vertex> = [];
+		var aVds:Array<Vertex> = [];
 		var hw:Float = _width * .5;
 		var hh:Float = _height * .5;
 		var hd:Float = _depth * .5;
@@ -195,7 +195,10 @@ class Cube extends AbstractPrimitive  {
 			++i;
 		}
 
-		aVs = aVds = _dbv = _dbu = null;
+		aVs = null;
+		aVds = null;
+		_dbv = null;
+		_dbu = null;
 	}
 
 	private function makeVertex(x:Float, y:Float, z:Float):Vertex {
@@ -232,7 +235,7 @@ class Cube extends AbstractPrimitive  {
 		return uv;
 	}
 
-	private function buildSide(aVs:Array<Dynamic>, material:ITriangleMaterial, aFs:Array<Dynamic>, side:String):Void {
+	private function buildSide(aVs:Array<Array<Vertex>>, material:ITriangleMaterial, aFs:Array<Face>, side:String):Void {
 		
 		var uvlength:Int = aVs.length - 1;
 		var i:Int = 0;
@@ -245,9 +248,9 @@ class Cube extends AbstractPrimitive  {
 
 	}
 
-	private function generateFaces(aPt1:Array<Vertex>, aPt2:Array<Vertex>, vscale:Float, indexv:Int, material:ITriangleMaterial, aFs:Array<Dynamic>, side:String):Void {
+	private function generateFaces(aPt1:Array<Vertex>, aPt2:Array<Vertex>, vscale:Float, indexv:Int, material:ITriangleMaterial, aFs:Array<Face>, side:String):Void {
 		
-		var varr:Array<Dynamic> = [];
+		var varr:Array<Vertex> = [];
 		var i:Int;
 		var j:Int;
 		var stepx:Float;

@@ -96,6 +96,7 @@ class ZoomFocusLens extends AbstractLens, implements ILens {
 		_vx = vertex.x;
 		_vy = vertex.y;
 		_vz = vertex.z;
+		
 		_sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
 		if (Math.isNaN(_sz)) {
 			throw new Error("isNaN(sz)");

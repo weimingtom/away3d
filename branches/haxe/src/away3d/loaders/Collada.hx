@@ -1,6 +1,5 @@
 package away3d.loaders;
 
-import away3d.haxeutils.DictionaryUtils;
 import away3d.core.math.Number2D;
 import away3d.core.utils.ValueObject;
 import away3d.materials.IMaterial;
@@ -12,7 +11,7 @@ import flash.events.EventDispatcher;
 import away3d.loaders.data.MaterialData;
 import away3d.loaders.utils.MaterialLibrary;
 import away3d.materials.ITriangleMaterial;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.loaders.utils.ChannelLibrary;
 import away3d.materials.ShadingColorMaterial;
 import away3d.loaders.data.FaceData;
@@ -67,7 +66,7 @@ class Collada extends AbstractParser  {
 	private var animationLibrary:AnimationLibrary;
 	private var geometryLibrary:GeometryLibrary;
 	private var channelLibrary:ChannelLibrary;
-	private var symbolLibrary:Dictionary;
+	private var symbolLibrary:Hash<MaterialData>;
 	private var yUp:Bool;
 	private var toRADIANS:Float;
 	private var _skinController:SkinController;
@@ -107,7 +106,7 @@ class Collada extends AbstractParser  {
 	private var _defaultAnimationClip:AnimationData;
 	private var _haveAnimation:Bool;
 	private var _haveClips:Bool;
-	private var _containers:Dictionary;
+	private var _containers:Hash<Object3D>;
 	/**
 	 * Container data object used for storing the parsed collada data structure.
 	 */
@@ -126,7 +125,7 @@ class Collada extends AbstractParser  {
 					var _boneData:BoneData = cast(_objectData, BoneData);
 					var bone:Bone = new Bone({name:_boneData.name});
 					_boneData.container = cast(bone, ObjectContainer3D);
-					_containers[untyped bone.name] = bone;
+					_containers.put(bone.name, bone);
 					//ColladaMaya 3.05B
 					bone.id = _boneData.id;
 					bone.transform = _boneData.transform;
@@ -136,7 +135,7 @@ class Collada extends AbstractParser  {
 				} else if (Std.is(_objectData, ContainerData)) {
 					var _containerData:ContainerData = cast(_objectData, ContainerData);
 					var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D({name:_containerData.name});
-					_containers[untyped objectContainer.name] = objectContainer;
+					_containers.put(objectContainer.name, objectContainer);
 					objectContainer.transform = _objectData.transform;
 					buildContainers(_containerData, objectContainer);
 					if (centerMeshes && objectContainer.children.length) {
@@ -172,7 +171,7 @@ class Collada extends AbstractParser  {
 
 						if (_faceListIndex != null) {
 							_faceData = cast(_geometryData.faces[_faceListIndex], FaceData);
-							_faceData.materialData = symbolLibrary[untyped _meshMaterialData.symbol];
+							_faceData.materialData = symbolLibrary.get(_meshMaterialData.symbol);
 						}
 					}
 
@@ -229,10 +228,7 @@ class Collada extends AbstractParser  {
 
 	private function buildMaterials():Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
-		for (__key in __keys) {
-			_materialData = materialLibrary[untyped __key];
-
+		for (_materialData in materialLibrary.iterator()) {
 			if (_materialData != null) {
 				Debug.trace(" + Build Material : " + _materialData.name);
 				//overridden by the material property in constructor
@@ -263,10 +259,7 @@ class Collada extends AbstractParser  {
 	private function buildAnimations():Void {
 		
 		var bone:Bone;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(geometryLibrary)).iterator();
-		for (__key in __keys) {
-			_geometryData = geometryLibrary[untyped __key];
-
+		for (_geometryData in geometryLibrary.iterator()) {
 			if (_geometryData != null) {
 				for (__i in 0..._geometryData.geometry.skinControllers.length) {
 					_skinController = _geometryData.geometry.skinControllers[__i];
@@ -284,10 +277,7 @@ class Collada extends AbstractParser  {
 			}
 		}
 
-		var __keys:Iterator<Dynamic> = untyped (__keys__(animationLibrary)).iterator();
-		for (__key in __keys) {
-			_animationData = animationLibrary[untyped __key];
-
+		for (_animationData in animationLibrary.iterator()) {
 			if (_animationData != null) {
 				switch (_animationData.animationType) {
 					case AnimationData.SKIN_ANIMATION :
@@ -299,13 +289,11 @@ class Collada extends AbstractParser  {
 						var sX:String;
 						var sY:String;
 						var sZ:String;
-						var __keys:Iterator<Dynamic> = untyped (__keys__(_animationData.channels)).iterator();
-						for (__key in __keys) {
-							var channelData:ChannelData = _animationData.channels[untyped __key];
+						for (channelData in _animationData.channels.iterator()) {
 
 							if (channelData != null) {
 								var channel:Channel = channelData.channel;
-								channel.target = _containers[untyped channel.name];
+								channel.target = _containers.get(channel.name);
 								animation.appendChannel(channel);
 								var times:Array<Dynamic> = channel.times;
 								if (_animationData.start > times[0]) {
@@ -614,7 +602,7 @@ class Collada extends AbstractParser  {
 		this.VALUE_V = "T";
 		this._haveAnimation = false;
 		this._haveClips = false;
-		this._containers = new Dictionary(true);
+		this._containers = new Hash<Object3D>();
 		
 		
 		collada = Cast.xml(data);
@@ -636,7 +624,7 @@ class Collada extends AbstractParser  {
 		animationLibrary = container.animationLibrary = new AnimationLibrary();
 		geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 		channelLibrary = new ChannelLibrary();
-		symbolLibrary = new Dictionary(true);
+		symbolLibrary = new Hash<MaterialData>();
 		materialLibrary.autoLoadTextures = autoLoadTextures;
 		materialLibrary.texturePath = texturePath;
 		//organise the materials
@@ -888,7 +876,7 @@ class Collada extends AbstractParser  {
 	private function parseMaterial(symbol:String, name:String):Void {
 		
 		_materialData = materialLibrary.addMaterial(name);
-		symbolLibrary[untyped symbol] = _materialData;
+		symbolLibrary.put(symbol, _materialData);
 		if (symbol == "FrontColorNoCulling") {
 			_materialData.materialType = MaterialData.SHADING_MATERIAL;
 		} else {
@@ -914,7 +902,7 @@ class Collada extends AbstractParser  {
 	private function parseGeometry(geometryData:GeometryData):Void {
 		
 		Debug.trace(" + Parse Geometry : " + geometryData.name);
-		var verticesDictionary:Dictionary = new Dictionary(true);
+		var verticesDictionary:IntHash<Vertex> = new IntHash<Vertex>();
 		// Triangles
 		for (__i in 0...geometryData.geoXML.mesh.triangles.length) {
 			var triangles:Xml = geometryData.geoXML.mesh.triangles[__i];
@@ -976,9 +964,9 @@ class Collada extends AbstractParser  {
 					}
 
 					//trace(_faceData.v0);
-					verticesDictionary[untyped _faceData.v0] = geometryData.vertices[_faceData.v0];
-					verticesDictionary[untyped _faceData.v1] = geometryData.vertices[_faceData.v1];
-					verticesDictionary[untyped _faceData.v2] = geometryData.vertices[_faceData.v2];
+					verticesDictionary.put(_faceData.v0, geometryData.vertices[_faceData.v0]);
+					verticesDictionary.put(_faceData.v1, geometryData.vertices[_faceData.v1]);
+					verticesDictionary.put(_faceData.v2, geometryData.vertices[_faceData.v2]);
 					_meshMaterialData.faceList.push(geometryData.faces.length);
 					geometryData.faces.push(_faceData);
 					
@@ -997,9 +985,7 @@ class Collada extends AbstractParser  {
 			geometryData.minY = Math.POSITIVE_INFINITY;
 			geometryData.maxZ = -Math.POSITIVE_INFINITY;
 			geometryData.minZ = Math.POSITIVE_INFINITY;
-			var __keys:Iterator<Dynamic> = untyped (__keys__(verticesDictionary)).iterator();
-			for (__key in __keys) {
-				_vertex = verticesDictionary[untyped __key];
+			for (_vertex in verticesDictionary.iterator()) {
 
 				if (_vertex != null) {
 					if (geometryData.maxX < _vertex._x) {
@@ -1050,7 +1036,7 @@ class Collada extends AbstractParser  {
 		var v:Array<Dynamic>;
 		var matrix:Matrix3D;
 		var name:String;
-		var joints:Array<Dynamic> = new Array<Dynamic>();
+		var joints:Array<Dynamic> = new Array();
 		var skinController:SkinController;
 		var i:Int = 0;
 		while (i < float_array.length) {
@@ -1132,12 +1118,10 @@ class Collada extends AbstractParser  {
 		}
 		//create default animation clip
 		_defaultAnimationClip = animationLibrary.addAnimation("default");
-		var __keys:Iterator<Dynamic> = untyped (__keys__(channelLibrary)).iterator();
-		for (__key in __keys) {
-			var channelData:ChannelData = channelLibrary[untyped __key];
-
+		var channelData:ChannelData;
+		for (channelData in channelLibrary.iterator()) {
 			if (channelData != null) {
-				_defaultAnimationClip.channels[untyped channelData.name] = channelData;
+				_defaultAnimationClip.channels.put(channelData.name, channelData);
 			}
 		}
 
@@ -1154,7 +1138,7 @@ class Collada extends AbstractParser  {
 			var channel:Xml = clip.instance_animation[__i];
 
 			if (channel != null) {
-				animationClip.channels[untyped (DictionaryUtils.__castVar = getId(channel.@url))] = channelLibrary[untyped (DictionaryUtils.__castVar = getId(channel.@url))];
+				animationClip.channels.put(getId(channel.@url), channelLibrary.get(getId(channel.@url)));
 			}
 		}
 
@@ -1179,7 +1163,7 @@ class Collada extends AbstractParser  {
 		var channel:Channel = channelData.channel = new Channel(name);
 		var i:Int;
 		var j:Int;
-		_defaultAnimationClip.channels[untyped channelData.name] = channelData;
+		_defaultAnimationClip.channels.put(channelData.name, channelData);
 		Debug.trace(" ! channelType : " + type);
 		for (__i in 0...sampler.input.length) {
 			var input:Xml = sampler.input[__i];
@@ -1212,7 +1196,7 @@ class Collada extends AbstractParser  {
 					case "OUTPUT" :
 						i = 0;
 						while (i < len) {
-							channel.param[i] = new Array<Dynamic>();
+							channel.param[i] = new Array();
 							if (stride == 16) {
 								var m:Matrix3D = new Matrix3D();
 								m.array2matrix(list.slice(i * stride, i * stride + 16), yUp, scaling);
@@ -1240,7 +1224,7 @@ class Collada extends AbstractParser  {
 					case "IN_TANGENT" :
 						i = 0;
 						while (i < len) {
-							channel.inTangent[i] = new Array<Dynamic>();
+							channel.inTangent[i] = new Array();
 							j = 0;
 							while (j < stride) {
 								channel.inTangent[i].push(new Number2D((list[stride * i + j]), (list[stride * i + j + 1])));
@@ -1253,7 +1237,7 @@ class Collada extends AbstractParser  {
 					case "OUT_TANGENT" :
 						i = 0;
 						while (i < len) {
-							channel.outTangent[i] = new Array<Dynamic>();
+							channel.outTangent[i] = new Array();
 							j = 0;
 							while (j < stride) {
 								channel.outTangent[i].push(new Number2D((list[stride * i + j]), (list[stride * i + j + 1])));

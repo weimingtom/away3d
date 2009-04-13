@@ -1,7 +1,7 @@
 package away3d.loaders.utils;
 
 import flash.events.Event;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.events.HTTPStatusEvent;
 import flash.events.IOErrorEvent;
 import flash.events.ProgressEvent;
@@ -23,7 +23,7 @@ import flash.display.Loader;
 /**
  * Creates a queue of textures that load sequentially
  */
-class TextureLoadQueue extends EventDispatcher  {
+class TextureLoadQueue extends HashableEventDispatcher  {
 	public var numItems(getNumItems, null) : Int;
 	public var currentItemIndex(getCurrentItemIndex, null) : Int;
 	public var images(getImages, null) : Array<Dynamic>;

@@ -1,6 +1,6 @@
 package away3d.materials;
 
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.containers.View3D;
 import away3d.events.MaterialEvent;
 import away3d.core.base.Object3D;
@@ -13,7 +13,7 @@ import away3d.core.draw.DrawPrimitive;
 /**
  * Wire material for solid color drawing with optional face border outlining
  */
-class WireColorMaterial extends EventDispatcher, implements ITriangleMaterial {
+class WireColorMaterial extends HashableEventDispatcher, implements ITriangleMaterial {
 	public var visible(getVisible, null) : Bool;
 	
 	/**

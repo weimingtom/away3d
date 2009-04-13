@@ -3,10 +3,10 @@ package away3d.core.render;
 import away3d.haxeutils.Error;
 import away3d.events.Object3DEvent;
 import away3d.events.SessionEvent;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.events.Event;
 import away3d.core.draw.DrawScaledBitmap;
 import away3d.core.draw.DrawBillboard;
@@ -37,11 +37,11 @@ import flash.display.BlendMode;
  * Abstract Drawing session object containing the method used for drawing the view to screen.
  * Not intended for direct use - use <code>SpriteRenderSession</code> or <code>BitmapRenderSession</code>.
  */
-class AbstractRenderSession extends EventDispatcher  {
+class AbstractRenderSession extends HashableEventDispatcher {
 	public var renderer(getRenderer, setRenderer) : IPrimitiveConsumer;
 	
 	/** @private */
-	public var _containers:Dictionary;
+	public var _containers:HashMap<View3D, Sprite>;
 	/** @private */
 	public var _shape:Shape;
 	/** @private */
@@ -49,13 +49,13 @@ class AbstractRenderSession extends EventDispatcher  {
 	/** @private */
 	public var _layerDirty:Bool;
 	/** Array for storing old displayobjects to the canvas */
-	public var _doStore:Array<Dynamic>;
+	public var _doStore:Array<Shape>;
 	/** Array for storing added displayobjects to the canvas */
-	public var _doActive:Array<Dynamic>;
+	public var _doActive:Array<Shape>;
 	private var _consumer:IPrimitiveConsumer;
-	private var _doStores:Dictionary;
-	private var _doActives:Dictionary;
-	private var _renderers:Dictionary;
+	private var _doStores:HashMap<View3D, Array<Shape>>;
+	private var _doActives:HashMap<View3D, Array<Shape>>;
+	private var _renderers:HashMap<View3D, IPrimitiveConsumer>;
 	private var _renderer:IPrimitiveConsumer;
 	private var _session:AbstractRenderSession;
 	private var _sessionupdated:SessionEvent;
@@ -80,7 +80,6 @@ class AbstractRenderSession extends EventDispatcher  {
 	private var cont:Shape;
 	private var ds:DisplayObject;
 	private var time:Int;
-	private var materials:Dictionary;
 	private var primitive:DrawPrimitive;
 	private var triangle:DrawTriangle;
 	/** @private */
@@ -117,15 +116,13 @@ class AbstractRenderSession extends EventDispatcher  {
 	/**
 	 * Dictionary of child displayobjects.
 	 */
-	public var children:Dictionary;
+	public var children:Array<DisplayObject>;
 	/**
 	 * Reference to the current graphics object being used for drawing.
 	 */
 	public var graphics:Graphics;
-	public var priconsumers:Dictionary;
 	public var consumer:IPrimitiveConsumer;
 	
-
 	/** @private */
 	public function notifySessionUpdate():Void {
 		
@@ -169,20 +166,20 @@ class AbstractRenderSession extends EventDispatcher  {
 		notifySessionUpdate();
 	}
 
-	private function getDOStore(view:View3D):Array<Dynamic> {
+	private function getDOStore(view:View3D):Array<Shape> {
 		
-		if (_doStores[untyped view] == null) {
-			return _doStores[untyped view] = new Array<Dynamic>();
+		if (!_doStores.contains(view)) {
+			return _doStores.put(view, new Array<Shape>());
 		}
-		return _doStores[untyped view];
+		return _doStores.get(view);
 	}
 
-	private function getDOActive(view:View3D):Array<Dynamic> {
+	private function getDOActive(view:View3D):Array<Shape> {
 		
-		if (_doActives[untyped view] == null) {
-			return _doActives[untyped view] = new Array<Dynamic>();
+		if (!_doActives.contains(view)) {
+			return _doActives.put(view, new Array<Shape>());
 		}
-		return _doActives[untyped view];
+		return _doActives.get(view);
 	}
 
 	private function onSessionUpdate(event:SessionEvent):Void {
@@ -284,16 +281,16 @@ class AbstractRenderSession extends EventDispatcher  {
 
 	public function getConsumer(view:View3D):IPrimitiveConsumer {
 		
-		if ((_renderers[untyped view] != null)) {
-			return _renderers[untyped view];
+		if (_renderers.contains(view)) {
+			return _renderers.get(view);
 		}
 		if ((_renderer != null)) {
-			return _renderers[untyped view] = _renderer.clone();
+			return _renderers.put(view, _renderer.clone());
 		}
 		if ((parent != null)) {
-			return _renderers[untyped view] = parent.getConsumer(view).clone();
+			return _renderers.put(view, parent.getConsumer(view).clone());
 		}
-		return _renderers[untyped view] = (cast(view.session.renderer, IPrimitiveConsumer)).clone();
+		return _renderers.put(view, (cast(view.session.renderer, IPrimitiveConsumer)).clone());
 	}
 
 	public function getTotalFaces(view:View3D):Int {
@@ -315,7 +312,7 @@ class AbstractRenderSession extends EventDispatcher  {
 	 */
 	public function clear(view:View3D):Void {
 		
-		updated = view.updated || view.forceUpdate || view.scene.updatedSessions[untyped this];
+		updated = view.updated || view.forceUpdate || (untyped view.scene.updatedSessions.indexOf(this) != -1);
 		for (__i in 0...sessions.length) {
 			_session = sessions[__i];
 
@@ -377,7 +374,7 @@ class AbstractRenderSession extends EventDispatcher  {
 
 	public function clearRenderers():Void {
 		
-		_renderers = new Dictionary(true);
+		_renderers = new HashMap<View3D, IPrimitiveConsumer>();
 	}
 
 	/**
@@ -700,17 +697,16 @@ class AbstractRenderSession extends EventDispatcher  {
 	// autogenerated
 	public function new () {
 		super();
-		this._containers = new Dictionary(true);
-		this._doStore = new Array<Dynamic>();
-		this._doActive = new Array<Dynamic>();
-		this._doStores = new Dictionary(true);
-		this._doActives = new Dictionary(true);
-		this._renderers = new Dictionary(true);
+		this._containers = new HashMap<View3D, Sprite>();
+		this._doStore = new Array<Shape>();
+		this._doActive = new Array<Shape>();
+		this._doStores = new HashMap<View3D, Array<Shape>>();
+		this._doActives = new HashMap<View3D, Array<Shape>>();
+		this._renderers = new HashMap<View3D, IPrimitiveConsumer>();
 		this.m = new Matrix();
 		this.alpha = 1;
-		this.spriteLayers = new Array<Dynamic>();
-		this.children = new Dictionary(true);
-		this.priconsumers = new Dictionary(true);
+		this.spriteLayers = new Array();
+		this.children = new Array<DisplayObject>();
 		
 	}
 

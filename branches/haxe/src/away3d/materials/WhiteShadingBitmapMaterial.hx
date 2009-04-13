@@ -4,6 +4,7 @@ import flash.events.EventDispatcher;
 import away3d.core.utils.CacheStore;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
+import away3d.haxeutils.HashMap;
 import flash.utils.Dictionary;
 import flash.geom.Point;
 import away3d.core.draw.ScreenVertex;
@@ -31,7 +32,7 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 	private var _bitmap:BitmapData;
 	private var _texturemapping:Matrix;
 	private var _faceMaterialVO:FaceMaterialVO;
-	private var _faceDictionary:Dictionary;
+	private var _faceDictionary:HashMap<FaceVO, FaceMaterialVO>;
 	private var blackrender:Bool;
 	private var whiterender:Bool;
 	private var whitek:Float;
@@ -168,7 +169,7 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	 */
 	public function new(bitmap:BitmapData, ?init:Dynamic=null) {
-		this._faceDictionary = new Dictionary(true);
+		this._faceDictionary = new HashMap<FaceVO, FaceMaterialVO>();
 		this.whitek = 0.2;
 		this.bitmapPoint = new Point(0, 0);
 		this.colorTransform = new ColorMatrixFilter();
@@ -194,10 +195,10 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 
 	public function getFaceMaterialVO(faceVO:FaceVO, ?source:Object3D=null, ?view:View3D=null):FaceMaterialVO {
 		
-		if (((_faceMaterialVO = _faceDictionary[untyped faceVO]) != null)) {
+		if (((_faceMaterialVO = _faceDictionary.get(faceVO)) != null)) {
 			return _faceMaterialVO;
 		}
-		return _faceDictionary[untyped faceVO] = new FaceMaterialVO();
+		return _faceDictionary.put(faceVO, new FaceMaterialVO());
 	}
 
 	/**
@@ -205,10 +206,7 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 	 */
 	public function clearFaces(?source:Object3D=null, ?view:View3D=null):Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (!_faceMaterialVO.cleared) {
 					_faceMaterialVO.clear();
@@ -223,10 +221,7 @@ class WhiteShadingBitmapMaterial extends CenterLightingMaterial, implements IUVM
 	 */
 	public function invalidateFaces(?source:Object3D=null, ?view:View3D=null):Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				_faceMaterialVO.invalidated = true;
 			}

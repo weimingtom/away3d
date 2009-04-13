@@ -1,14 +1,13 @@
 package away3d.loaders.utils;
 
 import away3d.core.utils.Debug;
-import flash.utils.Dictionary;
 import away3d.loaders.data.ChannelData;
 
 
 /**
  * Store for all animation channels associated with an externally loaded file.
  */
-class ChannelLibrary extends Dictionary  {
+class ChannelLibrary extends Hash<ChannelData>  {
 	
 	private var _channel:ChannelData;
 	private var _channelArray:Array<Dynamic>;
@@ -18,10 +17,7 @@ class ChannelLibrary extends Dictionary  {
 	private function updateChannelArray():Void {
 		
 		_channelArray = [];
-		var __keys:Iterator<Dynamic> = untyped (__keys__(this)).iterator();
-		for (__key in __keys) {
-			_channel = this[untyped __key];
-
+		for (_channel in this.iterator()) {
 			if (_channel != null) {
 				_channelArray.push(_channel);
 			}
@@ -35,13 +31,14 @@ class ChannelLibrary extends Dictionary  {
 	public function addChannel(name:String, xml:Xml):ChannelData {
 		//return if animation already exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		_channelArrayDirty = true;
 		var channelData:ChannelData = new ChannelData();
 		channelData.xml = xml;
-		this[untyped channelData.name = name] = channelData;
+		channelData.name = name;
+		this.set(name, channelData);
 		return channelData;
 	}
 
@@ -51,8 +48,8 @@ class ChannelLibrary extends Dictionary  {
 	public function getChannel(name:String):ChannelData {
 		//return if animation exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		Debug.warning("Channel '" + name + "' does not exist");
 		return null;

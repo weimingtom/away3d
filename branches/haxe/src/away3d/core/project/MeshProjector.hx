@@ -9,7 +9,7 @@ import away3d.materials.ILayerMaterial;
 import away3d.materials.ITriangleMaterial;
 import away3d.materials.ISegmentMaterial;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.cameras.Camera3D;
 import away3d.core.base.Face;
 import away3d.core.draw.DrawBillboard;
@@ -44,13 +44,12 @@ class MeshProjector implements IPrimitiveProvider {
 	private var _mesh:Mesh;
 	private var _frustumClipping:Bool;
 	private var _frustum:Frustum;
-	private var _vertices:Array<Dynamic>;
-	private var _faces:Array<Dynamic>;
-	private var _triangles:Array<Dynamic>;
+	private var _vertices:Array<Vertex>;
+	private var _faces:Array<Face>;
 	private var _clipFaceVOs:Bool;
-	private var _clippedFaceVOs:Array<Dynamic>;
-	private var _segments:Array<Dynamic>;
-	private var _billboards:Array<Dynamic>;
+	private var _clippedFaceVOs:Array<FaceVO>;
+	private var _segments:Array<Segment>;
+	private var _billboards:Array<Billboard>;
 	private var _camera:Camera3D;
 	private var _clipping:Clipping;
 	private var _lens:ILens;
@@ -127,8 +126,8 @@ class MeshProjector implements IPrimitiveProvider {
 		if (_backmat == null)  {
 			_backmat = _faceMaterial;
 		};
-		_clippedFaceVOs = new Array<Dynamic>();
-		if (_cameraVarsStore.nodeClassificationDictionary[untyped source] == Frustum.INTERSECT) {
+		_clippedFaceVOs = new Array<FaceVO>();
+		if (_cameraVarsStore.nodeClassificationDictionary.get(source) == Frustum.INTERSECT) {
 			_clipFaceVOs = true;
 		} else {
 			_clipFaceVOs = false;
@@ -152,6 +151,7 @@ class MeshProjector implements IPrimitiveProvider {
 
 		for (__i in 0..._clippedFaceVOs.length) {
 			_faceVO = _clippedFaceVOs[__i];
+
 
 			if (_faceVO != null) {
 				_sv0 = _lens.project(viewTransform, _faceVO.v0);

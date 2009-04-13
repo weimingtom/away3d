@@ -3,9 +3,9 @@ package away3d.animators.skin;
 import away3d.core.math.Number3D;
 import away3d.core.math.Matrix3D;
 import away3d.core.base.Vertex;
+import away3d.haxeutils.Hashable;
 
-
-class SkinVertex  {
+class SkinVertex extends Hashable {
 	
 	private var _i:Int;
 	private var _skinController:SkinController;
@@ -18,10 +18,11 @@ class SkinVertex  {
 	
 
 	public function new(vertex:Vertex) {
+		super();
 		this._position = new Number3D();
 		this._sceneTransform = new Matrix3D();
-		this.weights = new Array<Dynamic>();
-		this.controllers = new Array<Dynamic>();
+		this.weights = new Array();
+		this.controllers = new Array();
 		
 		
 		skinnedVertex = vertex;
