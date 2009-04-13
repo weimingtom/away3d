@@ -806,16 +806,14 @@ package away3d.containers
 		public function updateScreenClipping():void
 		{
         	//check for loaderInfo update
-        	if(loaderInfo && loaderInfo.width && loaderInfo.height) 
-        	{
+        	try {
         		_loaderWidth = loaderInfo.width;
         		_loaderHeight = loaderInfo.height;
-        		if (_loaderDirty) 
-        		{
+        		if (_loaderDirty) {
         			_loaderDirty = false;
         			_screenClippingDirty = true;
         		}
-        	} else {
+        	} catch (error:Error) {
         		_loaderDirty = true;
         		_loaderWidth = stage.stageWidth;
         		_loaderHeight = stage.stageHeight;
