@@ -6,7 +6,7 @@ import away3d.materials.IMaterial;
 import flash.events.EventDispatcher;
 import away3d.core.base.Segment;
 import away3d.materials.ITriangleMaterial;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Face;
 import away3d.core.base.Mesh;
 import away3d.core.utils.Init;
@@ -30,7 +30,7 @@ class BezierPatch extends Mesh  {
 	public var renderMode:Float;
 	public var connectMirrors:Float;
 	private var _pI:Array<Dynamic>;
-	private var _patchVertices:Dictionary;
+	private var _patchVertices:HashMap<Vertex, Array<Dynamic>>;
 	private var _edgeCache:Array<Dynamic>;
 	private var _gen:Array<Dynamic>;
 	private var _patchName:String;
@@ -79,8 +79,8 @@ class BezierPatch extends Mesh  {
 	public static inline var TOPRIGHT:Int = 2;
 	public static inline var BOTTOMLEFT:Int = 3;
 	public static inline var BOTTOMRIGHT:Int = 4;
-	private static inline var OPPOSITE_OR:Array<Dynamic> = new Array<Dynamic>();
-	private static inline var SCALINGS:Array<Dynamic> = new Array<Dynamic>();
+	private static inline var OPPOSITE_OR:Array<Dynamic> = new Array();
+	private static inline var SCALINGS:Array<Dynamic> = new Array();
 	private var uva:UV;
 	private var uvb:UV;
 	private var uvc:UV;
@@ -110,8 +110,8 @@ class BezierPatch extends Mesh  {
 	 * @param	init           [optional]  An initialisation object for specifying default instance properties.
 	 */
 	public function new(patchDataPrm:PatchData, ?init:Dynamic=null) {
-		this._patchVertices = new Dictionary();
-		this._gen = new Array<Dynamic>();
+		this._patchVertices = new HashMap<Vertex, Array<Dynamic>>();
+		this._gen = new Array();
 		this.vx0 = new Vertex();
 		this.vx1 = new Vertex();
 		this.vx2 = new Vertex();
@@ -157,8 +157,8 @@ class BezierPatch extends Mesh  {
 	public function buildPatch():Void {
 		
 		var start:Int = flash.Lib.getTimer();
-		_patchVertices = new Dictionary();
-		_edgeCache = new Array<Dynamic>();
+		_patchVertices = new HashMap<Vertex, Array<Dynamic>>();
+		_edgeCache = new Array();
 		geometry = new Geometry();
 		// Iterate through all the items in the patch array
 		var key:String;
@@ -311,10 +311,10 @@ class BezierPatch extends Mesh  {
 									vx1 = _gen[p][y][x - 1][orientation];
 									vx2 = _gen[p][y - 1][x - 1][orientation];
 									vx3 = _gen[p][y][x][orientation];
-									_patchVertices[untyped vx0] = [key, p, y - 1, x, orientation];
-									_patchVertices[untyped vx1] = [key, p, y, x - 1, orientation];
-									_patchVertices[untyped vx2] = [key, p, y - 1, x - 1, orientation];
-									_patchVertices[untyped vx3] = [key, p, y, x, orientation];
+									_patchVertices.put(vx0, [key, p, y - 1, x, orientation]);
+									_patchVertices.put(vx1, [key, p, y, x - 1, orientation]);
+									_patchVertices.put(vx2, [key, p, y - 1, x - 1, orientation]);
+									_patchVertices.put(vx3, [key, p, y, x, orientation]);
 									// Add faces based on normal and if the vertices do not shared
 									if (_normDir) {
 										if (vx0 != vx1 && vx0 != vx3 && vx1 != vx3) {
@@ -374,15 +374,15 @@ class BezierPatch extends Mesh  {
 		var xCtr:Int = 0;
 		var yCtr:Int = 0;
 		var thisOr:Int = 0;
-		_gen[p] = new Array<Dynamic>();
+		_gen[p] = new Array();
 		// Generate mesh for base patch and apply to the other orientations and store
 		var yPos:Float = 0;
 		while (yPos <= 1 + (Reflect.field(_pI, key).yStp / 2)) {
-			_gen[p][yCtr] = new Array<Dynamic>();
+			_gen[p][yCtr] = new Array();
 			xCtr = 0;
 			var xPos:Float = 0;
 			while (xPos <= 1 + (Reflect.field(_pI, key).xStp / 2)) {
-				_gen[p][yCtr][xCtr] = new Array<Dynamic>();
+				_gen[p][yCtr][xCtr] = new Array();
 				for (__i in 0...[1, 2, 4, 8, 16, 32, 64, 128].length) {
 					var orientation:Int = [1, 2, 4, 8, 16, 32, 64, 128][__i];
 
@@ -437,10 +437,10 @@ class BezierPatch extends Mesh  {
 					v = vertices[__i];
 
 					if (v != null) {
-						pId = _patchVertices[untyped v][untyped 1];
-						yId = _patchVertices[untyped v][untyped 2];
-						xId = _patchVertices[untyped v][untyped 3];
-						orId = _patchVertices[untyped v][untyped 4];
+						pId = _patchVertices.get(v)[1];
+						yId = _patchVertices.get(v)[2];
+						xId = _patchVertices.get(v)[3];
+						orId = _patchVertices.get(v)[4];
 						v.x = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].x;
 						v.y = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].y;
 						v.z = Reflect.field(patchData.generatedPatch, key)[pId][yId][xId].z;

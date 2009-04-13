@@ -1,7 +1,7 @@
 package away3d.primitives.data;
 
 import away3d.core.utils.Init;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.materials.IMaterial;
 import away3d.materials.ITriangleMaterial;
 import flash.events.Event;
@@ -21,7 +21,7 @@ import away3d.events.MaterialEvent;
  * @see away3d.primitives.Cube
  * @see away3d.primitives.Skybox
  */
-class CubeMaterialsData extends EventDispatcher  {
+class CubeMaterialsData extends HashableEventDispatcher  {
 	public var left(getLeft, setLeft) : ITriangleMaterial;
 	public var right(getRight, setRight) : ITriangleMaterial;
 	public var bottom(getBottom, setBottom) : ITriangleMaterial;
@@ -175,29 +175,23 @@ class CubeMaterialsData extends EventDispatcher  {
 		
 		
 		ini = Init.parse(init);
-		var tmpObject:Dynamic = ini.getMaterial("left");
-		if (tmpObject != null) {
-			_left = cast(tmpObject, ITriangleMaterial);
+		if (ini.hasField("left")) {
+			_left = cast(ini.getMaterial("left"), ITriangleMaterial);
 		}
-		tmpObject = ini.getMaterial("right");
-		if (tmpObject != null) {
-			_right = cast(tmpObject, ITriangleMaterial);
+		if (ini.hasField("right")) {
+			_right = cast(ini.getMaterial("right"), ITriangleMaterial);
 		}
-		tmpObject = ini.getMaterial("bottom");
-		if (tmpObject != null) {
-			_bottom = cast(tmpObject, ITriangleMaterial);
+		if (ini.hasField("bottom")) {
+			_bottom = cast(ini.getMaterial("bottom"), ITriangleMaterial);
 		}
-		tmpObject = ini.getMaterial("top");
-		if (tmpObject != null) {
-			_top = cast(tmpObject, ITriangleMaterial);
+		if (ini.hasField("top")) {
+			_top = cast(ini.getMaterial("top"), ITriangleMaterial);
 		}
-		tmpObject = ini.getMaterial("front");
-		if (tmpObject != null) {
-			_front = cast(tmpObject, ITriangleMaterial);
+		if (ini.hasField("front")) {
+			_front = cast(ini.getMaterial("front"), ITriangleMaterial);
 		}
-		tmpObject = ini.getMaterial("back");
-		if (tmpObject != null) {
-			_back = cast(tmpObject, ITriangleMaterial);
+		if (ini.hasField("back")) {
+			_back = cast(ini.getMaterial("back"), ITriangleMaterial);
 		}
 	}
 

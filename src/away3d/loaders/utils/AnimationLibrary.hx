@@ -1,14 +1,13 @@
 package away3d.loaders.utils;
 
 import away3d.core.utils.Debug;
-import flash.utils.Dictionary;
 import away3d.loaders.data.AnimationData;
 
 
 /**
  * Store for all animations associated with an externally loaded file.
  */
-class AnimationLibrary extends Dictionary  {
+class AnimationLibrary extends Hash<AnimationData>  {
 	
 	
 
@@ -18,11 +17,12 @@ class AnimationLibrary extends Dictionary  {
 	public function addAnimation(name:String):AnimationData {
 		//return if animation already exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		var animationData:AnimationData = new AnimationData();
-		this[untyped animationData.name = name] = animationData;
+		animationData.name = name;
+		this.set(name, animationData);
 		return animationData;
 	}
 
@@ -32,8 +32,8 @@ class AnimationLibrary extends Dictionary  {
 	public function getAnimation(name:String):AnimationData {
 		//return if animation exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		Debug.warning("Animation '" + name + "' does not exist");
 		return null;

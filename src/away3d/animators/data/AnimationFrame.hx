@@ -11,7 +11,7 @@ class AnimationFrame  {
 	/**
 	 * Frame number.
 	 */
-	public var frame:Float;
+	public var frame:Int;
 	/**
 	 * Time from the start of the animation.
 	 */
@@ -28,7 +28,7 @@ class AnimationFrame  {
 	 * @param	frame		The number of the frame in it's sequence.
 	 * @param	sort		An optional sort string used to order the animation frames.
 	 */
-	public function new(frame:Float, ?sort:String=null) {
+	public function new(frame:Int, ?sort:String=null) {
 		
 		
 		this.frame = frame;

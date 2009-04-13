@@ -14,11 +14,11 @@ import away3d.core.geom.Line2D;
  */
 class ConvexBlocker extends Blocker  {
 	
-	private var _boundlines:Array<Dynamic>;
+	private var _boundlines:Array<Line2D>;
 	/**
 	 * Defines the vertices used to calulate the convex hull.
 	 */
-	public var vertices:Array<Dynamic>;
+	public var vertices:Array<ScreenVertex>;
 	
 
 	/**

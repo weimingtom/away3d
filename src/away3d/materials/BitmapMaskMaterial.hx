@@ -1,9 +1,9 @@
 package away3d.materials;
 
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.events.Event;
 import away3d.events.MaterialEvent;
 import flash.geom.Rectangle;
@@ -32,7 +32,7 @@ import flash.display.Graphics;
 /**
  * Basic bitmap material
  */
-class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, implements IUVMaterial, implements ILayerMaterial, implements IBillboardMaterial {
+class BitmapMaskMaterial extends HashableEventDispatcher, implements ITriangleMaterial, implements IUVMaterial, implements ILayerMaterial, implements IBillboardMaterial {
 	public var smooth(getSmooth, setSmooth) : Bool;
 	public var debug(getDebug, setDebug) : Bool;
 	public var repeat(getRepeat, setRepeat) : Bool;
@@ -45,7 +45,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public var scaling(null, setScaling) : Float;
 	public var color(getColor, setColor) : Int;
 	public var alpha(getAlpha, setAlpha) : Float;
-	public var blendMode(getBlendMode, setBlendMode) : BlendMode;
+	public var blendMode(getBlendMode, setBlendMode) : String;
 	public var showNormals(getShowNormals, setShowNormals) : Bool;
 	public var visible(getVisible, null) : Bool;
 	
@@ -64,7 +64,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	/** @private */
 	public var _colorTransformDirty:Bool;
 	/** @private */
-	public var _blendMode:BlendMode;
+	public var _blendMode:String;
 	/** @private */
 	public var _blendModeDirty:Bool;
 	/** @private */
@@ -78,7 +78,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	/** @private */
 	public var _alpha:Float;
 	/** @private */
-	public var _faceDictionary:Dictionary;
+	public var _faceDictionary:HashMap<Object3D, FaceMaterialVO>();
 	/** @private */
 	public var _zeroPoint:Point;
 	/** @private */
@@ -100,7 +100,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	private var _debug:Bool;
 	private var _repeat:Bool;
 	private var _precision:Float;
-	private var _shapeDictionary:Dictionary;
+	private var _shapeDictionary:HashMap<IHashable, Shape>;
 	private var _shape:Shape;
 	private var _materialupdated:MaterialEvent;
 	private var focus:Float;
@@ -176,10 +176,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	/** @private */
 	public function clearShapeDictionary():Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_shapeDictionary)).iterator();
-		for (__key in __keys) {
-			_shape = _shapeDictionary[untyped __key];
-
+		for (_shape in _shapeDictionary.iterator()) {
 			if (_shape != null) {
 				_shape.graphics.clear();
 			}
@@ -191,8 +188,8 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):Void {
 		//check to see if sourceDictionary exists
 		
-		if ((_sourceVO = _faceDictionary[untyped source]) == null) {
-			_sourceVO = _faceDictionary[untyped source] = new FaceMaterialVO();
+		if ((_sourceVO = _faceDictionary.get(source)) == null) {
+			_sourceVO = _faceDictionary.put(source, new FaceMaterialVO());
 		}
 		_sourceVO.resize(containerRect.width, containerRect.height);
 		//check to see if rendering can be skipped
@@ -637,12 +634,12 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	 * @see away3d.materials.BitmapMaskMaterialContainer
 	 * @see away3d.materials.CompositeMaterial
 	 */
-	public function getBlendMode():BlendMode {
+	public function getBlendMode():String {
 		
 		return _blendMode;
 	}
 
-	public function setBlendMode(val:BlendMode):BlendMode {
+	public function setBlendMode(val:String):String {
 		
 		if (_blendMode == val) {
 			return val;
@@ -678,13 +675,13 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		this._green = 1;
 		this._blue = 1;
 		this._alpha = 1;
-		this._faceDictionary = new Dictionary(true);
+		this._faceDictionary = new HashMap<Object3D, FaceMaterialVO>();
 		this._zeroPoint = new Point(0, 0);
 		this._s = new Shape();
-		this._shapeDictionary = new Dictionary(true);
+		this._shapeDictionary = new HashMap<IHashable, Shape>();
 		this.map = new Matrix();
 		this.triangle = new DrawTriangle();
-		this.svArray = new Array<Dynamic>();
+		this.svArray = new Array();
 		
 		
 		_bitmap = bitmap;
@@ -693,8 +690,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		debug = ini.getBoolean("debug", false);
 		repeat = ini.getBoolean("repeat", false);
 		precision = ini.getNumber("precision", 0);
-		var blendModeString:String = ini.getString("blendMode", BlendModeUtils.NORMAL);
-		_blendMode = BlendModeUtils.toHaxe(blendModeString);
+		_blendMode = ini.getString("blendMode", BlendMode.NORMAL);
 		alpha = ini.getNumber("alpha", _alpha, {min:0, max:1});
 		color = ini.getColor("color", _color);
 		showNormals = ini.getBoolean("showNormals", false);
@@ -726,10 +722,10 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public function getFaceMaterialVO(faceVO:FaceVO, ?source:Object3D=null, ?view:View3D=null):FaceMaterialVO {
 		//check to see if faceMaterialVO exists
 		
-		if (((_faceMaterialVO = _faceDictionary[untyped faceVO]) != null)) {
+		if (((_faceMaterialVO = _faceDictionary.get(faceVO)) != null)) {
 			return _faceMaterialVO;
 		}
-		return _faceDictionary[untyped faceVO] = new FaceMaterialVO();
+		return _faceDictionary.put(faceVO, new FaceMaterialVO());
 	}
 
 	/**
@@ -738,10 +734,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public function clearFaces(?source:Object3D=null, ?view:View3D=null):Void {
 		
 		notifyMaterialUpdate();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO = _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (!_faceMaterialVO.cleared) {
 					_faceMaterialVO.clear();
@@ -757,10 +750,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 	public function invalidateFaces(?source:Object3D=null, ?view:View3D=null):Void {
 		
 		_materialDirty = true;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO = _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				_faceMaterialVO.invalidated = true;
 			}
@@ -778,12 +768,12 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 		} else {
 			_session = tri.source.session;
 			if (_session != tri.source.scene.session) {
-				if ((_shape = _shapeDictionary[untyped _session]) == null) {
-					layer.addChild(_shape = _shapeDictionary[untyped _session] = new Shape());
+				if ((_shape = _shapeDictionary.get(_session)) == null) {
+					layer.addChild(_shape = _shapeDictionary.put(_session, new Shape()));
 				}
 			} else {
-				if ((_shape = _shapeDictionary[untyped tri.faceVO]) == null) {
-					layer.addChild(_shape = _shapeDictionary[untyped tri.faceVO] = new Shape());
+				if ((_shape = _shapeDictionary.get(tri.faceVO)) == null) {
+					layer.addChild(_shape = _shapeDictionary.put(tri.faceVO, new Shape()));
 				}
 			}
 			_shape.blendMode = _blendMode;
@@ -824,7 +814,7 @@ class BitmapMaskMaterial extends EventDispatcher, implements ITriangleMaterial, 
 				_sv0 = new ScreenVertex();
 				_sv1 = new ScreenVertex();
 			}
-			var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[untyped tri.source];
+			var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary.get(tri.source);
 			_nn.rotate(tri.faceVO.face.normal, t);
 			_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;
 			_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;

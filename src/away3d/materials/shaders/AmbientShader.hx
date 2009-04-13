@@ -2,7 +2,7 @@ package away3d.materials.shaders;
 
 import flash.events.EventDispatcher;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Object3D;
 import away3d.core.base.Mesh;
 import flash.geom.Matrix;
@@ -53,10 +53,7 @@ class AmbientShader extends AbstractShader  {
 	private function clearFaces(source:Object3D, view:View3D):Void {
 		
 		notifyMaterialUpdate();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (source == _faceMaterialVO.source) {
 					if (!_faceMaterialVO.cleared) {

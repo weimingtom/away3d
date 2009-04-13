@@ -3,7 +3,7 @@ package away3d.materials.shaders;
 import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Face;
 import flash.geom.Point;
 import away3d.core.base.Object3D;
@@ -32,15 +32,15 @@ import away3d.core.base.Element;
  * @see away3d.lights.DirectionalLight3D
  */
 class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
-	public var bitmap(getBitmap, setBitmap) : BitmapData;
 	public var width(getWidth, null) : Float;
 	public var height(getHeight, null) : Float;
+	public var bitmap(getBitmap, setBitmap) : BitmapData;
 	
 	private var _zeroPoint:Point;
 	private var _bitmap:BitmapData;
-	private var _sourceDictionary:Dictionary;
+	private var _sourceDictionary:HashMap<DrawTriangle, BitmapData>;
 	private var _sourceBitmap:BitmapData;
-	private var _normalDictionary:Dictionary;
+	private var _normalDictionary:HashMap<DrawTriangle, BitmapData>;
 	private var _normalBitmap:BitmapData;
 	private var _diffuseTransform:Matrix3D;
 	private var _szx:Float;
@@ -91,10 +91,7 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	public function clearFaces(?source:Object3D=null, ?view:View3D=null):Void {
 		
 		notifyMaterialUpdate();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (source == _faceMaterialVO.source) {
 					if (!_faceMaterialVO.cleared) {
@@ -111,10 +108,7 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	 */
 	public function invalidateFaces(?source:Object3D=null, ?view:View3D=null):Void {
 		
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				_faceMaterialVO.invalidated = true;
 			}
@@ -128,15 +122,15 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	private override function renderShader(tri:DrawTriangle):Void {
 		//check to see if sourceDictionary exists
 		
-		_sourceBitmap = _sourceDictionary[untyped tri];
+		_sourceBitmap = _sourceDictionary.get(tri);
 		if (_sourceBitmap == null || _faceMaterialVO.resized) {
-			_sourceBitmap = _sourceDictionary[untyped tri] = _parentFaceMaterialVO.bitmap.clone();
+			_sourceBitmap = _sourceDictionary.put(tri, _parentFaceMaterialVO.bitmap.clone());
 			_sourceBitmap.lock();
 		}
 		//check to see if normalDictionary exists
-		_normalBitmap = _normalDictionary[untyped tri];
+		_normalBitmap = _normalDictionary.get(tri);
 		if (_normalBitmap == null || _faceMaterialVO.resized) {
-			_normalBitmap = _normalDictionary[untyped tri] = _parentFaceMaterialVO.bitmap.clone();
+			_normalBitmap = _normalDictionary.put(tri, _parentFaceMaterialVO.bitmap.clone());
 			_normalBitmap.lock();
 		}
 		_n0 = _source.geometry.getVertexNormal(_face.v0);
@@ -146,7 +140,7 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 			directional = _source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_diffuseTransform = directional.diffuseTransform.get(_source);
 				_szx = _diffuseTransform.szx;
 				_szy = _diffuseTransform.szy;
 				_szz = _diffuseTransform.szz;
@@ -163,9 +157,9 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 					_faceMaterialVO.cleared = false;
 					_faceMaterialVO.updated = true;
 					//resolve normal map
-					_sourceBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixTransform[untyped _source]);
+					_sourceBitmap.applyFilter(_bitmap, _faceVO.bitmapRect, _zeroPoint, directional.normalMatrixTransform.get(_source));
 					//normalise bitmap
-					_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform[untyped _source]);
+					_normalBitmap.applyFilter(_sourceBitmap, _sourceBitmap.rect, _zeroPoint, directional.colorMatrixTransform.get(_source));
 					//draw into faceBitmap
 					_faceMaterialVO.bitmap.draw(_normalBitmap, null, directional.diffuseColorTransform, blendMode);
 				}
@@ -198,11 +192,12 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 		return _bitmap;
 	}
 
-	public function setBitmap(value:BitmapData):BitmapData {
-		_bitmap = value;
-		return value;
+	public function setBitmap(bitmap:BitmapData):BitmapData {
+		_bitmap = bitmap;
+		
+		return bitmap;
 	}
-	 
+
 
 	/**
 	 * Returns the argb value of the bitmapData pixel at the given u v coordinate.
@@ -224,8 +219,8 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 	 */
 	public function new(bitmap:BitmapData, ?init:Dynamic=null) {
 		this._zeroPoint = new Point(0, 0);
-		this._sourceDictionary = new Dictionary(true);
-		this._normalDictionary = new Dictionary(true);
+		this._sourceDictionary = new HashMap<DrawTriangle, BitmapData>();
+		this._normalDictionary = new HashMap<DrawTriangle, BitmapData>();
 		
 		
 		super(init);
@@ -243,7 +238,7 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 			directional = source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				if (!directional.diffuseTransform[untyped source] || view.scene.updatedObjects[untyped source]) {
+				if (!directional.diffuseTransform.contains(source) || untyped view.scene.updatedObjects.indexOf(source) != -1) {
 					directional.setDiffuseTransform(source);
 					directional.setNormalMatrixTransform(source);
 					directional.setColorMatrixTransform(source);
@@ -266,12 +261,12 @@ class DiffuseDot3Shader extends AbstractShader, implements IUVMaterial {
 			if (directional != null) {
 				if (_lights.numLights > 1) {
 					_shape = getLightingShape(layer, directional);
-					_shape.filters = [directional.normalMatrixTransform[untyped _source], directional.colorMatrixTransform[untyped _source]];
+					_shape.filters = [directional.normalMatrixTransform.get(_source), directional.colorMatrixTransform.get(_source)];
 					_shape.blendMode = blendMode;
 					_shape.transform.colorTransform = directional.ambientDiffuseColorTransform;
 					_graphics = _shape.graphics;
 				} else {
-					layer.filters = [directional.normalMatrixTransform[untyped _source], directional.colorMatrixTransform[untyped _source]];
+					layer.filters = [directional.normalMatrixTransform.get(_source), directional.colorMatrixTransform.get(_source)];
 					layer.transform.colorTransform = directional.ambientDiffuseColorTransform;
 					_graphics = layer.graphics;
 				}

@@ -2,7 +2,7 @@ package away3d.loaders.data;
 
 import away3d.containers.ObjectContainer3D;
 import flash.events.EventDispatcher;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Object3D;
 import away3d.animators.IMeshAnimation;
 
@@ -45,7 +45,7 @@ class AnimationData  {
 	/**
 	 * Dictonary of names representing the animation channels used in the animation.
 	 */
-	public var channels:Dictionary;
+	public var channels:Hash<ChannelData>;
 	
 
 	public function clone(object:Object3D):AnimationData {
@@ -63,7 +63,7 @@ class AnimationData  {
 		this.start = Math.POSITIVE_INFINITY;
 		this.end = 0;
 		this.animationType = SKIN_ANIMATION;
-		this.channels = new Dictionary(true);
+		this.channels = new Hash<ChannelData>();
 		
 	}
 

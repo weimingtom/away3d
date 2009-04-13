@@ -1,9 +1,10 @@
 package away3d.core.base;
 
 import away3d.core.base.AnimationTransition;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.events.Event;
 import away3d.events.AnimationEvent;
+import away3d.animators.data.AnimationFrame;
 
 
 /**
@@ -23,7 +24,7 @@ import away3d.events.AnimationEvent;
 /**
  * Holds information about the current state of a mesh animation.
  */
-class Animation extends EventDispatcher, implements IAnimation {
+class Animation extends HashableEventDispatcher, implements IAnimation {
 	public var latest(getLatest, null) : Int;
 	public var isRunning(getIsRunning, null) : Bool;
 	public var transitionValue(getTransitionValue, setTransitionValue) : Float;
@@ -73,7 +74,7 @@ class Animation extends EventDispatcher, implements IAnimation {
 	 * 
 	 * @see away3d.core.base.AnimationFrame
 	 */
-	public var sequence:Array<Dynamic>;
+	public var sequence:Array<AnimationFrame>;
 	/**
 	 * The mesh on which the animation is occurring.
 	 */
@@ -228,12 +229,12 @@ class Animation extends EventDispatcher, implements IAnimation {
 			rf = sequence.length - 1;
 		}
 		if (rf == Math.round(rf)) {
-			geometry.frames[untyped sequence[Std.int(rf)].frame].adjust(1);
+			geometry.frames.get(sequence[Std.int(rf)].frame).adjust(1);
 		} else {
 			var lf:Float = Math.floor(rf);
 			var hf:Float = Math.ceil(rf);
-			geometry.frames[untyped sequence[Std.int(lf)].frame].adjust(1);
-			geometry.frames[untyped sequence[Std.int(hf)].frame].adjust(rf - lf);
+			geometry.frames.get(sequence[Std.int(lf)].frame).adjust(1);
+			geometry.frames.get(sequence[Std.int(hf)].frame).adjust(rf - lf);
 			if (loop || sequenceEvent) {
 				if (_latest == 0 || _latest + 1 == sequence[Std.int(lf)].frame || _latest == sequence[Std.int(lf)].frame) {
 					_latest = sequence[Std.int(lf)].frame;

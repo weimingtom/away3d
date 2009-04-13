@@ -12,7 +12,7 @@ import away3d.core.math.Matrix3D;
 import away3d.core.base.Vertex;
 import away3d.core.utils.DrawPrimitiveStore;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.Init;
 import flash.events.Event;
 import away3d.core.clip.Clipping;
@@ -264,7 +264,9 @@ class Camera3D extends Object3D  {
 		focus = ini.getNumber("focus", 100);
 		zoom = ini.getNumber("zoom", _zoom);
 		fixedZoom = ini.getBoolean("fixedZoom", true);
-		lens = ini.getObject("lens", AbstractLens);
+		if (ini.hasField("lens")) {
+			lens = cast(ini.getObject("lens", AbstractLens), ILens);
+		}
 		if (lens == null)  {
 			lens = new ZoomFocusLens();
 		};
@@ -318,7 +320,7 @@ class Camera3D extends Object3D  {
 		}
 		_cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
 		_drawPrimitiveStore.createVertexDictionary(object);
-		return lens.project(_cameraVarsStore.viewTransformDictionary[untyped object], vertex);
+		return lens.project(_cameraVarsStore.viewTransformDictionary.get(object), vertex);
 	}
 
 	/**

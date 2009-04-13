@@ -4,7 +4,7 @@ import flash.filters.ColorMatrixFilter;
 import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Face;
 import away3d.core.base.Object3D;
 import away3d.core.base.Mesh;
@@ -116,10 +116,7 @@ class EnviroShader extends AbstractShader  {
 	private function clearFaces(source:Object3D, view:View3D):Void {
 		
 		notifyMaterialUpdate();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (source == _faceMaterialVO.source && view == _faceMaterialVO.view) {
 					if (!_faceMaterialVO.cleared) {
@@ -217,7 +214,7 @@ class EnviroShader extends AbstractShader  {
 	public override function updateMaterial(source:Object3D, view:View3D):Void {
 		
 		clearShapeDictionary();
-		_enviroTransform = view.cameraVarsStore.viewTransformDictionary[untyped source];
+		_enviroTransform = view.cameraVarsStore.viewTransformDictionary.get(source);
 		_sxx = _enviroTransform.sxx;
 		_sxy = _enviroTransform.sxy;
 		_sxz = _enviroTransform.sxz;
@@ -232,7 +229,7 @@ class EnviroShader extends AbstractShader  {
 		_syx /= _syd;
 		_syy /= _syd;
 		_syz /= _syd;
-		if (view.scene.updatedObjects[untyped source] || view.updated) {
+		if (untyped view.scene.updatedObjects.indexOf(source) != -1 || view.updated) {
 			clearFaces(source, view);
 		}
 	}

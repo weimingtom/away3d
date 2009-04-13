@@ -3,14 +3,13 @@ package away3d.haxeutils;
 import flash.display.Sprite;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
-import flash.utils.Dictionary;
 
 class TimerUtils extends Sprite {
 	
 	
-	private var timeStart:Dictionary;
-	private var cumulativeTimes:Dictionary;
-	private var nPasses:Dictionary;
+	private var timeStart:Hash<Int>;
+	private var cumulativeTimes:Hash<Int>;
+	private var nPasses:Hash<Int>;
 	private var timerText:TextField;
 	
 	
@@ -25,9 +24,9 @@ class TimerUtils extends Sprite {
 		addChild(timerText);
 		timerText.text = "";
 
-		timeStart = new Dictionary();
-		cumulativeTimes = new Dictionary();
-		nPasses = new Dictionary();
+		timeStart = new Hash<Int>();
+		cumulativeTimes = new Hash<Int>();
+		nPasses = new Hash<Int>();
 	}
 
 	public static function getInstance():TimerUtils {
@@ -39,30 +38,29 @@ class TimerUtils extends Sprite {
 	
 
 	public function tickStart(id:String):Void {
-		timeStart[untyped id] = flash.Lib.getTimer();
+		timeStart.set(id, flash.Lib.getTimer());
 	}
 	
 	public function tickEnd(id:String):Void {
-		if (timeStart[untyped id] != null) {
-			var timePassed:Int = flash.Lib.getTimer() - timeStart[untyped id];
+		if (timeStart.get(id) != null) {
+			var timePassed:Int = flash.Lib.getTimer() - timeStart.get(id);
 			var cumulativeTime:Int = 0;
 			var iter:Int = 0;
-			if (cumulativeTimes[untyped id] != null) {
-				cumulativeTime = cumulativeTimes[untyped id];
-				iter = nPasses[untyped id];
+			if (cumulativeTimes.get(id) != null) {
+				cumulativeTime = cumulativeTimes.get(id);
+				iter = nPasses.get(id);
 			}
 			
-			cumulativeTimes[untyped id] = timePassed + cumulativeTime;
-			nPasses[untyped id] = iter + 1;
+			cumulativeTimes.set(id, timePassed + cumulativeTime);
+			nPasses.set(id, iter + 1);
 			
 		}
 	}
 	
 	public function display():Void {
 		var text:String = "";
-		var __keys:Iterator<Dynamic> = untyped (__keys__(cumulativeTimes)).iterator();
-		for (key in __keys) {
-			text = text + key + " ----> " + cumulativeTimes[untyped key] + " / " + nPasses[untyped key] + "\n"; 
+		for (key in cumulativeTimes.keys()) {
+			text = text + key + " ----> " + cumulativeTimes.get(key) + " / " + nPasses.get(key) + "\n"; 
 		}
 		
 		timerText.text = text;

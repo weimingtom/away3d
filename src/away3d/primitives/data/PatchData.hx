@@ -4,7 +4,7 @@ import away3d.core.base.Vertex;
 import away3d.core.math.Number3D;
 import away3d.core.utils.Init;
 import flash.utils.ByteArray;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.utils.getTimer;
 
 
@@ -102,8 +102,8 @@ class PatchData  {
 	public function setPatchInfo(value:Array<Dynamic>):Array<Dynamic> {
 		// Initialize the patch and generated patch arrays
 		
-		controlPoints = new Array<Dynamic>();
-		generatedPatch = new Array<Dynamic>();
+		controlPoints = new Array();
+		generatedPatch = new Array();
 		// Process each sub-patch in turn
 		for (__i in 0...value.length) {
 			var o:Dynamic = value[__i];
@@ -138,10 +138,10 @@ class PatchData  {
 	 * Set up the patch data
 	 */
 	public function new(nodesPrms:Array<Dynamic>, verticesPrms:Array<Dynamic>, uvsPrms:Array<Dynamic>, patchInfoPrms:Array<Dynamic>, ?resize:Float=1) {
-		this._nodes = new Array<Dynamic>();
-		this._vertices = new Array<Dynamic>();
-		this._uvs = new Array<Dynamic>();
-		this._patchInfo = new Array<Dynamic>();
+		this._nodes = new Array();
+		this._vertices = new Array();
+		this._uvs = new Array();
+		this._patchInfo = new Array();
 		this._patchCache = new Dictionary();
 		this.tempV = new Vertex();
 		this.a = new Vertex();
@@ -411,13 +411,13 @@ class PatchData  {
 		var t2:Number3D = new Number3D();
 		var nd:Number3D = new Number3D();
 		// Copy our vectors into a temporary array
-		var tmp:Array<Dynamic> = new Array<Dynamic>();
-		var ntmp:Array<Dynamic> = new Array<Dynamic>();
+		var tmp:Array<Dynamic> = new Array();
+		var ntmp:Array<Dynamic> = new Array();
 		var n3D:Number3D = new Number3D();
 		i = 0;
 		while (i < 4) {
-			tmp[i] = new Array<Dynamic>();
-			ntmp[i] = new Array<Dynamic>();
+			tmp[i] = new Array();
+			ntmp[i] = new Array();
 			j = 0;
 			while (j < 4) {
 				ntmp[i][j] = VtoN(Reflect.field(controlPoints, k)[p][i][j]);

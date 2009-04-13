@@ -10,7 +10,7 @@ import flash.filters.DisplacementMapFilterMode;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.geom.Matrix;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.core.math.Number3D;
 import away3d.events.TraceEvent;
 import flash.events.Event;
@@ -38,7 +38,7 @@ import away3d.haxeutils.GlobalTimer;
 
 // use namespace arcane;
 
-class NormalMapGenerator extends EventDispatcher  {
+class NormalMapGenerator extends HashableEventDispatcher  {
 	public var normalmap(getNormalmap, null) : BitmapData;
 	public var bumpmap(getBumpmap, null) : BitmapData;
 	

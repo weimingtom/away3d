@@ -1,9 +1,10 @@
 package away3d.core.base;
 
 import away3d.haxeutils.Error;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.events.Event;
 import away3d.events.ElementEvent;
+
 
 
 /**
@@ -33,7 +34,7 @@ import away3d.events.ElementEvent;
  * Basic 3d element object
  * Not intended for direct use - use <code>Segment</code> or <code>Face</code>.
  */
-class Element extends EventDispatcher  {
+class Element extends HashableEventDispatcher  {
 	public var vertices(getVertices, null) : Array<Dynamic>;
 	public var visible(getVisible, setVisible) : Bool;
 	public var radius2(getRadius2, null) : Float;
@@ -59,7 +60,6 @@ class Element extends EventDispatcher  {
 	 */
 	public var parent:Geometry;
 	
-
 	/** @private */
 	public function notifyVertexChange():Void {
 		
@@ -257,7 +257,6 @@ class Element extends EventDispatcher  {
 	public function new () {
 		super();
 		this._visible = true;
-		
 	}
 
 	

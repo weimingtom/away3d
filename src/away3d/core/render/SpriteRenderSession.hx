@@ -2,7 +2,7 @@ package away3d.core.render;
 
 import flash.events.EventDispatcher;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.events.Event;
 import flash.geom.Rectangle;
 import away3d.core.clip.Clipping;
@@ -47,10 +47,10 @@ class SpriteRenderSession extends AbstractRenderSession  {
 	 */
 	public override function getContainer(view:View3D):DisplayObject {
 		
-		if (_containers[untyped view] == null) {
-			return _containers[untyped view] = new Sprite();
+		if (!_containers.contains(view)) {
+			return _containers.put(view, new Sprite());
 		}
-		return _containers[untyped view];
+		return _containers.get(view);
 	}
 
 	/**
@@ -62,7 +62,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 		_container.addChild(child);
 		child.visible = true;
 		//add child to children
-		children[untyped child] = child;
+		children.push(child);
 		_layerDirty = true;
 	}
 
@@ -75,7 +75,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 		_container.addChild(child);
 		child.visible = true;
 		//add child to children
-		children[untyped child] = child;
+		children.push(child);
 		newLayer = child;
 	}
 
@@ -86,7 +86,8 @@ class SpriteRenderSession extends AbstractRenderSession  {
 		//create new canvas for remaining triangles
 		
 		if ((_doStore.length > 0)) {
-			_shape = _doStore.pop();
+			_shape = _doStore[_doStore.length - 1];
+			_doStore.pop();
 		} else {
 			_shape = new Shape();
 		}
@@ -124,7 +125,7 @@ class SpriteRenderSession extends AbstractRenderSession  {
 				_container.removeChild(_container.getChildAt(i));
 			}
 
-			children = new Dictionary(true);
+			children = new Array<DisplayObject>();
 			newLayer = null;
 		} else {
 			_container.cacheAsBitmap = cacheAsBitmap;
@@ -133,10 +134,10 @@ class SpriteRenderSession extends AbstractRenderSession  {
 			_container.filters = filters;
 		}
 		_container.alpha = alpha;
-		if (blendMode == null) {
-			_container.blendMode = BlendMode.NORMAL;
-		} else {
+		if (blendMode != null) {
 			_container.blendMode = blendMode;
+		} else {
+			blendMode = BlendMode.NORMAL;
 		}
 	}
 

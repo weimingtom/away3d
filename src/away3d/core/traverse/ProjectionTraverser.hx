@@ -4,7 +4,7 @@ import away3d.containers.Scene3D;
 import away3d.core.utils.CameraVarsStore;
 import flash.events.EventDispatcher;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.cameras.Camera3D;
 import away3d.core.clip.Clipping;
 import away3d.core.base.Object3D;
@@ -15,6 +15,7 @@ import flash.display.Sprite;
 import away3d.containers.ILODObject;
 import away3d.core.math.Matrix3D;
 import away3d.core.geom.Frustum;
+import away3d.blockers.ConvexBlock;
 
 
 // use namespace arcane;
@@ -82,14 +83,14 @@ class ProjectionTraverser extends Traverser  {
 		_viewTransform.multiply(_cameraViewMatrix, node.sceneTransform);
 		if (_clipping.objectCulling) {
 			_frustum = _lens.getFrustum(node, _viewTransform);
-			if ((Std.is(node, Scene3D) || _cameraVarsStore.nodeClassificationDictionary[untyped node.parent] == Frustum.INTERSECT)) {
+			if ((Std.is(node, Scene3D) || _cameraVarsStore.nodeClassificationDictionary.get(node.parent) == Frustum.INTERSECT)) {
 				if (node.pivotZero) {
-					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[untyped node] = _frustum.classifyRadius(node.boundingRadius);
+					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary.put(node, _frustum.classifyRadius(node.boundingRadius));
 				} else {
-					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[untyped node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
+					_nodeClassification = _cameraVarsStore.nodeClassificationDictionary.put(node, _frustum.classifySphere(node.pivotPoint, node.boundingRadius));
 				}
 			} else {
-				_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[untyped node] = _cameraVarsStore.nodeClassificationDictionary[untyped node.parent];
+				_nodeClassification = _cameraVarsStore.nodeClassificationDictionary.put(node, _cameraVarsStore.nodeClassificationDictionary.get(node.parent));
 			}
 			if (_nodeClassification == Frustum.OUT) {
 				node.updateObject();
@@ -116,11 +117,11 @@ class ProjectionTraverser extends Traverser  {
 	public override function apply(node:Object3D):Void {
 		
 		if (node.projectorType == ProjectorType.CONVEX_BLOCK) {
-			_view.blockers[untyped node] = node;
+			_view.blockers.push(cast(node, ConvexBlock));
 		}
 		//add to scene meshes dictionary
 		if (Std.is(node, Mesh)) {
-			_view.scene.meshes[untyped node] = node;
+			_view.scene.meshes.push(cast(node, Mesh));
 		}
 	}
 

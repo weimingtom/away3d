@@ -5,7 +5,7 @@ import away3d.core.render.SpriteRenderSession;
 import away3d.containers.ObjectContainer3D;
 import flash.events.EventDispatcher;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.DrawPrimitiveStore;
 import away3d.core.draw.IPrimitiveConsumer;
 import away3d.core.draw.ScreenVertex;
@@ -14,16 +14,17 @@ import away3d.core.draw.IPrimitiveProvider;
 import flash.display.Sprite;
 import away3d.core.math.Number3D;
 import away3d.core.math.Matrix3D;
+import away3d.core.base.Vertex;
 
 
 class ObjectContainerProjector implements IPrimitiveProvider {
 	public var view(getView, setView) : View3D;
 	
 	private var _view:View3D;
-	private var _vertexDictionary:Dictionary;
+	private var _vertexDictionary:HashMap<Vertex, ScreenVertex>;
 	private var _drawPrimitiveStore:DrawPrimitiveStore;
 	private var _cameraViewMatrix:Matrix3D;
-	private var _viewTransformDictionary:Dictionary;
+	private var _viewTransformDictionary:HashMap<Object3D, Matrix3D>;
 	private var _container:ObjectContainer3D;
 	private var _camera:Camera3D;
 	private var _child:Object3D;
@@ -63,11 +64,10 @@ class ObjectContainerProjector implements IPrimitiveProvider {
 					if (_child.scenePivotPoint.modulo > 0) {
 						_depthPoint.clone(_child.scenePivotPoint);
 						_depthPoint.rotate(_depthPoint, _cameraViewMatrix);
-						_depthPoint.add(_viewTransformDictionary[untyped _child].position, _depthPoint);
+						_depthPoint.add(_viewTransformDictionary.get(_child).position, _depthPoint);
 						_screenVertex.z = _depthPoint.modulo;
 					} else {
-						var matrix:Matrix3D = _viewTransformDictionary[untyped _child]; 
-						_screenVertex.z = matrix.position.modulo;
+						_screenVertex.z = _viewTransformDictionary.get(_child).position.modulo;
 					}
 					if (_child.pushback) {
 						_screenVertex.z += _child.boundingRadius;

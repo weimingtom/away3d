@@ -26,7 +26,7 @@ import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.events.EventDispatcher;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 
 
 /* 
@@ -514,9 +514,7 @@ class ReflectivePlane extends Plane  {
 		
 		this.removeOnSceneChange(sceneChangeHandler);
 		var viewSet:Bool;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(this.scene.viewDictionary)).iterator();
-		for (__key in __keys) {
-			var view:View3D = this.scene.viewDictionary[untyped __key];
+		for (view in this.scene.viewArray) {
 
 			if (view != null) {
 				if (!viewSet) {

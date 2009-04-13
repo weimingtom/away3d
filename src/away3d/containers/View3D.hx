@@ -8,7 +8,7 @@ import flash.events.EventDispatcher;
 import away3d.core.draw.DrawFog;
 import away3d.core.project.ConvexBlockProjector;
 import flash.display.BitmapData;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.events.Event;
 import away3d.core.render.BasicRenderer;
 import away3d.cameras.Camera3D;
@@ -35,7 +35,6 @@ import flash.display.DisplayObject;
 import away3d.core.render.AbstractRenderSession;
 import away3d.events.Object3DEvent;
 import away3d.core.draw.DrawDisplayObject;
-import flash.display.Sprite;
 import away3d.core.stats.Stats;
 import away3d.blockers.ConvexBlock;
 import away3d.events.ViewEvent;
@@ -55,6 +54,9 @@ import away3d.core.block.BlockerArray;
 import away3d.events.SessionEvent;
 import flash.display.LoaderInfo;
 import away3d.core.traverse.Traverser;
+import flash.display.Sprite;
+import away3d.haxeutils.HashableSprite;
+
 
 
 /**
@@ -97,7 +99,7 @@ import away3d.core.traverse.Traverser;
 /**
  * Sprite container used for storing camera, scene, session, renderer and clip references, and resolving mouse events
  */
-class View3D extends Sprite  {
+class View3D extends HashableSprite  {
 	public var renderer(getRenderer, setRenderer) : IRenderer;
 	public var updated(getUpdated, null) : Bool;
 	public var clipping(getClipping, setClipping) : Clipping;
@@ -224,7 +226,7 @@ class View3D extends Sprite  {
 	 */
 	public var forceUpdate:Bool;
 	public var blockerarray:BlockerArray;
-	public var blockers:Dictionary;
+	public var blockers:Array<ConvexBlock>;
 	
 
 	/** @private */
@@ -356,7 +358,7 @@ class View3D extends Sprite  {
 	private function onSessionUpdate(event:SessionEvent):Void {
 		
 		if (Std.is(event.target, BitmapRenderSession)) {
-			_scene.updatedSessions[untyped event.target] = event.target;
+			_scene.updatedSessions.push(cast(event.target, AbstractRenderSession));
 		}
 	}
 
@@ -541,7 +543,7 @@ class View3D extends Sprite  {
 		}
 		if ((_scene != null)) {
 			_scene.internalRemoveView(this);
-			_scene.viewDictionary[untyped this] = null;
+			_scene.viewArray.remove(this);
 			_scene.removeOnSessionChange(onSessionChange);
 			if ((_session != null)) {
 				_session.internalRemoveSceneSession(_scene.ownSession);
@@ -552,7 +554,7 @@ class View3D extends Sprite  {
 		if ((_scene != null)) {
 			_scene.internalAddView(this);
 			_scene.addOnSessionChange(onSessionChange);
-			_scene.viewDictionary[untyped this] = this;
+			_scene.viewArray.push(this);
 			if ((_session != null)) {
 				_session.internalAddSceneSession(_scene.ownSession);
 			}
@@ -654,29 +656,35 @@ class View3D extends Sprite  {
 		this.hud = new Sprite();
 		this.blockerarray = new BlockerArray();
 		
-		
 		_ini = cast(Init.parse(init), Init);
 		var stats:Bool = _ini.getBoolean("stats", true);
-		var iniObject:Dynamic = _ini.getObject("session");
-		if (iniObject != null) {
-			session = cast(iniObject, AbstractRenderSession);
+		if (_ini.hasField("session")) {
+			session = cast(_ini.getObject("session"), AbstractRenderSession);
 		}
 		if (session == null)  {
 			session = new SpriteRenderSession();
 		};
-		scene = _ini.getObjectOrInit("scene", Scene3D);
+		if (_ini.hasField("scene")) {
+			scene = cast(_ini.getObjectOrInit("scene", Scene3D), Scene3D);
+		}
 		if (scene == null)  {
 			scene = new Scene3D();
 		};
-		camera = _ini.getObjectOrInit("camera", Camera3D);
+		if (_ini.hasField("camera")) {
+			camera = cast(_ini.getObjectOrInit("camera", Camera3D), Camera3D);
+		}
 		if (camera == null)  {
 			camera = new Camera3D({x:0, y:0, z:-1000, lookat:"center"});
 		};
-		renderer = _ini.getObject("renderer");
+		if (_ini.hasField("renderer")) {
+			renderer = cast(_ini.getObject("renderer"), IRenderer);
+		}
 		if (renderer == null)  {
 			renderer = new BasicRenderer();
 		};
-		clipping = _ini.getObject("clipping", Clipping);
+		if (_ini.hasField("clipping")) {
+			clipping = cast(_ini.getObject("clipping", Clipping), Clipping);
+		}
 		if (clipping == null)  {
 			clipping = new RectangleClipping();
 		};
@@ -930,8 +938,6 @@ class View3D extends Sprite  {
 			}
 			_ddo.view = this;
 			_ddo.displayobject = _scene.session.getContainer(this);
-			trace(_ddo + " AND ");
-			trace(_scene.session.getContainer(this));
 			_ddo.session = _session;
 			_ddo.screenvertex = _sc;
 			_ddo.calc();
@@ -939,12 +945,10 @@ class View3D extends Sprite  {
 			_consumer.primitive(_ddo);
 		}
 		//traverse blockers
-		var __keys:Iterator<Dynamic> = untyped (__keys__(blockers)).iterator();
-		for (__key in __keys) {
-			_blocker = blockers[untyped __key];
+		for (_blocker in blockers) {
 
 			if (_blocker != null) {
-				_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary[untyped _blocker], blockerarray);
+				_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary.get(_blocker), blockerarray);
 			}
 		}
 

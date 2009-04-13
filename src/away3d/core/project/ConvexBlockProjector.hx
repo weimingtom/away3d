@@ -4,7 +4,7 @@ import away3d.core.utils.ValueObject;
 import flash.events.EventDispatcher;
 import away3d.materials.ISegmentMaterial;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.block.IBlockerProvider;
 import away3d.cameras.Camera3D;
 import away3d.core.utils.DrawPrimitiveStore;
@@ -25,7 +25,7 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 	public var view(getView, setView) : View3D;
 	
 	private var _view:View3D;
-	private var _vertexDictionary:Dictionary;
+	private var _vertexDictionary:HashMap<Vertex, ScreenVertex>;
 	private var _drawPrimitiveStore:DrawPrimitiveStore;
 	private var _convexBlock:ConvexBlock;
 	private var _camera:Camera3D;
@@ -109,7 +109,7 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 
 		_base.num = -Math.POSITIVE_INFINITY;
 		untyped _points.sortOn("num", Array.NUMERIC);
-		var result:Array<Dynamic> = [_points[0], _points[1]];
+		var result:Array<ScreenVertex> = [_points[0], _points[1]];
 		var o:Float;
 		var i:Int = 2;
 		while (i < _points.length) {
@@ -132,6 +132,7 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 		if (o > 0) {
 			result.pop();
 		}
+		
 		consumer.blocker(_drawPrimitiveStore.createConvexBlocker(source, result));
 	}
 
@@ -139,7 +140,7 @@ class ConvexBlockProjector implements IBlockerProvider, implements IPrimitivePro
 		
 		_convexBlock = cast(source, ConvexBlock);
 		if (_convexBlock.debug) {
-			consumer.primitive(_drawPrimitiveStore.blockerDictionary[untyped source]);
+			consumer.primitive(_drawPrimitiveStore.blockerDictionary.get(source));
 		}
 	}
 

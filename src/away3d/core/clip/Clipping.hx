@@ -1,7 +1,7 @@
 package away3d.core.clip;
 
 import away3d.core.utils.CameraVarsStore;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.containers.View3D;
 import flash.events.Event;
 import flash.display.StageAlign;
@@ -35,7 +35,7 @@ import away3d.core.draw.DrawPrimitive;
 /**
  * Base clipping class for no clipping.
  */
-class Clipping extends EventDispatcher  {
+class Clipping extends HashableEventDispatcher  {
 	public var objectCulling(getObjectCulling, setObjectCulling) : Bool;
 	public var view(getView, setView) : View3D;
 	public var minX(getMinX, setMinX) : Float;

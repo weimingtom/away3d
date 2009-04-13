@@ -132,7 +132,7 @@ class MaterialData  {
 
 			if (element != null) {
 				var parentGeometry:Geometry = element.parent;
-				var correspondingElement:Element = parentGeometry.cloneElementDictionary[untyped element];
+				var correspondingElement:Element = parentGeometry.cloneElementDictionary.get(element);
 				cloneMatData.elements.push(correspondingElement);
 			}
 		}

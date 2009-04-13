@@ -3,7 +3,7 @@ package away3d.materials.shaders;
 import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import flash.geom.Rectangle;
 import away3d.core.base.Face;
 import away3d.core.base.Object3D;
@@ -47,10 +47,7 @@ class DiffusePhongShader extends AbstractShader  {
 	private function clearFaces(source:Object3D, view:View3D):Void {
 		
 		notifyMaterialUpdate();
-		var __keys:Iterator<Dynamic> = untyped (__keys__(_faceDictionary)).iterator();
-		for (__key in __keys) {
-			_faceMaterialVO = _faceDictionary[untyped __key];
-
+		for (_faceMaterialVO in _faceDictionary.iterator()) {
 			if (_faceMaterialVO != null) {
 				if (source == _faceMaterialVO.source) {
 					if (!_faceMaterialVO.cleared) {
@@ -76,7 +73,7 @@ class DiffusePhongShader extends AbstractShader  {
 			directional = _source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_diffuseTransform = directional.diffuseTransform.get(_source);
 				_szx = _diffuseTransform.szx;
 				_szy = _diffuseTransform.szy;
 				_szz = _diffuseTransform.szz;
@@ -139,7 +136,7 @@ class DiffusePhongShader extends AbstractShader  {
 			directional = source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				if (!directional.diffuseTransform[untyped source] || view.scene.updatedObjects[untyped source]) {
+				if (!directional.diffuseTransform.contains(source) || untyped view.scene.updatedObjects.indexOf(source) != -1) {
 					directional.setDiffuseTransform(source);
 					clearFaces(source, view);
 					clearLightingShapeDictionary();
@@ -166,7 +163,7 @@ class DiffusePhongShader extends AbstractShader  {
 				} else {
 					_graphics = layer.graphics;
 				}
-				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_diffuseTransform = directional.diffuseTransform.get(_source);
 				_n0 = _source.geometry.getVertexNormal(_face.v0);
 				_n1 = _source.geometry.getVertexNormal(_face.v1);
 				_n2 = _source.geometry.getVertexNormal(_face.v2);

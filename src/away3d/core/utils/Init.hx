@@ -312,6 +312,14 @@ class Init  {
 		inits.push(init);
 	}
 
+	public function hasField(field:String):Bool {
+		if (init == null) {
+			return false;
+		}
+		
+		return Reflect.hasField(init, field);
+	}
+
 	public static function checkUnusedArguments():Void {
 		
 		if (inits.length == 0) {

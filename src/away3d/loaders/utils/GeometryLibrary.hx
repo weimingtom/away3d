@@ -1,14 +1,13 @@
 package away3d.loaders.utils;
 
 import away3d.core.utils.Debug;
-import flash.utils.Dictionary;
 import away3d.loaders.data.GeometryData;
 
 
 /**
  * Store for all geometries associated with an externally loaded file.
  */
-class GeometryLibrary extends Dictionary  {
+class GeometryLibrary extends Hash<GeometryData>  {
 	
 	private var _geometry:GeometryData;
 	private var _geometryArray:Array<Dynamic>;
@@ -22,10 +21,7 @@ class GeometryLibrary extends Dictionary  {
 	private function updateGeometryArray():Void {
 		
 		_geometryArray = [];
-		var __keys:Iterator<Dynamic> = untyped (__keys__(this)).iterator();
-		for (__key in __keys) {
-			_geometry = this[untyped __key];
-
+		for (_geometry in this.iterator()) {
 			if (_geometry != null) {
 				_geometryArray.push(_geometry);
 			}
@@ -39,14 +35,15 @@ class GeometryLibrary extends Dictionary  {
 	public function addGeometry(name:String, ?geoXML:Xml=null, ?ctrlXML:Xml=null):GeometryData {
 		//return if geometry already exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		_geometryArrayDirty = true;
 		var geometryData:GeometryData = new GeometryData();
 		geometryData.geoXML = geoXML;
 		geometryData.ctrlXML = ctrlXML;
-		this[untyped geometryData.name = name] = geometryData;
+		geometryData.name = name;
+		this.set(name, geometryData);
 		return geometryData;
 	}
 
@@ -56,8 +53,8 @@ class GeometryLibrary extends Dictionary  {
 	public function getGeometry(name:String):GeometryData {
 		//return if geometry exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		Debug.warning("Geometry '" + name + "' does not exist");
 		return null;

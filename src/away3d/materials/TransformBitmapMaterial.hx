@@ -586,13 +586,17 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 		
 		
 		super(bitmap, init);
-		transform = ini.getObject("transform", Matrix);
+		if (ini.hasField("transform")) {
+			transform = cast(ini.getObject("transform", Matrix), Matrix);
+		}
 		scaleX = ini.getNumber("scaleX", _scaleX);
 		scaleY = ini.getNumber("scaleY", _scaleY);
 		offsetX = ini.getNumber("offsetX", _offsetX);
 		offsetY = ini.getNumber("offsetY", _offsetY);
 		rotation = ini.getNumber("rotation", _rotation);
-		projectionVector = ini.getObject("projectionVector", Number3D);
+		if (ini.hasField("projectionVector")) {
+			projectionVector = cast(ini.getObject("projectionVector", Number3D), Number3D);
+		}
 		throughProjection = ini.getBoolean("throughProjection", true);
 		globalProjection = ini.getBoolean("globalProjection", false);
 	}

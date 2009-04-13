@@ -31,7 +31,7 @@ import away3d.events.FaceEvent;
  * 
  * @see away3d.core.base.Mesh
  */
-class Face extends Element  {
+class Face extends Element {
 	public var normalDirty(null, setNormalDirty) : Bool;
 	public var uvs(getUvs, null) : Array<Dynamic>;
 	public var v0(getV0, setV0) : Vertex;
@@ -71,7 +71,7 @@ class Face extends Element  {
 	private var _index:Int;
 	public var faceVO:FaceVO;
 	
-
+	
 	/** @private */
 	public function notifyMappingChange():Void {
 		
@@ -567,8 +567,7 @@ class Face extends Element  {
 		super();
 		this._normal = new Number3D();
 		this.faceVO = new FaceVO();
-		
-		
+			
 		this.v0 = v0;
 		this.v1 = v1;
 		this.v2 = v2;

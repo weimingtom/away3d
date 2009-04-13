@@ -4,7 +4,7 @@ import away3d.haxeutils.Error;
 import flash.events.EventDispatcher;
 import flash.display.BitmapData;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.events.MaterialEvent;
 import flash.geom.Rectangle;
 import flash.geom.Point;
@@ -34,15 +34,14 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 	private var _width:Float;
 	private var _height:Float;
 	private var _fMaterialVO:FaceMaterialVO;
-	private var _containerDictionary:Dictionary;
-	private var _cacheDictionary:Dictionary;
+	private var _containerDictionary:HashMap<DrawTriangle, FaceMaterialVO>;
+	private var _cacheDictionary:HashMap<FaceVO, BitmapData>;
 	private var _containerVO:FaceMaterialVO;
 	private var _faceWidth:Int;
 	private var _faceHeight:Int;
 	private var _forceRender:Bool;
 	private var _faceVO:FaceVO;
 	private var _material:ILayerMaterial;
-	private var _viewDictionary:Dictionary;
 	/**
 	 * An array of bitmapmaterial objects to be overlayed sequentially.
 	 */
@@ -102,11 +101,11 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 				}
 			}
 
-			_renderBitmap = _cacheDictionary[untyped _faceVO] = _fMaterialVO.bitmap;
+			_renderBitmap = _cacheDictionary.put(_faceVO, _fMaterialVO.bitmap);
 			_fMaterialVO.updated = false;
 			return _faceMaterialVO.texturemapping;
 		}
-		_renderBitmap = _cacheDictionary[untyped _faceVO];
+		_renderBitmap = _cacheDictionary.get(_faceVO);
 		//check to see if tri texturemapping need updating
 		if (_faceMaterialVO.invalidated) {
 			_faceMaterialVO.invalidated = false;
@@ -126,9 +125,8 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 	 */
 	public function new(width:Int, height:Int, ?init:Dynamic=null) {
-		this._containerDictionary = new Dictionary(true);
-		this._cacheDictionary = new Dictionary(true);
-		this._viewDictionary = new Dictionary(true);
+		this._containerDictionary = new HashMap<DrawTriangle, FaceMaterialVO>();
+		this._cacheDictionary = new HashMap<FaceVO, BitmapData>();
 		
 		
 		super(new BitmapData(width, height, true, 0x00FFFFFF), init);
@@ -221,8 +219,8 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 		_faceWidth = Std.int(tri.faceVO.bitmapRect.width);
 		_faceHeight = Std.int(tri.faceVO.bitmapRect.height);
 		//check to see if bitmapContainer exists
-		if ((_containerVO = _containerDictionary[untyped tri]) == null) {
-			_containerVO = _containerDictionary[untyped tri] = new FaceMaterialVO();
+		if ((_containerVO = _containerDictionary.get(tri)) == null) {
+			_containerVO = _containerDictionary.put(tri, new FaceMaterialVO());
 		}
 		//resize container
 		if (parentFaceMaterialVO.resized) {

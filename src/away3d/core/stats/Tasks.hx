@@ -7,7 +7,6 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.geom.Rectangle;
 import flash.system.System;
-import flash.utils.Dictionary;
 import flash.utils.getTimer;
 import flash.display.Stage;
 import flash.display.DisplayObject;
@@ -27,8 +26,8 @@ import flash.display.Graphics;
 class Tasks extends Sprite  {
 	
 	public static var desc:String = "";
-	private var tasks:Dictionary;
-	private var times:Dictionary;
+	private var tasks:Hash<String>;
+	private var times:Hash<Int>;
 	private var fs:Float;
 	private var fps:Float;
 	private var timer:Float;
@@ -65,8 +64,8 @@ class Tasks extends Sprite  {
 		this.isDirty = false;
 		
 		
-		tasks = new Dictionary(true);
-		times = new Dictionary(true);
+		tasks = new Hash<String>();
+		times = new Hash<Int>(true);
 		graphBitmap = new Bitmap();
 		addChild(graphBitmap);
 		blendMode = BlendMode.MULTIPLY;
@@ -107,7 +106,7 @@ class Tasks extends Sprite  {
 		span = (span > 0) ? span : _text.width + 20;
 		_width += span;
 		addChild(_text);
-		tasks[untyped id] = _text;
+		tasks.put(id, _text);
 		_text.defaultText = text;
 		draw();
 		return _text;
@@ -116,7 +115,7 @@ class Tasks extends Sprite  {
 	public static function begin(id:String):Void {
 		//mark
 		
-		getInstance().times[id] = flash.Lib.getTimer();
+		getInstance().times.put(id,  flash.Lib.getTimer());
 	}
 
 	public static function end(id:String, ?rgb:String="DDDDDD"):Void {
@@ -125,7 +124,7 @@ class Tasks extends Sprite  {
 		var _time:Float = flash.Lib.getTimer();
 		//old
 		var tasks:Tasks = getInstance();
-		var time:Float = Reflect.field(tasks.times, id);
+		var time:Float = tasks.times.get(id);
 		var task:StaticTextField = Reflect.field(tasks.tasks, id);
 		//init
 		if (task == null) {
@@ -178,11 +177,11 @@ class Tasks extends Sprite  {
 			graphBitmapData.setPixel(0, _height - ((timer - ms) * .5 << 0), 0x00FF00);
 			//MEM
 			graphBitmapData.setPixel(0, Std.int(_height - memGraph), 0x0000FF);
-			tasks[untyped "FPS"].htmlText = tasks[untyped "FPS"].defaultText + fps + "/" + flash.Lib.current.stage.frameRate;
-			tasks[untyped "MEM"].htmlText = tasks[untyped "MEM"].defaultText + mem;
+			tasks.get("FPS")htmlText = tasks.get("FPS").defaultText + fps + "/" + flash.Lib.current.stage.frameRate;
+			tasks.get("MEM").htmlText = tasks.get("MEM").defaultText + mem;
 			fs = 0;
 		}
-		tasks[untyped "MS"].htmlText = tasks[untyped "MS"].defaultText + (timer - ms);
+		tasks.get("MS").htmlText = tasks.get("MS").defaultText + (timer - ms);
 		ms = timer;
 	}
 

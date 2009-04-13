@@ -3,7 +3,7 @@ package away3d.core.project;
 import flash.events.EventDispatcher;
 import away3d.sprites.MovieClipSprite;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.DrawPrimitiveStore;
 import away3d.core.draw.IPrimitiveConsumer;
 import away3d.core.draw.ScreenVertex;
@@ -12,13 +12,14 @@ import away3d.core.draw.IPrimitiveProvider;
 import flash.display.DisplayObject;
 import flash.display.Sprite;
 import away3d.core.math.Matrix3D;
+import away3d.core.base.Vertex;
 
 
 class MovieClipSpriteProjector implements IPrimitiveProvider {
 	public var view(getView, setView) : View3D;
 	
 	private var _view:View3D;
-	private var _vertexDictionary:Dictionary;
+	private var _vertexDictionary:HashMap<Vertex, ScreenVertex>;
 	private var _drawPrimitiveStore:DrawPrimitiveStore;
 	private var _movieClipSprite:MovieClipSprite;
 	private var _movieclip:DisplayObject;

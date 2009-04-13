@@ -30,7 +30,9 @@ class TargetCamera3D extends Camera3D  {
 		
 		
 		super(init);
-		target = ini.getObject3D("target");
+		if (ini.hasField("target")) {
+			target = ini.getObject3D("target");
+		}
 		if (target == null)  {
 			target = new Object3D();
 		};
@@ -42,7 +44,7 @@ class TargetCamera3D extends Camera3D  {
 	public override function getViewMatrix():Matrix3D {
 		
 		if (target != null) {
-			lookAt(target.scene != null ? target.scenePosition : target.position);
+			lookAt((target.scene != null) ? target.scenePosition : target.position);
 		}
 		return super.getViewMatrix();
 	}

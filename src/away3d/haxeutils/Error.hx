@@ -1,7 +1,8 @@
 package away3d.haxeutils;
 
 class Error  {
-	public var message(getMessage, null):String;
+	
+	public var message(getMessge, null):String;
 	
 	private var _message:String;
 
@@ -9,12 +10,12 @@ class Error  {
 		_message = message;
 	}
 
-	public function toString():String {
-		return "Axay3d error : " + message;
+	private function getMessge():String {
+		return _message;
 	}
 
-	public function getMessage():String {
-		return _message;
+	public function toString():String {
+		return "Axay3d error : " + _message;
 	}
 
 }

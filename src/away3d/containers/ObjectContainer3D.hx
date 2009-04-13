@@ -11,7 +11,7 @@ import away3d.loaders.data.MaterialData;
 import away3d.core.math.Matrix3D;
 import away3d.animators.skin.SkinController;
 import away3d.loaders.utils.MaterialLibrary;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Geometry;
 import away3d.core.project.ProjectorType;
 import away3d.core.base.Object3D;
@@ -136,7 +136,7 @@ class ObjectContainer3D extends Object3D  {
 	 * @param	...initarray		An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	 */
 	public function new(?initarray:Array<Dynamic>) {
-		this._children = new Array<Dynamic>();
+		this._children = new Array();
 		this._radiusChild = null;
 		
 		
@@ -449,10 +449,8 @@ class ObjectContainer3D extends Object3D  {
 
 		if ((animationLibrary != null)) {
 			container.animationLibrary = new AnimationLibrary();
-			var __keys:Iterator<Dynamic> = untyped (__keys__(animationLibrary)).iterator();
-			for (__key in __keys) {
-				var _animationData:AnimationData = animationLibrary[untyped __key];
-
+			var _animationData:AnimationData;
+			for (_animationData in animationLibrary.iterator()) {
 				if (_animationData != null) {
 					_animationData.clone(container);
 				}
@@ -461,10 +459,8 @@ class ObjectContainer3D extends Object3D  {
 		}
 		if ((materialLibrary != null)) {
 			container.materialLibrary = new MaterialLibrary();
-			var __keys:Iterator<Dynamic> = untyped (__keys__(materialLibrary)).iterator();
-			for (__key in __keys) {
-				var _materialData:MaterialData = materialLibrary[untyped __key];
-
+			var _materialData:MaterialData;
+			for (_materialData in materialLibrary.iterator()) {
 				if (_materialData != null) {
 					_materialData.clone(container);
 				}

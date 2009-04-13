@@ -1,7 +1,7 @@
 package away3d.sprites;
 
 import flash.display.BitmapData;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.utils.ValueObject;
 import away3d.core.base.Object3D;
 import away3d.core.utils.Init;
@@ -15,11 +15,11 @@ import away3d.core.base.Vertex;
  * Draws 2d directional image dependent on viewing angle inline with z-sorted triangles in a scene.
  */
 class DirSprite2D extends Object3D  {
-	public var vertices(getVertices, null) : Array<Dynamic>;
-	public var bitmaps(getBitmaps, null) : Dictionary;
+	public var vertices(getVertices, null) : Array<Vertex>;
+	public var bitmaps(getBitmaps, null) : HashMap<Vertex, BitmapData>;
 	
-	private var _vertices:Array<Dynamic>;
-	private var _bitmaps:Dictionary;
+	private var _vertices:Array<Vertex>;
+	private var _bitmaps:HashMap<Vertex, BitmapData>;
 	/**
 	 * Defines the overall scaling of the sprite object
 	 */
@@ -38,12 +38,12 @@ class DirSprite2D extends Object3D  {
 	public var deltaZ:Float;
 	
 
-	public function getVertices():Array<Dynamic> {
+	public function getVertices():Array<Vertex> {
 		
 		return _vertices;
 	}
 
-	public function getBitmaps():Dictionary {
+	public function getBitmaps():HashMap<Vertex, BitmapData> {
 		
 		return _bitmaps;
 	}
@@ -55,7 +55,7 @@ class DirSprite2D extends Object3D  {
 	 */
 	public function new(?init:Dynamic=null) {
 		this._vertices = [];
-		this._bitmaps = new Dictionary(true);
+		this._bitmaps = new HashMap<Vertex, BitmapData>();
 		
 		
 		super(init);
@@ -105,7 +105,7 @@ class DirSprite2D extends Object3D  {
 		}
 		var vertex:Vertex = new Vertex(x, y, z);
 		_vertices.push(vertex);
-		_bitmaps[untyped vertex] = bitmap;
+		_bitmaps.put(vertex, bitmap);
 	}
 
 }

@@ -2,7 +2,6 @@ package away3d.loaders.utils;
 
 import away3d.core.utils.Debug;
 import flash.display.BitmapData;
-import flash.utils.Dictionary;
 import away3d.materials.IMaterial;
 import flash.events.EventDispatcher;
 import away3d.loaders.data.MaterialData;
@@ -14,7 +13,7 @@ import away3d.materials.BitmapMaterial;
 /**
  * Store for all materials associated with an externally loaded file.
  */
-class MaterialLibrary extends Dictionary  {
+class MaterialLibrary extends Hash<MaterialData>  {
 	
 	private var _materialData:MaterialData;
 	private var _image:TextureLoader;
@@ -40,12 +39,13 @@ class MaterialLibrary extends Dictionary  {
 	public function addMaterial(name:String):MaterialData {
 		//return if material already exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		length++;
 		var materialData:MaterialData = new MaterialData();
-		this[untyped materialData.name = name] = materialData;
+		materialData.name = name;
+		this.set(name, materialData);
 		return materialData;
 	}
 
@@ -55,8 +55,8 @@ class MaterialLibrary extends Dictionary  {
 	public function getMaterial(name:String):MaterialData {
 		//return if material exists
 		
-		if ((this[untyped name] != null)) {
-			return this[untyped name];
+		if ((this.get(name) != null)) {
+			return this.get(name);
 		}
 		Debug.warning("Material '" + name + "' does not exist");
 		return null;
@@ -71,10 +71,7 @@ class MaterialLibrary extends Dictionary  {
 		
 		loadRequired = false;
 		var images:Array<Dynamic> = loadQueue.images;
-		var __keys:Iterator<Dynamic> = untyped (__keys__(this)).iterator();
-		for (__key in __keys) {
-			_materialData = this[untyped __key];
-
+		for (_materialData in this.iterator()) {
 			if (_materialData != null) {
 				for (__i in 0...images.length) {
 					_image = images[__i];

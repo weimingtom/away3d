@@ -1,6 +1,6 @@
 package away3d.loaders;
 
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import flash.events.Event;
 import away3d.core.base.Object3D;
 import away3d.events.ParserEvent;
@@ -8,7 +8,7 @@ import away3d.events.ParserEvent;
 
 // use namespace arcane;
 
-class AbstractParser extends EventDispatcher  {
+class AbstractParser extends HashableEventDispatcher  {
 	public var parsedChunks(getParsedChunks, null) : Int;
 	public var totalChunks(getTotalChunks, null) : Int;
 	

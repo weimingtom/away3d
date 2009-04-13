@@ -1,9 +1,9 @@
 package away3d.materials;
 
 import away3d.haxeutils.Error;
-import flash.events.EventDispatcher;
+import away3d.haxeutils.HashableEventDispatcher;
 import away3d.containers.View3D;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.light.PointLight;
 import away3d.events.MaterialEvent;
 import away3d.core.light.DirectionalLight;
@@ -28,7 +28,7 @@ import flash.display.Graphics;
  * Abstract class for materials that calculate lighting for the face's center
  * Not intended for direct use - use <code>ShadingColorMaterial</code> or <code>WhiteShadingBitmapMaterial</code>.
  */
-class CenterLightingMaterial extends EventDispatcher, implements ITriangleMaterial {
+class CenterLightingMaterial extends HashableEventDispatcher, implements ITriangleMaterial {
 	public var visible(getVisible, null) : Bool;
 	
 	/** @private */
@@ -180,13 +180,13 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 			directional = source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				if (!directional.diffuseTransform[untyped source] || view.scene.updatedObjects[untyped source]) {
+				if (!directional.diffuseTransform.contains(source) || untyped view.scene.updatedObjects.indexOf(source) != -1) {
 					directional.setDiffuseTransform(source);
 				}
-				if (!directional.specularTransform[untyped source]) {
-					directional.specularTransform[untyped source] = new Dictionary(true);
+				if (!directional.specularTransform.contains(source)) {
+					directional.specularTransform.put(source, new HashMap<View3D, Matrix3D>());
 				}
-				if (!directional.specularTransform[untyped source][untyped view] || view.scene.updatedObjects[untyped source] || view.updated) {
+				if (!directional.specularTransform.get(source).contains(view) || untyped view.scene.updatedObjects.indexOf(source) != -1 || view.updated) {
 					directional.setSpecularTransform(source, view);
 				}
 			}
@@ -196,7 +196,7 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 			point = source.lightarray.points[__i];
 
 			if (point != null) {
-				if (!point.viewPositions[untyped view] || view.scene.updatedObjects[untyped source] || view.updated) {
+				if (!point.viewPositions.contains(view) || untyped view.scene.updatedObjects.indexOf(source) != -1 || view.updated) {
 					point.setViewPosition(view);
 				}
 			}
@@ -247,7 +247,7 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 			directional = tri.source.lightarray.directionals[__i];
 
 			if (directional != null) {
-				_diffuseTransform = directional.diffuseTransform[untyped _source];
+				_diffuseTransform = directional.diffuseTransform.get(_source);
 				red = directional.red;
 				green = directional.green;
 				blue = directional.blue;
@@ -269,7 +269,7 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 				kdr += red * diff;
 				kdg += green * diff;
 				kdb += blue * diff;
-				_specularTransform = directional.specularTransform[untyped _source][untyped _view];
+				_specularTransform = directional.specularTransform.get(_source).get(_view);
 				rfx = _specularTransform.szx;
 				rfy = _specularTransform.szy;
 				rfz = _specularTransform.szz;
@@ -288,7 +288,7 @@ class CenterLightingMaterial extends EventDispatcher, implements ITriangleMateri
 				red = point.red;
 				green = point.green;
 				blue = point.blue;
-				_viewPosition = point.viewPositions[untyped tri.view];
+				_viewPosition = point.viewPositions.get(tri.view);
 				dfx = _viewPosition.x - c0x;
 				dfy = _viewPosition.y - c0y;
 				dfz = _viewPosition.z - c0z;

@@ -4,7 +4,7 @@ import away3d.haxeutils.Error;
 import away3d.core.utils.ValueObject;
 import away3d.core.utils.CameraVarsStore;
 import flash.events.EventDispatcher;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Object3D;
 import away3d.core.geom.Plane3D;
 import away3d.core.utils.Init;
@@ -100,7 +100,7 @@ class NearfieldClipping extends Clipping  {
 	public override function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<Dynamic>):Void {
 		
 		_session = source.session;
-		_frustum = _cameraVarsStore.frustumDictionary[untyped source];
+		_frustum = _cameraVarsStore.frustumDictionary.get(source);
 		_pass = true;
 		_v0C = _cameraVarsStore.createVertexClassification(faceVO.v0);
 		_v1C = _cameraVarsStore.createVertexClassification(faceVO.v1);

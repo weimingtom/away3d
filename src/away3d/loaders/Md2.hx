@@ -2,7 +2,7 @@ package away3d.loaders;
 
 import away3d.haxeutils.Error;
 import flash.utils.ByteArray;
-import flash.utils.Dictionary;
+import away3d.haxeutils.HashMap;
 import away3d.core.base.Frame;
 import away3d.core.base.Face;
 import away3d.core.base.Object3D;
@@ -98,7 +98,7 @@ class Md2 extends AbstractParser  {
 		// Faces
 		data.position = offset_tris;
 		// export requirement
-		mesh.indexes = new Array<Dynamic>();
+		mesh.indexes = new Array();
 		i = 0;
 		while (i < num_tris) {
 			var a:Int = data.readUnsignedShort();
@@ -123,8 +123,8 @@ class Md2 extends AbstractParser  {
 
 	private function readFrames(data:ByteArray, vertices:Array<Dynamic>, num_frames:Int):Void {
 		
-		mesh.geometry.frames = new Dictionary();
-		mesh.geometry.framenames = new Dictionary();
+		mesh.geometry.frames = new IntHash<Frame>();
+		mesh.geometry.framenames = new Hash<Int>();
 		var i:Int = 0;
 		while (i < num_frames) {
 			var frame:Frame = new Frame();
@@ -147,7 +147,7 @@ class Md2 extends AbstractParser  {
 			}
 
 			trace("[ " + name + " ]");
-			Reflect.setField(mesh.geometry.framenames, name, i);
+			mesh.geometry.framenames.put(name, i);
 			mesh.geometry.frames[i] = frame;
 			var h:Int = 0;
 			while (h < vertices.length) {
