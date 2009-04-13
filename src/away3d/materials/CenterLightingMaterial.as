@@ -1,4 +1,4 @@
-package away3d.materials
+﻿package away3d.materials
 {
     import away3d.arcane;
     import away3d.containers.*;
@@ -382,8 +382,8 @@ package away3d.materials
 
                 if (draw_fall || draw_reflect)
                 {
-                    var _tri_source_lightarray_points:Array = tri.source.lightarray.points;
-            		for each (point in _tri_source_lightarray_points)
+                    var _tri_source_lightarray_points_new:Array = tri.source.lightarray.points;
+            		for each (point in _tri_source_lightarray_points_new)
                     {
                         red = point.red;
                         green = point.green;
