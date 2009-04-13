@@ -11,12 +11,12 @@ class Path  {
 	public var smoothed(getSmoothed, null) : Bool;
 	public var averaged(getAveraged, null) : Bool;
 	public var length(getLength, null) : Int;
-	public var array(getArray, null) : Array<Dynamic>;
+	public var array(getArray, null) : Array<CurveSegment>;
 	
 	/**
 	 * The array that contains the path definition.
 	 */
-	public var aSegments:Array<Dynamic>;
+	public var aSegments:Array<CurveSegment>;
 	/**
 	 * The worldAxis of reference
 	 */
@@ -46,7 +46,7 @@ class Path  {
 	 * 
 	 * @param	 aVectors		An array of a series of number3D's organized in the following fashion. [a,b,c,a,b,c etc...] a = v1, b=vc (control point), c = v2
 	 */
-	public function new(aVectors:Array<Dynamic>) {
+	public function new(aVectors:Array<Number3D>) {
 		this.worldAxis = new Number3D(0, 1, 0);
 		
 		
@@ -88,7 +88,7 @@ class Path  {
 	 * 
 	 * @return	an Array: the Path elements array
 	 */
-	public function getArray():Array<Dynamic> {
+	public function getArray():Array<CurveSegment> {
 		
 		return this.aSegments;
 	}
@@ -122,7 +122,7 @@ class Path  {
 		var z:Float;
 		var seg0:Number3D;
 		var seg1:Number3D;
-		var tmp:Array<Dynamic> = [];
+		var tmp:Array<Number3D> = [];
 		var i:Int;
 		var startseg:Number3D = new Number3D(this.aSegments[0].v0.x, this.aSegments[0].v0.y, this.aSegments[0].v0.z);
 		var endseg:Number3D = new Number3D(this.aSegments[this.aSegments.length - 1].v1.x, this.aSegments[this.aSegments.length - 1].v1.y, this.aSegments[this.aSegments.length - 1].v1.z);

@@ -70,7 +70,7 @@ class MaterialLibrary extends Hash<MaterialData>  {
 	public function texturesLoaded(loadQueue:TextureLoadQueue):Void {
 		
 		loadRequired = false;
-		var images:Array<Dynamic> = loadQueue.images;
+		var images:Array<TextureLoader> = loadQueue.images;
 		for (_materialData in this.iterator()) {
 			if (_materialData != null) {
 				for (__i in 0...images.length) {

@@ -13,9 +13,9 @@ class PathUtils  {
 	
 	
 
-	public static function step(startVal:Number3D, endVal:Number3D, subdivision:Int):Array<Dynamic> {
+	public static function step(startVal:Number3D, endVal:Number3D, subdivision:Int):Array<Number3D> {
 		
-		var aTween:Array<Dynamic> = [];
+		var aTween:Array<Number3D> = [];
 		var stepx:Float = (endVal.x - startVal.x) / subdivision;
 		var stepy:Float = (endVal.y - startVal.y) / subdivision;
 		var stepz:Float = (endVal.z - startVal.z) / subdivision;
@@ -87,9 +87,9 @@ class PathUtils  {
 		return aPoint;
 	}
 
-	public static function getPointsOnCurve(_path:Path, subdivision:Int):Array<Dynamic> {
+	public static function getPointsOnCurve(_path:Path, subdivision:Int):Array<Array<Number3D>> {
 		
-		var aSegPoints:Array<Dynamic> = [];
+		var aSegPoints:Array<Array<Number3D>> = [];
 		var i:Int = 0;
 		while (i < _path.length) {
 			aSegPoints.push(PathUtils.getSegmentPoints(_path.array[i].v0, _path.array[i].vc, _path.array[i].v1, subdivision, (i == _path.length - 1)));
@@ -101,9 +101,9 @@ class PathUtils  {
 		return aSegPoints;
 	}
 
-	public static function getSegmentPoints(v0:Number3D, vc:Number3D, v1:Number3D, n:Float, last:Bool):Array<Dynamic> {
+	public static function getSegmentPoints(v0:Number3D, vc:Number3D, v1:Number3D, n:Float, last:Bool):Array<Number3D> {
 		
-		var aPts:Array<Dynamic> = [];
+		var aPts:Array<Number3D> = [];
 		var i:Int = 0;
 		while (i < n + ((last) ? 1 : 0)) {
 			aPts.push(PathUtils.getNewPoint(v0.x, v0.y, v0.z, vc.x, vc.y, vc.z, v1.x, v1.y, v1.z, i / n));

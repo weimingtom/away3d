@@ -61,7 +61,7 @@ class Stats extends Sprite  {
 	private var displayState:Int;
 	private var camLabel:TextField;
 	private var camMenu:Sprite;
-	private var camProp:Array<Dynamic>;
+	private var camProp:Array<String>;
 	private var rectclose:Rectangle;
 	private var rectcam:Rectangle;
 	private var rectclear:Rectangle;

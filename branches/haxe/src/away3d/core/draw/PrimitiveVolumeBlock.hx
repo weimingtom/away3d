@@ -9,7 +9,7 @@ import away3d.core.base.Object3D;
 class PrimitiveVolumeBlock  {
 	
 	public var source:Object3D;
-	public var list:Array<Dynamic>;
+	public var list:Array<DrawPrimitive>;
 	public var minZ:Float;
 	public var maxZ:Float;
 	public var minX:Float;

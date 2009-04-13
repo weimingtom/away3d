@@ -45,7 +45,7 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 	/**
 	 * An array of bitmapmaterial objects to be overlayed sequentially.
 	 */
-	private var materials:Array<Dynamic>;
+	private var materials:Array<ILayerMaterial>;
 	/**
 	 * Defines whether the caching bitmapData objects are transparent
 	 */
@@ -130,7 +130,7 @@ class BitmapMaterialContainer extends BitmapMaterial, implements ITriangleMateri
 		
 		
 		super(new BitmapData(width, height, true, 0x00FFFFFF), init);
-		materials = ini.getArray("materials");
+		materials = untyped ini.getArray("materials");
 		_width = width;
 		_height = height;
 		_bitmapRect = new Rectangle(0, 0, _width, _height);

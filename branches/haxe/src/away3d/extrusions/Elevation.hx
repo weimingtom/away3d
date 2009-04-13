@@ -68,7 +68,7 @@ class Elevation  {
 	 * @param	scalingY					[optional] Number. The scale multiplier along the y axis. Default is 1.
 	 * @param	elevate					[optional] Number. The scale multiplier along the z axis. Default is .5.
 	 */
-	public function generate(sourceBmd:BitmapData, ?channel:String="r", ?subdivisionX:Int=10, ?subdivisionY:Int=10, ?scalingX:Float=1, ?scalingY:Float=1, ?elevate:Float=.5):Array<Dynamic> {
+	public function generate(sourceBmd:BitmapData, ?channel:String="r", ?subdivisionX:Int=10, ?subdivisionY:Int=10, ?scalingX:Float=1, ?scalingY:Float=1, ?elevate:Float=.5):Array<Array<Number3D>> {
 		
 		channel = channel.toLowerCase();
 		var w:Int = sourceBmd.width;
@@ -78,8 +78,8 @@ class Elevation  {
 		var x:Float = 0;
 		var y:Float = 0;
 		var z:Float = 0;
-		var totalArray:Array<Dynamic> = [];
-		var tmpArray:Array<Dynamic> = [];
+		var totalArray:Array<Array<Number3D>> = [];
+		var tmpArray:Array<Number3D> = [];
 		var color:Int;
 		var cha:Float;
 		j = h - 1;

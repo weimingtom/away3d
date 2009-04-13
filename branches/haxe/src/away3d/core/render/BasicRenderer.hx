@@ -21,16 +21,16 @@ import away3d.core.block.Blocker;
  * and then z-sorts and renders them to screen.
  */
 class BasicRenderer implements IRenderer, implements IPrimitiveConsumer {
-	public var filters(getFilters, setFilters) : Array<Dynamic>;
+	public var filters(getFilters, setFilters) : Array<IPrimitiveFilter>;
 	
-	private var _filters:Array<Dynamic>;
+	private var _filters:Array<IPrimitiveFilter>;
 	private var _primitive:DrawPrimitive;
-	private var _primitives:Array<Dynamic>;
+	private var _primitives:Array<DrawPrimitive>;
 	private var _view:View3D;
 	private var _scene:Scene3D;
 	private var _camera:Camera3D;
 	private var _screenClipping:Clipping;
-	private var _blockers:Array<Dynamic>;
+	private var _blockers:Array<Blocker>;
 	private var _filter:IPrimitiveFilter;
 	private var _blocker:Blocker;
 	
@@ -38,12 +38,12 @@ class BasicRenderer implements IRenderer, implements IPrimitiveConsumer {
 	/**
 	 * Defines the array of filters to be used on the drawing primitives.
 	 */
-	public function getFilters():Array<Dynamic> {
+	public function getFilters():Array<IPrimitiveFilter> {
 		
 		return _filters.slice(0, _filters.length - 1);
 	}
 
-	public function setFilters(val:Array<Dynamic>):Array<Dynamic> {
+	public function setFilters(val:Array<IPrimitiveFilter>):Array<IPrimitiveFilter> {
 		
 		_filters = val;
 		_filters.push(new ZSortFilter());
@@ -55,8 +55,8 @@ class BasicRenderer implements IRenderer, implements IPrimitiveConsumer {
 	 *
 	 * @param	filters	[optional]	An array of filters to use on projected drawing primitives before rendering them to screen.
 	 */
-	public function new(?filters:Array<Dynamic>) {
-		if (filters == null) filters = new Array<Dynamic>();
+	public function new(?filters:Array<IPrimitiveFilter>) {
+		if (filters == null) filters = new Array<IPrimitiveFilter>();
 		this._primitives = [];
 		this._blockers = [];
 		
@@ -95,7 +95,7 @@ class BasicRenderer implements IRenderer, implements IPrimitiveConsumer {
 	 * 
 	 * @return	An array containing the primitives to be rendered.
 	 */
-	public function list():Array<Dynamic> {
+	public function list():Array<DrawPrimitive> {
 		
 		return _primitives;
 	}

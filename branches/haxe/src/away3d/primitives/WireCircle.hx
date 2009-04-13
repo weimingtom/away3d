@@ -24,7 +24,7 @@ class WireCircle extends AbstractWirePrimitive  {
 
 	private function buildCircle(radius:Float, sides:Int, yUp:Bool):Void {
 		
-		var vertices:Array<Dynamic> = [];
+		var vertices:Array<Vertex> = [];
 		var i:Int;
 		i = 0;
 		while (i < sides) {

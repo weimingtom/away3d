@@ -16,7 +16,7 @@ class WireSphere extends AbstractWirePrimitive  {
 	public var segmentsH(getSegmentsH, setSegmentsH) : Float;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var _radius:Float;
 	private var _segmentsW:Int;
 	private var _segmentsH:Int;
@@ -27,9 +27,9 @@ class WireSphere extends AbstractWirePrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array<Dynamic>();
+		grid = new Array<Array<Vertex>>();
 		var bottom:Vertex = yUp ? createVertex(0, -radius, 0) : createVertex(0, 0, -radius);
-		grid[0] = new Array<Dynamic>();
+		grid[0] = new Array<Vertex>();
 		i = 0;
 		while (i < segmentsW) {
 			grid[0][i] = bottom;
@@ -43,7 +43,7 @@ class WireSphere extends AbstractWirePrimitive  {
 			var horangle:Float = j / segmentsH * Math.PI;
 			var z:Float = -radius * Math.cos(horangle);
 			var ringradius:Float = radius * Math.sin(horangle);
-			grid[j] = new Array<Dynamic>();
+			grid[j] = new Array<Vertex>();
 			i = 0;
 			while (i < segmentsW) {
 				var verangle:Float = 2 * i / segmentsW * Math.PI;
@@ -65,7 +65,7 @@ class WireSphere extends AbstractWirePrimitive  {
 		}
 
 		var top:Vertex = yUp ? createVertex(0, radius, 0) : createVertex(0, 0, radius);
-		grid[segmentsH] = new Array<Dynamic>();
+		grid[segmentsH] = new Array<Vertex>();
 		i = 0;
 		while (i < segmentsW) {
 			grid[segmentsH][i] = top;

@@ -24,7 +24,7 @@ class AnimatedBitmapMaterial extends TransformBitmapMaterial, implements ITriang
 	private var _broadcaster:Sprite;
 	private var _playing:Bool;
 	private var _index:Int;
-	private var _cache:Array<Dynamic>;
+	private var _cache:Array<BitmapData>;
 	/**
 	 * Indicates whether the animation will loop.
 	 */
@@ -104,7 +104,7 @@ class AnimatedBitmapMaterial extends TransformBitmapMaterial, implements ITriang
 	 */
 	public function setMovie(movie:MovieClip):Void {
 		
-		_cache = new Array<Dynamic>();
+		_cache = new Array<BitmapData>();
 		var i:Int;
 		var rect:Rectangle;
 		var minX:Float = 100000;
@@ -155,7 +155,7 @@ class AnimatedBitmapMaterial extends TransformBitmapMaterial, implements ITriang
 	/**
 	 * Resets the cached bitmapData objects making up the animation with a pre-defined array.
 	 */
-	public function setFrames(sources:Array<Dynamic>):Void {
+	public function setFrames(sources:Array<BitmapData>):Void {
 		
 		var i:Int;
 		if (_cache.length > 0) {

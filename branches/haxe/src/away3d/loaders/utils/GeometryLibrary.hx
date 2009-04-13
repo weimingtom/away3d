@@ -10,7 +10,7 @@ import away3d.loaders.data.GeometryData;
 class GeometryLibrary extends Hash<GeometryData>  {
 	
 	private var _geometry:GeometryData;
-	private var _geometryArray:Array<Dynamic>;
+	private var _geometryArray:Array<GeometryData>;
 	private var _geometryArrayDirty:Bool;
 	/**
 	 * The name of the geometry used as a unique reference.
@@ -63,7 +63,7 @@ class GeometryLibrary extends Hash<GeometryData>  {
 	/**
 	 * Returns an array of all geometries.
 	 */
-	public function getGeometryArray():Array<Dynamic> {
+	public function getGeometryArray():Array<GeometryData> {
 		
 		if (_geometryArrayDirty) {
 			updateGeometryArray();

@@ -13,8 +13,8 @@ import flash.utils.getTimer;
  */
 class PatchData  {
 	public var nodes(getNodes, setNodes) : Array<Dynamic>;
-	public var vertices(getVertices, setVertices) : Array<Dynamic>;
-	public var uvs(getUvs, setUvs) : Array<Dynamic>;
+	public var vertices(getVertices, setVertices) : Array<Vertex>;
+	public var uvs(getUvs, setUvs) : Array<UV>;
 	public var patchInfo(getPatchInfo, setPatchInfo) : Array<Dynamic>;
 	
 	public var controlPoints:Array<Dynamic>;

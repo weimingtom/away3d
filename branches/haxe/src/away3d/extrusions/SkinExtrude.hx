@@ -10,7 +10,7 @@ import away3d.core.base.Vertex;
 
 class SkinExtrude extends Mesh  {
 	
-	private var varr:Array<Dynamic>;
+	private var varr:Array<Vertex>;
 	
 
 	public function new(aPoints:Dynamic, ?init:Dynamic=null) {
@@ -24,7 +24,7 @@ class SkinExtrude extends Mesh  {
 		var recenter:Bool = init.getBoolean("recenter", false);
 		var closepath:Bool = init.getBoolean("closepath", false);
 		var flip:Bool = init.getBoolean("flip", false);
-		if (Std.is(aPoints[0], Array<Dynamic>) && aPoints[0].length > 1) {
+		if (Std.is(aPoints[0], Array<Vertex>) && aPoints[0].length > 1) {
 			if (closepath && aPoints.length <= 2) {
 				closepath = false;
 			}
@@ -44,7 +44,7 @@ class SkinExtrude extends Mesh  {
 		url = "Extrude";
 	}
 
-	private function generate(aPoints:Array<Dynamic>, ?subdivision:Int=1, ?scaling:Float=1, ?coverall:Bool=false, ?closepath:Bool=false, ?flip:Bool=false):Void {
+	private function generate(aPoints:Array<Vertex>, ?subdivision:Int=1, ?scaling:Float=1, ?coverall:Bool=false, ?closepath:Bool=false, ?flip:Bool=false):Void {
 		
 		var uvlength:Int = (closepath) ? aPoints.length : aPoints.length - 1;
 		var i:Int = 0;
@@ -62,7 +62,7 @@ class SkinExtrude extends Mesh  {
 		}
 	}
 
-	private function extrudePoints(points1:Array<Dynamic>, points2:Array<Dynamic>, subdivision:Int, coverall:Bool, vscale:Float, indexv:Int, flip:Bool):Void {
+	private function extrudePoints(points1:Array<Vertex>, points2:Array<Vertex>, subdivision:Int, coverall:Bool, vscale:Float, indexv:Int, flip:Bool):Void {
 		
 		var i:Int;
 		var j:Int;

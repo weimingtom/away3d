@@ -77,9 +77,9 @@ class NormalMapGenerator extends HashableEventDispatcher  {
 		var col2r:Int = 0;
 		var col2g:Int = 0;
 		var col2b:Int = 0;
-		var line0:Array<Dynamic> = null;
-		var line1:Array<Dynamic> = null;
-		var line2:Array<Dynamic> = null;
+		var line0:Array<Point> = null;
+		var line1:Array<Point> = null;
+		var line2:Array<Point> = null;
 		var per0:Float = 0;
 		var per1:Float = 0;
 		var per2:Float = 0;
@@ -104,9 +104,9 @@ class NormalMapGenerator extends HashableEventDispatcher  {
 		var applyColorAt = function(x:Int, y:Int):Void {
 			colorpt.x = x;
 			colorpt.y = y;
-			var cross0:Point = meet(__this.intPt0, line1[0].x, line1[0].y, line1[1].x, line1[1].y, Std.int(p0.x), Std.int(p0.y), x, y);
-			var cross1:Point = meet(__this.intPt1, line2[0].x, line2[0].y, line2[1].x, line2[1].y, Std.int(p1.x), Std.int(p1.y), x, y);
-			var cross2:Point = meet(__this.intPt2, line0[0].x, line0[0].y, line0[1].x, line0[1].y, Std.int(p2.x), Std.int(p2.y), x, y);
+			var cross0:Point = meet(__this.intPt0, Std.int(line1[0].x), Std.int(line1[0].y), Std.int(line1[1].x), Std.int(line1[1].y), Std.int(p0.x), Std.int(p0.y), x, y);
+			var cross1:Point = meet(__this.intPt1, Std.int(line2[0].x), Std.int(line2[0].y), Std.int(line2[1].x), Std.int(line2[1].y), Std.int(p1.x), Std.int(p1.y), x, y);
+			var cross2:Point = meet(__this.intPt2, Std.int(line0[0].x), Std.int(line0[0].y), Std.int(line0[1].x), Std.int(line0[1].y), Std.int(p2.x), Std.int(p2.y), x, y);
 			per0 = (cross0 == null) ? 1 : Point.distance(cross0, colorpt) / Point.distance(p0, cross0);
 			per1 = (cross1 == null) ? 1 : Point.distance(cross1, colorpt) / Point.distance(p1, cross1);
 			per2 = (cross2 == null) ? 1 : Point.distance(cross2, colorpt) / Point.distance(p2, cross2);
@@ -277,7 +277,7 @@ class NormalMapGenerator extends HashableEventDispatcher  {
 
 	private function setBounds(x1:Int, y1:Int, x2:Int, y2:Int, r0:Int, g0:Int, b0:Int, r1:Int, g1:Int, b1:Int, dist:Float):Void {
 		
-		var line:Array<Dynamic> = [x1, y1];
+		var line:Array<Int> = [x1, y1];
 		var dist2:Float;
 		var scale:Float;
 		var r:Int;
@@ -380,8 +380,8 @@ class NormalMapGenerator extends HashableEventDispatcher  {
 		var cf:ConvolutionFilter = new ConvolutionFilter(3, 3, null, 0, 127);
 		var dp:DisplacementMapFilter = new DisplacementMapFilter(tmp1, tmp1.rect.topLeft, 1, 2, 2, 2, DisplacementMapFilterMode.COLOR, 0, 0);
 		var zeropt:Point = new Point(0, 0);
-		var mat0:Array<Dynamic> = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
-		var mat1:Array<Dynamic> = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+		var mat0:Array<Int> = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+		var mat1:Array<Int> = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
 		var i:Int = 0;
 		while (i < 10) {
 			tmp0.draw(_normalmap);

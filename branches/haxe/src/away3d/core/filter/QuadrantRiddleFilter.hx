@@ -22,15 +22,15 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 	private var maxdelay:Int;
 	private var start:Int;
 	private var check:Int;
-	private var primitives:Array<Dynamic>;
+	private var primitives:Array<DrawPrimitive>;
 	private var pri:DrawPrimitive;
 	private var turn:Int;
-	private var leftover:Array<Dynamic>;
-	private var rivals:Array<Dynamic>;
+	private var leftover:Array<DrawPrimitive>;
+	private var rivals:Array<DrawPrimitive>;
 	private var rival:DrawPrimitive;
-	private var parts:Array<Dynamic>;
+	private var parts:Array<DrawPrimitive>;
 	private var part:DrawPrimitive;
-	private var subst:Array<Dynamic>;
+	private var subst:Array<DrawPrimitive>;
 	private var focus:Float;
 	private var positiveArea:Float;
 	private var av0z:Float;
@@ -150,7 +150,7 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 	private var v01:ScreenVertex;
 	
 
-	private function riddle(q:DrawPrimitive, w:DrawPrimitive):Array<Dynamic> {
+	private function riddle(q:DrawPrimitive, w:DrawPrimitive):Array<DrawPrimitive> {
 		
 		if (Std.is(q, DrawTriangle)) {
 			if (Std.is(w, DrawTriangle)) {
@@ -167,7 +167,7 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 		return [];
 	}
 
-	private function riddleTT(q:DrawTriangle, w:DrawTriangle):Array<Dynamic> {
+	private function riddleTT(q:DrawTriangle, w:DrawTriangle):Array<DrawPrimitive> {
 		
 		positiveArea = q.area;
 		if (positiveArea < 0) {
@@ -362,7 +362,7 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 		return true;
 	}
 
-	private function riddleTS(q:DrawTriangle, r:DrawSegment):Array<Dynamic> {
+	private function riddleTS(q:DrawTriangle, r:DrawSegment):Array<DrawPrimitive> {
 		
 		av0z = q.v0.z;
 		av0p = 1 + av0z / focus;
@@ -441,7 +441,7 @@ class QuadrantRiddleFilter implements IPrimitiveQuadrantFilter {
 		primitives = tree.list();
 		turn = 0;
 		while (primitives.length > 0) {
-			var leftover:Array<Dynamic> = new Array<Dynamic>();
+			var leftover:Array<DrawPrimitive> = new Array<DrawPrimitive>();
 			for (__i in 0...primitives.length) {
 				pri = primitives[__i];
 

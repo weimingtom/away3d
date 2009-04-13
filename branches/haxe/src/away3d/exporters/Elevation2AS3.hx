@@ -98,14 +98,11 @@ class Elevation2AS3  {
 		var x:Float = 0;
 		var y:Float = 0;
 		var z:Float = 0;
-		var totalArray:Array<Dynamic> = [];
-		var tmpArray:Array<Dynamic> = [];
 		var color:Int;
 		var cha:Float;
 		j = h - 1;
 		while (j > -subdivisionY) {
 			y = (j < 0) ? 0 : j;
-			tmpArray = [];
 			source += (j == h - 1) ? "[" : "],[";
 			i = 0;
 			while (i < w + subdivisionX) {

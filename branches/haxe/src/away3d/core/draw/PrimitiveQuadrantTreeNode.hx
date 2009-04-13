@@ -18,7 +18,7 @@ class PrimitiveQuadrantTreeNode  {
 	/**
 	 * Array of primitives that lie in the center of the quadrant.
 	 */
-	public var center:Array<Dynamic>;
+	public var center:Array<DrawPrimitive>;
 	/**
 	 * The quadrant tree node for the top left quadrant.
 	 */
@@ -108,7 +108,7 @@ class PrimitiveQuadrantTreeNode  {
 		this.render_center_length = -1;
 		this.render_center_index = -1;
 		this.maxlevel = 4;
-		this.center = new Array<Dynamic>();
+		this.center = new Array<DrawPrimitive>();
 		this.onlysourceFlag = true;
 		
 		
@@ -196,7 +196,7 @@ class PrimitiveQuadrantTreeNode  {
 		leftbottomFlag = false;
 		righttopFlag = false;
 		rightbottomFlag = false;
-		center = new Array<Dynamic>();
+		center = new Array<DrawPrimitive>();
 		onlysourceFlag = true;
 		onlysource = null;
 		render_center_length = -1;

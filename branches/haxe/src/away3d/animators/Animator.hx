@@ -49,7 +49,6 @@ class Animator extends Mesh  {
 		var j:Int;
 		var k:Int;
 		// export requirement
-		indexes = new Array();
 		var aVti:Array<Int>;
 		if (doloop) {
 			var fr:AnimationKeyFrameData = new AnimationKeyFrameData(aFrames[0].vertices, aFrames[0].prefix);
@@ -79,7 +78,6 @@ class Animator extends Mesh  {
 			uvarr.push(face.uv2);
 			addFace(face);
 			aVti = getVertIndex(face);
-			indexes.push([aVti[0], aVti[1], aVti[2], uvarr.length - 3, uvarr.length - 2, uvarr.length - 1]);
 			
 			// update loop variables
 			i++;

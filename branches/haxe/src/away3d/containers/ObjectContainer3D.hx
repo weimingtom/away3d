@@ -26,9 +26,9 @@ import away3d.events.Object3DEvent;
  * 3d object container node for other 3d objects in a scene
  */
 class ObjectContainer3D extends Object3D  {
-	public var children(getChildren, null) : Array<Dynamic>;
+	public var children(getChildren, null) : Array<Object3D>;
 	
-	private var _children:Array<Dynamic>;
+	private var _children:Array<Object3D>;
 	private var _radiusChild:Object3D;
 	
 
@@ -70,7 +70,7 @@ class ObjectContainer3D extends Object3D  {
 	private override function updateDimensions():Void {
 		//update bounding radius
 		
-		var children:Array<Dynamic> = _children.concat([]);
+		var children:Array<Object3D> = _children.concat([]);
 		if ((children.length > 0)) {
 			if (_scaleX < 0) {
 				_boundingScale = -_scaleX;
@@ -125,7 +125,7 @@ class ObjectContainer3D extends Object3D  {
 	/**
 	 * Returns the children of the container as an array of 3d objects
 	 */
-	public function getChildren():Array<Dynamic> {
+	public function getChildren():Array<Object3D> {
 		
 		return _children;
 	}
@@ -136,12 +136,12 @@ class ObjectContainer3D extends Object3D  {
 	 * @param	...initarray		An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	 */
 	public function new(?initarray:Array<Dynamic>) {
-		this._children = new Array();
+		this._children = new Array<Object3D>();
 		this._radiusChild = null;
 		
 		
 		var init:Dynamic = null;
-		var childarray:Array<Dynamic> = [];
+		var childarray:Array<Object3D> = [];
 		if (initarray != null) {
 			for (__i in 0...initarray.length) {
 				var object:Dynamic = initarray[__i];
@@ -173,8 +173,8 @@ class ObjectContainer3D extends Object3D  {
 	 * 
 	 * @param	...childarray		An array of 3d objects to be added
 	 */
-	public function addChildren(?childarray:Array<Dynamic>):Void {
-		if (childarray == null) childarray = new Array<Dynamic>();
+	public function addChildren(?childarray:Array<Object3D>):Void {
+		if (childarray == null) childarray = new Array<Object3D>();
 		
 		for (__i in 0...childarray.length) {
 			var child:Object3D = childarray[__i];
@@ -490,7 +490,7 @@ class ObjectContainer3D extends Object3D  {
 					(cast(child, ObjectContainer3D)).cloneBones(cast(child, ObjectContainer3D), root);
 				} else if (Std.is(child, Mesh)) {
 					var geometry:Geometry = (cast(child, Mesh)).geometry;
-					var skinControllers:Array<Dynamic> = geometry.skinControllers;
+					var skinControllers:Array<SkinController> = geometry.skinControllers;
 					var rootBone:Bone;
 					var skinController:SkinController;
 					for (__i in 0...skinControllers.length) {

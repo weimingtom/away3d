@@ -107,8 +107,8 @@ class Bone extends ObjectContainer3D  {
 		return scale;
 	}
 
-	public function new(?init:Dynamic=null, ?childarray:Array<Dynamic>):Void {
-		if (childarray == null) childarray = new Array<Dynamic>();
+	public function new(?init:Dynamic=null, ?childarray:Array<Object3D>):Void {
+		if (childarray == null) childarray = new Array<Object3D>();
 		this._baseMatrix = new Matrix3D();
 		this._jointTransform = new Matrix3D();
 		
@@ -133,7 +133,7 @@ class Bone extends ObjectContainer3D  {
 			bone = new Bone();
 		};
 		super.clone(bone);
-		bone.joint = bone.children[0];
+		bone.joint = cast(bone.children[0], ObjectContainer3D);
 		return bone;
 	}
 
@@ -146,7 +146,7 @@ class Bone extends ObjectContainer3D  {
 		bone.removeChild(joint);
 		super.cloneAll(bone);
 		bone.id = id;
-		bone.joint = bone.children[0];
+		bone.joint = cast(bone.children[0], ObjectContainer3D);
 		return bone;
 	}
 

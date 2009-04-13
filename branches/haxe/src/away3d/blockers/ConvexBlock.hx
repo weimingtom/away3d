@@ -3,6 +3,7 @@ package away3d.blockers;
 import away3d.core.utils.Init;
 import away3d.core.project.ProjectorType;
 import away3d.core.base.Object3D;
+import away3d.core.base.Vertex;
 
 
 /**
@@ -17,7 +18,7 @@ class ConvexBlock extends Object3D  {
 	/**
 	 * Verticies to use for calculating the convex hull.
 	 */
-	public var vertices:Array<Dynamic>;
+	public var vertices:Array<Vertex>;
 	
 
 	/**
@@ -26,7 +27,7 @@ class ConvexBlock extends Object3D  {
 	 * @param	verticies				An Array of vertices to use for calculating the convex hull.
 	 * @param	init		[optional]	An initialisation object for specifying default instance properties.
 	 */
-	public function new(vertices:Array<Dynamic>, ?init:Dynamic=null) {
+	public function new(vertices:Array<Vertex>, ?init:Dynamic=null) {
 		this.vertices = [];
 		
 		

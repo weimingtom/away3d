@@ -102,7 +102,7 @@ class DrawPrimitive extends Hashable {
 	 * 
 	 * @see away3d.cameras.Camera3D
 	 */
-	public function quarter(focus:Float):Array<Dynamic> {
+	public function quarter(focus:Float):Array<DrawPrimitive> {
 		
 		return [this];
 	}

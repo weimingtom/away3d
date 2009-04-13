@@ -21,7 +21,7 @@ class Cylinder extends AbstractPrimitive  {
 	public var openEnded(getOpenEnded, setOpenEnded) : Bool;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var jMin:Int;
 	private var jMax:Int;
 	private var _radius:Float;
@@ -37,13 +37,13 @@ class Cylinder extends AbstractPrimitive  {
 		var i:Int;
 		var j:Int;
 		height /= 2;
-		grid = new Array<Dynamic>();
+		grid = new Array<Array<Vertex>>();
 		if (!openEnded) {
 			segmentsH += 2;
 			jMin = 1;
 			jMax = segmentsH - 1;
 			var bottom:Vertex = yUp ? createVertex(0, -height, 0) : createVertex(0, 0, -height);
-			grid[0] = new Array<Dynamic>();
+			grid[0] = new Array<Vertex>();
 			i = 0;
 			while (i < segmentsW) {
 				grid[0][i] = bottom;
@@ -53,7 +53,7 @@ class Cylinder extends AbstractPrimitive  {
 			}
 
 			var top:Vertex = yUp ? createVertex(0, height, 0) : createVertex(0, 0, height);
-			grid[segmentsH] = new Array<Dynamic>();
+			grid[segmentsH] = new Array<Vertex>();
 			i = 0;
 			while (i < segmentsW) {
 				grid[segmentsH][i] = top;
@@ -69,7 +69,7 @@ class Cylinder extends AbstractPrimitive  {
 		j = jMin;
 		while (j <= jMax) {
 			var z:Float = -height + 2 * height * (j - jMin) / (jMax - jMin);
-			grid[j] = new Array<Dynamic>();
+			grid[j] = new Array<Vertex>();
 			i = 0;
 			while (i < segmentsW) {
 				var verangle:Float = 2 * i / segmentsW * Math.PI;

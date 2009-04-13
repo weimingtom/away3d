@@ -13,7 +13,7 @@ import flash.utils.Dictionary;
  */
 class DofCache  {
 	
-	private var bitmaps:Array<Dynamic>;
+	private var bitmaps:Array<BitmapData>;
 	private var levels:Float;
 	private var maxBitmap:BitmapData;
 	private var minBitmap:BitmapData;
@@ -61,7 +61,7 @@ class DofCache  {
 		this.levels = levels;
 		var mat:Matrix = new Matrix();
 		var pnt:Point = new Point(0, 0);
-		bitmaps = new Array<Dynamic>();
+		bitmaps = new Array<BitmapData>();
 		var j:Int = 0;
 		while (j < levels) {
 			var tfilter:BlurFilter = new BlurFilter(2 + maxblur * j / levels, 2 + maxblur * j / levels, 4);

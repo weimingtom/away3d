@@ -81,7 +81,7 @@ class DrawScaledBitmap extends DrawPrimitive  {
 			bottomleft.y = screenvertex.y + sinw + cosh;
 			bottomright.x = screenvertex.x + cosw + sinh;
 			bottomright.y = screenvertex.y - sinw + cosh;
-			var boundsArray:Array<Dynamic> = new Array<Dynamic>();
+			var boundsArray:Array<ScreenVertex> = new Array<ScreenVertex>();
 			boundsArray.push(topleft);
 			boundsArray.push(topright);
 			boundsArray.push(bottomleft);

@@ -28,21 +28,21 @@ class PathExtrude extends Mesh  {
 	public var aligntopath(getAligntopath, setAligntopath) : Bool;
 	public var smoothscale(getSmoothscale, setSmoothscale) : Bool;
 	public var path(getPath, setPath) : Path;
-	public var points(getPoints, setPoints) : Array<Dynamic>;
-	public var scales(getScales, setScales) : Array<Dynamic>;
-	public var rotations(getRotations, setRotations) : Array<Dynamic>;
-	public var materials(getMaterials, setMaterials) : Array<Dynamic>;
+	public var points(getPoints, setPoints) : Array<Vertex>;
+	public var scales(getScales, setScales) : Array<Number3D>;
+	public var rotations(getRotations, setRotations) : Array<Number3D>;
+	public var materials(getMaterials, setMaterials) : Array<ITriangleMaterial>;
 	
-	private var varr:Array<Dynamic>;
+	private var varr:Array<Vertex>;
 	private var xAxis:Number3D;
 	private var yAxis:Number3D;
 	private var zAxis:Number3D;
 	private var _worldAxis:Number3D;
 	private var _transform:Matrix3D;
 	private var _path:Path;
-	private var _points:Array<Dynamic>;
-	private var _scales:Array<Dynamic>;
-	private var _rotations:Array<Dynamic>;
+	private var _points:Array<Vertex>;
+	private var _scales:Array<Number3D>;
+	private var _rotations:Array<Number3D>;
 	private var _subdivision:Int;
 	private var _scaling:Float;
 	private var _coverall:Bool;
@@ -53,8 +53,8 @@ class PathExtrude extends Mesh  {
 	private var _aligntopath:Bool;
 	private var _smoothscale:Bool;
 	private var _isClosedProfile:Bool;
-	private var _doubles:Array<Dynamic>;
-	private var _materialList:Array<Dynamic>;
+	private var _doubles:Array<Vertex>;
+	private var _materialList:Array<ITriangleMaterial>;
 	private var _matIndex:Int;
 	private var _segIndex:Int;
 	private var _segvstart:Float;
@@ -83,12 +83,12 @@ class PathExtrude extends Mesh  {
 		}
 	}
 
-	private function generate(points:Array<Dynamic>, ?offsetV:Int=0, ?closedata:Bool=false):Void {
+	private function generate(points:Array<Vertex>, ?offsetV:Int=0, ?closedata:Bool=false):Void {
 		
 		var uvlength:Int = (points.length - 1) + offsetV;
 		var i:Int = 0;
 		while (i < points.length - 1) {
-			varr = new Array<Dynamic>();
+			varr = new Array<Vertex>();
 			extrudePoints(points[i], points[i + 1], (1 / uvlength) * ((closedata) ? i + (uvlength - 1) : i), uvlength, ((closedata) ? i + (uvlength - 1) : i) / _subdivision);
 			if (i == 0 && _isClosedProfile) {
 				_doubles = varr.concat([]);
@@ -102,7 +102,7 @@ class PathExtrude extends Mesh  {
 		_doubles = null;
 	}
 
-	private function extrudePoints(points1:Array<Dynamic>, points2:Array<Dynamic>, vscale:Float, indexv:Int, indexp:Int):Void {
+	private function extrudePoints(points1:Array<Vertex>, points2:Array<Vertex>, vscale:Float, indexv:Int, indexp:Int):Void {
 		
 		var i:Int;
 		var j:Int;
@@ -246,7 +246,7 @@ class PathExtrude extends Mesh  {
 		}
 	}
 
-	function new(?path:Path=null, ?points:Array<Dynamic>=null, ?scales:Array<Dynamic>=null, ?rotations:Array<Dynamic>=null, ?init:Dynamic=null) {
+	function new(?path:Path=null, ?points:Array<Vertex>=null, ?scales:Array<Number3D>=null, ?rotations:Array<Number3D>=null, ?init:Dynamic=null) {
 		this.xAxis = new Number3D();
 		this.yAxis = new Number3D();
 		this.zAxis = new Number3D();
@@ -302,17 +302,17 @@ class PathExtrude extends Mesh  {
 		
 		if (_path.length != 0 && _points.length >= 2) {
 			_worldAxis = _path.worldAxis;
-			var aSegPoints:Array<Dynamic> = PathUtils.getPointsOnCurve(_path, _subdivision);
-			var aPointlist:Array<Dynamic> = [];
-			var aSegresult:Array<Dynamic> = [];
-			var atmp:Array<Dynamic>;
+			var aSegPoints:Array<Array<Number3D>> = PathUtils.getPointsOnCurve(_path, _subdivision);
+			var aPointlist:Array<Number3D> = [];
+			var aSegresult:Array<Array<Number3D>> = [];
+			var atmp:Array<Vertex>;
 			var tmppt:Number3D = new Number3D(0, 0, 0);
 			var i:Int;
 			var j:Int;
 			var k:Int;
 			var nextpt:Number3D;
 			if (_closepath) {
-				var lastP:Array<Dynamic> = [];
+				var lastP:Array<Number3D> = [];
 			}
 			var rescale:Bool = (_scales != null);
 			if (rescale) {
@@ -322,12 +322,12 @@ class PathExtrude extends Mesh  {
 			if (rotate && _rotations.length > 0) {
 				var lastrotate:Number3D = _rotations[0];
 				var nextrotate:Number3D;
-				var aRotates:Array<Dynamic> = [];
+				var aRotates:Array<Number3D> = [];
 				var tweenrot:Number3D;
 			}
 			if (_smoothscale && rescale) {
 				var nextscale:Number3D = new Number3D(1, 1, 1);
-				var aScales:Array<Dynamic> = [lastscale];
+				var aScales:Array<Number3D> = [lastscale];
 			}
 			var tmploop:Int = _points.length;
 			i = 0;
@@ -451,8 +451,8 @@ class PathExtrude extends Mesh  {
 				var stepx:Float;
 				var stepy:Float;
 				var stepz:Float;
-				var c:Array<Dynamic>;
-				var c2:Array<Dynamic> = [[]];
+				var c:Array<Number3D>;
+				var c2:Array<Array<Number3D>> = [[]];
 				i = 1;
 				while (i < _subdivision + 1) {
 					c = [];
@@ -648,14 +648,14 @@ class PathExtrude extends Mesh  {
 	/**
 	 * Sets and defines the Array of Number3D's (the profile information to be projected according to the Path object). Required.
 	 */
-	public function setPoints(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setPoints(aR:Array<Number3D>):Array<Number3D> {
 		
 		_points = aR;
 		_isClosedProfile = (points[0].x == points[points.length - 1].x && points[0].y == points[points.length - 1].y && points[0].z == points[points.length - 1].z);
 		return aR;
 	}
 
-	public function getPoints():Array<Dynamic> {
+	public function getPoints():Array<Number3D> {
 		
 		return _points;
 	}
@@ -663,13 +663,13 @@ class PathExtrude extends Mesh  {
 	/**
 	 * Sets and defines the optional Array of Number3D's. A series of scales to be set on each CurveSegments
 	 */
-	public function setScales(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setScales(aR:Array<Number3D>):Array<Number3D> {
 		
 		_scales = aR;
 		return aR;
 	}
 
-	public function getScales():Array<Dynamic> {
+	public function getScales():Array<Number3D> {
 		
 		return _scales;
 	}
@@ -677,13 +677,13 @@ class PathExtrude extends Mesh  {
 	/**
 	 * Sets and defines the optional Array of Number3D's. A series of rotations to be set on each CurveSegments
 	 */
-	public function setRotations(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setRotations(aR:Array<Number3D>):Array<Number3D> {
 		
 		_rotations = aR;
 		return aR;
 	}
 
-	public function getRotations():Array<Dynamic> {
+	public function getRotations():Array<Number3D> {
 		
 		return _rotations;
 	}
@@ -692,13 +692,13 @@ class PathExtrude extends Mesh  {
 	 * Sets an optional Array of materials. The materials are applyed after each other when coverall is false. On each repeats if coversegment is false.
 	 * Once the last material in array is reached while path is not finished yet, the material at index 0 will be used again, then 1, 2 etc... until the construction reaches the end of the path definition.
 	 */
-	public function setMaterials(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setMaterials(aR:Array<ITriangleMaterial>):Array<ITriangleMaterial> {
 		
 		_materialList = aR;
 		return aR;
 	}
 
-	public function getMaterials():Array<Dynamic> {
+	public function getMaterials():Array<ITriangleMaterial> {
 		
 		return _materialList;
 	}

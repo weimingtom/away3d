@@ -176,12 +176,12 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 		return t;
 	}
 
-	private function getContainerPoints(rect:Rectangle):Array<Dynamic> {
+	private function getContainerPoints(rect:Rectangle):Array<Point> {
 		
 		return [rect.topLeft, new Point(rect.top, rect.right), rect.bottomRight, new Point(rect.bottom, rect.left)];
 	}
 
-	private function getFacePoints(map:Matrix):Array<Dynamic> {
+	private function getFacePoints(map:Matrix):Array<Point> {
 		
 		fPoint1.x = _u0 = map.tx;
 		fPoint2.x = map.a + _u0;
@@ -192,7 +192,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 		return [fPoint1, fPoint2, fPoint3];
 	}
 
-	private function getMappingPoints(map:Matrix):Array<Dynamic> {
+	private function getMappingPoints(map:Matrix):Array<Point> {
 		
 		mapa = map.a * width;
 		mapb = map.b * width;
@@ -211,7 +211,7 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 		return [mPoint1, mPoint2, mPoint3, mPoint4];
 	}
 
-	private function findSeparatingAxis(points1:Array<Dynamic>, points2:Array<Dynamic>):Bool {
+	private function findSeparatingAxis(points1:Array<Point>, points2:Array<Point>):Bool {
 		
 		if (checkEdge(points1, points2)) {
 			return true;
@@ -222,10 +222,10 @@ class TransformBitmapMaterial extends BitmapMaterial, implements ITriangleMateri
 		return false;
 	}
 
-	private function checkEdge(points1:Array<Dynamic>, points2:Array<Dynamic>):Bool {
+	private function checkEdge(points1:Array<Point>, points2:Array<Point>):Bool {
 		
-		for (i in points1) {
-			point2 = Reflect.field(points1, i);
+		for (i in 0...points1.length) {
+			point2 = points1[i];
 			//get point 2
 			if (Std.int(i) == 0) {
 				point1 = points1[points1.length - 1];

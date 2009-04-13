@@ -3,7 +3,7 @@ package away3d.haxeutils;
 import haxe.Timer;
 
 class GlobalTimer {
-	public static var timers:Array<Timer> = new Array();
+	public static var timers:Array<Timer> = new Array<Timer>();
    
 	public static function setInterval(func:Dynamic, milliseconds:Int, rest:Array<Dynamic>):Int {
 		var timer:Timer = new Timer(milliseconds);

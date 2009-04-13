@@ -15,7 +15,7 @@ class ElevationReader  {
 	private var elevate:Float;
 	private var scalingX:Float;
 	private var scalingY:Float;
-	private var buffer:Array<Dynamic>;
+	private var buffer:Array<Float>;
 	private var level:Float;
 	private var offsetX:Float;
 	private var offsetY:Float;

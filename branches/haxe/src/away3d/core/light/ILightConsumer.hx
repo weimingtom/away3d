@@ -6,16 +6,16 @@ package away3d.core.light;
  * Interface for containers capable of storing lighting info
  */
 interface ILightConsumer  {
-	var ambients(getAmbients, null) : Array<Dynamic>;
-	var directionals(getDirectionals, null) : Array<Dynamic>;
-	var points(getPoints, null) : Array<Dynamic>;
+	var ambients(getAmbients, null) : Array<AmbientLight>;
+	var directionals(getDirectionals, null) : Array<DirectionalLight>;
+	var points(getPoints, null) : Array<PointLight>;
 	var numLights(getNumLights, null) : Int;
 	
-	function getAmbients():Array<Dynamic>;
+	function getAmbients():Array<AmbientLight>;
 
-	function getDirectionals():Array<Dynamic>;
+	function getDirectionals():Array<DirectionalLight>;
 
-	function getPoints():Array<Dynamic>;
+	function getPoints():Array<PointLight>;
 
 	function getNumLights():Int;
 

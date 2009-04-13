@@ -12,15 +12,15 @@ import away3d.core.base.Vertex;
 
 class Lathe extends Mesh  {
 	
-	private var varr:Array<Dynamic>;
-	private var varr2:Array<Dynamic>;
-	private var uvarr:Array<Dynamic>;
+	private var varr:Array<Vertex>;
+	private var varr2:Array<Array<Vertex>>;
+	private var uvarr:Array<UV>;
 	
 
 	public function new(aPoints:Array<Dynamic>, ?init:Dynamic=null) {
-		this.varr = new Array<Dynamic>();
-		this.varr2 = new Array<Dynamic>();
-		this.uvarr = new Array<Dynamic>();
+		this.varr = new Array<Vertex>();
+		this.varr2 = new Array<Array<Vertex>>();
+		this.uvarr = new Array<UV>();
 		
 		
 		if (init.material != null) {

@@ -18,7 +18,7 @@ class Frustum  {
 	public static inline var OUT:Int = 0;
 	public static inline var IN:Int = 1;
 	public static inline var INTERSECT:Int = 2;
-	public var planes:Array<Dynamic>;
+	public var planes:Array<Plane3D>;
 	private var _matrix:Matrix3D;
 	private var _plane:Plane3D;
 	private var _distance:Float;
@@ -31,7 +31,7 @@ class Frustum  {
 		this._matrix = new Matrix3D();
 		
 		
-		planes = new Array<Dynamic>();
+		planes = new Array<Plane3D>();
 		planes[LEFT] = new Plane3D();
 		planes[RIGHT] = new Plane3D();
 		planes[TOP] = new Plane3D();
@@ -98,7 +98,7 @@ class Frustum  {
 	 * Classify this axis aligned bounding box against this frustum
 	 * @return int Frustum.IN, Frustum.OUT or Frustum.INTERSECT
 	 */
-	public function classifyAABB(points:Array<Dynamic>):Int {
+	public function classifyAABB(points:Array<Number3D>):Int {
 		
 		var planesIn:Int = 0;
 		var p:Int = 0;

@@ -18,16 +18,16 @@ class AnotherRivalFilter implements IPrimitiveQuadrantFilter {
 	private var maxdelay:Int;
 	private var start:Int;
 	private var check:Int;
-	private var primitives:Array<Dynamic>;
+	private var primitives:Array<DrawPrimitive>;
 	private var pri:DrawPrimitive;
 	private var turn:Int;
-	private var leftover:Array<Dynamic>;
+	private var leftover:Array<DrawPrimitive>;
 	private var maxZ:Float;
 	private var minZ:Float;
 	private var maxdeltaZ:Float;
-	private var rivals:Array<Dynamic>;
+	private var rivals:Array<DrawPrimitive>;
 	private var rival:DrawPrimitive;
-	private var parts:Array<Dynamic>;
+	private var parts:Array<DrawPrimitive>;
 	private var part:DrawPrimitive;
 	private var ZOrderDeeper:Int;
 	private var ZOrderIrrelevant:Int;
@@ -575,7 +575,7 @@ class AnotherRivalFilter implements IPrimitiveQuadrantFilter {
 		primitives = tree.list();
 		turn = 0;
 		while (primitives.length > 0) {
-			leftover = new Array<Dynamic>();
+			leftover = new Array<DrawPrimitive>();
 			for (__i in 0...primitives.length) {
 				pri = primitives[__i];
 

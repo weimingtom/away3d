@@ -214,7 +214,7 @@ class Matrix3D  {
 	 * Fills the 3d matrix object with values from an array with 3d matrix values
 	 * ordered from right to left and up to down.
 	 */
-	public function array2matrix(ar:Array<Dynamic>, yUp:Bool, scaling:Float):Void {
+	public function array2matrix(ar:Array<Float>, yUp:Bool, scaling:Float):Void {
 		
 		if (ar.length >= 12) {
 			if (yUp) {

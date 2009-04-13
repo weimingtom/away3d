@@ -44,7 +44,7 @@ class BlockerArray implements IBlockerConsumer {
 	 * 
 	 * @see away3d.core.render.BasicRender
 	 */
-	public function list():Array<Dynamic> {
+	public function list():Array<Blocker> {
 		
 		untyped _blockers.sortOn("screenZ", Array.NUMERIC);
 		return _blockers;

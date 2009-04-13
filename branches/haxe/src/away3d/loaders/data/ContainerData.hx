@@ -11,7 +11,7 @@ class ContainerData extends ObjectData  {
 	/**
 	 * An array containing the child 3d objects of the container.
 	 */
-	public var children:Array<Dynamic>;
+	public var children:Array<Object3D>;
 	/**
 	 * Reference to the 3d container object of the resulting container.
 	 */

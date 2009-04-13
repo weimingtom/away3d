@@ -12,15 +12,15 @@ import away3d.core.base.Vertex;
 
 class SegmentsExtrude extends Mesh  {
 	
-	private var varr:Array<Dynamic>;
-	private var varr2:Array<Dynamic>;
-	private var uvarr:Array<Dynamic>;
+	private var varr:Array<Vertex>;
+	private var varr2:Array<Array<Vertex>>;
+	private var uvarr:Array<UV>;
 	
 
 	public function new(aPoints:Dynamic, ?init:Dynamic=null) {
-		this.varr = new Array<Dynamic>();
-		this.varr2 = new Array<Dynamic>();
-		this.uvarr = new Array<Dynamic>();
+		this.varr = new Array<Vertex>();
+		this.varr2 = new Array<Array<Vertex>>();
+		this.uvarr = new Array<UV>();
 		
 		
 		if (init.material != null) {
@@ -46,13 +46,13 @@ class SegmentsExtrude extends Mesh  {
 		if (closepath) {
 			omit += "left,right";
 		}
-		if (Std.is(aPoints[0], Array<Dynamic>)) {
+		if (Std.is(aPoints[0], Array<Vertex>)) {
 			var i:Int = 0;
 			while (i < aPoints.length) {
 				if (aPoints[i].length > 1) {
-					varr = new Array<Dynamic>();
-					varr2 = new Array<Dynamic>();
-					uvarr = new Array<Dynamic>();
+					varr = new Array<Vertex>();
+					varr2 = new Array<Array<Vertex>>();
+					uvarr = new Array<UV>();
 					generate(aPoints[i], oMat, axis, offset, subdivision, thickness, thickness_subdivision, scaling, omit, coverall, closepath, flip);
 				} else {
 					trace("SegmentsExtrude error: at index " + i + " , at least 2 points are required per extrude!");
@@ -75,7 +75,7 @@ class SegmentsExtrude extends Mesh  {
 		if (recenter) {
 			applyPosition((this.minX + this.maxX) * .5, (this.minY + this.maxY) * .5, (this.minZ + this.maxZ) * .5);
 		} else {
-			var isArr:Bool = (Std.is(aPoints[0], Array<Dynamic>));
+			var isArr:Bool = (Std.is(aPoints[0], Array<Vertex>));
 			x = (isArr) ? aPoints[0][0].x : aPoints[0].x;
 			y = (isArr) ? aPoints[0][0].y : aPoints[0].y;
 			z = (isArr) ? aPoints[0][0].z : aPoints[0].z;
@@ -87,7 +87,7 @@ class SegmentsExtrude extends Mesh  {
 		url = "Extrude";
 	}
 
-	private function generate(points:Array<Dynamic>, ?oMat:Dynamic=null, ?axis:String="y", ?origoffset:Float=0, ?subdivision:Int=1, ?thickness:Float=0, ?thickness_subdivision:Int=1, ?scaling:Float=1, ?omit:String="", ?coverall:Bool=false, ?closepath:Bool=false, ?flip:Bool=false):Void {
+	private function generate(points:Array<Vertex>, ?oMat:Dynamic=null, ?axis:String="y", ?origoffset:Float=0, ?subdivision:Int=1, ?thickness:Float=0, ?thickness_subdivision:Int=1, ?scaling:Float=1, ?omit:String="", ?coverall:Bool=false, ?closepath:Bool=false, ?flip:Bool=false):Void {
 		
 		var i:Int;
 		var j:Int;
@@ -165,7 +165,7 @@ class SegmentsExtrude extends Mesh  {
 		var prop1:String;
 		var prop2:String;
 		var prop3:String;
-		var aListsides:Array<Dynamic> = ["top", "bottom", "right", "left", "front", "back"];
+		var aListsides:Array<String> = ["top", "bottom", "right", "left", "front", "back"];
 		if (thickness != 0) {
 			var oRenderside:Dynamic = {};
 			i = 0;
@@ -315,7 +315,7 @@ class SegmentsExtrude extends Mesh  {
 		}
 		var index:Int = 0;
 		var k:Int;
-		var aProps:Array<Dynamic> = ["x", "y", "z"];
+		var aProps:Array<String> = ["x", "y", "z"];
 		if (thickness != 0) {
 			var mf:Dynamic;
 			var mb:Dynamic;
@@ -436,7 +436,7 @@ class SegmentsExtrude extends Mesh  {
 
 	}
 
-	private function addThicknessSubdivision(points1:Array<Dynamic>, points2:Array<Dynamic>, subdivision:Int, u1:Float, u2:Float, ?material:Dynamic=null, ?flip:Bool=false):Void {
+	private function addThicknessSubdivision(points1:Array<Vertex>, points2:Array<Vertex>, subdivision:Int, u1:Float, u2:Float, ?material:Dynamic=null, ?flip:Bool=false):Void {
 		
 		var i:Int;
 		var j:Int;
@@ -458,7 +458,7 @@ class SegmentsExtrude extends Mesh  {
 		//var bincu = 1/(points1.length-1);
 		var v1:Float = 0;
 		var v2:Float = 0;
-		var tmp:Array<Dynamic> = new Array<Dynamic>();
+		var tmp:Array<Vertex> = new Array<Vertex>();
 		i = 0;
 		while (i < points1.length) {
 			stepx = (points2[i].x - points1[i].x) / subdivision;
@@ -547,7 +547,7 @@ class SegmentsExtrude extends Mesh  {
 
 	}
 
-	private function buildThicknessPoints(aPoints:Array<Dynamic>, thickness:Float, prop1:String, prop2:String, closepath:Bool):Array<Dynamic> {
+	private function buildThicknessPoints(aPoints:Array<Vertex>, thickness:Float, prop1:String, prop2:String, closepath:Bool):Array<Dynamic> {
 		
 		var Anchors:Array<Dynamic> = new Array<Dynamic>();
 		var Lines:Array<Dynamic> = new Array<Dynamic>();

@@ -17,7 +17,7 @@ class PrimitiveVolumeBlockNode  {
 	/**
 	 * The list of drawing primitives inside the volume block.
 	 */
-	public var list:Array<Dynamic>;
+	public var list:Array<DrawPrimitive>;
 	/**
 	 * Returns the minimum z value of the drawing primitives contained in the volume block node.
 	 */

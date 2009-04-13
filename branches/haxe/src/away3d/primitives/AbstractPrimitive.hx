@@ -19,21 +19,21 @@ class AbstractPrimitive extends Mesh  {
 	/** @private */
 	public var _v:Vertex;
 	/** @private */
-	public var _vStore:Array<Dynamic>;
+	public var _vStore:Array<Vertex>;
 	/** @private */
-	public var _vActive:Array<Dynamic>;
+	public var _vActive:Array<Vertex>;
 	/** @private */
 	public var _uv:UV;
 	/** @private */
-	public var _uvStore:Array<Dynamic>;
+	public var _uvStore:Array<UV>;
 	/** @private */
-	public var _uvActive:Array<Dynamic>;
+	public var _uvActive:Array<UV>;
 	/** @private */
 	public var __face:Face;
 	/** @private */
-	public var _faceStore:Array<Dynamic>;
+	public var _faceStore:Array<Face>;
 	/** @private */
-	public var _faceActive:Array<Dynamic>;
+	public var _faceActive:Array<Face>;
 	/** @private */
 	public var _primitiveDirty:Bool;
 	private var _index:Int;
@@ -90,12 +90,12 @@ class AbstractPrimitive extends Mesh  {
 	 * @param	init			[optional]	An initialisation object for specifying default instance properties
 	 */
 	public function new(?init:Dynamic=null) {
-		this._vStore = new Array<Dynamic>();
-		this._vActive = new Array<Dynamic>();
-		this._uvStore = new Array<Dynamic>();
-		this._uvActive = new Array<Dynamic>();
-		this._faceStore = new Array<Dynamic>();
-		this._faceActive = new Array<Dynamic>();
+		this._vStore = new Array<Vertex>();
+		this._vActive = new Array<Vertex>();
+		this._uvStore = new Array<UV>();
+		this._uvActive = new Array<UV>();
+		this._faceStore = new Array<Face>();
+		this._faceActive = new Array<Face>();
 		
 		
 		super(init);

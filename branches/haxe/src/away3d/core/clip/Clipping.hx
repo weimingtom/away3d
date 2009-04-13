@@ -248,7 +248,7 @@ class Clipping extends HashableEventDispatcher  {
 		return true;
 	}
 
-	public function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<Dynamic>):Void {
+	public function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array<FaceVO>):Void {
 		
 		clippedFaceVOs.push(faceVO);
 	}

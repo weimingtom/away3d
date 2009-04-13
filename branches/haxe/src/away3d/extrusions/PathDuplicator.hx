@@ -26,11 +26,11 @@ class PathDuplicator extends Mesh  {
 	public var smoothscale(getSmoothscale, setSmoothscale) : Bool;
 	public var path(getPath, setPath) : Path;
 	public var mesh(getMesh, setMesh) : Object3D;
-	public var scales(getScales, setScales) : Array<Dynamic>;
-	public var meshes(getMeshes, setMeshes) : Array<Dynamic>;
+	public var scales(getScales, setScales) : Array<Number3D>;
+	public var meshes(getMeshes, setMeshes) : Array<Mesh>;
 	public var segmentspread(getSegmentspread, setSegmentspread) : Bool;
 	public var texture(getTexture, setTexture) : ITriangleMaterial;
-	public var rotations(getRotations, setRotations) : Array<Dynamic>;
+	public var rotations(getRotations, setRotations) : Array<Number3D>;
 	
 	// use namespace arcane;
 
@@ -40,14 +40,14 @@ class PathDuplicator extends Mesh  {
 	private var _worldAxis:Number3D;
 	private var _transform:Matrix3D;
 	private var _path:Path;
-	private var _points:Array<Dynamic>;
-	private var _uvs:Array<Dynamic>;
-	private var _materials:Array<Dynamic>;
+	private var _points:Array<Vertex>;
+	private var _uvs:Array<UV>;
+	private var _materials:Array<ITriangleMaterial>;
 	private var _mesh:Object3D;
-	private var _meshes:Array<Dynamic>;
+	private var _meshes:Array<Mesh>;
 	private var _meshesindex:Int;
-	private var _scales:Array<Dynamic>;
-	private var _rotations:Array<Dynamic>;
+	private var _scales:Array<Number3D>;
+	private var _rotations:Array<Number3D>;
 	private var _subdivision:Int;
 	private var _scaling:Float;
 	private var _recenter:Bool;
@@ -111,7 +111,7 @@ class PathDuplicator extends Mesh  {
 		}
 	}
 
-	private function generate(aPointList:Array<Dynamic>):Void {
+	private function generate(aPointList:Array<Number3D>):Void {
 		
 		var uva:UV;
 		var uvb:UV;
@@ -144,7 +144,7 @@ class PathDuplicator extends Mesh  {
 
 	}
 
-	function new(?path:Path=null, ?mesh:Object3D=null, ?scales:Array<Dynamic>=null, ?rotations:Array<Dynamic>=null, ?init:Dynamic=null) {
+	function new(?path:Path=null, ?mesh:Object3D=null, ?scales:Array<Number3D>=null, ?rotations:Array<Number3D>=null, ?init:Dynamic=null) {
 		this.xAxis = new Number3D();
 		this.yAxis = new Number3D();
 		this.zAxis = new Number3D();
@@ -209,10 +209,10 @@ class PathDuplicator extends Mesh  {
 			 tpv2 = null;
 			 } 
 			 }*/
-			var aSegPoints:Array<Dynamic> = PathUtils.getPointsOnCurve(_path, _subdivision);
-			var aPointlist:Array<Dynamic> = [];
-			var aSegresult:Array<Dynamic> = [];
-			var atmp:Array<Dynamic>;
+			var aSegPoints:Array<Array<Number3D>> = PathUtils.getPointsOnCurve(_path, _subdivision);
+			var aPointlist:Array<Number3D> = [];
+			//var aSegresult:Array<Array<Number3D>> = [];
+			var atmp:Array<Vertex>;
 			var tmppt:Number3D = new Number3D(0, 0, 0);
 			var i:Int;
 			var j:Int;
@@ -224,13 +224,13 @@ class PathDuplicator extends Mesh  {
 			if (rotate && _rotations.length > 0) {
 				var lastrotate:Number3D = _rotations[0];
 				var nextrotate:Number3D;
-				var aRotates:Array<Dynamic> = [];
+				var aRotates:Array<Number3D> = [];
 				var tweenrot:Number3D;
 			}
 			if (_smoothscale && rescale) {
 				var nextscale:Number3D = new Number3D(1, 1, 1);
 			}
-			var aTs:Array<Dynamic> = [];
+			var aTs:Array<Number3D> = [];
 			if (_meshes.length == 0) {
 				getGeomInfo();
 			}
@@ -478,13 +478,13 @@ class PathDuplicator extends Mesh  {
 	/**
 	 * Sets and defines the optional Array of Number3D's. A series of scales to be set on each CurveSegments
 	 */
-	public function setScales(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setScales(aR:Array<Number3D>):Array<Number3D> {
 		
 		_scales = aR;
 		return aR;
 	}
 
-	public function getScales():Array<Dynamic> {
+	public function getScales():Array<Number3D> {
 		
 		return _scales;
 	}
@@ -492,13 +492,13 @@ class PathDuplicator extends Mesh  {
 	/**
 	 * Sets and defines the optional Array of meshes. A series of meshes to be placed to be duplicated within each CurveSegments. When the last one in the array is reached, the first in the array will be used until the class reaches the last segment.
 	 */
-	public function setMeshes(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setMeshes(aR:Array<Mesh>):Array<Mesh> {
 		
 		_meshes = aR;
 		return aR;
 	}
 
-	public function getMeshes():Array<Dynamic> {
+	public function getMeshes():Array<Mesh> {
 		
 		return _meshes;
 	}
@@ -534,13 +534,13 @@ class PathDuplicator extends Mesh  {
 	/**
 	 * Sets and defines the optional Array of Number3D's. A series of rotations to be set on each CurveSegments
 	 */
-	public function setRotations(aR:Array<Dynamic>):Array<Dynamic> {
+	public function setRotations(aR:Array<Number3D>):Array<Number3D> {
 		
 		_rotations = aR;
 		return aR;
 	}
 
-	public function getRotations():Array<Dynamic> {
+	public function getRotations():Array<Number3D> {
 		
 		return _rotations;
 	}

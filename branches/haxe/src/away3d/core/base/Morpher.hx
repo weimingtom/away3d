@@ -9,8 +9,8 @@ class Morpher extends Object3D  {
 	
 	private var weight:Float;
 	private var vertices:Mesh;
-	private var _vertices:Array<Dynamic>;
-	private var _verticesComp:Array<Dynamic>;
+	private var _vertices:Array<Vertex>;
+	private var _verticesComp:Array<Vertex>;
 	
 
 	/**

@@ -110,7 +110,7 @@ class BitmapMaterial extends HashableEventDispatcher, implements ITriangleMateri
 	private var focus:Float;
 	private var map:Matrix;
 	private var triangle:DrawTriangle;
-	private var svArray:Array<Dynamic>;
+	private var svArray:Array<ScreenVertex>;
 	private var x:Float;
 	private var y:Float;
 	private var faz:Float;
@@ -689,7 +689,7 @@ class BitmapMaterial extends HashableEventDispatcher, implements ITriangleMateri
 		this._shapeDictionary = new HashMap<AbstractRenderSession, Shape>();
 		this.map = new Matrix();
 		this.triangle = new DrawTriangle();
-		this.svArray = new Array();
+		this.svArray = new Array<ScreenVertex>();
 		
 		
 		_bitmap = bitmap;

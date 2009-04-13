@@ -34,15 +34,15 @@ class RoundedCube extends AbstractPrimitive  {
 	private var _height:Float;
 	private var _depth:Float;
 	private var _cubeMaterials:CubeMaterialsData;
-	private var _leftFaces:Array<Dynamic>;
-	private var _rightFaces:Array<Dynamic>;
-	private var _bottomFaces:Array<Dynamic>;
-	private var _topFaces:Array<Dynamic>;
-	private var _frontFaces:Array<Dynamic>;
-	private var _backFaces:Array<Dynamic>;
-	private var _doubles:Array<Dynamic>;
+	private var _leftFaces:Array<Face>;
+	private var _rightFaces:Array<Face>;
+	private var _bottomFaces:Array<Face>;
+	private var _topFaces:Array<Face>;
+	private var _frontFaces:Array<Face>;
+	private var _backFaces:Array<Face>;
+	private var _doubles:Array<Vertex>;
 	private var _cubeFace:Face;
-	private var _cubeFaceArray:Array<Dynamic>;
+	private var _cubeFaceArray:Array<Face>;
 	private var _rad:Float;
 	private var _offcubic:Float;
 	private var _cubicmapping:Bool;
@@ -101,7 +101,7 @@ class RoundedCube extends AbstractPrimitive  {
 			_offcubic = _radius / 3.6;
 		}
 		_doubles = [];
-		var prof:Array<Dynamic> = [];
+		var prof:Array<Vertex> = [];
 		var h:Float = _height - _radius;
 		var w:Float = _width - _radius;
 		var d:Float = _depth - _radius;
@@ -155,17 +155,17 @@ class RoundedCube extends AbstractPrimitive  {
 		}
 
 		var profilecount:Int = prof.length;
-		var atmp:Array<Dynamic> = [];
-		var atmp2:Array<Dynamic> = [];
-		var atmp3:Array<Dynamic> = [];
-		var atmp4:Array<Dynamic> = [];
+		var atmp:Array<Vertex> = [];
+		var atmp2:Array<Vertex> = [];
+		var atmp3:Array<Vertex> = [];
+		var atmp4:Array<Vertex> = [];
 		var step:Float = (45 / (linear + 1)) * 2;
 		var step2:Float = step;
-		var cornerdub:Array<Dynamic> = [];
-		var acol1:Array<Dynamic>;
-		var acol2:Array<Dynamic>;
-		var acol3:Array<Dynamic>;
-		var acol4:Array<Dynamic>;
+		var cornerdub:Array<Array<Vertex>> = [];
+		var acol1:Array<Vertex>;
+		var acol2:Array<Vertex>;
+		var acol3:Array<Vertex>;
+		var acol4:Array<Vertex>;
 		_subdivision += even;
 		i = 0;
 		while (i < ((_subdivision) * .5) + 1) {
@@ -279,19 +279,19 @@ class RoundedCube extends AbstractPrimitive  {
 		}
 
 		nRot = 90;
-		var face1:Array<Dynamic> = [];
-		var face2:Array<Dynamic> = [];
-		var face3:Array<Dynamic> = [];
-		var face4:Array<Dynamic> = [];
-		var face5:Array<Dynamic> = [];
-		var face6:Array<Dynamic> = [];
-		var topplane:Array<Dynamic> = [];
-		var segs1:Array<Dynamic> = [];
-		var segs2:Array<Dynamic> = [];
-		var segs3:Array<Dynamic> = [];
-		var segs4:Array<Dynamic> = [];
-		var segs5:Array<Dynamic> = [];
-		var segs6:Array<Dynamic> = [];
+		var face1:Array<Array<Vertex>> = [];
+		var face2:Array<Array<Vertex>> = [];
+		var face3:Array<Array<Vertex>> = [];
+		var face4:Array<Array<Vertex>> = [];
+		var face5:Array<Array<Vertex>> = [];
+		var face6:Array<Array<Vertex>> = [];
+		var topplane:Array<Array<Vertex>> = [];
+		var segs1:Array<Vertex> = [];
+		var segs2:Array<Vertex> = [];
+		var segs3:Array<Vertex> = [];
+		var segs4:Array<Vertex> = [];
+		var segs5:Array<Vertex> = [];
+		var segs6:Array<Vertex> = [];
 		j = 0;
 		i = 0;
 		while (i < atmp3.length) {
@@ -322,7 +322,7 @@ class RoundedCube extends AbstractPrimitive  {
 			++i;
 		}
 
-		var tmp:Array<Dynamic>;
+		var tmp:Array<Vertex>;
 		var stepx:Float;
 		var stepy:Float;
 		var stepz:Float;
@@ -495,7 +495,7 @@ class RoundedCube extends AbstractPrimitive  {
 		_subdivision -= even;
 	}
 
-	private function generate(aVertexes:Array<Dynamic>, material:ITriangleMaterial, arrayside:Array<Dynamic>, prop:Int):Void {
+	private function generate(aVertexes:Array<Array<Vertex>>, material:ITriangleMaterial, arrayside:Array<Face>, prop:Int):Void {
 		
 		var i:Int = 0;
 		while (i < aVertexes.length - 1) {
@@ -507,7 +507,7 @@ class RoundedCube extends AbstractPrimitive  {
 
 	}
 
-	private function generateFaces(points1:Array<Dynamic>, points2:Array<Dynamic>, prop:Int, material:ITriangleMaterial, arrayside:Array<Dynamic>):Void {
+	private function generateFaces(points1:Array<Vertex>, points2:Array<Vertex>, prop:Int, material:ITriangleMaterial, arrayside:Array<Face>):Void {
 		
 		var i:Int;
 		var j:Int;

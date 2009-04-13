@@ -10,7 +10,7 @@ import away3d.loaders.data.ChannelData;
 class ChannelLibrary extends Hash<ChannelData>  {
 	
 	private var _channel:ChannelData;
-	private var _channelArray:Array<Dynamic>;
+	private var _channelArray:Array<ChannelData>;
 	private var _channelArrayDirty:Bool;
 	
 
@@ -58,7 +58,7 @@ class ChannelLibrary extends Hash<ChannelData>  {
 	/**
 	 * Returns an array of all animation channels.
 	 */
-	public function getChannelArray():Array<Dynamic> {
+	public function getChannelArray():Array<ChannelData> {
 		
 		if (_channelArrayDirty) {
 			updateChannelArray();

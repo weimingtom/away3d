@@ -22,7 +22,7 @@ class Plane extends AbstractPrimitive  {
 	public var segmentsH(getSegmentsH, setSegmentsH) : Float;
 	public var yUp(getYUp, setYUp) : Bool;
 	
-	private var grid:Array<Dynamic>;
+	private var grid:Array<Array<Vertex>>;
 	private var _width:Float;
 	private var _height:Float;
 	private var _segmentsW:Int;
@@ -34,10 +34,10 @@ class Plane extends AbstractPrimitive  {
 		
 		var i:Int;
 		var j:Int;
-		grid = new Array<Dynamic>();
+		grid = new Array<Array<Vertex>>();
 		i = 0;
 		while (i <= segmentsW) {
-			grid[i] = new Array<Dynamic>();
+			grid[i] = new Array<Vertex>();
 			j = 0;
 			while (j <= segmentsH) {
 				if (yUp) {
