@@ -1,9 +1,11 @@
 package awaybuilder.geometry
-{	import awaybuilder.vo.SceneGeometryVO;
+{	import awaybuilder.utils.ConvertType;
 	import awaybuilder.vo.DynamicAttributeVO;
+	import awaybuilder.vo.SceneGeometryVO;
 	
 	
-		public class GeometryPropertyFactory
+	
+	public class GeometryPropertyFactory
 	{
 		public var precision : uint ;
 		
@@ -16,7 +18,7 @@ package awaybuilder.geometry
 		
 				////////////////////////////////////////////////////////////////////////////////
 		//
-		// Public Methods
+		//	Public Methods
 		//
 		////////////////////////////////////////////////////////////////////////////////
 		
@@ -26,162 +28,58 @@ package awaybuilder.geometry
 		{
 			for each ( var attribute : DynamicAttributeVO in vo.geometryExtras )
 			{
-				var boolean : Boolean ;
-				
 				switch ( attribute.key )
 				{
 					case GeometryAttributes.ASSET_CLASS :
-					{
-						vo.assetClass = attribute.value ;
-						break ;
-					}
 					case GeometryAttributes.ASSET_FILE :
-					{
-						vo.assetFile = attribute.value ;
-						break ;
-					}
 					case GeometryAttributes.ASSET_FILE_BACK :
+					case GeometryAttributes.TARGET_CAMERA :
 					{
-						vo.assetFileBack = attribute.value ;
+						vo[ attribute.key ] = attribute.value ;
 						break ;
 					}
 					case GeometryAttributes.BOTHSIDES :
+					case GeometryAttributes.OWN_CANVAS :
+					case GeometryAttributes.PUSHBACK :
+					case GeometryAttributes.PUSHFRONT :
+					case GeometryAttributes.Y_UP :
 					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mesh[ attribute.key ] = boolean ;
+						vo.mesh[ attribute.key ] = ConvertType.convertToBoolean ( attribute.value ) ;
 						break ;
 					}
 					case GeometryAttributes.COLLADA_SCALE :
 					{
-						vo.colladaScale = Number ( attribute.value ) ;
+						vo[ attribute.key ] = Number ( attribute.value ) ;
 						break ;
 					}
 					case GeometryAttributes.DEPTH :
-					{
-						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.ENABLED :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.enabled = boolean ;
-						break ;
-					}
-					case GeometryAttributes.FLIP_TEXTURE :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.flipTexture = boolean ;
-						break ;
-					}
 					case GeometryAttributes.HEIGHT :
-					{
-						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.MOUSE_DOWN_ENABLED :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mouseDownEnabled = boolean ;
-						break ;
-					}
-					case GeometryAttributes.MOUSE_MOVE_ENABLED :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mouseMoveEnabled = boolean ;
-						break ;
-					}
-					case GeometryAttributes.MOUSE_OUT_ENABLED :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mouseOutEnabled = boolean ;
-						break ;
-					}
-					case GeometryAttributes.MOUSE_OVER_ENABLED :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mouseOverEnabled = boolean ;
-						break ;
-					}
-					case GeometryAttributes.MOUSE_UP_ENABLED :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mouseUpEnabled = boolean ;
-						break ;
-					}
-					case GeometryAttributes.OWN_CANVAS :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mesh[ attribute.key ] = boolean ;
-						break ;
-					}
-					case GeometryAttributes.PUSHBACK :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mesh[ attribute.key ] = boolean ;
-						break ;
-					}
-					case GeometryAttributes.PUSHFRONT :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mesh[ attribute.key ] = boolean ;
-						break ;
-					}
 					case GeometryAttributes.RADIUS :
-					{
-						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.SEGMENTS_W :
-					{
-						vo.mesh[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.SEGMENTS_H :
-					{
-						vo.mesh[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.SEGMENTS_R :
-					{
-						vo.mesh[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.SEGMENTS_T :
-					{
-						vo.mesh[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.SMOOTH_TEXTURE :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.smoothTexture = boolean ;
-						break ;
-					}
-					case GeometryAttributes.TARGET_CAMERA :
-					{
-						vo.targetCamera = attribute.value ;
-						break ;
-					}
 					case GeometryAttributes.TUBE :
-					{
-						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;
-						break ;
-					}
-					case GeometryAttributes.USE_HAND_CURSOR :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.useHandCursor = boolean ;
-						break ;
-					}
 					case GeometryAttributes.WIDTH :
 					{
 						vo.mesh[ attribute.key ] = this.precision * Number ( attribute.value ) ;
 						break ;
 					}
-					case GeometryAttributes.Y_UP :
+					case GeometryAttributes.ENABLED :
+					case GeometryAttributes.FLIP_TEXTURE :
+					case GeometryAttributes.MOUSE_DOWN_ENABLED :
+					case GeometryAttributes.MOUSE_MOVE_ENABLED :
+					case GeometryAttributes.MOUSE_OUT_ENABLED :
+					case GeometryAttributes.MOUSE_OVER_ENABLED :
+					case GeometryAttributes.MOUSE_UP_ENABLED :
+					case GeometryAttributes.SMOOTH_TEXTURE :
+					case GeometryAttributes.USE_HAND_CURSOR :
 					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo.mesh[ attribute.key ] = boolean ;
+						vo[ attribute.key ] = ConvertType.convertToBoolean ( attribute.value ) ;
+						break ;
+					}
+					case GeometryAttributes.SEGMENTS_W :
+					case GeometryAttributes.SEGMENTS_H :
+					case GeometryAttributes.SEGMENTS_R :
+					case GeometryAttributes.SEGMENTS_T :
+					{
+						vo.mesh[ attribute.key ] = uint ( attribute.value ) ;
 						break ;
 					}
 				}

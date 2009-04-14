@@ -1,11 +1,11 @@
 package awaybuilder.material
 {
-	import awaybuilder.vo.SceneGeometryVO;
+	import awaybuilder.utils.ConvertType;
 	import awaybuilder.vo.DynamicAttributeVO;
+	import awaybuilder.vo.SceneGeometryVO;
 	
 	
-	
-	public class MaterialPropertyFactory
+		public class MaterialPropertyFactory
 	{
 		public function MaterialPropertyFactory ( )
 		{
@@ -23,104 +23,59 @@ package awaybuilder.material
 		
 		public function build ( vo : SceneGeometryVO ) : SceneGeometryVO
 		{
-			var boolean : Boolean ;
-			
 			for each ( var attribute : DynamicAttributeVO in vo.materialExtras )
 			{
 				switch ( attribute.key )
 				{
 					case MaterialAttributes.ALPHA :
+					case MaterialAttributes.PAN :
+					case MaterialAttributes.VOLUME :
+					case MaterialAttributes.WIDTH :
+					case MaterialAttributes.WIREALPHA :
 					{
 						vo.material[ attribute.key ] = Number ( attribute.value ) ;
 						break ;
 					}
 					case MaterialAttributes.AMBIENT :
+					case MaterialAttributes.COLOR :
+					case MaterialAttributes.DIFFUSE :
+					case MaterialAttributes.SPECULAR :
+					case MaterialAttributes.WIRECOLOR :
 					{
 						vo.material[ attribute.key ] = uint ( attribute.value ) ;
 						break ;
 					}
 					case MaterialAttributes.ASSET_CLASS :
-					{
-						vo[ attribute.key ] = attribute.value ;
-						break ;
-					}
 					case MaterialAttributes.ASSET_FILE :
-					{
-						vo[ attribute.key ] = attribute.value ;
-						break ;
-					}
 					case MaterialAttributes.ASSET_FILE_BACK :
 					{
 						vo[ attribute.key ] = attribute.value ;
 						break ;
 					}
 					case MaterialAttributes.AUTO_UPDATE :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo[ attribute.key ] = boolean ;
-						break ;
-					}
-					case MaterialAttributes.COLOR :
-					{
-						vo.material[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
-					case MaterialAttributes.DIFFUSE :
-					{
-						vo.material[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
 					case MaterialAttributes.INTERACTIVE :
+					case MaterialAttributes.SMOOTH :
+					case MaterialAttributes.TRANSPARENT :
 					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo[ attribute.key ] = boolean ;
+						vo[ attribute.key ] = ConvertType.convertToBoolean ( attribute.value ) ;
 						break ;
 					}
 					case MaterialAttributes.LOCK_H :
-					{
-						vo[ attribute.key ] = Number ( attribute.value ) ;
-						break ;
-					}
 					case MaterialAttributes.LOCK_W :
-					{
-						vo[ attribute.key ] = Number ( attribute.value ) ;
-						break ;
-					}
 					case MaterialAttributes.PRECISION :
 					{
 						vo[ attribute.key ] = Number ( attribute.value ) ;
 						break ;
 					}
-					case MaterialAttributes.SMOOTH :
+					case MaterialAttributes.FILE :
+					case MaterialAttributes.RTMP :
 					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo[ attribute.key ] = boolean ;
+						vo.material[ attribute.key ] = attribute.value ;
 						break ;
 					}
-					case MaterialAttributes.SPECULAR :
+					case MaterialAttributes.LOOP :
 					{
-						vo.material[ attribute.key ] = uint ( attribute.value ) ;
-						break ;
-					}
-					case MaterialAttributes.TRANSPARENT :
-					{
-						attribute.value == "1" ? boolean = true : boolean = false ;
-						vo[ attribute.key ] = boolean ;
-						break ;
-					}
-					case MaterialAttributes.WIDTH :
-					{
-						vo.material[ attribute.key ] = Number ( attribute.value ) ;
-						break ;
-					}
-					case MaterialAttributes.WIREALPHA :
-					{
-						vo.material[ attribute.key ] = Number ( attribute.value ) ;
-						break ;
-					}
-					case MaterialAttributes.WIRECOLOR :
-					{
-						vo.material[ attribute.key ] = uint ( attribute.value ) ;
+						vo.material[ attribute.key ] = ConvertType.convertToBoolean ( attribute.value ) ;
 						break ;
 					}
 				}

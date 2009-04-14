@@ -1,6 +1,7 @@
 package awaybuilder.material
 {	import away3d.materials.ColorMaterial;
 	import away3d.materials.ShadingColorMaterial;
+	import away3d.materials.VideoMaterial;
 	import away3d.materials.WireColorMaterial;
 	import away3d.materials.WireframeMaterial;
 	
@@ -50,6 +51,11 @@ package awaybuilder.material
 				case MaterialType.SHADING_COLOR_MATERIAL :
 				{
 					vo.material = new ShadingColorMaterial ( ) ;
+					break ;
+				}
+				case MaterialType.VIDEO_MATERIAL :
+				{
+					vo.material = new VideoMaterial ( ) ;
 					break ;
 				}
 				case MaterialType.WIRE_COLOR_MATERIAL :
