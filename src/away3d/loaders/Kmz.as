@@ -33,7 +33,7 @@ package away3d.loaders
         	
             kmzFile = new ZipFile(datastream);
 			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
-			for(var i:int = 0; i < kmzFile.entries.length; i++) {
+			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
@@ -61,7 +61,7 @@ package away3d.loaders
 			materialLibrary.loadRequired = false;
 			
 			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
-			for(var i:int = 0; i < kmzFile.entries.length; i++) {
+			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
 				if((entry.name.indexOf(".jpg")>-1 || entry.name.indexOf(".png")>-1) && entry.name.indexOf("images/")>-1) {

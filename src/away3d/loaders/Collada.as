@@ -440,7 +440,7 @@
 			
             var totalStrings:Number = strings.length;
 			
-            for (var i:Number = 0; i < totalStrings; i++)
+            for (var i:Number = 0; i < totalStrings; ++i)
             	if (strings[i] != "")
                 	numbers.push(Number(strings[i]));
 
@@ -865,7 +865,7 @@
 				//if (!materialLibrary[material])
 				//	parseMaterial(material, material);
 					
-                for (var j:Number = 0; j < len; j++)
+                for (var j:Number = 0; j < len; ++j)
                 {
                     var _faceData:FaceData = new FaceData();
 
@@ -999,9 +999,9 @@
                     count++;
                     skinVertex.weights.push(Number(weights[int(v[count])]));
                     count++;
-                    j++;
+                    ++j;
                 }
-                i++;
+                ++i;
             }
 		}
 		
@@ -1122,10 +1122,10 @@
 	                            j = 0;
 	                            while (j < stride) {
 	                            	channel.param[i].push(Number(list[i*stride + j]));
-	                            	j++;
+	                            	++j;
 	                            }
                             }
-                            i++;
+                            ++i;
                         }
                         break;
                     case "INTERPOLATION":
@@ -1142,9 +1142,9 @@
                         	j = 0;
                             while (j < stride) {
                                 channel.inTangent[i].push(new Number2D(Number(list[stride * i + j]), Number(list[stride * i + j + 1])));
-                            	j++;
+                            	++j;
                             }
-                            i++;
+                            ++i;
                         }
                         break;
                     case "OUT_TANGENT":
@@ -1155,9 +1155,9 @@
                         	j = 0;
                             while (j < stride) {
                                 channel.outTangent[i].push(new Number2D(Number(list[stride * i + j]), Number(list[stride * i + j + 1])));
-                            	j++;
+                            	++j;
                             }
-                            i++;
+                            ++i;
                         }
                         break;
                 }
@@ -1296,7 +1296,7 @@
 	                    			break;
 	                    		default:
 	                    	}
-	                    	i++;
+	                    	++i;
 	                    }
 		            } else if (element is UV) {
 		            	var uv:UV = element as UV;
@@ -1311,7 +1311,7 @@
 	                    			break;
 	                    		default:
 	                    	}
-	                    	i++;
+	                    	++i;
 	                    }
 		            }
 	                output.push(element);

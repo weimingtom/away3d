@@ -521,7 +521,7 @@ package away3d.core.filter
                 for each (pri in primitives)
                 {
                     
-                    check++;
+                    ++check;
                     if (check == 10)
                         if (getTimer() - start > maxdelay)
                             return;

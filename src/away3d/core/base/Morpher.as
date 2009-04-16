@@ -45,7 +45,7 @@ package away3d.core.base
             _verticesComp = comp.geometry.vertices;
             
             var length:int = _vertices.length;
-            for (var i:int = 0; i < length; i++)
+            for (var i:int = 0; i < length; ++i)
             {
                 _vertices[i].x += _verticesComp[i].x * k;
                 _vertices[i].y += _verticesComp[i].y * k;

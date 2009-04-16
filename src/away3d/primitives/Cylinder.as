@@ -37,12 +37,12 @@
 			
 	            var bottom:Vertex = yUp? createVertex(0, -height, 0) : createVertex(0, 0, -height);
 	            grid[0] = new Array(segmentsW);
-	            for (i = 0; i < segmentsW; i++) 
+	            for (i = 0; i < segmentsW; ++i) 
 	                grid[0][i] = bottom;
 	                
 	            var top:Vertex = yUp? createVertex(0, height, 0) : createVertex(0, 0, height);
 	            grid[segmentsH] = new Array(segmentsW);
-	            for (i = 0; i < segmentsW; i++) 
+	            for (i = 0; i < segmentsW; ++i) 
 	                grid[segmentsH][i] = top;
 	                
 			} else {
@@ -50,12 +50,12 @@
 				jMax = segmentsH;
 			}
 			
-            for (j = jMin; j <= jMax; j++)  
+            for (j = jMin; j <= jMax; ++j)  
             { 
                 var z:Number = -height + 2 * height * (j-jMin) / (jMax-jMin);
 
                 grid[j] = new Array(segmentsW);
-                for (i = 0; i < segmentsW; i++) 
+                for (i = 0; i < segmentsW; ++i) 
                 { 
                     var verangle:Number = 2 * i / segmentsW * Math.PI;
                     var x:Number = radius * Math.sin(verangle);
@@ -68,8 +68,8 @@
             }
 			
 
-            for (j = 1; j <= segmentsH; j++) 
-                for (i = 0; i < segmentsW; i++) 
+            for (j = 1; j <= segmentsH; ++j) 
+                for (i = 0; i < segmentsW; ++i) 
                 {
                     var a:Vertex = grid[j][i];
                     var b:Vertex = grid[j][(i-1+segmentsW) % segmentsW];

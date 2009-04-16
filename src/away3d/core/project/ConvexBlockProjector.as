@@ -104,7 +104,7 @@ package away3d.core.project
             var result:Array = [_points[0], _points[1]];
             var o:Number;
 
-            for (var i:int = 2; i < _points.length; i++)
+            for (var i:int = 2; i < _points.length; ++i)
             {
                 o = cross(result[result.length-2], result[result.length-1], _points[i]);
                 while (o > 0)

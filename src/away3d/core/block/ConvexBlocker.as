@@ -33,7 +33,7 @@ package away3d.core.block
             minY = Infinity;
             
             var _length:int = vertices.length;
-            for (var i:int = 0; i < _length; i++)
+            for (var i:int = 0; i < _length; ++i)
             {
                 var v:ScreenVertex = vertices[i];
                 _boundlines.push(Line2D.from2points(v, vertices[(i+1) % _length]));
@@ -84,7 +84,7 @@ package away3d.core.block
             var graphics:Graphics = source.session.graphics;
             graphics.lineStyle(2, Color.fromHSV(0, 0, (Math.sin(getTimer()/1000)+1)/2));
             var _length:int = _boundlines.length;
-            for (var i:int = 0; i < _length; i++)
+            for (var i:int = 0; i < _length; ++i)
             {
                 var line:Line2D = _boundlines[i];
                 var prev:Line2D = _boundlines[(i-1+_length) % _length];
@@ -101,7 +101,7 @@ package away3d.core.block
             var count:int = (maxX - minX) * (maxY - minY) / 2000;
             if (count > 50)
                 count = 50;
-            for (var k:int = 0; k < count; k++)
+            for (var k:int = 0; k < count; ++k)
             {
                 var x:Number = minX + (maxX - minX)*Math.random();
                 var y:Number = minY + (maxY - minY)*Math.random();

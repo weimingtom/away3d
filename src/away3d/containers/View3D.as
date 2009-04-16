@@ -697,7 +697,7 @@ package away3d.containers
 	                var i:int = 0;
 	                
 	                while (outArray[i] && outArray[i] == overArray[i])
-	                	i++
+	                	++i
 	                
 	                if (mouseObject != null) {
 	                	event = getMouseEvent(MouseEvent3D.ROLL_OUT);
