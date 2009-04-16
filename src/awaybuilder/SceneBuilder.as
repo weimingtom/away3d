@@ -1,43 +1,6 @@
 package awaybuilder
 {
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.View3D;
-	import away3d.core.base.Mesh;
-	import away3d.core.base.Object3D;
-	import away3d.core.base.UV;
-	import away3d.loaders.Collada;
-	import away3d.loaders.Object3DLoader;
-	import away3d.loaders.data.GeometryData;
-	import away3d.loaders.data.MaterialData;
-	import away3d.loaders.utils.MaterialLibrary;
-	import away3d.materials.BitmapFileMaterial;
-	import away3d.materials.BitmapMaterial;
-	import away3d.materials.MovieMaterial;
-	
-	import awaybuilder.abstracts.AbstractBuilder;
-	import awaybuilder.camera.CameraFactory;
-	import awaybuilder.events.GeometryEvent;
-	import awaybuilder.events.SceneEvent;
-	import awaybuilder.geometry.GeometryAttributes;
-	import awaybuilder.geometry.GeometryFactory;
-	import awaybuilder.geometry.GeometryType;
-	import awaybuilder.interfaces.IAssetContainer;
-	import awaybuilder.interfaces.IBuilder;
-	import awaybuilder.interfaces.ISceneContainer;
-	import awaybuilder.material.MaterialAttributes;
-	import awaybuilder.material.MaterialFactory;
-	import awaybuilder.material.MaterialType;
-	import awaybuilder.utils.ConvertCoordinates;
-	import awaybuilder.vo.DynamicAttributeVO;
-	import awaybuilder.vo.SceneCameraVO;
-	import awaybuilder.vo.SceneGeometryVO;
-	import awaybuilder.vo.SceneObjectVO;
-	import awaybuilder.vo.SceneSectionVO;
-	
-	import flash.display.BitmapData;
-	import flash.display.DisplayObject;
-	import flash.display.MovieClip;
-	import flash.events.Event;
+	import away3d.containers.ObjectContainer3D;	import away3d.containers.View3D;	import away3d.core.base.Mesh;	import away3d.core.base.Object3D;	import away3d.core.base.UV;	import away3d.loaders.Collada;	import away3d.loaders.Object3DLoader;	import away3d.loaders.data.GeometryData;	import away3d.loaders.data.MaterialData;	import away3d.loaders.utils.MaterialLibrary;	import away3d.materials.BitmapFileMaterial;	import away3d.materials.BitmapMaterial;	import away3d.materials.MovieMaterial;		import awaybuilder.abstracts.AbstractBuilder;	import awaybuilder.camera.CameraFactory;	import awaybuilder.events.GeometryEvent;	import awaybuilder.events.SceneEvent;	import awaybuilder.geometry.GeometryAttributes;	import awaybuilder.geometry.GeometryFactory;	import awaybuilder.geometry.GeometryType;	import awaybuilder.interfaces.IAssetContainer;	import awaybuilder.interfaces.IBuilder;	import awaybuilder.interfaces.ISceneContainer;	import awaybuilder.material.MaterialAttributes;	import awaybuilder.material.MaterialFactory;	import awaybuilder.material.MaterialType;	import awaybuilder.utils.ConvertCoordinates;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.display.BitmapData;	import flash.display.DisplayObject;	import flash.display.MovieClip;	import flash.events.Event;
 	
 	
 	
@@ -131,7 +94,14 @@ package awaybuilder
 
 		
 		
-		override public function getCameraById ( id : String ) : SceneCameraVO
+		override public function getSectionById ( id : String ) : SceneSectionVO
+		{
+			for each ( var vo : SceneSectionVO in this.sections )
+			{
+				if ( vo.id == id ) return vo ;
+			}
+		}
+								override public function getCameraById ( id : String ) : SceneCameraVO
 		{
 			for each ( var vo : SceneCameraVO in this.cameras )
 			{
