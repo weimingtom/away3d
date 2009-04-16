@@ -1,0 +1,1 @@
+﻿package away3d.extrusions.data{	public dynamic class DObject {	}}
