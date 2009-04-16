@@ -25,10 +25,10 @@
             var j:int;
 
             grid = new Array(segmentsW+1);
-            for (i = 0; i <= segmentsW; i++)
+            for (i = 0; i <= segmentsW; ++i)
             {
                 grid[i] = new Array(segmentsH+1);
-                for (j = 0; j <= segmentsH; j++) {
+                for (j = 0; j <= segmentsH; ++j) {
                 	if (yUp)
                     	grid[i][j] = createVertex((i / segmentsW - 0.5) * width, 0, (j / segmentsH - 0.5) * height);
                     else
@@ -36,8 +36,8 @@
                 }
             }
 
-            for (i = 0; i < segmentsW; i++)
-                for (j = 0; j < segmentsH; j++)
+            for (i = 0; i < segmentsW; ++i)
+                for (j = 0; j < segmentsH; ++j)
                 {
                     var a:Vertex = grid[i  ][j  ]; 
                     var b:Vertex = grid[i+1][j  ];

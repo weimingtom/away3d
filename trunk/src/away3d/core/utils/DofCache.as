@@ -65,7 +65,7 @@ package away3d.core.utils
 			var mat:Matrix = new Matrix();
 			var pnt:Point = new Point(0,0);
 			bitmaps = new Array(levels);
-			for(var j:Number = 0;j<levels;j++)
+			for(var j:Number = 0;j<levels;++j)
 			{
 				var tfilter:BlurFilter = new BlurFilter(2+maxblur*j/levels, 2+maxblur*j/levels, 4);
 				mat.identity();

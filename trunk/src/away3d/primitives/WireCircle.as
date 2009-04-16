@@ -19,7 +19,7 @@
         {
             var vertices:Array = [];
             var i:int;
-            for (i = 0; i < sides; i++)
+            for (i = 0; i < sides; ++i)
             {
                 var u:Number = i / sides * 2 * Math.PI;
                 if (yUp)
@@ -28,7 +28,7 @@
                 	vertices.push(createVertex(radius*Math.cos(u), radius*Math.sin(u), 0));
             }
 
-            for (i = 0; i < sides; i++)
+            for (i = 0; i < sides; ++i)
 			{
                 addSegment(createSegment(vertices[i], vertices[(i+1) % sides]));
 			}

@@ -23,16 +23,16 @@
         	var j:int;
         	
         	if (yUp) {
-	            for (i = 0; i <= segmentsW; i++)
+	            for (i = 0; i <= segmentsW; ++i)
 	                addSegment(createSegment(createVertex((i/segmentsW - 0.5)*width, 0, -0.5*height), createVertex((i/segmentsW - 0.5)*width, 0, 0.5*height)));
 	
-	            for (j = 0; j <= segmentsH; j++)
+	            for (j = 0; j <= segmentsH; ++j)
 	                addSegment(createSegment(createVertex(-0.5*width, 0, (j/segmentsH - 0.5)*height), createVertex(0.5*width, 0, (j/segmentsH - 0.5)*height)));
         	} else {
-        		for (i = 0; i <= segmentsW; i++)
+        		for (i = 0; i <= segmentsW; ++i)
 	                addSegment(createSegment(createVertex((i/segmentsW - 0.5)*width, -0.5*height, 0), createVertex((i/segmentsW - 0.5)*width, 0.5*height, 0)));
 	
-	            for (j = 0; j <= segmentsH; j++)
+	            for (j = 0; j <= segmentsH; ++j)
 	                addSegment(createSegment(createVertex(-0.5*width, (j/segmentsH - 0.5)*height, 0), createVertex(0.5*width, (j/segmentsH - 0.5)*height, 0)));
 	       
         	}

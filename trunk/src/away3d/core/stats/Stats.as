@@ -483,7 +483,7 @@ package away3d.core.stats
             } else if(displayState == 1){
                 var caminfo:String = "";
                 var _length:int = camProp.length;
-                for(var i:int = 0;i<_length;i++){
+                for(var i:int = 0;i<_length;++i){
                     try{
                         if(i>12){
                             caminfo += String(camera[camProp[i]])+"\n";
@@ -603,7 +603,7 @@ package away3d.core.stats
             campropfield.autoSize = "left";
             campropfield.height = 210;
             var _length:int = camProp.length;
-            for(var i:int = 0;i<_length;i++){
+            for(var i:int = 0;i<_length;++i){
                 campropfield.appendText(camProp[i]+":\n");
             }
             camMenu.addChild(campropfield);

@@ -97,7 +97,7 @@ package away3d.core.geom
 				var plane:Plane3D = Plane3D(planes[p]);
 				var pointsIn:int = 0;	
 				
-				for( var i:int = 0; i < 8; i++)
+				for( var i:int = 0; i < 8; ++i)
 				{
 					if(plane.classifyPoint( points[i]) == Plane3D.FRONT)
 						pointsIn++;

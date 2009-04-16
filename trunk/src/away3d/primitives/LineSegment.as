@@ -67,7 +67,7 @@
 				dify=(p1.y-p2.y)/lsegments;
 				difz=(p1.z-p2.z)/lsegments;
 			
-				for (i = 1; i <= lsegments; i++)
+				for (i = 1; i <= lsegments; ++i)
             		{
 						newsegmentstart=new Vertex(p1.x-(difx*(i)), p1.y-(dify*(i)), p1.z-(difz*(i)));
 						newsegmentend=new Vertex(p2.x+(difx*(lsegments-(i-1))), p2.y+(dify*(lsegments-(i-1))), p2.z+(difz*(lsegments-(i-1))));

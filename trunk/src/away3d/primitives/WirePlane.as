@@ -23,10 +23,10 @@
             var j:int;
 
             grid = new Array(segmentsW+1);
-            for (i = 0; i <= segmentsW; i++)
+            for (i = 0; i <= segmentsW; ++i)
             {
                 grid[i] = new Array(segmentsH+1);
-                for (j = 0; j <= segmentsH; j++) {
+                for (j = 0; j <= segmentsH; ++j) {
                 	if (yUp)
                     	grid[i][j] = createVertex((i / segmentsW - 0.5) * width, 0, (j / segmentsH - 0.5) * height);
                     else
@@ -34,12 +34,12 @@
                 }
             }
 
-            for (i = 0; i < segmentsW; i++)
-                for (j = 0; j < segmentsH + 1; j++)
+            for (i = 0; i < segmentsW; ++i)
+                for (j = 0; j < segmentsH + 1; ++j)
                     addSegment(createSegment(grid[i][j], grid[i+1][j]));
 
-            for (i = 0; i < segmentsW + 1; i++)
-                for (j = 0; j < segmentsH; j++)
+            for (i = 0; i < segmentsW + 1; ++i)
+                for (j = 0; j < segmentsH; ++j)
                     addSegment(createSegment(grid[i][j], grid[i][j+1]));
 					
 

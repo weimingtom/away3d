@@ -23,10 +23,10 @@
             var j:int;
 
             grid = new Array(segmentsR);
-            for (i = 0; i < segmentsR; i++)
+            for (i = 0; i < segmentsR; ++i)
             {
                 grid[i] = new Array(segmentsT);
-                for (j = 0; j < segmentsT; j++)
+                for (j = 0; j < segmentsT; ++j)
                 {
                     var u:Number = i / segmentsR * 2 * Math.PI;
                     var v:Number = j / segmentsT * 2 * Math.PI;
@@ -38,8 +38,8 @@
                 }
             }
 
-            for (i = 0; i < segmentsR; i++)
-                for (j = 0; j < segmentsT; j++)
+            for (i = 0; i < segmentsR; ++i)
+                for (j = 0; j < segmentsT; ++j)
                 {
                     addSegment(createSegment(grid[i][j], grid[(i+1) % segmentsR][j]));
                     addSegment(createSegment(grid[i][j], grid[i][(j+1) % segmentsT]));

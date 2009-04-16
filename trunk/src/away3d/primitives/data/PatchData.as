@@ -141,9 +141,9 @@
 			for (var p:int = 0; p < _patchInfo[key].patchCount; p++) {
 				controlPoints[key][p] = [];
 				generatedPatch[key][p] = [];
-				for (var i:int = 0; i < 4; i++ ) {
+				for (var i:int = 0; i < 4; ++i ) {
 					controlPoints[key][p][i] = [];
-					for (var j:int = 0; j < 4; j++ ) {
+					for (var j:int = 0; j < 4; ++j ) {
 						var v:Vertex = _vertices[_nodes[key][(p * 16) + i * 4 + j]];
 						controlPoints[key][p][i][j] = new Vertex(v.x, v.y, v.z);
 					}
@@ -154,8 +154,8 @@
 		private function updateControlPoints(key:String):void {
 			// Cache the patch control vertices in controlPoints
 			for (var p:int = 0; p < patchInfo[key].patchCount; p++) {
-				for (var i:int = 0; i < 4; i++ ) {
-					for (var j:int = 0; j < 4; j++ ) {
+				for (var i:int = 0; i < 4; ++i ) {
+					for (var j:int = 0; j < 4; ++j ) {
 						tempV = vertices[nodes[key][(p * 16) + i * 4 + j]];
 						controlPoints[key][p][i][j] = new Vertex(tempV.x, tempV.y, tempV.z);
 					}

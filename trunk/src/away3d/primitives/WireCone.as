@@ -29,15 +29,15 @@
 
             var bottom:Vertex = yUp? createVertex(0, -height, 0) : createVertex(0, 0, -height);
             grid[0] = new Array(segmentsW);
-            for (i = 0; i < segmentsW; i++) 
+            for (i = 0; i < segmentsW; ++i) 
                 grid[0][i] = bottom;
 
-            for (j = 1; j < segmentsH; j++)  
+            for (j = 1; j < segmentsH; ++j)  
             { 
                 var z:Number = -height + 2 * height * (j-1) / (segmentsH-1);
 
                 grid[j] = new Array(segmentsW);
-                for (i = 0; i < segmentsW; i++) 
+                for (i = 0; i < segmentsW; ++i) 
                 { 
                     var verangle:Number = 2 * i / segmentsW * Math.PI;
                     var ringradius:Number = radius * (segmentsH-j)/(segmentsH-1);
@@ -54,11 +54,11 @@
             var top:Vertex = yUp? createVertex(0, height, 0) : createVertex(0, 0, height);
             
             grid[segmentsH] = new Array(segmentsW);
-            for (i = 0; i < segmentsW; i++) 
+            for (i = 0; i < segmentsW; ++i) 
                 grid[segmentsH][i] = top;
 
-            for (j = 1; j <= segmentsH; j++) 
-                for (i = 0; i < segmentsW; i++) 
+            for (j = 1; j <= segmentsH; ++j) 
+                for (i = 0; i < segmentsW; ++i) 
                 {
                     var a:Vertex = grid[j][i];
                     var b:Vertex = grid[j][(i-1+segmentsW) % segmentsW];
