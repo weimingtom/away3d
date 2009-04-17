@@ -63,8 +63,8 @@ package away3d.materials
 		 */
 		public function PhongBitmapMaterialCache(bitmap:BitmapData, init:Object=null)
 		{
-			if (init && init.materials)
-				delete init.materials;
+			if (init && init["materials"])
+				delete init["materials"];
 			
 			super(bitmap.width, bitmap.height, init);
 			
