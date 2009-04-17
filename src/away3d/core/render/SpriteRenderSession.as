@@ -7,7 +7,6 @@ package away3d.core.render
 	
 	import flash.display.*;
 	import flash.geom.*;
-	import flash.utils.*;
 	
 	use namespace arcane;
 	

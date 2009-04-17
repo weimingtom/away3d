@@ -1,7 +1,6 @@
 package away3d.core.stats 
 {
 	import flash.display.Shape;
-	import flash.text.TextFormat;
 		
 	public class Logo extends Shape
 	{

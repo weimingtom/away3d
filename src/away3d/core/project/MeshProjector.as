@@ -11,8 +11,6 @@ package away3d.core.project
 	import away3d.core.utils.*;
 	import away3d.materials.*;
 	
-	import flash.utils.*;
-	
 	public class MeshProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;

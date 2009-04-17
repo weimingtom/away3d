@@ -7,11 +7,9 @@ package away3d.materials.shaders
 	import away3d.core.math.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	import away3d.events.*;
 	import away3d.materials.*;
 	
 	import flash.display.*;
-	import flash.filters.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	

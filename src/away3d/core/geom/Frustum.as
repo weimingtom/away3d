@@ -2,7 +2,6 @@ package away3d.core.geom
 {
 	import away3d.core.base.*;
 	import away3d.core.math.*;
-	import away3d.core.utils.*;
 	
 	public class Frustum
 	{
