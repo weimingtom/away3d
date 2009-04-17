@@ -24,15 +24,12 @@ package away3d.loaders
     public class Kmz extends AbstractParser
     {
         private var collada:XML;
-        private var _materialData:MaterialData;
-        private var _face:Face;
     	private var kmzFile:ZipFile;
     	
         private function parseKmz(datastream:ByteArray, init:Object):void
         {
         	
             kmzFile = new ZipFile(datastream);
-			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
 			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
@@ -60,7 +57,6 @@ package away3d.loaders
         	materialLibrary = container.materialLibrary;
 			materialLibrary.loadRequired = false;
 			
-			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
 			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
@@ -74,9 +70,11 @@ package away3d.loaders
         }
         
         private function loadBitmapCompleteHandler(e:Event):void {
-			var loader:Loader = Loader(e.target.loader);
+			var loader:Loader = Loader(e.target["loader"]);
 			
 			//pass material instance to correct materialData
+			var _materialData:MaterialData;
+			var _face:Face;
 			for each (_materialData in materialLibrary) {
 				if (_materialData.textureFileName == loader.name) {
 					_materialData.textureBitmap = Bitmap(loader.content).bitmapData;
@@ -123,6 +121,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
         {
+            loader;
             return Object3DLoader.parseGeometry(data, Kmz, init).handle as ObjectContainer3D;
         }
     	
