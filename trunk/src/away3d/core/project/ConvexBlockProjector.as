@@ -21,8 +21,6 @@ package away3d.core.project
 		private var _camera:Camera3D;
 		private var _lens:ILens;
 		private var _vertices:Array;
-		private var _vertex:Vertex;
-		private var _screenVertex:ScreenVertex;
         private var _points:Array;
         private var _base:ScreenVertex;
         private var _s:String;
@@ -68,6 +66,8 @@ package away3d.core.project
 			_s = "";
 			_p = "";
 			
+			var _vertex:Vertex;
+			var _screenVertex:ScreenVertex;
             for each (_vertex in _vertices)
             {
                 _s += _vertex.toString() + "\n";
