@@ -71,8 +71,8 @@ package away3d.materials
 		public function EnviroBitmapMaterial(bitmap:BitmapData, enviroMap:BitmapData, init:Object = null)
 		{
 			//remove any reference to materials
-			if (init && init.materials)
-				delete init.materials;
+			if (init && init["materials"])
+				delete init["materials"];
 			
 			super(init);
 			

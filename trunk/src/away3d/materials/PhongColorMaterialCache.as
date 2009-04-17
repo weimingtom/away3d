@@ -76,8 +76,8 @@ package away3d.materials
 		 */
 		public function PhongColorMaterialCache(color:*, init:Object=null)
 		{
-			if (init && init.materials)
-				delete init.materials;
+			if (init && init["materials"])
+				delete init["materials"];
 			
 			super(512, 512, init);
 			
