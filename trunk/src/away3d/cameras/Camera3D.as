@@ -44,13 +44,7 @@ package away3d.cameras
     	private var _view:View3D;
     	private var _drawPrimitiveStore:DrawPrimitiveStore;
     	private var _cameraVarsStore:CameraVarsStore;
-        private var _vt:Matrix3D;
 		private var _cameraupdated:CameraEvent;
-		private var _x:Number;
-		private var _y:Number;
-		private var _z:Number;
-		private var _sz:Number;
-		private var _persp:Number;
 		
         private function notifyCameraUpdate():void
         {

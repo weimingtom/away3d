@@ -16,7 +16,6 @@ package away3d.materials
 		private var _phongShader:BitmapMaterialContainer;
 		private var _ambientShader:AmbientShader;
 		private var _diffuseDot3Shader:DiffuseDot3Shader;
-		private var _specularPhongShader:SpecularPhongShader;
 		
 		/**
 		 * The exponential dropoff value used for specular highlights.

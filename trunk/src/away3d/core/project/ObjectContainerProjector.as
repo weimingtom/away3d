@@ -18,7 +18,6 @@ package away3d.core.project
 		private var _cameraViewMatrix:Matrix3D;
 		private var _viewTransformDictionary:Dictionary;
 		private var _container:ObjectContainer3D;
-		private var _camera:Camera3D;
 		private var _child:Object3D;
 		private var _screenVertex:ScreenVertex;
 		private var _depthPoint:Number3D = new Number3D();

@@ -30,10 +30,8 @@ package away3d.materials
 		private var _containerVO:FaceMaterialVO;
 		private var _faceWidth:int;
 		private var _faceHeight:int;
-		private var _forceRender:Boolean;
 		private var _faceVO:FaceVO;
 		private var _material:ILayerMaterial;
-        private var _viewDictionary:Dictionary = new Dictionary(true);
         
         private function onMaterialUpdate(event:MaterialEvent):void
         {

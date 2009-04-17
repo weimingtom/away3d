@@ -23,8 +23,6 @@ package away3d.core.light
         private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
     	private var _matrix:Matrix = new Matrix();
     	private var _shape:Shape = new Shape();
-        private var quaternion:Quaternion = new Quaternion();
-        private var invTransform:Matrix3D = new Matrix3D();
     	private var transform:Matrix3D = new Matrix3D();
     	private var nx:Number;
     	private var ny:Number;
@@ -32,7 +30,6 @@ package away3d.core.light
         private var cameraTransform:Matrix3D;
         private var cameraDirection:Number3D = new Number3D();
         private var halfVector:Number3D = new Number3D();
-        private var halfQuaternion:Quaternion = new Quaternion();
         private var halfTransform:Matrix3D = new Matrix3D();
         private var _red:Number;
 		private var _green:Number;

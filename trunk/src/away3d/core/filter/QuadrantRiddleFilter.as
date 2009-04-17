@@ -25,14 +25,12 @@ package away3d.core.filter
         private var primitives:Array;
         private var pri:DrawPrimitive;
         private var turn:int;
-        private var leftover:Array;
         
         private var rivals:Array;
         private var rival:DrawPrimitive;
         
         private var parts:Array;
         private var part:DrawPrimitive;
-        private var subst:Array;
         private var focus:Number;
         
         private var positiveArea:Number;

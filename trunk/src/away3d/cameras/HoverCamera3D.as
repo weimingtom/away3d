@@ -10,8 +10,6 @@ package away3d.cameras
     */
     public class HoverCamera3D extends TargetCamera3D
     {
-        static private var toRADIANS:Number = Math.PI / 180;
-        
     	/**
     	 * Fractional difference in distance between the horizontal camera orientation and vertical camera orientation. Defaults to 2.
     	 * 

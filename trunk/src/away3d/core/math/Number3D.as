@@ -6,18 +6,13 @@
     public final class Number3D
     {
     	private const MathPI:Number = Math.PI;
-    	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
         private var num:Number3D;
         private var vx:Number;
         private var vy:Number;
         private var vz:Number;
-        private var nx:Number;
-        private var ny:Number;
-        private var nz:Number;
         private var m1:Matrix3D;
-        private var m2:Matrix3D;
         
         /**
         * The horizontal coordinate of the 3d number object.

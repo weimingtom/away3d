@@ -16,7 +16,6 @@ package away3d.core.project
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _sprite:Sprite2D;
 		private var _screenVertex:ScreenVertex;
-		private var _drawScaledBitmap:DrawScaledBitmap;
 		
 		public function get view():View3D
         {

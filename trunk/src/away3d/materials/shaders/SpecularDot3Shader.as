@@ -37,12 +37,6 @@ package away3d.materials.shaders
 		private var _normal0z:Number;
 		private var _normal1z:Number;
 		private var _normal2z:Number;
-		private var _normalFx:Number;
-		private var _normalFy:Number;
-		private var _normalFz:Number;
-		private var _red:Number;
-		private var _green:Number;
-		private var _blue:Number;
 		private var _texturemapping:Matrix;
 		
         /**
