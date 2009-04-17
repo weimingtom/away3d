@@ -220,7 +220,7 @@ package away3d.core.utils
 		        _cblocker.create = createConvexBlocker;
 	        }
 	        
-	        _cblocker.source = source
+	        _cblocker.source = source;
 	        _cblocker.vertices = vertices;
 	        _cblocker.calc();
 	        

@@ -171,7 +171,7 @@
 					generatedPatch[key][pId][yId] = [];
 					for (var xId:int = 0; xId <= patchInfo[key].oSegW; xId++) {
 						generatedPatch[key][pId][yId][xId] = new Vertex();
-						getPatchPoint(generatedPatch[key][pId][yId][xId], key, pId, xId * patchInfo[key].xStp, yId * patchInfo[key].yStp) 
+						getPatchPoint(generatedPatch[key][pId][yId][xId], key, pId, xId * patchInfo[key].xStp, yId * patchInfo[key].yStp); 
 					} 
 				}
 			}
@@ -183,7 +183,7 @@
 			for (var pId:int = 0; pId < patchInfo[key].patchCount; pId++) {
 				for (var yId:int = 0; yId <= patchInfo[key].oSegH; yId++ ) {
 					for (var xId:int = 0; xId <= patchInfo[key].oSegW; xId++) {
-						getPatchPoint(generatedPatch[key][pId][yId][xId], key, pId, xId * patchInfo[key].xStp, yId * patchInfo[key].yStp) 
+						getPatchPoint(generatedPatch[key][pId][yId][xId], key, pId, xId * patchInfo[key].xStp, yId * patchInfo[key].yStp); 
 					} 
 				}
 			}

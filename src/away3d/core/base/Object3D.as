@@ -271,7 +271,6 @@
         arcane var _scaleY:Number = 1;
         arcane var _scaleZ:Number = 1;
         protected var _pivotPoint:Number3D = new Number3D();        private var _scenePivotPoint:Number3D = new Number3D();
-        private var _parentradius:Number3D = new Number3D();
         arcane var _scene:Scene3D;
         private var _oldscene:Scene3D;
         private var _parent:ObjectContainer3D;
