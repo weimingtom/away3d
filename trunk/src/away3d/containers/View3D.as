@@ -113,8 +113,6 @@ package away3d.containers
 		private var _updatescene:ViewEvent;
 		private var _renderComplete:ViewEvent;
 		private var _updated:Boolean;
-		private var _cleared:Boolean;
-		private var _blocker:ConvexBlock;
 		private var _pritraverser:PrimitiveTraverser = new PrimitiveTraverser();
 		private var _ddo:DrawDisplayObject = new DrawDisplayObject();
         private var _container:DisplayObject;
@@ -133,7 +131,6 @@ package away3d.containers
         private var sceneX:Number;
         private var sceneY:Number;
         private var sceneZ:Number;
-        private var primitive:DrawPrimitive;
         private var inv:Matrix3D = new Matrix3D();
         private var persp:Number;
         private var _mouseIsOverView:Boolean;
@@ -149,6 +146,7 @@ package away3d.containers
         	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
         		var _lists:Array = session.getConsumer(this).list();
+        		var primitive:DrawPrimitive;
 	        	for each (primitive in _lists)
 	               checkPrimitive(primitive);
 	        	var _sessions:Array = session.sessions;
@@ -885,7 +883,7 @@ package away3d.containers
             }
             
             //traverse blockers
-            for each (_blocker in blockers)
+            for each (var _blocker:ConvexBlock in blockers)
             	_convexBlockProjector.blockers(_blocker, cameraVarsStore.viewTransformDictionary[_blocker], blockerarray);
             
             //traverse primitives

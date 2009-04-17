@@ -21,13 +21,12 @@ package away3d.core.base
         arcane var _z:Number;
         private var _position:Number3D = new Number3D();
         private var _persp:Number;
-        private var _element:Element;
         
         private function updatePosition():void
         {
         	positionDirty = false;
 			
-			for each (_element in parents)
+			for each (var _element:Element in parents)
 				_element.vertexDirty = true;
 			
         	_position.x = _x;
