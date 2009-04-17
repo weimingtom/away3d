@@ -37,24 +37,8 @@
         private var symbolLibrary:Dictionary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
-        private var _skinController:SkinController;
-    	private var _meshData:MeshData;
-    	private var _geometryData:GeometryData;
-        private var _materialData:MaterialData;
-        private var _animationData:AnimationData;
-		private var _meshMaterialData:MeshMaterialData;
-		private var numChildren:int;
-		private var _maxX:Number;
-		private var _minX:Number;
-		private var _maxY:Number;
-		private var _minY:Number;
-		private var _maxZ:Number;
-		private var _minZ:Number;
-    	private var _faceListIndex:int;
-    	private var _faceData:FaceData;
     	private var _faceMaterial:ITriangleMaterial;
     	private var _face:Face;
-    	private var _vertex:Vertex;
     	private var _moveVector:Number3D = new Number3D();
 		private var rotationMatrix:Matrix3D = new Matrix3D();
     	private var scalingMatrix:Matrix3D = new Matrix3D();
@@ -73,7 +57,6 @@
 		 * Collada Animation
 		 */
 		private var _defaultAnimationClip:AnimationData;
-		private var _haveAnimation:Boolean = false;
 		private var _haveClips:Boolean = false;
 		private var _containers:Dictionary = new Dictionary(true);
 		
@@ -131,7 +114,7 @@
 			mesh.transform = _meshData.transform;
 			mesh.bothsides = _meshData.geometry.bothsides;
 			
-			_geometryData = _meshData.geometry;
+			var _geometryData:GeometryData = _meshData.geometry;
 			var geometry:Geometry = _geometryData.geometry;
 			
 			if (!geometry) {
@@ -140,8 +123,9 @@
 				mesh.geometry = geometry;
 				
 				//set materialdata for each face
-				for each (_meshMaterialData in _geometryData.materials) {
-					for each (_faceListIndex in _meshMaterialData.faceList) {
+				var _faceData:FaceData;
+				for each (var _meshMaterialData:MeshMaterialData in _geometryData.materials) {
+					for each (var _faceListIndex:int in _meshMaterialData.faceList) {
 						_faceData = _geometryData.faces[_faceListIndex] as FaceData;
 						_faceData.materialData = symbolLibrary[_meshMaterialData.symbol];
 					}
@@ -149,8 +133,6 @@
 				
 				
 				if (_geometryData.skinVertices.length) {
-					var i:int;
-					var joints:Array;
 					var rootBone:Bone = (container as ObjectContainer3D).getBoneByName(_meshData.skeleton);
 					
 					geometry.skinVertices = _geometryData.skinVertices;
@@ -159,14 +141,11 @@
 					
 		   			geometry.rootBone = rootBone;
 		   			
-		   			for each (_skinController in geometry.skinControllers)
+		   			for each (var _skinController:SkinController in geometry.skinControllers)
 		                _skinController.inverseTransform = parent.inverseSceneTransform;
 				}
 				
 				//create faces from face and mesh data
-				var face:Face;
-				var matData:MaterialData;
-				
 				for each(_faceData in _geometryData.faces) {
 					if (_faceData.materialData)
 						_faceMaterial = _faceData.materialData.material as ITriangleMaterial;
@@ -201,7 +180,7 @@
 		
         private function buildMaterials():void
 		{
-			for each (_materialData in materialLibrary)
+			for each (var _materialData:MaterialData in materialLibrary)
 			{
 				Debug.trace(" + Build Material : "+_materialData.name);
 				
@@ -237,8 +216,8 @@
 		{
 			var bone:Bone;
 			
-			for each (_geometryData in geometryLibrary) {
-				for each (_skinController in _geometryData.geometry.skinControllers) {
+			for each (var _geometryData:GeometryData in geometryLibrary) {
+				for each (var _skinController:SkinController in _geometryData.geometry.skinControllers) {
 					bone = (container as ObjectContainer3D).getBoneByName(_skinController.name);
 	                if (bone)
 	                    _skinController.joint = bone.joint;
@@ -247,7 +226,7 @@
 	   			}
 	  		}
 		   			
-			for each (_animationData in animationLibrary)
+			for each (var _animationData:AnimationData in animationLibrary)
 			{
 				switch (_animationData.animationType)
 				{
@@ -526,6 +505,7 @@
 			materialLibrary.texturePath = texturePath;
 			
 			//organise the materials
+			var _materialData:MaterialData;
             for (var name:String in materials) {
                 _materialData = materialLibrary.addMaterial(name);
                 _materialData.material = Cast.material(materials[name]);
@@ -570,11 +550,11 @@
 			if (url)
 			{
 				var _pathArray		:Array = url.split("/");
-				var _imageName		:String = _pathArray.pop();
+				_pathArray.pop();
 				var _texturePath	:String = (_pathArray.length>0)?_pathArray.join("/")+"/":_pathArray.join("/");
 				
 				if (init)
-					init.texturePath = init.texturePath || _texturePath;
+					init["texturePath"] = init["texturePath"] || _texturePath;
 				else
 					init = {texturePath:_texturePath};
 			}
@@ -618,7 +598,7 @@
 			Debug.trace(" ! ------------- Begin Parse Collada -------------");
 
             // Get up axis
-            yUp = (collada.asset.up_axis == "Y_UP")||(String(collada.asset.up_axis) == "");
+            yUp = (collada["asset"].up_axis == "Y_UP")||(String(collada["asset"].up_axis) == "");
 
     		if (yUp) {
     			VALUE_X = "X";
@@ -640,7 +620,7 @@
 		 */
         private function parseScene():void
         {
-        	var scene:XML = collada.library_visual_scenes.visual_scene.(@id == getId(collada.scene.instance_visual_scene.@url))[0];
+        	var scene:XML = collada["library_visual_scenes"].visual_scene.(@id == getId(collada["scene"].instance_visual_scene.@url))[0];
         	
         	if (scene == null) {
         		Debug.trace(" ! ------------- No scene to parse -------------");
@@ -651,7 +631,7 @@
 			
 			containerData = new ContainerData();
 			
-            for each (var node:XML in scene.node)
+            for each (var node:XML in scene["node"])
 				parseNode(node, containerData);
 			
 			Debug.trace(" ! ------------- End Parse Scene -------------");
@@ -671,19 +651,18 @@
         {	
 			var _transform:Matrix3D;
 	    	var _objectData:ObjectData;
-	    	var _name:String = node.name().localName;
 	    	
-        	if (String(node.instance_light.@url) != "" || String(node.instance_camera.@url) != "")
+        	if (String(node["instance_light"].@url) != "" || String(node["instance_camera"].@url) != "")
         		return;
 	    	
 	    	
-			if (String(node.instance_controller) == "" && String(node.instance_geometry) == "")
+			if (String(node["instance_controller"]) == "" && String(node["instance_geometry"]) == "")
 			{
 				
 				if (String(node.@type) == "JOINT")
 					_objectData = new BoneData();
 				else {
-					if (String(node.instance_node.@url) == "" && (String(node.node) == "" || parent is BoneData))
+					if (String(node["instance_node"].@url) == "" && (String(node["node"]) == "" || parent is BoneData))
 						return;
 					_objectData = new ContainerData();
 				}
@@ -704,7 +683,8 @@
             _transform = _objectData.transform;
 			
 			Debug.trace(" + Parse Node : " + _objectData.id + " : " + _objectData.name);
-
+			
+			var nodeName:String;
            	var geo:XML;
            	var ctrlr:XML;
            	var sid:String;
@@ -715,7 +695,8 @@
             for each (var childNode:XML in node.children())
             {
                 arrayChild = getArray(childNode);
-				switch (childNode.name().localName)
+                nodeName = String(childNode.name()["localName"]);
+				switch(nodeName)
                 {
 					case "translate":
                         _transform.multiply(_transform, translateMatrix(arrayChild));
@@ -759,7 +740,7 @@
                         break;
 
     				case "instance_node":
-    					parseNode(collada.library_nodes.node.(@id == getId(childNode.@url))[0], _objectData as ContainerData);
+    					parseNode(collada["library_nodes"].node.(@id == getId(childNode.@url))[0], _objectData as ContainerData);
     					
     					break;
 
@@ -770,7 +751,7 @@
 	                        for each (instance_material in childNode..instance_material)
 	                        	parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 							
-							geo = collada.library_geometries.geometry.(@id == getId(childNode.@url))[0];
+							geo = collada["library_geometries"].geometry.(@id == getId(childNode.@url))[0];
 							
 	                        (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo);
 	                    }
@@ -783,12 +764,12 @@
 						for each (instance_material in childNode..instance_material)
 							parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 						
-						ctrlr = collada.library_controllers.controller.(@id == getId(childNode.@url))[0];
-						geo = collada.library_geometries.geometry.(@id == getId(ctrlr.skin[0].@source))[0];
+						ctrlr = collada["library_controllers"].controller.(@id == getId(childNode.@url))[0];
+						geo = collada["library_geometries"].geometry.(@id == getId(ctrlr["skin"][0].@source))[0];
 						
 	                    (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
 						
-						(_objectData as MeshData).skeleton = getId(childNode.skeleton);
+						(_objectData as MeshData).skeleton = getId(childNode["skeleton"]);
 						break;
                 }
             }
@@ -801,7 +782,7 @@
 		 */
         private function parseMaterial(symbol:String, materialName:String):void
         {
-           	_materialData = materialLibrary.addMaterial(materialName);
+           	var _materialData:MaterialData = materialLibrary.addMaterial(materialName);
         	symbolLibrary[symbol] = _materialData;
             if(symbol == "FrontColorNoCulling") {
             	_materialData.materialType = MaterialData.SHADING_MATERIAL;
@@ -832,12 +813,12 @@
 			var verticesDictionary:Dictionary = new Dictionary(true);
 			
             // Triangles
-            for each (var triangles:XML in geometryData.geoXML.mesh.triangles)
+            for each (var triangles:XML in geometryData.geoXML["mesh"].triangles)
             {
                 // Input
                 var field:Array = [];
 				
-                for each(var input:XML in triangles.input)
+                for each(var input:XML in triangles["input"])
                 {
                 	var semantic:String = input.@semantic;
                 	switch(semantic)
@@ -853,12 +834,12 @@
                     field.push(input.@semantic);
                 }
 
-                var data     :Array  = triangles.p.split(' ');
+                var data     :Array  = triangles["p"].split(' ');
                 var len      :Number = triangles.@count;
                 var symbol :String = triangles.@material;
                 
 				Debug.trace(" + Parse MeshMaterialData");
-                _meshMaterialData = new MeshMaterialData();
+                var _meshMaterialData:MeshMaterialData = new MeshMaterialData();
     			_meshMaterialData.symbol = symbol;
 				geometryData.materials.push(_meshMaterialData);
 				
@@ -886,7 +867,7 @@
                         	}
                         }
                     }
-                    //trace(_faceData.v0);
+                    
                     verticesDictionary[_faceData.v0] = geometryData.vertices[_faceData.v0];
                     verticesDictionary[_faceData.v1] = geometryData.vertices[_faceData.v1];
                     verticesDictionary[_faceData.v2] = geometryData.vertices[_faceData.v2];
@@ -904,7 +885,7 @@
 				geometryData.minY = Infinity;
 				geometryData.maxZ = -Infinity;
 				geometryData.minZ = Infinity;
-                for each (_vertex in verticesDictionary) {
+                for each (var _vertex:Vertex in verticesDictionary) {
 					if (geometryData.maxX < _vertex._x)
 						geometryData.maxX = _vertex._x;
 					if (geometryData.minX > _vertex._x)
@@ -921,8 +902,8 @@
 			}
 			
 			// Double Side
-			if (String(geometryData.geoXML.extra.technique.double_sided) != "")
-            	geometryData.bothsides = (geometryData.geoXML.extra.technique.double_sided[0].toString() == "1");
+			if (String(geometryData.geoXML["extra"].technique.double_sided) != "")
+            	geometryData.bothsides = (geometryData.geoXML["extra"].technique.double_sided[0].toString() == "1");
             else
             	geometryData.bothsides = false;
 			
@@ -930,25 +911,24 @@
 			if (!geometryData.ctrlXML)
 				return;
 			
-			var skin:XML = geometryData.ctrlXML.skin[0];
+			var skin:XML = geometryData.ctrlXML["skin"][0];
 			
-			var jointId:String = getId(skin.joints.input.(@semantic == "JOINT")[0].@source);
-            var tmp:String = skin.source.(@id == jointId).Name_array.toString();
+			var jointId:String = getId(skin["joints"].input.(@semantic == "JOINT")[0].@source);
+            var tmp:String = skin["source"].(@id == jointId)["Name_array"].toString();
 			//Blender?
-			if (!tmp) tmp = skin.source.(@id == jointId).IDREF_array.toString();
+			if (!tmp) tmp = skin["source"].(@id == jointId)["IDREF_array"].toString();
             tmp = tmp.replace(/\n/g, " ");
             var nameArray:Array = tmp.split(" ");
             
 			var bind_shape:Matrix3D = new Matrix3D();
-			bind_shape.array2matrix(getArray(skin.bind_shape_matrix[0].toString()), yUp, scaling);
+			bind_shape.array2matrix(getArray(skin["bind_shape_matrix"][0].toString()), yUp, scaling);
 			
-			var bindMatrixId:String = getId(skin.joints.input.(@semantic == "INV_BIND_MATRIX").@source);
-            var float_array:Array = getArray(skin.source.(@id == bindMatrixId)[0].float_array.toString());
+			var bindMatrixId:String = getId(skin["joints"].input.(@semantic == "INV_BIND_MATRIX").@source);
+            var float_array:Array = getArray(skin["source"].(@id == bindMatrixId)[0].float_array.toString());
             
             var v:Array;
             var matrix:Matrix3D;
             var name:String;
-            var joints:Array = [];
 			var skinController:SkinController;
             var i:int = 0;
             
@@ -968,18 +948,16 @@
 			
 			Debug.trace(" + SkinWeight");
 
-            tmp = skin.vertex_weights[0].@count;
-            var num_weights:int = int(skin.vertex_weights[0].@count);
-
-			var weightsId:String = getId(skin.vertex_weights.input.(@semantic == "WEIGHT")[0].@source);
+            tmp = skin["vertex_weights"][0].@count;
+			var weightsId:String = getId(skin["vertex_weights"].input.(@semantic == "WEIGHT")[0].@source);
 			
-            tmp = skin.source.(@id == weightsId).float_array.toString();
+            tmp = skin["source"].(@id == weightsId)["float_array"].toString();
             var weights:Array = tmp.split(" ");
 			
-            tmp = skin.vertex_weights.vcount.toString();
+            tmp = skin["vertex_weights"].vcount.toString();
             var vcount:Array = tmp.split(" ");
 			
-            tmp = skin.vertex_weights.v.toString();
+            tmp = skin["vertex_weights"].v.toString();
             v = tmp.split(" ");
 			
 			var skinVertex	:SkinVertex;
@@ -1012,7 +990,7 @@
         {
 			
         	//Check for animations
-			var anims:XML = collada.library_animations[0];
+			var anims:XML = collada["library_animations"][0];
 			
 			if (!anims) {
         		Debug.trace(" ! ------------- No animations to parse -------------");
@@ -1020,19 +998,19 @@
 			}
         	
 			//Check to see if animation clips exist
-			var clips:XML = collada.library_animation_clips[0];
+			var clips:XML = collada["library_animation_clips"][0];
 			
 			Debug.trace(" ! Animation Clips Exist : " + _haveClips);
 			
             Debug.trace(" ! ------------- Begin Parse Animation -------------");
             
             //loop through all animation channels
-			for each (var channel:XML in anims.animation)
+			for each (var channel:XML in anims["animation"])
 				channelLibrary.addChannel(channel.@id, channel);
 			
 			if (clips) {
 				//loop through all animation clips
-				for each (var clip:XML in clips.animation_clip)
+				for each (var clip:XML in clips["animation_clip"])
 					parseAnimationClip(clip);
 			}
 			
@@ -1052,17 +1030,17 @@
         {
 			var animationClip:AnimationData = animationLibrary.addAnimation(clip.@id);
 			
-			for each (var channel:XML in clip.instance_animation)
+			for each (var channel:XML in clip["instance_animation"])
 				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
         }
 		
 		private function parseChannel(channelData:ChannelData) : void
         {
         	var node:XML = channelData.xml;
-			var id:String = node.channel.@target;
+			var id:String = node["channel"].@target;
 			var name:String = id.split("/")[0];
             var type:String = id.split("/")[1];
-			var sampler:XML = node.sampler[0];
+			var sampler:XML = node["sampler"][0];
 			
             if (!type) {
             	Debug.trace(" ! No animation type detected");
@@ -1086,17 +1064,15 @@
 			
 			Debug.trace(" ! channelType : " + type);
 			
-            for each (var input:XML in sampler.input)
+            for each (var input:XML in sampler["input"])
             {
-				var src:XML = node.source.(@id == getId(input.@source))[0];
-                var count:int = int(src.float_array.@count);
-                var list:Array = String(src.float_array).split(" ");
-                var len:int = int(src.technique_common.accessor.@count);
-                var stride:int = int(src.technique_common.accessor.@stride);
+				var src:XML = node["source"].(@id == getId(input.@source))[0];
+                var list:Array = String(src["float_array"]).split(" ");
+                var len:int = int(src["technique_common"].accessor.@count);
+                var stride:int = int(src["technique_common"].accessor.@stride);
                 var semantic:String = input.@semantic;
 				
 				var p:String;
-				var sign:int = (type.charAt(type.length - 1) == "X")? -1 : 1;
                 switch(semantic) {
                     case "INPUT":
                         for each (p in list)
@@ -1172,12 +1148,12 @@
 		private function getTextureFileName( materialName:String ):String
 		{
 			var filename :String = null;
-			var material:XML = collada.library_materials.material.(@id == materialName)[0];
+			var material:XML = collada["library_materials"].material.(@id == materialName)[0];
 	
 			if( material )
 			{
-				var effectId:String = getId( material.instance_effect.@url );
-				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+				var effectId:String = getId( material["instance_effect"].@url );
+				var effect:XML = collada["library_effects"].effect.(@id == effectId)[0];
 	
 				if (effect..texture.length() == 0) return null;
 	
@@ -1197,9 +1173,9 @@
 					imageId = source..init_from[0];
 				}
 	
-				var image:XML = collada.library_images.image.(@id == imageId)[0];
+				var image:XML = collada["library_images"].image.(@id == imageId)[0];
 	
-				filename = image.init_from;
+				filename = image["init_from"];
 	
 				if (filename.substr(0, 2) == "./")
 				{
@@ -1214,11 +1190,11 @@
 		 */
 		private function parseColorMaterial(colorName:String, materialData:MaterialData):void
 		{
-			var material:XML = collada.library_materials.material.(@id == colorName)[0];
+			var material:XML = collada["library_materials"].material.(@id == colorName)[0];
 			
 			if (material) {
-				var effectId:String = getId( material.instance_effect.@url );
-				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+				var effectId:String = getId( material["instance_effect"].@url );
+				var effect:XML = collada["library_effects"].effect.(@id == effectId)[0];
 				
 				materialData.ambientColor = getColorValue(effect..ambient[0]);
 				materialData.diffuseColor = getColorValue(effect..diffuse[0]);
@@ -1232,10 +1208,10 @@
 			if (!colorXML || colorXML.length() == 0)
 				return 0xFFFFFF;
 			
-			if(!colorXML.color || colorXML.color.length() == 0)
+			if(!colorXML["color"] || colorXML["color"].length() == 0)
 				return 0xFFFFFF;
 			
-			var colorArray:Array = colorXML.color.split(" ");
+			var colorArray:Array = colorXML["color"].split(" ");
 			if(colorArray.length <= 0)
 				return 0xFFFFFF;
 			
@@ -1250,7 +1226,7 @@
             var id:String = input.@source.split("#")[1];
 
             // Source?
-            var acc:XMLList = geo..source.(@id == id).technique_common.accessor;
+            var acc:XMLList = geo..source.(@id == id)["technique_common"].accessor;
 
             if (acc != new XMLList())
             {
@@ -1264,12 +1240,10 @@
                 var params:Array = [];
 				var param:String;
 				
-                for each (var par:XML in acc.param)
+                for each (var par:XML in acc["param"])
                     params.push(par.@name);
 
                 // Build output array
-                var count:int = acc.@count;
-                var stride:int = acc.@stride;
     			var len:int = floats.length;
     			var i:int = 0;
                 while (i < len)
