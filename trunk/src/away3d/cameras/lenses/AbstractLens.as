@@ -1,17 +1,13 @@
-package away3d.cameras.lenses
-{
+package away3d.cameras.lenses {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.geom.*;
 	import away3d.core.math.*;
-	import away3d.core.utils.*;
-	
-	import flash.utils.*;
-	
-    /**
+	import away3d.core.utils.*;	
+
+	/**
     * Abstract lens for resolving perspective using the <code>Camera3D</code> object's position and properties
     */
     public class AbstractLens

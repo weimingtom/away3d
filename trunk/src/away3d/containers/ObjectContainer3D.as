@@ -71,7 +71,7 @@
 	        	if (_scaleX < 0)
 	        		_boundingScale = -_scaleX;
 	        	else
-	        		_boundingScale = _scaleX
+	        		_boundingScale = _scaleX;
             	
             	if (_scaleY < 0 && _boundingScale < -_scaleY)
             		_boundingScale = -_scaleY;

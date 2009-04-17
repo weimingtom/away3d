@@ -1,10 +1,10 @@
 ﻿package away3d.primitives
 {
 	import away3d.*;
-	import away3d.core.base.*
+	import away3d.core.base.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
-	import away3d.materials.*
+	import away3d.materials.*;
 	import away3d.primitives.data.PatchData;
 	import flash.utils.*;
 
@@ -111,7 +111,7 @@
 		 */
 		public function BezierPatch(patchDataPrm:PatchData, init:Object = null) {
 			
-			super(init)
+			super(init);
 
 			_material = material as ITriangleMaterial;
 			patchData = patchDataPrm;
@@ -228,12 +228,8 @@
 			for (var p:int = 0; p < _pI[key].patchCount; p++) {	
 				var x:Number;
 				var y:Number;
-				var tv0:Vertex = new Vertex();
-				var tv1:Vertex = new Vertex();
-				var tv2:Vertex = new Vertex();
 				var thisOr:int;
 				var orientation:int;
-				var f:Face;
 				
 				definePatchData(key, p);
 				

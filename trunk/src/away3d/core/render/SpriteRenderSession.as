@@ -74,7 +74,7 @@ package away3d.core.render
             }
             
             if (parent)
-            	parent.addChild(_sprite)
+            	parent.addChild(_sprite);
             else
             	_container.addChild(_sprite);
             

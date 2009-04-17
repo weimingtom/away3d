@@ -324,7 +324,7 @@ package away3d.containers
         private function traverseRollEvent(event:MouseEvent3D, array:Array, overFlag:Boolean):void
         {
         	for each (var tar:Object3D in array) {
-        		tar.dispatchMouseEvent(event)
+        		tar.dispatchMouseEvent(event);
         		if (overFlag)
         			buttonMode = buttonMode || tar.useHandCursor;
         		else if (buttonMode && tar.useHandCursor)
@@ -697,7 +697,7 @@ package away3d.containers
 	                var i:int = 0;
 	                
 	                while (outArray[i] && outArray[i] == overArray[i])
-	                	++i
+	                	++i;
 	                
 	                if (mouseObject != null) {
 	                	event = getMouseEvent(MouseEvent3D.ROLL_OUT);
