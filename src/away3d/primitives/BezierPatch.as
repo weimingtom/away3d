@@ -25,14 +25,9 @@
 		private var _patchVertices:Dictionary = new Dictionary();
 		private var _edgeCache:Array;
 		private var _gen:Array = [];
-		private var _patchName:String;
-		private var _patchCount:int;
 		private var _normDir:Boolean;
 		private var _material:ITriangleMaterial;
 		       
-		private var _w1:WireColorMaterial;
-		private var _w2:WireColorMaterial;
-		
 		private const resol:int = 1000;
 		public static const PATCH:int = 0;
 		public static const WIRE_ONLY:int = 1;
@@ -129,7 +124,6 @@
 		 * Generate the patch mesh based on the patch data and render modes.
 		 */
 		public function buildPatch():void {
-			var start:int = getTimer();
 			
 			_patchVertices = new Dictionary();
 			_edgeCache = [];
@@ -209,10 +203,6 @@
 		private var vx5:Vertex = new Vertex();
 		private var vx6:Vertex = new Vertex();
 		private var vx7:Vertex = new Vertex();
-		private var ovx0:Vertex;
-		private var ovx1:Vertex;
-		private var ovx2:Vertex;
-		private var ovx3:Vertex;
 
 		// Render the full uv mapped patch
 		private function buildTrianglePatch( key:String ):void {	
@@ -244,7 +234,6 @@
 							// If we have the correct orientation proceed
 							if (thisOr>0) {								
 
-								var hasUVs:Boolean = false;
 								var xOr:Boolean = ((orientation & X) | (orientation & XY) | (orientation & XZ) | (orientation & XYZ)) > 0;
 								var yOr:Boolean = ((orientation & Y) | (orientation & XY) | (orientation & YZ) | (orientation & XYZ)) > 0;
 								var zOr:Boolean = ((orientation & Z) | (orientation & YZ) | (orientation & XZ) | (orientation & XYZ)) > 0;
@@ -337,7 +326,6 @@
 		}
 
 		private function definePatchData(key:String, p:int):void {
-			var v:Vertex = new Vertex();
 			var xCtr:int = 0;
 			var yCtr:int = 0;
 			var thisOr:int = 0;
@@ -371,12 +359,7 @@
 		 * Refresh the patch with updated patch data information - this is far quicker than re-building the patch
 		 */
 		public function refreshPatch():void {
-			var start:int = getTimer();
-			var xCtr:int;
-			var yCtr:int;
 			var v:Vertex;
-			var vData:Array;
-			var tempVertices:Array;
 			var pId:int;
 			var yId:int;
 			var xId:int;
