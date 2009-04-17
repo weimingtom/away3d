@@ -20,7 +20,6 @@ package away3d.core.geom
 		public var planes:Array;
 		
 		private var _matrix:Matrix3D = new Matrix3D();
-		private var _plane:Plane3D;
 		private var _distance:Number;
     	
 		/**
@@ -52,6 +51,7 @@ package away3d.core.geom
 		 */
 		public function classifySphere(center:Number3D, radius:Number):int
 		{
+			var _plane:Plane3D;
 			for each(_plane in planes) {
 				_distance = _plane.distance(center);
 				
@@ -71,6 +71,7 @@ package away3d.core.geom
 		 */
 		public function classifyRadius(radius:Number):int
 		{
+			var _plane:Plane3D;
 			for each(_plane in planes) {
 				if(_plane.d < -radius)
 					return OUT;
