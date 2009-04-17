@@ -3,7 +3,6 @@ package away3d.animators.skin
 	import away3d.containers.*;
 	import away3d.arcane;
 	import away3d.core.base.*;
-	import away3d.core.math.*;
 	
 	use namespace arcane;
 	
@@ -13,9 +12,6 @@ package away3d.animators.skin
     	
 		//Collada 3.05B
 		public var id:String;
-		
-		private var _baseMatrix:Matrix3D = new Matrix3D();
-		private var _jointTransform:Matrix3D = new Matrix3D();
 		
     	/**
     	 * Defines the euler angle of rotation of the 3d object around the x-axis, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.

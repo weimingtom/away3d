@@ -107,7 +107,6 @@
     	private var _materialupdated:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
-        private var triangle:DrawTriangle = new DrawTriangle(); 
         private var svArray:Array = [];
         private var x:Number;
 		private var y:Number;
@@ -649,7 +648,7 @@
         	
         	return _faceDictionary[faceVO] = new FaceMaterialVO();
         }
-                		/**		 * @inheritDoc		 */        public function clearFaces(source:Object3D = null, view:View3D = null):void        {        	notifyMaterialUpdate();        	        	for each (_faceMaterialVO in _faceDictionary)        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        }        		/**		 * @inheritDoc		 */        public function invalidateFaces(source:Object3D = null, view:View3D = null):void        {        	_materialDirty = true;        	        	for each (_faceMaterialVO in _faceDictionary)        		_faceMaterialVO.invalidated = true;        }        
+                		/**		 * @inheritDoc		 */        public function clearFaces(source:Object3D = null, view:View3D = null):void        {        	notifyMaterialUpdate();        	        	for each (var _faceMaterialVO:FaceMaterialVO in _faceDictionary)        		if (!_faceMaterialVO.cleared)        			_faceMaterialVO.clear();        }        		/**		 * @inheritDoc		 */        public function invalidateFaces(source:Object3D = null, view:View3D = null):void        {        	_materialDirty = true;        	        	for each (var _faceMaterialVO:FaceMaterialVO in _faceDictionary)        		_faceMaterialVO.invalidated = true;        }        
 		/**
 		 * @inheritDoc
 		 */
