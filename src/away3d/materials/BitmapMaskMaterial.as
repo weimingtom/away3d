@@ -132,7 +132,6 @@ package away3d.materials
     	private var _materialupdated:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
-        private var triangle:DrawTriangle = new DrawTriangle(); 
         private var svArray:Array = [];
         private var x:Number;
 		private var y:Number;

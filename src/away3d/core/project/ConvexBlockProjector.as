@@ -9,9 +9,7 @@ package away3d.core.project
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
 	import away3d.core.utils.*;
-	import away3d.materials.*;
 	
-	import flash.display.*;
 	import flash.utils.*;
 	
 	public class ConvexBlockProjector implements IBlockerProvider, IPrimitiveProvider
@@ -23,8 +21,6 @@ package away3d.core.project
 		private var _camera:Camera3D;
 		private var _lens:ILens;
 		private var _vertices:Array;
-		private var _displayObject:DisplayObject;
-		private var _segmentMaterial:ISegmentMaterial;
 		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
         private var _points:Array;

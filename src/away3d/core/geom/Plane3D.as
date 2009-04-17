@@ -37,7 +37,6 @@ package away3d.core.geom
 	
 		//arbitrary point on this plane, only avail during closest computation
     	private var _point:Number3D = new Number3D();
-		private var _mt:Matrix3D = new Matrix3D();
 		
 		/**
 		 * Create a Plane3D with ABCD coefficients

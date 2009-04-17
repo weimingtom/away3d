@@ -37,8 +37,6 @@ package away3d.materials
 		private var y:Number;
 		private var px:Number;
 		private var py:Number;
-        private var w:Number;
-        private var h:Number;
         private var normalR:Number3D = new Number3D();
         private var _u0:Number;
         private var _u1:Number;
@@ -63,7 +61,6 @@ package away3d.materials
 		private var fPoint1:Point = new Point();
         private var fPoint2:Point = new Point();
         private var fPoint3:Point = new Point();
-        private var fPoint4:Point = new Point();
         private var mapa:Number;
         private var mapb:Number;
         private var mapc:Number;
@@ -74,7 +71,6 @@ package away3d.materials
         private var mPoint2:Point = new Point();
         private var mPoint3:Point = new Point();
         private var mPoint4:Point = new Point();
-        private var overlap:Boolean;
         private var i:String;
         private var dot:Number;
 		private var line:Point = new Point();

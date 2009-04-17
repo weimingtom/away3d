@@ -30,7 +30,6 @@ package away3d.core.utils
         private var _vActive:Array = [];
 		private var _vStore:Array = [];
 		private var _vcStore:Array = [];
-		private var _vcArray:Array;
 		private var _uvDictionary:Dictionary = new Dictionary(true);
 		private var _uvArray:Array;
         private var _uvStore:Array = [];

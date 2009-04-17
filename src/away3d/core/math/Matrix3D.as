@@ -5,7 +5,6 @@ package away3d.core.math
     */
     public final class Matrix3D
     {
-        private const toDEGREES:Number = 180 / Math.PI;
         private var _position:Number3D = new Number3D();
         
         //vectors

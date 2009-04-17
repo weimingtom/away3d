@@ -24,12 +24,9 @@ package away3d.core.render
 		private var _children:Array;
 		private var i:int;
 		private var _primitives:Array;
-		private var _clippedPrimitives:Array;
-        private var _view:View3D;
         private var _scene:Scene3D;
         private var _camera:Camera3D;
         private var _screenClipping:Clipping;
-        private var _blockers:Array;
 		private var _filter:IPrimitiveQuadrantFilter;
 		
 		private function getList(node:PrimitiveQuadrantTreeNode):void
