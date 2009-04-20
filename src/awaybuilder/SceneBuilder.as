@@ -96,10 +96,15 @@ package awaybuilder
 		
 		override public function getSectionById ( id : String ) : SceneSectionVO
 		{
-			for each ( var vo : SceneSectionVO in this.sections )
+			var result : SceneSectionVO ;
+			
+			for each ( var section : SceneSectionVO in this.sections )
 			{
-				if ( vo.id == id ) return vo ;
+				if ( section.id == id ) result = section ;
 			}
+			
+			if ( ! result ) throw new Error ( "section with id [" + id + "] not found" ) ;
+			return result ;
 		}
 								override public function getCameraById ( id : String ) : SceneCameraVO
 		{
