@@ -1,6 +1,6 @@
 package awaybuilder.collada
 {
-	import awaybuilder.abstracts.AbstractParser;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.events.Event;
+	import awaybuilder.abstracts.AbstractParser;	import awaybuilder.material.MaterialAttributes;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.events.Event;
 	
 	
 	
@@ -278,6 +278,15 @@ package awaybuilder.collada
 					}
 					case ColladaParser.PREFIX_MATERIAL :
 					{
+						switch ( attribute.key )
+						{
+							case MaterialAttributes.ASSET_CLASS :
+							{
+								this.expectedMaterialClasses.push ( attribute.value ) ;
+								break ;
+							}
+						}
+						
 						vo.materialExtras.push ( attribute ) ;
 						break ;
 					}
