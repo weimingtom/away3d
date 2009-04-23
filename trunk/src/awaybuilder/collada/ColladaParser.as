@@ -282,7 +282,9 @@ package awaybuilder.collada
 						{
 							case MaterialAttributes.ASSET_CLASS :
 							{
-								this.expectedMaterialClasses.push ( attribute.value ) ;
+								var result : Array = [ attribute.value , vo.id ] ;
+								
+								this.expectedMaterialClasses.push ( result ) ;
 								break ;
 							}
 						}
