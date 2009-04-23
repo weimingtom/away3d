@@ -38,9 +38,10 @@ package awaybuilder.material
 				NOTE: Creation of materials that require external data happens
 				at the end of the geometry creation process. See SceneBuilder.
 				
-				case ColladaMaterialType.BITMAP_MATERIAL :
-				case ColladaMaterialType.BITMAP_FILE_MATERIAL :
-				case ColladaMaterialType.MOVIE_MATERIAL :
+				case MaterialType.BITMAP_MATERIAL :
+				case MaterialType.BITMAP_FILE_MATERIAL :
+				case MaterialType.MOVIE_MATERIAL :
+				case MaterialType.PHONG_BITMAP_MATERIAL :
 				*/
 				
 				case MaterialType.COLOR_MATERIAL :
