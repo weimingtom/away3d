@@ -28,21 +28,18 @@ package awaybuilder.material
 				switch ( attribute.key )
 				{
 					case MaterialAttributes.ALPHA :
-					case MaterialAttributes.PAN :
-					case MaterialAttributes.VOLUME :
-					case MaterialAttributes.WIDTH :
-					case MaterialAttributes.WIREALPHA :
-					{
-						vo.material[ attribute.key ] = Number ( attribute.value ) ;
-						break ;
-					}
 					case MaterialAttributes.AMBIENT :
 					case MaterialAttributes.COLOR :
 					case MaterialAttributes.DIFFUSE :
+					case MaterialAttributes.PAN :
+					case MaterialAttributes.SHININESS :
 					case MaterialAttributes.SPECULAR :
+					case MaterialAttributes.VOLUME :
+					case MaterialAttributes.WIDTH :
+					case MaterialAttributes.WIREALPHA :
 					case MaterialAttributes.WIRECOLOR :
 					{
-						vo.material[ attribute.key ] = uint ( attribute.value ) ;
+						vo.material[ attribute.key ] = Number ( attribute.value ) ;
 						break ;
 					}
 					case MaterialAttributes.ASSET_CLASS :
