@@ -47,6 +47,7 @@ package away3d.core.project
 		private var _sv0:ScreenVertex;
 		private var _sv1:ScreenVertex;
 		private var _sv2:ScreenVertex;
+		private var _extraScreenVertices:Array = [];
 		
         private function front(face:Face, viewTransform:Matrix3D):Number
         {
@@ -112,6 +113,7 @@ package away3d.core.project
             }
 
             for each (_faceVO in _clippedFaceVOs) {
+				
 				_sv0 = _lens.project(viewTransform, _faceVO.v0);
 				_sv1 = _lens.project(viewTransform, _faceVO.v1);
 				_sv2 = _lens.project(viewTransform, _faceVO.v2);
@@ -119,9 +121,22 @@ package away3d.core.project
                 if (!_sv0.visible || !_sv1.visible || !_sv2.visible)
                     continue;
                 
+                if(_faceVO.isVectorShape)
+				{
+					var i:uint;
+					for(i = 3; i<_faceVO.vertices.length; i++)
+						_extraScreenVertices[i - 3] = _lens.project(viewTransform, _faceVO.vertices[i]);
+						
+					for(i = 0; i<_extraScreenVertices.length; i++)
+						if(!_extraScreenVertices[i].visible)
+							return;
+				}
+				else
+					_extraScreenVertices = [];
+                
             	_face = _faceVO.face;
                 
-            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
+            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated, _extraScreenVertices);
                 
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.backface = _tri.area < 0;
