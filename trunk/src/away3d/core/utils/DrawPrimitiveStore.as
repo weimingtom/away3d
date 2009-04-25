@@ -198,11 +198,11 @@ package away3d.core.utils
 	        _tri.source = source;
 	        _tri.faceVO = faceVO;
 	        _tri.material = material;
+	        _tri.screenVertices = [];
 	        _tri.v0 = _tri.screenVertices[0] = v0;
 	        _tri.v1 = _tri.screenVertices[1] = v1;
 	        _tri.v2 = _tri.screenVertices[2] = v2;
 	        _tri.isVectorShape = faceVO.isVectorShape;
-	        
 	        if(_tri.isVectorShape)
 	        	for(var i:uint; i<extraScreenVertices.length; i++)
 	        		_tri.screenVertices[i + 3] = extraScreenVertices[i];
