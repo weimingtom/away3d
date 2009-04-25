@@ -243,6 +243,9 @@ package away3d.core.draw
     	 */
         public var material:ITriangleMaterial;
         
+        public var screenVertices:Array = [];
+        public var isVectorShape:Boolean;
+        
 		/**
 		 * @inheritDoc
 		 */

@@ -29,6 +29,10 @@ package away3d.core.utils
 		public var face:Face;
 		
 		public var bitmapRect:Rectangle;
+		
+		public var vertices:Array = [];
+		
+		public var isVectorShape:Boolean;
 		        
     	/**
     	 * Returns the maximum u value of the face

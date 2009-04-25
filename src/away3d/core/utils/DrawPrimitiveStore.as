@@ -129,6 +129,8 @@ package away3d.core.utils
 	        else
 	        	_sv = _vertexDictionary[vertex] = new ScreenVertex();
 			
+			_sv.vectorInstructionType = vertex.vectorInstructionType;
+			
 	        return _sv;
 		}
 		
@@ -179,7 +181,7 @@ package away3d.core.utils
 	        return _seg;
 	    }
 	    
-		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
+		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false, extraScreenVertices:Array = null):DrawTriangle
 		{
 			if (!(_dtArray = _dtDictionary[source.session]))
 				_dtArray = _dtDictionary[source.session] = [];
@@ -196,9 +198,15 @@ package away3d.core.utils
 	        _tri.source = source;
 	        _tri.faceVO = faceVO;
 	        _tri.material = material;
-	        _tri.v0 = v0;
-	        _tri.v1 = v1;
-	        _tri.v2 = v2;
+	        _tri.v0 = _tri.screenVertices[0] = v0;
+	        _tri.v1 = _tri.screenVertices[1] = v1;
+	        _tri.v2 = _tri.screenVertices[2] = v2;
+	        _tri.isVectorShape = faceVO.isVectorShape;
+	        
+	        if(_tri.isVectorShape)
+	        	for(var i:uint; i<extraScreenVertices.length; i++)
+	        		_tri.screenVertices[i + 3] = extraScreenVertices[i];
+	        
 	        _tri.uv0 = uv0;
 	        _tri.uv1 = uv1;
 	        _tri.uv2 = uv2;
