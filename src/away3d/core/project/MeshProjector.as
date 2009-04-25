@@ -121,6 +121,7 @@ package away3d.core.project
                 if (!_sv0.visible || !_sv1.visible || !_sv2.visible)
                     continue;
                 
+                _extraScreenVertices = [];
                 if(_faceVO.isVectorShape)
 				{
 					var i:uint;
@@ -131,11 +132,9 @@ package away3d.core.project
 						if(!_extraScreenVertices[i].visible)
 							return;
 				}
-				else
-					_extraScreenVertices = [];
                 
             	_face = _faceVO.face;
-                
+               
             	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated, _extraScreenVertices);
                 
 				//determine if _triangle is facing towards or away from camera
