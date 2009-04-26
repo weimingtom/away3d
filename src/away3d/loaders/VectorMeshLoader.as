@@ -25,6 +25,9 @@ package away3d.loaders
 				var shapeVectorData:Array = vectorData[s][0];
 				var shapeFillData:Array = vectorData[s][1];
 				
+				if(shapeVectorData.length == 0)
+					continue;
+				
 				var mesh:Mesh = new Mesh();
 				var face:Face = new Face();
 				
