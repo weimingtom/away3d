@@ -1,5 +1,6 @@
 package awaybuilder.material
-{	import away3d.materials.ColorMaterial;
+{	import away3d.materials.PhongColorMaterial;	
+	import away3d.materials.ColorMaterial;
 	import away3d.materials.ShadingColorMaterial;
 	import away3d.materials.VideoMaterial;
 	import away3d.materials.WireColorMaterial;
@@ -47,6 +48,11 @@ package awaybuilder.material
 				case MaterialType.COLOR_MATERIAL :
 				{
 					vo.material = new ColorMaterial ( ) ;
+					break ;
+				}
+				case MaterialType.PHONG_COLOR_MATERIAL :
+				{
+					vo.material = new PhongColorMaterial ( 0x00FF00 ) ;
 					break ;
 				}
 				case MaterialType.SHADING_COLOR_MATERIAL :
