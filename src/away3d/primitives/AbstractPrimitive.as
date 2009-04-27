@@ -36,9 +36,9 @@
 		{
 			if (_vStore.length) {
             	_vActive.push(_v = _vStore.pop());
-	            _v._x = x;
-	            _v._y = y;
-	            _v._z = z;
+	            _v.x = x;
+	            _v.y = y;
+	            _v.z = z;
    			} else {
             	_vActive.push(_v = new Vertex(x, y, z));
       		}
