@@ -79,10 +79,7 @@ package away3d.materials
 		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
-        	if(!tri.isVectorShape)
-				tri.source.session.renderTriangleLineFill(width, color, alpha, wirecolor, wirealpha, tri.v0, tri.v1, tri.v2);
-			else
-				tri.source.session.renderShapeLineFill(width, color, alpha, wirecolor, wirealpha, tri.screenVertices);
+			tri.source.session.renderTriangleLineFill(width, color, alpha, wirecolor, wirealpha, tri.v0, tri.v1, tri.v2, tri.screenVertices, tri.isVectorShape);
         }
         
 		/**
