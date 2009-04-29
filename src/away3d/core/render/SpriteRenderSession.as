@@ -74,8 +74,10 @@ package away3d.core.render
             
             if (parent)
             	parent.addChild(_sprite);
-            else
+            else {
             	_container.addChild(_sprite);
+            	layer = _sprite;
+            }
             
             _layerDirty = true;
             

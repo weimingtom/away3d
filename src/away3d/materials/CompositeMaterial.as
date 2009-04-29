@@ -212,7 +212,7 @@ package away3d.materials
     		
     		_sprite = _session.layer as Sprite;
     		
-        	if (!_sprite || _colorTransform || blendMode != BlendMode.NORMAL) {
+        	if (!_sprite || this != _session._material || _colorTransform || blendMode != BlendMode.NORMAL) {
         		_sprite = _session.getSprite(this, level++);
         		_sprite.blendMode = blendMode;
         	}
