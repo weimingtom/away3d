@@ -26,7 +26,6 @@ package away3d.core.clip
     	private var _session:AbstractRenderSession;
     	private var _frustum:Frustum;
     	private var _pass:Boolean;
-		private var _plane:Plane3D;
 		private var _v0:Vertex;
     	private var _v01:Vertex;
     	private var _v1:Vertex;
@@ -66,6 +65,7 @@ package away3d.core.clip
 			_v1C = _cameraVarsStore.createVertexClassification(faceVO.v1);
 			_v2C = _cameraVarsStore.createVertexClassification(faceVO.v2);
 			
+			var _plane:Plane3D;
 			if (_v0C.plane || _v1C.plane || _v2C.plane) {
 				if ((_plane = _v0C.plane)) {
 					_v0d = _v0C.distance;

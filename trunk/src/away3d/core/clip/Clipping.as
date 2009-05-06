@@ -237,11 +237,13 @@ package away3d.core.clip
 		 */
         public function checkPrimitive(pri:DrawPrimitive):Boolean
         {
+            pri;//TODO : FDT Warning
             return true;
         }
 		
 		public function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array):void
 		{
+			source;//TODO : FDT Warning
 			clippedFaceVOs.push(faceVO);
 		}
 		

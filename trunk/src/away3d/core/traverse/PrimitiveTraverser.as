@@ -84,6 +84,7 @@ package away3d.core.traverse
 		 */
         public override function enter(node:Object3D):void
         {
+        	node;//TODO : FDT Warning
         	_mouseEnableds.push(_mouseEnabled);
         }
         
@@ -145,6 +146,7 @@ package away3d.core.traverse
 		 */
         public override function leave(node:Object3D):void
         {
+        	node;//TODO : FDT Warning
         	_mouseEnabled = _mouseEnableds.pop();
         }
 

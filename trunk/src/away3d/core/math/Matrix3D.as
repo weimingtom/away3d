@@ -757,6 +757,7 @@ package away3d.core.math
         */
         public function normalize(m1:Matrix3D):void
         {
+        	m1;//TODO : FDT Warning
         	d = Math.sqrt(sxx*sxx + sxy*sxy + sxz*sxz);
 			sxx /= d;
 			sxy /= d;

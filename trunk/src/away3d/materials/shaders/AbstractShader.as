@@ -232,6 +232,7 @@ package away3d.materials.shaders
 		 */
         public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
+        	source;view;//TODO : FDT Warning
         	if ((_faceMaterialVO = _faceDictionary[faceVO]))
         		return _faceMaterialVO;
         	

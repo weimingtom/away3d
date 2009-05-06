@@ -66,6 +66,7 @@ package away3d.core.draw
 		 */
         public override function contains(x:Number, y:Number):Boolean
         {   
+            x;y;//TODO : FDT Warning
             return true;
         }
     }
