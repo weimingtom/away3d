@@ -31,13 +31,9 @@ package away3d.core.project
 		private var _faceMaterial:ITriangleMaterial;
 		private var _segmentMaterial:ISegmentMaterial;
 		private var _billboardMaterial:IBillboardMaterial;
-		private var _face:Face;
-		private var _faceVO:FaceVO;
 		private var _tri:DrawTriangle;
 		private var _smaterial:ISegmentMaterial;
 		private var _bmaterial:IBillboardMaterial;
-		private var _segment:Segment;
-		private var _billboard:Billboard;
 		private var _backmat:ITriangleMaterial;
         private var _backface:Boolean;
 		private var _n01:Face;
@@ -100,7 +96,7 @@ package away3d.core.project
 				_clipFaceVOs = false;
 			
 			//loop through all faces
-            for each (_face in _faces)
+            for each (var _face:Face in _faces)
             {
                  if (!_face.visible)
                     continue;
@@ -112,7 +108,7 @@ package away3d.core.project
                 	_clippedFaceVOs.push(_face.faceVO);
             }
 
-            for each (_faceVO in _clippedFaceVOs) {
+            for each (var _faceVO:FaceVO in _clippedFaceVOs) {
 				
 				_sv0 = _lens.project(viewTransform, _faceVO.v0);
 				_sv1 = _lens.project(viewTransform, _faceVO.v1);
@@ -198,7 +194,7 @@ package away3d.core.project
             }
             
             //loop through all segments
-            for each (_segment in _segments)
+            for each (var _segment:Segment in _segments)
             {
             	_sv0 = _lens.project(viewTransform, _segment.v0);
             	_sv1 = _lens.project(viewTransform, _segment.v1);
@@ -215,7 +211,7 @@ package away3d.core.project
             }
             
             //loop through all billboards
-            for each (_billboard in _billboards)
+            for each (var _billboard:Billboard in _billboards)
             {
                 if (!_billboard.visible)
                     continue;

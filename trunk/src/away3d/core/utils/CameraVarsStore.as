@@ -19,8 +19,6 @@ package away3d.core.utils
 		private var _uv:UV;
 		private var _vc:VertexClassification;
 		private var _faceVO:FaceVO;
-		private var _object:Object;
-		private var _v:Object;
 		private var _source:Object3D;
 		private var _session:AbstractRenderSession;
 		private var _vtActive:Array = [];
@@ -143,10 +141,10 @@ package away3d.core.utils
         public function reset():void
         {
         	
-        	for (_object in _sourceDictionary) {
+        	for (var _object:Object in _sourceDictionary) {
 				_source = _object as Object3D;
 				if (_source.session && _source.session.updated) {
-					for (_v in _sourceDictionary[_source]) {
+					for (var _v:Object in _sourceDictionary[_source]) {
 						_vcStore.push(_sourceDictionary[_source][_v]);
 						delete _sourceDictionary[_source][_v];
 					}

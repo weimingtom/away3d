@@ -14,8 +14,6 @@ package away3d.core.utils
 	{
 		private var _sourceDictionary:Dictionary = new Dictionary(true);
 		private var _vertexDictionary:Dictionary;
-		private var _object:Object;
-		private var _vertex:Object;
 		private var _source:Object3D;
 		private var _session:AbstractRenderSession;
 		private var _sv:ScreenVertex;
@@ -51,10 +49,11 @@ package away3d.core.utils
 		
 		public function reset():void
 		{
+			var _object:Object;
 			for (_object in _sourceDictionary) {
 				_source = _object as Object3D;
 				if (_source.session && _source.session.updated) {
-					for (_vertex in _sourceDictionary[_source]) {
+					for (var _vertex:Object in _sourceDictionary[_source]) {
 						_sv = _sourceDictionary[_source][_vertex];
 						_svStore.push(_sv);
 						delete _sourceDictionary[_source][_vertex];

@@ -278,7 +278,7 @@
 			var z:Number;
 			var x1:Number;
 			var y1:Number;
-			var z1:Number;
+			//var z1:Number;
 			
 			var rad:Number = Math.PI / 180;
 			var rotx:Number = rotationX * rad;
