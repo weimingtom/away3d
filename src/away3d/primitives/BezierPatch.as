@@ -474,7 +474,7 @@
 		}
 		
 		private function fillPatchMirrorHoles(pUV:Array, fillPoints:Array, key:String, p:int, segW:int, segH:int):void {
-
+			key;//TODO : FDT Warning
 			for each (var vData:Array in fillPoints) {
 				var vId:int = vData[0];
 				var vOr:Array = vData[1];

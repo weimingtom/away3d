@@ -19,7 +19,6 @@ package away3d.core.filter
         private var check:int;
     
         private var primitives:Array;
-        private var pri:DrawPrimitive;
         private var turn:int;
         private var leftover:Array;
         
@@ -28,10 +27,6 @@ package away3d.core.filter
         private var maxdeltaZ:Number;
         
         private var rivals:Array;
-        private var rival:DrawPrimitive;
-        
-        private var parts:Array;
-        private var part:DrawPrimitive;
         
         private var ZOrderDeeper:int = 1;
         private var ZOrderIrrelevant:int = 0;
@@ -678,6 +673,7 @@ package away3d.core.filter
             turn = 0;
             
             var _length:int = primitives.length;
+            var pri:DrawPrimitive;
             while (_length > 0)
             {
                 leftover = [];
@@ -695,7 +691,7 @@ package away3d.core.filter
                     maxdeltaZ = 0;
                     
                     rivals = tree.get(pri);
-                    for each (rival in rivals)
+                    for each (var rival:DrawPrimitive in rivals)
                     {
                         if (rival == pri)
                             continue;
@@ -728,13 +724,13 @@ package away3d.core.filter
                     	//there is no value for screenZ, triangle is flagged for tesselation
                         if (turn % 3 == 2)
                         {
-                            parts = pri.quarter(camera.focus);
+                            var parts:Array = pri.quarter(camera.focus);
                             
                             if (parts == null)
                             	continue;
                             
                                 tree.remove(pri);
-                                for each (part in parts)
+                                for each (var part:DrawPrimitive in parts)
                                 {
                                     //part.screenZ = pri.screenZ;
                                     if (tree.primitive(part))

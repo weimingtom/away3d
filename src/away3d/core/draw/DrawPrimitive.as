@@ -108,6 +108,7 @@ package away3d.core.draw
 		 */
         public function quarter(focus:Number):Array
         {
+            focus;//TODO : FDT Warning
             return [this];
         }
 		
@@ -120,6 +121,7 @@ package away3d.core.draw
 		 */
         public function getZ(x:Number, y:Number):Number
         {
+            x;y;//TODO : FDT Warning
             return screenZ;
         }
 		

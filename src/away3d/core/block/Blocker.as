@@ -14,6 +14,7 @@ package away3d.core.block
         */
         public function block(pri:DrawPrimitive):Boolean
         {
+            pri;//TODO : FDT Warning
             return false;
         }
 
