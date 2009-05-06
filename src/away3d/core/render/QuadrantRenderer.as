@@ -27,7 +27,6 @@ package away3d.core.render
         private var _scene:Scene3D;
         private var _camera:Camera3D;
         private var _screenClipping:Clipping;
-		private var _filter:IPrimitiveQuadrantFilter;
 		
 		private function getList(node:PrimitiveQuadrantTreeNode):void
         {
@@ -190,7 +189,7 @@ package away3d.core.render
         {
 			
         	//filter primitives array
-			for each (_filter in _qdrntfilters)
+			for each (var _filter:IPrimitiveQuadrantFilter in _qdrntfilters)
         		_filter.filter(this, _scene, _camera, _screenClipping);
         	
     		// render all primitives

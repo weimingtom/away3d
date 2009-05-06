@@ -83,7 +83,7 @@ package away3d.materials
         /** @private */
         arcane function clearShapeDictionary():void
         {
-        	for each (_shape in _shapeDictionary)
+        	for each (var _shape:Shape in _shapeDictionary)
 	        	_shape.graphics.clear();
         }
         
@@ -128,7 +128,6 @@ package away3d.materials
 		private var _repeat:Boolean;
         private var _precision:Number;
         private var _shapeDictionary:Dictionary = new Dictionary(true);
-    	private var _shape:Shape;
     	private var _materialupdated:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
@@ -733,7 +732,7 @@ package away3d.materials
         {
         	notifyMaterialUpdate();
         	
-        	for each (_faceMaterialVO in _faceDictionary)
+        	for each (var _faceMaterialVO:FaceMaterialVO in _faceDictionary)
         		if (!_faceMaterialVO.cleared)
         			_faceMaterialVO.clear();
         }
@@ -745,7 +744,7 @@ package away3d.materials
         {
         	_materialDirty = true;
         	
-        	for each (_faceMaterialVO in _faceDictionary)
+        	for each (var _faceMaterialVO:FaceMaterialVO in _faceDictionary)
         		_faceMaterialVO.invalidated = true;
         }
         
@@ -759,7 +758,7 @@ package away3d.materials
         	} else {
         		_session = tri.source.session;
         		
-				_shape = _session.getShape(this, level++, layer);
+				var _shape:Shape = _session.getShape(this, level++, layer);
 				
 	    		_shape.blendMode = _blendMode;
 	    		

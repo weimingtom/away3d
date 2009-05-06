@@ -31,7 +31,6 @@ package away3d.materials
 		private var _faceWidth:int;
 		private var _faceHeight:int;
 		private var _faceVO:FaceVO;
-		private var _material:ILayerMaterial;
         
         private function onMaterialUpdate(event:MaterialEvent):void
         {
@@ -88,7 +87,7 @@ package away3d.materials
         		_fMaterialVO = _faceMaterialVO;
         		
 	    		//call renderFace on each material
-	    		for each (_material in materials)
+	    		for each (var _material:ILayerMaterial in materials)
 	        		_fMaterialVO = _material.renderBitmapLayer(tri, _bitmapRect, _fMaterialVO);
         		
         		_renderBitmap = _cacheDictionary[_faceVO] = _fMaterialVO.bitmap;
@@ -134,7 +133,7 @@ package away3d.materials
 			_height = height;
 			_bitmapRect = new Rectangle(0, 0, _width, _height);
             
-            for each (_material in materials)
+            for each (var _material:ILayerMaterial in materials)
             	_material.addOnMaterialUpdate(onMaterialUpdate);
 			
 			transparent = ini.getBoolean("transparent", true);
@@ -179,7 +178,7 @@ package away3d.materials
 		 */
         public override function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (_material in materials)
+        	for each (var _material:ILayerMaterial in materials)
         		_material.updateMaterial(source, view);
         	
         	if (_colorTransformDirty)
@@ -224,7 +223,7 @@ package away3d.materials
 			}
 			
 			//call renderFace on each material
-    		for each (_material in materials)
+    		for each (var _material:ILayerMaterial in materials)
         		_containerVO = _material.renderBitmapLayer(tri, containerRect, _containerVO);
 			
 			//check to see if face update can be skipped

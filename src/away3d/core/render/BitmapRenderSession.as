@@ -27,7 +27,6 @@ package away3d.core.render
 		private var _cy:Number;
 		private var _base:BitmapData;
 		private var layers:Array = [];
-		private var _layer:DisplayObject;
 		
 		/**
 		 * Creates a new <code>BitmapRenderSession</code> object.
@@ -187,7 +186,7 @@ package away3d.core.render
 	        super.render(view);
 	        	
         	if (updated) {
-	            for each (_layer in layers)
+	            for each (var _layer:DisplayObject in layers)
 	            	_base.draw(_layer, _cm, _layer.transform.colorTransform, _layer.blendMode, _base.rect);
 	           	
 	           _base.unlock();
