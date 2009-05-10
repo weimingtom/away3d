@@ -29,7 +29,7 @@ package away3d.core.traverse
     	private var _nodeClassification:int;
     	private var _consumer:IPrimitiveConsumer;
     	private var _mouseEnabled:Boolean;
-    	private var _mouseEnableds:Array;
+    	private var _mouseEnableds:Array = new Array();
     	private var _projectorDictionary:Dictionary = new Dictionary(true);
     	
 		private var _light:ILightProvider;
@@ -45,7 +45,7 @@ package away3d.core.traverse
 		{
 			_view = val;
 			_mouseEnabled = true;
-			_mouseEnableds = [];
+			_mouseEnableds.length = 0;
 			_cameraVarsStore = _view.cameraVarsStore;
 			
         	//setup the projector dictionary

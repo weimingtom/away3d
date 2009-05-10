@@ -26,7 +26,7 @@ package away3d.core.render
 		private var _cx:Number;
 		private var _cy:Number;
 		private var _base:BitmapData;
-		private var layers:Array = [];
+		private var layers:Array = new Array();
 		
 		/**
 		 * Creates a new <code>BitmapRenderSession</code> object.
@@ -166,7 +166,7 @@ package away3d.core.render
 	        	_base.fillRect(_base.rect, 0);
 	            
 	            //remove all layers
-	            layers = [];
+	            layers.length = 0;
 	            _layerDirty = true;
 	            layer = null;
 	        }

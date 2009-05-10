@@ -5,15 +5,14 @@ package away3d.core.utils
 	
 	import flash.geom.*;
 	
-	public class FaceVO
+	public class FaceVO extends ElementVO
 	{
-		
-        public var v0:Vertex;
+		public var v0:Vertex;
 		
         public var v1:Vertex;
 		
         public var v2:Vertex;
-		
+        
         public var uv0:UV;
 		
         public var uv1:UV;
@@ -24,15 +23,9 @@ package away3d.core.utils
 		
 		public var back:ITriangleMaterial;
 		
-		public var generated:Boolean;
-		
 		public var face:Face;
 		
 		public var bitmapRect:Rectangle;
-		
-		public var vertices:Array = [];
-		
-		public var isVectorShape:Boolean;
 		        
     	/**
     	 * Returns the maximum u value of the face

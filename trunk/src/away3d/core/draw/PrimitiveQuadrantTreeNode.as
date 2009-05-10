@@ -29,7 +29,7 @@ package away3d.core.draw
         /**
         * Array of primitives that lie in the center of the quadrant.
         */
-        public var center:Array = [];
+        public var center:Array = new Array();
         
         /**
         * The quadrant tree node for the top left quadrant.
@@ -209,7 +209,7 @@ package away3d.core.draw
             leftbottomFlag = false;
             righttopFlag = false;
             rightbottomFlag = false;
-            center = [];
+            center.length = 0;
             
             onlysourceFlag = true;
             onlysource = null;

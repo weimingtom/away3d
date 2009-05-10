@@ -19,6 +19,19 @@ package away3d.core.base
         arcane var _y:Number;
         /** @private */
         arcane var _z:Number;
+        /** @private */
+        arcane function getVertexDirty():Boolean
+        {
+        	if (_positionDirty)
+        		updatePosition();
+        	
+        	if (_vertexDirty) {
+        		_vertexDirty = false;
+        		return true;
+        	}
+        	
+        	return false;
+        }
         private var _position:Number3D = new Number3D();
         private var _positionDirty:Boolean;
         private var _vertexDirty:Boolean;
@@ -213,19 +226,6 @@ package away3d.core.base
             _z = z;
             
 			_positionDirty = true;
-        }
-        
-        public function getVertexDirty():Boolean
-        {
-        	if (_positionDirty)
-        		updatePosition();
-        	
-        	if (_vertexDirty) {
-        		_vertexDirty = false;
-        		return true;
-        	}
-        		
-        	return false;
         }
         
         /**

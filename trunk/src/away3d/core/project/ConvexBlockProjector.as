@@ -15,12 +15,16 @@ package away3d.core.project
 	public class ConvexBlockProjector implements IBlockerProvider, IPrimitiveProvider
 	{
 		private var _view:View3D;
-		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _convexBlock:ConvexBlock;
 		private var _camera:Camera3D;
 		private var _lens:ILens;
 		private var _vertices:Array;
+		private var _screenVertex:ScreenVertex;
+		private var _screenVertices:Array;
+		private var _index:int;
+		private var _screenIndexStart:int;
+		private var _screenIndexEnd:int;
         private var _points:Array;
         private var _base:ScreenVertex;
         private var _s:String;
@@ -49,7 +53,7 @@ package away3d.core.project
 		 */
         public function blockers(source:Object3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
         {
-			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+			_drawPrimitiveStore.createScreenArray(source);
 			
         	_convexBlock = source as ConvexBlock;
 			
@@ -63,17 +67,18 @@ package away3d.core.project
 			
 			_points = [];
 			_base = null;
-			_s = "";
 			_p = "";
 			
-			var _vertex:Vertex;
-			var _screenVertex:ScreenVertex;
-            for each (_vertex in _vertices)
-            {
-                _s += _vertex.toString() + "\n";
-                
-				_screenVertex = _lens.project(viewTransform, _vertex);
-				
+			_screenIndexStart = _screenVertices.length;
+            
+            if (!_lens.project(viewTransform, _vertices))
+                return;
+            
+            _screenIndexEnd = _screenVertices.length;
+            
+			_index = _screenIndexEnd;
+            while (_index-- > _screenIndexStart) {
+            	_screenVertex = _screenVertices[_index];
                 if (_base == null)
                     _base = _screenVertex;
                 else

@@ -1,6 +1,7 @@
 package away3d.cameras.lenses {
 	import away3d.cameras.*;
 	import away3d.containers.*;
+	import away3d.core.base.Vertex;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.geom.*;
@@ -34,6 +35,7 @@ package away3d.cameras.lenses {
         protected var _plane:Plane3D;
         protected var _len:Number;
         
+		protected var _vertex:Vertex;
     	protected var _screenVertex:ScreenVertex;
     	protected var _sx:Number;
     	protected var _sy:Number;

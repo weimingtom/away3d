@@ -83,39 +83,43 @@ package away3d.cameras.lenses
 		}
         
        /**
-        * Projects the vertex to the screen space of the view.
+        * Projects the vertices to the screen space of the view.
         */
-        public function project(viewTransform:Matrix3D, vertex:Vertex):ScreenVertex
+        public function project(viewTransform:Matrix3D, vertices:Array):Boolean
         {
-        	_screenVertex = _drawPrimitiveStore.createScreenVertex(vertex);
-        	
-        	if (_screenVertex.viewTimer == _camera.view.viewTimer)
-        		return _screenVertex;
-        	
-        	_screenVertex.viewTimer = _camera.view.viewTimer;
-        	
-        	_vx = vertex.x;
-        	_vy = vertex.y;
-        	_vz = vertex.z;
-        	
-            _sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
-    		
-            if (isNaN(_sz))
-                throw new Error("isNaN(sz)");
-            
-            if (_sz < _near && _clipping is RectangleClipping) {
-                _screenVertex.visible = false;
-                return _screenVertex;
-            }
-            
-         	_persp = _camera.zoom / (1 + _sz / _camera.focus);
-			
-            _screenVertex.x = (_screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)) * _persp;
-            _screenVertex.y = (_screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)) * _persp;
-            _screenVertex.z = _sz;
-            _screenVertex.visible = true;
-            
-			return _screenVertex;
+        	for each (_vertex in vertices) {
+	        	_screenVertex = _drawPrimitiveStore.createScreenVertex(_vertex);
+	        	
+	        	if (_screenVertex.viewTimer != _camera.view.viewTimer) {
+		        	_screenVertex.viewTimer = _camera.view.viewTimer;
+		        	
+		        	_vx = _vertex.x;
+		        	_vy = _vertex.y;
+		        	_vz = _vertex.z;
+		        	
+		            _sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
+		    		
+		            if (isNaN(_sz))
+		                throw new Error("isNaN(sz)");
+		            
+		            if (_sz < _near && _clipping is RectangleClipping) {
+		                _screenVertex.visible = false;
+		                return false;
+		            }
+		            
+		         	_persp = _camera.zoom / (1 + _sz / _camera.focus);
+					
+		            _screenVertex.x = (_screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)) * _persp;
+		            _screenVertex.y = (_screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)) * _persp;
+		            _screenVertex.z = _sz;
+		            _screenVertex.visible = true;
+		        }
+		        
+		        if (!_screenVertex.visible)
+		        	return false;
+         	}
+         	
+         	return true;
         }
 	}
 }

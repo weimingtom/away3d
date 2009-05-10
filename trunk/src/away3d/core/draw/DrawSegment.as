@@ -1,7 +1,8 @@
 package away3d.core.draw
 {
 	import away3d.arcane;
-    import away3d.materials.*;
+	import away3d.core.utils.*;
+	import away3d.materials.*;
 
 	use namespace arcane;
 	
@@ -13,7 +14,7 @@ package away3d.core.draw
 		/** @private */
 		arcane function onepointcut(v01:ScreenVertex):Array
 		{
-            return [create(source, material, v0, v01, true), create(source, material, v01, v1, true)];
+            return [create(source, material, [v0, v01], 0, 2, true), create(source, material, [v01, v1], 0, 2, true)];
     	}
     	
     	private var focus:Number;  
@@ -63,10 +64,21 @@ package away3d.core.draw
 		 */
         public var length:Number;
 		
+    	/**
+    	 * A reference to the face value object used by the triangle primitive.
+    	 */
+        public var elementVO:ElementVO;
+        
 		/**
 		 * The material of the segment primitive.
 		 */
         public var material:ISegmentMaterial;
+        
+        public var screenVertices:Array;
+        
+        public var screenIndexStart:int;
+        
+        public var screenIndexEnd:int;
         
 		/**
 		 * @inheritDoc
@@ -153,7 +165,7 @@ package away3d.core.draw
 			
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
 			
-            return [create(source, material, v0, v01, true), create(source, material, v01, v1, true)];
+            return [create(source, material, [v0, v01], 0, 2, true), create(source, material, [v01, v1], 0, 2, true)];
         }
 		
 		/**
@@ -161,6 +173,9 @@ package away3d.core.draw
 		 */
         public override function calc():void
         {
+        	v0 = screenVertices[screenIndexStart];
+        	v1 = screenVertices[screenIndexStart+1];
+        	
         	if (v0.z < v1.z) {
         		minZ = v0.z;
         		maxZ = v1.z + 1;

@@ -16,11 +16,14 @@ package away3d.core.render
     public class BasicRenderer implements IRenderer, IPrimitiveConsumer
     {
     	private var _filters:Array;
-        private var _primitives:Array = [];
+    	private var _filter:IPrimitiveFilter
+        private var _primitives:Array = new Array();
+        private var _primitive:DrawPrimitive
         private var _scene:Scene3D;
         private var _camera:Camera3D;
         private var _screenClipping:Clipping;
-        private var _blockers:Array = [];
+        private var _blockers:Array;
+        
 		/**
 		 * Defines the array of filters to be used on the drawing primitives.
 		 */
@@ -78,7 +81,7 @@ package away3d.core.render
         
         public function clear(view:View3D):void
         {
-        	_primitives = [];
+        	_primitives.length = 0;
         	_scene = view.scene;
         	_camera = view.camera;
         	_screenClipping = view.screenClipping;
@@ -89,11 +92,11 @@ package away3d.core.render
         {
         	
         	//filter primitives array
-			for each (var _filter:IPrimitiveFilter in _filters)
+			for each (_filter in _filters)
         		_primitives = _filter.filter(_primitives, _scene, _camera, _screenClipping);
         	
     		// render all primitives
-            for each (var _primitive:DrawPrimitive in _primitives)
+            for each (_primitive in _primitives)
                 _primitive.render();
         }
         

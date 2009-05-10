@@ -1,5 +1,6 @@
 package away3d.core.project
 {
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
@@ -12,10 +13,12 @@ package away3d.core.project
 	public class SpriteProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;
-		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _sprite:Sprite2D;
+		private var _lens:ILens;
 		private var _screenVertex:ScreenVertex;
+		private var _screenVertices:Array;
+		private var _screenIndexStart:int;
 		
 		public function get view():View3D
         {
@@ -29,14 +32,18 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-        	_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+        	_screenVertices = _drawPrimitiveStore.createScreenArray(source);
         	
 			_sprite = source as Sprite2D;
 			
-			_screenVertex = _view.camera.lens.project(viewTransform, _sprite.center);
+			_lens = _view.camera.lens;
+			
+			_screenIndexStart = _screenVertices.length;
             
-            if (!_screenVertex.visible)
+            if (!_lens.project(viewTransform, _sprite.center))
                 return;
+            
+            _screenVertex = _screenVertices[_screenIndexStart];
                    
             _screenVertex.z += _sprite.deltaZ;
             
