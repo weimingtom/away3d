@@ -237,14 +237,23 @@ package away3d.core.clip
 		 */
         public function checkPrimitive(pri:DrawPrimitive):Boolean
         {
-            pri;//TODO : FDT Warning
             return true;
         }
 		
 		public function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array):void
 		{
-			source;//TODO : FDT Warning
-			clippedFaceVOs.push(faceVO);
+			clippedFaceVOs[clippedFaceVOs.length] = faceVO;
+		}
+		
+		public function checkSegment(segmentVO:SegmentVO, source:Object3D, clippedSegmentVOs:Array):void
+		{
+			clippedSegmentVOs[clippedSegmentVOs.length] = segmentVO;
+		}
+		
+		
+		public function checkBillboard(billboard:Billboard, source:Object3D, clippedBillboards:Array):void
+		{
+			clippedBillboards[clippedBillboards.length] = billboard;
 		}
 		
 		/**

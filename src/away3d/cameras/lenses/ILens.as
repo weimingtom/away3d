@@ -21,8 +21,8 @@ package away3d.cameras.lenses
 		function getZoom():Number;
         
        /**
-        * Projects the vertex to the screen space of the view.
+        * Projects the vertices to the screen space of the view.
         */
-        function project(viewTransform:Matrix3D, vertex:Vertex):ScreenVertex;
+        function project(viewTransform:Matrix3D, vertices:Array):Boolean;
 	}
 }

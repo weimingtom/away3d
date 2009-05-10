@@ -155,7 +155,7 @@ package away3d.core.clip
         		
         		_uv20 = _uv0? _cameraVarsStore.createUV((_uv2.u*_v0w - _uv0.u*_v2w)/_d, (_uv2.v*_v0w - _uv0.v*_v2w)/_d, _session) : null;
         		
-        		checkFace(_cameraVarsStore.createFaceVO(faceVO.face, _v0, _v01, _v20, faceVO.material, faceVO.back,  _uv0, _uv01, _uv20), source, clippedFaceVOs);
+        		checkFace(_cameraVarsStore.createFaceVO(faceVO.face, [_v0, _v01, _v20], faceVO.material, faceVO.back,  _uv0, _uv01, _uv20), source, clippedFaceVOs);
         	} else {
         		_d = (_v2w - _v1w);
         		
@@ -163,8 +163,8 @@ package away3d.core.clip
         		
         		_uv12 = _uv0? _cameraVarsStore.createUV((_uv1.u*_v2w - _uv2.u*_v1w)/_d, (_uv1.v*_v2w - _uv2.v*_v1w)/_d, _session) : null;
         		
-        		var _f0:FaceVO = _cameraVarsStore.createFaceVO(faceVO.face, _v0, _v01, _v2, faceVO.material, faceVO.back, _uv0, _uv01, _uv2);
-        		var _f1:FaceVO = _cameraVarsStore.createFaceVO(faceVO.face, _v01, _v12, _v2, faceVO.material, faceVO.back, _uv01, _uv12, _uv2);
+        		var _f0:FaceVO = _cameraVarsStore.createFaceVO(faceVO.face, [_v0, _v01, _v2], faceVO.material, faceVO.back, _uv0, _uv01, _uv2);
+        		var _f1:FaceVO = _cameraVarsStore.createFaceVO(faceVO.face, [_v01, _v12, _v2], faceVO.material, faceVO.back, _uv01, _uv12, _uv2);
         		checkFace(_f0, source, clippedFaceVOs);
         		checkFace(_f1, source, clippedFaceVOs);
         	}

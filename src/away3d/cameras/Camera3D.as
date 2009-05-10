@@ -44,6 +44,7 @@ package away3d.cameras
     	private var _view:View3D;
     	private var _drawPrimitiveStore:DrawPrimitiveStore;
     	private var _cameraVarsStore:CameraVarsStore;
+    	private var _vertices:Array = new Array();
 		private var _cameraupdated:CameraEvent;
 		
         private function notifyCameraUpdate():void
@@ -278,12 +279,14 @@ package away3d.cameras
         public function screen(object:Object3D, vertex:Vertex = null):ScreenVertex
         {
             if (vertex == null)
-                vertex = object.center;
+                _vertices = object.center;
+            else
+            	_vertices[0] = vertex;
             
             _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
-            _drawPrimitiveStore.createVertexDictionary(object);
+            _drawPrimitiveStore.createScreenArray(object);
             
-            return lens.project(_cameraVarsStore.viewTransformDictionary[object], vertex);
+            return lens.project(_cameraVarsStore.viewTransformDictionary[object], _vertices)[0] as ScreenVertex;
         }
     	        
 		/**

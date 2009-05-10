@@ -60,16 +60,16 @@ package away3d.core.draw
             if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
             {
                 return [
-                    create(source, faceVO, material,  v0, v01, v12,  uv0, uv01, uv12, true),
-                    create(source, faceVO, material, v01,  v1, v12, uv01,  uv1, uv12, true),
-                    create(source, faceVO, material,  v0, v12 , v2,  uv0, uv12, uv2, true)];
+                    create(source, faceVO, material, [v0, v01, v12], 0, 3, uv0,  uv01, uv12, true),
+                    create(source, faceVO, material, [v01, v1, v12], 0, 3, uv01, uv1,  uv12, true),
+                    create(source, faceVO, material, [v0, v12 , v2], 0, 3, uv0,  uv12, uv2,  true)];
             }
             else
             {
                 return [
-                    create(source, faceVO, material,   v0, v01,  v2,  uv0, uv01, uv2, true),
-                    create(source, faceVO, material,  v01,  v1, v12, uv01,  uv1, uv12, true),
-                    create(source, faceVO, material,  v01, v12,  v2, uv01, uv12, uv2, true)];
+                    create(source, faceVO, material, [v0, v01,  v2], 0, 3, uv0,  uv01, uv2,  true),
+                    create(source, faceVO, material, [v01, v1, v12], 0, 3, uv01, uv1,  uv12, true),
+                    create(source, faceVO, material, [v01, v12, v2], 0, 3, uv01, uv12, uv2,  true)];
             }
         }
 		/** @private */
@@ -168,8 +168,8 @@ package away3d.core.draw
             var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
                 uv01:UV = UV.median(uv0, uv1);
             return [
-                create(source, faceVO, material, v2, v0, v01, uv2, uv0, uv01, true),
-                create(source, faceVO, material, v01, v1, v2, uv01, uv1, uv2, true) 
+                create(source, faceVO, material, [v2, v0, v01], 0, 3, uv2,  uv0, uv01, true),
+                create(source, faceVO, material, [v01, v1, v2], 0, 3, uv01, uv1, uv2,  true) 
             ];
         }
 
@@ -178,8 +178,8 @@ package away3d.core.draw
             var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
                 uv12:UV = UV.median(uv1, uv2);
             return [
-                create(source, faceVO, material, v0, v1, v12, uv0, uv1, uv12, true),
-                create(source, faceVO, material, v12, v2, v0, uv12, uv2, uv0, true) 
+                create(source, faceVO, material, [v0, v1, v12], 0, 3, uv0,  uv1, uv12, true),
+                create(source, faceVO, material, [v12, v2, v0], 0, 3, uv12, uv2, uv0,  true) 
             ];
         }
 
@@ -188,8 +188,8 @@ package away3d.core.draw
             var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
                 uv20:UV = UV.median(uv2, uv0);
             return [
-                create(source, faceVO, material, v1, v2, v20, uv1, uv2, uv20, true),
-                create(source, faceVO, material, v20, v0, v1, uv20, uv0, uv1, true) 
+                create(source, faceVO, material, [v1, v2, v20], 0, 3, uv1,  uv2, uv20, true),
+                create(source, faceVO, material, [v20, v0, v1], 0, 3, uv20, uv0, uv1,  true) 
             ];                                                
         }
         
@@ -229,7 +229,7 @@ package away3d.core.draw
         public var area:Number;
         
     	/**
-    	 * A reference to the face object used by the triangle primitive.
+    	 * A reference to the face value object used by the triangle primitive.
     	 */
         public var faceVO:FaceVO;
         
@@ -243,7 +243,12 @@ package away3d.core.draw
     	 */
         public var material:ITriangleMaterial;
         
-        public var screenVertices:Array = [];
+        public var screenVertices:Array;
+        
+        public var screenIndexStart:int;
+        
+        public var screenIndexEnd:int;
+        
         public var isVectorShape:Boolean;
         
 		/**
@@ -461,10 +466,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(source, faceVO, material, v0, v01, v20, uv0, uv01, uv20, true),
-                create(source, faceVO, material, v1, v12, v01, uv1, uv12, uv01, true),
-                create(source, faceVO, material, v2, v20, v12, uv2, uv20, uv12, true),
-                create(source, faceVO, material, v01, v12, v20, uv01, uv12, uv20, true)
+                create(source, faceVO, material, [v0,  v01, v20], 0, 3, uv0,  uv01, uv20, true),
+                create(source, faceVO, material, [v1,  v12, v01], 0, 3, uv1,  uv12, uv01, true),
+                create(source, faceVO, material, [v2,  v20, v12], 0, 3, uv2,  uv20, uv12, true),
+                create(source, faceVO, material, [v01, v12, v20], 0, 3, uv01, uv12, uv20, true)
             ];
         }
         
@@ -497,7 +502,11 @@ package away3d.core.draw
 		 * @inheritDoc
 		 */
         public override function calc():void
-        {
+        {   
+        	v0 = screenVertices[screenIndexStart];
+        	v1 = screenVertices[screenIndexStart+1];
+        	v2 = screenVertices[screenIndexStart+2];
+        	
         	if (v0.x > v1.x) {
                 if (v0.x > v2.x) maxX = v0.x;
                 else maxX = v2.x;

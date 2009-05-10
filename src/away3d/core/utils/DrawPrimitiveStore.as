@@ -12,17 +12,26 @@ package away3d.core.utils
 	
 	public class DrawPrimitiveStore
 	{
-		private var _sourceDictionary:Dictionary = new Dictionary(true);
-		private var _vertexDictionary:Dictionary;
+		private var _screenDictionary:Dictionary = new Dictionary(true);
+		private var _screenArray:Array;
+		private var _vertexDictionary:Dictionary = new Dictionary(true);
+		private var _vertexArray:Array;
+		private var _indexDictionary:Dictionary;
+		private var _index:int;
+		private var _length:int;
+		private var _object:Object;
+		private var _vertex:Object;
 		private var _source:Object3D;
 		private var _session:AbstractRenderSession;
 		private var _sv:ScreenVertex;
 		private var _bill:DrawBillboard;
 		private var _seg:DrawSegment;
 		private var _tri:DrawTriangle;
+		private var _array:Array = new Array();
 		private var _cblocker:ConvexBlocker;
 		private var _sbitmap:DrawScaledBitmap;
 		private var _dobject:DrawDisplayObject;
+		private var _svArray:Array;
 		private var _svStore:Array = [];
 		private var _dtDictionary:Dictionary = new Dictionary(true);
 		private var _dtArray:Array;
@@ -45,89 +54,108 @@ package away3d.core.utils
         
 		public var view:View3D;
 		
-		public var blockerDictionary:Dictionary;
+		public var blockerDictionary:Dictionary = new Dictionary(true);
 		
 		public function reset():void
 		{
-			var _object:Object;
-			for (_object in _sourceDictionary) {
+			for (_object in _vertexDictionary) {
 				_source = _object as Object3D;
 				if (_source.session && _source.session.updated) {
-					for (var _vertex:Object in _sourceDictionary[_source]) {
-						_sv = _sourceDictionary[_source][_vertex];
-						_svStore.push(_sv);
-						delete _sourceDictionary[_source][_vertex];
-					}
+					_svArray = _vertexDictionary[_source] as Array
+					_svStore = _svStore.concat(_svArray);
+					_svArray.length = 0;
+					(_screenDictionary[_source] as Array).length = 0;
 				}
 			}
 			
 			for (_object in _dtDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_dtStore = _dtStore.concat(_dtDictionary[_session] as Array);
-					delete _dtDictionary[_session];
+					_dtArray = _dtDictionary[_session] as Array;
+					_dtStore = _dtStore.concat(_dtArray);
+					_dtArray.length = 0;
 				}
 			}
 			
 			for (_object in _dsDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_dsStore = _dsStore.concat(_dsDictionary[_session] as Array);
-					delete _dsDictionary[_session];
+					_dsArray = _dsDictionary[_session] as Array
+					_dsStore = _dsStore.concat(_dsArray);
+					_dsArray.length = 0;
 				}
 			}
 			
 			for (_object in _dbDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_dbStore = _dbStore.concat(_dbDictionary[_session] as Array);
-					delete _dbDictionary[_session];
+					_dbArray = _dbDictionary[_session] as Array;
+					_dbStore = _dbStore.concat(_dbArray);
+					_dbArray.length = 0;
 				}
 			}
 			
 			for (_object in _cbDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_cbStore = _cbStore.concat(_cbDictionary[_session] as Array);
-					delete _cbDictionary[_session];
+					_cbArray = _cbDictionary[_session] as Array;
+					_cbStore = _cbStore.concat(_cbArray);
+					_cbArray.length = 0;
 				}
 			}
 			
 			for (_object in _sbDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_sbStore = _sbStore.concat(_sbDictionary[_session] as Array);
-					delete _sbDictionary[_session];
+					_sbArray = _sbDictionary[_session] as Array;
+					_sbStore = _sbStore.concat(_sbArray);
+					_sbArray.length = 0;
 				}
 			}
 			
 			for (_object in _doDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_doStore = _doStore.concat(_doDictionary[_session] as Array);
-					delete _doDictionary[_session];
+					_doArray = _doDictionary[_session] as Array;
+					_doStore = _doStore.concat(_doArray);
+					_doArray.length = 0;
 				}
 			}
 		}
 		
-		public function createVertexDictionary(source:Object3D):Dictionary
+		public function createScreenArray(source:Object3D):Array
 		{
-	        if (!(_vertexDictionary = _sourceDictionary[source]))
-				_vertexDictionary = _sourceDictionary[source] = new Dictionary(true);
+	        if (!(_screenArray = _screenDictionary[source]))
+				_screenArray = _screenDictionary[source] = [];
 			
-			return _vertexDictionary;
+			if (!(_vertexArray = _vertexDictionary[source]))
+				_vertexArray = _vertexDictionary[source] = [];
+			
+			_length = 0;
+			
+			_indexDictionary = new Dictionary(true);
+			
+			return _screenArray;
+		}
+		
+		public function getScreenArray():Array
+		{
+			return _screenArray;
 		}
 		
 		public function createScreenVertex(vertex:Vertex):ScreenVertex
 		{
-			if ((_sv = _vertexDictionary[vertex]))
-        		return _sv;
+			if (!_indexDictionary[vertex]) {
+				_index = _indexDictionary[vertex] = _length++;
+				
+				if (_svStore.length)
+		        	_sv = _screenArray[_index] = _vertexArray[_vertexArray.length] = _svStore.pop();
+		        else
+		        	_sv = _screenArray[_index] = _vertexArray[_vertexArray.length] = new ScreenVertex();
+			} else {
+				_sv = _screenArray[_length++] = _screenArray[_indexDictionary[vertex]];
+			}
         	
-			if (_svStore.length)
-	        	_sv = _vertexDictionary[vertex] = _svStore.pop();
-	        else
-	        	_sv = _vertexDictionary[vertex] = new ScreenVertex();
-			
 			_sv.vectorInstructionType = vertex.vectorInstructionType;
 			
 	        return _sv;
@@ -158,37 +186,39 @@ package away3d.core.utils
 	        return _bill;
 	    }
 	    
-	    public function createDrawSegment(source:Object3D, material:ISegmentMaterial, v0:ScreenVertex, v1:ScreenVertex, generated:Boolean = false):DrawSegment
+	    public function createDrawSegment(source:Object3D, elementVO:ElementVO, material:ISegmentMaterial, screenVertices:Array, screenIndexStart:int, screenIndexEnd:int, generated:Boolean = false):DrawSegment
 	    {
 	    	if (!(_dsArray = _dsDictionary[source.session]))
 				_dsArray = _dsDictionary[source.session] = [];
 			
 	        if (_dsStore.length) {
-	        	_dsArray.push(_seg = _dsStore.pop());
+	        	_dsArray[_dsArray.length] = _seg = _dsStore.pop();
 	    	} else {
-	        	_dsArray.push(_seg = new DrawSegment());
+	        	_dsArray[_dsArray.length] = _seg = new DrawSegment();
 	            _seg.view = view;
 	            _seg.create = createDrawSegment;
 	        }
 	        _seg.generated = generated;
 	        _seg.source = source;
+	        _seg.elementVO = elementVO;
 	        _seg.material = material;
-	        _seg.v0 = v0;
-	        _seg.v1 = v1;
+	        _seg.screenVertices = screenVertices;
+	        _seg.screenIndexStart = screenIndexStart;
+	        _seg.screenIndexEnd = screenIndexEnd;
 	        _seg.calc();
 	        
 	        return _seg;
 	    }
 	    
-		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false, extraScreenVertices:Array = null):DrawTriangle
+		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, screenVertices:Array, screenIndexStart:int, screenIndexEnd:int, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
 		{
 			if (!(_dtArray = _dtDictionary[source.session]))
 				_dtArray = _dtDictionary[source.session] = [];
 			
 			if (_dtStore.length) {
-	        	_dtArray.push(_tri = _dtStore.pop());
+	        	_dtArray[_dtArray.length] = _tri = _dtStore.pop();
 	   		} else {
-	        	_dtArray.push(_tri = new DrawTriangle());
+	        	_dtArray[_dtArray.length] = _tri = new DrawTriangle();
 		        _tri.view = view;
 		        _tri.create = createDrawTriangle;
 	        }
@@ -197,15 +227,9 @@ package away3d.core.utils
 	        _tri.source = source;
 	        _tri.faceVO = faceVO;
 	        _tri.material = material;
-	        _tri.screenVertices = [];
-	        _tri.v0 = _tri.screenVertices[0] = v0;
-	        _tri.v1 = _tri.screenVertices[1] = v1;
-	        _tri.v2 = _tri.screenVertices[2] = v2;
-	        _tri.isVectorShape = faceVO.isVectorShape;
-	        if(_tri.isVectorShape)
-	        	for(var i:uint; i<extraScreenVertices.length; i++)
-	        		_tri.screenVertices[i + 3] = extraScreenVertices[i];
-	        
+	        _tri.screenVertices = screenVertices;
+	        _tri.screenIndexStart = screenIndexStart;
+	        _tri.screenIndexEnd = screenIndexEnd;
 	        _tri.uv0 = uv0;
 	        _tri.uv1 = uv1;
 	        _tri.uv2 = uv2;
@@ -220,9 +244,9 @@ package away3d.core.utils
 				_cbArray = _cbDictionary[source.session] = [];
 			
 			if (_cbStore.length) {
-	        	_cbArray.push(_cblocker = blockerDictionary[source] = _cbStore.pop());
+	        	_cbArray[_cbArray.length] = _cblocker = blockerDictionary[source] = _cbStore.pop();
 	   		} else {
-	        	_cbArray.push(_cblocker = blockerDictionary[source] = new ConvexBlocker());
+	        	_cbArray[_cbArray.length] = _cblocker = blockerDictionary[source] = new ConvexBlocker();
 		        _cblocker.view = view;
 		        _cblocker.create = createConvexBlocker;
 	        }
@@ -240,9 +264,9 @@ package away3d.core.utils
 				_sbArray = _sbDictionary[source.session] = [];
 			
 	        if (_sbStore.length) {
-	        	_sbArray.push(_sbitmap = _sbStore.pop());
+	        	_sbArray[_sbArray.length] = _sbitmap = _sbStore.pop();
 	    	} else {
-	        	_sbArray.push(_sbitmap = new DrawScaledBitmap());
+	        	_sbArray[_sbArray.length] = _sbitmap = new DrawScaledBitmap();
 	            _sbitmap.view = view;
 	            _sbitmap.create = createDrawSegment;
 	        }
@@ -264,9 +288,9 @@ package away3d.core.utils
 				_doArray = _doDictionary[source.session] = [];
 			
 			if (_doStore.length) {
-	        	_doArray.push(_dobject = _doStore.pop());
+	        	_doArray[_doArray.length] = _dobject = _doStore.pop();
 	    	} else {
-	        	_doArray.push(_dobject = new DrawDisplayObject());
+	        	_doArray[_doArray.length] = _dobject = new DrawDisplayObject();
 	            _dobject.view = view;
 	            _dobject.create = createDrawSegment;
 	        }

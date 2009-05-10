@@ -5,8 +5,6 @@ package away3d.core.base
     import away3d.events.*;
     import away3d.materials.*;
     
-    import flash.events.Event;
-    
     use namespace arcane;
     
 	 /**
@@ -27,35 +25,20 @@ package away3d.core.base
         arcane var _vertex:Vertex;
 		/** @private */
         arcane var _material:IBillboardMaterial;
-		/** @private */
-        arcane function notifyMaterialChange():void
-        {
-            if (!hasEventListener(BillboardEvent.MATERIAL_CHANGED))
-                return;
-
-            if (_materialchanged == null)
-                _materialchanged = new BillboardEvent(BillboardEvent.MATERIAL_CHANGED, this);
-                
-            dispatchEvent(_materialchanged);
-        }
         
-        private var _materialchanged:BillboardEvent;
 		private var _width:Number;
 		private var _height:Number;
 		private var _scaling:Number = 1;
 		private var _rotation:Number = 0;
-		
-        private function onVertexValueChange(event:Event):void
-        {
-            notifyVertexValueChange();
-        }
+		private var _index:int;
+		private var _vertices:Array = new Array();
 		
 		/**
 		 * Returns an array of vertex objects that are used by the segment.
 		 */
         public override function get vertices():Array
         {
-            return [_vertex];
+            return _vertices;
         }
 		
 		/**
@@ -70,16 +53,19 @@ package away3d.core.base
         {
             if (value == _vertex)
                 return;
+			
+			if (_vertex) {
+	  			_index = _vertex.parents.indexOf(this);
+	  				if(_index != -1)
+	  					_vertex.parents.splice(_index, 1);
+	  		}
 
-            if (_vertex != null)
-               _vertex.removeOnChange(onVertexValueChange);
-
-            _vertex = value;
-
-            if (_vertex != null)
-                _vertex.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+            _vertices[0] = _vertex = value;
+			
+			if (_vertex)
+				_vertex.parents.push(this);
+  			
+  			vertexDirty = true;
         }
         
     	/**
@@ -170,10 +156,14 @@ package away3d.core.base
         {
             if (_material == value)
                 return;
-
+			
+			if (_material != null && parent)
+				parent.removeMaterial(this, _material);
+			
             _material = value;
 			
-            notifyMaterialChange();
+			if (_material != null && parent)
+				parent.addMaterial(this, _material);
         }
         
 		/**
@@ -191,7 +181,7 @@ package away3d.core.base
 
             _width = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -209,7 +199,7 @@ package away3d.core.base
 			
             _height = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -227,7 +217,7 @@ package away3d.core.base
 			
             _scaling = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -245,7 +235,7 @@ package away3d.core.base
 			
             _rotation = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -330,26 +320,6 @@ package away3d.core.base
             this.height = height;
             
             vertexDirty = true;
-        }
-		
-		/**
-		 * Default method for adding a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function addOnMaterialChange(listener:Function):void
-        {
-            addEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false, 0, true);
-        }
-		
-		/**
-		 * Default method for removing a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function removeOnMaterialChange(listener:Function):void
-        {
-            removeEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false);
         }
     }
 }

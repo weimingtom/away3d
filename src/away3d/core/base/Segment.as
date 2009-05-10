@@ -30,34 +30,65 @@ package away3d.core.base
         arcane var _v1:Vertex;
 		/** @private */
         arcane var _material:ISegmentMaterial;
-		/** @private */
-        //arcane var _ds:DrawSegment = new DrawSegment();
-		/** @private */
-        arcane function notifyMaterialChange():void
-        {
-            if (!hasEventListener(SegmentEvent.MATERIAL_CHANGED))
-                return;
-
-            if (_materialchanged == null)
-                _materialchanged = new SegmentEvent(SegmentEvent.MATERIAL_CHANGED, this);
-                
-            dispatchEvent(_materialchanged);
-        }
         
-        private var _materialchanged:SegmentEvent;
-		
-		//TODO: simplify vertex changed events
-		/*
-        private function onVertexChange(event:Event):void
-        {
-            notifyVertexChange();
-        }
-		*/
+        private var _index:int;
+        private var _vertices:Array = new Array();
 		
         private function onVertexValueChange(event:Event):void
         {
             notifyVertexValueChange();
         }
+		
+  		private function addVertexAt(index:uint, vertex:Vertex):void
+  		{
+  			if(_vertices[index] && _vertices[index] == vertex)
+  				return;
+  			
+  			if (_vertices[index]) {
+	  			_index = _vertices[index].parents.indexOf(this);
+	  				if(_index != -1)
+	  					_vertices[index].parents.splice(_index, 1);
+	  		}
+  					
+  			_vertices[index] = segmentVO.vertices[index] = vertex;
+  			
+  			if(index == 0)
+  				_v0 = segmentVO.v0 = vertex;
+  			else if(index == 1)
+  				_v1 = segmentVO.v1 = vertex;
+  			
+  			vertex.parents.push(this);
+  			
+  			vertexDirty = true;
+  			
+  			if(_vertices.length > 3 || vertex.vectorInstructionType == VectorInstructionType.CURVE)
+  				segmentVO.isVectorShape = true;
+  		}
+  		
+  		public function moveTo(vertex:Vertex):void
+  		{
+  			vertex.vectorInstructionType = VectorInstructionType.MOVE;
+  			addVertexAt(_vertices.length, vertex);
+  		}
+  		
+  		public function lineTo(vertex:Vertex):void
+  		{
+  			vertex.vectorInstructionType = VectorInstructionType.LINE;
+  			addVertexAt(_vertices.length, vertex);
+  		}
+  		
+  		public function curveTo(controlVertex:Vertex, endVertex:Vertex):void
+  		{
+  			controlVertex.vectorInstructionType = VectorInstructionType.CURVE;
+  			addVertexAt(_vertices.length, controlVertex);
+  			
+  			endVertex.vectorInstructionType = VectorInstructionType.CURVE;
+  			addVertexAt(_vertices.length, endVertex);
+  		}
+  		
+		public var segmentVO:SegmentVO = new SegmentVO();
+		
+		public var isVectorShape:Boolean
 		
 		/**
 		 * Returns an array of vertex objects that are used by the segment.
@@ -77,20 +108,7 @@ package away3d.core.base
 
         public function set v0(value:Vertex):void
         {
-            if (value == _v0)
-                return;
-
-            if (_v0 != null)
-                if (_v0 != _v1)
-                    _v0.removeOnChange(onVertexValueChange);
-
-            _v0 = value;
-
-            if (_v0 != null)
-                if (_v0 != _v1)
-                    _v0.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+            addVertexAt(0, value);
         }
 		
 		/**
@@ -103,20 +121,7 @@ package away3d.core.base
 
         public function set v1(value:Vertex):void
         {
-            if (value == _v1)
-                return;
-
-            if (_v1 != null)
-                if (_v1 != _v0)
-                    _v1.removeOnChange(onVertexValueChange);
-
-            _v1 = value;
-
-            if (_v1 != null)
-                if (_v1 != _v0)
-                    _v1.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+            addVertexAt(1, value);
         }
 		
 		/**
@@ -131,10 +136,14 @@ package away3d.core.base
         {
             if (value == _material)
                 return;
-
-            _material = value;
-
-            notifyMaterialChange();
+            
+			if (_material != null && parent)
+				parent.removeMaterial(this, _material);
+			
+            _material = segmentVO.material = value;
+			
+			if (_material != null && parent)
+				parent.addMaterial(this, _material);
         }
 		
 		/**
@@ -242,27 +251,9 @@ package away3d.core.base
             this.v1 = v1;
             this.material = material;
             
+            segmentVO.segment = this;
+            
             vertexDirty = true;
-        }
-		
-		/**
-		 * Default method for adding a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function addOnMaterialChange(listener:Function):void
-        {
-            addEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false, 0, true);
-        }
-		
-		/**
-		 * Default method for removing a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function removeOnMaterialChange(listener:Function):void
-        {
-            removeEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false);
         }
     }
 }

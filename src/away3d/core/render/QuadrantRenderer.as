@@ -14,7 +14,7 @@ package away3d.core.render
         private var _qdrntfilters:Array;
         private var _root:PrimitiveQuadrantTreeNode;
 		private var _center:Array;
-		private var _result:Array;
+		private var _result:Array = new Array();
 		private var _except:Object3D;
 		private var _minX:Number;
 		private var _minY:Number;
@@ -23,7 +23,7 @@ package away3d.core.render
 		private var _child:DrawPrimitive;
 		private var _children:Array;
 		private var i:int;
-		private var _primitives:Array;
+		private var _primitives:Array = new Array();
         private var _scene:Scene3D;
         private var _camera:Camera3D;
         private var _screenClipping:Clipping;
@@ -139,7 +139,7 @@ package away3d.core.render
 		 */
         public function get(pri:DrawPrimitive, ex:Object3D = null):Array
         {
-        	_result = [];
+        	_result.length = 0;
                     
 			_minX = pri.minX;
 			_minY = pri.minY;
@@ -159,7 +159,7 @@ package away3d.core.render
 		 */
         public function list():Array
         {
-            _result = [];
+            _result.length = 0;
                     
 			_minX = -1000000;
 			_minY = -1000000;
@@ -174,7 +174,7 @@ package away3d.core.render
         
         public function clear(view:View3D):void
         {
-        	_primitives = [];
+        	_primitives.length = 0;
 			_scene = view.scene;
 			_camera = view.camera;
 			_screenClipping = view.screenClipping;

@@ -14,13 +14,17 @@ package away3d.core.project
 	public class DirSpriteProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;
-		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _dirsprite:DirSprite2D;
 		private var _vertices:Array;
 		private var _bitmaps:Dictionary;
 		private var _lens:ILens;
+		private var _vertex:Vertex;
 		private var _screenVertex:ScreenVertex;
+		private var _screenVertices:Array;
+		private var _index:int;
+		private var _screenIndexStart:int;
+		private var _screenIndexEnd:int;
 		private var _persp:Number;
         
         public function get view():View3D
@@ -35,7 +39,7 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+			_screenVertices = _drawPrimitiveStore.createScreenArray(source);
 			
 			_dirsprite = source as DirSprite2D;
 			
@@ -50,10 +54,16 @@ package away3d.core.project
             var minz:Number = Infinity;
             var bitmap:BitmapData = null;
             
-            for each (var _vertex:Vertex in _vertices) {
-            	
-                _screenVertex = _lens.project(viewTransform, _vertex);
-                var z:Number = _screenVertex.z;
+			_screenIndexStart = _screenVertices.length;
+            
+            if (!_lens.project(viewTransform, _vertices))
+                return;
+            
+            _screenIndexEnd = _screenVertices.length;
+            
+            _index = _screenIndexEnd;
+            while (_index-- > _screenIndexStart) {
+                var z:Number = (_screenVertices[_index] as ScreenVertex).z;
                 
                 if (z < minz) {
                     minz = z;
@@ -64,10 +74,12 @@ package away3d.core.project
             if (bitmap == null)
                 return;
             
-            _screenVertex = _lens.project(viewTransform, _dirsprite.center);
+            _screenIndexStart = _screenVertices.length;
             
-            if (!_screenVertex.visible)
+            if (!_lens.project(viewTransform, _dirsprite.center))
                 return;
+            
+            _screenVertex = _screenVertices[_screenIndexStart];
                 
             _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
             _screenVertex.z += _dirsprite.deltaZ;
