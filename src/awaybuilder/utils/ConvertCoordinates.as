@@ -337,6 +337,7 @@ package awaybuilder.utils
 			switch ( coordinateSystem )
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.CINEMA4D :
 				{
 					return n * -1 ;
 				}
