@@ -62,7 +62,7 @@ package away3d.core.render
                     if ((_except == null || _child.source != _except) && _child.maxX > _minX && _child.minX < _maxX && _child.maxY > _minY && _child.minY < _maxY)
                         result.push(_child);
                 }
-            }           
+            }
         }
         
         private function getParent(node:PrimitiveQuadrantTreeNode, result:Array):void
