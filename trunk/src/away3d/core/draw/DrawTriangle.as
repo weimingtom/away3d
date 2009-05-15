@@ -157,6 +157,7 @@ package away3d.core.draw
         private var uv12:UV;
         private var uv20:UV;
         private var _invtexmapping:Matrix = new Matrix();
+        private var _index:int;
         
         private function num(n:Number):Number
         {
@@ -555,7 +556,18 @@ package away3d.core.draw
                 else minZ = v2.z;
             }
             
-            screenZ = (v0.z + v1.z + v2.z) / 3;
+            if (screenIndexEnd - screenIndexStart > 3) {
+            	screenZ = 0
+            	_index = screenIndexEnd;
+            	
+            	while (_index--)
+            		screenZ += (screenVertices[_index] as ScreenVertex).z;
+            	
+            	screenZ /= (screenIndexEnd - screenIndexStart);
+            	
+            } else {
+            	screenZ = (v0.z + v1.z + v2.z) / 3;
+            }
             area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
             
             if (area > 0)
