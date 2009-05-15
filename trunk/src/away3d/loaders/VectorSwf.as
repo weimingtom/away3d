@@ -6,6 +6,7 @@ package away3d.loaders
 	import away3d.core.base.Mesh;
 	import away3d.core.base.VectorInstructionType;
 	import away3d.core.base.Vertex;
+	import away3d.core.utils.Init;
 	import away3d.loaders.utils.MaterialLibrary;
 	import away3d.materials.WireColorMaterial;
 	
@@ -28,8 +29,13 @@ package away3d.loaders
 		// Private variables.
 		//--------------------------------------------------------------------------------
 		
+		/** @private */
+    	arcane var ini:Init;
+		
 		private var _loader:Loader;
 		private var _materialLibrary:MaterialLibrary;
+		private var _scaling:Number;
+		private var _zOffset:Number;
 		
 		//--------------------------------------------------------------------------------
 		// Constructor and init.
@@ -37,6 +43,11 @@ package away3d.loaders
 		
 		public function VectorSwf(data:*, init:Object = null)
 		{
+			ini = Init.parse(init);
+			
+			_scaling = ini.getNumber("scaling", 1);
+			_zOffset = ini.getNumber("zOffset", 0);
+			
 			container = new ObjectContainer3D();
 			container.name = "vector";
 			
@@ -62,12 +73,12 @@ package away3d.loaders
 				if(child is MovieClip)
 				{
 					clip = child as MovieClip;
-					createMeshFromVectorClip(clip, 1, i*500); // To do: grab scaling and zOffset values from init.
+					createMeshFromVectorClip(clip, _scaling, i*_zOffset);
 				}
 			}
 		}
 		
-		private function createMeshFromVectorClip(clip:MovieClip, scaling:Number = 1, zOffset:Number = 25):void
+		private function createMeshFromVectorClip(clip:MovieClip, scaling:Number, zOffset:Number):void
 		{
 			var vectorData:Object = clip.vectorData;
 			
@@ -145,14 +156,5 @@ package away3d.loaders
         {
 			return Object3DLoader.loadGeometry(url, VectorSwf, true, init);
         }
-		
-		//--------------------------------------------------------------------------------
-		// AbstractParser overrides.
-		//--------------------------------------------------------------------------------
-
-        /* public override function parseNext():void
-        {
-        	
-        } */
 	}
 }
