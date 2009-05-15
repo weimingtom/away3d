@@ -560,7 +560,7 @@ package away3d.core.draw
             	screenZ = 0
             	_index = screenIndexEnd;
             	
-            	while (_index--)
+            	while (_index-- > screenIndexStart)
             		screenZ += (screenVertices[_index] as ScreenVertex).z;
             	
             	screenZ /= (screenIndexEnd - screenIndexStart);
