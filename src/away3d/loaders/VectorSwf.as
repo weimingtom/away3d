@@ -49,13 +49,12 @@ package away3d.loaders
 			_zOffset = ini.getNumber("zOffset", 0);
 			
 			container = new ObjectContainer3D();
-			container.name = "vector";
 			
 			_materialLibrary = container.materialLibrary = new MaterialLibrary();
 			
 			_loader = new Loader();
 			_loader.loadBytes(data as ByteArray, new LoaderContext(false, ApplicationDomain.currentDomain));
-			setTimeout(parseVectorData, 1000);
+			setTimeout(parseVectorData, 500);
 		}
 		
         //--------------------------------------------------------------------------------
@@ -73,74 +72,81 @@ package away3d.loaders
 				if(child is MovieClip)
 				{
 					clip = child as MovieClip;
-					createMeshFromVectorClip(clip, _scaling, i*_zOffset);
+					var clipContainer:ObjectContainer3D = createContainerFromVectorClip(clip, _scaling, i*_zOffset);
+					ObjectContainer3D(container).addChild(clipContainer);
 				}
 			}
 		}
 		
-		private function createMeshFromVectorClip(clip:MovieClip, scaling:Number, zOffset:Number):void
+		private function createContainerFromVectorClip(clip:MovieClip, scaling:Number, zOffset:Number):ObjectContainer3D
 		{
 			var vectorData:Object = clip.vectorData;
 			
 			if(!vectorData)
-				return;
+				return null;
 			
-			var mesh:Mesh = new Mesh();
-			mesh.name = clip.name;
-			mesh.x = clip.x*scaling;
-			mesh.y = -clip.y*scaling;
-			mesh.bothsides = true;
-			ObjectContainer3D(container).addChild(mesh);
+			var clipContainer:ObjectContainer3D = new ObjectContainer3D();
+			clipContainer.name = clip.name;
+			clipContainer.x = clip.x*scaling;
+			clipContainer.y = -clip.y*scaling;
 			
-			var s:uint;
-			var i:uint;
-			for(s = 0; s<vectorData.length; s++)
+			for(var i:uint; i<vectorData.length; i++)
 			{
-				var face:Face = new Face();
+				var mesh:Mesh = createShapeMesh(vectorData[i].shapeData, vectorData[i].fillData, scaling, zOffset);
+				clipContainer.addChild(mesh);
+			}
+			
+			return clipContainer;
+		}
+		
+		private function createShapeMesh(shapeData:Array, fillData:Object, scaling:Number, zOffset:Number):Mesh
+		{
+			var mesh:Mesh = new Mesh();
+			mesh.bothsides = true;
+			mesh.name = "vectorMesh";
+			
+			var face:Face = new Face();
+			
+			for(var i:uint; i<shapeData.length; i++)
+			{
+				var instructionData:Array = shapeData[i];
+				var instructionType:String = instructionData[0];
 				
-				var shapeData:Array = vectorData[s].shapeData;
-				var fillData:Object = vectorData[s].fillData;
-				var strokeData:Object = vectorData[s].strokeData;
+				//trace(instructionType);
 				
-				if(shapeData.length == 0)
-					continue;
-				
-				for(i = 0; i<shapeData.length; i++)
+				switch(instructionType)
 				{
-					var instructionData:Array = shapeData[i];
-					var instructionType:String = instructionData[0];
-					
-					switch(instructionType)
+					case VectorInstructionType.MOVE:
 					{
-						case VectorInstructionType.MOVE:
-						{
-							face.moveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset));
-							break;
-						}
-						case VectorInstructionType.LINE:
-						{
-							face.lineTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset));
-							break;	
-						}
-						case VectorInstructionType.CURVE:
-						{
-							face.curveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset), new Vertex(instructionData[3]*scaling, -instructionData[4]*scaling, zOffset));
-							break;
-						}
+						face.moveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset));
+						break;
+					}
+					case VectorInstructionType.LINE:
+					{
+						face.lineTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset));
+						break;	
+					}
+					case VectorInstructionType.CURVE:
+					{
+						face.curveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset), new Vertex(instructionData[3]*scaling, -instructionData[4]*scaling, zOffset));
+						break;
 					}
 				}
-				
-				// TODO: Extend material recognition here, in each material and in the injector component.
-				var material:WireColorMaterial = new WireColorMaterial();
-				material.color = fillData.color;
-				material.alpha = fillData.alpha;
-				material.wirecolor = strokeData.color
-				material.wirealpha = strokeData.alpha;
-				material.width = strokeData.thickness;
-				mesh.material = material;
-				
-				mesh.geometry.addFace(face);
 			}
+			
+			// TODO: Extend material recognition here, in each material and in the injector component.
+			var material:WireColorMaterial = new WireColorMaterial();
+			material.color = fillData.color;
+			material.alpha = fillData.alpha;
+			
+			// No support for strokes yet.
+			material.wirealpha = 0;
+			
+			mesh.material = material;
+			
+			mesh.geometry.addFace(face);
+			
+			return mesh;
 		}
 		
 		//--------------------------------------------------------------------------------
