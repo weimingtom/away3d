@@ -72,38 +72,40 @@ package away3d.loaders
 				if(child is MovieClip)
 				{
 					clip = child as MovieClip;
-					var clipContainer:ObjectContainer3D = createContainerFromVectorClip(clip, _scaling, i*_zOffset);
-					ObjectContainer3D(container).addChild(clipContainer);
+					//var clipContainer:ObjectContainer3D = createContainerFromVectorClip(clip, _scaling, i*_zOffset);
+					ObjectContainer3D(container).addChild(createContainerFromVectorClip(clip, _scaling, i*_zOffset));
 				}
 			}
 		}
 		
-		private function createContainerFromVectorClip(clip:MovieClip, scaling:Number, zOffset:Number):ObjectContainer3D
+		private function createContainerFromVectorClip(clip:MovieClip, scaling:Number, zOffset:Number):Mesh
 		{
 			var vectorData:Object = clip.vectorData;
 			
 			if(!vectorData)
 				return null;
-			
+			/*
 			var clipContainer:ObjectContainer3D = new ObjectContainer3D();
 			clipContainer.name = clip.name;
 			clipContainer.x = clip.x*scaling;
 			clipContainer.y = -clip.y*scaling;
-			
-			for(var i:uint; i<vectorData.length; i++)
-			{
-				var mesh:Mesh = createShapeMesh(vectorData[i].shapeData, vectorData[i].fillData, scaling, zOffset);
-				clipContainer.addChild(mesh);
-			}
-			
-			return clipContainer;
-		}
-		
-		private function createShapeMesh(shapeData:Array, fillData:Object, scaling:Number, zOffset:Number):Mesh
-		{
+			*/
 			var mesh:Mesh = new Mesh();
 			mesh.bothsides = true;
-			mesh.name = "vectorMesh";
+			mesh.name = clip.name;
+			mesh.x = clip.x*scaling;
+			mesh.y = -clip.y*scaling;
+			mesh.z = zOffset;
+			for(var i:uint; i<vectorData.length; i++)
+				mesh.addFace(createShape(vectorData[i].shapeData, vectorData[i].fillData, scaling));
+			
+			//clipContainer.addChild(mesh);
+			
+			return mesh;
+		}
+		
+		private function createShape(shapeData:Array, fillData:Object, scaling:Number):Face
+		{
 			
 			var face:Face = new Face();
 			
@@ -118,17 +120,17 @@ package away3d.loaders
 				{
 					case VectorInstructionType.MOVE:
 					{
-						face.moveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset));
+						face.moveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, 0));
 						break;
 					}
 					case VectorInstructionType.LINE:
 					{
-						face.lineTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset));
+						face.lineTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, 0));
 						break;	
 					}
 					case VectorInstructionType.CURVE:
 					{
-						face.curveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, zOffset), new Vertex(instructionData[3]*scaling, -instructionData[4]*scaling, zOffset));
+						face.curveTo(new Vertex(instructionData[1]*scaling, -instructionData[2]*scaling, 0), new Vertex(instructionData[3]*scaling, -instructionData[4]*scaling, 0));
 						break;
 					}
 				}
@@ -142,11 +144,9 @@ package away3d.loaders
 			// No support for strokes yet.
 			material.wirealpha = 0;
 			
-			mesh.material = material;
+			face.material = material;
 			
-			mesh.geometry.addFace(face);
-			
-			return mesh;
+			return face;
 		}
 		
 		//--------------------------------------------------------------------------------
