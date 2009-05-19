@@ -289,9 +289,9 @@ package away3d.cameras
             
             _screenVertices = _drawPrimitiveStore.createScreenArray(object);
             
-            _screenIndexStart = _screenVertices.length;
+            _screenIndexStart = 0;
             
-            if (!lens.project(_cameraVarsStore.viewTransformDictionary[object], _vertices));
+            if (!lens.project(_cameraVarsStore.viewTransformDictionary[object], _vertices))
             	return null;
             
             return _screenVertices[_screenIndexStart];
