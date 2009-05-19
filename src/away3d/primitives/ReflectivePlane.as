@@ -482,10 +482,10 @@ package away3d.primitives
 			_v2 = new Vertex(this.maxX, this.maxY, this.maxZ);
 			_v3 = new Vertex(this.minX, this.minY, this.maxZ);
 			
-			_sv0 = _view.camera.screen(this, _v0);
-			_sv1 = _view.camera.screen(this, _v1);
-			_sv2 = _view.camera.screen(this, _v2);
-			_sv3 = _view.camera.screen(this, _v3);
+			_sv0 = _view.camera.screen(this, _v0) || new ScreenVertex();
+			_sv1 = _view.camera.screen(this, _v1) || new ScreenVertex();
+			_sv2 = _view.camera.screen(this, _v2) || new ScreenVertex();
+			_sv3 = _view.camera.screen(this, _v3) || new ScreenVertex();
 			
 			var xS:Array = [{x:_sv0.x}, {x:_sv1.x}, {x:_sv2.x}, {x:_sv3.x}];
 			var yS:Array = [{y:_sv0.y}, {y:_sv1.y}, {y:_sv2.y}, {y:_sv3.y}];
