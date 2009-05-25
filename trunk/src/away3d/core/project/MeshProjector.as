@@ -241,7 +241,7 @@ package away3d.core.project
                 if (_mesh.pushfront)
                     _seg.screenZ = _seg.minZ;
                 
-				_tri.screenZ += _mesh.screenZOffset;
+				_seg.screenZ += _mesh.screenZOffset;
             }
             
             _clippedBillboards.length = 0;
