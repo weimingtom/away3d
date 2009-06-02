@@ -15,6 +15,7 @@ package away3d.containers
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	import away3d.materials.*;
+	import away3d.overlays.IOverlay;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -338,6 +339,11 @@ package away3d.containers
         public var background:Sprite = new Sprite();
         
         /**
+        * An overlay sprite positioned on top of the rendered scene.
+        */
+        public var overlay:Sprite = new Sprite();
+        
+        /**
         * A container for 2D overlays positioned over the rendered scene.
         */
         public var hud:Sprite = new Sprite();
@@ -574,6 +580,7 @@ package away3d.containers
         	addChild(background);
             addChild(_session.getContainer(this));
             addChild(_interactiveLayer);
+            addChild(overlay);
             addChild(hud);
         }
         
@@ -719,6 +726,44 @@ package away3d.containers
             }
             
         }
+        
+        // To do: Distribute code...
+        // ----------------------------------------------------------------------------------------------------
+        
+        private var _overlays:Dictionary = new Dictionary();
+        
+        /** 
+	    * Adds an overlay effect on top of the view container.
+	    */
+        public function addOverlay(value:IOverlay):void
+        {
+        	if(_overlays[value])
+        		return;
+        	
+        	_overlays[value] = value;
+        	
+        	overlay.addChild(value as Sprite);
+        }
+        
+        /** 
+	    * Removes an overlay effect on top of the view container.
+	    */
+        public function removeOverlay(value:IOverlay):void
+        {
+        	if(_overlays[value])
+        	{
+        		overlay.removeChild(value as Sprite);
+        		_overlays[value] = null;
+        	}
+        }
+        
+        private function processOverlays():void
+        {
+        	for each(var overlay:IOverlay in _overlays)
+        		overlay.update();
+        }
+        
+        // ----------------------------------------------------------------------------------------------------
         
 	    /** 
 	    * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
@@ -900,6 +945,9 @@ package away3d.containers
         	
         	//debug check
             Init.checkUnusedArguments();
+			
+			//process overlay effects
+			processOverlays();
 			
 			//check for mouse interaction
             fireMouseMoveEvent();
