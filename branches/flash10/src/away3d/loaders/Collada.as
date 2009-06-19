@@ -797,14 +797,14 @@ package away3d.loaders
 		 * 
 		 * @see away3d.loaders.data.MaterialData
 		 */
-        private function parseMaterial(symbol:String, name:String):void
+        private function parseMaterial(symbol:String, materialName:String):void
         {
-           	_materialData = materialLibrary.addMaterial(name);
+           	var _materialData:MaterialData = materialLibrary.addMaterial(materialName);
         	symbolLibrary[symbol] = _materialData;
             if(symbol == "FrontColorNoCulling") {
             	_materialData.materialType = MaterialData.SHADING_MATERIAL;
             } else {
-                _materialData.textureFileName = getTextureFileName(name);
+                _materialData.textureFileName = getTextureFileName(materialName);
                 
                 if (_materialData.textureFileName) {
             		_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
@@ -814,7 +814,7 @@ package away3d.loaders
                 	else
 	                	_materialData.materialType = MaterialData.COLOR_MATERIAL;
                 	
-                	parseColorMaterial(name, _materialData);
+                	parseColorMaterial(materialName, _materialData);
                 }
             }
         }
@@ -1210,14 +1210,13 @@ package away3d.loaders
 		/**
 		 * Retrieves the color of a material
 		 */
-		private function parseColorMaterial(cname:String, materialData:MaterialData):void
+		private function parseColorMaterial(colorName:String, materialData:MaterialData):void
 		{
-			
-			var material:XML = collada.library_materials.material.(@id == cname)[0];
+			var material:XML = collada["library_materials"].material.(@id == colorName)[0];
 			
 			if (material) {
-				var effectId:String = getId( material.instance_effect.@url );
-				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+				var effectId:String = getId( material["instance_effect"].@url );
+				var effect:XML = collada["library_effects"].effect.(@id == effectId)[0];
 				
 				materialData.ambientColor = getColorValue(effect..ambient[0]);
 				materialData.diffuseColor = getColorValue(effect..diffuse[0]);
@@ -1226,12 +1225,18 @@ package away3d.loaders
 			}
 		}
 		
-		private function getColorValue(color:XML):uint
+		private function getColorValue(colorXML:XML):uint
 		{
-			if (!color || color.length() == 0)
+			if (!colorXML || colorXML.length() == 0)
 				return 0xFFFFFF;
 			
-			var colorArray:Array = color.color.split(" ");
+			if(!colorXML["color"] || colorXML["color"].length() == 0)
+				return 0xFFFFFF;
+			
+			var colorArray:Array = colorXML["color"].split(" ");
+			if(colorArray.length <= 0)
+				return 0xFFFFFF;
+			
 			return int(colorArray[0]*255 << 16) | int(colorArray[1]*255 << 8) | int(colorArray[2]*255);
 		}
 		
