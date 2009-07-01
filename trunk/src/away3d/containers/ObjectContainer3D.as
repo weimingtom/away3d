@@ -230,8 +230,8 @@
 						if (bone.name == boneName)
 							return bone;
 					
-					if (bone.id)
-						if (bone.id == boneName)
+					if (bone.boneId)
+						if (bone.boneId == boneName)
 							return bone;
             	}
             	if (object3D is ObjectContainer3D) {

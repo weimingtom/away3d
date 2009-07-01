@@ -28,13 +28,15 @@ package away3d.core.base
         
 		private var _width:Number;
 		private var _height:Number;
-		private var _scaling:Number = 1;
-		private var _rotation:Number = 0;
+		private var _rotation:Number;
+		private var _scaling:Number;
 		private var _index:int;
 		private var _vertices:Array = new Array();
 		
+		public var billboardVO:BillboardVO = new BillboardVO();
+		
 		/**
-		 * Returns an array of vertex objects that are used by the segment.
+		 * Returns an array of vertex objects that are used by the billboard.
 		 */
         public override function get vertices():Array
         {
@@ -60,7 +62,7 @@ package away3d.core.base
 	  					_vertex.parents.splice(_index, 1);
 	  		}
 
-            _vertices[0] = _vertex = value;
+            _vertices[0] = _vertex = billboardVO.vertex = value;
 			
 			if (_vertex)
 				_vertex.parents.push(this);
@@ -160,7 +162,7 @@ package away3d.core.base
 			if (_material != null && parent)
 				parent.removeMaterial(this, _material);
 			
-            _material = value;
+            _material = billboardVO.material = value;
 			
 			if (_material != null && parent)
 				parent.addMaterial(this, _material);
@@ -179,7 +181,7 @@ package away3d.core.base
             if (_width == value)
                 return;
 
-            _width = value;
+            _width = billboardVO.width = value;
 			
             notifyMappingChange();
         }
@@ -197,7 +199,7 @@ package away3d.core.base
             if (_height == value)
                 return;
 			
-            _height = value;
+            _height = billboardVO.height = value;
 			
             notifyMappingChange();
         }
@@ -215,7 +217,7 @@ package away3d.core.base
             if (_scaling == value)
                 return;
 			
-            _scaling = value;
+            _scaling = billboardVO.scaling = value;
 			
             notifyMappingChange();
         }
@@ -233,7 +235,7 @@ package away3d.core.base
             if (_rotation == value)
                 return;
 			
-            _rotation = value;
+            _rotation = billboardVO.rotation = value;
 			
             notifyMappingChange();
         }
@@ -312,12 +314,16 @@ package away3d.core.base
 		 * @param	vertex					The vertex object of the billboard
 		 * @param	material	[optional]	The material used by the billboard to render
 		 */
-        public function Billboard(vertex:Vertex, material:IBillboardMaterial = null, width:Number = 10, height:Number = 10)
+        public function Billboard(vertex:Vertex, material:IBillboardMaterial = null, width:Number = 10, height:Number = 10, rotation:Number = 0, scaling:Number = 1)
         {
             this.vertex = vertex;
             this.material = material;
             this.width = width;
             this.height = height;
+            this.rotation = rotation;
+            this.scaling = scaling;
+            
+            billboardVO.billboard = this;
             
             vertexDirty = true;
         }

@@ -11,7 +11,7 @@ package away3d.animators.skin
     	public var joint:ObjectContainer3D;
     	
 		//Collada 3.05B
-		public var id:String;
+		public var boneId:String;
 		
     	/**
     	 * Defines the euler angle of rotation of the 3d object around the x-axis, relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
@@ -123,7 +123,7 @@ package away3d.animators.skin
             
             super.cloneAll(bone);
             
-            bone.id = id;
+            bone.boneId = boneId;
             bone.joint = bone.children[0];
             
             return bone;

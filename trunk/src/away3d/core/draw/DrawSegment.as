@@ -12,9 +12,24 @@ package away3d.core.draw
     public class DrawSegment extends DrawPrimitive
     {
 		/** @private */
-		arcane function onepointcut(v01:ScreenVertex):Array
+		arcane function onepointcut(v01x:Number, v01y:Number, v01z:Number):Array
 		{
-            return [create(source, material, [v0, v01], 0, 2, true), create(source, material, [v01, v1], 0, 2, true)];
+			var index0:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = startIndex;
+        	screenIndices[screenIndices.length] = screenVertices.length;
+        	var index1:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = screenVertices.length;
+        	screenIndices[screenIndices.length] = startIndex+1;
+        	var index2:int = screenIndices.length;
+        	
+        	screenVertices[screenVertices.length] = v01x;
+			screenVertices[screenVertices.length] = v01y;
+			screenVertices[screenVertices.length] = v01z;
+			
+            return [
+                create(source, material, screenVertices, screenIndices, index0, index1, true),
+                create(source, material, screenVertices, screenIndices, index1, index2, true)
+            ];
     	}
     	
     	private var focus:Number;  
@@ -39,35 +54,55 @@ package away3d.core.draw
         private var det:Number;
         private var db:Number;
         private var da:Number;
+        private var _index:int;
         
         private function distanceToCenter(x:Number, y:Number):Number
         {   
-            var centerx:Number = (v0.x + v1.x) / 2;
-            var centery:Number = (v0.y + v1.y) / 2;
+            var centerx:Number = (v0x + v1x) / 2;
+            var centery:Number = (v0y + v1y) / 2;
 
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
         
 		/**
-		 * The v0 screenvertex of the segment primitive.
+		 * The x position of the v0 screenvertex of the segment primitive.
 		 */
-        public var v0:ScreenVertex;
-		
+        public var v0x:Number;
+        
 		/**
-		 * The v1 screenvertex of the segment primitive.
+		 * The y position of the v0 screenvertex of the segment primitive.
 		 */
-        public var v1:ScreenVertex;
+        public var v0y:Number;
+        
+		/**
+		 * The z position of the v0 screenvertex of the segment primitive.
+		 */
+        public var v0z:Number;
+        
+		/**
+		 * The x position of the v1 screenvertex of the segment primitive.
+		 */
+        public var v1x:Number;
+        
+		/**
+		 * The y position of the v1 screenvertex of the segment primitive.
+		 */
+        public var v1y:Number;
+        
+		/**
+		 * The z position of the v1 screenvertex of the segment primitive.
+		 */
+        public var v1z:Number;
 		
-				
 		/**
 		 * The screen length of the segment primitive.
 		 */
         public var length:Number;
 		
     	/**
-    	 * A reference to the face value object used by the triangle primitive.
+    	 * A reference to the segment value object used by the segment primitive.
     	 */
-        public var elementVO:ElementVO;
+        public var segmentVO:SegmentVO;
         
 		/**
 		 * The material of the segment primitive.
@@ -76,17 +111,19 @@ package away3d.core.draw
         
         public var screenVertices:Array;
         
-        public var screenIndexStart:int;
+        public var screenIndices:Array;
         
-        public var screenIndexEnd:int;
+        public var startIndex:int;
+        
+        public var endIndex:int;
         
 		/**
 		 * @inheritDoc
 		 */
         public override function clear():void
         {
-            v0 = null;
-            v1 = null;
+            //v0 = null;
+            //v1 = null;
         }
         
 		/**
@@ -102,7 +139,7 @@ package away3d.core.draw
 		 */
         public override function contains(x:Number, y:Number):Boolean
         {   
-            if (Math.abs(v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y)) > 0.001*1000*1000)
+            if (Math.abs(v0x*(y - v1y) + v1x*(v0y - y) + x*(v1y - v0y)) > 0.001*1000*1000)
                 return false;
 
             if (distanceToCenter(x, y)*2 > length)
@@ -118,12 +155,12 @@ package away3d.core.draw
         {
             focus = view.camera.focus;
               
-            ax = v0.x;
-            ay = v0.y;
-            az = v0.z;
-            bx = v1.x;
-            by = v1.y;
-            bz = v1.z;
+            ax = v0x;
+            ay = v0y;
+            az = v0z;
+            bx = v1x;
+            by = v1y;
+            bz = v1z;
 
             if ((ax == x) && (ay == y))
                 return az;
@@ -163,9 +200,20 @@ package away3d.core.draw
             if (length < 5)
                 return null;
 			
-            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus);
+			var index0:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = startIndex;
+        	screenIndices[screenIndices.length] = screenVertices.length;
+        	var index1:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = screenVertices.length;
+        	screenIndices[screenIndices.length] = startIndex+1;
+        	var index2:int = screenIndices.length;
+        	
+        	ScreenVertex.median(startIndex, startIndex+1, screenVertices, screenIndices, focus);
 			
-            return [create(source, material, [v0, v01], 0, 2, true), create(source, material, [v01, v1], 0, 2, true)];
+            return [
+                create(source, material, screenVertices, screenIndices, index0, index1, true),
+                create(source, material, screenVertices, screenIndices, index1, index2, true)
+            ];
         }
 		
 		/**
@@ -173,32 +221,39 @@ package away3d.core.draw
 		 */
         public override function calc():void
         {
-        	v0 = screenVertices[screenIndexStart];
-        	v1 = screenVertices[screenIndexStart+1];
+        	_index = screenIndices[startIndex]*3;
+        	v0x = screenVertices[_index];
+        	v0y = screenVertices[_index+1];
+        	v0z = screenVertices[_index+2];
         	
-        	if (v0.z < v1.z) {
-        		minZ = v0.z;
-        		maxZ = v1.z + 1;
+        	_index = screenIndices[startIndex+1]*3;
+        	v1x = screenVertices[_index];
+        	v1y = screenVertices[_index+1];
+        	v1z = screenVertices[_index+2];
+        	
+        	if (v0z < v1z) {
+        		minZ = v0z;
+        		maxZ = v1z + 1;
         	} else {
-        		minZ = v1.z;
-        		maxZ = v0.z + 1;
+        		minZ = v1z;
+        		maxZ = v0z + 1;
         	}
-            screenZ = (v0.z + v1.z) / 2;
+            screenZ = (v0z + v1z) / 2;
             
-            if (v0.x < v1.x) {
-        		minX = v0.x;
-        		maxX = v1.x + 1;
+            if (v0x < v1x) {
+        		minX = v0x;
+        		maxX = v1x + 1;
         	} else {
-        		minX = v1.x;
-        		maxX = v0.x + 1;
+        		minX = v1x;
+        		maxX = v0x + 1;
         	}
         	
-        	if (v0.y < v1.y) {
-        		minY = v0.y;
-        		maxY = v1.y + 1;
+        	if (v0y < v1y) {
+        		minY = v0y;
+        		maxY = v1y + 1;
         	} else {
-        		minY = v1.y;
-        		maxY = v0.y + 1;
+        		minY = v1y;
+        		maxY = v0y + 1;
         	}
             
             length = Math.sqrt((maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY));

@@ -20,12 +20,9 @@ package away3d.core.project
 		private var _bitmaps:Dictionary;
 		private var _lens:ILens;
 		private var _vertex:Vertex;
-		private var _screenVertex:ScreenVertex;
 		private var _screenVertices:Array;
+		private var _centerScreenVertices:Array = new Array();
 		private var _index:int;
-		private var _screenIndexStart:int;
-		private var _screenIndexEnd:int;
-		private var _persp:Number;
         
         public function get view():View3D
         {
@@ -39,7 +36,7 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-			_screenVertices = _drawPrimitiveStore.createScreenArray(source);
+			_screenVertices = _drawPrimitiveStore.createScreenVertices(source.id);
 			
 			_dirsprite = source as DirSprite2D;
 			
@@ -54,16 +51,11 @@ package away3d.core.project
             var minz:Number = Infinity;
             var bitmap:BitmapData = null;
             
-			_screenIndexStart = _screenVertices.length;
+			_lens.project(viewTransform, _vertices, _screenVertices);
             
-            if (!_lens.project(viewTransform, _vertices))
-                return;
-            
-            _screenIndexEnd = _screenVertices.length;
-            
-            _index = _screenIndexEnd;
-            while (_index-- > _screenIndexStart) {
-                var z:Number = (_screenVertices[_index] as ScreenVertex).z;
+            _index = _screenVertices.length/3;
+            while (_index--) {
+                var z:Number = _screenVertices[_index*3+2];
                 
                 if (z < minz) {
                     minz = z;
@@ -73,18 +65,17 @@ package away3d.core.project
 			
             if (bitmap == null)
                 return;
+			
+			_centerScreenVertices.length = 0;
+			
+            _lens.project(viewTransform, _dirsprite.center, _centerScreenVertices);
             
-            _screenIndexStart = _screenVertices.length;
+            if (_centerScreenVertices[0] == null)
+            	return;
             
-            if (!_lens.project(viewTransform, _dirsprite.center))
-                return;
+            _centerScreenVertices[2] += _dirsprite.deltaZ;
             
-            _screenVertex = _screenVertices[_screenIndexStart];
-                
-            _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);
-            _screenVertex.z += _dirsprite.deltaZ;
-            
-            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertex, _dirsprite.smooth, bitmap, _persp*_dirsprite.scaling, _dirsprite.rotation));
+            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _centerScreenVertices, _dirsprite.smooth, bitmap, _dirsprite.scaling*_view.camera.zoom / (1 + _screenVertices[2] / _view.camera.focus), _dirsprite.rotation));
 		}
 	}
 }

@@ -13,9 +13,19 @@ package away3d.core.draw
     	private var displayRect:Rectangle;
     	
     	/**
-    	 * The screenvertex used to position the drawing primitive in the view.
+    	 * The x value of the screenvertex used to position the drawing primitive in the view.
     	 */
-        public var screenvertex:ScreenVertex;
+        public var vx:Number;
+		
+    	/**
+    	 * The y value of the screenvertex used to position the drawing primitive in the view.
+    	 */
+        public var vy:Number;
+        
+    	/**
+    	 * The z value of the screenvertex used to position the drawing primitive in the view.
+    	 */
+        public var vz:Number;
         
     	/**
     	 * A reference to the displayobject used by the drawing primitive.
@@ -33,13 +43,13 @@ package away3d.core.draw
         public override function calc():void
         {
         	displayRect = displayobject.getBounds(displayobject);
-            screenZ = screenvertex.z;
+            screenZ = vz;
             minZ = screenZ;
             maxZ = screenZ;
-            minX = screenvertex.x + displayRect.left;
-            minY = screenvertex.y + displayRect.top;
-            maxX = screenvertex.x + displayRect.right;
-            maxY = screenvertex.y + displayRect.bottom;
+            minX = vx + displayRect.left;
+            minY = vy + displayRect.top;
+            maxX = vx + displayRect.right;
+            maxY = vy + displayRect.bottom;
         }
         
 		/**
@@ -55,8 +65,8 @@ package away3d.core.draw
 		 */
         public override function render():void
         {
-            displayobject.x = screenvertex.x;// - displayobject.width/2;
-            displayobject.y = screenvertex.y;// - displayobject.height/2;
+            displayobject.x = vx;// - displayobject.width/2;
+            displayobject.y = vy;// - displayobject.height/2;
             session.addDisplayObject(displayobject);
         }
 		
@@ -65,7 +75,7 @@ package away3d.core.draw
 		 * @inheritDoc
 		 */
         public override function contains(x:Number, y:Number):Boolean
-        {   
+        {
             x;y;//TODO : FDT Warning
             return true;
         }

@@ -119,7 +119,6 @@ package away3d.containers
         private var _container:DisplayObject;
         private var _hitPointX:Number;
         private var _hitPointY:Number;
-        private var _sc:ScreenVertex = new ScreenVertex();
         private var _consumer:IPrimitiveConsumer;
         private var screenX:Number;
         private var screenY:Number;
@@ -330,8 +329,6 @@ package away3d.containers
         			buttonMode = false;
         	}
         }
-        
-        public var viewTimer:int;
         
         /**
         * A background sprite positioned under the rendered scene.
@@ -895,8 +892,6 @@ package away3d.containers
         */
         public function render():void
         {
-        	viewTimer = getTimer();
-        	
             //update scene
             notifySceneUpdate();
             
@@ -921,7 +916,9 @@ package away3d.containers
             	_ddo.view = this;
 	        	_ddo.displayobject = _scene.session.getContainer(this);
 	        	_ddo.session = _session;
-	        	_ddo.screenvertex = _sc;
+	        	_ddo.vx = 0;
+	        	_ddo.vy = 0;
+	        	_ddo.vz = 0;
 	        	_ddo.calc();
 	        	_consumer = _session.getConsumer(this);
 	         	_consumer.primitive(_ddo);

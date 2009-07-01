@@ -218,8 +218,8 @@ package away3d.core.filter
 
         private function zconflictTB(q:DrawTriangle, r:DrawScaledBitmap):int
         {
-            if (q.contains(r.screenvertex.x, r.screenvertex.y))
-                return zcompare(q, r, r.screenvertex.x, r.screenvertex.y);
+            if (q.contains(r.vx, r.vy))
+                return zcompare(q, r, r.vx, r.vy);
             else
             if (q.contains(r.minX, r.minY))
                 return zcompare(q, r, r.minX, r.minY);
@@ -244,17 +244,17 @@ package away3d.core.filter
             if (r == null)
                 return ZOrderIrrelevant;
         */
-            q0x = q.v0.x;
-            q0y = q.v0.y;
-            q1x = q.v1.x;
-            q1y = q.v1.y;
-            q2x = q.v2.x;
-            q2y = q.v2.y;
+            q0x = q.v0x;
+            q0y = q.v0y;
+            q1x = q.v1x;
+            q1y = q.v1y;
+            q2x = q.v2x;
+            q2y = q.v2y;
     
-            r0x = r.v0.x;
-            r0y = r.v0.y;
-            r1x = r.v1.x;
-            r1y = r.v1.y;
+            r0x = r.v0x;
+            r0y = r.v0y;
+            r1x = r.v1x;
+            r1y = r.v1y;
     
             ql01a = q1y - q0y;
             ql01b = q0x - q1x;
@@ -370,19 +370,19 @@ package away3d.core.filter
         
         private function zconflictTT(q:DrawTriangle, w:DrawTriangle):int
         {
-            q0x = q.v0.x;
-            q0y = q.v0.y;
-            q1x = q.v1.x;
-            q1y = q.v1.y;
-            q2x = q.v2.x;
-            q2y = q.v2.y;
+            q0x = q.v0x;
+            q0y = q.v0y;
+            q1x = q.v1x;
+            q1y = q.v1y;
+            q2x = q.v2x;
+            q2y = q.v2y;
     
-            w0x = w.v0.x;
-            w0y = w.v0.y;
-            w1x = w.v1.x;
-            w1y = w.v1.y;
-            w2x = w.v2.x;
-            w2y = w.v2.y;
+            w0x = w.v0x;
+            w0y = w.v0y;
+            w1x = w.v1x;
+            w1y = w.v1y;
+            w2x = w.v2x;
+            w2y = w.v2y;
     
             ql01a = q1y - q0y;
             ql01b = q0x - q1x;
@@ -677,12 +677,14 @@ package away3d.core.filter
             primitives = tree.list();
             turn = 0;
             
-            while (primitives.length > 0)
-            {
+            while (primitives.length > 0) {
+            	
                 leftover = [];
-                for each (pri in primitives)
-                {
+                
+                for each (pri in primitives) {
+                	
                     ++check;
+                    
                     if (check == 10)
                         if (getTimer() - start > maxdelay)
                             return;
@@ -694,13 +696,13 @@ package away3d.core.filter
                     maxdeltaZ = 0;
                     
                     rivals = tree.get(pri);
-                    for each (rival in rivals)
-                    {
+                    
+                    for each (rival in rivals) {
+                    	
                         if (rival == pri)
                             continue;
     
-                        switch (zconflict(pri, rival))
-                        {
+                        switch (zconflict(pri, rival)) {
                             case ZOrderIrrelevant:
                                 break;
                             case ZOrderDeeper:
@@ -713,39 +715,35 @@ package away3d.core.filter
                                 break;
                         }
                     }
-                    if (maxZ >= pri.screenZ && pri.screenZ >= minZ)
-                    {
+                    
+                    if (maxZ >= pri.screenZ && pri.screenZ >= minZ) {
                         // screenZ still sits between the maxZ and minZ
-                    }
-                    else if (maxZ >= minZ)
-                    {
+                    } else if (maxZ >= minZ) {
                     	//screenZ has to be re-calculated for the new maxZ and minZ
                         pri.screenZ = (maxZ + minZ) / 2;
-                    }
-                    else
-                    {
+                    } else {
                     	//there is no value for screenZ, triangle is flagged for tesselation
-                        if (turn % 3 == 2)
-                        {
+                        if (turn % 3 == 2) {
                             parts = pri.quarter(camera.focus);
                             
                             if (parts == null)
                             	continue;
                             	
-                                tree.remove(pri);
-                                for each (part in parts)
-                                {
-                                    //part.screenZ = pri.screenZ;
-                                    if (tree.primitive(part))
-	                                    leftover.push(part);
-                                }
+                            tree.remove(pri);
+                            
+                            for each (part in parts)
+                                if (tree.primitive(part))
+                                    leftover.push(part);
                         }
                         else
                             leftover.push(pri);
                     }
                 }
+                
                 primitives = leftover;
+                
                 turn += 1;
+                
                 if (turn == 20)
                     break;
             }

@@ -73,7 +73,7 @@
 					_containers[bone.name] = bone;
 					
 					//ColladaMaya 3.05B
-					bone.id = _boneData.id;
+					bone.boneId = _boneData.id;
 					
 					bone.transform = _boneData.transform;
 					

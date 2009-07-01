@@ -60,9 +60,6 @@ package away3d.core.base
   			vertex.parents.push(this);
   			
   			vertexDirty = true;
-  			
-  			if(_vertices.length > 3 || vertex.vectorInstructionType == VectorInstructionType.CURVE)
-  				segmentVO.isVectorShape = true;
   		}
   		
   		public function moveTo(vertex:Vertex):void
@@ -87,8 +84,6 @@ package away3d.core.base
   		}
   		
 		public var segmentVO:SegmentVO = new SegmentVO();
-		
-		public var isVectorShape:Boolean
 		
 		/**
 		 * Returns an array of vertex objects that are used by the segment.
@@ -251,7 +246,7 @@ package away3d.core.base
             this.v1 = v1;
             this.material = material;
             
-            segmentVO.segment = this;
+            //segmentVO.segment = this;
             
             vertexDirty = true;
         }

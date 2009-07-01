@@ -36,7 +36,6 @@ package away3d.cameras.lenses {
         protected var _len:Number;
         
 		protected var _vertex:Vertex;
-    	protected var _screenVertex:ScreenVertex;
     	protected var _sx:Number;
     	protected var _sy:Number;
     	protected var _sz:Number;
@@ -46,7 +45,6 @@ package away3d.cameras.lenses {
         protected var _vz:Number;
         protected var _scz:Number;
         
-        protected var _projected:ScreenVertex;
         protected var _persp:Number;
         
     	protected var classification:int;
