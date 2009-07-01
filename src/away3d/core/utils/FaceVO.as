@@ -5,8 +5,16 @@ package away3d.core.utils
 	
 	import flash.geom.*;
 	
-	public class FaceVO extends ElementVO
+	public class FaceVO
 	{
+		public var generated:Boolean;
+		
+		public var vertices:Array = new Array();
+		
+		public var startIndex:int;
+		
+		public var endIndex:int;
+		
 		public var v0:Vertex;
 		
         public var v1:Vertex;

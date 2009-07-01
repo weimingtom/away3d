@@ -12,10 +12,10 @@ package away3d.core.utils
 	
 	public class DrawPrimitiveStore
 	{
-		private var _screenDictionary:Dictionary = new Dictionary(true);
-		private var _screenArray:Array;
-		private var _vertexDictionary:Dictionary = new Dictionary(true);
-		private var _vertexArray:Array;
+		private var _screenVertices:Array = new Array();
+		private var _screenVertexArray:Array;
+		private var _screenIndices:Array = new Array();
+		private var _screenIndexArray:Array;
 		private var _indexDictionary:Dictionary;
 		private var _index:int;
 		private var _length:int;
@@ -58,16 +58,6 @@ package away3d.core.utils
 		
 		public function reset():void
 		{
-			for (_object in _vertexDictionary) {
-				_source = _object as Object3D;
-				if (_source.session && _source.session.updated) {
-					_svArray = _vertexDictionary[_source] as Array
-					_svStore = _svStore.concat(_svArray);
-					_svArray.length = 0;
-					(_screenDictionary[_source] as Array).length = 0;
-				}
-			}
-			
 			for (_object in _dtDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
@@ -123,45 +113,32 @@ package away3d.core.utils
 			}
 		}
 		
-		public function createScreenArray(source:Object3D):Array
+		public function createScreenVertices(id:int):Array
 		{
-	        if (!(_screenArray = _screenDictionary[source]))
-				_screenArray = _screenDictionary[source] = [];
+	        if (!(_screenVertexArray = _screenVertices[id]))
+				_screenVertexArray = _screenVertices[id] = [];
 			
-			if (!(_vertexArray = _vertexDictionary[source]))
-				_vertexArray = _vertexDictionary[source] = [];
+			_screenVertexArray.length = 0;
 			
-			_length = 0;
+			return _screenVertexArray;
+		}
+		
+		public function createScreenIndices(id:int):Array
+		{
+			if (!(_screenIndexArray = _screenIndices[id]))
+				_screenIndexArray = _screenIndices[id] = [];
 			
-			_indexDictionary = new Dictionary(true);
-			
-			return _screenArray;
+			_screenIndexArray.length = 0;
+				
+			return _screenIndexArray
 		}
 		
 		public function getScreenArray():Array
 		{
-			return _screenArray;
+			return _screenVertexArray;
 		}
 		
-		public function createScreenVertex(vertex:Vertex):ScreenVertex
-		{
-			if (!_indexDictionary[vertex]) {
-				_index = _indexDictionary[vertex] = _length++;
-				
-				if (_svStore.length)
-		        	_sv = _screenArray[_index] = _vertexArray[_vertexArray.length] = _svStore.pop();
-		        else
-		        	_sv = _screenArray[_index] = _vertexArray[_vertexArray.length] = new ScreenVertex();
-			} else {
-				_sv = _screenArray[_length++] = _screenArray[_indexDictionary[vertex]];
-			}
-        	
-			_sv.vectorInstructionType = vertex.vectorInstructionType;
-			
-	        return _sv;
-		}
-		
-	    public function createDrawBillboard(source:Object3D, material:IBillboardMaterial, screenvertex:ScreenVertex, width:Number, height:Number, scale:Number, rotation:Number, generated:Boolean = false):DrawBillboard
+	    public function createDrawBillboard(source:Object3D, billboardVO:BillboardVO, material:IBillboardMaterial, screenVertices:Array, screenIndices:Array, scale:Number, generated:Boolean = false):DrawBillboard
 	    {
 	    	if (!(_dbArray = _dbDictionary[source.session]))
 				_dbArray = _dbDictionary[source.session] = [];
@@ -176,17 +153,20 @@ package away3d.core.utils
 	        _bill.generated = generated;
 	        _bill.source = source;
 	        _bill.material = material;
-	        _bill.screenvertex = screenvertex;
-	        _bill.width = width;
-	        _bill.height = height;
+	        _bill.billboardVO = billboardVO;
+	        _bill.screenVertices = screenVertices;
+	        _bill.screenIndices = screenIndices;
+	        _bill.index = billboardVO.index;
+	        _bill.width = billboardVO.width;
+	        _bill.height = billboardVO.height;
+	        _bill.rotation = billboardVO.rotation;
 	        _bill.scale = scale;
-	        _bill.rotation = rotation;
 	        _bill.calc();
 	        
 	        return _bill;
 	    }
 	    
-	    public function createDrawSegment(source:Object3D, elementVO:ElementVO, material:ISegmentMaterial, screenVertices:Array, screenIndexStart:int, screenIndexEnd:int, generated:Boolean = false):DrawSegment
+	    public function createDrawSegment(source:Object3D, segmentVO:SegmentVO, material:ISegmentMaterial, screenVertices:Array, screenIndices:Array, generated:Boolean = false):DrawSegment
 	    {
 	    	if (!(_dsArray = _dsDictionary[source.session]))
 				_dsArray = _dsDictionary[source.session] = [];
@@ -200,17 +180,18 @@ package away3d.core.utils
 	        }
 	        _seg.generated = generated;
 	        _seg.source = source;
-	        _seg.elementVO = elementVO;
+	        _seg.segmentVO = segmentVO;
 	        _seg.material = material;
 	        _seg.screenVertices = screenVertices;
-	        _seg.screenIndexStart = screenIndexStart;
-	        _seg.screenIndexEnd = screenIndexEnd;
+	        _seg.screenIndices = screenIndices;
+	        _seg.startIndex = segmentVO.startIndex;
+	        _seg.endIndex = segmentVO.endIndex;
 	        _seg.calc();
 	        
 	        return _seg;
 	    }
 	    
-		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, screenVertices:Array, screenIndexStart:int, screenIndexEnd:int, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
+		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, screenVertices:Array, screenIndices:Array, startIndex:int, endIndex:int, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
 		{
 			if (!(_dtArray = _dtDictionary[source.session]))
 				_dtArray = _dtDictionary[source.session] = [];
@@ -228,8 +209,9 @@ package away3d.core.utils
 	        _tri.faceVO = faceVO;
 	        _tri.material = material;
 	        _tri.screenVertices = screenVertices;
-	        _tri.screenIndexStart = screenIndexStart;
-	        _tri.screenIndexEnd = screenIndexEnd;
+	        _tri.screenIndices = screenIndices;
+	        _tri.startIndex = startIndex;
+	        _tri.endIndex = endIndex;
 	        _tri.uv0 = uv0;
 	        _tri.uv1 = uv1;
 	        _tri.uv2 = uv2;
@@ -258,7 +240,7 @@ package away3d.core.utils
 	        return _cblocker;
 	    }
 	    
-	    public function createDrawScaledBitmap(source:Object3D, screenvertex:ScreenVertex, smooth:Boolean, bitmap:BitmapData, scale:Number, rotation:Number, generated:Boolean = false):DrawScaledBitmap
+	    public function createDrawScaledBitmap(source:Object3D, screenVertices:Array, smooth:Boolean, bitmap:BitmapData, scale:Number, rotation:Number, generated:Boolean = false):DrawScaledBitmap
 	    {
 	    	if (!(_sbArray = _sbDictionary[source.session]))
 				_sbArray = _sbDictionary[source.session] = [];
@@ -272,7 +254,9 @@ package away3d.core.utils
 	        }
 	        _sbitmap.generated = generated;
 	        _sbitmap.source = source;
-	        _sbitmap.screenvertex = screenvertex;
+	        _sbitmap.vx = screenVertices[0];
+	        _sbitmap.vy = screenVertices[1];
+	        _sbitmap.vz = screenVertices[2];
 	        _sbitmap.smooth = smooth;
 	        _sbitmap.bitmap = bitmap;
 	        _sbitmap.scale = scale;
@@ -282,7 +266,7 @@ package away3d.core.utils
 	        return _sbitmap;
 	    }
 	    
-	    public function createDrawDisplayObject(source:Object3D, screenvertex:ScreenVertex, session:AbstractRenderSession, displayobject:DisplayObject, generated:Boolean = false):DrawDisplayObject
+	    public function createDrawDisplayObject(source:Object3D, vx:Number, vy:Number, vz:Number, session:AbstractRenderSession, displayobject:DisplayObject, generated:Boolean = false):DrawDisplayObject
 	    {
 	    	if (!(_doArray = _doDictionary[source.session]))
 				_doArray = _doDictionary[source.session] = [];
@@ -296,7 +280,9 @@ package away3d.core.utils
 	        }
 	        _dobject.generated = generated;
 	        _dobject.source = source;
-	        _dobject.screenvertex = screenvertex;
+	        _dobject.vx = vx;
+	        _dobject.vy = vy;
+	        _dobject.vz = vz;
 	        _dobject.session = session;
 	        _dobject.displayobject = displayobject;
 	        _dobject.calc();

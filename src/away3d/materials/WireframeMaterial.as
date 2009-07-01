@@ -70,7 +70,7 @@ package away3d.materials
             if (alpha <= 0)
                 return;
 			
-			seg.source.session.renderLine(seg.v0, seg.v1, width, color, alpha);
+			seg.source.session.renderLine(seg.v0x, seg.v0y, seg.v1x, seg.v1y, width, color, alpha);
         }
         
 		/**
@@ -81,7 +81,7 @@ package away3d.materials
             if (alpha <= 0)
                 return;
 
-            tri.source.session.renderTriangleLine(width, color, alpha, tri.v0, tri.v1, tri.v2);
+            tri.source.session.renderTriangleLine(width, color, alpha, tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex);
         }
         
 		/**

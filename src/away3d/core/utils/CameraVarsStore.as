@@ -122,7 +122,7 @@ package away3d.core.utils
         	return _uv;
         }
         
-        public function createFaceVO(face:Face, vertices:Array, material:ITriangleMaterial, back:ITriangleMaterial, uv0:UV, uv1:UV, uv2:UV):FaceVO
+        public function createFaceVO(face:Face, material:ITriangleMaterial, back:ITriangleMaterial, uv0:UV, uv1:UV, uv2:UV):FaceVO
         {
         	if (_fStore.length)
         		_fActive.push(_faceVO = _fStore.pop());
@@ -130,10 +130,6 @@ package away3d.core.utils
         		_fActive.push(_faceVO = new FaceVO());
         	
         	_faceVO.face = face;
-        	_faceVO.vertices = vertices;
-        	_faceVO.v0 = vertices[0];
-        	_faceVO.v1 = vertices[1];
-        	_faceVO.v2 = vertices[2];
         	_faceVO.uv0 = uv0;
         	_faceVO.uv1 = uv1;
         	_faceVO.uv2 = uv2;
@@ -144,17 +140,13 @@ package away3d.core.utils
         	return _faceVO;
         }
         
-        public function createSegmentVO(segment:Segment, vertices:Array, material:ISegmentMaterial):SegmentVO
+        public function createSegmentVO(material:ISegmentMaterial):SegmentVO
         {
         	if (_sStore.length)
         		_sActive.push(_segmentVO = _sStore.pop());
         	else
         		_sActive.push(_segmentVO = new SegmentVO());
         	
-        	_segmentVO.segment = segment;
-        	_segmentVO.vertices = vertices;
-        	_segmentVO.v0 = vertices[0];
-        	_segmentVO.v1 = vertices[1];
         	_segmentVO.generated = true;
         	
         	return _segmentVO;

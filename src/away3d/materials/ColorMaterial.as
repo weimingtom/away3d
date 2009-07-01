@@ -118,7 +118,7 @@ package away3d.materials
 		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
-            tri.source.session.renderTriangleColor(_color, _alpha, tri.v0, tri.v1, tri.v2);
+            tri.source.session.renderTriangleColor(_color, _alpha, tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex);
         }
         
 		/**

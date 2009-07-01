@@ -32,21 +32,24 @@ package away3d.core.block
             minX = Infinity;
             minY = Infinity;
             
-            var _length:int = vertices.length;
+            var _length:int = vertices.length/3;
             for (var i:int = 0; i < _length; ++i)
             {
-                var v:ScreenVertex = vertices[i];
-                _boundlines.push(Line2D.from2points(v, vertices[(i+1) % _length]));
-                if (screenZ < v.z)
-                    screenZ = v.z;
-                if (minX > v.x)
-                    minX = v.x;
-                if (maxX < v.x)
-                    maxX = v.x;
-                if (minY > v.y)
-                    minY = v.y;
-                if (maxY < v.y)
-                    maxY = v.y;
+                var vx:Number = vertices[i];
+                var vy:Number = vertices[i+1];
+                var vz:Number = vertices[i+2];
+                var next:int = ((i+3) % _length);
+                _boundlines.push(Line2D.from2points(vx, vy, vertices[next], vertices[next+1]));
+                if (screenZ < vz)
+                    screenZ = vz;
+                if (minX > vx)
+                    minX = vx;
+                if (maxX < vx)
+                    maxX = vx;
+                if (minY > vy)
+                    minY = vy;
+                if (maxY < vy)
+                    maxY = vy;
             }
             maxZ = screenZ;
             minZ = screenZ;
@@ -71,7 +74,7 @@ package away3d.core.block
             if (pri is DrawTriangle)
             {
                 var tri:DrawTriangle = pri as DrawTriangle;
-                return contains(tri.v0.x, tri.v0.y) && contains(tri.v1.x, tri.v1.y) && contains(tri.v2.x, tri.v2.y);
+                return contains(tri.v0x, tri.v0y) && contains(tri.v1x, tri.v1y) && contains(tri.v2x, tri.v2y);
             }
             return contains(pri.minX, pri.minY) && contains(pri.minX, pri.maxY) && contains(pri.maxX, pri.maxY) && contains(pri.maxX, pri.minY);
         }

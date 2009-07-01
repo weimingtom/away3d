@@ -43,33 +43,10 @@ package away3d.core.draw
     	 */
         public var z:Number;
         
-        
-        /**
-        * The x position of the vertex in clip space
-        */
-        public var clipX:Number;
-        
-        /**
-        * The y position of the vertex in clip space
-        */
-        public var clipY:Number;
-        
-        /**
-        * The z position of the vertex in clip space
-        */
-        public var clipZ:Number;
-        
-        /**
-        * A number containing user defined properties.
-        */
-        public var num:Number;
-        
         /**
         * Indicates whether the vertex is visible after projection.
         */
         public var visible:Boolean;
-    	
-    	public var viewTimer:int;
     	
 		/**
 		 * Creates a new <code>PrimitiveQuadrantTreeNode</code> object.
@@ -98,27 +75,14 @@ package away3d.core.draw
         }
 		
 		/**
-		 * Converts a screen vertex back to a vertex object.
-		 * 
-		 * @param	focus	The focus value to use for deperspective calulations.
-		 * @return			The deperspectived vertex object.
-		 */
-        public function deperspective(focus:Number):Vertex
-        {
-            persp = 1 + z / focus;
-
-            return new Vertex(x * persp, y * persp, z);
-        }
-		
-		/**
 		 * Calculates the squared distance between two screen vertex objects.
 		 * 
 		 * @param	b	The screen vertex object to use for the calcation.
 		 * @return		The squared scalar value of the vector between this and the given scren vertex.
 		 */
-        public function distanceSqr(b:ScreenVertex):Number
+        public static function distanceSqr(ax:Number, ay:Number, bx:Number, by:Number):Number
         {
-            return (x - b.x)*(x - b.x) + (y - b.y)*(y - b.y);
+            return (ax - bx)*(ax - bx) + (ay - by)*(ay - by);
         }
 		
 		/**
@@ -200,51 +164,35 @@ package away3d.core.draw
         }
 		
 		/**
-		 * Returns the median screen vertex between the two given screen vertex objects.
+		 * Creates the median screen vertex between the two given screen vertex objects.
 		 * 
-		 * @param	a		The first screen vertex to use for the calculation.
-		 * @param	b		The second screen vertex to use for the calculation.
-		 * @param	focus	The focus value used for the median calulations.
-		 * @return			The resulting screen vertex.
+		 * @param	a					The index of the first screen vertex to use for the calculation.
+		 * @param	b					The index of the second screen vertex to use for the calculation.
+		 * @param	screenVertices		The Array of screen vertices to use for the calculation.
+		 * @param	screenIndices		The Array of screen indices to use for the calculation.
+		 * @param	focus				The focus value used for the median calulations.
 		 */
-        public static function median(a:ScreenVertex, b:ScreenVertex, focus:Number):ScreenVertex
+        public static function median(aindex:Number, bindex:Number, screenVertices:Array, screenIndices:Array, focus:Number):void
         {
-            var mz:Number = (a.z + b.z) / 2;
-
-            var faz:Number = focus + a.z;
-            var fbz:Number = focus + b.z;
+        	var avertex:int = screenIndices[aindex]*3;
+        	var ax:Number = screenVertices[avertex];
+        	var ay:Number = screenVertices[avertex+1];
+        	var az:Number = screenVertices[avertex+2];
+        	
+        	var bvertex:int = screenIndices[bindex]*3;
+        	var bx:Number = screenVertices[bvertex];
+        	var by:Number = screenVertices[bvertex+1];
+        	var bz:Number = screenVertices[bvertex+2];
+        	
+            var mz:Number = (az + bz) / 2;
+			
+            var faz:Number = focus + az;
+            var fbz:Number = focus + bz;
             var ifmz:Number = 1 / (focus + mz) / 2;
-
-            return new ScreenVertex((a.x*faz + b.x*fbz)*ifmz, (a.y*faz + b.y*fbz)*ifmz, mz);
-
-            // ap = focus / (focus + saz) * zoom
-            // bp = focus / (focus + sbz) * zoom
-            // 
-            // ax = sax / ap
-            // bx = sbx / bp
-            //
-            // ay = say / ap
-            // by = sby / bp
-            //
-            // az = saz
-            // bz = sbz
-            //
-            // mx = (ax + bx) / 2
-            // my = (ay + by) / 2
-            // mz = (az + bz) / 2
-            //
-            // mp = focus / (focus + mz) * zoom
-            // smx = mx * mp
-            // smy = my * mp
-            // smz = mz
-            //
-            // smz = (saz + sbz) / 2
-            // smx = (ax + bx) * focus / (focus + smz) * zoom 
-            //     = (sax / ap + sbx / bp) * focus / (focus + smz) * zoom
-            //     = (sax / focus / zoom * (focus + saz) + sbx / focus / zoom * (focus + sbz)) * focus / (focus + smz) * zoom
-            //     = (sax * (focus + saz) + sbx * (focus + sbz)) / (focus + smz)
-            // smy = (say * (focus + saz) + sby * (focus + sbz)) / (focus + smz)
-
+			
+			screenVertices[screenVertices.length] = (ax*faz + bx*fbz)*ifmz;
+			screenVertices[screenVertices.length] = (ay*faz + by*fbz)*ifmz;
+			screenVertices[screenVertices.length] = mz;
         }
     }
 }

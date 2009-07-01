@@ -3,6 +3,7 @@ package away3d.materials
 	import away3d.arcane;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
@@ -81,13 +82,6 @@ package away3d.materials
             dispatchEvent(_materialupdated);
         }
         /** @private */
-        arcane function clearShapeDictionary():void
-        {
-        	for each (var _shape:Shape in _shapeDictionary)
-	        	_shape.graphics.clear();
-        }
-        
-        /** @private */
 		arcane function renderSource(source:Object3D, containerRect:Rectangle, mapping:Matrix):void
 		{
 			//check to see if sourceDictionary exists
@@ -123,15 +117,17 @@ package away3d.materials
 		}
 		
 		private var _view:View3D;
+		private var _screenVertices:Array;
+		private var _screenIndices:Array;
+		private var _near:Number;
 		private var _smooth:Boolean;
 		private var _debug:Boolean;
 		private var _repeat:Boolean;
         private var _precision:Number;
-        private var _shapeDictionary:Dictionary = new Dictionary(true);
+    	private var _shape:Shape;
     	private var _materialupdated:MaterialEvent;
         private var focus:Number;
         private var map:Matrix = new Matrix();
-        private var svArray:Array = [];
         private var x:Number;
 		private var y:Number;
         private var faz:Number;
@@ -156,63 +152,62 @@ package away3d.materials
         private var dsbc:Number;
         private var dsca:Number;
         private var dmax:Number;
+        private var ai:Number;
         private var ax:Number;
         private var ay:Number;
         private var az:Number;
+        private var bi:Number;
         private var bx:Number;
         private var by:Number;
         private var bz:Number;
+        private var ci:Number;
         private var cx:Number;
         private var cy:Number;
         private var cz:Number;
 		private var _showNormals:Boolean;
-		private var _nn:Number3D;
-		private var _sv0:ScreenVertex;
-		private var _sv1:ScreenVertex;
+		private var _nn:Number3D = new Number3D();
+		private var _sv0x:Number;
+		private var _sv0y:Number;
+		private var _sv1x:Number;
+		private var _sv1y:Number;
         
-        private function createVertexArray():void
+        private function renderRec(startIndex:Number, endIndex:Number, index:Number):void
         {
-            var index:Number = 100;
-            while (index--) {
-                svArray.push(new ScreenVertex());
-            }
-        }
-        
-        private function renderRec(a:ScreenVertex, b:ScreenVertex, c:ScreenVertex, index:Number):void
-        {
+            ai = _screenIndices[startIndex]*3;
+            ax = _screenVertices[ai];
+            ay = _screenVertices[ai+1];
+            az = _screenVertices[ai+2];
+            bi = _screenIndices[startIndex+1]*3;
+            bx = _screenVertices[bi];
+            by = _screenVertices[bi+1];
+            bz = _screenVertices[bi+2];
+            ci = _screenIndices[startIndex+2]*3;
+            cx = _screenVertices[ci];
+            cy = _screenVertices[ci+1];
+            cz = _screenVertices[ci+2];
             
-            ax = a.x;
-            ay = a.y;
-            az = a.z;
-            bx = b.x;
-            by = b.y;
-            bz = b.z;
-            cx = c.x;
-            cy = c.y;
-            cz = c.z;
-            
-            if (!_view.screenClipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
+            if (!(_view.screenClipping is FrustumClipping) && !_view.screenClipping.rect(Math.min(ax, Math.min(bx, cx)), Math.min(ay, Math.min(by, cy)), Math.max(ax, Math.max(bx, cx)), Math.max(ay, Math.max(by, cy))))
                 return;
 
-            if ((az <= 0) && (bz <= 0) && (cz <= 0))
+            if ((_view.screenClipping is RectangleClipping) && (az < _near || bz < _near || cz < _near))
                 return;
             
             if (index >= 100 || (focus == Infinity) || (Math.max(Math.max(ax, bx), cx) - Math.min(Math.min(ax, bx), cx) < 10) || (Math.max(Math.max(ay, by), cy) - Math.min(Math.min(ay, by), cy) < 10))
             {
-                _session.renderTriangleBitmap(_renderBitmap, map, a, b, c, smooth, repeat, _graphics);
+                _session.renderTriangleBitmap(_renderBitmap, map, _screenVertices, _screenIndices, startIndex, endIndex, smooth, repeat, _graphics);
                 if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
+                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenIndices, startIndex, endIndex);
                 return;
             }
-
+			
             faz = focus + az;
             fbz = focus + bz;
             fcz = focus + cz;
-
+			
             mabz = 2 / (faz + fbz);
             mbcz = 2 / (fbz + fcz);
             mcaz = 2 / (fcz + faz);
-
+			
             dabx = ax + bx - (mabx = (ax*faz + bx*fbz)*mabz);
             daby = ay + by - (maby = (ay*faz + by*fbz)*mabz);
             dbcx = bx + cx - (mbcx = (bx*fbz + cx*fcz)*mbcz);
@@ -223,15 +218,15 @@ package away3d.materials
             dsab = (dabx*dabx + daby*daby);
             dsbc = (dbcx*dbcx + dbcy*dbcy);
             dsca = (dcax*dcax + dcay*dcay);
-
+			
             if ((dsab <= precision) && (dsca <= precision) && (dsbc <= precision))
             {
-                _session.renderTriangleBitmap(_renderBitmap, map, a, b, c, smooth, repeat, _graphics);
+                _session.renderTriangleBitmap(_renderBitmap, map, _screenVertices, _screenIndices, startIndex, endIndex, smooth, repeat, _graphics);
                 if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, a, b, c);
+                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenIndices, startIndex, endIndex);
                 return;
             }
-
+			
             var map_a:Number = map.a;
             var map_b:Number = map.b;
             var map_c:Number = map.c;
@@ -239,24 +234,36 @@ package away3d.materials
             var map_tx:Number = map.tx;
             var map_ty:Number = map.ty;
             
-            var sv1:ScreenVertex;
-            var sv2:ScreenVertex;
-            var sv3:ScreenVertex = svArray[index++];
-            sv3.x = mbcx/2;
-            sv3.y = mbcy/2;
-            sv3.z = (bz+cz)/2;
+            var sv1:int;
+            var sv2:int;
+            var sv3:int;
+            
+            index++;
+            
+            sv3 = _screenVertices.length/3;
+            _screenVertices[_screenVertices.length] = mbcx/2;
+            _screenVertices[_screenVertices.length] = mbcy/2;
+            _screenVertices[_screenVertices.length] = (bz+cz)/2;
             
             if ((dsab > precision) && (dsca > precision) && (dsbc > precision))
             {
-                sv1 = svArray[index++];
-                sv1.x = mabx/2;
-                sv1.y = maby/2;
-                sv1.z = (az+bz)/2;
+            	index += 2;
+            	
+            	sv1 = _screenVertices.length/3;
+            	_screenVertices[_screenVertices.length] = mabx/2;
+                _screenVertices[_screenVertices.length] = maby/2;
+                _screenVertices[_screenVertices.length] = (az+bz)/2;
                 
-                sv2 = svArray[index++];
-                sv2.x = mcax/2;
-                sv2.y = mcay/2;
-                sv2.z = (cz+az)/2;
+                sv2 = _screenVertices.length/3;
+                _screenVertices[_screenVertices.length] = mcax/2;
+                _screenVertices[_screenVertices.length] = mcay/2;
+                _screenVertices[_screenVertices.length] = (cz+az)/2;
+                
+	            _screenIndices[startIndex = _screenIndices.length] = ai;
+                _screenIndices[_screenIndices.length] = sv1;
+                _screenIndices[_screenIndices.length] = sv2;
+                
+            	endIndex = _screenIndices.length;
                 
                 map.a = map_a*=2;
                 map.b = map_b*=2;
@@ -264,97 +271,155 @@ package away3d.materials
                 map.d = map_d*=2;
                 map.tx = map_tx*=2;
                 map.ty = map_ty*=2;
-                renderRec(a, sv1, sv2, index);
+                renderRec(startIndex, endIndex, index);
+            	
+            	_screenIndices[startIndex = _screenIndices.length] = sv1;
+                _screenIndices[_screenIndices.length] = bi;
+                _screenIndices[_screenIndices.length] = sv3;
                 
+            	endIndex = _screenIndices.length;
+            	
                 map.a = map_a;
                 map.b = map_b;
                 map.c = map_c;
                 map.d = map_d;
                 map.tx = map_tx-1;
                 map.ty = map_ty;
-                renderRec(sv1, b, sv3, index);
+                renderRec(startIndex, endIndex, index);
+            	
+            	_screenIndices[startIndex = _screenIndices.length] = sv2;
+                _screenIndices[_screenIndices.length] = sv3;
+                _screenIndices[_screenIndices.length] = ci;
                 
+            	endIndex = _screenIndices.length;
+            	
                 map.a = map_a;
                 map.b = map_b;
                 map.c = map_c;
                 map.d = map_d;
                 map.tx = map_tx;
                 map.ty = map_ty-1;
-                renderRec(sv2, sv3, c, index);
+                renderRec(startIndex, endIndex, index);
+            	
+            	_screenIndices[startIndex = _screenIndices.length] = sv3;
+                _screenIndices[_screenIndices.length] = sv2;
+                _screenIndices[_screenIndices.length] = sv1;
                 
+            	endIndex = _screenIndices.length;
+            	
                 map.a = -map_a;
                 map.b = -map_b;
                 map.c = -map_c;
                 map.d = -map_d;
                 map.tx = 1-map_tx;
                 map.ty = 1-map_ty;
-                renderRec(sv3, sv2, sv1, index);
+                renderRec(startIndex, endIndex, index);
                 
                 return;
             }
-
+			
             dmax = Math.max(dsab, Math.max(dsca, dsbc));
             if (dsab == dmax)
             {
-                sv1 = svArray[index++];
-                sv1.x = mabx/2;
-                sv1.y = maby/2;
-                sv1.z = (az+bz)/2;
+            	index++;
+            	
+            	sv1 = _screenVertices.length/3;
+            	_screenVertices[_screenVertices.length] = mabx/2;
+                _screenVertices[_screenVertices.length] = maby/2;
+                _screenVertices[_screenVertices.length] = (az+bz)/2;
                 
+	            _screenIndices[startIndex = _screenIndices.length] = ai;
+                _screenIndices[_screenIndices.length] = sv1;
+                _screenIndices[_screenIndices.length] = ci;
+                
+            	endIndex = _screenIndices.length;
+            	
                 map.a = map_a*=2;
                 map.c = map_c*=2;
                 map.tx = map_tx*=2;
-                renderRec(a, sv1, c, index);
+                renderRec(startIndex, endIndex, index);
                 
+	            _screenIndices[startIndex = _screenIndices.length] = sv1;
+                _screenIndices[_screenIndices.length] = bi;
+                _screenIndices[_screenIndices.length] = ci;
+                
+            	endIndex = _screenIndices.length;
+            	
                 map.a = map_a + map_b;
                 map.b = map_b;
                 map.c = map_c + map_d;
                 map.d = map_d;
                 map.tx = map_tx + map_ty - 1;
                 map.ty = map_ty;
-                renderRec(sv1, b, c, index);
+                renderRec(startIndex, endIndex, index);
                 
                 return;
             }
-
+			
             if (dsca == dmax)
             {
-                sv2 = svArray[index++];
-                sv2.x = mcax/2;
-                sv2.y = mcay/2;
-                sv2.z = (cz+az)/2;
+            	index++;
+            	
+                sv2 = _screenVertices.length/3;
+                _screenVertices[_screenVertices.length] = mcax/2;
+                _screenVertices[_screenVertices.length] = mcay/2;
+                _screenVertices[_screenVertices.length] = (cz+az)/2;
                 
+	            _screenIndices[startIndex = _screenIndices.length] = ai;
+                _screenIndices[_screenIndices.length] = bi;
+                _screenIndices[_screenIndices.length] = sv2;
+                
+            	endIndex = _screenIndices.length;
+            	
                 map.b = map_b*=2;
                 map.d = map_d*=2;
                 map.ty = map_ty*=2;
-                renderRec(a, b, sv2, index);
+                renderRec(startIndex, endIndex, index);
                 
+	            _screenIndices[startIndex = _screenIndices.length] = sv2;
+                _screenIndices[_screenIndices.length] = bi;
+                _screenIndices[_screenIndices.length] = ci;
+                
+            	endIndex = _screenIndices.length;
+            	
                 map.a = map_a;
                 map.b = map_b + map_a;
                 map.c = map_c;
                 map.d = map_d + map_c;
                 map.tx = map_tx;
                 map.ty = map_ty + map_tx - 1;
-                renderRec(sv2, b, c, index);
+                renderRec(startIndex, endIndex, index);
                 
                 return;
             }
-                
+            
+            _screenIndices[startIndex = _screenIndices.length] = ai;
+            _screenIndices[_screenIndices.length] = bi;
+            _screenIndices[_screenIndices.length] = sv3;
+            
+        	endIndex = _screenIndices.length;
+        	
             map.a = map_a - map_b;
             map.b = map_b*2;
             map.c = map_c - map_d;
             map.d = map_d*2;
             map.tx = map_tx - map_ty;
             map.ty = map_ty*2;
-            renderRec(a, b, sv3, index);
-                
+            renderRec(startIndex, endIndex, index);
+            
+            _screenIndices[startIndex = _screenIndices.length] = ai;
+            _screenIndices[_screenIndices.length] = sv3;
+            _screenIndices[_screenIndices.length] = ci;
+            
+        	endIndex = _screenIndices.length;
+        	
             map.a = map_a*2;
             map.b = map_b - map_a;
             map.c = map_c*2;
             map.d = map_d - map_c;
             map.tx = map_tx*2;
             map.ty = map_ty - map_tx;
-            renderRec(a, sv3, c, index);
+            renderRec(startIndex, endIndex, index);
         }
         
         /**
@@ -691,8 +756,6 @@ package away3d.materials
             _offsetX = ini.getNumber("offsetX", 0);
             _offsetY = ini.getNumber("offsetY", 0);
             _colorTransformDirty = true;
-            
-            createVertexArray();
         }
         
 		/**
@@ -701,7 +764,6 @@ package away3d.materials
         public function updateMaterial(source:Object3D, view:View3D):void
         {
         	_graphics = null;
-        	clearShapeDictionary();
         		
         	if (_colorTransformDirty)
         		updateColorTransform();
@@ -758,12 +820,13 @@ package away3d.materials
         	} else {
         		_session = tri.source.session;
         		
-				var _shape:Shape = _session.getShape(this, level++, layer);
-				
+        		_shape = _session.getShape(this, level++, layer);
+	    		
 	    		_shape.blendMode = _blendMode;
 	    		
 	    		_graphics = _shape.graphics;
         	}
+    		
     		
     		renderTriangle(tri);
     		
@@ -789,33 +852,25 @@ package away3d.materials
 	            map.tx = _mapping.tx;
 	            map.ty = _mapping.ty;
 	            
-	            renderRec(tri.v0, tri.v1, tri.v2, 0);
+	            renderRec(tri.startIndex, tri.endIndex, 0);
 			} else {
-				_session.renderTriangleBitmapMask(_renderBitmap, _offsetX, _offsetY, _scaling, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
+				_session.renderTriangleBitmapMask(_renderBitmap, _offsetX, _offsetY, _scaling, _screenVertices, _screenIndices, tri.startIndex, tri.endIndex, smooth, repeat, _graphics);
 			}
 			
             if (debug)
-                _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, _screenIndices, tri.startIndex, tri.endIndex);
 				
 			if(showNormals){
-				if( _nn == null){
-					_nn = new Number3D();
-					_sv0 = new ScreenVertex();
-					_sv1 = new ScreenVertex();
-				}
 				
-        		var t:Matrix3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];
-				_nn.rotate(tri.faceVO.face.normal, t);
+				_nn.rotate(tri.faceVO.face.normal, tri.view.cameraVarsStore.viewTransformDictionary[tri.source]);
 				 
-				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;
-				_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;
-				_sv0.z = (tri.v0.z + tri.v1.z + tri.v2.z) / 3;
+				_sv0x = (tri.v0x + tri.v1x + tri.v2x) / 3;
+				_sv0y = (tri.v0y + tri.v1y + tri.v2y) / 3;
 				 
-				_sv1.x = (_sv0.x - (30*_nn.x));
-				_sv1.y = (_sv0.y - (30*_nn.y));
-				_sv1.z = (_sv0.z - (30*_nn.z));
+				_sv1x = (_sv0x - (30*_nn.x));
+				_sv1y = (_sv0y - (30*_nn.y));
 				 
-				_session.renderLine(_sv0, _sv1, 0, 0xFF00FF, 1);
+				_session.renderLine(_sv0x, _sv0y, _sv1x, _sv1y, 0, 0xFF00FF, 1);
 			}
         }
         

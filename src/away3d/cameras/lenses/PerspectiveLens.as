@@ -82,44 +82,40 @@ package away3d.cameras.lenses
 			return ((_clipTop - _clipBottom)/Math.tan(_camera.fov*toRADIANS) - _clipTop*_clipBottom)/_camera.focus;
 		}
         
+		public function getPerspective(screenZ:Number):Number
+		{
+			return _camera.focus*_camera.zoom / screenZ;
+		}
+		
        /**
         * Projects the vertices to the screen space of the view.
         */
-        public function project(viewTransform:Matrix3D, vertices:Array):Boolean
+        public function project(viewTransform:Matrix3D, vertices:Array, screenVertices:Array):void
         {
         	for each (_vertex in vertices) {
-	        	_screenVertex = _drawPrimitiveStore.createScreenVertex(_vertex);
+        		
+	        	_vx = _vertex.x;
+	        	_vy = _vertex.y;
+	        	_vz = _vertex.z;
 	        	
-	        	if (_screenVertex.viewTimer != _camera.view.viewTimer) {
-		        	_screenVertex.viewTimer = _camera.view.viewTimer;
-		        	
-		        	_vx = _vertex.x;
-		        	_vy = _vertex.y;
-		        	_vz = _vertex.z;
-		        	
-		            _sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
-		    		
-		            if (isNaN(_sz))
-		                throw new Error("isNaN(sz)");
-		            
-		            if (_sz < _near && _clipping is RectangleClipping) {
-		                _screenVertex.visible = false;
-		                return false;
-		            }
-		            
-		         	_persp = _camera.focus*_camera.zoom / _sz;
-					
-		            _screenVertex.x = (_screenVertex.vx = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx)) * _persp;
-		            _screenVertex.y = (_screenVertex.vy = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty)) * _persp;
-		            _screenVertex.z = _sz;
-		            _screenVertex.visible = true;
-		        }
-		        
-		        if (!_screenVertex.visible)
-		        	return false;
+	            _sz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
+	    		
+	            if (isNaN(_sz))
+	                throw new Error("isNaN(sz)");
+	            
+	            if (_sz < _near && _clipping is RectangleClipping) {
+	            	screenVertices[screenVertices.length] = null;
+	            	screenVertices[screenVertices.length] = null;
+	            	screenVertices[screenVertices.length] = null;
+	                continue;
+	            }
+	            
+	         	_persp = _camera.focus*_camera.zoom / _sz;
+				
+	            screenVertices[screenVertices.length] = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx) * _persp;
+	            screenVertices[screenVertices.length] = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty) * _persp;
+	            screenVertices[screenVertices.length] = _sz;
          	}
-         	
-			return true;
         }
 	}
 }

@@ -45,7 +45,7 @@ package away3d.cameras
     	private var _drawPrimitiveStore:DrawPrimitiveStore;
     	private var _cameraVarsStore:CameraVarsStore;
     	private var _vertices:Array = new Array();
-    	private var _screenVertices:Array;
+    	private var _screenVertices:Array = new Array();
     	private var _screenIndexStart:int;
 		private var _cameraupdated:CameraEvent;
 		
@@ -287,14 +287,11 @@ package away3d.cameras
             
             _cameraVarsStore.createViewTransform(object).multiply(viewMatrix, object.sceneTransform);
             
-            _screenVertices = _drawPrimitiveStore.createScreenArray(object);
+            _screenVertices.length = 0;
             
-            _screenIndexStart = 0;
+            _lens.project(_cameraVarsStore.viewTransformDictionary[object], _vertices, _screenVertices);
             
-            if (!lens.project(_cameraVarsStore.viewTransformDictionary[object], _vertices))
-            	return null;
-            
-            return _screenVertices[_screenIndexStart];
+            return new ScreenVertex(_screenVertices[0], _screenVertices[1], _screenVertices[2]);
         }
     	        
 		/**
