@@ -9,11 +9,9 @@ package away3d.core.utils
 	{
 		public var generated:Boolean;
 		
+		public var commands:Array = new Array();
+		
 		public var vertices:Array = new Array();
-		
-		public var startIndex:int;
-		
-		public var endIndex:int;
 		
 		public var v0:Vertex;
 		

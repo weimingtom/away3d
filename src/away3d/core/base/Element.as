@@ -107,6 +107,14 @@ package away3d.core.base
         }
         
 		/**
+		 * Returns an array of drawing command strings that make up the 3d element.
+		 */
+        public function get commands():Array
+        {
+            throw new Error("Not implemented");
+        }
+        
+		/**
 		 * Determines whether the 3d element is visible in the scene.
 		 */
         public function get visible():Boolean

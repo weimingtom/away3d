@@ -62,7 +62,7 @@ package away3d.core.clip
             objectCulling = ini.getBoolean("objectCulling", true);
         }
         
-		public override function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedIndices:Array, startIndices:Array):void
+		public override function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedCommands:Array, clippedIndices:Array, startIndices:Array):void
 		{
 			_session = mesh.session;
 			_frustum = _cameraVarsStore.frustumDictionary[mesh];

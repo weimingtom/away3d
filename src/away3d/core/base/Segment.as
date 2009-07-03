@@ -33,13 +33,14 @@ package away3d.core.base
         
         private var _index:int;
         private var _vertices:Array = new Array();
+		private var _commands:Array = new Array();
 		
         private function onVertexValueChange(event:Event):void
         {
             notifyVertexValueChange();
         }
 		
-  		private function addVertexAt(index:uint, vertex:Vertex):void
+  		private function addVertexAt(index:uint, vertex:Vertex, command:String):void
   		{
   			if(_vertices[index] && _vertices[index] == vertex)
   				return;
@@ -49,7 +50,8 @@ package away3d.core.base
 	  				if(_index != -1)
 	  					_vertices[index].parents.splice(_index, 1);
 	  		}
-  					
+	  		
+  			_commands[index] = segmentVO.commands[index] = command;
   			_vertices[index] = segmentVO.vertices[index] = vertex;
   			
   			if(index == 0)
@@ -64,23 +66,19 @@ package away3d.core.base
   		
   		public function moveTo(vertex:Vertex):void
   		{
-  			vertex.vectorInstructionType = VectorInstructionType.MOVE;
-  			addVertexAt(_vertices.length, vertex);
+  			addVertexAt(_vertices.length, vertex, "M");
   		}
   		
   		public function lineTo(vertex:Vertex):void
   		{
-  			vertex.vectorInstructionType = VectorInstructionType.LINE;
-  			addVertexAt(_vertices.length, vertex);
+  			addVertexAt(_vertices.length, vertex, "L");
   		}
   		
   		public function curveTo(controlVertex:Vertex, endVertex:Vertex):void
   		{
-  			controlVertex.vectorInstructionType = VectorInstructionType.CURVE;
-  			addVertexAt(_vertices.length, controlVertex);
+  			addVertexAt(_vertices.length, controlVertex, "C");
   			
-  			endVertex.vectorInstructionType = VectorInstructionType.CURVE;
-  			addVertexAt(_vertices.length, endVertex);
+  			addVertexAt(_vertices.length, endVertex, "P");
   		}
   		
 		public var segmentVO:SegmentVO = new SegmentVO();
@@ -103,7 +101,7 @@ package away3d.core.base
 
         public function set v0(value:Vertex):void
         {
-            addVertexAt(0, value);
+            addVertexAt(0, value, "M");
         }
 		
 		/**
@@ -116,7 +114,7 @@ package away3d.core.base
 
         public function set v1(value:Vertex):void
         {
-            addVertexAt(1, value);
+            addVertexAt(1, value, "L");
         }
 		
 		/**
