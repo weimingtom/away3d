@@ -240,7 +240,7 @@ package away3d.core.clip
             return true;
         }
 		
-		public function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedIndices:Array, startIndices:Array):void
+		public function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedCommands:Array, clippedIndices:Array, startIndices:Array):void
 		{
 			throw new Error("Not implemented");
 		}

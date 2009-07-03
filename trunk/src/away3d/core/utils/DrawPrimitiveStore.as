@@ -138,7 +138,7 @@ package away3d.core.utils
 			return _screenVertexArray;
 		}
 		
-	    public function createDrawBillboard(source:Object3D, billboardVO:BillboardVO, material:IBillboardMaterial, screenVertices:Array, screenIndices:Array, scale:Number, generated:Boolean = false):DrawBillboard
+	    public function createDrawBillboard(source:Object3D, billboardVO:BillboardVO, material:IBillboardMaterial, screenVertices:Array, screenIndices:Array, index, scale:Number, generated:Boolean = false):DrawBillboard
 	    {
 	    	if (!(_dbArray = _dbDictionary[source.session]))
 				_dbArray = _dbDictionary[source.session] = [];
@@ -156,7 +156,7 @@ package away3d.core.utils
 	        _bill.billboardVO = billboardVO;
 	        _bill.screenVertices = screenVertices;
 	        _bill.screenIndices = screenIndices;
-	        _bill.index = billboardVO.index;
+	        _bill.index = index;
 	        _bill.width = billboardVO.width;
 	        _bill.height = billboardVO.height;
 	        _bill.rotation = billboardVO.rotation;
@@ -166,7 +166,7 @@ package away3d.core.utils
 	        return _bill;
 	    }
 	    
-	    public function createDrawSegment(source:Object3D, segmentVO:SegmentVO, material:ISegmentMaterial, screenVertices:Array, screenIndices:Array, generated:Boolean = false):DrawSegment
+	    public function createDrawSegment(source:Object3D, segmentVO:SegmentVO, material:ISegmentMaterial, screenVertices:Array, screenIndices:Array, commands:Array, startIndex:int, endIndex:int, generated:Boolean = false):DrawSegment
 	    {
 	    	if (!(_dsArray = _dsDictionary[source.session]))
 				_dsArray = _dsDictionary[source.session] = [];
@@ -184,14 +184,15 @@ package away3d.core.utils
 	        _seg.material = material;
 	        _seg.screenVertices = screenVertices;
 	        _seg.screenIndices = screenIndices;
-	        _seg.startIndex = segmentVO.startIndex;
-	        _seg.endIndex = segmentVO.endIndex;
+	        _seg.commands = commands;
+	        _seg.startIndex = startIndex;
+	        _seg.endIndex = endIndex;
 	        _seg.calc();
 	        
 	        return _seg;
 	    }
 	    
-		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, screenVertices:Array, screenIndices:Array, startIndex:int, endIndex:int, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
+		public function createDrawTriangle(source:Object3D, faceVO:FaceVO, material:ITriangleMaterial, screenVertices:Array, screenIndices:Array, commands:Array, startIndex:int, endIndex:int, uv0:UV, uv1:UV, uv2:UV, generated:Boolean = false):DrawTriangle
 		{
 			if (!(_dtArray = _dtDictionary[source.session]))
 				_dtArray = _dtDictionary[source.session] = [];
@@ -210,6 +211,7 @@ package away3d.core.utils
 	        _tri.material = material;
 	        _tri.screenVertices = screenVertices;
 	        _tri.screenIndices = screenIndices;
+	        _tri.commands = commands;
 	        _tri.startIndex = startIndex;
 	        _tri.endIndex = endIndex;
 	        _tri.uv0 = uv0;

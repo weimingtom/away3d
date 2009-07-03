@@ -82,7 +82,7 @@ package away3d.core.clip
         }
         
         		
-		public override function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedIndices:Array, startIndices:Array):void
+		public override function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedCommands:Array, clippedIndices:Array, startIndices:Array):void
 		{
 			_session = mesh.session;
 			_frustum = _cameraVarsStore.frustumDictionary[mesh];
@@ -137,7 +137,7 @@ package away3d.core.clip
 				if (_pass) {
 					clippedFaceVOs[clippedFaceVOs.length] = _faceVO;
 					
-					_faceVO.startIndex = clippedIndices.length;
+					startIndices[startIndices.length] = clippedIndices.length;
 	        		
 					if (!_processed[_faceVO.v0]) {
                         clippedVertices[clippedVertices.length] = _faceVO.v0;
@@ -157,8 +157,6 @@ package away3d.core.clip
                     } else {
                     	clippedIndices[clippedIndices.length] = _processed[_faceVO.v2] - 1;
                     }
-                    
-                    _faceVO.endIndex = clippedIndices.length;
                     
 					continue;
 				}
@@ -231,6 +229,8 @@ package away3d.core.clip
 	        		_newFaceVO.vertices[2] = _newFaceVO.v2 = _v2;
 	        	}	
 			}
+			
+	        startIndices[startIndices.length] = clippedIndices.length;
 		}
 		
 		/**

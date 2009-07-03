@@ -7,8 +7,6 @@ package away3d.core.utils
 	{
 		public var vertex:Vertex = new Vertex();
 		
-		public var index:int;
-		
 		public var material:IBillboardMaterial;
 		
 		public var width:Number;

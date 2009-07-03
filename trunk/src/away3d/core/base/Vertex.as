@@ -57,8 +57,6 @@ package away3d.core.base
         
         public var geometry:Geometry;
         
-        public var vectorInstructionType:String = VectorInstructionType.LINE;
-        
         /**
         * An object that contains user defined properties. Defaults to  null.
         */

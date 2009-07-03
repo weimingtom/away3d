@@ -47,9 +47,9 @@ package away3d.core.draw
 				screenVertices[screenVertices.length] = v12z;
 				
 	            return [
-	                create(source, faceVO, material, screenVertices, screenIndices, index0, index1, uv0,  uv01, uv12, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, index1, index2, uv01,  uv1, uv12, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, index2, index3, uv0,  uv12, uv2, true)
+	                create(source, faceVO, material, screenVertices, screenIndices, commands, index0, index1, uv0,  uv01, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, commands, index1, index2, uv01,  uv1, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, commands, index2, index3, uv0,  uv12, uv2, true)
 	            ];
             }
             else
@@ -77,50 +77,13 @@ package away3d.core.draw
 				screenVertices[screenVertices.length] = v12z;
 	        	
 	            return [
-	                create(source, faceVO, material, screenVertices, screenIndices, index4, index5, uv0,  uv01, uv2, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, index5, index6, uv01,  uv1, uv12, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, index6, index7, uv01,  uv12, uv2, true)
+	                create(source, faceVO, material, screenVertices, screenIndices, commands, index4, index5, uv0,  uv01, uv2, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, commands, index5, index6, uv01,  uv1, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, commands, index6, index7, uv01,  uv12, uv2, true)
 	            ];
             }
         }
-		/** @private 
-        arcane final function bisect(focus:Number):Array
-        {
-            d01 = v0.distanceSqr(v1);
-            d12 = v1.distanceSqr(v2);
-            d20 = v2.distanceSqr(v0);
-
-            if ((d12 >= d01) && (d12 >= d20))
-                return bisect12(focus);
-            else
-            if (d01 >= d20)
-                return bisect01(focus);
-            else
-                return bisect20(focus);
-        }
-        */
-		/** @private 
-        arcane final function distortbisect(focus:Number):Array
-        {
-            d01 = v0.distortSqr(v1, focus),
-            d12 = v1.distortSqr(v2, focus),
-            d20 = v2.distortSqr(v0, focus);
-
-            if ((d12 >= d01) && (d12 >= d20))
-                return bisect12(focus);
-            else
-            if (d01 >= d20)
-                return bisect01(focus);
-            else
-                return bisect20(focus);
-        }
-        */
-		private var d01:Number;
-        private var d12:Number;
-        private var d20:Number;
-        private var dd01:Number;
-        private var dd12:Number;
-        private var dd20:Number;
+        
         private var materialWidth:Number;
         private var materialHeight:Number;
         private var _u0:Number;
@@ -171,69 +134,6 @@ package away3d.core.draw
         private function num(n:Number):Number
         {
             return int(n*1000)/1000;
-        }
-        
-        private final function bisect01(focus:Number):Array
-        {
-        	var index0:int = screenIndices.length;
-        	screenIndices[screenIndices.length] = startIndex+2;
-        	screenIndices[screenIndices.length] = startIndex;
-        	screenIndices[screenIndices.length] = screenVertices.length;
-        	var index1:int = screenIndices.length;
-        	screenIndices[screenIndices.length] = screenVertices.length;
-        	screenIndices[screenIndices.length] = startIndex+1;
-        	screenIndices[screenIndices.length] = startIndex+2;
-        	var index2:int = screenIndices.length;
-        	
-        	ScreenVertex.median(startIndex, startIndex+1, screenVertices, screenIndices, focus);
-            
-            var uv01:UV = UV.median(uv0, uv1);
-            return [
-                create(source, faceVO, material, screenVertices, screenIndices, index0, index1, uv2,  uv0, uv01, true),
-                create(source, faceVO, material, screenVertices, screenIndices, index1, index2, uv01, uv1, uv2,  true) 
-            ];
-        }
-
-        private final function bisect12(focus:Number):Array
-        {
-        	var index0:int = screenIndices.length;
-        	screenIndices[screenIndices.length] = startIndex;
-        	screenIndices[screenIndices.length] = startIndex+1;
-        	screenIndices[screenIndices.length] = screenVertices.length;
-        	var index1:int = screenIndices.length;
-        	screenIndices[screenIndices.length] = screenVertices.length;
-        	screenIndices[screenIndices.length] = startIndex+2;
-        	screenIndices[screenIndices.length] = startIndex;
-        	var index2:int = screenIndices.length;
-        	
-            ScreenVertex.median(startIndex+1, startIndex+2, screenVertices, screenIndices, focus);
-            
-            var uv12:UV = UV.median(uv1, uv2);
-            return [
-                create(source, faceVO, material, screenVertices, screenIndices, index0, index1, uv0,  uv1, uv12, true),
-                create(source, faceVO, material, screenVertices, screenIndices, index1, index2, uv12, uv2, uv0,  true) 
-            ];
-        }
-
-        private final function bisect20(focus:Number):Array
-        {
-        	var index0:int = screenIndices.length;
-        	screenIndices[screenIndices.length] = startIndex+1;
-        	screenIndices[screenIndices.length] = startIndex+2;
-        	screenIndices[screenIndices.length] = screenVertices.length;
-        	var index1:int = screenIndices.length;
-        	screenIndices[screenIndices.length] = screenVertices.length;
-        	screenIndices[screenIndices.length] = startIndex;
-        	screenIndices[screenIndices.length] = startIndex+1;
-        	var index2:int = screenIndices.length;
-        	
-        	ScreenVertex.median(startIndex+2, startIndex, screenVertices, screenIndices, focus);
-            
-            var uv20:UV = UV.median(uv2, uv0);
-            return [
-                create(source, faceVO, material, screenVertices, screenIndices, index0, index1, uv1,  uv2, uv20, true),
-                create(source, faceVO, material, screenVertices, screenIndices, index1, index2, uv20, uv0, uv1,  true) 
-            ];                                                
         }
         
 		/**
@@ -319,6 +219,8 @@ package away3d.core.draw
         public var screenVertices:Array;
         
         public var screenIndices:Array;
+        
+        public var commands:Array;
         
         public var startIndex:int;
         
@@ -560,10 +462,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(source, faceVO, material, screenVertices, screenIndices, index0, index1, uv0,  uv01, uv20, true),
-                create(source, faceVO, material, screenVertices, screenIndices, index1, index2, uv1,  uv12, uv01, true),
-                create(source, faceVO, material, screenVertices, screenIndices, index2, index3, uv2,  uv20, uv12, true),
-                create(source, faceVO, material, screenVertices, screenIndices, index3, index4, uv01, uv12, uv20, true)
+                create(source, faceVO, material, screenVertices, screenIndices, commands, index0, index1, uv0,  uv01, uv20, true),
+                create(source, faceVO, material, screenVertices, screenIndices, commands, index1, index2, uv1,  uv12, uv01, true),
+                create(source, faceVO, material, screenVertices, screenIndices, commands, index2, index3, uv2,  uv20, uv12, true),
+                create(source, faceVO, material, screenVertices, screenIndices, commands, index3, index4, uv01, uv12, uv20, true)
             ];
         }
         
