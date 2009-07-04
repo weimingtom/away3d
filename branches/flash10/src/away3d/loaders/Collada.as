@@ -1167,10 +1167,10 @@ package away3d.loaders
 		/**
 		 * Retrieves the filename of a material
 		 */
-		private function getTextureFileName( name:String ):String
+		private function getTextureFileName( materialName:String ):String
 		{
 			var filename :String = null;
-			var material:XML = collada.library_materials.material.(@id == name)[0];
+			var material:XML = collada.library_materials.material.(@id == materialName)[0];
 	
 			if( material )
 			{
