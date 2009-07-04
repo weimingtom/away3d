@@ -7,9 +7,6 @@ package away3d.core.base
 		private var _geometry:Geometry;
 		private var _currentFace:Face;
 		private var _currentMaterial:WireColorMaterial;
-		private var _faces:Array = [];
-		private var _materials:Array = [];
-		private var _lastPointWasIrrelevant:Boolean = false;
 		private var _zOffset:Number = 0;
 		
 		public function set geometry(value:Geometry):void
@@ -17,17 +14,35 @@ package away3d.core.base
 			_geometry = value;
 		}
 		
+		public function lineStyle(thickness:Number = -1, color:int = -1, alpha:Number = -1):void
+		{
+			//trace("Graphics3D.as - lineStyle(" + thickness + ", " + color + ", " + alpha + ");");
+			
+			// Outlines are ignored for now...
+		}
+		
+		public function beginFill(color:int = -1, alpha:Number = -1):void
+		{
+			//trace("Graphics3D.as - beginFill(" + color + ", " + alpha + ");");
+			
+			_currentMaterial = new WireColorMaterial();
+			_currentMaterial.wirealpha = 0;
+			
+			if(color != -1)
+				_currentMaterial.color = color;
+				
+			if(alpha != -1)
+				_currentMaterial.alpha = alpha;
+		}
+		
+		public function endFill():void
+		{
+			//trace("Graphics3D.as - endFill().");
+		}
+		
 		public function moveTo(x:Number, y:Number):void
 		{
 			//trace("Graphics3D.as - M(" + x + ", " + y + ");");
-			
-			if(x == 0 && y == 0)
-			{	
-				_lastPointWasIrrelevant = true;
-				return;
-			}
-			else
-				_lastPointWasIrrelevant = false;
 			
 			_currentFace.moveTo(new Vertex(x, -y, _zOffset));
 		}
@@ -46,72 +61,21 @@ package away3d.core.base
 			_currentFace.curveTo(new Vertex(cx, -cy, _zOffset), new Vertex(ax, -ay, _zOffset));
 		}
 		
-		public function beginFill(color:int = -1, alpha:Number = -1):void
-		{
-			//trace("Graphics3D.as - beginFill(" + color + ", " + alpha + ");");
-			
-			evaluateNewFace();
-			
-			_currentMaterial.color = color;
-			_currentMaterial.alpha = alpha;
-		}
-		
-		public function lineStyle(thickness:Number = -1, color:int = -1, alpha:Number = -1):void
-		{
-			//trace("Graphics3D.as - lineStyle(" + thickness + ", " + color + ", " + alpha + ");");
-			
-			if(_lastPointWasIrrelevant)
-				return;
-			
-			evaluateNewMaterial();
-			
-			_currentMaterial.width = thickness;
-			_currentMaterial.wirecolor = color;
-			_currentMaterial.wirealpha = alpha;
-		}
-		
-		public function endFill():void
-		{
-			
-		}
-		
 		public function clear():void
 		{
+			//trace("Graphics3D.as - clear().");
+			
 			for each(var face:Face in _geometry.faces)
 				_geometry.removeFace(face);
-				
-			_faces = [];
-			_materials = [];
 		}
 		
-		public function apply():void
+		public function startNewShape():void
 		{
-			//trace("Graphics3D.as - APPLYING FACES.");
-			
-			for(var i:uint; i<_faces.length; i++)
-			{
-				var face:Face = _faces[i];
-				var material:WireColorMaterial = _materials[i];
-				
-				face.material = material;
-				
-				if(face.v0 && face.v1 && face.v2)
-					_geometry.addFace(face);
-			}
-		}
-		
-		private function evaluateNewFace():void
-		{
-			//trace("Graphics3D.as - NEW FACE.");
+			//trace("Graphics3D.as - startNewShape().");
 			
 			_currentFace = new Face();
-			_faces.push(_currentFace);
-		}
-		
-		private function evaluateNewMaterial():void
-		{
-			_currentMaterial = new WireColorMaterial();
-			_materials.push(_currentMaterial);
+			_currentFace.material = _currentMaterial;
+			_geometry.addFace(_currentFace);
 		}
 	}
 }

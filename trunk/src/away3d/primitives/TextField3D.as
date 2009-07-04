@@ -162,7 +162,6 @@ package away3d.primitives
 			geometry.graphics.beginFill(_textColor, _textAlpha);
 			VectorText.write(geometry.graphics, _fontId, _size, _leading, _kerning, _text, 0, 0, _textWidth, _align, false);
 			geometry.graphics.endFill();
-			geometry.graphics.apply();
 		}
 	}
 }
