@@ -138,7 +138,7 @@ package away3d.core.utils
 			return _screenVertexArray;
 		}
 		
-	    public function createDrawBillboard(source:Object3D, billboardVO:BillboardVO, material:IBillboardMaterial, screenVertices:Array, screenIndices:Array, index, scale:Number, generated:Boolean = false):DrawBillboard
+	    public function createDrawBillboard(source:Object3D, billboardVO:BillboardVO, material:IBillboardMaterial, screenVertices:Array, screenIndices:Array, index:uint, scale:Number, generated:Boolean = false):DrawBillboard
 	    {
 	    	if (!(_dbArray = _dbDictionary[source.session]))
 				_dbArray = _dbDictionary[source.session] = [];
