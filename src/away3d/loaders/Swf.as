@@ -65,7 +65,7 @@ package away3d.loaders
 			ObjectContainer3D(container).addChild(clipMesh);
 			
 			VectorShapes.draw(clipMesh.geometry.graphics, "shapes", _scaling);
-			clipMesh.geometry.graphics.apply();
+			//clipMesh.geometry.graphics.apply();
 			
 			//trace("Container has " + clipMesh.faces.length + " faces.");
 		}
