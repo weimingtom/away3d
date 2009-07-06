@@ -882,7 +882,7 @@ package away3d.containers
         	_updated = true;
         	
         	if (_internalsession)
-        		session.clear(this);
+        		_internalsession.clear(this);
         }
         
         /**
