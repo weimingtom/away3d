@@ -5,7 +5,9 @@ package away3d.core.utils
 	
 	public class BillboardVO
 	{
-		public var vertex:Vertex = new Vertex();
+		public var vertex:Vertex;
+		
+		public var command:String;
 		
 		public var material:IBillboardMaterial;
 		

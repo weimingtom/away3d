@@ -32,6 +32,7 @@ package away3d.core.base
 		private var _scaling:Number;
 		private var _index:int;
 		private var _vertices:Array = new Array();
+		private var _commands:Array = new Array();
 		
 		public var billboardVO:BillboardVO = new BillboardVO();
 		
@@ -42,7 +43,15 @@ package away3d.core.base
         {
             return _vertices;
         }
-		
+        
+		/**
+		 * Returns an array of drawing command strings that are used by the face.
+		 */
+        public override function get commands():Array
+        {
+            return _commands;
+        }
+        
 		/**
 		 * Defines the vertex of the billboard.
 		 */
@@ -61,7 +70,8 @@ package away3d.core.base
 	  				if(_index != -1)
 	  					_vertex.parents.splice(_index, 1);
 	  		}
-
+	  		
+			_commands[0] = billboardVO.command = "M";
             _vertices[0] = _vertex = billboardVO.vertex = value;
 			
 			if (_vertex)
