@@ -45,7 +45,7 @@ package away3d.core.base
         }
         
 		/**
-		 * Returns an array of drawing command strings that are used by the face.
+		 * Returns an array of drawing command strings that are used by the billboard.
 		 */
         public override function get commands():Array
         {

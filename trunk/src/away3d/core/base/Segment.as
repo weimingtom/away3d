@@ -88,9 +88,17 @@ package away3d.core.base
 		 */
         public override function get vertices():Array
         {
-            return [_v0, _v1];
+            return _vertices;
         }
-		
+		        
+		/**
+		 * Returns an array of drawing command strings that are used by the segment.
+		 */
+        public override function get commands():Array
+        {
+            return _commands;
+        }
+        
 		/**
 		 * Defines the v0 vertex of the segment.
 		 */
