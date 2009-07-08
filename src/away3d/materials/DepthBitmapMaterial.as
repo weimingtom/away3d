@@ -16,13 +16,15 @@ package away3d.materials
 		
 		private var _minZ:Number;
 		private var _maxZ:Number;
+		private var _minColor:Number;
+		private var _maxColor:Number;
 		
 		/**
 		 * Coefficient for the minimum Z of the depth map.
 		 */
         public function get minZ():Number
         {
-        	return _depthShader.minZ;
+        	return _minZ;
         }
         
         public function set minZ(val:Number):void
@@ -39,7 +41,7 @@ package away3d.materials
 		 */
         public function get maxZ():Number
         {
-        	return _depthShader.maxZ;
+        	return _maxZ;
         }
         
         public function set maxZ(val:Number):void
@@ -50,6 +52,42 @@ package away3d.materials
         	_maxZ = val;
         	
             _depthShader.maxZ = val;
+        }
+		
+		/**
+		 * Coefficient for the color shading at minZ.
+		 */
+        public function get minColor():uint
+        {
+        	return _minColor;
+        }
+        
+        public function set minColor(val:uint):void
+        {
+        	if (_minColor == val)
+        		return;
+        	
+        	_minColor = val;
+        	
+        	_bitmapMaterial.color = _minColor;
+        }
+				
+		/**
+		 * Coefficient for the color shading at maxZ.
+		 */
+        public function get maxColor():uint
+        {
+        	return _maxColor;
+        }
+        
+        public function set maxColor(val:uint):void
+        {
+        	if (_maxColor == val)
+        		return;
+        	
+        	_maxColor = val;
+        	
+            _depthShader.color = val;
         }
         
         /**
@@ -77,10 +115,13 @@ package away3d.materials
 			
 			_minZ = ini.getNumber("minZ", 500);
 			_maxZ = ini.getNumber("maxZ", 2000);
+			_minColor = ini.getNumber("minColor", 0xFFFFFF);
+			_maxColor = ini.getNumber("maxColor", 0x000000);
 			
 			//create new materials
 			_bitmapMaterial = new BitmapMaterial(bitmap, ini);
-			_depthShader = new DepthShader({minZ:_minZ, maxZ:_maxZ, blendMode:BlendMode.MULTIPLY});
+			_bitmapMaterial.color = _minColor;
+			_depthShader = new DepthShader({minZ:_minZ, maxZ:_maxZ, color:_maxColor});
 			
 			//add to materials array
 			addMaterial(_bitmapMaterial);
