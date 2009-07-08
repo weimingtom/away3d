@@ -58,7 +58,7 @@ package away3d.core.project
 		 */
         public function blockers(source:Object3D, viewTransform:Matrix3D, consumer:IBlockerConsumer):void
         {
-			_screenVertices = _drawPrimitiveStore.createScreenVertices(source.id);
+			_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
 			
         	_convexBlock = source as ConvexBlock;
 			

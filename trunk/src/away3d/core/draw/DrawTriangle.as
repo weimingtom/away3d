@@ -47,9 +47,9 @@ package away3d.core.draw
 				screenVertices[screenVertices.length] = v12z;
 				
 	            return [
-	                create(source, faceVO, material, screenVertices, screenIndices, commands, index0, index1, uv0,  uv01, uv12, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, commands, index1, index2, uv01,  uv1, uv12, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, commands, index2, index3, uv0,  uv12, uv2, true)
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index0, index1, uv0,  uv01, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index1, index2, uv01,  uv1, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index2, index3, uv0,  uv12, uv2, true)
 	            ];
             }
             else
@@ -77,9 +77,9 @@ package away3d.core.draw
 				screenVertices[screenVertices.length] = v12z;
 	        	
 	            return [
-	                create(source, faceVO, material, screenVertices, screenIndices, commands, index4, index5, uv0,  uv01, uv2, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, commands, index5, index6, uv01,  uv1, uv12, true),
-	                create(source, faceVO, material, screenVertices, screenIndices, commands, index6, index7, uv01,  uv12, uv2, true)
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index4, index5, uv0,  uv01, uv2, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index5, index6, uv01,  uv1, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index6, index7, uv01,  uv12, uv2, true)
 	            ];
             }
         }
@@ -220,7 +220,7 @@ package away3d.core.draw
         
         public var screenIndices:Array;
         
-        public var commands:Array;
+        public var screenCommands:Array;
         
         public var startIndex:int;
         
@@ -462,10 +462,10 @@ package away3d.core.draw
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(source, faceVO, material, screenVertices, screenIndices, commands, index0, index1, uv0,  uv01, uv20, true),
-                create(source, faceVO, material, screenVertices, screenIndices, commands, index1, index2, uv1,  uv12, uv01, true),
-                create(source, faceVO, material, screenVertices, screenIndices, commands, index2, index3, uv2,  uv20, uv12, true),
-                create(source, faceVO, material, screenVertices, screenIndices, commands, index3, index4, uv01, uv12, uv20, true)
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index0, index1, uv0,  uv01, uv20, true),
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index1, index2, uv1,  uv12, uv01, true),
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index2, index3, uv2,  uv20, uv12, true),
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index3, index4, uv01, uv12, uv20, true)
             ];
         }
         

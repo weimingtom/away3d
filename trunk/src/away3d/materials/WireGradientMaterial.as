@@ -121,7 +121,7 @@ package away3d.materials
         								interpolationMethod:interpolationMethod
         							 };
 			
-			tri.source.session.renderTriangleLineGradientFill(width, wirecolor, wirealpha, gradientObj, tri.screenVertices, tri.commands, tri.screenIndices, tri.startIndex, tri.endIndex);
+			tri.source.session.renderTriangleLineGradientFill(width, wirecolor, wirealpha, gradientObj, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
         }
         
 		/**

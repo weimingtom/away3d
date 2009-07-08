@@ -9,6 +9,7 @@ package away3d.cameras.lenses
 	
 	public class PerspectiveLens extends AbstractLens implements ILens
 	{
+		private var _length:int;
 		
 		public override function setView(val:View3D):void
 		{
@@ -92,6 +93,8 @@ package away3d.cameras.lenses
         */
         public function project(viewTransform:Matrix3D, vertices:Array, screenVertices:Array):void
         {
+        	_length = 0;
+        	
         	for each (_vertex in vertices) {
         		
 	        	_vx = _vertex.x;
@@ -104,17 +107,19 @@ package away3d.cameras.lenses
 	                throw new Error("isNaN(sz)");
 	            
 	            if (_sz < _near && _clipping is RectangleClipping) {
-	            	screenVertices[screenVertices.length] = null;
-	            	screenVertices[screenVertices.length] = null;
-	            	screenVertices[screenVertices.length] = null;
+	            	screenVertices[_length] = null;
+	            	screenVertices[_length+1] = null;
+	            	screenVertices[_length+2] = null;
+	            	_length += 3;
 	                continue;
 	            }
 	            
 	         	_persp = _camera.focus*_camera.zoom / _sz;
 				
-	            screenVertices[screenVertices.length] = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx) * _persp;
-	            screenVertices[screenVertices.length] = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty) * _persp;
-	            screenVertices[screenVertices.length] = _sz;
+	            screenVertices[_length] = (_vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx) * _persp;
+	            screenVertices[_length+1] = (_vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty) * _persp;
+	            screenVertices[_length+2] = _sz;
+	            _length += 3;
          	}
         }
 	}
