@@ -624,7 +624,7 @@
 		 */
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
-        	if (blendMode == BlendMode.NORMAL) {
+        	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
         		_graphics = layer.graphics;
         	} else {
         		_session = tri.source.session;        		        		_shape = _session.getShape(this, level++, layer);	    		
