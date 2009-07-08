@@ -9,6 +9,8 @@ package away3d.cameras.lenses
 	
 	public class SphericalLens extends AbstractLens implements ILens
 	{
+		private var _length:int;
+		
 		private var _wx:Number;
 		private var _wy:Number;
 		private var _wz:Number;
@@ -98,6 +100,8 @@ package away3d.cameras.lenses
         */
         public function project(viewTransform:Matrix3D, vertices:Array, screenVertices:Array):void
         {
+        	_length = 0;
+        	
         	for each (_vertex in vertices) {
         		
 	        	_vx = _vertex.x;
@@ -118,17 +122,19 @@ package away3d.cameras.lenses
 	                throw new Error("isNaN(sz)");
 	            
 	            if (_sz < _near && _clipping is RectangleClipping) {
-	                screenVertices[screenVertices.length] = null;
-	                screenVertices[screenVertices.length] = null;
-	                screenVertices[screenVertices.length] = null;
+	                screenVertices[_length] = null;
+	                screenVertices[_length+1] = null;
+	                screenVertices[_length+2] = null;
+	                _length += 3;
 	                continue;
 	            }
 	            
 				_persp = _c2? _camera.zoom*_camera.focus*(_c - _wz)/_c2 : 0;
 				
-	            screenVertices[screenVertices.length] = _wx * _persp;
-	            screenVertices[screenVertices.length] = _wy * _persp;
-	            screenVertices[screenVertices.length] = _sz;
+	            screenVertices[_length] = _wx * _persp;
+	            screenVertices[_length+1] = _wy * _persp;
+	            screenVertices[_length+2] = _sz;
+	            _length += 3;
 	        }
         }
 	}

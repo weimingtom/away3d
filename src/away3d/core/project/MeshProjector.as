@@ -20,6 +20,7 @@ package away3d.core.project
 		private var _cameraVarsStore:CameraVarsStore;
 		private var _screenVertices:Array;
 		private var _screenIndices:Array;
+		private var _screenCommands:Array;
 		private var _mesh:Mesh;
 		private var _clipFlag:Boolean;
 		private var _vertex:Vertex;
@@ -27,8 +28,6 @@ package away3d.core.project
 		private var _startIndices:Array;
 		private var _defaultVertices:Array = new Array();
 		private var _vertices:Array;
-		private var _defaultCommands:Array = new Array();
-		private var _commands:Array;
 		private var _defaultClippedFaceVOs:Array = new Array();
 		private var _faceVOs:Array;
 		private var _defaultClippedSegmentVOs:Array = new Array();
@@ -122,21 +121,23 @@ package away3d.core.project
             
 			if (_clipFlag) {
             	_vertices = _defaultVertices;
-            	_commands = _defaultCommands;
-				_screenIndices = _drawPrimitiveStore.createScreenIndices(source.id);
-            	_startIndices = _defaultStartIndices;
-            	_faceVOs = _defaultClippedFaceVOs;
-            	_segmentVOs = _defaultClippedSegmentVOs;
-            	_billboardVOs = _defaultClippedBillboards;
 				_vertices.length = 0;
+            	_screenCommands = _drawPrimitiveStore.getScreenCommands(source.id);
+				_screenCommands.length = 0;
+				_screenIndices = _drawPrimitiveStore.getScreenIndices(source.id);
+				_screenIndices.length = 0;
+            	_startIndices = _defaultStartIndices;
 				_startIndices.length = 0;
+            	_faceVOs = _defaultClippedFaceVOs;
 				_faceVOs.length = 0;
+            	_segmentVOs = _defaultClippedSegmentVOs;
 				_segmentVOs.length = 0;
+            	_billboardVOs = _defaultClippedBillboards;
 				_billboardVOs.length = 0;
-            	_clipping.checkElements(_mesh, _faceVOs, _segmentVOs, _billboardVOs, _vertices, _commands, _screenIndices, _startIndices);
+            	_clipping.checkElements(_mesh, _faceVOs, _segmentVOs, _billboardVOs, _vertices, _screenCommands, _screenIndices, _startIndices);
 			} else {
             	_vertices = _mesh.vertices;
-            	_commands = _mesh.commands;
+            	_screenCommands = _mesh.commands;
             	_screenIndices = _mesh.indices;
             	_startIndices = _mesh.startIndices;
             	_faceVOs = _mesh.faceVOs;
@@ -144,7 +145,8 @@ package away3d.core.project
             	_billboardVOs = _mesh.billboardVOs;
             }
             
-			_screenVertices = _drawPrimitiveStore.createScreenVertices(source.id);
+			_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
+			_screenVertices.length = 0;
             _lens.project(viewTransform, _vertices, _screenVertices);
             
             if (_mesh.outline) {
@@ -174,7 +176,7 @@ package away3d.core.project
                 
             	_face = _faceVO.face;
             	
-            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _screenVertices, _screenIndices, _commands, _startIndex, _endIndex, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
+            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
             	
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.backface = _tri.area < 0;
@@ -228,7 +230,7 @@ package away3d.core.project
                     	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex];
                     	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+1];
                     	_endIndex = _screenIndices.length;
-                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _commands, _startIndex, _endIndex));
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex));
                     }
 					
                     _n12 = _mesh.geometry.neighbour12(_face);
@@ -238,7 +240,7 @@ package away3d.core.project
                     	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+1];
                     	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+2];
                     	_endIndex = _screenIndices.length;
-                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _commands, _startIndex, _endIndex));
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex));
                     }
                     
                     _n20 = _mesh.geometry.neighbour20(_face);
@@ -248,7 +250,7 @@ package away3d.core.project
                     	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+2];
                     	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex];
                     	_endIndex = _screenIndices.length;
-                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _commands, _startIndex, _endIndex));
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex));
                     }
                 }
             }
@@ -273,7 +275,7 @@ package away3d.core.project
                 if (!_smaterial.visible)
                     continue;
                 
-                _seg = _drawPrimitiveStore.createDrawSegment(source, _segmentVO, _smaterial, _screenVertices, _screenIndices, _commands, _startIndex, _endIndex, _segmentVO.generated)
+                _seg = _drawPrimitiveStore.createDrawSegment(source, _segmentVO, _smaterial, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex, _segmentVO.generated)
                 
                 //check whether screenClipping removes segment
                 if (!consumer.primitive(_seg))

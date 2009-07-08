@@ -32,7 +32,7 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
 		{
-        	_screenVertices = _drawPrimitiveStore.createScreenVertices(source.id);
+        	_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
         	
 			_dofsprite = source as DofSprite2D;
 			
