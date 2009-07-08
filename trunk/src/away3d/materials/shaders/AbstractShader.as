@@ -24,6 +24,8 @@ package away3d.materials.shaders
     */
     public class AbstractShader extends EventDispatcher implements ILayerMaterial
     {
+    	/** @private */
+        arcane var _materialDirty:Boolean;
         /** @private */
 		arcane var _materialupdated:MaterialEvent;
         /** @private */
@@ -88,7 +90,9 @@ package away3d.materials.shaders
 		arcane var _mapping:Matrix = new Matrix();
 		/** @private */
         arcane function notifyMaterialUpdate():void
-        {	
+        {
+        	_materialDirty = false;
+        	
             if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
                 return;
 			
