@@ -48,32 +48,6 @@ package away3d.loaders
 			applyPerspective();
 		}
 		
-		private function applyPerspective():void
-		{
-			if(_perspectiveOffset == 0)
-				return;
-			
-			var faceCounter:uint;
-			for each(var child:Object3D in ObjectContainer3D(container).children)
-			{
-				if(child is Mesh)
-				{
-					var mesh:Mesh = child as Mesh;
-					for each(var face:Face in mesh.faces)
-					{
-						for each(var vertex:Vertex in face.vertices)
-						{
-							vertex.x *= 1 + _perspectiveOffset*faceCounter/_perspectiveFocus;
-							vertex.y *= 1 + _perspectiveOffset*faceCounter/_perspectiveFocus;
-							vertex.z += _perspectiveOffset*faceCounter;
-						}
-						
-						faceCounter++;
-					}
-				}
-			} 
-		}
-		
 		private function parseVectorData():void
 		{
 			if(_libraryClips.length > 0)
@@ -103,6 +77,32 @@ package away3d.loaders
 			ObjectContainer3D(container).addChild(clipMesh);
 			
 			VectorShapes.draw(clipMesh.geometry.graphics, shapeId, _scaling);
+		}
+		
+		private function applyPerspective():void
+		{
+			if(_perspectiveOffset == 0)
+				return;
+			
+			var faceCounter:uint;
+			for each(var child:Object3D in ObjectContainer3D(container).children)
+			{
+				if(child is Mesh)
+				{
+					var mesh:Mesh = child as Mesh;
+					for each(var face:Face in mesh.faces)
+					{
+						for each(var vertex:Vertex in face.vertices)
+						{
+							vertex.x *= 1 + _perspectiveOffset*faceCounter/_perspectiveFocus;
+							vertex.y *= 1 + _perspectiveOffset*faceCounter/_perspectiveFocus;
+							vertex.z += _perspectiveOffset*faceCounter;
+						}
+						
+						faceCounter++;
+					}
+				}
+			} 
 		}
 		
 		public static function parse(data:*, init:Object = null):ObjectContainer3D
