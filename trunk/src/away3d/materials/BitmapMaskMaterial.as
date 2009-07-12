@@ -118,6 +118,7 @@ package away3d.materials
 		
 		private var _view:View3D;
 		private var _screenVertices:Array;
+		private var _screenCommands:Array;
 		private var _screenIndices:Array;
 		private var _near:Number;
 		private var _smooth:Boolean;
@@ -196,7 +197,7 @@ package away3d.materials
             {
                 _session.renderTriangleBitmap(_renderBitmap, map, _screenVertices, _screenIndices, startIndex, endIndex, smooth, repeat, _graphics);
                 if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenIndices, startIndex, endIndex);
+                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenCommands, _screenIndices, startIndex, endIndex);
                 return;
             }
 			
@@ -223,7 +224,7 @@ package away3d.materials
             {
                 _session.renderTriangleBitmap(_renderBitmap, map, _screenVertices, _screenIndices, startIndex, endIndex, smooth, repeat, _graphics);
                 if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenIndices, startIndex, endIndex);
+                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenCommands, _screenIndices, startIndex, endIndex);
                 return;
             }
 			
@@ -840,6 +841,7 @@ package away3d.materials
         {
         	_mapping = getMapping(tri);
 			_session = tri.source.session;
+			_screenCommands = tri.screenCommands;
         	_view = tri.view;
         	
 			if (precision) {
@@ -851,14 +853,13 @@ package away3d.materials
 	            map.d = _mapping.d;
 	            map.tx = _mapping.tx;
 	            map.ty = _mapping.ty;
-	            
 	            renderRec(tri.startIndex, tri.endIndex, 0);
 			} else {
 				_session.renderTriangleBitmapMask(_renderBitmap, _offsetX, _offsetY, _scaling, _screenVertices, _screenIndices, tri.startIndex, tri.endIndex, smooth, repeat, _graphics);
 			}
 			
             if (debug)
-                _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, _screenIndices, tri.startIndex, tri.endIndex);
+                _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, tri.screenCommands, _screenIndices, tri.startIndex, tri.endIndex);
 				
 			if(showNormals){
 				

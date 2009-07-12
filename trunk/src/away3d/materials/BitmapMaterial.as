@@ -98,7 +98,7 @@
 			}
 		}
 				private var index:int;
-		private var _view:View3D;		private var _screenVertices:Array;		private var _screenIndices:Array;		private var _near:Number;
+		private var _view:View3D;		private var _screenVertices:Array;		private var _screenCommands:Array;		private var _screenIndices:Array;		private var _near:Number;
 		private var _smooth:Boolean;
 		private var _debug:Boolean;
 		private var _repeat:Boolean;
@@ -161,7 +161,7 @@
             {
                 _session.renderTriangleBitmap(_renderBitmap, map, _screenVertices, _screenIndices, startIndex, endIndex, smooth, repeat, _graphics);
                 if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenIndices, startIndex, endIndex);
+                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenCommands, _screenIndices, startIndex, endIndex);
                 return;
             }
 			
@@ -188,7 +188,7 @@
             {
                 _session.renderTriangleBitmap(_renderBitmap, map, _screenVertices, _screenIndices, startIndex, endIndex, smooth, repeat, _graphics);
                 if (debug)
-                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenIndices, startIndex, endIndex);
+                    _session.renderTriangleLine(1, 0x00FF00, 1, _screenVertices, _screenCommands, _screenIndices, startIndex, endIndex);
                 return;
             }
 			
@@ -643,7 +643,7 @@
         public function renderTriangle(tri:DrawTriangle):void
         {
         	_mapping = getMapping(tri);
-			_session = tri.source.session;			_screenVertices = tri.screenVertices;			_screenIndices = tri.screenIndices;
+			_session = tri.source.session;			_screenCommands = tri.screenCommands;			_screenVertices = tri.screenVertices;			_screenIndices = tri.screenIndices;
         	_view = tri.view;
         	_near = _view.camera.lens.near;
         	
@@ -663,7 +663,7 @@
 			}
 			
             if (debug)
-                _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, _screenIndices, tri.startIndex, tri.endIndex);
+                _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, tri.screenCommands, _screenIndices, tri.startIndex, tri.endIndex);
 							if(showNormals){								_nn.rotate(tri.faceVO.face.normal, tri.view.cameraVarsStore.viewTransformDictionary[tri.source]);				 				_sv0x = (tri.v0x + tri.v1x + tri.v2x) / 3;				_sv0y = (tri.v0y + tri.v1y + tri.v2y) / 3;				 				_sv1x = (_sv0x - (30*_nn.x));				_sv1y = (_sv0y - (30*_nn.y));				 				_session.renderLine(_sv0x, _sv0y, _sv1x, _sv1y, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
         
 		/**
