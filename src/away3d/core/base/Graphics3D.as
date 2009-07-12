@@ -23,7 +23,7 @@ package away3d.core.base
 		
 		public function beginFill(color:int = -1, alpha:Number = -1):void
 		{
-			trace("Graphics3D.as - beginFill(" + color + ", " + alpha + ");");
+			//trace("Graphics3D.as - beginFill(" + color + ", " + alpha + ");");
 			
 			_currentMaterial = new WireColorMaterial();
 			_currentMaterial.wirealpha = 0;
@@ -40,33 +40,33 @@ package away3d.core.base
 		
 		public function endFill():void
 		{
-			trace("Graphics3D.as - endFill().");
+			//trace("Graphics3D.as - endFill().");
 		}
 		
 		public function moveTo(x:Number, y:Number):void
 		{
-			trace("Graphics3D.as - M(" + x + ", " + y + ");");
+			//trace("Graphics3D.as - M(" + x + ", " + y + ");");
 			
 			_currentFace.moveTo(x, -y, _zOffset);
 		}
 		
 		public function lineTo(x:Number, y:Number):void
 		{
-			trace("Graphics3D.as - L(" + x + ", " + y + ");");
+			//trace("Graphics3D.as - L(" + x + ", " + y + ");");
 			
 			_currentFace.lineTo(x, -y, _zOffset);
 		}
 		
 		public function curveTo(cx:Number, cy:Number, ax:Number, ay:Number):void
 		{
-			trace("Graphics3D.as - C(" + cx + ", " + cy + ", " + ax + ", " + ay + ");");
+			//trace("Graphics3D.as - C(" + cx + ", " + cy + ", " + ax + ", " + ay + ");");
 			
 			_currentFace.curveTo(cx, -cy, _zOffset, ax, -ay, _zOffset);
 		}
 		
 		public function clear():void
 		{
-			trace("Graphics3D.as - clear().");
+			//trace("Graphics3D.as - clear().");
 			
 			for each(var face:Face in _geometry.faces)
 				_geometry.removeFace(face);
@@ -74,7 +74,7 @@ package away3d.core.base
 		
 		public function startNewShape():void
 		{
-			trace(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Graphics3D.as - startNewShape().");
+			//trace(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Graphics3D.as - startNewShape().");
 			
 			_currentFace = new Face();
 			_currentFace.material = _currentMaterial;
