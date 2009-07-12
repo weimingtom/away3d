@@ -19,7 +19,6 @@ package away3d.core.project
 		private var _vertices:Array;
 		private var _bitmaps:Dictionary;
 		private var _lens:ILens;
-		private var _vertex:Vertex;
 		private var _screenVertices:Array;
 		private var _centerScreenVertices:Array = new Array();
 		private var _index:int;
@@ -59,7 +58,7 @@ package away3d.core.project
                 
                 if (z < minz) {
                     minz = z;
-                    bitmap = _bitmaps[_vertex];
+                    bitmap = _bitmaps[_vertices[_index]];
                 }
             }
 			
