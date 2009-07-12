@@ -81,7 +81,7 @@ package away3d.materials
             if (alpha <= 0)
                 return;
 
-            tri.source.session.renderTriangleLine(width, color, alpha, tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex);
+            tri.source.session.renderTriangleLine(width, color, alpha, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
         }
         
 		/**
