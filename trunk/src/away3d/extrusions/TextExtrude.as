@@ -1,12 +1,8 @@
 package away3d.extrusions
 {
-	import away3d.core.base.DrawingCommand;
-	import away3d.core.base.Face;
-	import away3d.core.base.Mesh;
-	import away3d.core.base.Vertex;
-	import away3d.core.utils.BezierUtils;
-	import away3d.materials.ITriangleMaterial;
-	import away3d.materials.WireColorMaterial;
+	import away3d.core.base.*;
+	import away3d.core.utils.*;
+	import away3d.materials.*;
 
 	public class TextExtrude extends Mesh
 	{
@@ -28,7 +24,7 @@ package away3d.extrusions
 			_subdivisionsXY = ini.getNumber("subdivisionsXY", 1, {min:1, max:100});
 			_depth = ini.getNumber("depth", 100);
 			
-			_material = mesh.faces[0].material;
+			_material = mesh.material as ITriangleMaterial;
 			
 			for each(var face:Face in mesh.faces)
 				generateFaceExtrusion(face);
