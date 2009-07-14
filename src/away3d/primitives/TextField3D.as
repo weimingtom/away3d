@@ -1,5 +1,6 @@
 package away3d.primitives
 {
+	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
 	
 	import wumedia.parsers.swf.DefineFont;
@@ -18,20 +19,9 @@ package away3d.primitives
 		private var _textWidth:Number;
 		private var _align:String;
 		private var _alignToBaseLine:Boolean;
-		private var _textColor:uint;
-		private var _textAlpha:Number;
+		private var _face:Face;
 		
 		private const emSize:Number = 1024;
-		
-		public function set textColor(value:uint):void
-		{
-			_textColor = value;
-			buildText();
-		}
-		public function get textColor():uint
-		{
-			return _textColor;
-		}
 		
 		public function set size(value:Number):void
 		{
@@ -123,16 +113,6 @@ package away3d.primitives
 			return _alignToBaseLine;
 		}
 		
-		public function set textAlpha(value:Number):void
-		{
-			_textAlpha = value;
-			buildText();
-		}
-		public function get textAlpha():Number
-		{
-			return _textAlpha;
-		}
-		
 		public function TextField3D(fontId:String, init:Object = null)
 		{
 			super(init);
@@ -147,8 +127,6 @@ package away3d.primitives
 			_textWidth = ini.getNumber("textWidth", 500);
 			_align = ini.getString("align", "TL");
 			_alignToBaseLine = ini.getBoolean("alignToBase", false);
-			_textColor = ini.getInt("textColor", 0, {min:0, max:0xFFFFFF});
-			_textAlpha = ini.getNumber("textAlpha", 1, {min:0, max:1});
 			
 			this.bothsides = true;
 			
@@ -158,10 +136,11 @@ package away3d.primitives
 		private function buildText():void
 		{
 			geometry.graphics.clear();
-			geometry.graphics.lineStyle(1, 0, 0);
-			geometry.graphics.beginFill(_textColor, _textAlpha);
 			VectorText.write(geometry.graphics, _fontId, _size, _leading, _kerning, _text, 0, 0, _textWidth, _align, false);
-			geometry.graphics.endFill();
+			
+			//clear the materials on the shapes
+			for each (_face in geometry.faces)
+				_face.material = null;
 		}
 	}
 }
