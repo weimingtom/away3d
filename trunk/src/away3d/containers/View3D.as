@@ -353,6 +353,11 @@ package away3d.containers
         public var stats:Boolean;
         
         /**
+        * Enables/Disables mouse interactivity.
+        */
+        public var mouseEvents:Boolean;
+        
+        /**
         * Keeps track of whether the stats panel is currently open.
         * 
         * @see away3d.core.stats.Stats
@@ -621,6 +626,7 @@ package away3d.containers
 			y = _ini.getNumber("y", 0);
 			forceUpdate = _ini.getBoolean("forceUpdate", false);
 			mouseZeroMove = _ini.getBoolean("mouseZeroMove", false);
+			mouseEvents = _ini.getBoolean("mouseEvents", true);
 			
 			//setup blendmode for hidden interactive layer
             _interactiveLayer.blendMode = BlendMode.ALPHA;
@@ -662,6 +668,9 @@ package away3d.containers
         */
         public function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
+        	if (!mouseEvents)
+        		return;
+        	
         	findHit(_internalsession, x, y);
         	
             var event:MouseEvent3D = getMouseEvent(type);
