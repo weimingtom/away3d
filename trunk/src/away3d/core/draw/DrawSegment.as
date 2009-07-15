@@ -27,8 +27,8 @@ package away3d.core.draw
 			screenVertices[screenVertices.length] = v01z;
 			
             return [
-                create(source, material, screenVertices, screenIndices, screenCommands, index0, index1, true),
-                create(source, material, screenVertices, screenIndices, screenCommands, index1, index2, true)
+                create(source, segmentVO, material, screenVertices, screenIndices, screenCommands, index0, index1, true),
+                create(source, segmentVO, material, screenVertices, screenIndices, screenCommands, index1, index2, true)
             ];
     	}
     	
@@ -213,8 +213,8 @@ package away3d.core.draw
         	ScreenVertex.median(startIndex, startIndex+1, screenVertices, screenIndices, focus);
 			
             return [
-                create(source, material, screenVertices, screenIndices, screenCommands, index0, index1, true),
-                create(source, material, screenVertices, screenIndices, screenCommands, index1, index2, true)
+                create(source, segmentVO, material, screenVertices, screenIndices, screenCommands, index0, index1, true),
+                create(source, segmentVO, material, screenVertices, screenIndices, screenCommands, index1, index2, true)
             ];
         }
 		
