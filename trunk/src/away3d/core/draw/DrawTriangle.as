@@ -130,6 +130,7 @@ package away3d.core.draw
         private var uv20:UV;
         private var _invtexmapping:Matrix = new Matrix();
         private var _index:int;
+        private var _vertexCount:uint;
         
         private function num(n:Number):Number
         {
@@ -225,6 +226,8 @@ package away3d.core.draw
         public var startIndex:int;
         
         public var endIndex:int;
+        
+        public var reverseArea:Boolean;
         
 		/**
 		 * @inheritDoc
@@ -562,7 +565,9 @@ package away3d.core.draw
                 else minZ = v2z;
             }
             
-            if (startIndex - endIndex > 3) {
+            _vertexCount = startIndex - endIndex;
+            
+            if(_vertexCount > 3) {
             	screenZ = 0
             	_index = endIndex;
             	
@@ -574,12 +579,19 @@ package away3d.core.draw
             } else {
             	screenZ = (v0z + v1z + v2z) / 3;
             }
+            
             area = 0.5 * (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y));
             
             if (area > 0)
         		_areaSign = 1;
         	else
         		_areaSign = -1;
+        		
+        	if(_vertexCount > 3 && reverseArea)
+        	{
+        		area *= -1;
+        		_areaSign *= -1;
+        	}
         }
         
 		/**

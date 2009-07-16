@@ -194,6 +194,7 @@ package away3d.core.utils
 		        _tri.create = createDrawTriangle;
 	        }
 	        
+	        _tri.reverseArea = faceVO.reverseArea;
 	        _tri.generated = generated;
 	        _tri.source = source;
 	        _tri.faceVO = faceVO;
