@@ -587,11 +587,12 @@ package away3d.core.draw
         	else
         		_areaSign = -1;
         		
-        	if(_vertexCount > 3 && reverseArea)
+        	// Disabled due to reported errors...
+        	/* if(_vertexCount > 3 && reverseArea)
         	{
         		area *= -1;
         		_areaSign *= -1;
-        	}
+        	} */
         }
         
 		/**
