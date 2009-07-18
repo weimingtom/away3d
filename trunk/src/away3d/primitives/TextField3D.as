@@ -127,6 +127,8 @@ package away3d.primitives
 			_align = ini.getString("align", "TL");
 			_alignToBaseLine = ini.getBoolean("alignToBase", false);
 			
+			this.bothsides = true;
+			
 			buildText();
 		}
 		
