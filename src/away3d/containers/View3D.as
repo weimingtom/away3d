@@ -269,6 +269,11 @@ package away3d.containers
 		
 		private function onClippingUpdated(e:ClippingEvent):void
 		{
+			_screenClippingDirty = true;
+		}
+		
+		private function onScreenUpdated(e:ClippingEvent):void
+		{
 			_updated = true;
 		}
 		
@@ -454,6 +459,7 @@ package away3d.containers
         	
         	if (_clipping) {
         		_clipping.removeOnClippingUpdate(onClippingUpdated);
+        		_clipping.removeOnScreenUpdate(onScreenUpdated);
         	}
         		
         	_clipping = val;
@@ -461,6 +467,7 @@ package away3d.containers
         	
         	if (_clipping) {
         		_clipping.addOnClippingUpdate(onClippingUpdated);
+        		_clipping.addOnScreenUpdate(onScreenUpdated);
         	} else {
         		throw new Error("View cannot have clip set to null");
         	}
