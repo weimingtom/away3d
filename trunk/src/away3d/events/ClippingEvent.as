@@ -15,6 +15,11 @@ package away3d.events
     	public static const CLIPPING_UPDATED:String = "clippingUpdated";
     	
     	/**
+    	 * Defines the value of the type property of a ScreenUpdated event object.
+    	 */
+    	public static const SCREEN_UPDATED:String = "screenUpdated";
+    	
+    	/**
     	 * A reference to the session object that is relevant to the event.
     	 */
         public var clipping:Clipping;

@@ -23,7 +23,21 @@ package away3d.core.clip
 	 * @see #maxZ
 	 * @see #minZ
 	 */
-	[Event(name="clipUpdated",type="away3d.events.ClipEvent")]
+	[Event(name="clippingUpdated",type="away3d.events.ClippingEvent")]
+	
+	/**
+	 * Dispatched when the clipping properties of a screenClipping object update.
+	 * 
+	 * @eventType away3d.events.ClipEvent
+	 * 
+	 * @see #maxX
+	 * @see #minX
+	 * @see #maxY
+	 * @see #minY
+	 * @see #maxZ
+	 * @see #minZ
+	 */
+	[Event(name="screenUpdated",type="away3d.events.ClippingEvent")]
 	
 	use namespace arcane;
 	
@@ -55,18 +69,16 @@ package away3d.core.clip
 		private var _maX:Number;
 		private var _maY:Number;
 		private var _clippingupdated:ClippingEvent;
-		
-		//keep silent
-		public var notify:Boolean = true;
+		private var _screenupdated:ClippingEvent;
 		
 		private function onScreenUpdate(event:ClippingEvent):void
 		{
-			dispatchEvent(event);
+			notifyScreenUpdate();
 		}
 		
         private function notifyClippingUpdate():void
         {
-            if (!notify || !hasEventListener(ClippingEvent.CLIPPING_UPDATED))
+            if (!hasEventListener(ClippingEvent.CLIPPING_UPDATED))
                 return;
 			
             if (_clippingupdated == null)
@@ -74,14 +86,19 @@ package away3d.core.clip
                 
             dispatchEvent(_clippingupdated);
         }
-        
-		private function forceNotifyClippingUpdate():void
-		{
-			notifyClippingUpdate();
-		}
+		
+        private function notifyScreenUpdate():void
+        {
+            if (!hasEventListener(ClippingEvent.SCREEN_UPDATED))
+                return;
+			
+            if (_screenupdated == null)
+                _screenupdated = new ClippingEvent(ClippingEvent.SCREEN_UPDATED, this);
+                
+            dispatchEvent(_screenupdated);
+        }
 		
         protected var ini:Init;
-		
 		
 		public function get objectCulling():Boolean
 		{
@@ -391,36 +408,30 @@ package away3d.core.clip
                 _miY = _globalPoint.y - _stageHeight/2;
                 _maY = _globalPoint.y + _stageHeight/2;
         	}
-        	
-        	// keep silent until updated finish
-			_clippingClone.notify = false;
 			
-            if (_minX == -Infinity)
-            	_clippingClone.minX = _miX;
-            else
+            if (_minX > _miX)
             	_clippingClone.minX = _minX;
-            
-            if (_maxX == Infinity)
-            	_clippingClone.maxX = _maX;
             else
+            	_clippingClone.minX = _miX;
+            
+            if (_maxX < _maX)
             	_clippingClone.maxX = _maxX;
-            
-            if (_minY == -Infinity)
-            	_clippingClone.minY = _miY;
             else
+            	_clippingClone.maxX = _maX;
+            
+            if (_minY > _miY)
             	_clippingClone.minY = _minY;
-            
-            if (_maxY == Infinity)
-            	_clippingClone.maxY = _maY;
             else
+            	_clippingClone.minY = _miY;
+            
+            if (_maxY < _maY)
             	_clippingClone.maxY = _maxY;
+            else
+            	_clippingClone.maxY = _maY;
             
             _clippingClone.minZ = _minZ;
             _clippingClone.maxZ = _maxZ;
             _clippingClone.objectCulling = _objectCulling;
-            
-            _clippingClone.notify = true;
-            _clippingClone.forceNotifyClippingUpdate();
             
             return _clippingClone;
         }
@@ -470,5 +481,24 @@ package away3d.core.clip
             removeEventListener(ClippingEvent.CLIPPING_UPDATED, listener, false);
         }
         
+		/**
+		 * Default method for adding a screenUpdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function addOnScreenUpdate(listener:Function):void
+        {
+            addEventListener(ClippingEvent.SCREEN_UPDATED, listener, false, 0, false);
+        }
+		
+		/**
+		 * Default method for removing a screenUpdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function removeOnScreenUpdate(listener:Function):void
+        {
+            removeEventListener(ClippingEvent.SCREEN_UPDATED, listener, false);
+        }
     }
 }
