@@ -61,8 +61,10 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_dtArray = _dtDictionary[_session] as Array;
-					_dtStore = _dtStore.concat(_dtArray);
-					_dtArray.length = 0;
+					if (_dtArray.length) {
+						_dtStore = _dtStore.concat(_dtArray);
+						_dtArray.length = 0;
+					}
 				}
 			}
 			
@@ -70,8 +72,10 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_dsArray = _dsDictionary[_session] as Array
-					_dsStore = _dsStore.concat(_dsArray);
-					_dsArray.length = 0;
+					if (_dsArray.length) {
+						_dsStore = _dsStore.concat(_dsArray);
+						_dsArray.length = 0;
+					}
 				}
 			}
 			
@@ -79,8 +83,10 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_dbArray = _dbDictionary[_session] as Array;
-					_dbStore = _dbStore.concat(_dbArray);
-					_dbArray.length = 0;
+					if (_dbArray.length) {
+						_dbStore = _dbStore.concat(_dbArray);
+						_dbArray.length = 0;
+					}
 				}
 			}
 			
@@ -88,8 +94,10 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_cbArray = _cbDictionary[_session] as Array;
-					_cbStore = _cbStore.concat(_cbArray);
-					_cbArray.length = 0;
+					if (_cbArray.length) {
+						_cbStore = _cbStore.concat(_cbArray);
+						_cbArray.length = 0;
+					}
 				}
 			}
 			
@@ -97,8 +105,10 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_sbArray = _sbDictionary[_session] as Array;
-					_sbStore = _sbStore.concat(_sbArray);
-					_sbArray.length = 0;
+					if (_sbArray.length) {
+						_sbStore = _sbStore.concat(_sbArray);
+						_sbArray.length = 0;
+					}
 				}
 			}
 			
@@ -106,8 +116,10 @@ package away3d.core.utils
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
 					_doArray = _doDictionary[_session] as Array;
-					_doStore = _doStore.concat(_doArray);
-					_doArray.length = 0;
+					if (_doArray.length) {
+						_doStore = _doStore.concat(_doArray);
+						_doArray.length = 0;
+					}
 				}
 			}
 		}
