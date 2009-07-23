@@ -29,6 +29,12 @@
 		arcane var _faceStore:Array = [];
 		/** @private */
         arcane var _faceActive:Array = [];
+        /** @private */
+		arcane var _segment:Segment;
+		/** @private */
+		arcane var _segmentStore:Array = [];
+		/** @private */
+        arcane var _segmentActive:Array = [];
 		/** @private */
         arcane var _primitiveDirty:Boolean;
 		/** @private */
@@ -73,8 +79,54 @@
    			}
             return _face;
 		}
+		/** @private */
+		arcane function createSegment(v0:Vertex, v1:Vertex, material:ISegmentMaterial = null):Segment
+		{
+			if (_segmentStore.length) {
+            	_segmentActive.push(_segment = _segmentStore.pop());
+	            _segment.v0 = v0;
+	            _segment.v1 = v1;
+	            _segment.material = material;
+			} else {
+            	_segmentActive.push(_segment = new Segment(v0, v1, material));
+   			}
+            return _segment;
+		}
 		
 		private var _index:int;
+     	
+		/**
+		 * Builds the vertex, face and uv objects that make up the 3d primitive.
+		 */
+    	protected function buildPrimitive():void
+    	{
+    		_primitiveDirty = false;
+    		_objectDirty = true;
+    		
+    		//remove all faces from the mesh
+    		_index = faces.length;
+    		while (_index--)
+    			removeFace(faces[_index]);
+    		
+    		//remove all segments from the mesh
+    		_index = segments.length;
+    		while (_index--)
+    			removeSegment(segments[_index]);
+    			
+    		//clear vertex objects
+    		_vStore = _vStore.concat(_vActive);
+        	_vActive = [];    		
+    		//clear uv objects
+    		_uvStore = _uvStore.concat(_uvActive);
+        	_uvActive = [];        	
+        	//clear face objects
+    		_faceStore = _faceStore.concat(_faceActive);
+        	_faceActive = [];
+        	
+        	//clear segment objects
+    		_segmentStore = _segmentStore.concat(_segmentActive);
+        	_segmentActive = [];    	}
+    	
 		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
 		 *
@@ -92,28 +144,5 @@
         	
         	super.updateObject();
      	}
-     	
-		/**
-		 * Builds the vertex, face and uv objects that make up the 3d primitive.
-		 */
-    	public function buildPrimitive():void
-    	{
-    		_primitiveDirty = false;
-    		_objectDirty = true;
-    		
-    		//remove all elements from the mesh
-    		_index = faces.length;
-    		while (_index--)
-    			removeFace(faces[_index]);
-    		
-    		//clear vertex objects
-    		_vStore = _vStore.concat(_vActive);
-        	_vActive = [];    		
-    		//clear uv objects
-    		_uvStore = _uvStore.concat(_uvActive);
-        	_uvActive = [];        	
-        	//clear face objects
-    		_faceStore = _faceStore.concat(_faceActive);
-        	_faceActive = [];    	}
     }
 }

@@ -1,123 +1,157 @@
 package away3d.primitives
 {
+	import away3d.arcane;
 	import away3d.core.base.*;
 	
 	import wumedia.parsers.swf.DefineFont;
 	import wumedia.vector.VectorText;
-
-	public class TextField3D extends Mesh
+	
+	use namespace arcane;
+	
+	public class TextField3D extends AbstractPrimitive
 	{
-		private var _fontId:String;
-		private var _fontDefinition:DefineFont;
+		private var _font:String;
 		private var _size:Number;
 		private var _leading:Number;
 		private var _kerning:Number;
 		private var _text:String;
-		private var _xOffset:Number = 0;
-		private var _yOffset:Number = 0;
 		private var _textWidth:Number;
 		private var _align:String;
-		private var _alignToBaseLine:Boolean;
 		private var _face:Face;
 		
-		private const emSize:Number = 1024;
-		
-		public function set size(value:Number):void
+		private function buildText():void
 		{
-			_size = value;
-			buildText();
+			geometry.graphics.clear();
+			VectorText.write(geometry.graphics, _font, _size, _leading, _kerning, _text, 0, 0, _textWidth, _align, false);
+			
+			//clear the materials on the shapes
+			for each (_face in geometry.faces)
+				_face.material = null;
 		}
+		
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
+            buildText();
+    	}
+    	
+		/**
+    	 * Defines the size of the text in pixels. Defaults to 20.
+    	 */
 		public function get size():Number
 		{
 			return _size;
 		}
 		
-		public function set leading(value:Number):void
+		public function set size(val:Number):void
 		{
-			_leading = value;
-			buildText();
+			if (_size == val)
+    			return;
+    		
+			_size = val;
+			_primitiveDirty = true;
 		}
+		
+		/**
+    	 * Defines the amount of vertical space between lines. Defaults to 20.
+    	 */
 		public function get leading():Number
 		{
 			return _leading;
 		}
 		
-		public function set kerning(value:Number):void
+		public function set leading(val:Number):void
 		{
-			_kerning = value;
-			buildText();
+			if (_leading == val)
+    			return;
+    		
+			_leading = val;
+			_primitiveDirty = true;
 		}
+		
+		/**
+    	 * Defines the amount of horizontal padding between characters. Defaults to 0.
+    	 */
 		public function get kerning():Number
 		{
 			return _kerning;
 		}
 		
-		public function set text(value:String):void
+		public function set kerning(val:Number):void
 		{
-			_text = value;
-			buildText();
+			if (_kerning == val)
+    			return;
+    		
+			_kerning = val;
+			_primitiveDirty = true;
 		}
+				
+		/**
+    	 * Defines the current text in the textfield.
+    	 */
 		public function get text():String
 		{
 			return _text;
 		}
 		
-		public function set xOffset(value:Number):void
+		public function set text(val:String):void
 		{
-			_xOffset = value;
-			buildText();
+			if (_text == val)
+    			return;
+    		
+			_text = val;
+			_primitiveDirty = true;
 		}
-		public function get xOffset():Number
-		{
-			return _xOffset;
-		}
-		
-		public function set yOffset(value:Number):void
-		{
-			_yOffset = value;
-			buildText();
-		}
-		public function get yOffset():Number
-		{
-			return _yOffset;
-		}
-		
-		public function set textWidth(value:Number):void
-		{
-			_textWidth = value;
-			buildText();
-		}
+				
+		/**
+    	 * Defines the fixed width of the textfield.
+    	 */
 		public function get textWidth():Number
 		{
 			return _textWidth;
 		}
 		
-		public function set align(value:String):void
+		public function set textWidth(val:Number):void
 		{
-			_align = value;
-			buildText();
+			if (_textWidth == val)
+    			return;
+    		
+			_textWidth = val;
+			_primitiveDirty = true;
 		}
+				
+		/**
+    	 * Defines the paragraph alignment of the textfield. Defaults to TL (Top Left).
+    	 */
 		public function get align():String
 		{
 			return _align;
 		}
 		
-		public function set alignToBaseLine(value:Boolean):void
+		public function set align(val:String):void
 		{
-			_alignToBaseLine = value;
-			buildText();
+			if (_align == val)
+    			return;
+    		
+			_align = val;
+			_primitiveDirty = true;
 		}
-		public function get alignToBaseLine():Boolean
-		{
-			return _alignToBaseLine;
-		}
-		
-		public function TextField3D(fontId:String, init:Object = null)
+    	
+		/**
+		 * Creates a new <code>TextField3D</code> object.
+		 *
+		 * @param	font				The name of the font to be used in the textfield.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 */
+		public function TextField3D(font:String, init:Object = null)
 		{
 			super(init);
 			
-			_fontId = fontId;
-			_fontDefinition = VectorText.getFontDefinition(_fontId);
+			_font = font;
 			
 			_size = ini.getNumber("size", 20);
 			_leading = ini.getNumber("leading", 20);
@@ -125,21 +159,14 @@ package away3d.primitives
 			_text = ini.getString("text", "");
 			_textWidth = ini.getNumber("textWidth", 500);
 			_align = ini.getString("align", "TL");
-			_alignToBaseLine = ini.getBoolean("alignToBase", false);
 			
 			this.bothsides = true;
 			
 			buildText();
-		}
-		
-		private function buildText():void
-		{
-			geometry.graphics.clear();
-			VectorText.write(geometry.graphics, _fontId, _size, _leading, _kerning, _text, 0, 0, _textWidth, _align, false);
 			
-			//clear the materials on the shapes
-			for each (_face in geometry.faces)
-				_face.material = null;
+			type = "TextField3D";
+        	url = "primitive";
+        	
 		}
 	}
 }

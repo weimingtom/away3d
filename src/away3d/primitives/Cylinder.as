@@ -21,45 +21,45 @@
         private var _openEnded:Boolean;
         private var _yUp:Boolean;
         
-        private function buildCylinder(radius:Number, height:Number, segmentsW:int, segmentsH:int, openEnded:Boolean, yUp:Boolean):void
+        private function buildCylinder():void
         {
             var i:int;
             var j:int;
 
-            height /= 2;
+            _height /= 2;
 
             grid = [];
             
-			if (!openEnded) {
-	            segmentsH += 2;
+			if (!_openEnded) {
+	            _segmentsH += 2;
 				jMin = 1;
-				jMax = segmentsH - 1;
+				jMax = _segmentsH - 1;
 			
-	            var bottom:Vertex = yUp? createVertex(0, -height, 0) : createVertex(0, 0, -height);
-	            grid[0] = new Array(segmentsW);
-	            for (i = 0; i < segmentsW; ++i) 
+	            var bottom:Vertex = _yUp? createVertex(0, -_height, 0) : createVertex(0, 0, -_height);
+	            grid[0] = new Array(_segmentsW);
+	            for (i = 0; i < _segmentsW; ++i) 
 	                grid[0][i] = bottom;
 	                
-	            var top:Vertex = yUp? createVertex(0, height, 0) : createVertex(0, 0, height);
-	            grid[segmentsH] = new Array(segmentsW);
-	            for (i = 0; i < segmentsW; ++i) 
-	                grid[segmentsH][i] = top;
+	            var top:Vertex = _yUp? createVertex(0, _height, 0) : createVertex(0, 0, _height);
+	            grid[_segmentsH] = new Array(_segmentsW);
+	            for (i = 0; i < _segmentsW; ++i) 
+	                grid[_segmentsH][i] = top;
 	                
 			} else {
 				jMin = 0;
-				jMax = segmentsH;
+				jMax = _segmentsH;
 			}
 			
             for (j = jMin; j <= jMax; ++j)  
             { 
-                var z:Number = -height + 2 * height * (j-jMin) / (jMax-jMin);
+                var z:Number = -_height + 2 * _height * (j-jMin) / (jMax-jMin);
 
-                grid[j] = new Array(segmentsW);
-                for (i = 0; i < segmentsW; ++i) 
+                grid[j] = new Array(_segmentsW);
+                for (i = 0; i < _segmentsW; ++i) 
                 { 
-                    var verangle:Number = 2 * i / segmentsW * Math.PI;
-                    var x:Number = radius * Math.sin(verangle);
-                    var y:Number = radius * Math.cos(verangle);
+                    var verangle:Number = 2 * i / _segmentsW * Math.PI;
+                    var x:Number = _radius * Math.sin(verangle);
+                    var y:Number = _radius * Math.cos(verangle);
                     if (yUp)
                     	grid[j][i] = createVertex(y, z, x);
                     else
@@ -68,21 +68,21 @@
             }
 			
 
-            for (j = 1; j <= segmentsH; ++j) 
-                for (i = 0; i < segmentsW; ++i) 
+            for (j = 1; j <= _segmentsH; ++j) 
+                for (i = 0; i < _segmentsW; ++i) 
                 {
                     var a:Vertex = grid[j][i];
-                    var b:Vertex = grid[j][(i-1+segmentsW) % segmentsW];
-                    var c:Vertex = grid[j-1][(i-1+segmentsW) % segmentsW];
+                    var b:Vertex = grid[j][(i-1+_segmentsW) % _segmentsW];
+                    var c:Vertex = grid[j-1][(i-1+_segmentsW) % _segmentsW];
                     var d:Vertex = grid[j-1][i];
 					
 					var i2:int = i;
-					if (i == 0) i2 = segmentsW;
+					if (i == 0) i2 = _segmentsW;
 					
-                    var vab:Number = j / segmentsH;
-                    var vcd:Number = (j-1) / segmentsH;
-                    var uad:Number = i2 / segmentsW;
-                    var ubc:Number = (i2-1) / segmentsW;
+                    var vab:Number = j / _segmentsH;
+                    var vcd:Number = (j-1) / _segmentsH;
+                    var uad:Number = i2 / _segmentsW;
+                    var ubc:Number = (i2-1) / _segmentsW;
                     var uva:UV = createUV(uad,vab);
                     var uvb:UV = createUV(ubc,vab);
                     var uvc:UV = createUV(ubc,vcd);
@@ -94,7 +94,17 @@
                         addFace(createFace(a,c,d, null, uva,uvc,uvd));
                 }
 		}
-		
+        
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
+            buildCylinder();
+    	}
+    	
     	/**
     	 * Defines the radius of the cylinder. Defaults to 100.
     	 */
@@ -213,21 +223,11 @@
 			_openEnded = ini.getBoolean("openEnded", false);
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildCylinder(_radius, _height, _segmentsW, _segmentsH, _openEnded, _yUp);
+			buildCylinder();
 			
 			type = "Cylinder";
         	url = "primitive";
         }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	public override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildCylinder(_radius, _height, _segmentsW, _segmentsH, _openEnded, _yUp);
-    	}
         
 		/**
 		 * Returns the vertex object specified by the grid position of the mesh.
