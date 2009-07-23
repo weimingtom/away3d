@@ -9,31 +9,41 @@
     /**
     * Creates a 3d wire polygon.
     */ 
-    public class WireCircle extends AbstractWirePrimitive
+    public class WireCircle extends AbstractPrimitive
     {
         private var _radius:Number;
         private var _sides:Number;
         private var _yUp:Boolean;
         
-        private function buildCircle(radius:Number, sides:int, yUp:Boolean):void
+        private function buildCircle():void
         {
             var vertices:Array = [];
             var i:int;
-            for (i = 0; i < sides; ++i)
+            for (i = 0; i < _sides; ++i)
             {
-                var u:Number = i / sides * 2 * Math.PI;
-                if (yUp)
-                	vertices.push(createVertex(radius*Math.cos(u), 0, -radius*Math.sin(u)));
+                var u:Number = i / _sides * 2 * Math.PI;
+                if (_yUp)
+                	vertices.push(createVertex(_radius*Math.cos(u), 0, -_radius*Math.sin(u)));
                 else
-                	vertices.push(createVertex(radius*Math.cos(u), radius*Math.sin(u), 0));
+                	vertices.push(createVertex(_radius*Math.cos(u), _radius*Math.sin(u), 0));
             }
 
-            for (i = 0; i < sides; ++i)
+            for (i = 0; i < _sides; ++i)
 			{
-                addSegment(createSegment(vertices[i], vertices[(i+1) % sides]));
+                addSegment(createSegment(vertices[i], vertices[(i+1) % _sides]));
 			}
         }
         
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
+            buildCircle();
+    	}
+    	
     	/**
     	 * Defines the radius of the polygon. Defaults to 100.
     	 */
@@ -98,22 +108,10 @@
             _sides = ini.getInt("sides", 8, {min:3});
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildCircle(_radius, _sides, _yUp);
+			buildCircle();
 			
 			type = "WireCircle";
         	url = "primitive";
-        	
-            
         }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	public override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildCircle(_radius, _sides, _yUp);
-    	}
     }
 }

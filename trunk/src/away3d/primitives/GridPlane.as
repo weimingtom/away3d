@@ -9,7 +9,7 @@
     /**
     * Creates a 3d grid primitive.
     */ 
-    public class GridPlane extends AbstractWirePrimitive
+    public class GridPlane extends AbstractPrimitive
     {
     	private var _width:Number;
         private var _height:Number;
@@ -17,27 +17,37 @@
         private var _segmentsH:int;
         private var _yUp:Boolean;
         
-        private function buildPlane(width:Number, height:Number, segmentsW:int, segmentsH:int, yUp:Boolean):void
+        private function buildPlane():void
         {
         	var i:int;
         	var j:int;
         	
-        	if (yUp) {
-	            for (i = 0; i <= segmentsW; ++i)
-	                addSegment(createSegment(createVertex((i/segmentsW - 0.5)*width, 0, -0.5*height), createVertex((i/segmentsW - 0.5)*width, 0, 0.5*height)));
+        	if (_yUp) {
+	            for (i = 0; i <= _segmentsW; ++i)
+	                addSegment(createSegment(createVertex((i/_segmentsW - 0.5)*_width, 0, -0.5*_height), createVertex((i/_segmentsW - 0.5)*_width, 0, 0.5*_height)));
 	
-	            for (j = 0; j <= segmentsH; ++j)
-	                addSegment(createSegment(createVertex(-0.5*width, 0, (j/segmentsH - 0.5)*height), createVertex(0.5*width, 0, (j/segmentsH - 0.5)*height)));
+	            for (j = 0; j <= _segmentsH; ++j)
+	                addSegment(createSegment(createVertex(-0.5*_width, 0, (j/_segmentsH - 0.5)*_height), createVertex(0.5*_width, 0, (j/_segmentsH - 0.5)*_height)));
         	} else {
-        		for (i = 0; i <= segmentsW; ++i)
-	                addSegment(createSegment(createVertex((i/segmentsW - 0.5)*width, -0.5*height, 0), createVertex((i/segmentsW - 0.5)*width, 0.5*height, 0)));
+        		for (i = 0; i <= _segmentsW; ++i)
+	                addSegment(createSegment(createVertex((i/_segmentsW - 0.5)*_width, -0.5*_height, 0), createVertex((i/_segmentsW - 0.5)*_width, 0.5*_height, 0)));
 	
-	            for (j = 0; j <= segmentsH; ++j)
-	                addSegment(createSegment(createVertex(-0.5*width, (j/segmentsH - 0.5)*height, 0), createVertex(0.5*width, (j/segmentsH - 0.5)*height, 0)));
+	            for (j = 0; j <= _segmentsH; ++j)
+	                addSegment(createSegment(createVertex(-0.5*_width, (j/_segmentsH - 0.5)*_height, 0), createVertex(0.5*_width, (j/_segmentsH - 0.5)*_height, 0)));
 	       
         	}
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
+            buildPlane();
+    	}
+    	
     	/**
     	 * Defines the width of the grid. Defaults to 100.
     	 */
@@ -139,20 +149,10 @@
             _segmentsH = ini.getInt("segmentsH", segments, {min:1});
     		_yUp = ini.getBoolean("yUp", true);
     		
-			buildPlane(_width, _height, _segmentsW, _segmentsH, _yUp);
+			buildPlane();
 			
 	   		type = "GridPlane";
         	url = "primitive";
         }
-		
-		/**
-		 * @inheritDoc
-		 */
-    	public override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildPlane(_width, _height, _segmentsW, _segmentsH, _yUp);
-    	}
     }
 }
