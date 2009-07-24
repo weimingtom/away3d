@@ -11,19 +11,18 @@ package away3d.loaders
     */
     public class Ase extends AbstractParser
     {
-        private var mesh:Mesh;
-        private var scaling:Number;
-		private var ini:Init;
-		
-        private function parseAse(data:String):void
+    	/** @private */
+        arcane override function prepareData(data:*):void
         {
-            var lines:Array = data.split('\r\n');
+        	ase = Cast.string(data)
+        	
+            var lines:Array = ase.split('\r\n');
             var vertices:Array = [];
             var uvs:Array = [];
             var faces:Array = [];
             
             if (lines.length == 1)
-            	lines = data.split('\n');
+            	lines = ase.split('\n');
             
             while (lines.length > 0)
             {
@@ -128,26 +127,35 @@ package away3d.loaders
                 mesh.addFace(f);
             
             mesh.type = ".Ase";
+        	
         }
         
+        private var ase:String;
+        private var mesh:Mesh;
+		private var ini:Init;
+		
+    	/**
+    	 * A scaling factor for all geometry in the model. Defaults to 100.
+    	 */
+        public var scaling:Number;
+        
 		/**
-		 * Creates a new <code>Ase</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * Creates a new <code>Ase</code> object..
 		 * 
-		 * @param	Data				The ascii data of a loaded file.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 * 
 		 * @see away3d.loaders.Ase#parse()
 		 * @see away3d.loaders.Ase#load()
 		 */
-        public function Ase(data:*, init:Object = null)
+        public function Ase(init:Object = null)
         {
-            ini = Init.parse(init);
-
-            scaling = ini.getNumber("scaling", 1) * 100;
-
+            super(init);
+			
+            scaling = ini.getNumber("scaling", 100);
+			
             mesh = (container = new Mesh(ini)) as Mesh;
-
-            parseAse(Cast.string(data));
+            
+            binary = false;
         }
 
 		/**
@@ -162,7 +170,6 @@ package away3d.loaders
         public static function parse(data:*, init:Object = null):Mesh
         {
             return Object3DLoader.parseGeometry(data, Ase, init).handle as Mesh;
-						//return new Ase(Cast.string(data), init).mesh;
         }
     	
     	/**
@@ -170,11 +177,12 @@ package away3d.loaders
     	 * 
     	 * @param	url					The url location of the file to load.
     	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * 
     	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
     	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-            return Object3DLoader.loadGeometry(url, Ase, false, init);
+            return Object3DLoader.loadGeometry(url, Ase, init);
         }
     }
 }
