@@ -20,16 +20,7 @@
     */
     public class Collada extends AbstractParser
     {
-		/** @private */
-    	arcane var ini:Init;
-    	
         private var collada:XML;
-        private var material:ITriangleMaterial;
-        private var centerMeshes:Boolean;
-        private var scaling:Number;
-        private var shading:Boolean;
-        private var texturePath:String;
-        private var autoLoadTextures:Boolean;
         private var materialLibrary:MaterialLibrary;
         private var animationLibrary:AnimationLibrary;
         private var geometryLibrary:GeometryLibrary;
@@ -52,13 +43,10 @@
 		private var _geometryArrayLength:int;
 		private var _channelArray:Array;
 		private var _channelArrayLength:int;
-		
-		/**
-		 * Collada Animation
-		 */
 		private var _defaultAnimationClip:AnimationData;
 		private var _haveClips:Boolean = false;
 		private var _containers:Dictionary = new Dictionary(true);
+		private var _materials:Object;
 		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
@@ -461,36 +449,76 @@
         {
             return url.split("#")[1];
         }
-    	
+        
+    	/**
+    	 * A scaling factor for all geometry in the model. Defaults to 1.
+    	 */
+        public var scaling:Number;
+        
+    	/**
+    	 * Controls the use of shading materials when color textures are encountered. Defaults to false.
+    	 */
+        public var shading:Boolean;
+        
+    	/**
+    	 * Overrides all materials in the model.
+    	 */
+        public var material:ITriangleMaterial;
+        
+    	/**
+    	 * Controls the automatic centering of geometry data in the model, improving culling and the accuracy of bounding dimension values. Defaults to false.
+    	 */
+        public var centerMeshes:Boolean;
+        
     	/**
     	 * Container data object used for storing the parsed collada data structure.
     	 */
         public var containerData:ContainerData;
+        
+    	/**
+    	 * Overides materials in the model using name:value pairs.
+    	 */
+        public function get materials():Object
+        {
+        	return _materials;
+        }
+		
+		public function set materials(val:Object):void
+		{
+			_materials = val;
+			
+			//organise the materials
+			var _materialData:MaterialData;
+            for (var name:String in _materials) {
+                _materialData = materialLibrary.addMaterial(name);
+                _materialData.material = Cast.material(_materials[name]);
+
+                //determine material type
+                if (_materialData.material is BitmapMaterial)
+                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                else if (_materialData.material is ShadingColorMaterial)
+                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                else if (_materialData.material is WireframeMaterial)
+                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
+   			}
+		}
 		
 		/**
-		 * Creates a new <code>Collada</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * Creates a new <code>Collada</code> object.
 		 *
-		 * @param	xml				The xml data of a loaded file.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 *
 		 * @see away3d.loaders.Collada#parse()
 		 * @see away3d.loaders.Collada#load()
 		 */
-		
-        public function Collada(data:*, init:Object = null)
+        public function Collada(init:Object = null)
         {
-         	collada = Cast.xml(data);
+            super(init);
             
-            ini = Init.parse(init);
-			
-			texturePath = ini.getString("texturePath", "");
-			autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
             scaling = ini.getNumber("scaling", 1)*100;
             shading = ini.getBoolean("shading", false);
             material = ini.getMaterial("material") as ITriangleMaterial;
             centerMeshes = ini.getBoolean("centerMeshes", false);
-
-            var materials:Object = ini.getObject("materials") || {};
 			
 			//create the container
             container = new ObjectContainer3D(ini);
@@ -501,26 +529,10 @@
 			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 			channelLibrary = new ChannelLibrary();
 			symbolLibrary = new Dictionary(true);
-			materialLibrary.autoLoadTextures = autoLoadTextures;
-			materialLibrary.texturePath = texturePath;
 			
-			//organise the materials
-			var _materialData:MaterialData;
-            for (var name:String in materials) {
-                _materialData = materialLibrary.addMaterial(name);
-                _materialData.material = Cast.material(materials[name]);
-
-                //determine material type
-                if (_materialData.material is BitmapMaterial)
-                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-                else if (_materialData.material is ShadingColorMaterial)
-                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
-                else if (_materialData.material is WireframeMaterial)
-                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
-   			}
-   			
-			//parse the collada file
-            parseCollada();
+			materials = ini.getObject("materials") || {};
+			
+			binary = false;
         }
 		
         /**
@@ -542,29 +554,41 @@
     	 *
     	 * @param	url					The url location of the file to load.
     	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * 
     	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
     	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-			//texturePath as model folder
-			if (url)
-			{
-				var _pathArray		:Array = url.split("/");
-				_pathArray.pop();
-				var _texturePath	:String = (_pathArray.length>0)?_pathArray.join("/")+"/":_pathArray.join("/");
-				
-				if (init)
-					init["texturePath"] = init["texturePath"] || _texturePath;
-				else
-					init = {texturePath:_texturePath};
-			}
-			return Object3DLoader.loadGeometry(url, Collada, false, init);
+			return Object3DLoader.loadGeometry(url, Collada, init);
         }
         
-		/**
-		 * @inheritDoc
-		 */
-        public override function parseNext():void
+        /** @private */
+        arcane override function prepareData(data:*):void
+        {
+        	collada = Cast.xml(data);
+        	
+			default xml namespace = collada.namespace();
+			Debug.trace(" ! ------------- Begin Parse Collada -------------");
+
+            // Get up axis
+            yUp = (collada["asset"].up_axis == "Y_UP")||(String(collada["asset"].up_axis) == "");
+
+    		if (yUp) {
+    			VALUE_X = "X";
+    			VALUE_Y = "Y";
+    			VALUE_Z = "Z";
+        	} else {
+                VALUE_X = "X";
+                VALUE_Y = "Z";
+                VALUE_Z = "Y";
+        	}
+			
+            parseScene();
+			
+			parseAnimationClips();
+        }
+    	/** @private */
+        arcane override function parseNext():void
         {
         	if (_parsedChunks < _geometryArrayLength)
         		parseGeometry(_geometryArray[_parsedChunks]);
@@ -591,30 +615,7 @@
 				notifyProgress();
 	        }
         }
-
-        private function parseCollada():void
-        {
-			default xml namespace = collada.namespace();
-			Debug.trace(" ! ------------- Begin Parse Collada -------------");
-
-            // Get up axis
-            yUp = (collada["asset"].up_axis == "Y_UP")||(String(collada["asset"].up_axis) == "");
-
-    		if (yUp) {
-    			VALUE_X = "X";
-    			VALUE_Y = "Y";
-    			VALUE_Z = "Z";
-        	} else {
-                VALUE_X = "X";
-                VALUE_Y = "Z";
-                VALUE_Z = "Y";
-        	}
-			
-            parseScene();
-			
-			parseAnimationClips();
-        }
-		
+        		
 		/**
 		 * Converts the scene heirarchy to an Away3d data structure
 		 */

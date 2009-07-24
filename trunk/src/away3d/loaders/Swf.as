@@ -22,68 +22,20 @@ package away3d.loaders
 	{
 		/** @private */
     	arcane var ini:Init;
-		
-		private var _materialLibrary:MaterialLibrary;
-		private var _scaling:Number;
-		private var _data:ByteArray;
-		private var _libraryClips:Array;
-		private var _perspectiveOffset:Number;
-		private var _perspectiveFocus:Number;
-		
-		public function Swf(data:*, init:Object = null)
-		{
-			ini = Init.parse(init);
-			
-			_data = data;
-			
-			_libraryClips = ini.getArray("libraryClips");
-			_scaling = ini.getNumber("scaling", 1);
-			_perspectiveOffset = ini.getNumber("perspectiveOffset", 0);
-			_perspectiveFocus = ini.getNumber("perspectiveFocus", 1000);
-			
-			container = new ObjectContainer3D();
-			_materialLibrary = container.materialLibrary = new MaterialLibrary();
-			
-			parseVectorData();
-			applyPerspective();
-		}
-		
-		private function parseVectorData():void
-		{
+		/** @private */
+        arcane override function prepareData(data:*):void
+        {
+        	swf = Cast.bytearray(data);
+        	
 			if(_libraryClips.length > 0)
 				getAllLibraryClips();
 			else
 				getAllClipsFromStage();
-		}
-		
-		private function getAllLibraryClips():void
-		{
-			VectorShapes.extractFromLibrary(_data, _libraryClips);
 			
-			for each(var id:String in _libraryClips)
-				generateMesh(id);
-		}
-		
-		private function getAllClipsFromStage():void
-		{
-			VectorShapes.extractFromStage(_data, "shapes");
-			generateMesh("shapes");
-		}
-		
-		private function generateMesh(shapeId:String):void
-		{
-			var clipMesh:Mesh = new Mesh();
-			clipMesh.bothsides = true;
-			ObjectContainer3D(container).addChild(clipMesh);
-			
-			VectorShapes.draw(clipMesh.geometry.graphics, shapeId, _scaling);
-		}
-		
-		private function applyPerspective():void
-		{
 			if(_perspectiveOffset == 0)
 				return;
 			
+			//apply perspective offfset
 			var faceCounter:uint;
 			for each(var child:Object3D in ObjectContainer3D(container).children)
 			{
@@ -102,17 +54,102 @@ package away3d.loaders
 						faceCounter++;
 					}
 				}
-			} 
+			}
+        }
+        
+		private var swf:ByteArray;
+		
+		private function getAllLibraryClips():void
+		{
+			VectorShapes.extractFromLibrary(swf, _libraryClips);
+			
+			for each(var id:String in _libraryClips)
+				generateMesh(id);
 		}
 		
+		private function getAllClipsFromStage():void
+		{
+			VectorShapes.extractFromStage(swf, "shapes");
+			generateMesh("shapes");
+		}
+		
+		private function generateMesh(shapeId:String):void
+		{
+			var clipMesh:Mesh = new Mesh();
+			clipMesh.bothsides = true;
+			ObjectContainer3D(container).addChild(clipMesh);
+			
+			VectorShapes.draw(clipMesh.geometry.graphics, shapeId, _scaling);
+		}
+       	
+    	/**
+    	 * A scaling factor for all geometry in the model. Defaults to 1.
+    	 */
+		public var scaling:Number;
+        
+    	/**
+    	 * An array of library ids to extract from the swf.
+    	 * If no library ids are defined, all library items are used.
+    	 * If no library items exist, the content found on the stage is used.
+    	 */
+		public var libraryClips:Array;
+        
+    	/**
+    	 * An offset used to separate individual faces in a clip to counteract sorting artifacts.
+    	 */
+		public var perspectiveOffset:Number;
+        
+    	/**
+    	 * A perspective scaling value used in conjuction with <code>perspectiveOffset</code>.
+    	 */
+		public var perspectiveFocus:Number;
+		
+		/**
+		 * Creates a new <code>Swf</code> object.
+		 * 
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @see away3d.loaders.Swf#parse()
+		 * @see away3d.loaders.Swf#load()
+		 */
+		public function Swf(init:Object = null)
+		{
+			super(init);
+			
+			libraryClips = ini.getArray("libraryClips");
+			scaling = ini.getNumber("scaling", 1);
+			perspectiveOffset = ini.getNumber("perspectiveOffset", 0);
+			perspectiveFocus = ini.getNumber("perspectiveFocus", 1000);
+			
+			container = new ObjectContainer3D();
+			
+			binary = true;
+		}
+
+		/**
+		 * Creates a 3d mesh object from the raw binary data of an swf file.
+		 * 
+		 * @param	data				The binary data of a loaded file.
+		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+		 * 
+		 * @return						A 3d container object representation of the swf file.
+		 */
 		public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
         	return Object3DLoader.parseGeometry(data, Swf, init).handle as ObjectContainer3D;
         }
-        
+		
+    	/**
+    	 * Loads and parses a swf file into a 3d container object.
+    	 *
+    	 * @param	url					The url location of the file to load.
+    	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * 
+    	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
+    	 */
         public static function load(url:String, init:Object = null):Object3DLoader
         {
-			return Object3DLoader.loadGeometry(url, Swf, true, init);
+			return Object3DLoader.loadGeometry(url, Swf, init);
         }
 	}
 }
