@@ -6,8 +6,8 @@ package away3d.loaders
 	import away3d.core.base.Mesh;
 	import away3d.core.base.Object3D;
 	import away3d.core.base.Vertex;
+	import away3d.core.utils.Cast;
 	import away3d.core.utils.Init;
-	import away3d.loaders.utils.MaterialLibrary;
 	
 	import flash.utils.ByteArray;
 	
@@ -27,12 +27,12 @@ package away3d.loaders
         {
         	swf = Cast.bytearray(data);
         	
-			if(_libraryClips.length > 0)
+			if(libraryClips.length > 0)
 				getAllLibraryClips();
 			else
 				getAllClipsFromStage();
 			
-			if(_perspectiveOffset == 0)
+			if(perspectiveOffset == 0)
 				return;
 			
 			//apply perspective offfset
@@ -46,9 +46,9 @@ package away3d.loaders
 					{
 						for each(var vertex:Vertex in face.vertices)
 						{
-							vertex.x *= 1 + _perspectiveOffset*faceCounter/_perspectiveFocus;
-							vertex.y *= 1 + _perspectiveOffset*faceCounter/_perspectiveFocus;
-							vertex.z += _perspectiveOffset*faceCounter;
+							vertex.x *= 1 + perspectiveOffset*faceCounter/perspectiveFocus;
+							vertex.y *= 1 + perspectiveOffset*faceCounter/perspectiveFocus;
+							vertex.z += perspectiveOffset*faceCounter;
 						}
 						
 						faceCounter++;
@@ -61,9 +61,9 @@ package away3d.loaders
 		
 		private function getAllLibraryClips():void
 		{
-			VectorShapes.extractFromLibrary(swf, _libraryClips);
+			VectorShapes.extractFromLibrary(swf, libraryClips);
 			
-			for each(var id:String in _libraryClips)
+			for each(var id:String in libraryClips)
 				generateMesh(id);
 		}
 		
@@ -79,7 +79,7 @@ package away3d.loaders
 			clipMesh.bothsides = true;
 			ObjectContainer3D(container).addChild(clipMesh);
 			
-			VectorShapes.draw(clipMesh.geometry.graphics, shapeId, _scaling);
+			VectorShapes.draw(clipMesh.geometry.graphics, shapeId, scaling);
 		}
        	
     	/**

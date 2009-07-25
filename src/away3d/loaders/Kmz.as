@@ -43,6 +43,11 @@ package away3d.loaders
 				}
 			}
         }
+        /** @private */
+        arcane override function parseNext():void
+        {
+        	notifySuccess();
+        }
         
         private var kmz:ByteArray;
         private var collada:XML;
@@ -137,11 +142,6 @@ package away3d.loaders
         public static function load(url:String, init:Object = null):Object3DLoader
         {
             return Object3DLoader.loadGeometry(url, Kmz, init);
-        }
-        
-        public override function parseNext():void
-        {
-        	notifySuccess();
         }
     }
 }

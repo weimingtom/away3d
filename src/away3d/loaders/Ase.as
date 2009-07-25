@@ -132,7 +132,6 @@ package away3d.loaders
         
         private var ase:String;
         private var mesh:Mesh;
-		private var ini:Init;
 		
     	/**
     	 * A scaling factor for all geometry in the model. Defaults to 100.

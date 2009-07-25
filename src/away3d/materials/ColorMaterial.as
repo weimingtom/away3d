@@ -17,6 +17,8 @@ package away3d.materials
     */
     public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial, IBillboardMaterial
     {
+    	/** @private */
+        arcane var _id:int;
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {
@@ -82,6 +84,14 @@ package away3d.materials
         public function get visible():Boolean
         {
             return (alpha > 0);
+        }
+                
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
         }
     	
 		/**
