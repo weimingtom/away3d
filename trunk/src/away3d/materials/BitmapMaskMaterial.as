@@ -23,6 +23,8 @@ package away3d.materials
     public class BitmapMaskMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial
     {
     	/** @private */
+        arcane var _id:int;
+    	/** @private */
     	arcane var _texturemapping:Matrix;
         /** @private */
     	arcane var _bitmap:BitmapData;
@@ -730,6 +732,22 @@ package away3d.materials
         	
         	_materialDirty = true;
         }
+                
+		/**
+		 * @inheritDoc
+		 */
+        public function get visible():Boolean
+        {
+            return _alpha > 0;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
         
 		/**
 		 * Creates a new <code>BitmapMaskMaterial</code> object.
@@ -921,14 +939,6 @@ package away3d.materials
 			
 			return _faceMaterialVO;
 		}
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get visible():Boolean
-        {
-            return _alpha > 0;
-        }
         
 		/**
 		 * @inheritDoc

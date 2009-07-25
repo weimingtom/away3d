@@ -1,5 +1,6 @@
 package away3d.materials
 {
+	import away3d.arcane;
     import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
@@ -8,12 +9,17 @@ package away3d.materials
     import away3d.events.*;
     
     import flash.events.*;
-
+	
+	use namespace arcane;
+	
     /**
     * Wire material for solid color drawing with optional face border outlining
     */
     public class WireColorMaterial extends EventDispatcher implements ITriangleMaterial
     {
+    	/** @private */
+        arcane var _id:int;
+        
         /**
         * Instance of the Init object used to hold and parse default property values
         * specified by the initialiser object in the 3d object constructor.
@@ -44,7 +50,23 @@ package away3d.materials
     	 * Determines the alpha value of the border wire
     	 */
         public var wirealpha:Number;
-    	
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get visible():Boolean
+        {
+            return (alpha > 0) || (wirealpha > 0);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
+        
 		/**
 		 * Creates a new <code>WireColorMaterial</code> object.
 		 * 
@@ -80,14 +102,6 @@ package away3d.materials
         public function renderTriangle(tri:DrawTriangle):void
         {
 			tri.source.session.renderTriangleLineFill(width, color, alpha, wirecolor, wirealpha, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get visible():Boolean
-        {
-            return (alpha > 0) || (wirealpha > 0);
         }
         
 		/**

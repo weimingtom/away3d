@@ -5,7 +5,7 @@
     /**
     * Basic bitmap material
     */
-    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial    {
+    public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial    {    	/** @private */        arcane var _id:int;
     	/** @private */
     	arcane var _texturemapping:Matrix;
         /** @private */
@@ -571,7 +571,7 @@
         	_blendModeDirty = true;
         }
 				 /**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }        
-        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_materialDirty = true;        }        		/**
+        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_materialDirty = true;        }        		/**		 * @inheritDoc		 */        public function get visible():Boolean        {            return _alpha > 0;        }                		/**		 * @inheritDoc		 */        public function get id():int        {            return _id;        }        		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
 		 * @param	bitmap				The bitmapData object to be used as the material's texture.
@@ -703,14 +703,6 @@
 			
 			return _faceMaterialVO;
 		}
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get visible():Boolean
-        {
-            return _alpha > 0;
-        }
         
 		/**
 		 * @inheritDoc
