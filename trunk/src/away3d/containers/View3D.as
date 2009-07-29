@@ -138,13 +138,13 @@ package away3d.containers
         private function checkSession(session:AbstractRenderSession):void
         {
         	
-        	if (session is BitmapRenderSession) {
-        		_container = session.getContainer(this);
-        		_hitPointX += _container.x;
-        		_hitPointY += _container.y;
-        	}
-        	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
+	        	if (session is BitmapRenderSession) {
+	        		_container = (session as BitmapRenderSession).getBitmapContainer(this);
+	        		_hitPointX += _container.x;
+	        		_hitPointY += _container.y;
+	        	}
+        		
         		var _lists:Array = session.getConsumer(this).list();
         		var primitive:DrawPrimitive;
 	        	for each (primitive in _lists)
@@ -152,13 +152,13 @@ package away3d.containers
 	        	var _sessions:Array = session.sessions;
 	        	for each (session in _sessions)
 	        		checkSession(session);
+	        	
+	        	if (session is BitmapRenderSession) {
+	        		_container = (session as BitmapRenderSession).getBitmapContainer(this);
+	        		_hitPointX -= _container.x;
+	        		_hitPointY -= _container.y;
+	        	}
 	        }
-	        
-        	if (session is BitmapRenderSession) {
-        		_container = session.getContainer(this);
-        		_hitPointX -= _container.x;
-        		_hitPointY -= _container.y;
-        	}
         	
         }
         
