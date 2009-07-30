@@ -140,7 +140,7 @@ package away3d.core.draw
 		 * @inheritDoc
 		 */
         public override function contains(x:Number, y:Number):Boolean
-        {   
+        {
             if (Math.abs(v0x*(y - v1y) + v1x*(v0y - y) + x*(v1y - v0y)) > 0.001*1000*1000)
                 return false;
 
