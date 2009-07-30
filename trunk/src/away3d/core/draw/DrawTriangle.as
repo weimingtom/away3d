@@ -130,6 +130,10 @@ package away3d.core.draw
         private var uv20:UV;
         private var _invtexmapping:Matrix = new Matrix();
         private var _index:int;
+        private var _vertex:int;
+        private var _x:Number;
+        private var _y:Number;
+        private var _z:Number;
         private var _vertexCount:uint;
         
         private function num(n:Number):Number
@@ -315,7 +319,10 @@ package away3d.core.draw
         public override final function getZ(x:Number, y:Number):Number
         {
             focus = view.camera.focus;
-
+			
+			if (_vertexCount > 3)
+				return screenZ;
+			
             ax = v0x;
             ay = v0y;
             az = v0z;
@@ -477,6 +484,32 @@ package away3d.core.draw
 		 */
         public override final function contains(x:Number, y:Number):Boolean
         {
+        	//special case for shapes - uses crossing count on an infinite ray projected from the test point along the x axis
+        	if (_vertexCount > 3) {
+        		var c:Boolean = false;
+        		var i:int = startIndex;
+        		var j:int = endIndex - 1;
+        		var vertix:Number;
+        		var vertiy:Number;
+        		var vertjx:Number;
+        		var vertjy:Number;
+        		var iIndex:int;
+        		var jIndex:int;
+				while (i < endIndex) {
+					if (screenCommands[i] == DrawingCommand.CURVE)
+						i++;
+					
+					if ((((vertiy = screenVertices[(iIndex = screenIndices[i]*3)+1]) > y) != ((vertjy = screenVertices[(jIndex = screenIndices[j]*3)+1]) > y)) && (x < ((vertjx = screenVertices[jIndex]) - (vertix = screenVertices[iIndex]))*(y - vertiy)/(vertjy - vertiy) + vertix))
+						c = !c;
+					
+					j = i++;
+					
+					if (screenCommands[i] == DrawingCommand.MOVE)
+						j = i++;
+				}
+				return c;
+        	}
+        	
             if ((v0x*(y - v1y) + v1x*(v0y - y) + x*(v1y - v0y))*_areaSign < -0.001)
                 return false;
 
@@ -490,7 +523,7 @@ package away3d.core.draw
         }
 
         public final function distanceToCenter(x:Number, y:Number):Number
-        {   
+        {
             var centerx:Number = (v0x + v1x + v2x) / 3,
                 centery:Number = (v0y + v1y + v2y) / 3;
 
@@ -516,67 +549,94 @@ package away3d.core.draw
         	v2x = screenVertices[_index];
         	v2y = screenVertices[_index+1];
         	v2z = screenVertices[_index+2];
-        	
-        	if (v0x > v1x) {
-                if (v0x > v2x) maxX = v0x;
-                else maxX = v2x;
-            } else {
-                if (v1x > v2x) maxX = v1x;
-                else maxX = v2x;
-            }
             
-            if (v0x < v1x) {
-                if (v0x < v2x) minX = v0x;
-                else minX = v2x;
-            } else {
-                if (v1x < v2x) minX = v1x;
-                else minX = v2x;
-            }
-            
-            if (v0y > v1y) {
-                if (v0y > v2y) maxY = v0y;
-                else maxY = v2y;
-            } else {
-                if (v1y > v2y) maxY = v1y;
-                else maxY = v2y;
-            }
-            
-            if (v0y < v1y) {
-                if (v0y < v2y) minY = v0y;
-                else minY = v2y;
-            } else {
-                if (v1y < v2y) minY = v1y;
-                else minY = v2y;
-            }
-            
-            if (v0z > v1z) {
-                if (v0z > v2z) maxZ = v0z;
-                else maxZ = v2z;
-            } else {
-                if (v1z > v2z) maxZ = v1z;
-                else maxZ = v2z;
-            }
-            
-            if (v0z < v1z) {
-                if (v0z < v2z) minZ = v0z;
-                else minZ = v2z;
-            } else {
-                if (v1z < v2z) minZ = v1z;
-                else minZ = v2z;
-            }
-            
-            _vertexCount = startIndex - endIndex;
+            _vertexCount = endIndex - startIndex;
             
             if(_vertexCount > 3) {
-            	screenZ = 0
+            	
+            	screenZ = 0;
             	_index = endIndex;
+            	minX = Infinity;
+            	maxX = -Infinity;
+            	minY = Infinity;
+            	maxY = -Infinity;
+            	minZ = Infinity;
+            	maxZ = -Infinity;
+            	while (_index-- > startIndex) {
+            		_vertex = screenIndices[_index]*3;
+	            	//calculate bounding box
+	            	_x = screenVertices[_vertex];
+	            	_y = screenVertices[_vertex+1];
+	            	_z = screenVertices[_vertex+2];
+            		if (minX > _x)
+            			minX = _x;
+            		if (maxX < _x)
+            			maxX = _x;
+            		if (minY > _y)
+            			minY = _y;
+            		if (maxY < _y)
+            			maxY = _y;
+            		if (minZ > _z)
+            			minZ = _z;
+            		if (maxZ < _z)
+            			maxZ = _z;
+	            	//calculate screenZ used for sorting
+            		screenZ += _z;
+            	}
             	
-            	while (_index-- > startIndex)
-            		screenZ += screenVertices[screenIndices[_index]*3+2];
-            	
-            	screenZ /= (endIndex - startIndex);
+            	screenZ /= _vertexCount;
             	
             } else {
+            	//calculate bounding box
+            	if (v0x > v1x) {
+	                if (v0x > v2x) maxX = v0x;
+	                else maxX = v2x;
+	            } else {
+	                if (v1x > v2x) maxX = v1x;
+	                else maxX = v2x;
+	            }
+	            
+	            if (v0x < v1x) {
+	                if (v0x < v2x) minX = v0x;
+	                else minX = v2x;
+	            } else {
+	                if (v1x < v2x) minX = v1x;
+	                else minX = v2x;
+	            }
+	            
+	            if (v0y > v1y) {
+	                if (v0y > v2y) maxY = v0y;
+	                else maxY = v2y;
+	            } else {
+	                if (v1y > v2y) maxY = v1y;
+	                else maxY = v2y;
+	            }
+	            
+	            if (v0y < v1y) {
+	                if (v0y < v2y) minY = v0y;
+	                else minY = v2y;
+	            } else {
+	                if (v1y < v2y) minY = v1y;
+	                else minY = v2y;
+	            }
+	            
+	            if (v0z > v1z) {
+	                if (v0z > v2z) maxZ = v0z;
+	                else maxZ = v2z;
+	            } else {
+	                if (v1z > v2z) maxZ = v1z;
+	                else maxZ = v2z;
+	            }
+	            
+	            if (v0z < v1z) {
+	                if (v0z < v2z) minZ = v0z;
+	                else minZ = v2z;
+	            } else {
+	                if (v1z < v2z) minZ = v1z;
+	                else minZ = v2z;
+	            }
+	            
+	            //calculate screenZ used for sorting
             	screenZ = (v0z + v1z + v2z) / 3;
             }
             
