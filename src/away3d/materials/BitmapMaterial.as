@@ -444,7 +444,7 @@
         
         
         /**
-        * Corrects distortion caused by the affine transformation (non-perpective) of textures.
+        * Corrects distortion caused by the affine transformation (non-perspective) of textures.
         * The number refers to the pixel correction value - ie. a value of 2 means a distorion correction to within 2 pixels of the correct perspective distortion.
         * 0 performs no precision.
         */
