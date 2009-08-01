@@ -596,6 +596,7 @@ package away3d.containers
         public function get screenClipping():Clipping
         {
         	if (_screenClippingDirty) {
+        		updateScreenClipping();
         		_screenClippingDirty = false;
         		
         		return _screenClipping = _clipping.screen(this, _loaderWidth, _loaderHeight);
