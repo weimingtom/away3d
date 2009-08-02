@@ -34,9 +34,9 @@ package away3d.loaders
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
 					collada = new XML(data.toString());
 					container = Collada.parse(collada, ini);
-					if (container is Object3DLoader) {
-						(container as Object3DLoader).parser.container.materialLibrary.loadRequired = false;
-						(container as Object3DLoader).addOnSuccess(onParseGeometry);
+					if (container is Loader3D) {
+						(container as Loader3D).parser.container.materialLibrary.loadRequired = false;
+						(container as Loader3D).addOnSuccess(onParseGeometry);
 					} else {
 						parseImages();
 					}
@@ -53,7 +53,7 @@ package away3d.loaders
         private var collada:XML;
     	private var kmzFile:ZipFile;
         
-        private function onParseGeometry(event:LoaderEvent):void
+        private function onParseGeometry(event:Loader3DEvent):void
         {
         	container = event.loader.handle;
         	parseImages();
@@ -129,7 +129,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-            return Object3DLoader.parseGeometry(data, Kmz, init).handle as ObjectContainer3D;
+            return Loader3D.parseGeometry(data, Kmz, init).handle as ObjectContainer3D;
         }
     	
     	/**
@@ -139,9 +139,9 @@ package away3d.loaders
     	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
     	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
     	 */
-        public static function load(url:String, init:Object = null):Object3DLoader
+        public static function load(url:String, init:Object = null):Loader3D
         {
-            return Object3DLoader.loadGeometry(url, Kmz, init);
+            return Loader3D.loadGeometry(url, Kmz, init);
         }
     }
 }
