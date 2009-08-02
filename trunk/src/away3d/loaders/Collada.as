@@ -515,7 +515,7 @@
         {
             super(init);
             
-            scaling = ini.getNumber("scaling", 1)*100;
+            scaling = ini.getNumber("scaling", 1);
             shading = ini.getBoolean("shading", false);
             material = ini.getMaterial("material") as ITriangleMaterial;
             centerMeshes = ini.getBoolean("centerMeshes", false);

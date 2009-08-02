@@ -267,7 +267,27 @@
                 traverser.leave(this);
             }
         }
-		
+        
+		/**
+		 * Adjusts each pivot point of the container object's children so that they lies at the center of each childs geoemtry.
+		 */
+		public function centerMeshes():void
+        {
+        	for each (var child:Object3D in children)
+            	child.centerPivot();
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+		public override function centerPivot():void
+        {
+        	for each (var child:Object3D in children)
+            	child.centerPivot();
+            
+            super.centerPivot();
+        }
+        
 		/**
  		* Apply the local rotations to child objects without altering the appearance of the object container
  		*/
