@@ -136,7 +136,7 @@ package away3d.loaders
 		 */
 		public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-        	return Object3DLoader.parseGeometry(data, Swf, init).handle as ObjectContainer3D;
+        	return Loader3D.parseGeometry(data, Swf, init).handle as ObjectContainer3D;
         }
 		
     	/**
@@ -147,9 +147,9 @@ package away3d.loaders
     	 * 
     	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
     	 */
-        public static function load(url:String, init:Object = null):Object3DLoader
+        public static function load(url:String, init:Object = null):Loader3D
         {
-			return Object3DLoader.loadGeometry(url, Swf, init);
+			return Loader3D.loadGeometry(url, Swf, init);
         }
 	}
 }
