@@ -1,7 +1,6 @@
 package away3d.loaders
 {
     import away3d.core.utils.*;
-    import away3d.events.ParserEvent;
     import away3d.materials.*;
     import away3d.primitives.*;
     
@@ -15,11 +14,46 @@ package away3d.loaders
     public class CubeLoader extends Object3DLoader
     {
         private var side:MovieClip;
+        private var cube:Cube;
         private var info:TextField;
         private var tf:TextFormat;
-        private var geometryTitle:String;
+        private var _loadersize:Number;
+        
+        /**
+		 * Defines the prefix string used for loading geometry.
+		 */
+        public var geometryTitle:String;
+        
+        /**
+		 * Defines the prefix string used for loading textures.
+		 */
 		private var textureTitle:String;
+        
+        /**
+		 * Defines the prefix string used for parsing geometry.
+		 */
 		private var parsingTitle:String;
+        
+        
+        /**
+		 * Defines the width, height and depth of the cube. Defaults to 200.
+		 */
+        public function get loadersize():Number
+        {
+        	return _loadersize;
+        }
+    	
+        public function set loadersize(val:Number):void
+        {
+        	if (_loadersize == val)
+        		return;
+        	
+        	_loadersize = val;
+        	
+        	cube.width = _loadersize;
+        	cube.depth = _loadersize;
+        	cube.height = _loadersize;
+        }
         
 		/**
 		 * Creates a new <code>CubeLoader</code> object.
@@ -44,12 +78,12 @@ package away3d.loaders
             info.wordWrap = true;
             side.addChild(info);
             
-            var size:Number = ini.getNumber("loadersize", 200);
             geometryTitle = ini.getString("geometrytitle", "Loading Geometry...");
             textureTitle = ini.getString("texturetitle", "Loading Texture...");
             parsingTitle = ini.getString("parsingtitle", "Parsing Geometry...");
+            _loadersize = ini.getNumber("loadersize", 200);
 
-            addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
+            addChild(cube = new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:_loadersize, height:_loadersize, depth:_loadersize}));
         }
 		
 		/**

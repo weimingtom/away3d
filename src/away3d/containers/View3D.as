@@ -134,6 +134,7 @@ package away3d.containers
         private var inv:Matrix3D = new Matrix3D();
         private var persp:Number;
         private var _mouseIsOverView:Boolean;
+        private var _overlays:Dictionary = new Dictionary();
         
         private function checkSession(session:AbstractRenderSession):void
         {
@@ -335,46 +336,51 @@ package away3d.containers
         	}
         }
         
+        private function processOverlays():void
+        {
+        	for each(var overlay:IOverlay in _overlays)
+        		overlay.update();
+        }
+        
         /**
-        * A background sprite positioned under the rendered scene.
-        */
+         * A background sprite positioned under the rendered scene.
+         */
         public var background:Sprite = new Sprite();
         
         /**
-        * An overlay sprite positioned on top of the rendered scene.
-        */
+         * An overlay sprite positioned on top of the rendered scene.
+         */
         public var overlay:Sprite = new Sprite();
         
         /**
-        * A container for 2D overlays positioned over the rendered scene.
-        */
+         * A container for 2D overlays positioned over the rendered scene.
+         */
         public var hud:Sprite = new Sprite();
 		
         /**
-        * Enables/Disables stats panel.
-        * 
-        * @see away3d.core.stats.Stats
-        */
+         * Enables/Disables stats panel.
+         * 
+         * @see away3d.core.stats.Stats
+         */
         public var stats:Boolean;
         
         /**
-        * Enables/Disables mouse interactivity.
-        */
+         * Enables/Disables mouse interactivity.
+         */
         public var mouseEvents:Boolean;
         
         /**
-        * Keeps track of whether the stats panel is currently open.
-        * 
-        * @see away3d.core.stats.Stats
-        */
-        
+         * Keeps track of whether the stats panel is currently open.
+         * 
+         * @see away3d.core.stats.Stats
+         */
         public var statsOpen:Boolean;
         
         /**
-        * Object instance of the stats panel.
-        * 
-        * @see away3d.core.stats.Stats
-        */
+         * Object instance of the stats panel.
+         * 
+         * @see away3d.core.stats.Stats
+         */
         public var statsPanel:Stats;
                 
 		/**
@@ -383,25 +389,25 @@ package away3d.containers
 		public var sourceURL:String;
 		
         /**
-        * Forces mousemove events to fire even when cursor is static.
-        */
+         * Forces mousemove events to fire even when cursor is static.
+         */
         public var mouseZeroMove:Boolean;
 
         /**
-        * Current object under the mouse.
-        */
+         * Current object under the mouse.
+         */
         public var mouseObject:Object3D;
         
         /**
-        * Current material under the mouse.
-        */
+         * Current material under the mouse.
+         */
         public var mouseMaterial:IUVMaterial;
         
         /**
-        * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to false.
-        * 
-        * @see #render()
-        */
+         * Defines whether the view always redraws on a render, or just redraws what 3d objects change. Defaults to false.
+         * 
+         * @see #render()
+         */
         public var forceUpdate:Boolean;
       
         public var blockerarray:BlockerArray = new BlockerArray();
@@ -409,8 +415,8 @@ package away3d.containers
         public var blockers:Dictionary;
         
         /**
-        * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
-        */
+         * Renderer object used to traverse the scenegraph and output the drawing primitives required to render the scene to the view.
+         */
         public function get renderer():IRenderer
         {
         	return _renderer;
@@ -430,23 +436,23 @@ package away3d.containers
         }
 		
 		/**
-		* Flag used to determine if the camera has updated the view.
-        * 
-        * @see #camera
-        */
+		 * Flag used to determine if the camera has updated the view.
+         * 
+         * @see #camera
+         */
         public function get updated():Boolean
         {
         	return _updated;
         }
         
         /**
-        * Clipping area used when rendering.
-        * 
-        * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
-        * 
-        * @see #render()
-        * @see away3d.core.render.Clipping.scene()
-        */
+         * Clipping area used when rendering.
+         * 
+         * If null, the visible edges of the screen are located with the <code>Clipping.screen()</code> method.
+         * 
+         * @see #render()
+         * @see away3d.core.render.Clipping.scene()
+         */
         public function get clipping():Clipping
         {
         	return _clipping;
@@ -477,10 +483,10 @@ package away3d.containers
         }
         
         /**
-        * Camera used when rendering.
-        * 
-        * @see #render()
-        */
+         * Camera used when rendering.
+         * 
+         * @see #render()
+         */
         public function get camera():Camera3D
         {
         	return _camera;
@@ -510,10 +516,10 @@ package away3d.containers
         }
         
 		/**
-		* Scene used when rendering.
-        * 
-        * @see render()
-        */
+		 * Scene used when rendering.
+         * 
+         * @see render()
+         */
         public function get scene():Scene3D
         {
         	return _scene;
@@ -548,11 +554,11 @@ package away3d.containers
         }
         
         /**
-        * Session object used to draw all drawing primitives returned from the renderer to the view container.
-        * 
-        * @see #renderer
-        * @see #getContainer()
-        */
+         * Session object used to draw all drawing primitives returned from the renderer to the view container.
+         * 
+         * @see #renderer
+         * @see #getContainer()
+         */
         public function get session():AbstractRenderSession
         {
         	return _session;
@@ -663,17 +669,17 @@ package away3d.containers
 		}
         
         /**
-        * Collects all information from the given type of 3d mouse event into a <code>MouseEvent3D</code> object that can be accessed from the <code>getMouseEvent()<code> method.
-        * 
-        * @param	type					The type of 3d mouse event being triggered - can be MOUSE_UP, MOUSE_DOWN, MOUSE_OVER, MOUSE_OUT, and MOUSE_MOVE.
-        * @param	x						The x coordinate being used for the 3d mouse event.
-        * @param	y						The y coordinate being used for the 3d mouse event.
-        * @param	ctrlKey		[optional]	The ctrl key value being used for the 3d mouse event.
-        * @param	shiftKey	[optional]	The shift key value being used for the 3d mouse event.
-        * 
-        * @see #getMouseEvent()
-        * @see away3d.events.MouseEvent3D
-        */
+         * Collects all information from the given type of 3d mouse event into a <code>MouseEvent3D</code> object that can be accessed from the <code>getMouseEvent()<code> method.
+         * 
+         * @param	type					The type of 3d mouse event being triggered - can be MOUSE_UP, MOUSE_DOWN, MOUSE_OVER, MOUSE_OUT, and MOUSE_MOVE.
+         * @param	x						The x coordinate being used for the 3d mouse event.
+         * @param	y						The y coordinate being used for the 3d mouse event.
+         * @param	ctrlKey		[optional]	The ctrl key value being used for the 3d mouse event.
+         * @param	shiftKey	[optional]	The shift key value being used for the 3d mouse event.
+         * 
+         * @see #getMouseEvent()
+         * @see away3d.events.MouseEvent3D
+         */
         public function fireMouseEvent(type:String, x:Number, y:Number, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
         {
         	if (!mouseEvents)
@@ -741,14 +747,9 @@ package away3d.containers
             
         }
         
-        // To do: Distribute code...
-        // ----------------------------------------------------------------------------------------------------
-        
-        private var _overlays:Dictionary = new Dictionary();
-        
         /** 
-	    * Adds an overlay effect on top of the view container.
-	    */
+	     * Adds an overlay effect on top of the view container.
+	     */
         public function addOverlay(value:IOverlay):void
         {
         	if(_overlays[value])
@@ -760,8 +761,8 @@ package away3d.containers
         }
         
         /** 
-	    * Removes an overlay effect on top of the view container.
-	    */
+	     * Removes an overlay effect on top of the view container.
+	     */
         public function removeOverlay(value:IOverlay):void
         {
         	if(_overlays[value])
@@ -771,17 +772,9 @@ package away3d.containers
         	}
         }
         
-        private function processOverlays():void
-        {
-        	for each(var overlay:IOverlay in _overlays)
-        		overlay.update();
-        }
-        
-        // ----------------------------------------------------------------------------------------------------
-        
 	    /** 
-	    * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
-	    */
+	     * Finds the object that is rendered under a certain view coordinate. Used for mouse click events.
+	     */
         public function findHit(session:AbstractRenderSession, x:Number, y:Number):void
         {
             screenX = x;
@@ -806,8 +799,8 @@ package away3d.containers
         }
         
         /**
-        * Returns a 3d mouse event object populated with the properties from the hit point.
-        */
+         * Returns a 3d mouse event object populated with the properties from the hit point.
+         */
         public function getMouseEvent(type:String):MouseEvent3D
         {
             var event:MouseEvent3D = new MouseEvent3D(type);
@@ -828,30 +821,30 @@ package away3d.containers
         }
         
         /**
-        * Returns the <code>DisplayObject</code> container of the rendered scene.
-        * 
-        * @return	The <code>DisplayObject</code> containing the output from the render session of the view.
-        * 
-        * @see #session
-        * @see away3d.core.render.BitmapRenderSession
-        * @see away3d.core.render.SpriteRenderSession
-        */
+         * Returns the <code>DisplayObject</code> container of the rendered scene.
+         * 
+         * @return	The <code>DisplayObject</code> containing the output from the render session of the view.
+         * 
+         * @see #session
+         * @see away3d.core.render.BitmapRenderSession
+         * @see away3d.core.render.SpriteRenderSession
+         */
 		public function getContainer():DisplayObject
 		{
 			return _session.getContainer(this);
 		}
 		
         /**
-        * Returns the <code>bitmapData</code> of the rendered scene.
-        * 
-        * <code>session</code> is required to be an instance of <code>BitmapRenderSession</code>, otherwise an error is thrown.
-        * 
-        * @throws	Error	incorrect session object - require BitmapRenderSession.
-        * @return	The rendered view image.
-        * 
-        * @see #session
-        * @see away3d.core.render.BitmapRenderSession
-        */
+         * Returns the <code>bitmapData</code> of the rendered scene.
+         * 
+         * <code>session</code> is required to be an instance of <code>BitmapRenderSession</code>, otherwise an error is thrown.
+         * 
+         * @throws	Error	incorrect session object - require BitmapRenderSession.
+         * @return	The rendered view image.
+         * 
+         * @see #session
+         * @see away3d.core.render.BitmapRenderSession
+         */
 		public function getBitmapData():BitmapData
 		{
 			if (_session is BitmapRenderSession)
@@ -889,11 +882,12 @@ package away3d.containers
         		_screenClippingDirty = true;
    			}
 		}
+		
         /**
-        * Clears previously rendered view from all render sessions.
-        * 
-        * @see #session
-        */
+         * Clears previously rendered view from all render sessions.
+         * 
+         * @see #session
+         */
         public function clear():void
         {
         	_updated = true;
@@ -903,10 +897,10 @@ package away3d.containers
         }
         
         /**
-        * Renders a snapshot of the view to the render session's view container.
-        * 
-        * @see #session
-        */
+         * Renders a snapshot of the view to the render session's view container.
+         * 
+         * @see #session
+         */
         public function render():void
         {
             //update scene
@@ -985,8 +979,8 @@ package away3d.containers
 		}
 
         /**
-        * Manually fires a mouseMove3D event.
-        */
+         * Manually fires a mouseMove3D event.
+         */
         public function fireMouseMoveEvent(force:Boolean = false):void
         {
         	if(!_mouseIsOverView)

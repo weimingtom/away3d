@@ -149,6 +149,13 @@ package away3d.loaders
         	parseTimeout = ini.getNumber("parseTimeout", 40000);
         }
         
+		/**
+         * Parses 3d file data.
+         * 
+		 * @param	data		The file data to be parsed. Can be in text or binary form.
+		 * 
+         * @return				The parsed 3d object.
+         */
         public function parse(data:*):Object3D
         {
         	_broadcaster.addEventListener(Event.ENTER_FRAME, update);
