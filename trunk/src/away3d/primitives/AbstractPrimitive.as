@@ -139,8 +139,15 @@
 		
 		public override function updateObject():void
     	{
-    		if (_primitiveDirty)
+    		//build geometry
+    		if (_primitiveDirty) {
         		buildPrimitive();
+        		
+	        	//execute quarterFaces
+	        	var i:int = geometry.quarterFacesTotal;
+	        	while (i--)
+	        		quarterFaces();
+      		}
         	
         	super.updateObject();
      	}
