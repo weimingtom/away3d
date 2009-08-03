@@ -11,7 +11,7 @@ package away3d.loaders
 	/**
 	 * Default loader class used as a placeholder for loading 3d content
 	 */
-    public class LoaderCube3D extends Loader3D
+    public class LoaderCube extends Loader3D
     {
         private var side:MovieClip;
         private var cube:Cube;
@@ -56,11 +56,11 @@ package away3d.loaders
         }
         
 		/**
-		 * Creates a new <code>LoaderCube3D</code> object.
+		 * Creates a new <code>LoaderCube</code> object.
 		 * 
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
-        public function LoaderCube3D(init:Object = null) 
+        public function LoaderCube(init:Object = null) 
         {
             super(init);
             
