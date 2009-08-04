@@ -74,6 +74,8 @@ package away3d.animators.skin
 				while (i--) {
 					if (type[i] == "transform") {
 						target.transform = param[_index][i];
+					} else if (type[i] == "visibility") {
+						target.visible = param[_index][i] > 0;
 					} else {
 						if (interpolate)
 							target[type[i]] = ((time - times[_index]) * param[int(_index + 1)][i] + (times[int(_index + 1)] - time) * param[_index][i]) / (times[int(_index + 1)] - times[_index]);
