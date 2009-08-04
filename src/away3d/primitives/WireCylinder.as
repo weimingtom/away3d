@@ -19,6 +19,16 @@
         
         private function buildWireCylinder():void
         {
+
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 
@@ -29,16 +39,16 @@
 
             var bottom:Vertex = _yUp? createVertex(0, -_height, 0) : createVertex(0, 0, -_height);
             grid[0] = new Array(_segmentsW);
-            for (i = 0; i < _segmentsW; ++i) 
+            
+            for (i = 0; i < _segmentsW; ++i)
                 grid[0][i] = bottom;
 
-            for (j = 1; j < _segmentsH; ++j)  
-            { 
+            for (j = 1; j < _segmentsH; ++j) { 
                 var z:Number = -_height + 2 * _height * (j-1) / (_segmentsH-2);
 
                 grid[j] = new Array(_segmentsW);
-                for (i = 0; i < _segmentsW; ++i) 
-                { 
+                
+                for (i = 0; i < _segmentsW; ++i) { 
                     var verangle:Number = 2 * i / _segmentsW * Math.PI;
                     var x:Number = _radius * Math.sin(verangle);
                     var y:Number = _radius * Math.cos(verangle);
@@ -52,12 +62,12 @@
 
             var top:Vertex = _yUp? createVertex(0, _height, 0) : createVertex(0, 0, _height);
             grid[_segmentsH] = new Array(_segmentsW);
-            for (i = 0; i < _segmentsW; ++i) 
+            
+            for (i = 0; i < _segmentsW; ++i)
                 grid[_segmentsH][i] = top;
 
-            for (j = 1; j <= _segmentsH; ++j) 
-                for (i = 0; i < _segmentsW; ++i) 
-                {
+            for (j = 1; j <= _segmentsH; ++j) {
+                for (i = 0; i < _segmentsW; ++i) {
                     var a:Vertex = grid[j][i];
                     var b:Vertex = grid[j][(i-1+_segmentsW) % _segmentsW];
                     var c:Vertex = grid[j-1][(i-1+_segmentsW) % _segmentsW];
@@ -68,16 +78,7 @@
                     if (j < _segmentsH)  
                         addSegment(createSegment(a, b));
                 }
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildWireCylinder();
+            }
     	}
     	
     	/**
@@ -180,8 +181,6 @@
             _segmentsH = ini.getInt("segmentsH", 1, {min:1});
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildWireCylinder();
-			
 			type = "WireCylinder";
         	url = "primitive";
         }
@@ -194,6 +193,9 @@
 		 */
         public function vertex(w:int, h:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[h][w];
         }
     }

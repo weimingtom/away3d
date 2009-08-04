@@ -16,9 +16,14 @@
         private var _segmentsW:int;
         private var _segmentsH:int;
         private var _yUp:Boolean;
-		
-        private function buildSphere():void
-        {
+        
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 
@@ -26,18 +31,18 @@
 
             var bottom:Vertex = _yUp? createVertex(0, -_radius, 0) : createVertex(0, 0, -_radius);
             grid[0] = new Array(_segmentsW);
-            for (i = 0; i < _segmentsW; ++i) 
+            
+            for (i = 0; i < _segmentsW; ++i)
                 grid[0][i] = bottom;
 
-            for (j = 1; j < _segmentsH; ++j)  
-            { 
+            for (j = 1; j < _segmentsH; ++j) { 
                 var horangle:Number = j / _segmentsH * Math.PI;
                 var z:Number = -_radius * Math.cos(horangle);
                 var ringradius:Number = _radius * Math.sin(horangle);
 
                 grid[j] = new Array(_segmentsW);
-                for (i = 0; i < _segmentsW; ++i) 
-                { 
+                
+                for (i = 0; i < _segmentsW; ++i) { 
                     var verangle:Number = 2 * i / _segmentsW * Math.PI;
                     var x:Number = ringradius * Math.sin(verangle);
                     var y:Number = ringradius * Math.cos(verangle);
@@ -51,12 +56,12 @@
 
             var top:Vertex = _yUp? createVertex(0, _radius, 0) : createVertex(0, 0, _radius);
             grid[_segmentsH] = new Array(_segmentsW);
-            for (i = 0; i < _segmentsW; ++i) 
+            
+            for (i = 0; i < _segmentsW; ++i)
                 grid[_segmentsH][i] = top;
 
-            for (j = 1; j <= _segmentsH; ++j) 
-                for (i = 0; i < _segmentsW; ++i) 
-                {
+            for (j = 1; j <= _segmentsH; ++j) {
+                for (i = 0; i < _segmentsW; ++i) {
                     var a:Vertex = grid[j][i];
                     var b:Vertex = grid[j][(i-1+_segmentsW) % _segmentsW];
                     var c:Vertex = grid[j-1][(i-1+_segmentsW) % _segmentsW];
@@ -79,16 +84,7 @@
                     if (j > 1)                
                         addFace(createFace(a,c,d, null, uva,uvc,uvd));
                 }
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-			buildSphere();
+            }
     	}
     	
     	/**
@@ -173,8 +169,6 @@
             _segmentsH = ini.getInt("segmentsH", 6, {min:2});
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildSphere();
-			
 			type = "Sphere";
         	url = "primitive";
         }
@@ -187,6 +181,9 @@
 		 */
         public function vertex(w:int, h:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[h][w];
         }
     }

@@ -17,8 +17,13 @@
         private var _segmentsH:int;
         private var _yUp:Boolean;
         
-        private function buildWirePlane():void
-        {
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 
@@ -41,18 +46,6 @@
             for (i = 0; i < _segmentsW + 1; ++i)
                 for (j = 0; j < _segmentsH; ++j)
                     addSegment(createSegment(grid[i][j], grid[i][j+1]));
-					
-
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildWirePlane();
     	}
     	
     	/**
@@ -156,8 +149,6 @@
             _segmentsW = ini.getInt("segmentsW", segments, {min:1});
             _segmentsH = ini.getInt("segmentsH", segments, {min:1});
     		_yUp = ini.getBoolean("yUp", true);
-    		
-            buildWirePlane();
             
 			type = "WirePlane";
         	url = "primitive";
@@ -171,6 +162,9 @@
 		 */
         public function vertex(i:int, j:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[i][j];
         }
     }

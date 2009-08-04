@@ -18,17 +18,20 @@
         private var _segmentsT:int;
         private var _yUp:Boolean;
         
-        private function buildTorus():void
-        {
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 
             grid = new Array(_segmentsR);
-            for (i = 0; i < _segmentsR; ++i)
-            {
+            for (i = 0; i < _segmentsR; ++i) {
                 grid[i] = new Array(_segmentsT);
-                for (j = 0; j < _segmentsT; ++j)
-                {
+                for (j = 0; j < _segmentsT; ++j) {
                     var u:Number = i / _segmentsR * 2 * Math.PI;
                     var v:Number = j / _segmentsT * 2 * Math.PI;
                     
@@ -39,9 +42,8 @@
                 }
             }
 
-            for (i = 0; i < _segmentsR; ++i)
-                for (j = 0; j < _segmentsT; ++j)
-                {
+            for (i = 0; i < _segmentsR; ++i) {
+                for (j = 0; j < _segmentsT; ++j) {
                     var ip:int = (i+1) % _segmentsR;
                     var jp:int = (j+1) % _segmentsT;
                     var a:Vertex = grid[i ][j]; 
@@ -57,16 +59,7 @@
                     addFace(createFace(a, b, c, null, uva, uvb, uvc));
                     addFace(createFace(d, c, b, null, uvd, uvc, uvb));
                 }
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildTorus();
+            }
     	}
     	
     	/**
@@ -169,8 +162,6 @@
             _segmentsT = ini.getInt("segmentsT", 6, {min:3});
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildTorus();
-			
 			type = "Torus";
         	url = "primitive";
         }
@@ -183,6 +174,9 @@
 		 */
         public function vertex(r:int, t:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[t][r];
         }
     }

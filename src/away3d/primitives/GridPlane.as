@@ -16,9 +16,14 @@
         private var _segmentsW:int;
         private var _segmentsH:int;
         private var _yUp:Boolean;
-        
-        private function buildPlane():void
-        {
+		
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
         	var i:int;
         	var j:int;
         	
@@ -36,16 +41,6 @@
 	                addSegment(createSegment(createVertex(-0.5*_width, (j/_segmentsH - 0.5)*_height, 0), createVertex(0.5*_width, (j/_segmentsH - 0.5)*_height, 0)));
 	       
         	}
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildPlane();
     	}
     	
     	/**
@@ -148,8 +143,6 @@
             _segmentsW = ini.getInt("segmentsW", segments, {min:1});
             _segmentsH = ini.getInt("segmentsH", segments, {min:1});
     		_yUp = ini.getBoolean("yUp", true);
-    		
-			buildPlane();
 			
 	   		type = "GridPlane";
         	url = "primitive";

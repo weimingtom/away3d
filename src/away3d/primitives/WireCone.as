@@ -19,26 +19,36 @@
         
         private function buildWireCone():void
         {
+
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
-
+			
             _height /= 2;
             _segmentsH += 1;
-
+			
             grid = new Array(_segmentsH + 1);
-
+			
             var bottom:Vertex = _yUp? createVertex(0, -_height, 0) : createVertex(0, 0, -_height);
             grid[0] = new Array(_segmentsW);
-            for (i = 0; i < _segmentsW; ++i) 
+            
+            for (i = 0; i < _segmentsW; ++i)
                 grid[0][i] = bottom;
-
-            for (j = 1; j < _segmentsH; ++j)  
-            { 
+			
+            for (j = 1; j < _segmentsH; ++j) { 
                 var z:Number = -_height + 2 * _height * (j-1) / (_segmentsH-1);
 
                 grid[j] = new Array(_segmentsW);
-                for (i = 0; i < _segmentsW; ++i) 
-                { 
+                
+                for (i = 0; i < _segmentsW; ++i) { 
                     var verangle:Number = 2 * i / _segmentsW * Math.PI;
                     var ringradius:Number = _radius * (_segmentsH-j)/(_segmentsH-1);
                     var x:Number = ringradius * Math.sin(verangle);
@@ -50,16 +60,16 @@
                     	grid[j][i] = createVertex(y, -x, z);
                 }
             }
-
+			
             var top:Vertex = _yUp? createVertex(0, _height, 0) : createVertex(0, 0, _height);
             
             grid[_segmentsH] = new Array(_segmentsW);
-            for (i = 0; i < _segmentsW; ++i) 
+            
+            for (i = 0; i < _segmentsW; ++i)
                 grid[_segmentsH][i] = top;
-
-            for (j = 1; j <= _segmentsH; ++j) 
-                for (i = 0; i < _segmentsW; ++i) 
-                {
+			
+            for (j = 1; j <= _segmentsH; ++j) {
+                for (i = 0; i < _segmentsW; ++i) {
                     var a:Vertex = grid[j][i];
                     var b:Vertex = grid[j][(i-1+_segmentsW) % _segmentsW];
                     var c:Vertex = grid[j-1][(i-1+_segmentsW) % _segmentsW];
@@ -70,16 +80,7 @@
                     if (j < _segmentsH)  
                         addSegment(createSegment(a, b));
                 }
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildWireCone();
+            }
     	}
     	
     	/**
@@ -182,8 +183,6 @@
             _segmentsH = ini.getInt("segmentsH", 1, {min:1});
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildWireCone();
-			
             type = "WireCone";
         	url = "primitive";
         }
@@ -196,6 +195,9 @@
 		 */
         public function vertex(w:int, h:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[h][w];
         }
     }
