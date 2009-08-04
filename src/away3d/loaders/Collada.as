@@ -52,7 +52,8 @@
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
 				if (_objectData is MeshData) {
-					buildMesh(_objectData as MeshData, parent);
+					var mesh:Mesh = buildMesh(_objectData as MeshData, parent);
+					_containers[_objectData.name] = mesh;
 				} else if (_objectData is BoneData) {
 					var _boneData:BoneData = _objectData as BoneData;
 					var bone:Bone = new Bone({name:_boneData.name});
@@ -94,7 +95,7 @@
 			}
 		}
 		
-		private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
+		private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):Mesh
 		{
 			Debug.trace(" + Build Mesh : "+_meshData.name);
 			
@@ -164,6 +165,7 @@
 			
 			mesh.type = ".Collada";
 			parent.addChild(mesh);
+			return mesh;
 		}
 		
         private function buildMaterials():void
@@ -231,6 +233,7 @@
 						
 						for each (var channelData:ChannelData in _animationData.channels) {
 							var channel:Channel = channelData.channel;
+							
 							channel.target = _containers[channel.name];
 							animation.appendChannel(channel);
 							
@@ -261,12 +264,14 @@
 				            switch(channelData.type)
 				            {
 				                case "translateX":
+								case "transform(3)(0)":
 				                	channel.type = ["x"];
 									if (yUp)
 										for each (param in channel.param)
 											param[0] *= -1*scaling;
 				                	break;
 								case "translateY":
+								case "transform(3)(1)":
 									if (yUp)
 										channel.type = ["y"];
 									else
@@ -275,6 +280,7 @@
 										param[0] *= scaling;
 				     				break;
 								case "translateZ":
+								case "transform(3)(2)":
 									if (yUp)
 										channel.type = ["z"];
 									else
@@ -288,6 +294,7 @@
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
+								case "rotateXANGLE":
 								case "rotateX":
 								case "RotX":
 				     				channel.type = [rX];
@@ -301,6 +308,7 @@
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
+								case "rotateYANGLE":
 								case "rotateY":
 								case "RotY":
 									if (yUp)
@@ -317,6 +325,7 @@
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
+								case "rotateZANGLE":
 								case "rotateZ":
 								case "RotZ":
 									if (yUp)
@@ -328,18 +337,21 @@
 											param[0] *= -1;
 				            		break;
 								case "scaleX":
+								case "transform(0)(0)":
 									channel.type = [sX];
 									//if (yUp)
 									//	for each (param in channel.param)
 									//		param[0] *= -1;
 				            		break;
 								case "scaleY":
+								case "transform(1)(1)":
 									if (yUp)
 										channel.type = [sY];
 									else
 										channel.type = [sZ];
 				     				break;
 								case "scaleZ":
+								case "transform(2)(2)":
 									if (yUp)
 										channel.type = [sZ];
 									else
@@ -384,6 +396,10 @@
 									break;
 								case "transform":
 									channel.type = ["transform"];
+									break;
+								
+								case "visibility":
+									channel.type = ["visibility"];
 									break;
 				            }
 						}
@@ -814,11 +830,18 @@
 			var verticesDictionary:Dictionary = new Dictionary(true);
 			
             // Triangles
-            for each (var triangles:XML in geometryData.geoXML["mesh"].triangles)
+            var trianglesXMLList:XMLList = geometryData.geoXML["mesh"].triangles;
+            
+            // C4D
+            var isC4D:Boolean = (trianglesXMLList.length()==0 && geometryData.geoXML["mesh"].polylist.length()>0);
+            if(isC4D)
+            	trianglesXMLList = geometryData.geoXML["mesh"].polylist;
+            
+            for each (var triangles:XML in trianglesXMLList)
             {
                 // Input
                 var field:Array = [];
-				
+                
                 for each(var input:XML in triangles["input"])
                 {
                 	var semantic:String = input.@semantic;
@@ -1007,8 +1030,27 @@
             
             //loop through all animation channels
 			for each (var channel:XML in anims["animation"])
-				channelLibrary.addChannel(channel.@id, channel);
-			
+			{
+				if(String(channel.@id).length>0)
+					channelLibrary.addChannel(channel.@id, channel);
+			}
+
+			// C4D 
+			// issue#1 : animation -> animation.animation
+			// issue#2 : missing channel.@id -> use automatic id instead
+			var _channel_id:uint = 0;
+			for each (channel in anims["animation"]["animation"])
+			{
+				if(String(channel.@id).length>0)
+				{
+					channelLibrary.addChannel(channel.@id, channel);
+				}else{
+					Debug.trace(" ! C4D id : C4D_"+_channel_id);
+					channelLibrary.addChannel("C4D_"+String(_channel_id), channel);
+				}
+				++_channel_id;
+			}
+				
 			if (clips) {
 				//loop through all animation clips
 				for each (var clip:XML in clips["animation_clip"])
@@ -1048,9 +1090,13 @@
             	return;
             }
             
+            // C4D : didn't have @id
+            var isC4D:Boolean = (String(node.@id).length<=0);
+            var isC4DType:String = type.split(".").join("");
+            
             type = type.split(".")[0];
 			
-            if (type == "image" || node.@id.split(".")[1] == "frameExtension")
+            if (!isC4D && (type == "image" || node.@id.split(".")[1] == "frameExtension"))
             {
                 //TODO : Material Animation
 				Debug.trace(" ! Material animation not yet implemented");
@@ -1073,7 +1119,12 @@
                 var stride:int = int(src["technique_common"].accessor.@stride);
                 var semantic:String = input.@semantic;
 				
+				//C4D : no stride defined
+				if (stride == 0)
+					stride=1;
+				
 				var p:String;
+				
                 switch(semantic) {
                     case "INPUT":
                         for each (p in list)
@@ -1089,7 +1140,7 @@
                     case "OUTPUT":
                         i=0;
                         while (i < len) {
-                            channel.param[i] = [];
+                           channel.param[i] = [];
                             
                             if (stride == 16) {
 		                    	var m:Matrix3D = new Matrix3D();
@@ -1104,6 +1155,7 @@
                             }
                             ++i;
                         }
+                        trace("OUTPUT:"+len);
                         break;
                     case "INTERPOLATION":
                         for each (p in list)
@@ -1140,7 +1192,8 @@
                 }
             }
             
-			channelData.type = type;
+			channelData.type = isC4D?isC4DType:type;
+			trace("channelData.type:"+channelData.type);
         }
 		
 		/**
