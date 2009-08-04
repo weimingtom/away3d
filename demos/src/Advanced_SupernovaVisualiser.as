@@ -1,3 +1,41 @@
+/*
+
+Filters example in Away3d with 2d sprites and bitmap rendering
+
+Demonstrates:
+
+How to create a torus knot with 2d sprites.
+How to apply filters to a 3d object.
+How to use BitmapRenderSession to speed up filter processing by doubling pixel size and halving pixel resolution.
+
+Code by Rob Bateman
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
+
+This code is distributed under the MIT License
+
+Copyright (c)  
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
 package
 {
 	import away3d.cameras.*;
@@ -65,6 +103,14 @@ package
 		private var channel:SoundChannel;
 		private var peak:Number;
 		private var audioURL:String = "assets/03_The_Number_Song.mp3";
+		private var addNum:Number = 0;
+		private var addSpeed:int = 10;
+		private var distance:Number = 0;
+		private var distancespeed:Number = 0;
+		private var spectrum:ByteArray = new ByteArray();
+		private var maxlevel:int = 20;
+		private var minlevel:int = 10;
+		
 		/**
 		 * Constructor
 		 */
@@ -100,12 +146,19 @@ package
 			
 			//setup scene variables
 			scene = new Scene3D();
-			camera = new Camera3D({zoom:10, focus:100, z:-2000});
-			view = new View3D({scene:scene, camera:camera, session:new BitmapRenderSession(2)});
-			view.x = 400;
-			view.y = 300;
+			
+			//camera = new Camera3D({z:-2000});
+			camera = new Camera3D();
+			camera.z = -2000;
+			
+			//view = new View3D({scene:scene, camera:camera, session:new BitmapRenderSession(2)});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			view.session = new BitmapRenderSession(2);
+			
 			view.addSourceURL("srcview/index.html");
-			addChild( view );
+			addChild(view);
 			
 			//add signature
             Signature = Sprite(new SignatureSwf());
@@ -121,7 +174,7 @@ package
             tf.color = 0xFFFFFF;
             tf.font = "Arial";
             tf.size = 11;
-            TrackText.text = "Track: Locate the audioURL property and update the filepath";
+            TrackText.text = "Track: DJ Shadow: The Number Song";
             TrackText.autoSize = "left";
             TrackText.setTextFormat(tf);
             addChild(TrackText);
@@ -147,13 +200,30 @@ package
 			var filter4:BlurFilter = new BlurFilter();
 			
 			//create containers
-			container = new ObjectContainer3D({ownCanvas:true, filters:[filter1, filter2, filter3]});
+			//container = new ObjectContainer3D({ownCanvas:true, filters:[filter1, filter2, filter3]});
+			container = new ObjectContainer3D();
+			container.ownCanvas = true;
+			container.filters = [filter1, filter2, filter3];
+			
 			container2 = new ObjectContainer3D(container);
 			container2.lookAt(new Number3D(1, 1, 1));
 			scene.addChild(container2);
 			
 			//create cylinder
-			cylinder = new Cylinder({ownCanvas:true, filters:[filter4], material:tubeMaterial, z:12000, radius:200, height:2000, segmentsW:20, segmentsH:20, openEnded:true, yUp:false, rotationZ:90})
+			//cylinder = new Cylinder({ownCanvas:true, filters:[filter4], material:tubeMaterial, z:12000, radius:200, height:2000, segmentsW:20, segmentsH:20, openEnded:true, yUp:false, rotationZ:90});
+			cylinder = new Cylinder();
+			cylinder.ownCanvas = true;
+			cylinder.filters = [filter4];
+			cylinder.material = tubeMaterial;
+			cylinder.z = 12000;
+			cylinder.radius = 200;
+			cylinder.height = 2000;
+			cylinder.segmentsW = 20;
+			cylinder.segmentsH = 20;
+			cylinder.openEnded = true;
+			cylinder.yUp = false;
+			cylinder.rotationZ = 90;
+			
 			cylinder.scale(-10);
 			scene.addChild(cylinder);
 			
@@ -169,7 +239,6 @@ package
 				blue = 0xFF*(1 - Math.sin(i*Math.PI/spheresNum));
 				sprite = getNucleicSprite(spheresDistance*Math.cos(i*Math.PI*4/spheresNum), spheresDistance*Math.sin(i*Math.PI*4/spheresNum), spheresDistance*Math.sin(i*Math.PI*20/spheresNum), 20, red, green, blue);
 				container.addChild(sprite);
-				
 			}
 		}
 		
@@ -187,20 +256,35 @@ package
 		 */
 		private function initListeners():void
 		{
-			addEventListener( Event.ENTER_FRAME, onEnterFrame );
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(Event.RESIZE, onResize);
-			onResize(null);
+			onResize();
 		}
-		
-		private var addNum:Number = 0;
-		private var addSpeed:int = 10;
-		private var distance:Number = 0;
-		private var distancespeed:Number = 0;
-		private var spectrum:ByteArray = new ByteArray();
-		private var maxlevel:int = 20;
-		private var minlevel:int = 10;
-		
+        
+		/**
+		 * Creates a 2d sprite with the given arguments
+		 */
+        private function getNucleicSprite(x:Number, y:Number, z:Number, radius:Number, red:int, green:int, blue:int):Sprite2D
+        {
+        	var nucleicBitmap:BitmapData = new BitmapData(radius*2, radius*2, true, 0x00000000);
+			var bitmapShape:Shape = new Shape();
+			var matrix:Matrix = new Matrix();
+			matrix.createGradientBox(radius*2, radius*2, 0, 0, 0);
+			var color:int = red << 16 | green << 8 | blue;
+			bitmapShape.graphics.beginGradientFill(GradientType.RADIAL, [0xFFFFFF, color, color], [1, 1, 0], [0, 127, 255], matrix);
+			bitmapShape.graphics.drawCircle(radius, radius, radius);
+			nucleicBitmap.draw(bitmapShape);
+			
+			//var sprite2D:Sprite2D = new Sprite2D(nucleicBitmap, {scaling:2, x:x, y:y, z:z});
+			var sprite2D:Sprite2D = new Sprite2D(nucleicBitmap);
+			sprite2D.scaling = 2;
+			sprite2D.x = x;
+			sprite2D.y = y;
+			sprite2D.z = z;
+			return sprite2D;
+        }
+        
 		/**
 		 * Render loop
 		 */
@@ -290,33 +374,23 @@ package
             {
             	case Keyboard.ENTER:
             		if (stage.displayState == StageDisplayState.FULL_SCREEN)
-                		stage.displayState =StageDisplayState.NORMAL;
+                		stage.displayState = StageDisplayState.NORMAL;
                 	else 
-                		stage.displayState =StageDisplayState.FULL_SCREEN;
+                		stage.displayState = StageDisplayState.FULL_SCREEN;
                 	break;
             }
         }
-        
-        private function onResize(event:Event):void 
+		
+		/**
+		 * stage listener for resize events
+		 */
+        private function onResize(event:Event = null):void 
         {
             view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;
             SignatureBitmap.y = stage.stageHeight - Signature.height;
             TrackText.y = stage.stageHeight - TrackText.height - 10;
             TrackText.x = stage.stageWidth - TrackText.width - 10;
-        }
-        
-        private function getNucleicSprite(x:Number, y:Number, z:Number, radius:Number, red:int, green:int, blue:int):Sprite2D
-        {
-        	var nucleicBitmap:BitmapData = new BitmapData(radius*2, radius*2, true, 0x00000000);
-			var bitmapShape:Shape = new Shape();
-			var matrix:Matrix = new Matrix();
-			matrix.createGradientBox(radius*2, radius*2, 0, 0, 0);
-			var color:int = red << 16 | green << 8 | blue;
-			bitmapShape.graphics.beginGradientFill(GradientType.RADIAL, [0xFFFFFF, color, color], [1, 1, 0], [0, 127, 255], matrix);
-			bitmapShape.graphics.drawCircle(radius, radius, radius);
-			nucleicBitmap.draw(bitmapShape);
-			return new Sprite2D(nucleicBitmap, {scaling:2, x:x, y:y, z:z});
         }
 	}
 }

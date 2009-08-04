@@ -1,3 +1,43 @@
+/*
+
+Advanced shading materials example in Away3d
+
+Demonstrates:
+
+How to create and apply a Dot3BitmapMaterial to a 3d model.
+How to create and apply an EnviroBitmapMaterial to a 3d model.
+How to create and apply a PhongBitmapMaterial to a 3d model.
+How to create and apply a ShadingColorMaterial to a 3d model.
+How to load and display a QTVR-style skybox from six images.
+
+Code by Rob Bateman
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
+
+This code is distributed under the MIT License
+
+Copyright (c)  
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
 package
 {
 	import away3d.cameras.*;
@@ -86,6 +126,8 @@ package
 		private var light:DirectionalLight3D;
 		
 		//scene objects
+		private var Md2Torso:Md2still;
+		private var Md2Pedestal:Md2still;
 		private var torso:Mesh;
 		private var pedestal:Mesh;
 		private var panorama:Skybox;
@@ -131,16 +173,24 @@ package
 		private function initEngine():void
 		{
 			scene = new Scene3D();
-			camera = new HoverCamera3D({zoom:3, focus:200, distance:40000});
-			camera.targetpanangle = camera.panangle = 100;
-			camera.targettiltangle = camera.tiltangle = 20;
-			camera.mintiltangle = -90;
+			
+			//camera = new HoverCamera3D({zoom:3, focus:200, distance:40000, yfactor:1});
+			camera = new HoverCamera3D();
+			camera.zoom = 3;
+			camera.focus = 200;
+			camera.distance = 40000;
 			camera.yfactor = 1;
-			view = new View3D({scene:scene, camera:camera});
-			view.x = 400;
-			view.y = 300;
+			
+			camera.targetpanangle = camera.panangle = -10;
+			camera.targettiltangle = camera.tiltangle = 20;
+			
+			//view = new View3D({scene:scene, camera:camera});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			
 			view.addSourceURL("srcview/index.html");
-			addChild( view );
+			addChild(view);
 			
 			//add signature
             Signature = Sprite(new SignatureSwf());
@@ -166,8 +216,15 @@ package
 			pedestalMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(PedestalImage));
 			
 			torsoNormalMaterial = new Dot3BitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(TorsoNormal));
-			torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR), {reflectiveness:0.2});
-			torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage), {specular:0.5});
+			
+			//torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR), {reflectiveness:0.2});
+			torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR));
+			torsoEnviroMaterial.reflectiveness = 0.2;
+			
+			//torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage), {specular:0.5});
+			torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage));
+			torsoPhongMaterial.specular = 0.5;
+			
 			torsoFlatMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(TorsoImage));
 		}
 		
@@ -177,11 +234,17 @@ package
 		private function initLights():void
 		{
 			
-			light = new DirectionalLight3D({color:0xFFFFFF, ambient:0.25, diffuse:0.75, specular:0.9});
+			//light = new DirectionalLight3D({color:0xFFFFFF, ambient:0.25, diffuse:0.75, specular:0.9, x:40000, y:40000, z:40000});
+			light = new DirectionalLight3D();
+			light.color = 0xFFFFFF;
+			light.ambient = 0.25;
+			light.diffuse = 0.75;
+			light.specular = 0.9;
 			light.x = 40000;
             light.z = 40000;
             light.y = 40000;
-			scene.addChild( light );
+            
+			scene.addChild(light);
 		}
 		
 		/**
@@ -189,27 +252,38 @@ package
 		 */
 		private function initObjects():void
 		{
+            //torso = Md2still.parse(TorsoMD2, {ownCanvas:true, material:torsoNormalMaterial});
+            Md2Torso = new Md2still();
+            torso = Md2Torso.parse(TorsoMD2) as Mesh;
+            torso.ownCanvas = true;
+            torso.material = torsoNormalMaterial;
             
-            torso = Md2still.parse(TorsoMD2, {ownCanvas:true, material:torsoNormalMaterial, name:"torso", back:panoramaMaterialF});
-            torso.movePivot((torso.minX+torso.maxX)/2,(torso.minY+torso.maxY)/2,(torso.minZ+torso.maxZ)/2);
+            torso.centerPivot();
             torso.x = torso.z = 0;
-            torso.scale(5);
             torso.y = 4000;
-            scene.addChild( torso );
+            torso.scale(5);
+            
+            scene.addChild(torso);
 			
-			pedestal = Md2still.parse(PedestalMD2, {ownCanvas:true, material:pedestalMaterial});
-			pedestal.rotationZ = 180;
-            pedestal.movePivot((pedestal.minX+pedestal.maxX)/2,(pedestal.minY+pedestal.maxY)/2,(pedestal.minZ+pedestal.maxZ)/2);
-            pedestal.x = pedestal.z = 0;
-            pedestal.scale(10);
+			//pedestal = Md2still.parse(PedestalMD2, {ownCanvas:true, material:pedestalMaterial, rotationX:180, rotationZ:180});
+			Md2Pedestal = new Md2still();
+			pedestal = Md2Pedestal.parse(PedestalMD2) as Mesh;
+			pedestal.ownCanvas = true;
+			pedestal.material = pedestalMaterial;
             pedestal.rotationX = 180;
+			pedestal.rotationZ = 180;			
+            
+            pedestal.centerPivot();
+            pedestal.x = pedestal.z = 0;
             pedestal.y = -30000;
-			scene.addChild( pedestal );
+            pedestal.scale(10);
+            
+			scene.addChild(pedestal);
 			
 			panorama = new Skybox(panoramaMaterialF, panoramaMaterialL, panoramaMaterialB, panoramaMaterialR, panoramaMaterialU, panoramaMaterialD);
 			panorama.scale(0.15);
 			panorama.quarterFaces();
-			scene.addChild( panorama );
+			scene.addChild(panorama);
 		}
 		
 		/**
@@ -219,18 +293,22 @@ package
 		{
 			buttonGroup = new Sprite();
 			addChild(buttonGroup);
+			
 			normalButton = new Button("Normal Map", 90);
             normalButton.x = 0;
             normalButton.y = 0;
             buttonGroup.addChild(normalButton);
+            
             enviroButton = new Button("Environment Map", 125);
             enviroButton.x = 110;
             enviroButton.y = 0;
             buttonGroup.addChild(enviroButton);
+            
             phongButton = new Button("Phong Shading", 115);
             phongButton.x = 255;
             phongButton.y = 0;
             buttonGroup.addChild(phongButton);
+            
             flatButton = new Button("Flat Shading", 95);
             flatButton.x = 390;
             flatButton.y = 0;
@@ -242,14 +320,15 @@ package
 		 */
 		private function initListeners():void
 		{
-			addEventListener( Event.ENTER_FRAME, onEnterFrame );
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			stage.addEventListener(Event.RESIZE, onResize);
 			normalButton.addEventListener(MouseEvent.CLICK, onNormalClick);
 			enviroButton.addEventListener(MouseEvent.CLICK, onEnviroClick);
 			phongButton.addEventListener(MouseEvent.CLICK, onPhongClick);
 			flatButton.addEventListener(MouseEvent.CLICK, onFlatClick);
-            onResize(null);
+            onResize();
 		}
 		
 		/**
@@ -334,7 +413,7 @@ package
 		/**
 		 * stage listener for resize events
 		 */
-		private function onResize(event:Event):void
+		private function onResize(event:Event = null):void
 		{
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;

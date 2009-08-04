@@ -1,16 +1,18 @@
 /*
 
-Globe example in Away3d
+Basic 3d text example in Away3d
 
 Demonstrates:
 
-How to create a textured sphere.
-How to use containers to rotate an object.
-How to use the PhongBitmapMaterial.
+How to import and process a font.
+How to create a 3d textfield.
+How to add a listener for mouse events to a 3d textfield.
 
-Code by Rob Bateman
+Code by Rob Bateman & Alejandro Santander
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
+palebluedot@gmail.com
+http://www.lidev.com.ar
 
 This code is distributed under the MIT License
 
@@ -40,56 +42,49 @@ package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.utils.*;
-	import away3d.lights.*;
+	import away3d.core.base.*;
+	import away3d.events.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	
+	import wumedia.vector.VectorText;
+	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
 	
-	public class Basic_Globe extends Sprite
+	public class Basic_Text extends Sprite
 	{
-		//texture for globe
-		[Embed(source="assets/earth512.png")]
-    	public static var EarthImage:Class;
-		
     	//signature swf
     	[Embed(source="assets/signature.swf", symbol="Signature")]
-    	public var SignatureSwf:Class;
+    	public static var SignatureSwf:Class;
     	
+    	//font swf containing the embedded font Arial
+    	[Embed(source="fonts/fonts.swf", mimeType="application/octet-stream")]
+		public var FontBytes:Class;
+		
 		//engine variables
 		private var scene:Scene3D;
 		private var camera:Camera3D;
 		private var view:View3D;
+		private var bitmap:Bitmap;
+		private var over:Boolean;
 		
 		//signature variables
 		private var Signature:Sprite;
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var material:PhongBitmapMaterial;
+		private var material:ColorMaterial;
 		
 		//scene objects
-		private var sphere:Sphere;
-		private var spherecontainer:ObjectContainer3D;
-		
-		//light objects
-		private var light:DirectionalLight3D;
-		
-		//navigation variables
-		private var move:Boolean = false;
-		private var lastMouseX:Number;
-		private var lastMouseY:Number;
-		private var lastRotationX:Number;
-		private var lastRotationY:Number;
+		private var textfield:TextField3D;
 		
 		/**
 		 * Constructor
 		 */
-		public function Basic_Globe() 
+		public function Basic_Text() 
 		{
 			init();
 		}
@@ -100,9 +95,9 @@ package
 		private function init():void
 		{
 			initEngine();
+			initFonts();
 			initMaterials();
 			initObjects();
-			initLights();
 			initListeners();
 		}
 		
@@ -113,13 +108,13 @@ package
 		{
 			scene = new Scene3D();
 			
-			//camera = new Camera3D({z:-1000});
+			//camera = new Camera3D({z:-1250});
 			camera = new Camera3D();
-			camera.z = -1000;
+			camera.z = -1250;
 			
 			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
-			view.scene= scene;
+			view.scene = scene;
 			view.camera = camera;
 			
 			view.addSourceURL("srcview/index.html");
@@ -135,14 +130,19 @@ package
 		}
 		
 		/**
+		 * Initialise the fonts
+		 */
+		private function initFonts():void
+		{
+			VectorText.extractFont(new FontBytes(), null, false);
+		}
+		
+		/**
 		 * Initialise the materials
 		 */
 		private function initMaterials():void
 		{
-			//material = new PhongBitmapMaterial(Cast.bitmap(EarthImage), {specular:0.1, shininess:10});
-			material = new PhongBitmapMaterial(Cast.bitmap(EarthImage));
-			material.specular = 0.1;
-			material.shininess = 10;
+			material = new ColorMaterial(0xFF0000);
 		}
 		
 		/**
@@ -150,30 +150,17 @@ package
 		 */
 		private function initObjects():void
 		{
-			//sphere = new Sphere({material:material, radius:200, segmentsW:40, segmentsH:20});
-			sphere = new Sphere();
-			sphere.material = material;
-			sphere.radius = 200;
-			sphere.segmentsW = 40;
-			sphere.segmentsH = 20;
+			//textfield = new TextField3D("Arial", {material:material, text:"This is some text.", size:150, leading:150, kerning:0, textWidth:5000, align:"C"});
+			textfield = new TextField3D("Arial");
+			textfield.text = "This is some text."
+			textfield.material = material;
+			textfield.size = 150
+			textfield.leading = 150;
+			textfield.kerning = 0;
+			textfield.textWidth = 5000;
+			textfield.align = "C"
 			
-			spherecontainer = new ObjectContainer3D(sphere);
-			scene.addChild(spherecontainer);
-		}
-		
-		/**
-		 * Initialise the lights
-		 */
-		private function initLights():void
-		{
-			//light = new DirectionalLight3D({x:1, y:1, z:-1, ambient:0.2});
-			light = new DirectionalLight3D();
-			light.x = 1;
-			light.y = 1;
-			light.z = -1;
-			light.ambient = 0.2;
-			
-			scene.addChild(light);
+			scene.addChild(textfield);
 		}
 		
 		/**
@@ -181,62 +168,53 @@ package
 		 */
 		private function initListeners():void
 		{
+			//textfield.addOnMouseUp(onClickText);
+			textfield.addEventListener(MouseEvent3D.MOUSE_UP, onClickText);
+			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			stage.addEventListener(Event.RESIZE, onResize);
 			onResize();
 		}
 		
 		/**
+		 * Listener function for mouse click on text
+		 */
+	    private function onClickText(e:MouseEvent3D):void
+	    {
+	        if (e.object is Mesh) {
+	            var mesh:Mesh = e.object as Mesh;
+	            mesh.material = new ColorMaterial();
+	        }
+	    }
+		
+		/**
 		 * Navigation and render loop
 		 */
-		private function onEnterFrame(e:Event):void
+		private function onEnterFrame(event:Event):void
 		{
-			sphere.rotationY += 0.2;
-			
-			if (move) {
-				spherecontainer.rotationX = (mouseY - lastMouseY)/2 + lastRotationX;
-				if (spherecontainer.rotationX > 90)
-					spherecontainer.rotationX = 90;
-				if (spherecontainer.rotationX < -90)
-					spherecontainer.rotationX = -90;
-				sphere.rotationY = (lastMouseX - mouseX)/2 + lastRotationY;
-			}
-			
+			hoverCamera();
 			view.render();
 		}
 		
 		/**
-		 * Mouse up listener for navigation
+		 * Update method for camera position
 		 */
-		private function onMouseDown(e:MouseEvent):void
+		private function hoverCamera():void
 		{
-			lastRotationX = spherecontainer.rotationX;
-			lastRotationY = sphere.rotationY;
-			lastMouseX = mouseX;
-			lastMouseY = mouseY;
-			move = true;
-			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+			var mX:Number = this.mouseX > 0 ? this.mouseX : 0;
+			var mY:Number = this.mouseY > 0 ? this.mouseY : 0;
+			
+			var tarX:Number = 3*(mX - stage.stageWidth/2);
+			var tarY:Number = -2*(mY - stage.stageHeight/2);
+			
+			var dX:Number = camera.x - tarX;
+			var dY:Number = camera.y - tarY;
+			
+			camera.x -= dX*0.25;
+			camera.y -= dY*0.25;
+			camera.lookAt(textfield.position);
 		}
 		
-		/**
-		 * Mouse down listener for navigation
-		 */
-		private function onMouseUp(e:MouseEvent):void
-		{
-			move = false;
-			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);    
-		}
-        
-		/**
-		 * Mouse stage leave listener for navigation
-		 */
-        private function onStageMouseLeave(event:Event):void
-        {
-        	move = false;
-        	stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);     
-        }
 		/**
 		 * stage listener for resize events
 		 */

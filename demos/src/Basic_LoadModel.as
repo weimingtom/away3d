@@ -1,11 +1,12 @@
 ﻿/*
 
-Skybox example in Away3d
+3ds file loading example in Away3d
 
 Demonstrates:
 
-How to import a QTVR texture as a single image.
-How to use the SkyBox6 object with a skybox texture.
+How to use the Loader3D object to load and parse an external 3ds model.
+How to extract material data and use it to set materials on a model.
+how to access the children of a loaded 3ds model.
 
 Code by Rob Bateman
 rob@infiniteturtles.co.uk
@@ -39,36 +40,42 @@ package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.clip.*;
-	import away3d.core.render.*;
-	import away3d.core.utils.Cast;
+	import away3d.core.base.*;
+	import away3d.core.utils.*;
+	import away3d.events.*;
 	import away3d.loaders.*;
 	import away3d.materials.*;
-	import away3d.primitives.Skybox6;
 	
 	import flash.display.*;
 	import flash.events.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
 	
-	public class Intermediate_Skybox extends Sprite
+	public class Basic_LoadModel extends Sprite
 	{
-		//signature swf
+    	//signature swf
     	[Embed(source="assets/signature.swf", symbol="Signature")]
-    	private var SignatureSwf:Class;
-    	
-		//skybox image 1
-		[Embed(source="assets/peterskybox1.jpg")]
-    	public var SkyImage1:Class;
-    	
-    	//skybox image 2
-		[Embed(source="assets/peterskybox2.jpg")]
-    	public var SkyImage2:Class;
-    	
-    	//engine variables
+    	public var SignatureSwf:Class;
+		
+		//ferrari texture
+		[Embed(source="assets/fskingr.jpg")]
+		private var GreenPaint:Class;
+		
+		//ferrari texture
+		[Embed(source="assets/fskin.jpg")]
+		private var RedPaint:Class;
+				
+		//ferrari texture
+		[Embed(source="assets/fskiny.jpg")]
+		private var YellowPaint:Class;
+				
+		//ferrari texture
+		[Embed(source="assets/fsking.jpg")]
+		private var GreyPaint:Class;
+		
+		//engine variables
     	private var scene:Scene3D;
 		private var camera:HoverCamera3D;
-		private var clipping:RectangleClipping;
 		private var view:View3D;
 		
 		//signature variables
@@ -76,10 +83,13 @@ package
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var material:BitmapMaterial;
+		private var materialArray:Array;
+		private var materialIndex:int = 0;
 		
 		//scene objects
-		private var skybox:Skybox6;
+		private var max3ds:Max3DS;
+		private var loader:LoaderCube;
+		private var model:ObjectContainer3D;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -91,8 +101,9 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Intermediate_Skybox()
+		public function Basic_LoadModel()
 		{
+			Debug.active = true;
 			init();
 		}
 		
@@ -114,27 +125,14 @@ package
 		{
 			scene = new Scene3D();
 			
-			//camera = new HoverCamera3D({focus:50, mintiltangle:-80, maxtiltangle:20});
 			camera = new HoverCamera3D();
-			camera.focus = 50;
-			camera.mintiltangle = -80;
-			camera.maxtiltangle = 20;
+			camera.targetpanangle = camera.panangle = 45;
+			camera.targettiltangle = camera.tiltangle = 20;
 			
-			camera.targetpanangle = camera.panangle = 0;
-			camera.targettiltangle = camera.tiltangle = 0;
-			
-			//clipping = new RectangleClipping({minX:-320, minY:-240, maxX:320, maxY:240});
-			clipping = new RectangleClipping();
-			clipping.minX = -320;
-			clipping.minY = -240;
-			clipping.maxX = 320;
-			clipping.maxY = 240;
-			
-			//view = new View3D({scene:scene, camera:camera, clipping:clipping});
+			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
-			view.clipping = clipping;
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -153,7 +151,7 @@ package
 		 */
 		private function initMaterials():void
 		{
-			material = new BitmapMaterial(Cast.bitmap(SkyImage2));
+			materialArray = [Cast.material(GreenPaint), Cast.material(RedPaint), Cast.material(YellowPaint), Cast.material(GreyPaint)];
 		}
 		
 		/**
@@ -161,10 +159,15 @@ package
 		 */
 		private function initObjects():void
 		{
-			skybox = new Skybox6(material);
-			skybox.quarterFaces();
+			//loader = Max3DS.load("assets/f360.3ds", {loadersize:200, centerMeshes:true}) as LoaderCube;
+			loader = new LoaderCube();
+			loader.loadersize = 200;
+			loader.addOnSuccess(onSuccess);
+			max3ds = new Max3DS();
+			max3ds.centerMeshes = true;
+			loader.loadGeometry("assets/f360.3ds", max3ds);
 			
-			scene.addChild(skybox);
+			scene.addChild(loader);
 		}
 		
 		/**
@@ -184,13 +187,51 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
+			loader.handle.rotationY += 2;
+			
 			if (move) {
 				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
-			camera.hover();  
+			//rotate the wheels
+			if (model) {
+				for each (var object:Object3D in model.children) {
+					//object.debugbb = true;
+					if (object.name.indexOf("wheel") != -1)
+						object.rotationX += 10;
+				}
+			}
+			
+			camera.hover();
 			view.render();
+		}
+				
+		/**
+		 * Listener function for loading complete event on loader
+		 */
+		public function onSuccess(event:Event):void
+		{
+			model = loader.handle as ObjectContainer3D;
+			model.scale(100);
+			
+			model.rotationX = 90;
+			model.materialLibrary.getMaterial("fskin").material = materialArray[materialIndex];
+			
+			//model.addOnMouseUp(onClickModel);
+			model.addEventListener(MouseEvent3D.MOUSE_UP, onClickModel);
+		}
+		
+		/**
+		 * Listener function for mouse click on car
+		 */
+		private function onClickModel(event:MouseEvent3D):void
+		{
+			materialIndex++;
+			if (materialIndex > materialArray.length - 1)
+				materialIndex = 0;
+			
+			model.materialLibrary.getMaterial("fskin").material = materialArray[materialIndex];
 		}
 		
 		/**
@@ -223,9 +264,9 @@ package
         	move = false;
         	stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);     
         }
-        
-        /**
-		 * Stage listener for resize events
+		
+		/**
+		 * stage listener for resize events
 		 */
 		private function onResize(event:Event = null):void
 		{

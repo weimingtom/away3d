@@ -1,6 +1,6 @@
 ﻿/*
 
-Flash 9 Normal mapping example in Away3d
+Flash 9 normal mapping example in Away3d
 
 Demonstrates:
 
@@ -55,8 +55,8 @@ package {
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.utils.*;
 	import flash.filters.*;
+	import flash.utils.*;
 	
 	[SWF(backgroundColor="#677999", frameRate="30", quality="LOW", width="800", height="600")]
 	 
@@ -159,19 +159,25 @@ package {
 		private function initEngine():void
 		{
 			scene = new Scene3D();
-			camera = new HoverCamera3D({zoom:20, focus:50, lookat:"center"});
+			//camera = new HoverCamera3D({zoom:20, focus:50, lens:new SphericalLens(), distance:600, maxtiltangle:70, mintiltangle:5});
+			camera = new HoverCamera3D()
+			camera.zoom = 20;
+			camera.focus = 50;
 			camera.lens = new SphericalLens();
 			camera.distance = 600;
 			camera.maxtiltangle = 70;
 			camera.mintiltangle = 5;
+			
 			camera.targetpanangle = camera.panangle = -140;
 			camera.targettiltangle = camera.tiltangle = 20;
-			view = new View3D({scene:scene, camera:camera});
-			view.x = 400;
-			view.y = 300;
-			view.addSourceURL("srcview/index.html");
 			
-			addChild( view );
+			//view = new View3D({scene:scene, camera:camera});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			
+			view.addSourceURL("srcview/index.html");
+			addChild(view);
 			
 			//add signature
             Signature = Sprite(new SignatureSwf());
@@ -187,7 +193,11 @@ package {
 		 */
 		private function initMaterials():void
 		{
-			f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
+			//f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
+			f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap));
+			f9Material.specular = 0.1;
+			f9Material.shininess = 1000;
+			
 			flatMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(BodyTexture));
 			hubMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(HubTexture));
 			brakesMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(BrakesTexture));
@@ -300,8 +310,15 @@ package {
 		 */
 		private function initLights():void
 		{
-			light = new DirectionalLight3D({x:0, y:700, z:1000, color:0xFFFFFF, ambient:0.2, diffuse:0.7});
+			//light = new DirectionalLight3D({y:700, z:1000, color:0xFFFFFF, ambient:0.2, diffuse:0.7, debug:true});
+			light = new DirectionalLight3D();
+			light.y = 700;
+			light.z = 1000;
+			light.color = 0xFFFFFF;
+			light.ambient = 0.2;
+			light.diffuse = 0.7;
 			light.debug = true;
+			
 			scene.addChild( light );
 		}
 				
@@ -327,12 +344,13 @@ package {
 		 */
 		private function initListeners():void
 		{
-			addEventListener( Event.ENTER_FRAME, onEnterFrame );
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			f9Button.addEventListener(MouseEvent.CLICK, onF9Click);
 			flatButton.addEventListener(MouseEvent.CLICK, onFlatClick);
-			onResize(null);
+			stage.addEventListener(Event.RESIZE, onResize);
+			onResize();
 		}
 		
 		/**
@@ -401,7 +419,7 @@ package {
 		/**
 		 * stage listener for resize events
 		 */
-		private function onResize(event:Event):void
+		private function onResize(event:Event = null):void
 		{
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;

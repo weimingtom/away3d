@@ -1,4 +1,42 @@
-﻿package
+﻿/*
+
+Blendmodes & tiling materials example in Away3d
+
+Demonstrates:
+
+How to create and scroll a tiling texture using TransformBitmapMaterial.
+How to apply blendmodes to 3d objects when ownCanvas is set to true.
+how to load and animate a 3DS model.
+
+Code by Rob Bateman
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
+
+This code is distributed under the MIT License
+
+Copyright (c)  
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+package
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
@@ -19,6 +57,10 @@
 	 
 	public class Advanced_SaltFlatsFerrari extends Sprite
 	{
+    	//signature swf
+    	[Embed(source="assets/signature.swf", symbol="Signature")]
+    	public var SignatureSwf:Class;
+    	
 		//cracks texture for desert
 		[Embed(source="assets/cracks.jpg")]
     	public var Cracks:Class;
@@ -51,10 +93,6 @@
 		[Embed(source="assets/f360.3ds", mimeType="application/octet-stream")]
 		private var F360:Class;
 		
-    	//signature swf
-    	[Embed(source="assets/signature.swf", symbol="Signature")]
-    	public var SignatureSwf:Class;
-    	
     	//engine variables
     	private var scene:Scene3D;
 		private var camera:HoverCamera3D;
@@ -65,7 +103,6 @@
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
-		private var carMaterial:BitmapMaterial;
 		private var materialContainer:CompositeMaterial;
 		private var floorMaterial:TransformBitmapMaterial;
 		private var overlayMaterial:BitmapMaterial;
@@ -75,6 +112,7 @@
 		private var materialData:MaterialData;
 		
 		//scene objects
+		private var max3ds:Max3DS;
 		private var model:ObjectContainer3D;
 		private var floor:RegularPolygon;
 		private var sky:Sphere;
@@ -85,6 +123,9 @@
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
+		
+		private var timer:Number = 0;
+		private var t:Number = 0;
 		
 		/**
 		 * Constructor
@@ -111,17 +152,25 @@
 		private function initEngine():void
 		{
 			scene = new Scene3D();
-			camera = new HoverCamera3D({zoom:10, focus:50, x:0, y:2000, z:2000, lookat:"center"});
+			
+			//camera = new HoverCamera3D({zoom:10, focus:50, distance:800, maxtiltangle:20, mintiltangle:0});
+			camera = new HoverCamera3D();
+			camera.zoom = 10;
+			camera.focus = 50;
 			camera.distance = 800;
 			camera.maxtiltangle = 20;
 			camera.mintiltangle = 0;
+			
 			camera.targetpanangle = camera.panangle = -140;
 			camera.targettiltangle = camera.tiltangle = 4;
-			view = new View3D({scene:scene, camera:camera});
-			view.x = 400;
-			view.y = 300;
+			
+			//view = new View3D({scene:scene, camera:camera});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			
 			view.addSourceURL("srcview/index.html");
-			addChild( view );
+			addChild(view);
 			
 			//add signature
             Signature = Sprite(new SignatureSwf());
@@ -137,10 +186,18 @@
 		 */
 		private function initMaterials():void
 		{
-			carMaterial = new BitmapMaterial(Cast.bitmap(GreenPaint));
-			floorMaterial = new TransformBitmapMaterial(Cast.bitmap(Cracks), {scaleX:0.05, scaleY:0.05, repeat:true});
+			//floorMaterial = new TransformBitmapMaterial(Cast.bitmap(Cracks), {scaleX:0.05, scaleY:0.05, repeat:true});
+			floorMaterial = new TransformBitmapMaterial(Cast.bitmap(Cracks));
+			floorMaterial.scaleX = 0.05;
+			floorMaterial.scaleY = 0.05;
+			floorMaterial.repeat = true;
+			
 			overlayMaterial = new BitmapMaterial(Cast.bitmap(CracksOverlay));
-			materialContainer = new CompositeMaterial({materials:[floorMaterial, overlayMaterial]});
+			
+			//materialContainer = new CompositeMaterial({materials:[floorMaterial, overlayMaterial]});
+			materialContainer = new CompositeMaterial();
+			materialContainer.addMaterial(floorMaterial);
+			materialContainer.addMaterial(overlayMaterial);
 			
 			//create mirrored sky bitmap for sphere texture
 			var sky:BitmapData = Cast.bitmap(Sky);
@@ -151,7 +208,7 @@
 			skyMirror.draw(skyMirror.clone(), new Matrix(1, 0, 0, -1, 0, sky.height*4-40));
 			skyMaterial = new BitmapMaterial(Cast.bitmap(skyMirror));
 			
-			materialArray = [GreenPaint, RedPaint, YellowPaint, GreyPaint];
+			materialArray = [Cast.material(GreenPaint), Cast.material(RedPaint), Cast.material(YellowPaint), Cast.material(GreyPaint)];
 		}
 		
 		/**
@@ -160,38 +217,46 @@
 		private function initObjects():void
 		{
 			//create ferrari model
-			model = (Max3DS.parse(F360, {material:carMaterial, ownCanvas:true, centerMeshes:true, pushfront:true}) as ObjectContainer3D);
-			materialData = model.materialLibrary.getMaterial("fskin");
-			materialData.material = Cast.material(materialArray[materialIndex]);
+			//model = Max3DS.parse(F360, {material:materialArray[materialIndex], ownCanvas:true, centerMeshes:true, pushfront:true, blendMode:BlendMode.HARDLIGHT, rotationX:90, y:-200});
+			max3ds = new Max3DS();
+			model = max3ds.parse(F360) as ObjectContainer3D;
+			model.materialLibrary.getMaterial("fskin").material = materialArray[materialIndex];
+			model.ownCanvas = true;
+			model.centerMeshes();
+			model.pushfront = true;
 			model.blendMode = BlendMode.HARDLIGHT;
-			model.scale(100);
 			model.rotationX = 90;
 			model.y = -200;
-			model.addOnMouseUp(onClickModel);
+			
+			model.scale(100);
 			scene.addChild(model);
 			
 			//create floor object
-			floor = new RegularPolygon({material:materialContainer, ownCanvas:true, radius:5000, sides:20, subdivision:20, y:-200});
+			//floor = new RegularPolygon({material:materialContainer, ownCanvas:true, radius:5000, sides:20, subdivision:20, y:-200, blendMode:BlendMode.MULTIPLY});
+			floor = new RegularPolygon();
+			floor.material = materialContainer;
+			floor.ownCanvas = true;
+			floor.radius = 5000;
+			floor.sides = 20;
+			floor.subdivision = 20;
+			floor.y = -200;
 			floor.blendMode = BlendMode.MULTIPLY;
-			scene.addChild( floor );
+			
+			scene.addChild(floor);
 			
 			//create sky object
-			sky = new Sphere({material:skyMaterial, radius:5000, segmentsW:20, segmentsH:12, pushback:true});
-			sky.scale(-1);
-			sky.y = -200;
+			//sky = new Sphere({material:skyMaterial, radius:5000, segmentsW:20, segmentsH:12, pushback:true, rotationX:180, y:-200});
+			sky = new Sphere();
+			sky.material = skyMaterial;
+			sky.radius = 5000;
+			sky.segmentsW = 20;
+			sky.segmentsH = 12;
+			sky.pushback = true;
 			sky.rotationX = 180;
-			scene.addChild( sky );
-		}
-		
-		/**
-		 * Lsitener function for mouse click on car
-		 */
-		private function onClickModel(event:MouseEvent3D):void
-		{
-			materialIndex++;
-			if (materialIndex > materialArray.length - 1)
-				materialIndex = 0;
-			materialData.material = Cast.material(materialArray[materialIndex]);
+			sky.y = -200;
+			
+			sky.scale(-1);
+			scene.addChild(sky);
 		}
 		
 		/**
@@ -199,10 +264,14 @@
 		 */
 		private function initListeners():void
 		{
-			addEventListener( Event.ENTER_FRAME, onEnterFrame );
+			//model.addOnMouseUp(onClickModel);
+			model.addEventListener(MouseEvent3D.MOUSE_UP, onClickModel);
+			
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-			onResize(null);
+			stage.addEventListener(Event.RESIZE, onResize);
+			onResize();
 		}
 		
 		/**
@@ -229,6 +298,18 @@
             
 			camera.hover();  
 			view.render();
+		}
+		
+		/**
+		 * Listener function for mouse click on car
+		 */
+		private function onClickModel(event:MouseEvent3D):void
+		{
+			materialIndex++;
+			if (materialIndex > materialArray.length - 1)
+				materialIndex = 0;
+			
+			model.materialLibrary.getMaterial("fskin").material = materialArray[materialIndex];
 		}
 		
 		/**
@@ -265,7 +346,7 @@
 		/**
 		 * stage listener for resize events
 		 */
-		private function onResize(event:Event):void
+		private function onResize(event:Event = null):void
 		{
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;
