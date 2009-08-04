@@ -20,8 +20,13 @@
         private var _openEnded:Boolean;
         private var _yUp:Boolean;
         
-        private function buildCone():void
-        {
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 			
@@ -29,25 +34,24 @@
 			
             grid = [];
 			
-			
 			if (!_openEnded) {
 				jMin = 1;
 	            _segmentsH += 1;
 	            var bottom:Vertex = _yUp? createVertex(0, -_height, 0) : createVertex(0, 0, -_height);
 	            grid[0] = new Array(_segmentsW);
+	            
 	            for (i = 0; i < _segmentsW; ++i) 
 	                grid[0][i] = bottom;
 			} else {
 				jMin = 0;
 			}
 			
-            for (j = jMin; j < _segmentsH; ++j)  
-            { 
+            for (j = jMin; j < _segmentsH; ++j) { 
                 var z:Number = -height + 2 * height * (j-jMin) / (_segmentsH-jMin);
 
                 grid[j] = new Array(_segmentsW);
-                for (i = 0; i < _segmentsW; ++i) 
-                { 
+                
+                for (i = 0; i < _segmentsW; ++i) { 
                     var verangle:Number = 2 * i / _segmentsW * Math.PI;
                     var ringradius:Number = _radius * (_segmentsH-j)/(_segmentsH-jMin);
                     var x:Number = ringradius * Math.sin(verangle);
@@ -62,12 +66,12 @@
 
             var top:Vertex = _yUp? createVertex(0, height, 0) : createVertex(0, 0, height);
             grid[_segmentsH] = new Array(_segmentsW);
+            
             for (i = 0; i < _segmentsW; ++i) 
                 grid[_segmentsH][i] = top;
 
-            for (j = 1; j <= _segmentsH; ++j) 
-                for (i = 0; i < _segmentsW; ++i) 
-                {
+            for (j = 1; j <= _segmentsH; ++j) {
+                for (i = 0; i < _segmentsW; ++i) {
                     var a:Vertex = grid[j][i];
                     var b:Vertex = grid[j][(i-1+_segmentsW) % _segmentsW];
                     var c:Vertex = grid[j-1][(i-1+_segmentsW) % _segmentsW];
@@ -90,16 +94,7 @@
                     if (j > jMin)                
                         addFace(createFace(a,c,d, null, uva,uvc,uvd));
                 }
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildCone();
+            }
     	}
         
     	/**
@@ -220,8 +215,6 @@
 			_openEnded = ini.getBoolean("openEnded", false);
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildCone();
-			
             type = "Cone";
         	url = "primitive";
         }
@@ -234,6 +227,9 @@
 		 */
         public function vertex(w:int, h:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[h][w];
         }
     }

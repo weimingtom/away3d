@@ -18,15 +18,19 @@
         private var _segmentsW:int;
         private var _segmentsH:int;
         private var _yUp:Boolean;
-        
-        private function buildPlane():void
-        {
+		
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 			
             grid = new Array(_segmentsW+1);
-            for (i = 0; i <= _segmentsW; ++i)
-            {
+            for (i = 0; i <= _segmentsW; ++i) {
                 grid[i] = new Array(_segmentsH+1);
                 for (j = 0; j <= _segmentsH; ++j) {
                 	if (_yUp)
@@ -36,9 +40,8 @@
                 }
             }
 			
-            for (i = 0; i < _segmentsW; ++i)
-                for (j = 0; j < _segmentsH; ++j)
-                {
+            for (i = 0; i < _segmentsW; ++i) {
+                for (j = 0; j < _segmentsH; ++j) {
                     var a:Vertex = grid[i  ][j  ]; 
                     var b:Vertex = grid[i+1][j  ];
                     var c:Vertex = grid[i  ][j+1]; 
@@ -52,16 +55,7 @@
                     addFace(createFace(a, b, c, null, uva, uvb, uvc));
                     addFace(createFace(d, c, b, null, uvd, uvc, uvb));
                 }
-        }
-		
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildPlane();
+            }
     	}
     	
     	/**
@@ -182,8 +176,6 @@
                 }
             }
 			
-			buildPlane();
-			
 			type = "Plane";
         	url = "primitive";
         }
@@ -196,6 +188,9 @@
 		 */
         public function vertex(w:int, h:int):Vertex
         {
+			if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[h][w];
         }
 

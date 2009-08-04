@@ -19,16 +19,6 @@ package away3d.primitives
 		private var _align:String;
 		private var _face:Face;
 		
-		private function buildText():void
-		{
-			geometry.graphics.clear();
-			VectorText.write(geometry.graphics, _font, _size, _leading, _kerning, _text, 0, 0, _textWidth, _align, false);
-			
-			//clear the materials on the shapes
-			for each (_face in geometry.faces)
-				_face.material = null;
-		}
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -36,7 +26,12 @@ package away3d.primitives
     	{
     		super.buildPrimitive();
     		
-            buildText();
+			geometry.graphics.clear();
+			VectorText.write(geometry.graphics, _font, _size, _leading, _kerning, _text, 0, 0, _textWidth, _align, false);
+			
+			//clear the materials on the shapes
+			for each (_face in geometry.faces)
+				_face.material = null;
     	}
     	
 		/**
@@ -160,9 +155,9 @@ package away3d.primitives
 			_textWidth = ini.getNumber("textWidth", 500);
 			_align = ini.getString("align", "TL");
 			
-			this.bothsides = true;
+			_primitiveDirty = true;
 			
-			buildText();
+			this.bothsides = true;
 			
 			type = "TextField3D";
         	url = "primitive";

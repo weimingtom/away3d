@@ -15,8 +15,13 @@
         private var _sides:Number;
         private var _yUp:Boolean;
         
-        private function buildCircle():void
-        {
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var vertices:Array = [];
             var i:int;
             for (i = 0; i < _sides; ++i)
@@ -32,16 +37,6 @@
 			{
                 addSegment(createSegment(vertices[i], vertices[(i+1) % _sides]));
 			}
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildCircle();
     	}
     	
     	/**
@@ -107,8 +102,6 @@
             _radius = ini.getNumber("radius", 100, {min:0});
             _sides = ini.getInt("sides", 8, {min:3});
 			_yUp = ini.getBoolean("yUp", true);
-			
-			buildCircle();
 			
 			type = "WireCircle";
         	url = "primitive";

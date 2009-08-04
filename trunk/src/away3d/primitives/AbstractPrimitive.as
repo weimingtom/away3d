@@ -95,6 +95,16 @@
 		
 		private var _index:int;
      	
+     	protected function updatePrimitive():void
+     	{
+			buildPrimitive();
+    		
+        	//execute quarterFaces
+        	var i:int = geometry.quarterFacesTotal;
+        	while (i--)
+        		quarterFaces();
+     	}
+     	
 		/**
 		 * Builds the vertex, face and uv objects that make up the 3d primitive.
 		 */
@@ -126,7 +136,183 @@
         	//clear segment objects
     		_segmentStore = _segmentStore.concat(_segmentActive);
         	_segmentActive = [];    	}
-    	
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get vertices():Array
+        {
+    		if (_primitiveDirty)
+    			updatePrimitive();
+    		
+            return _geometry.vertices;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get faces():Array
+        {
+    		if (_primitiveDirty)
+    			updatePrimitive();
+    		
+            return _geometry.faces;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get segments():Array
+        {
+    		if (_primitiveDirty)
+    			updatePrimitive();
+    		
+            return _geometry.segments;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get billboards():Array
+        {
+    		if (_primitiveDirty)
+    			updatePrimitive();
+    		
+            return _geometry.billboards;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get elements():Array
+        {
+    		if (_primitiveDirty)
+    			updatePrimitive();
+    		
+            return _geometry.elements;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get geometry():Geometry
+        {
+    		if (_primitiveDirty)
+    			updatePrimitive();
+    		
+        	return _geometry;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get boundingRadius():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.boundingRadius;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get maxX():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.maxX;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get minX():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.minX;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get maxY():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.maxY;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get minY():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.minY;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get maxZ():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.maxZ;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public override function get minZ():Number
+        {
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+           return super.minZ;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+		public override function get objectWidth():Number
+		{
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+			return super.objectWidth;
+		}
+        
+		/**
+		 * @inheritDoc
+		 */
+		public override function get objectHeight():Number
+		{
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+			return super.objectHeight;
+		}
+        
+		/**
+		 * @inheritDoc
+		 */
+		public override function get objectDepth():Number
+		{
+            if (_primitiveDirty)
+    			updatePrimitive();
+           
+			return  super.objectDepth;
+		}
+		
 		/**
 		 * Creates a new <code>AbstractPrimitive</code> object.
 		 *
@@ -140,14 +326,8 @@
 		public override function updateObject():void
     	{
     		//build geometry
-    		if (_primitiveDirty) {
-        		buildPrimitive();
-        		
-	        	//execute quarterFaces
-	        	var i:int = geometry.quarterFacesTotal;
-	        	while (i--)
-	        		quarterFaces();
-      		}
+    		if (_primitiveDirty)
+    			updatePrimitive();
         	
         	super.updateObject();
      	}

@@ -17,17 +17,20 @@
         private var _segmentsT:int;
         private var _yUp:Boolean;
         
-        private function buildWireTorus():void
-        {
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
+    	{
+    		super.buildPrimitive();
+    		
             var i:int;
             var j:int;
 
             grid = new Array(_segmentsR);
-            for (i = 0; i < _segmentsR; ++i)
-            {
+            for (i = 0; i < _segmentsR; ++i) {
                 grid[i] = new Array(_segmentsT);
-                for (j = 0; j < _segmentsT; ++j)
-                {
+                for (j = 0; j < _segmentsT; ++j) {
                     var u:Number = i / _segmentsR * 2 * Math.PI;
                     var v:Number = j / _segmentsT * 2 * Math.PI;
                     
@@ -38,26 +41,12 @@
                 }
             }
 
-            for (i = 0; i < _segmentsR; ++i)
-                for (j = 0; j < _segmentsT; ++j)
-                {
+            for (i = 0; i < _segmentsR; ++i) {
+                for (j = 0; j < _segmentsT; ++j) {
                     addSegment(createSegment(grid[i][j], grid[(i+1) % _segmentsR][j]));
                     addSegment(createSegment(grid[i][j], grid[i][(j+1) % _segmentsT]));
                 }
-				
-			type = "WireTorus";
-        	url = "primitive";
-				
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildWireTorus();
+            }
     	}
     	
     	/**
@@ -160,8 +149,6 @@
             _segmentsT = ini.getInt("segmentsT", 6, {min:3});
 			_yUp = ini.getBoolean("yUp", true);
 			
-			buildWireTorus();
-			
 			type = "WireTorus";
         	url = "primitive";
         }
@@ -174,6 +161,9 @@
 		 */
         public function vertex(r:int, t:int):Vertex
         {
+        	if (_primitiveDirty)
+    			updatePrimitive();
+    		
             return grid[t][r];
         }
     }

@@ -14,8 +14,13 @@
     	private var _height:Number;
     	private var _depth:Number;
     	
-    	private function buildWireCube():void
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
     	{
+    		super.buildPrimitive();
+    		
     		v000 = createVertex(-_width/2, -_height/2, -_depth/2); 
             v001 = createVertex(-_width/2, -_height/2, +_depth/2); 
             v010 = createVertex(-_width/2, +_height/2, -_depth/2); 
@@ -39,16 +44,6 @@
             addSegment(createSegment(v111, v101));
             addSegment(createSegment(v111, v110));
             addSegment(createSegment(v100, v110));
-    	}
-    	
-		/**
-		 * @inheritDoc
-		 */
-    	protected override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildWireCube();
     	}
     	
         public var v000:Vertex;
@@ -123,8 +118,6 @@
             _width  = ini.getNumber("width", 100, {min:0});
             _height = ini.getNumber("height", 100, {min:0});
             _depth  = ini.getNumber("depth", 100, {min:0});
-			
-			buildWireCube();
 			
 			type = "WireCube";
         	url = "primitive";
