@@ -22,16 +22,24 @@ package away3d.containers
 	    /**
 	    * Creates a new <code>LODObject</code> object.
 	    * 
-	    * @param	init			[optional]	An initialisation object for specifying default instance properties.
-	    * @param	...childarray				An array of children to be added on instatiation.
+	    * @param	...initarray		An array of 3d objects to be added as children of the container on instatiation. Can contain an initialisation object
 	    */
-        public function LODObject(init:Object = null, ...childarray)
+        public function LODObject(...initarray:Array)
         {
+        	var init:Object;
+        	var childarray:Array = [];
+        	
+            for each (var object:Object in initarray)
+            	if (object is Object3D)
+            		childarray.push(object);
+            	else
+            		init = object;
+            
             super(init);
 			
             maxp = ini.getNumber("maxp", Infinity);
             minp = ini.getNumber("minp", 0);
-
+            
             for each (var child:Object3D in childarray)
                 addChild(child);
         }
