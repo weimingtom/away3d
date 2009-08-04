@@ -1,6 +1,6 @@
 ﻿/*
 
-Frustum Clipping example in Away3d
+Frustum clipping example in Away3d
 
 Demonstrates:
 
@@ -16,7 +16,7 @@ http://www.infiniteturtles.co.uk
 Design by Dave Stewart
 http://davestewart.co.uk/
 
-This code is under the MIT License
+This code is distributed under the MIT License
 
 Copyright (c)  
 
@@ -93,7 +93,8 @@ package
 		private var materialData:MaterialData;
 		
 		//scene objects
-		private var loader:Object3DLoader;
+		private var loader:LoaderCube;
+		private var max3ds:Max3DS;
 		private var model:ObjectContainer3D;
 		
 		//navigation variables
@@ -170,14 +171,26 @@ package
 		{
 			Debug.active = true;
 			scene = new Scene3D();
-			clipping = new FrustumClipping({minZ:10});
-			camera = new Camera3D({zoom:6, focus:100, x:176, z:54});
+			
+			//clipping = new FrustumClipping({minZ:10});
+			clipping = new FrustumClipping();
+			clipping.minZ = 10;
+			
+			//camera = new Camera3D({zoom:6, focus:100, x:176, z:54, lens:new PerspectiveLens()});
+			camera = new Camera3D();
+			camera.zoom = 6;
+			camera.x = 176;
+			camera.z = 54;
 			camera.lens = new PerspectiveLens();
-			view = new View3D({scene:scene, camera:camera, clipping:clipping});
-			view.x = 400;
-			view.y = 300;
+			
+			//view = new View3D({scene:scene, camera:camera, clipping:clipping});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			view.clipping = clipping;
+			
 			view.addSourceURL("srcview/index.html");
-			addChild( view );
+			addChild(view);
 			
 			//add signature
             Signature = Sprite(new SignatureSwf());
@@ -193,9 +206,15 @@ package
 		 */
 		private function initLoaders():void
 		{
-			loader = Max3DS.load("assets/room/interior.3ds", {name:"model", loadersize:40, centerMeshes:true});
-			scene.addChild(loader);
+			//loader = Max3DS.load("assets/room/interior.3ds", {loadersize:40, centerMeshes:true}) as LoaderCube;
+			loader = new LoaderCube();
+			loader.loadersize = 40;
+			max3ds = new Max3DS();
+			max3ds.centerMeshes = true;
+			loader.loadGeometry("assets/room/interior.3ds", max3ds);
+			
 			loader.addOnSuccess(onSuccess);
+			scene.addChild(loader);
 		}
 		
 		/**
@@ -311,6 +330,11 @@ package
 		{
 			collisionBitmap = Cast.bitmap(CollisionBitmap);
 			sampleBitmap = new BitmapData(collisionDistance*2, collisionDistance*2, false, 0);
+			
+			//adding a debug view to the collision detection system
+			//var bitmap:Bitmap = new Bitmap(sampleBitmap);
+			//addChild(bitmap);
+			
 			sampleRect = new Rectangle(0, 0, collisionDistance*2, collisionDistance*2);
 		}
 		
@@ -350,7 +374,8 @@ package
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-			onResize(null);
+			stage.addEventListener(Event.RESIZE, onResize);
+			onResize();
 		}
 		
 		/**
@@ -567,14 +592,17 @@ package
 					}
 					break;
 				case "F".charCodeAt():
-					view.clipping = new FrustumClipping({minZ:10});
+					//view.clipping = new FrustumClipping({minZ:10});
+					view.clipping = new FrustumClipping();
+					view.clipping.minZ = 10;
 					break;
 				case "N".charCodeAt():
-					view.clipping = new NearfieldClipping({minZ:10});
+					//view.clipping = new NearfieldClipping({minZ:10});
+					view.clipping = new NearfieldClipping();
+					view.clipping.minZ = 10;
 					break;
 				case "R".charCodeAt():
 					view.clipping = new RectangleClipping();
-					//view.clipping.objectCulling = true;
 					break;
 				default:
 			}
@@ -592,7 +620,7 @@ package
 		/**
 		 * stage listener for resize events
 		 */
-		private function onResize(event:Event):void
+		private function onResize(event:Event = null):void
 		{
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;

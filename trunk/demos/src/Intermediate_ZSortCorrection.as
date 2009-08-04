@@ -1,8 +1,41 @@
+/*
+
+Z-sort intersection correction example in Away3d
+
+Demonstrates:
+
+How to use the Renderer class to correct z-sort  artifacts with intersecting objects.
+
+Code by Rob Bateman
+rob@infiniteturtles.co.uk
+http://www.infiniteturtles.co.uk
+
+This code is distributed under the MIT License
+
+Copyright (c)  
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
 package 
 {
-	import flash.display.*;
-	import flash.events.*;
-	
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.math.*;
@@ -10,6 +43,9 @@ package
 	import away3d.core.utils.Cast;
 	import away3d.materials.*;
 	import away3d.primitives.*;
+	
+	import flash.display.*;
+	import flash.events.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
 	
@@ -71,12 +107,23 @@ package
 		private function initEngine():void
 		{
 			scene = new Scene3D();
-			camera = new Camera3D({zoom:10, focus:50, x:0, y:-500, z:-250});
 			
-			view = new View3D({scene:scene, camera:camera, renderer:Renderer.INTERSECTING_OBJECTS});
-			view.x = 400;
-			view.y = 300;
-			addChild( view );
+			//camera = new Camera3D({focus:50, y:-500, z:-250});
+			camera = new Camera3D();
+			camera.focus = 50;
+			camera.y = -500;
+			camera.z = -250;
+			
+			camera.lookAt(scene.position);
+			
+			//view = new View3D({scene:scene, camera:camera, renderer:Renderer.INTERSECTING_OBJECTS});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			view.renderer = Renderer.INTERSECTING_OBJECTS;
+			
+			view.addSourceURL("srcview/index.html");
+			addChild(view);
 			
 			//add signature
             Signature = Sprite(new SignatureSwf());
@@ -92,8 +139,9 @@ package
 		 */
 		private function initMaterials():void
 		{
-			planeMaterial = new BitmapMaterial( Cast.bitmap(Brick1) );
-			sphereMaterial = new BitmapMaterial( Cast.bitmap(Brick2) );
+			planeMaterial = new BitmapMaterial(Cast.bitmap(Brick1));
+			
+			sphereMaterial = new BitmapMaterial(Cast.bitmap(Brick2));
 		}
 		
 		/**
@@ -101,13 +149,36 @@ package
 		 */
 		private function initObjects():void
 		{
-			plane = new Plane({material:planeMaterial, width:500, height:500, segmentsW:4, segmentsH:4, yUp:false});
-			sphere1 = new Sphere({material:sphereMaterial, radius:50, x:100, y:100});
-			sphere2 = new Sphere({material:sphereMaterial, radius:50, x:-100, y:-100});
-			container = new ObjectContainer3D({z:-100}, sphere1, sphere2);
-			scene.addChild( plane );
-			scene.addChild( container );
-			camera.lookAt(plane.position);
+			//plane = new Plane({material:planeMaterial, width:500, height:500, segmentsW:4, segmentsH:4, yUp:false});
+			plane = new Plane();
+			plane.material = planeMaterial;
+			plane.width = 500;
+			plane.height = 500;
+			plane.segmentsW = 4;
+			plane.segmentsH = 4;
+			plane.yUp = false;
+			
+			scene.addChild(plane);
+			
+			//sphere1 = new Sphere({material:sphereMaterial, radius:50, x:100, y:100});
+			sphere1 = new Sphere();
+			sphere1.material = sphereMaterial;
+			sphere1.radius = 50;
+			sphere1.x = 100;
+			sphere1.y = 100;
+			
+			//sphere2 = new Sphere({material:sphereMaterial, radius:50, x:-100, y:-100});
+			sphere2 = new Sphere();
+			sphere2.material = sphereMaterial;
+			sphere2.radius = 50;
+			sphere2.x = -100;
+			sphere2.y = -100;
+			
+			//container = new ObjectContainer3D({z:-100}, sphere1, sphere2);
+			container = new ObjectContainer3D(sphere1, sphere2);
+			container.z = -100;
+			
+			scene.addChild(container);
 		}
 		
 		/**
@@ -115,12 +186,13 @@ package
 		 */
 		private function initListeners():void
 		{
-			addEventListener( Event.ENTER_FRAME, onEnterFrame );
-			onResize(null);
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			stage.addEventListener(Event.RESIZE, onResize);
+			onResize();
 		}
 		
 		/**
-		 * Render loop
+		 * Navigation and render loop
 		 */
 		private function onEnterFrame( e:Event ):void
 		{
@@ -132,7 +204,7 @@ package
 		/**
 		 * stage listener for resize events
 		 */
-		private function onResize(event:Event):void
+		private function onResize(event:Event = null):void
 		{
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;

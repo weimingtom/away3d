@@ -5,13 +5,13 @@ Billboard example in Away3d
 Demonstrates:
 
 How to use the Billboard element to create fast rendering arrays of particles.
-How to create a Sierpinski triangle
+How to create a Sierpinski triangle.
 
-code by Rob Bateman
+Code by Rob Bateman
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
 
-This code is under the MIT License
+This code is distributed under the MIT License
 
 Copyright (c)  
 
@@ -41,7 +41,8 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
-	import away3d.core.filter.FogFilter;
+	import away3d.core.draw.*;
+	import away3d.core.filter.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
@@ -59,17 +60,20 @@ package
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
 	
 	public class Advanced_SierpinskiStars extends Sprite
-	{	
-		[Embed(source="assets/sirius.jpg")]
-		private var Star:Class;
-		
+	{
 		//signature swf
     	[Embed(source="assets/signature.swf", symbol="Signature")]
     	private var SignatureSwf:Class;
     	
+		//star jpg
+		[Embed(source="assets/sirius.jpg")]
+		private var Star:Class;
+		
     	//engine variables
 		private var scene:Scene3D;
 		private var camera:HoverCamera3D;
+		private var fogfilter:FogFilter;
+		private var renderer:BasicRenderer;
 		private var view:View3D;
 		
 		//signature variables
@@ -85,7 +89,7 @@ package
 		//generating objects
 		private var toRadians:Number = Math.PI/180;
 		private var billboard:Billboard;
-		private var billboardObject:Object;
+		private var billboardObject:BillboardObject;
 		private var speedx:Number;
 		private var speedy:Number;
 		private var speedz:Number;
@@ -110,7 +114,6 @@ package
 		private var mouseDiff:Number3D = new Number3D();
 		private var mouseDistance:Number;
 		private var mouseMatrix:Matrix3D = new Matrix3D();
-		
 		
 		/**
 		 * Constructor
@@ -137,14 +140,31 @@ package
 		private function initEngine():void
 		{
 			scene = new Scene3D();
-			camera = new HoverCamera3D({zoom:10, focus:100, distance:1600, yfactor:1, mintiltangle:-45, steps:4});
-			camera.targetpanangle = 285.0;
+			
+			//camera = new HoverCamera3D({distance:1600, yfactor:1, mintiltangle:-45, steps:4});
+			camera = new HoverCamera3D();
+			camera.distance = 1600;
+			camera.yfactor = 1;
+			camera.mintiltangle = -45;
+			camera.steps = 4;
+			
+			camera.targetpanangle = 285;
 			camera.targettiltangle = 10;
 			
-			view = new View3D({scene:scene, camera:camera});
-			//view.renderer = new BasicRenderer(new FogFilter({material:new ColorMaterial(0x000000), minZ:800, maxZ:4000}));
-			view.x = 400;
-			view.y = 300;
+			//fogfilter = new FogFilter({material:new ColorMaterial(0x000000), minZ:800, maxZ:4000});
+			fogfilter = new FogFilter();
+			fogfilter.material = new ColorMaterial(0x000000);
+			fogfilter.minZ = 800;
+			fogfilter.maxZ = 4000;
+			
+			renderer = new BasicRenderer(fogfilter);
+			
+			//view = new View3D({scene:scene, camera:camera, renderer:renderer});
+			view = new View3D();
+			view.scene = scene;
+			view.camera = camera;
+			view.renderer = renderer;
+			
 			view.addSourceURL("srcview/index.html");
 			addChild( view );
 			
@@ -174,11 +194,28 @@ package
 		 */
 		private function initObjects():void
 		{
-			billboardMesh = new Mesh({material:billboardMaterial});
+			//billboardMesh = new Mesh({material:billboardMaterial});
+			billboardMesh = new Mesh();
+			billboardMesh.material = billboardMaterial;
+			
 			billboardMesh.rotate(new Number3D(1, 0, -1), 90 -Math.atan(1/Math.sqrt(2))/toRadians);
 			scene.addChild(billboardMesh);
 			
 			generateSierpinski(5, 500, 0, 0, 0);
+		}
+		
+		/**
+		 * Initialise the listeners
+		 */
+		private function initListeners():void
+		{
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
+			stage.addEventListener(MouseEvent.MOUSE_OVER, onStageMouseOver);
+			stage.addEventListener(Event.RESIZE, onResize);
+			onResize();
 		}
 		
 		/**
@@ -189,7 +226,7 @@ package
 			if (size != 500) {
 				billboard = new Billboard(new Vertex(x, y, z), null, 5, 5);
 				billboard.scaling = 0.005*size;
-				billboardObjects.push({billboard:billboard, x:x, y:y, z:z, speedx:0, speedy:0, speedz:0});
+				billboardObjects.push(new BillboardObject(billboard, x, y, z, 0, 0, 0));
 				billboardMesh.addBillboard(billboard);
 			}
 			if (itr) {
@@ -201,19 +238,6 @@ package
 				generateSierpinski(itr, size, x-size, y+size, z-size);
 				return;
 			}
-		}
-		
-		/**
-		 * Initialise the listeners
-		 */
-		private function initListeners():void
-		{
-			addEventListener( Event.ENTER_FRAME, onEnterFrame );
-			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
-			addEventListener(MouseEvent.MOUSE_OVER, onStageMouseOver);
-			onResize(null);
 		}
 		
 		/**
@@ -298,6 +322,9 @@ package
         	active = false;
         }
         
+		/**
+		 * Mouse stage over listener for navigation
+		 */
         private function onStageMouseOver(event:MouseEvent):void
         {
         	active = true;
@@ -306,11 +333,44 @@ package
         /**
 		 * Stage listener for resize events
 		 */
-		private function onResize(event:Event):void
+		private function onResize(event:Event = null):void
 		{
 			view.x = stage.stageWidth / 2;
             view.y = stage.stageHeight / 2;
             SignatureBitmap.y = stage.stageHeight - Signature.height;
 		}
+	}
+}
+
+import away3d.core.base.Billboard;
+
+/**
+ * Data class for a billboard's position and speed
+ */
+class BillboardObject
+{
+	public var billboard:Billboard;
+	
+	public var x:Number;
+	
+	public var y:Number;
+	
+	public var z:Number;
+	
+	public var speedx:Number;
+	
+	public var speedy:Number;
+	
+	public var speedz:Number;
+	
+	public function BillboardObject(billboard:Billboard, x:Number, y:Number, z:Number, speedx:Number, speedy:Number, speedz:Number)
+	{
+		this.billboard = billboard;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.speedx = speedx;
+		this.speedy = speedy;
+		this.speedz = speedz;
 	}
 }
