@@ -321,6 +321,8 @@
 		public function AbstractPrimitive(init:Object = null)
 		{
 			super(init);
+			
+			_primitiveDirty = true;
 		}
 		
 		public override function updateObject():void
