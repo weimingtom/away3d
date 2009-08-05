@@ -57,7 +57,7 @@ package
 	public class Basic_Text extends Sprite
 	{
     	//signature swf
-    	[Embed(source="assets/signature.swf", symbol="Signature")]
+    	[Embed(source="assets/signature_li.swf", symbol="Signature")]
     	public static var SignatureSwf:Class;
     	
     	//font swf containing the embedded font Arial
