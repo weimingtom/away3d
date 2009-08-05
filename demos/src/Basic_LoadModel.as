@@ -159,12 +159,13 @@ package
 		 */
 		private function initObjects():void
 		{
-			//loader = Max3DS.load("assets/f360.3ds", {loadersize:200, centerMeshes:true}) as LoaderCube;
+			//loader = Max3DS.load("assets/f360.3ds", {loadersize:200, centerMeshes:true, material:materialArray[materialIndex]}) as LoaderCube;
+			max3ds = new Max3DS();
+			max3ds.centerMeshes = true;
+			max3ds.material = materialArray[materialIndex];
 			loader = new LoaderCube();
 			loader.loadersize = 200;
 			loader.addOnSuccess(onSuccess);
-			max3ds = new Max3DS();
-			max3ds.centerMeshes = true;
 			loader.loadGeometry("assets/f360.3ds", max3ds);
 			
 			scene.addChild(loader);
@@ -210,13 +211,12 @@ package
 		/**
 		 * Listener function for loading complete event on loader
 		 */
-		public function onSuccess(event:Event):void
+		private function onSuccess(event:Event):void
 		{
 			model = loader.handle as ObjectContainer3D;
 			model.scale(100);
 			
 			model.rotationX = 90;
-			model.materialLibrary.getMaterial("fskin").material = materialArray[materialIndex];
 			
 			//model.addOnMouseUp(onClickModel);
 			model.addEventListener(MouseEvent3D.MOUSE_UP, onClickModel);

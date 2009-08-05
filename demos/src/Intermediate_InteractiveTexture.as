@@ -207,7 +207,7 @@ package
 		/**
 		 * Key down listener for navigation
 		 */
-		public function keyDownHandler(e:KeyboardEvent):void {
+		private function keyDownHandler(e:KeyboardEvent):void {
 			switch(e.keyCode)
 			{
 				case Keyboard.UP:

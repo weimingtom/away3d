@@ -56,7 +56,7 @@ package
 	public class Intermediate_TextExtrusion extends Sprite
 	{
     	//signature swf
-    	[Embed(source="assets/signature.swf", symbol="Signature")]
+    	[Embed(source="assets/signature_li.swf", symbol="Signature")]
     	public static var SignatureSwf:Class;
     	
     	[Embed(source="fonts/extrusionfonts.swf", mimeType="application/octet-stream")]

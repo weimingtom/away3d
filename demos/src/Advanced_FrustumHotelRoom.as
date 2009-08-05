@@ -213,7 +213,9 @@ package
 			max3ds.centerMeshes = true;
 			loader.loadGeometry("assets/room/interior.3ds", max3ds);
 			
-			loader.addOnSuccess(onSuccess);
+			//loader.addOnSuccess(onSuccess);
+			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
+			
 			scene.addChild(loader);
 		}
 		

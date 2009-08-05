@@ -37,7 +37,7 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.animators.data.AnimationSequence;
+	import away3d.animators.data.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
@@ -80,7 +80,6 @@ package
 		
 		//scene objects
 		private var md2:Md2;
-		private var loader:Loader3D;
 		private var model:Mesh;
 		
 		//button objects
@@ -112,11 +111,17 @@ package
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
 		
+		/**
+		 * Constructor
+		 */
 		public function Intermediate_MD2Animation()
 		{
 			init();
 		}
 		
+		/**
+		 * Global initialise function
+		 */
 		private function init():void
 		{
 			initEngine();
@@ -126,6 +131,9 @@ package
 			initListeners();
 		}
 		
+		/**
+		 * Initialise the engine
+		 */
 		private function initEngine():void
 		{
 			scene = new Scene3D();
@@ -152,6 +160,9 @@ package
             addChild(SignatureBitmap);
 		}
 		
+		/**
+		 * Initialise the materials
+		 */
 		private function initMaterials():void
 		{
 			material = new BitmapMaterial(Cast.bitmap(OgreTexture));
