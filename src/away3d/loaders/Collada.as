@@ -1155,7 +1155,7 @@
                             }
                             ++i;
                         }
-                        trace("OUTPUT:"+len);
+                        Debug.trace("OUTPUT:"+len);
                         break;
                     case "INTERPOLATION":
                         for each (p in list)
@@ -1193,7 +1193,7 @@
             }
             
 			channelData.type = isC4D?isC4DType:type;
-			trace("channelData.type:"+channelData.type);
+			Debug.trace("channelData.type:"+channelData.type);
         }
 		
 		/**
