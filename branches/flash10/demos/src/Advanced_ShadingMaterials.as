@@ -54,8 +54,8 @@ package
 	import flash.display.*;
 	import flash.events.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
-	
+	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW", width="800", height="600")]
+import flash.utils.getTimer;	
 	public class Advanced_ShadingMaterials extends Sprite
 	{
 		//Marble texture for torso
@@ -145,6 +145,9 @@ package
 		private var lastTiltAngle:Number;
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
+		
+		private var timer:Number = 19;
+		private var t:Number = 19;
 		
 		/**
 		 * Constructor
@@ -336,6 +339,10 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
+			t = getTimer();
+			trace(int(1000/(t - timer)) + " fps");
+			timer = t;
+			
 			if (move) {
 				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
 				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;

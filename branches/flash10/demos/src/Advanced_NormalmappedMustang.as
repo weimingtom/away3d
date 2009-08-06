@@ -173,7 +173,7 @@ package {
 		{
 			scene = new Scene3D();
 			//camera = new HoverCamera3D({zoom:20, focus:50, lens:new SphericalLens(), distance:600, maxtiltangle:70, mintiltangle:5});
-			camera = new HoverCamera3D()
+			camera = new HoverCamera3D();
 			camera.zoom = 20;
 			camera.focus = 50;
 			camera.lens = new SphericalLens();
@@ -184,10 +184,11 @@ package {
 			camera.targetpanangle = camera.panangle = -140;
 			camera.targettiltangle = camera.tiltangle = 20;
 			
-			//view = new View3D({scene:scene, camera:camera});
+			//view = new View3D({scene:scene, camera:camera, session:new BitmapRenderSession(1)});
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
+			view.session = new BitmapRenderSession(1);
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -383,6 +384,8 @@ package {
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			f10BloomButton.addEventListener(MouseEvent.CLICK, onF10BloomClick);
+			f10Button.addEventListener(MouseEvent.CLICK, onF10Click);
 			f9Button.addEventListener(MouseEvent.CLICK, onF9Click);
 			flatButton.addEventListener(MouseEvent.CLICK, onFlatClick);
 			stage.addEventListener(Event.RESIZE, onResize);
