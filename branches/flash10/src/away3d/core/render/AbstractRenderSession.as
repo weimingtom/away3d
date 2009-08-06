@@ -650,17 +650,21 @@ package away3d.core.render
         /**
          * Draws a triangle element with a bitmap texture into the graphics object (Flash 10)
          */
-        public function renderTriangleBitmapF10(bitmap:BitmapData, vertices:Vector.<Number>, uvtData:Vector.<Number>, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        public function renderTriangleBitmapF10(bitmap:BitmapData, uvtData:Vector.<Number>, screenVertices:Array, screenIndices:Array, startIndex:Number, endIndex:Number, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
         {
         	if (!layerGraphics && _layerDirty)
         		createLayer();
-        	
+        		
+        	_index0 = screenIndices[startIndex]*3;
+        	_index1 = screenIndices[startIndex+1]*3;
+        	_index2 = screenIndices[startIndex+2]*3;
         	
         	fill.bitmapData = bitmap;
 			fill.repeat = repeat;
 			fill.smooth = smooth;
 			
-        	path.vertices = vertices;
+        	path.vertices = Vector.<Number>([screenVertices[_index0], screenVertices[_index0 + 1], screenVertices[_index1], screenVertices[_index1 + 1], screenVertices[_index2], screenVertices[_index2 + 1]]);
+        	
         	path.uvtData = uvtData;
 			
 			if (layerGraphics) {

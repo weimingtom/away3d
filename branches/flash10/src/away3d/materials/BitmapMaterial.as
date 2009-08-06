@@ -501,7 +501,7 @@
         	_near = _view.screenClipping.minZ;        	
         	//if (!_graphics && _session.newLayer)        	//	_graphics = _session.newLayer.graphics;
         	
-			_session.renderTriangleBitmapF10(_renderBitmap, tri.vertices, getUVData(tri), smooth, repeat, _graphics);
+			_session.renderTriangleBitmapF10(_renderBitmap, getUVData(tri), _screenVertices, _screenIndices, tri.startIndex, tri.endIndex, smooth, repeat, _graphics);
 			//_session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
             if (debug)
                 _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, _screenCommands, _screenIndices, tri.startIndex, tri.endIndex);

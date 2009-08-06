@@ -122,13 +122,13 @@ package away3d.materials {
             
             if ((br < 1) && (blackrender || ((step < 16) && (!_bitmap.transparent))))
             {
-            	session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
+            	session.renderTriangleBitmapF10(bitmap, getUVData(tri), tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex, smooth, repeat);
                 session.renderTriangleColor(0x000000, 1 - br, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
             }
             else
             if ((br > 1) && (whiterender))
             {
-            	session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
+            	session.renderTriangleBitmapF10(bitmap, getUVData(tri), tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex, smooth, repeat);
                 session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
             }
             else
@@ -145,7 +145,7 @@ package away3d.materials {
                 	bitmap.applyFilter(_bitmap, bitmap.rect, bitmapPoint, colorTransform);
                     cache[brightness] = bitmap;
                 }
-                session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
+                session.renderTriangleBitmapF10(bitmap, getUVData(tri), tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex, smooth, repeat);
             }
         }
         
