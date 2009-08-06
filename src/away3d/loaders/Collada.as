@@ -31,9 +31,9 @@
     	private var _faceMaterial:ITriangleMaterial;
     	private var _face:Face;
     	private var _moveVector:Number3D = new Number3D();
-		private var rotationMatrix:Matrix3D = new Matrix3D();
-    	private var scalingMatrix:Matrix3D = new Matrix3D();
-    	private var translationMatrix:Matrix3D = new Matrix3D();
+		private var rotationMatrix:MatrixAway3D = new MatrixAway3D();
+    	private var scalingMatrix:MatrixAway3D = new MatrixAway3D();
+    	private var translationMatrix:MatrixAway3D = new MatrixAway3D();
         private var VALUE_X:String;
         private var VALUE_Y:String;
         private var VALUE_Z:String;
@@ -430,7 +430,7 @@
             return numbers;
         }
 		
-        private function rotateMatrix(vector:Array):Matrix3D
+        private function rotateMatrix(vector:Array):MatrixAway3D
         {
             if (yUp) {
                 	rotationMatrix.rotationMatrix(vector[0], -vector[1], -vector[2], vector[3]*toRADIANS);
@@ -441,7 +441,7 @@
             return rotationMatrix;
         }
 
-        private function translateMatrix(vector:Array):Matrix3D
+        private function translateMatrix(vector:Array):MatrixAway3D
         {
             if (yUp)
                 translationMatrix.translationMatrix(-vector[0]*scaling, vector[1]*scaling, vector[2]*scaling);
@@ -451,7 +451,7 @@
             return translationMatrix;
         }
 		
-        private function scaleMatrix(vector:Array):Matrix3D
+        private function scaleMatrix(vector:Array):MatrixAway3D
         {
             if (yUp)
                 scalingMatrix.scaleMatrix(vector[0], vector[1], vector[2]);
@@ -666,7 +666,7 @@
 		 */
         private function parseNode(node:XML, parent:ContainerData):void
         {	
-			var _transform:Matrix3D;
+			var _transform:MatrixAway3D;
 	    	var _objectData:ObjectData;
 	    	
         	if (String(node["instance_light"].@url) != "" || String(node["instance_camera"].@url) != "")
@@ -739,7 +739,7 @@
 						
                     // Baked transform matrix
                     case "matrix":
-                    	var m:Matrix3D = new Matrix3D();
+                    	var m:MatrixAway3D = new MatrixAway3D();
                     	m.array2matrix(arrayChild, yUp, scaling);
                         _transform.multiply(_transform, m);
 						break;
@@ -944,14 +944,14 @@
             tmp = tmp.replace(/\n/g, " ");
             var nameArray:Array = tmp.split(" ");
             
-			var bind_shape:Matrix3D = new Matrix3D();
+			var bind_shape:MatrixAway3D = new MatrixAway3D();
 			bind_shape.array2matrix(getArray(skin["bind_shape_matrix"][0].toString()), yUp, scaling);
 			
 			var bindMatrixId:String = getId(skin["joints"].input.(@semantic == "INV_BIND_MATRIX").@source);
             var float_array:Array = getArray(skin["source"].(@id == bindMatrixId)[0].float_array.toString());
             
             var v:Array;
-            var matrix:Matrix3D;
+            var matrix:MatrixAway3D;
             var name:String;
 			var skinController:SkinController;
             var i:int = 0;
@@ -959,7 +959,7 @@
             while (i < float_array.length)
             {
             	name = nameArray[i / 16];
-				matrix = new Matrix3D();
+				matrix = new MatrixAway3D();
 				matrix.array2matrix(float_array.slice(i, i+16), yUp, scaling);
 				matrix.multiply(matrix, bind_shape);
 				
@@ -1143,7 +1143,7 @@
                            channel.param[i] = [];
                             
                             if (stride == 16) {
-		                    	var m:Matrix3D = new Matrix3D();
+		                    	var m:MatrixAway3D = new MatrixAway3D();
 		                    	m.array2matrix(list.slice(i*stride, i*stride + 16), yUp, scaling);
 		                    	channel.param[i].push(m);
                             } else {

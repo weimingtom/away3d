@@ -1,5 +1,6 @@
 package awaybuilder.geometry
-{	import awaybuilder.utils.ConvertType;
+{
+	import awaybuilder.utils.ConvertType;
 	import awaybuilder.vo.DynamicAttributeVO;
 	import awaybuilder.vo.SceneGeometryVO;
 	
@@ -16,7 +17,8 @@ package awaybuilder.geometry
 		}
 		
 		
-				////////////////////////////////////////////////////////////////////////////////
+		
+		////////////////////////////////////////////////////////////////////////////////
 		//
 		//	Public Methods
 		//
@@ -87,4 +89,5 @@ package awaybuilder.geometry
 			
 			return vo ;
 		}
-	}}
+	}
+}

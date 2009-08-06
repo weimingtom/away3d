@@ -1,8 +1,10 @@
 package awaybuilder.vo
-{	import awaybuilder.interfaces.IValueObject;
+{
+	import awaybuilder.interfaces.IValueObject;
 	
 	
-		public class DynamicAttributeVO implements IValueObject
+	
+	public class DynamicAttributeVO implements IValueObject
 	{
 		public static const DELIMITER_KEY_VALUE : String = ":" ;
 		public static const DELIMITER_PROPERTY : String = "," ;

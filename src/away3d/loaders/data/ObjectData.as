@@ -1,6 +1,6 @@
 package away3d.loaders.data
 {
-	import away3d.core.math.Matrix3D;
+	import away3d.core.math.MatrixAway3D;
 	
 	/**
 	 * Data class for a generic 3d object
@@ -15,7 +15,7 @@ package away3d.loaders.data
 		/**
 		 * The 3d transformation matrix for the 3d object
 		 */
-		public var transform:Matrix3D = new Matrix3D();
+		public var transform:MatrixAway3D = new MatrixAway3D();
 		
 		/**
 		 * Colada animation

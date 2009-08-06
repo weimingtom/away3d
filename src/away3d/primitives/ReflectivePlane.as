@@ -5,7 +5,7 @@ package away3d.primitives
 	import away3d.core.base.Object3D;
 	import away3d.core.base.Vertex;
 	import away3d.core.draw.ScreenVertex;
-	import away3d.core.math.Matrix3D;
+	import away3d.core.math.MatrixAway3D;
 	import away3d.core.math.Number3D;
 	import away3d.events.ViewEvent;
 	import away3d.materials.BitmapMaskMaterial;
@@ -48,7 +48,7 @@ package away3d.primitives
 		private var _reflectionViewHolder:Sprite;
 		
 		private var _normal:Number3D;
-		private var _reflectionMatrix3D:Matrix3D;
+		private var _reflectionMatrixAway3D:MatrixAway3D;
 		private var _reflectionMatrix2D:Matrix;
 		private var _plane2DRotation:Number = 0;
 		
@@ -580,7 +580,7 @@ package away3d.primitives
 		{
 			var reflectedPoint:Number3D = new Number3D();
 			reflectedPoint.sub(point, this.position);
-			reflectedPoint.transform(reflectedPoint, _reflectionMatrix3D);
+			reflectedPoint.transform(reflectedPoint, _reflectionMatrixAway3D);
 			reflectedPoint.add(reflectedPoint, this.position);
 			
 			return reflectedPoint;
@@ -609,16 +609,16 @@ package away3d.primitives
 			
 			//This matrix is used to reflect any point in the scene according to the plane position
 			//and orientation.
-			_reflectionMatrix3D = new Matrix3D();
-			_reflectionMatrix3D.sxx = 1 - 2*a*a;
-			_reflectionMatrix3D.sxy = -2*a*b;
-			_reflectionMatrix3D.sxz = -2*a*c;
-			_reflectionMatrix3D.syx = -2*a*b;
-			_reflectionMatrix3D.syy = 1 - 2*b*b;
-			_reflectionMatrix3D.syz = -2*b*c;
-			_reflectionMatrix3D.szx = -2*a*c;
-			_reflectionMatrix3D.szy = -2*b*c;
-			_reflectionMatrix3D.szz = 1 - 2*c*c;
+			_reflectionMatrixAway3D = new MatrixAway3D();
+			_reflectionMatrixAway3D.sxx = 1 - 2*a*a;
+			_reflectionMatrixAway3D.sxy = -2*a*b;
+			_reflectionMatrixAway3D.sxz = -2*a*c;
+			_reflectionMatrixAway3D.syx = -2*a*b;
+			_reflectionMatrixAway3D.syy = 1 - 2*b*b;
+			_reflectionMatrixAway3D.syz = -2*b*c;
+			_reflectionMatrixAway3D.szx = -2*a*c;
+			_reflectionMatrixAway3D.szy = -2*b*c;
+			_reflectionMatrixAway3D.szz = 1 - 2*c*c;
 			
 			//This matrix is used to flip what the refl camera see's so that
 			//it emulates the correct position of virtual objects in the refl view and hence
@@ -636,7 +636,7 @@ package away3d.primitives
 		//Quicker way?
 		private function getVertexGlobalPosition(vertex:Vertex):Number3D
 		{
-			var m:Matrix3D = new Matrix3D();
+			var m:MatrixAway3D = new MatrixAway3D();
 	        m.tx = vertex.x;
 	        m.ty = vertex.y;
 	        m.tz = vertex.z;

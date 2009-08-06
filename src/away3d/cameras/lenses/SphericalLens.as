@@ -29,7 +29,7 @@ package away3d.cameras.lenses
         		_near = _clipping.minZ;
 		}
 		
-        public function getFrustum(node:Object3D, viewTransform:Matrix3D):Frustum
+        public function getFrustum(node:Object3D, viewTransform:MatrixAway3D):Frustum
 		{
 			_frustum = _cameraVarsStore.createFrustum(node);
 			_focusOverZoom = _camera.focus/_camera.zoom;
@@ -98,7 +98,7 @@ package away3d.cameras.lenses
        /**
         * Projects the vertices to the screen space of the view.
         */
-        public function project(viewTransform:Matrix3D, vertices:Array, screenVertices:Array):void
+        public function project(viewTransform:MatrixAway3D, vertices:Array, screenVertices:Array):void
         {
         	_length = 0;
         	

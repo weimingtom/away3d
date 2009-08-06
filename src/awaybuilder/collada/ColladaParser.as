@@ -1,6 +1,14 @@
 package awaybuilder.collada
 {
-	import awaybuilder.abstracts.AbstractParser;	import awaybuilder.material.MaterialAttributes;	import awaybuilder.vo.DynamicAttributeVO;	import awaybuilder.vo.SceneCameraVO;	import awaybuilder.vo.SceneGeometryVO;	import awaybuilder.vo.SceneObjectVO;	import awaybuilder.vo.SceneSectionVO;		import flash.events.Event;
+	import awaybuilder.abstracts.AbstractParser;
+	import awaybuilder.material.MaterialAttributes;
+	import awaybuilder.vo.DynamicAttributeVO;
+	import awaybuilder.vo.SceneCameraVO;
+	import awaybuilder.vo.SceneGeometryVO;
+	import awaybuilder.vo.SceneObjectVO;
+	import awaybuilder.vo.SceneSectionVO;
+	
+	import flash.events.Event;
 	
 	
 	

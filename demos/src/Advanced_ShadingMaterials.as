@@ -54,7 +54,7 @@ package
 	import flash.display.*;
 	import flash.events.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW", width="800", height="600")]
 	
 	public class Advanced_ShadingMaterials extends Sprite
 	{
@@ -117,7 +117,7 @@ package
 		private var pedestalMaterial:WhiteShadingBitmapMaterial;
 		
 		//torso materials
-		private var torsoNormalMaterial:Dot3BitmapMaterial;
+		private var torsoNormalMaterial:Dot3BitmapMaterialF10;
 		private var torsoEnviroMaterial:EnviroBitmapMaterial;
 		private var torsoPhongMaterial:PhongBitmapMaterial;
 		private var torsoFlatMaterial:WhiteShadingBitmapMaterial;
@@ -215,7 +215,7 @@ package
 			
 			pedestalMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(PedestalImage));
 			
-			torsoNormalMaterial = new Dot3BitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(TorsoNormal));
+			torsoNormalMaterial = new Dot3BitmapMaterialF10(Cast.bitmap(TorsoImage), Cast.bitmap(TorsoNormal));
 			
 			//torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR), {reflectiveness:0.2});
 			torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR));

@@ -14,7 +14,10 @@ package awaybuilder.events
 		static public const COLLADA_COMPLETE : String = "colladaComplete" ;
 		
 		public var data : * ;
-								public function GeometryEvent ( type : String , bubbles : Boolean = true , cancelable : Boolean = false )
+		
+		
+		
+		public function GeometryEvent ( type : String , bubbles : Boolean = true , cancelable : Boolean = false )
 		{
 			super ( type , bubbles , cancelable ) ;
 		}

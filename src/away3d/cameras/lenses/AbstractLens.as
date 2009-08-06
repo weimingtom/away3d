@@ -1,4 +1,5 @@
-package away3d.cameras.lenses {
+package away3d.cameras.lenses
+{
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.Vertex;
@@ -48,8 +49,8 @@ package away3d.cameras.lenses {
         protected var _persp:Number;
         
     	protected var classification:int;
-    	protected var viewTransform:Matrix3D;
-    	protected var view:Matrix3D = new Matrix3D();
+    	protected var viewTransform:MatrixAway3D;
+    	protected var view:MatrixAway3D = new MatrixAway3D();
 		
 		public function get near():Number
 		{

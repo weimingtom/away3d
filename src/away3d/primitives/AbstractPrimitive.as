@@ -125,17 +125,20 @@
     			
     		//clear vertex objects
     		_vStore = _vStore.concat(_vActive);
-        	_vActive = [];    		
+        	_vActive = [];
+    		
     		//clear uv objects
     		_uvStore = _uvStore.concat(_uvActive);
-        	_uvActive = [];        	
+        	_uvActive = [];
+        	
         	//clear face objects
     		_faceStore = _faceStore.concat(_faceActive);
         	_faceActive = [];
         	
         	//clear segment objects
     		_segmentStore = _segmentStore.concat(_segmentActive);
-        	_segmentActive = [];    	}
+        	_segmentActive = [];
+    	}
         
 		/**
 		 * @inheritDoc

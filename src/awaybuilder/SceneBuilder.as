@@ -124,7 +124,10 @@ package awaybuilder
 			if ( ! result ) throw new Error ( "section with id [" + id + "] not found" ) ;
 			return result ;
 		}
-								override public function getCameraById ( id : String ) : SceneCameraVO
+		
+		
+		
+		override public function getCameraById ( id : String ) : SceneCameraVO
 		{
 			for each ( var vo : SceneCameraVO in this.cameras )
 			{
@@ -469,7 +472,10 @@ package awaybuilder
 			
 			this.geometry.push ( vo ) ;
 		}
-						protected function onColladaLoadSuccess ( event : Loader3DEvent ) : void
+
+		
+		
+		protected function onColladaLoadSuccess ( event : Loader3DEvent ) : void
 		{
 			var loader : Loader3D = event.loader ;
 			var vo : SceneGeometryVO = loader.extra as SceneGeometryVO ;

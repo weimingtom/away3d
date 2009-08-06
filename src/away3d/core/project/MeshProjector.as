@@ -98,7 +98,7 @@ package away3d.core.project
         	_cameraVarsStore = view.cameraVarsStore;
         }
         
-		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
 			_cameraVarsStore.createVertexClassificationDictionary(source);
 			

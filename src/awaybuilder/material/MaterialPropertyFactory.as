@@ -5,7 +5,8 @@ package awaybuilder.material
 	import awaybuilder.vo.SceneGeometryVO;
 	
 	
-		public class MaterialPropertyFactory
+	
+	public class MaterialPropertyFactory
 	{
 		public function MaterialPropertyFactory ( )
 		{

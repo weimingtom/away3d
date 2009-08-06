@@ -262,7 +262,8 @@
             if (traverser.match(this))
             {
                 traverser.enter(this);
-                traverser.apply(this);                for each (var child:Object3D in children)
+                traverser.apply(this);
+                for each (var child:Object3D in children)
                     child.traverse(traverser);
                 traverser.leave(this);
             }
@@ -459,7 +460,7 @@
 		            //geometry.rootBone = rootBone;
 		            
 		            for each (skinController in skinControllers) {
-		            	//skinController.inverseTransform = new Matrix3D();
+		            	//skinController.inverseTransform = new MatrixAway3D();
 		            	skinController.inverseTransform = child.parent.inverseSceneTransform;
 		            }
 				}

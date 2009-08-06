@@ -223,7 +223,7 @@ package away3d.core.geom
 		 * Transform this plane with the 4x4 transform matrix m4x4.
 		 * XXX Untested
 		 */
-		public function transform(mat:Matrix3D):void
+		public function transform(mat:MatrixAway3D):void
 		{
 			var ta:Number = a;
 			var tb:Number = b;

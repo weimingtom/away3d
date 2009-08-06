@@ -1,5 +1,6 @@
 package awaybuilder.vo
-{	import awaybuilder.interfaces.IValueObject;	
+{
+	import awaybuilder.interfaces.IValueObject;	
 	
 	import away3d.containers.ObjectContainer3D;	
 	import away3d.cameras.Camera3D;
@@ -7,7 +8,8 @@ package awaybuilder.vo
 	
 	
 	public class SceneCameraVO implements IValueObject
-	{		public var id : String = "" ;
+	{
+		public var id : String = "" ;
 		public var name : String = "" ;
 		public var camera : Camera3D ;
 		public var values : SceneObjectVO ;
@@ -24,4 +26,5 @@ package awaybuilder.vo
 			this.camera = new Camera3D ( ) ;
 			this.values = new SceneObjectVO ( ) ;
 		}
-	}}
+	}
+}

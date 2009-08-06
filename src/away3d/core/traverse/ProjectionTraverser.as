@@ -24,8 +24,8 @@ package away3d.core.traverse
         private var _camera:Camera3D;
         private var _lens:ILens;
         private var _clipping:Clipping;
-        private var _cameraViewMatrix:Matrix3D;
-        private var _viewTransform:Matrix3D;
+        private var _cameraViewMatrix:MatrixAway3D;
+        private var _viewTransform:MatrixAway3D;
         private var _nodeClassification:int;
         private var _mesh:Mesh;
 		

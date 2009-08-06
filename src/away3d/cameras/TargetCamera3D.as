@@ -33,7 +33,7 @@ package away3d.cameras
 		/**
 		 * @inheritDoc
 		 */
-        public override function get viewMatrix():Matrix3D
+        public override function get viewMatrix():MatrixAway3D
         {
             if (target != null)
                 lookAt(target.scene ? target.scenePosition : target.position);

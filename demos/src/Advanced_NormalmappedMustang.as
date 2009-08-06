@@ -14,6 +14,9 @@ http://www.infiniteturtles.co.uk
 
 Design by Eddie Carbin
 http://www.carbin.com/
+
+HDR pixel bender kernel by David Lenaerts
+http://www.derschmale.com/
  
 This code is distributed under the MIT License
 
@@ -91,19 +94,27 @@ package {
 		private var Normalmap:Class;
 		
     	//signature swf
-    	[Embed(source="assets/signature_eddie.swf", symbol="Signature")]
+    	[Embed(source="assets/signature_eddie_david.swf", symbol="Signature")]
     	public var SignatureSwf:Class;
+    	
+    	//pixel bender filter for HDR effect
+    	[Embed(source="pbks/BloomBrightness.pbj", mimeType="application/octet-stream")]
+		private var BloomBrightness:Class;
 		
     	//engine variables
     	private var scene:Scene3D;
 		private var camera:HoverCamera3D;
 		private var view:View3D;
-		
-		//signature variables
+		private var bloomShader:Shader;
+		private var bloomFilter:ShaderFilter;
+		private var bloomBitmap:Bitmap;
+		private var bloom:Boolean = true;
+				//signature variables
 		private var Signature:Sprite;
 		private var SignatureBitmap:Bitmap;
 		
 		//material objects
+		private var f10Material:Dot3BitmapMaterialF10;
 		private var f9Material:Dot3BitmapMaterial;
 		private var flatMaterial:WhiteShadingBitmapMaterial;
 		private var hubMaterial:WhiteShadingBitmapMaterial;
@@ -122,6 +133,8 @@ package {
 		
 		//button objects
 		private var buttonGroup:Sprite;
+		private var f10BloomButton:Button;
+		private var f10Button:Button;
 		private var f9Button:Button;
 		private var flatButton:Button;
 		
@@ -160,7 +173,7 @@ package {
 		{
 			scene = new Scene3D();
 			//camera = new HoverCamera3D({zoom:20, focus:50, lens:new SphericalLens(), distance:600, maxtiltangle:70, mintiltangle:5});
-			camera = new HoverCamera3D()
+			camera = new HoverCamera3D();
 			camera.zoom = 20;
 			camera.focus = 50;
 			camera.lens = new SphericalLens();
@@ -171,10 +184,11 @@ package {
 			camera.targetpanangle = camera.panangle = -140;
 			camera.targettiltangle = camera.tiltangle = 20;
 			
-			//view = new View3D({scene:scene, camera:camera});
+			//view = new View3D({scene:scene, camera:camera, session:new BitmapRenderSession(1)});
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
+			view.session = new BitmapRenderSession(1);
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -186,6 +200,16 @@ package {
             SignatureBitmap.bitmapData.draw(Signature);
             stage.quality = StageQuality.LOW;
             addChild(SignatureBitmap);
+            
+            //add filters
+            bloomShader = new Shader(new BloomBrightness());
+            bloomShader.data.threshold.value = [0.99];
+            bloomShader.data.exposure.value = [1];
+			bloomFilter = new ShaderFilter(bloomShader);
+			bloomBitmap = new Bitmap();
+			bloomBitmap.filters = [bloomFilter, new BlurFilter(20, 20, 3)];
+			bloomBitmap.blendMode = BlendMode.ADD;
+			addChild(bloomBitmap);
 		}
 
 		/**
@@ -193,6 +217,11 @@ package {
 		 */
 		private function initMaterials():void
 		{
+			//f10Material = new Dot3BitmapMaterialF10(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
+			f10Material = new Dot3BitmapMaterialF10(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap));
+			f10Material.specular = 0.1;
+			f10Material.shininess = 1000;
+			
 			//f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
 			f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap));
 			f9Material.specular = 0.1;
@@ -297,7 +326,7 @@ package {
 			shadow.pushback = true;
 			
 			bodyMesh = mustang.meshes[11];
-			bodyMesh.material = f9Material;
+			bodyMesh.material = f10Material;
 			
 			bodyMesh.faces[0].material = licenseMaterial;
 			bodyMesh.faces[1].material = licenseMaterial;
@@ -329,8 +358,16 @@ package {
 		{
 			buttonGroup = new Sprite();
 			addChild(buttonGroup);
-            f9Button = new Button("Normalmapping", 115);
-            f9Button.x = 365;
+			f10BloomButton = new Button("Flash 10 + HDR", 120);
+            f10BloomButton.x = 170;
+            f10BloomButton.y = 0;
+            buttonGroup.addChild(f10BloomButton);
+            f10Button = new Button("Flash 10", 75);
+            f10Button.x = 310;
+            f10Button.y = 0;
+            buttonGroup.addChild(f10Button);
+            f9Button = new Button("Flash 9", 65);
+            f9Button.x = 405;
             f9Button.y = 0;
             buttonGroup.addChild(f9Button);
             flatButton = new Button("Flat Shading", 95);
@@ -347,6 +384,8 @@ package {
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			f10BloomButton.addEventListener(MouseEvent.CLICK, onF10BloomClick);
+			f10Button.addEventListener(MouseEvent.CLICK, onF10Click);
 			f9Button.addEventListener(MouseEvent.CLICK, onF9Click);
 			flatButton.addEventListener(MouseEvent.CLICK, onFlatClick);
 			stage.addEventListener(Event.RESIZE, onResize);
@@ -367,6 +406,11 @@ package {
 			
 			camera.hover();  
 			view.render();
+			
+			bloomBitmap.visible = bloom;
+			
+			if (bloom)
+				bloomBitmap.bitmapData = view.getBitmapData().clone();
 		}
 		
 		/**
@@ -399,6 +443,24 @@ package {
         	move = false;
         	stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);     
         }
+				
+		/**
+		 * button listener for viewing flash10 normalmapping with bloom HDR
+		 */
+		private function onF10BloomClick(event:MouseEvent):void
+		{
+			bodyMesh.material = f10Material;
+			bloom = true;
+		}
+				
+		/**
+		 * button listener for viewing flash10 normalmapping
+		 */
+		private function onF10Click(event:MouseEvent):void
+		{
+			bodyMesh.material = f10Material;
+			bloom = false;
+		}
 		
 		/**
 		 * button listener for viewing flash9 normalmapping
@@ -406,6 +468,7 @@ package {
 		private function onF9Click(event:MouseEvent):void
 		{
 			bodyMesh.material = f9Material;
+			bloom = false;
 		}
 		
 		/**
@@ -414,6 +477,7 @@ package {
 		private function onFlatClick(event:MouseEvent):void
 		{
 			bodyMesh.material = flatMaterial;
+			bloom = false;
 		}
 		
 		/**

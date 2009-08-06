@@ -131,7 +131,7 @@ package away3d.containers
         private var sceneX:Number;
         private var sceneY:Number;
         private var sceneZ:Number;
-        private var inv:Matrix3D = new Matrix3D();
+        private var inv:MatrixAway3D = new MatrixAway3D();
         private var persp:Number;
         private var _mouseIsOverView:Boolean;
         private var _overlays:Dictionary = new Dictionary();

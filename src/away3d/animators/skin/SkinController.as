@@ -8,9 +8,9 @@
     {
     	public var name:String;
 		public var joint:ObjectContainer3D;
-        public var bindMatrix:Matrix3D;
-        public var sceneTransform:Matrix3D = new Matrix3D();
-        public var inverseTransform:Matrix3D;
+        public var bindMatrix:MatrixAway3D;
+        public var sceneTransform:MatrixAway3D = new MatrixAway3D();
+        public var inverseTransform:MatrixAway3D;
         public var updated:Boolean;
         
         public function update():void

@@ -30,7 +30,7 @@ package away3d.core.project
         	_drawPrimitiveStore = view.drawPrimitiveStore;
         }
         
-		public function primitives(source:Object3D, viewTransform:Matrix3D, consumer:IPrimitiveConsumer):void
+		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
         	_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
         	

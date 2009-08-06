@@ -21,10 +21,10 @@ package
             view.y = 200;
             addChild(view);
 
-            sphere = new Sphere({material:new WireColorMaterial(0xFF7700, {wirecolor:0xCC4400}), radius:250, segmentsW:12, segmentsH:9, y:50});
+            sphere = new Sphere(new WireColorMaterial(0xFF7700, 0xCC4400), {radius:250, segmentsW:12, segmentsH:9, y:50});
 
             view.scene.addChild(sphere);
-            view.camera.lookAt(sphere.position);
+            view.camera.lookAt(sphere);
 
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
         }

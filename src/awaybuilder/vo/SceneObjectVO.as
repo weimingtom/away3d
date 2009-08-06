@@ -1,5 +1,6 @@
 package awaybuilder.vo
-{	import awaybuilder.interfaces.IValueObject;
+{
+	import awaybuilder.interfaces.IValueObject;
 	
 	
 	
@@ -14,4 +15,5 @@ package awaybuilder.vo
 		public var scaleX : Number = 1 ;
 		public var scaleY : Number = 1 ;
 		public var scaleZ : Number = 1 ;
-	}}
+	}
+}

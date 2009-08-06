@@ -1,5 +1,6 @@
 package awaybuilder.material
-{	import away3d.materials.PhongColorMaterial;	
+{
+	import away3d.materials.PhongColorMaterial;	
 	import away3d.materials.ColorMaterial;
 	import away3d.materials.ShadingColorMaterial;
 	import away3d.materials.VideoMaterial;
@@ -20,7 +21,8 @@ package awaybuilder.material
 		public function MaterialFactory ( )
 		{
 			this.propertyFactory = new MaterialPropertyFactory ( ) ;
-		}		
+		}
+		
 		
 		
 		////////////////////////////////////////////////////////////////////////////////

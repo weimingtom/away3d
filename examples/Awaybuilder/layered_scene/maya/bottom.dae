@@ -4,18 +4,18 @@
     <contributor>
       <author>andreasengstrom</author>
       <authoring_tool>Maya2008 | ColladaMaya v3.05B</authoring_tool>
-      <comments>ColladaMaya export options: bakeTransforms=0;exportPolygonMeshes=1;bakeLighting=0;isSampling=0;
+      <comments>ColladaMaya export options: bakeTransforms=0;exportPolygonMeshes=0;bakeLighting=0;isSampling=0;
 curveConstrainSampling=0;removeStaticCurves=0;exportCameraAsLookat=0;
-exportLights=0;exportCameras=1;exportJointsAndSkin=0;
-exportAnimations=0;exportTriangles=1;exportInvisibleNodes=0;
-exportNormals=1;exportTexCoords=1;
+exportLights=0;exportCameras=0;exportJointsAndSkin=0;
+exportAnimations=0;exportTriangles=0;exportInvisibleNodes=0;
+exportNormals=0;exportTexCoords=0;
 exportVertexColors=0;exportVertexColorsAnimation=0;exportTangents=0;
-exportTexTangents=1;exportConstraints=0;exportPhysics=0;exportXRefs=1;
+exportTexTangents=0;exportConstraints=0;exportPhysics=0;exportXRefs=1;
 dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       <source_data>file:///Users/andreasengstrom/Documents/Workspaces/FDT/away3d/examples/Awaybuilder/layered_scene/maya/bottom.mb</source_data>
     </contributor>
-    <created>2009-03-04T19:02:08Z</created>
-    <modified>2009-03-04T19:02:08Z</modified>
+    <created>2009-01-01T12:34:50Z</created>
+    <modified>2009-01-01T12:34:50Z</modified>
     <unit meter="0.01" name="centimeter"/>
     <up_axis>Y_UP</up_axis>
   </asset>
@@ -67,15 +67,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
     </image>
     <image id="file2" name="file1">
       <init_from>../textures/backside.png</init_from>
-      <extra>
-        <technique profile="MAYA">
-          <dgnode_type>kFile</dgnode_type>
-          <image_sequence>0</image_sequence>
-        </technique>
-      </extra>
-    </image>
-    <image id="file3" name="file1">
-      <init_from>./marker.png</init_from>
       <extra>
         <technique profile="MAYA">
           <dgnode_type>kFile</dgnode_type>
@@ -1766,15 +1757,15 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
     </effect>
     <effect id="lambert11-fx">
       <profile_COMMON>
-        <newparam sid="file3-surface">
+        <newparam sid="file1-surface">
           <surface type="2D">
-            <init_from>file3</init_from>
+            <init_from>file1</init_from>
             <format>A8R8G8B8</format>
           </surface>
         </newparam>
-        <newparam sid="file3-sampler">
+        <newparam sid="file1-sampler">
           <sampler2D>
-            <source>file3-surface</source>
+            <source>file1-surface</source>
             <wrap_s>WRAP</wrap_s>
             <wrap_t>WRAP</wrap_t>
             <minfilter>NONE</minfilter>
@@ -1791,7 +1782,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
               <color>0 0 0 1</color>
             </ambient>
             <diffuse>
-              <texture texture="file3-sampler" texcoord="TEX0">
+              <texture texture="file1-sampler" texcoord="TEX0">
                 <extra>
                   <technique profile="MAYA">
                     <wrapU>1</wrapU>
@@ -1818,7 +1809,7 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
               </texture>
             </diffuse>
             <transparent opaque="A_ONE">
-              <texture texture="file3-sampler" texcoord="TEX1">
+              <texture texture="file1-sampler" texcoord="TEX1">
                 <extra>
                   <technique profile="MAYA">
                     <wrapU>1</wrapU>
@@ -1855,302 +1846,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
       </profile_COMMON>
     </effect>
   </library_effects>
-  <library_geometries>
-    <geometry id="flippedShape3" name="flippedShape3">
-      <mesh>
-        <source id="flippedShape3-positions" name="position">
-          <float_array id="flippedShape3-positions-array" count="12">-0.845 0 1.225 0.845 0 1.225 -0.845 0 -1.225 0.845 0 -1.225</float_array>
-          <technique_common>
-            <accessor source="#flippedShape3-positions-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="flippedShape3-normals" name="normal">
-          <float_array id="flippedShape3-normals-array" count="12">0 1 0 0 1 0 0 1 0 0 1 0</float_array>
-          <technique_common>
-            <accessor source="#flippedShape3-normals-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="flippedShape3-map1" name="map1">
-          <float_array id="flippedShape3-map1-array" count="8">0 0 1.0002 0 0 1 1.0002 1</float_array>
-          <technique_common>
-            <accessor source="#flippedShape3-map1-array" count="4" stride="2">
-              <param name="S" type="float"/>
-              <param name="T" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="flippedShape3-map1-tangents">
-          <float_array id="flippedShape3-map1-tangents-array" count="3">-1 0 0</float_array>
-          <technique_common>
-            <accessor source="#flippedShape3-map1-tangents-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="flippedShape3-map1-binormals">
-          <float_array id="flippedShape3-map1-binormals-array" count="3">0 0 1</float_array>
-          <technique_common>
-            <accessor source="#flippedShape3-map1-binormals-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <vertices id="flippedShape3-vertices">
-          <input semantic="POSITION" source="#flippedShape3-positions"/>
-          <input semantic="NORMAL" source="#flippedShape3-normals"/>
-        </vertices>
-        <triangles material="lambert6SG" count="2">
-          <input semantic="VERTEX" source="#flippedShape3-vertices" offset="0"/>
-          <input semantic="TEXCOORD" source="#flippedShape3-map1" offset="1" set="0"/>
-          <input semantic="TEXTANGENT" source="#flippedShape3-map1-tangents" offset="2" set="0"/>
-          <input semantic="TEXBINORMAL" source="#flippedShape3-map1-binormals" offset="3" set="0"/>
-          <p>0 0 0 0 1 1 0 0 2 2 0 0 2 2 0 0 1 1 0 0 3 3 0 0</p>
-        </triangles>
-      </mesh>
-      <extra>
-        <technique profile="MAYA">
-          <double_sided>1</double_sided>
-        </technique>
-      </extra>
-    </geometry>
-    <geometry id="clubsAceShape" name="clubsAceShape">
-      <mesh>
-        <source id="clubsAceShape-positions" name="position">
-          <float_array id="clubsAceShape-positions-array" count="12">-0.845 -1.225 0 0.845 -1.225 0 -0.845 1.225 0 0.845 1.225 0</float_array>
-          <technique_common>
-            <accessor source="#clubsAceShape-positions-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="clubsAceShape-normals" name="normal">
-          <float_array id="clubsAceShape-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
-          <technique_common>
-            <accessor source="#clubsAceShape-normals-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="clubsAceShape-map1" name="map1">
-          <float_array id="clubsAceShape-map1-array" count="8">0 0 0.998782 0 0 1 0.998782 1</float_array>
-          <technique_common>
-            <accessor source="#clubsAceShape-map1-array" count="4" stride="2">
-              <param name="S" type="float"/>
-              <param name="T" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="clubsAceShape-map1-tangents">
-          <float_array id="clubsAceShape-map1-tangents-array" count="3">-1 0 0</float_array>
-          <technique_common>
-            <accessor source="#clubsAceShape-map1-tangents-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="clubsAceShape-map1-binormals">
-          <float_array id="clubsAceShape-map1-binormals-array" count="3">0 -1 0</float_array>
-          <technique_common>
-            <accessor source="#clubsAceShape-map1-binormals-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <vertices id="clubsAceShape-vertices">
-          <input semantic="POSITION" source="#clubsAceShape-positions"/>
-          <input semantic="NORMAL" source="#clubsAceShape-normals"/>
-        </vertices>
-        <triangles material="lambert2SG" count="2">
-          <input semantic="VERTEX" source="#clubsAceShape-vertices" offset="0"/>
-          <input semantic="TEXCOORD" source="#clubsAceShape-map1" offset="1" set="0"/>
-          <input semantic="TEXTANGENT" source="#clubsAceShape-map1-tangents" offset="2" set="0"/>
-          <input semantic="TEXBINORMAL" source="#clubsAceShape-map1-binormals" offset="3" set="0"/>
-          <p>0 0 0 0 1 1 0 0 2 2 0 0 2 2 0 0 1 1 0 0 3 3 0 0</p>
-        </triangles>
-      </mesh>
-      <extra>
-        <technique profile="MAYA">
-          <double_sided>1</double_sided>
-          <dynamic_attributes>
-            <miShadingSamplesOverride short_name="mso" type="bool">0</miShadingSamplesOverride>
-            <miShadingSamples short_name="msh" type="float">0</miShadingSamples>
-            <miMaxDisplaceOverride short_name="mdo" type="bool">0</miMaxDisplaceOverride>
-            <miMaxDisplace short_name="mmd" type="float">0</miMaxDisplace>
-          </dynamic_attributes>
-        </technique>
-      </extra>
-    </geometry>
-    <geometry id="spadesAceShape" name="spadesAceShape">
-      <mesh>
-        <source id="spadesAceShape-positions" name="position">
-          <float_array id="spadesAceShape-positions-array" count="12">-0.845 -1.225 0 0.845 -1.225 0 -0.845 1.225 0 0.845 1.225 0</float_array>
-          <technique_common>
-            <accessor source="#spadesAceShape-positions-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="spadesAceShape-normals" name="normal">
-          <float_array id="spadesAceShape-normals-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
-          <technique_common>
-            <accessor source="#spadesAceShape-normals-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="spadesAceShape-map1" name="map1">
-          <float_array id="spadesAceShape-map1-array" count="8">0 0 0.998782 0 0 1 0.998782 1</float_array>
-          <technique_common>
-            <accessor source="#spadesAceShape-map1-array" count="4" stride="2">
-              <param name="S" type="float"/>
-              <param name="T" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="spadesAceShape-map1-tangents">
-          <float_array id="spadesAceShape-map1-tangents-array" count="3">-1 0 0</float_array>
-          <technique_common>
-            <accessor source="#spadesAceShape-map1-tangents-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="spadesAceShape-map1-binormals">
-          <float_array id="spadesAceShape-map1-binormals-array" count="3">0 -1 0</float_array>
-          <technique_common>
-            <accessor source="#spadesAceShape-map1-binormals-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <vertices id="spadesAceShape-vertices">
-          <input semantic="POSITION" source="#spadesAceShape-positions"/>
-          <input semantic="NORMAL" source="#spadesAceShape-normals"/>
-        </vertices>
-        <triangles material="lambert5SG" count="2">
-          <input semantic="VERTEX" source="#spadesAceShape-vertices" offset="0"/>
-          <input semantic="TEXCOORD" source="#spadesAceShape-map1" offset="1" set="0"/>
-          <input semantic="TEXTANGENT" source="#spadesAceShape-map1-tangents" offset="2" set="0"/>
-          <input semantic="TEXBINORMAL" source="#spadesAceShape-map1-binormals" offset="3" set="0"/>
-          <p>0 0 0 0 1 1 0 0 2 2 0 0 2 2 0 0 1 1 0 0 3 3 0 0</p>
-        </triangles>
-      </mesh>
-      <extra>
-        <technique profile="MAYA">
-          <double_sided>1</double_sided>
-          <dynamic_attributes>
-            <miShadingSamplesOverride short_name="mso" type="bool">0</miShadingSamplesOverride>
-            <miShadingSamples short_name="msh" type="float">0</miShadingSamples>
-            <miMaxDisplaceOverride short_name="mdo" type="bool">0</miMaxDisplaceOverride>
-            <miMaxDisplace short_name="mmd" type="float">0</miMaxDisplace>
-          </dynamic_attributes>
-        </technique>
-      </extra>
-    </geometry>
-    <geometry id="markerShape1" name="markerShape1">
-      <mesh>
-        <source id="markerShape1-positions" name="position">
-          <float_array id="markerShape1-positions-array" count="66">0.809017 0.587785 -0.1 0.309018 0.951056 -0.1 -0.309016 0.951057 -0.1 -0.809017 0.587786 -0.1 -1 0.000000 -0.1 -0.809017 -0.587785 -0.1 -0.309017 -0.951056 -0.1 0.309017 -0.951057 -0.1 0.809017 -0.587785 -0.1 1 0 -0.1 0.809017 0.587785 0.1 0.309018 0.951056 0.1 -0.309016 0.951057 0.1 -0.809017 0.587786 0.1 -1 0.000000 0.1 -0.809017 -0.587785 0.1 -0.309017 -0.951056 0.1 0.309017 -0.951057 0.1 0.809017 -0.587785 0.1 1 0 0.1 0 0 -0.1 0 0 0.1</float_array>
-          <technique_common>
-            <accessor source="#markerShape1-positions-array" count="22" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="markerShape1-normals" name="normal">
-          <float_array id="markerShape1-normals-array" count="186">0.587786 0.809017 0 0.587786 0.809017 0 0.587786 0.809017 0 0.587786 0.809017 0 0.000000 1 0 0.000000 1 0 0.000000 1 0 0.000000 1 0 -0.587785 0.809017 0 -0.587785 0.809017 0 -0.587785 0.809017 0 -0.587785 0.809017 0 -0.951056 0.309017 0 -0.951056 0.309017 0 -0.951056 0.309017 0 -0.951056 0.309017 0 -0.951056 -0.309017 0 -0.951056 -0.309017 0 -0.951056 -0.309017 0 -0.951056 -0.309017 0 -0.587785 -0.809017 0 -0.587785 -0.809017 0 -0.587785 -0.809017 0 -0.587785 -0.809017 0 -0.000000 -1 0 -0.000000 -1 0 -0.000000 -1 0 -0.000000 -1 0 0.587785 -0.809017 0 0.587785 -0.809017 0 0.587785 -0.809017 0 0.587785 -0.809017 0 0.951056 -0.309017 0 0.951056 -0.309017 0 0.951056 -0.309017 0 0.951056 -0.309017 0 0.951057 0.309017 0 0.951057 0.309017 0 0.951057 0.309017 0 0.951057 0.309017 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1</float_array>
-          <technique_common>
-            <accessor source="#markerShape1-normals-array" count="62" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="markerShape1-map1" name="map1">
-          <float_array id="markerShape1-map1-array" count="88">0.90286 0.206561 0.652753 0.024847 0.343604 0.024847 0.093496 0.20656 -0.002035 0.500578 0.093496 0.794597 0.343603 0.97631 0.652753 0.97631 0.90286 0.794597 0.998392 0.500579 0.375292 0.96909 0.400292 0.96909 0.425292 0.96909 0.450292 0.96909 0.475292 0.96909 0.500292 0.96909 0.525292 0.96909 0.550292 0.96909 0.575292 0.96909 0.600292 0.96909 0.625292 0.96909 0.375292 0.977335 0.400292 0.977335 0.425292 0.977335 0.450292 0.977335 0.475292 0.977335 0.500292 0.977335 0.525292 0.977335 0.550292 0.977335 0.575292 0.977335 0.600292 0.977335 0.625292 0.977335 0.905465 0.205542 0.654874 0.023476 0.345126 0.023476 0.094535 0.205541 -0.001182 0.500129 0.094535 0.794716 0.345126 0.976781 0.654874 0.976781 0.905465 0.794716 1.00118 0.500129 0.498178 0.48057 0.5 0.480082</float_array>
-          <technique_common>
-            <accessor source="#markerShape1-map1-array" count="44" stride="2">
-              <param name="S" type="float"/>
-              <param name="T" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="markerShape1-map1-tangents">
-          <float_array id="markerShape1-map1-tangents-array" count="63">0.809017 -0.587786 0 1 -0.000000 0 0.809017 0.587785 0 0.309017 0.951056 0 -0.309017 0.951057 0 -0.809017 0.587785 0 -1 0.000000 0 -0.809017 -0.587785 0 -0.309017 -0.951056 0 0.309017 -0.951057 0 -0.999836 -0.012792 0 -0.999426 -0.033038 0 -0.999558 0 0 -0.999836 0.012791 0 -0.999426 0.033038 0 -0.999201 0.039974 0 -0.999468 0.031678 0 -0.999857 0.01195 0 -0.999857 -0.01195 0 -0.999468 -0.031678 0 -0.999201 -0.039974 0</float_array>
-          <technique_common>
-            <accessor source="#markerShape1-map1-tangents-array" count="21" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="markerShape1-map1-binormals">
-          <float_array id="markerShape1-map1-binormals-array" count="69">0 0 -1 -0.012793 0.999918 0 -0.033039 0.999454 0 0 1 0 0.012792 0.999918 0 0.033039 0.999454 0 0.039974 0.999201 0 0.031679 0.999498 0 0.011951 0.999929 0 -0.011951 0.999929 0 -0.031679 0.999498 0 -0.039974 0.999201 0 -0.031679 -0.999498 0 -0.011952 -0.999929 0 -0.000000 -1 0 0.01195 -0.999929 0 0.031679 -0.999498 0 0.039974 -0.999201 0 0.033038 -0.999454 0 0.012792 -0.999918 0 -0.012793 -0.999918 0 -0.03304 -0.999454 0 -0.039975 -0.999201 0</float_array>
-          <technique_common>
-            <accessor source="#markerShape1-map1-binormals-array" count="23" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <vertices id="markerShape1-vertices">
-          <input semantic="POSITION" source="#markerShape1-positions"/>
-        </vertices>
-        <triangles material="lambert2SG" count="40">
-          <input semantic="VERTEX" source="#markerShape1-vertices" offset="0"/>
-          <input semantic="NORMAL" source="#markerShape1-normals" offset="1"/>
-          <input semantic="TEXCOORD" source="#markerShape1-map1" offset="2" set="0"/>
-          <input semantic="TEXTANGENT" source="#markerShape1-map1-tangents" offset="3" set="0"/>
-          <input semantic="TEXBINORMAL" source="#markerShape1-map1-binormals" offset="4" set="0"/>
-          <p>0 0 10 0 0 1 1 11 0 0 10 2 21 0 0 10 2 21 0 0 1 1 11 0 0 11 3 22 0 0 1 4 11 1 0 2 5 12 1 0 11 6 22 1 0 11 6 22 1 0 2 5 12 1 0 12 7 23 1 0 2 8 12 2 0 3 9 13 2 0 12 10 23 2 0 12 10 23 2 0 3 9 13 2 0 13 11 24 2 0 3 12 13 3 0 4 13 14 3 0 13 14 24 3 0 13 14 24 3 0 4 13 14 3 0 14 15 25 3 0 4 16 14 4 0 5 17 15 4 0 14 18 25 4 0 14 18 25 4 0 5 17 15 4 0 15 19 26 4 0 5 20 15 5 0 6 21 16 5 0 15 22 26 5 0 15 22 26 5 0 6 21 16 5 0 16 23 27 5 0 6 24 16 6 0 7 25 17 6 0 16 26 27 6 0 16 26 27 6 0 7 25 17 6 0 17 27 28 6 0 7 28 17 7 0 8 29 18 7 0 17 30 28 7 0 17 30 28 7 0 8 29 18 7 0 18 31 29 7 0 8 32 18 8 0 9 33 19 8 0 18 34 29 8 0 18 34 29 8 0 9 33 19 8 0 19 35 30 8 0 9 36 19 9 0 0 37 20 9 0 19 38 30 9 0 19 38 30 9 0 0 37 20 9 0 10 39 31 9 0 1 40 1 10 1 0 41 0 11 2 20 42 42 12 3 2 43 2 13 4 1 40 1 10 1 20 42 42 12 3 3 44 3 14 5 2 43 2 13 4 20 42 42 12 3 4 45 4 15 6 3 44 3 14 5 20 42 42 12 3 5 46 5 16 7 4 45 4 15 6 20 42 42 12 3 6 47 6 17 8 5 46 5 16 7 20 42 42 12 3 7 48 7 18 9 6 47 6 17 8 20 42 42 12 3 8 49 8 19 10 7 48 7 18 9 20 42 42 12 3 9 50 9 20 11 8 49 8 19 10 20 42 42 12 3 0 41 0 11 2 9 50 9 20 11 20 42 42 12 3 10 51 40 16 12 11 52 39 17 13 21 53 43 12 14 11 52 39 17 13 12 54 38 18 15 21 53 43 12 14 12 54 38 18 15 13 55 37 19 16 21 53 43 12 14 13 55 37 19 16 14 56 36 20 17 21 53 43 12 14 14 56 36 20 17 15 57 35 11 18 21 53 43 12 14 15 57 35 11 18 16 58 34 10 19 21 53 43 12 14 16 58 34 10 19 17 59 33 13 20 21 53 43 12 14 17 59 33 13 20 18 60 32 14 21 21 53 43 12 14 18 60 32 14 21 19 61 41 15 22 21 53 43 12 14 19 61 41 15 22 10 51 40 16 12 21 53 43 12 14</p>
-        </triangles>
-      </mesh>
-      <extra>
-        <technique profile="MAYA">
-          <double_sided>1</double_sided>
-          <dynamic_attributes>
-            <miShadingSamplesOverride short_name="mso" type="bool">0</miShadingSamplesOverride>
-            <miShadingSamples short_name="msh" type="float">0</miShadingSamples>
-            <miMaxDisplaceOverride short_name="mdo" type="bool">0</miMaxDisplaceOverride>
-            <miMaxDisplace short_name="mmd" type="float">0</miMaxDisplace>
-          </dynamic_attributes>
-        </technique>
-      </extra>
-    </geometry>
-  </library_geometries>
   <library_visual_scenes>
     <visual_scene id="VisualSceneNode" name="bottom">
       <node id="bottomLayer" name="bottomLayer" type="NODE">
@@ -2167,121 +1862,81 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 0</rotate>
           <rotate sid="rotateX">1 0 0 0</rotate>
           <node id="flipped1" name="flipped1" type="NODE">
-            <translate sid="translate">-0.21 0 0.06</translate>
+            <translate sid="translate">-0.210237 0 0.060067</translate>
             <rotate sid="rotateZ">0 0 1 0</rotate>
-            <rotate sid="rotateY">0 1 0 24.541</rotate>
-            <rotate sid="rotateX">1 0 0 0</rotate>
-            <instance_geometry url="#flippedShape3">
-              <bind_material>
-                <technique_common>
-                  <instance_material symbol="lambert6SG" target="#mBackside">
-                    <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                    <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                  </instance_material>
-                </technique_common>
-              </bind_material>
-            </instance_geometry>
+            <rotate sid="rotateY">0 1 0 24.5413</rotate>
+            <rotate sid="rotateX">1 0 0 -90</rotate>
             <extra>
               <technique profile="MAYA">
                 <dynamic_attributes>
                   <geometry_class short_name="geometry_class" type="string">Plane</geometry_class>
                   <geometry_width short_name="geometry_width" type="float">1.69</geometry_width>
                   <geometry_height short_name="geometry_height" type="float">2.45</geometry_height>
-                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
-                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/backside.png</material_assetFile>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
+                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
+                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                 </dynamic_attributes>
               </technique>
             </extra>
           </node>
           <node id="flipped2" name="flipped2" type="NODE">
-            <translate sid="translate">2.793 0 1.111</translate>
+            <translate sid="translate">2.79315 0 1.11125</translate>
             <rotate sid="rotateZ">0 0 1 0</rotate>
-            <rotate sid="rotateY">0 1 0 42.995</rotate>
-            <rotate sid="rotateX">1 0 0 0</rotate>
-            <instance_geometry url="#flippedShape3">
-              <bind_material>
-                <technique_common>
-                  <instance_material symbol="lambert6SG" target="#mBackside">
-                    <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                    <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                  </instance_material>
-                </technique_common>
-              </bind_material>
-            </instance_geometry>
+            <rotate sid="rotateY">0 1 0 42.9952</rotate>
+            <rotate sid="rotateX">1 0 0 -90</rotate>
             <extra>
               <technique profile="MAYA">
                 <dynamic_attributes>
                   <geometry_class short_name="geometry_class" type="string">Plane</geometry_class>
                   <geometry_width short_name="geometry_width" type="float">1.69</geometry_width>
                   <geometry_height short_name="geometry_height" type="float">2.45</geometry_height>
-                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
-                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/backside.png</material_assetFile>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
+                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
+                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                 </dynamic_attributes>
               </technique>
             </extra>
           </node>
           <node id="flipped3" name="flipped3" type="NODE">
-            <translate sid="translate">-1.922 0 2.763</translate>
+            <translate sid="translate">-1.92217 0 2.76312</translate>
             <rotate sid="rotateZ">0 0 1 0</rotate>
             <rotate sid="rotateY">0 1 0 -74.12</rotate>
-            <rotate sid="rotateX">1 0 0 0</rotate>
-            <instance_geometry url="#flippedShape3">
-              <bind_material>
-                <technique_common>
-                  <instance_material symbol="lambert6SG" target="#mBackside">
-                    <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                    <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                  </instance_material>
-                </technique_common>
-              </bind_material>
-            </instance_geometry>
+            <rotate sid="rotateX">1 0 0 -90</rotate>
             <extra>
               <technique profile="MAYA">
                 <dynamic_attributes>
                   <geometry_class short_name="geometry_class" type="string">Plane</geometry_class>
                   <geometry_width short_name="geometry_width" type="float">1.69</geometry_width>
                   <geometry_height short_name="geometry_height" type="float">2.45</geometry_height>
-                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
-                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/backside.png</material_assetFile>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
+                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
+                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                 </dynamic_attributes>
               </technique>
             </extra>
           </node>
           <node id="flipped4" name="flipped4" type="NODE">
-            <translate sid="translate">0.991 0 4.595</translate>
+            <translate sid="translate">0.991118 0 4.59518</translate>
             <rotate sid="rotateZ">0 0 1 0</rotate>
-            <rotate sid="rotateY">0 1 0 -29.929</rotate>
-            <rotate sid="rotateX">1 0 0 0</rotate>
-            <instance_geometry url="#flippedShape3">
-              <bind_material>
-                <technique_common>
-                  <instance_material symbol="lambert6SG" target="#mBackside">
-                    <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                    <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                  </instance_material>
-                </technique_common>
-              </bind_material>
-            </instance_geometry>
+            <rotate sid="rotateY">0 1 0 -29.9289</rotate>
+            <rotate sid="rotateX">1 0 0 -90</rotate>
             <extra>
               <technique profile="MAYA">
                 <dynamic_attributes>
                   <geometry_class short_name="geometry_class" type="string">Plane</geometry_class>
                   <geometry_width short_name="geometry_width" type="float">1.69</geometry_width>
                   <geometry_height short_name="geometry_height" type="float">2.45</geometry_height>
-                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
-                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                   <material_class short_name="material_class" type="string">BitmapFileMaterial</material_class>
                   <material_assetFile short_name="material_assetFile" type="string">textures/backside.png</material_assetFile>
                   <material_smooth short_name="material_smooth" type="bool">1</material_smooth>
+                  <geometry_segmentsW short_name="geometry_segmentsW" type="int">2</geometry_segmentsW>
+                  <geometry_segmentsH short_name="geometry_segmentsH" type="int">3</geometry_segmentsH>
                 </dynamic_attributes>
               </technique>
             </extra>
@@ -2302,16 +1957,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateZ">0 0 1 0</rotate>
           <rotate sid="rotateY">0 1 0 0</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
-          <instance_geometry url="#clubsAceShape">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#mClubsAce1">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2336,16 +1981,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateZ">0 0 1 0</rotate>
           <rotate sid="rotateY">0 1 0 -30.8846</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
-          <instance_geometry url="#clubsAceShape">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#mHeartsAce1">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2370,16 +2005,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateZ">0 0 1 0</rotate>
           <rotate sid="rotateY">0 1 0 36.6623</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
-          <instance_geometry url="#clubsAceShape">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#mDiamondsAce1">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2404,16 +2029,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateZ">0 0 1 0</rotate>
           <rotate sid="rotateY">0 1 0 171.723</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
-          <instance_geometry url="#spadesAceShape">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert5SG" target="#mSpadesAce1">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2439,16 +2054,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 28.4019</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2464,16 +2069,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 0</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2489,16 +2084,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 28.4019</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2514,16 +2099,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 28.4019</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2539,16 +2114,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 28.4019</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2564,16 +2129,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 80.969</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2589,16 +2144,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 31.2307</rotate>
           <rotate sid="rotateX">1 0 0 -227.127</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2614,16 +2159,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 124.322</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2639,16 +2174,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 218.812</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
@@ -2664,16 +2189,6 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
           <rotate sid="rotateY">0 1 0 -2.23648</rotate>
           <rotate sid="rotateX">1 0 0 -90</rotate>
           <scale sid="scale">0.6 0.6 0.6</scale>
-          <instance_geometry url="#markerShape1">
-            <bind_material>
-              <technique_common>
-                <instance_material symbol="lambert2SG" target="#lambert11">
-                  <bind_vertex_input semantic="TEX0" input_semantic="TEXCOORD" input_set="0"/>
-                  <bind_vertex_input semantic="TEX1" input_semantic="TEXCOORD" input_set="0"/>
-                </instance_material>
-              </technique_common>
-            </bind_material>
-          </instance_geometry>
           <extra>
             <technique profile="MAYA">
               <dynamic_attributes>
