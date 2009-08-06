@@ -23,8 +23,6 @@ package away3d.core.light
         private var _normalMatrix:ColorMatrixFilter = new ColorMatrixFilter();
     	private var _matrix:Matrix = new Matrix();
     	private var _shape:Shape = new Shape();
-        private var quaternion:Quaternion = new Quaternion();
-        private var invTransform:MatrixAway3D = new MatrixAway3D();
     	private var transform:MatrixAway3D = new MatrixAway3D();
     	private var nx:Number;
     	private var ny:Number;
@@ -32,7 +30,6 @@ package away3d.core.light
         private var cameraTransform:MatrixAway3D;
         private var cameraDirection:Number3D = new Number3D();
         private var halfVector:Number3D = new Number3D();
-        private var halfQuaternion:Quaternion = new Quaternion();
         private var halfTransform:MatrixAway3D = new MatrixAway3D();
         private var _red:Number;
 		private var _green:Number;
@@ -110,9 +107,9 @@ package away3d.core.light
     		diffuseBitmap = new BitmapData(256, 256, false, 0x000000);
     		diffuseBitmap.lock();
     		_matrix.createGradientBox(256, 256, 0, 0, 0);
-    		var colArray:Array = new Array();
-    		var alphaArray:Array = new Array();
-    		var pointArray:Array = new Array();
+    		var colArray:Array = [];
+    		var alphaArray:Array = [];
+    		var pointArray:Array = [];
     		var i:int = 15;
     		while (i--) {
     			var r:Number = (i*diffuse/14);
@@ -145,9 +142,9 @@ package away3d.core.light
     		ambientDiffuseBitmap = new BitmapData(256, 256, false, 0x000000);
     		ambientDiffuseBitmap.lock();
     		_matrix.createGradientBox(256, 256, 0, 0, 0);
-    		var colArray:Array = new Array();
-    		var alphaArray:Array = new Array();
-    		var pointArray:Array = new Array();
+    		var colArray:Array = [];
+    		var alphaArray:Array = [];
+    		var pointArray:Array = [];
     		var i:int = 15;
     		while (i--) {
     			var r:Number = (i*diffuse/14 + ambient);
@@ -176,9 +173,9 @@ package away3d.core.light
     		specularBitmap = new BitmapData(512, 512, false, 0x000000);
     		specularBitmap.lock();
     		_matrix.createGradientBox(512, 512, 0, 0, 0);
-    		var colArray:Array = new Array();
-    		var alphaArray:Array = new Array();
-    		var pointArray:Array = new Array();
+    		var colArray:Array = [];
+    		var alphaArray:Array = [];
+    		var pointArray:Array = [];
     		var i:int = 15;
     		while (i--) {
     			colArray.push((i*specular*red*0xFF/14 << 16) + (i*specular*green*0xFF/14 << 8) + i*specular*blue*0xFF/14);
@@ -248,7 +245,6 @@ package away3d.core.light
 			cameraDirection.z = -cameraTransform.szz;
 			halfVector.add(cameraDirection, direction);
 			halfVector.normalize();
-			
 			nx = halfVector.x;
         	ny = halfVector.y;
         	mod = Math.sqrt(nx*nx + ny*ny);

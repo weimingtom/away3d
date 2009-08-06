@@ -15,100 +15,75 @@ package away3d.core.draw
     public class DrawTriangle extends DrawPrimitive
     {
 		/** @private */
-        arcane final function acuteAngled():Boolean
+        arcane function fivepointcut(i0:Number, v01x:Number, v01y:Number, v01z:Number, i1:Number, v12x:Number, v12y:Number, v12z:Number, i2:Number, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
         {
-            d01 = v0.distanceSqr(v1);
-            d12 = v1.distanceSqr(v2);
-            d20 = v2.distanceSqr(v0);
-            dd01 = d01 * d01;
-            dd12 = d12 * d12;
-            dd20 = d20 * d20;
-            
-            return (dd01 <= dd12 + dd20) && (dd12 <= dd20 + dd01) && (dd20 <= dd01 + dd12);
-        }
-		/** @private */
-        arcane final function maxEdgeSqr():Number
-        {
-            return Math.max(Math.max(v0.distanceSqr(v1),
-                                        v1.distanceSqr(v2)),
-                                        v2.distanceSqr(v0));
-        }
-		/** @private */
-        arcane final function minEdgeSqr():Number
-        {
-            return Math.min(Math.min(v0.distanceSqr(v1),
-                                        v1.distanceSqr(v2)),
-                                        v2.distanceSqr(v0));
-        }
-		/** @private */
-        arcane final function maxDistortSqr(focus:Number):Number
-        {
-            return Math.max(Math.max(v0.distortSqr(v1, focus),
-                                        v1.distortSqr(v2, focus)),
-                                        v2.distortSqr(v0, focus));
-        }
-		/** @private */
-        arcane final function minDistortSqr(focus:Number):Number
-        {
-            return Math.min(Math.min(v0.distortSqr(v1, focus),
-                                        v1.distortSqr(v2, focus)),
-                                        v2.distortSqr(v0, focus));
-        }
-		/** @private */
-        arcane function fivepointcut(v0:ScreenVertex, v01:ScreenVertex, v1:ScreenVertex, v12:ScreenVertex, v2:ScreenVertex, uv0:UV, uv01:UV, uv1:UV, uv12:UV, uv2:UV):Array
-        {
-            if (v0.distanceSqr(v12) < v01.distanceSqr(v2))
+        	var vertexIndex:int = screenVertices.length/3;
+        	var v0:int = screenIndices[i0];
+        	var v1:int = screenIndices[i1];
+        	var v2:int = screenIndices[i2];
+        	
+            if (ScreenVertex.distanceSqr(screenVertices[v0*3], screenVertices[v0*3+1], v12x, v12y) < ScreenVertex.distanceSqr(v01x, v01y, screenVertices[v2*3], screenVertices[v2*3+1]))
             {
-                return [
-                    create(source, faceVO, material,  v0, v01, v12,  uv0, uv01, uv12, true),
-                    create(source, faceVO, material, v01,  v1, v12, uv01,  uv1, uv12, true),
-                    create(source, faceVO, material,  v0, v12 , v2,  uv0, uv12, uv2, true)];
+            	var index0:int = screenIndices.length;
+	        	screenIndices[screenIndices.length] = v0;
+	        	screenIndices[screenIndices.length] = vertexIndex;
+	        	screenIndices[screenIndices.length] = vertexIndex+1;
+	        	var index1:int = screenIndices.length;
+	        	screenIndices[screenIndices.length] = vertexIndex;
+	        	screenIndices[screenIndices.length] = v1;
+	        	screenIndices[screenIndices.length] = vertexIndex+1;
+	        	var index2:int = screenIndices.length;
+	        	screenIndices[screenIndices.length] = v0;
+	        	screenIndices[screenIndices.length] = vertexIndex+1;
+	        	screenIndices[screenIndices.length] = v2;
+	        	var index3:int = screenIndices.length;
+	        	
+	        	screenVertices[screenVertices.length] = v01x;
+				screenVertices[screenVertices.length] = v01y;
+				screenVertices[screenVertices.length] = v01z;
+				
+	        	screenVertices[screenVertices.length] = v12x;
+				screenVertices[screenVertices.length] = v12y;
+				screenVertices[screenVertices.length] = v12z;
+				
+	            return [
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index0, index1, uv0,  uv01, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index1, index2, uv01,  uv1, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index2, index3, uv0,  uv12, uv2, true)
+	            ];
             }
             else
             {
-                return [
-                    create(source, faceVO, material,   v0, v01,  v2,  uv0, uv01, uv2, true),
-                    create(source, faceVO, material,  v01,  v1, v12, uv01,  uv1, uv12, true),
-                    create(source, faceVO, material,  v01, v12,  v2, uv01, uv12, uv2, true)];
+            	var index4:int = screenIndices.length;
+	        	screenIndices[screenIndices.length] = v0;
+	        	screenIndices[screenIndices.length] = vertexIndex;
+	        	screenIndices[screenIndices.length] = v2;
+	        	var index5:int = screenIndices.length;
+	        	screenIndices[screenIndices.length] = vertexIndex;
+	        	screenIndices[screenIndices.length] = v1;
+	        	screenIndices[screenIndices.length] = vertexIndex+1;
+	        	var index6:int = screenIndices.length;
+	        	screenIndices[screenIndices.length] = vertexIndex;
+	        	screenIndices[screenIndices.length] = vertexIndex+1;
+	        	screenIndices[screenIndices.length] = v2;
+	        	var index7:int = screenIndices.length;
+	        	
+	        	screenVertices[screenVertices.length] = v01x;
+				screenVertices[screenVertices.length] = v01y;
+				screenVertices[screenVertices.length] = v01z;
+				
+	        	screenVertices[screenVertices.length] = v12x;
+				screenVertices[screenVertices.length] = v12y;
+				screenVertices[screenVertices.length] = v12z;
+	        	
+	            return [
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index4, index5, uv0,  uv01, uv2, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index5, index6, uv01,  uv1, uv12, true),
+	                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index6, index7, uv01,  uv12, uv2, true)
+	            ];
             }
-        }
-		/** @private */
-        arcane final function bisect(focus:Number):Array
-        {
-            d01 = v0.distanceSqr(v1);
-            d12 = v1.distanceSqr(v2);
-            d20 = v2.distanceSqr(v0);
-
-            if ((d12 >= d01) && (d12 >= d20))
-                return bisect12(focus);
-            else
-            if (d01 >= d20)
-                return bisect01(focus);
-            else
-                return bisect20(focus);
-        }
-		/** @private */
-        arcane final function distortbisect(focus:Number):Array
-        {
-            d01 = v0.distortSqr(v1, focus),
-            d12 = v1.distortSqr(v2, focus),
-            d20 = v2.distortSqr(v0, focus);
-
-            if ((d12 >= d01) && (d12 >= d20))
-                return bisect12(focus);
-            else
-            if (d01 >= d20)
-                return bisect01(focus);
-            else
-                return bisect20(focus);
         }
         
-		private var d01:Number;
-        private var d12:Number;
-        private var d20:Number;
-        private var dd01:Number;
-        private var dd12:Number;
-        private var dd20:Number;
         private var materialWidth:Number;
         private var materialHeight:Number;
         private var _u0:Number;
@@ -150,63 +125,66 @@ package away3d.core.draw
         private var bv:Number;
         private var cu:Number;
         private var cv:Number;
-        private var v01:ScreenVertex;
-        private var v12:ScreenVertex;
-        private var v20:ScreenVertex;
         private var uv01:UV;
         private var uv12:UV;
         private var uv20:UV;
         private var _invtexmapping:Matrix = new Matrix();
+        private var _index:int;
+        private var _vertex:int;
+        private var _x:Number;
+        private var _y:Number;
+        private var _z:Number;
+        private var _vertexCount:uint;
         
         private function num(n:Number):Number
         {
             return int(n*1000)/1000;
         }
         
-        private final function bisect01(focus:Number):Array
-        {
-            var v01:ScreenVertex = ScreenVertex.median(v0, v1, focus),
-                uv01:UV = UV.median(uv0, uv1);
-            return [
-                create(source, faceVO, material, v2, v0, v01, uv2, uv0, uv01, true),
-                create(source, faceVO, material, v01, v1, v2, uv01, uv1, uv2, true) 
-            ];
-        }
-
-        private final function bisect12(focus:Number):Array
-        {
-            var v12:ScreenVertex = ScreenVertex.median(v1, v2, focus),
-                uv12:UV = UV.median(uv1, uv2);
-            return [
-                create(source, faceVO, material, v0, v1, v12, uv0, uv1, uv12, true),
-                create(source, faceVO, material, v12, v2, v0, uv12, uv2, uv0, true) 
-            ];
-        }
-
-        private final function bisect20(focus:Number):Array
-        {
-            var v20:ScreenVertex = ScreenVertex.median(v2, v0, focus),
-                uv20:UV = UV.median(uv2, uv0);
-            return [
-                create(source, faceVO, material, v1, v2, v20, uv1, uv2, uv20, true),
-                create(source, faceVO, material, v20, v0, v1, uv20, uv0, uv1, true) 
-            ];                                                
-        }
+		/**
+		 * The x position of the v0 screenvertex of the triangle primitive.
+		 */
+        public var v0x:Number;
         
 		/**
-		 * The v0 screenvertex of the triangle primitive.
+		 * The y position of the v0 screenvertex of the triangle primitive.
 		 */
-        public var v0:ScreenVertex;
+        public var v0y:Number;
         
 		/**
-		 * The v1 screenvertex of the triangle primitive.
+		 * The z position of the v0 screenvertex of the triangle primitive.
 		 */
-        public var v1:ScreenVertex;
+        public var v0z:Number;
         
 		/**
-		 * The v2 screenvertex of the triangle primitive.
+		 * The x position of the v1 screenvertex of the triangle primitive.
 		 */
-        public var v2:ScreenVertex;
+        public var v1x:Number;
+        
+		/**
+		 * The y position of the v1 screenvertex of the triangle primitive.
+		 */
+        public var v1y:Number;
+        
+		/**
+		 * The z position of the v1 screenvertex of the triangle primitive.
+		 */
+        public var v1z:Number;
+        
+		/**
+		 * The x position of the v2 screenvertex of the triangle primitive.
+		 */
+        public var v2x:Number;
+        
+		/**
+		 * The y position of the v2 screenvertex of the triangle primitive.
+		 */
+        public var v2y:Number;
+        
+		/**
+		 * The z position of the v2 screenvertex of the triangle primitive.
+		 */
+        public var v2z:Number;
         
 		/**
 		 * The uv0 uv coordinate of the triangle primitive.
@@ -233,7 +211,7 @@ package away3d.core.draw
         public var area:Number;
         
     	/**
-    	 * A reference to the face object used by the triangle primitive.
+    	 * A reference to the face value object used by the triangle primitive.
     	 */
         public var faceVO:FaceVO;
         
@@ -247,14 +225,26 @@ package away3d.core.draw
     	 */
         public var material:ITriangleMaterial;
         
+        public var screenVertices:Array;
+        
+        public var screenIndices:Array;
+        
+        public var screenCommands:Array;
+        
+        public var startIndex:int;
+        
+        public var endIndex:int;
+        
+        public var reverseArea:Boolean;
+        
 		/**
 		 * @inheritDoc
 		 */
         public override function clear():void
         {
-            v0 = null;
-            v1 = null;
-            v2 = null;
+            //v0 = null;
+            //v1 = null;
+            //v2 = null;
             uv0 = null;
             uv1 = null;
             uv2 = null;
@@ -333,16 +323,19 @@ package away3d.core.draw
         public override final function getZ(x:Number, y:Number):Number
         {
             focus = view.camera.focus;
-
-            ax = v0.x;
-            ay = v0.y;
-            az = v0.z;
-            bx = v1.x;
-            by = v1.y;
-            bz = v1.z;
-            cx = v2.x;
-            cy = v2.y;
-            cz = v2.z;
+			
+			if (_vertexCount > 3)
+				return screenZ;
+			
+            ax = v0x;
+            ay = v0y;
+            az = v0z;
+            bx = v1x;
+            by = v1y;
+            bz = v1z;
+            cx = v2x;
+            cy = v2y;
+            cz = v2z;
 
             if ((ax == x) && (ay == y))
                 return az;
@@ -404,15 +397,15 @@ package away3d.core.draw
 
             focus = view.camera.focus;
 
-            ax = v0.x;
-            ay = v0.y;
-            az = v0.z;
-            bx = v1.x;
-            by = v1.y;
-            bz = v1.z;
-            cx = v2.x;
-            cy = v2.y;
-            cz = v2.z;
+            ax = v0x;
+            ay = v0y;
+            az = v0z;
+            bx = v1x;
+            by = v1y;
+            bz = v1z;
+            cx = v2x;
+            cy = v2y;
+            cz = v2z;
 
             if ((ax == x) && (ay == y))
                 return uv0;
@@ -453,19 +446,40 @@ package away3d.core.draw
         {
             if (area > -20 && area < 20)
                 return null;
-
-            v01 = ScreenVertex.median(v0, v1, focus);
-            v12 = ScreenVertex.median(v1, v2, focus);
-            v20 = ScreenVertex.median(v2, v0, focus);
+            
+			var vertexIndex:int = screenVertices.length/3;
+			
+			var index0:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = screenIndices[startIndex];
+        	screenIndices[screenIndices.length] = vertexIndex;
+        	screenIndices[screenIndices.length] = vertexIndex+2;
+        	var index1:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = screenIndices[startIndex+1];
+        	screenIndices[screenIndices.length] = vertexIndex+1;
+        	screenIndices[screenIndices.length] = vertexIndex;
+        	var index2:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = screenIndices[startIndex+2];
+        	screenIndices[screenIndices.length] = vertexIndex+2;
+        	screenIndices[screenIndices.length] = vertexIndex+1;
+        	var index3:int = screenIndices.length;
+        	screenIndices[screenIndices.length] = vertexIndex;
+        	screenIndices[screenIndices.length] = vertexIndex+1;
+        	screenIndices[screenIndices.length] = vertexIndex+2;
+        	var index4:int = screenIndices.length;
+        	
+        	ScreenVertex.median(startIndex, startIndex+1, screenVertices, screenIndices, focus);
+        	ScreenVertex.median(startIndex+1, startIndex+2, screenVertices, screenIndices, focus);
+        	ScreenVertex.median(startIndex+2, startIndex, screenVertices, screenIndices, focus);
+        	
             uv01 = UV.median(uv0, uv1);
             uv12 = UV.median(uv1, uv2);
             uv20 = UV.median(uv2, uv0);
 
             return [
-                create(source, faceVO, material, v0, v01, v20, uv0, uv01, uv20, true),
-                create(source, faceVO, material, v1, v12, v01, uv1, uv12, uv01, true),
-                create(source, faceVO, material, v2, v20, v12, uv2, uv20, uv12, true),
-                create(source, faceVO, material, v01, v12, v20, uv01, uv12, uv20, true)
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index0, index1, uv0,  uv01, uv20, true),
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index1, index2, uv1,  uv12, uv01, true),
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index2, index3, uv2,  uv20, uv12, true),
+                create(source, faceVO, material, screenVertices, screenIndices, screenCommands, index3, index4, uv01, uv12, uv20, true)
             ];
         }
         
@@ -474,22 +488,48 @@ package away3d.core.draw
 		 */
         public override final function contains(x:Number, y:Number):Boolean
         {
-            if ((v0.x*(y - v1.y) + v1.x*(v0.y - y) + x*(v1.y - v0.y))*_areaSign < -0.001)
+        	//special case for shapes - uses crossing count on an infinite ray projected from the test point along the x axis
+        	if (_vertexCount > 3) {
+        		var c:Boolean = false;
+        		var i:int = startIndex;
+        		var j:int = endIndex - 1;
+        		var vertix:Number;
+        		var vertiy:Number;
+        		var vertjx:Number;
+        		var vertjy:Number;
+        		var iIndex:int;
+        		var jIndex:int;
+				while (i < endIndex) {
+					if (screenCommands[i] == DrawingCommand.CURVE)
+						i++;
+					
+					if ((((vertiy = screenVertices[(iIndex = screenIndices[i]*3)+1]) > y) != ((vertjy = screenVertices[(jIndex = screenIndices[j]*3)+1]) > y)) && (x < ((vertjx = screenVertices[jIndex]) - (vertix = screenVertices[iIndex]))*(y - vertiy)/(vertjy - vertiy) + vertix))
+						c = !c;
+					
+					j = i++;
+					
+					if (screenCommands[i] == DrawingCommand.MOVE)
+						j = i++;
+				}
+				return c;
+        	}
+        	
+            if ((v0x*(y - v1y) + v1x*(v0y - y) + x*(v1y - v0y))*_areaSign < -0.001)
                 return false;
 
-            if ((v0.x*(v2.y - y) + x*(v0.y - v2.y) + v2.x*(y - v0.y))*_areaSign < -0.001)
+            if ((v0x*(v2y - y) + x*(v0y - v2y) + v2x*(y - v0y))*_areaSign < -0.001)
                 return false;
 
-            if ((x*(v2.y - v1.y) + v1.x*(y - v2.y) + v2.x*(v1.y - y))*_areaSign < -0.001)
+            if ((x*(v2y - v1y) + v1x*(y - v2y) + v2x*(v1y - y))*_areaSign < -0.001)
                 return false;
 
             return true;
         }
 
         public final function distanceToCenter(x:Number, y:Number):Number
-        {   
-            var centerx:Number = (v0.x + v1.x + v2.x) / 3,
-                centery:Number = (v0.y + v1.y + v2.y) / 3;
+        {
+            var centerx:Number = (v0x + v1x + v2x) / 3,
+                centery:Number = (v0y + v1y + v2y) / 3;
 
             return Math.sqrt((centerx-x)*(centerx-x) + (centery-y)*(centery-y));
         }
@@ -498,70 +538,125 @@ package away3d.core.draw
 		 * @inheritDoc
 		 */
         public override function calc():void
-        {
-        	if (v0.x > v1.x) {
-                if (v0.x > v2.x) maxX = v0.x;
-                else maxX = v2.x;
+        {   
+        	_index = screenIndices[startIndex]*3;
+        	v0x = screenVertices[_index];
+        	v0y = screenVertices[_index+1];
+        	v0z = screenVertices[_index+2];
+        	
+        	_index = screenIndices[startIndex+1]*3;
+        	v1x = screenVertices[_index];
+        	v1y = screenVertices[_index+1];
+        	v1z = screenVertices[_index+2];
+        	
+        	_index = screenIndices[startIndex+2]*3;
+        	v2x = screenVertices[_index];
+        	v2y = screenVertices[_index+1];
+        	v2z = screenVertices[_index+2];
+            
+            _vertexCount = endIndex - startIndex;
+            
+            if(_vertexCount > 3) {
+            	
+            	screenZ = 0;
+            	_index = endIndex;
+            	minX = Infinity;
+            	maxX = -Infinity;
+            	minY = Infinity;
+            	maxY = -Infinity;
+            	minZ = Infinity;
+            	maxZ = -Infinity;
+            	while (_index-- > startIndex) {
+            		_vertex = screenIndices[_index]*3;
+	            	//calculate bounding box
+	            	_x = screenVertices[_vertex];
+	            	_y = screenVertices[_vertex+1];
+	            	_z = screenVertices[_vertex+2];
+            		if (minX > _x)
+            			minX = _x;
+            		if (maxX < _x)
+            			maxX = _x;
+            		if (minY > _y)
+            			minY = _y;
+            		if (maxY < _y)
+            			maxY = _y;
+            		if (minZ > _z)
+            			minZ = _z;
+            		if (maxZ < _z)
+            			maxZ = _z;
+	            	//calculate screenZ used for sorting
+            		screenZ += _z;
+            	}
+            	
+            	screenZ /= _vertexCount;
+            	
             } else {
-                if (v1.x > v2.x) maxX = v1.x;
-                else maxX = v2.x;
+            	//calculate bounding box
+            	if (v0x > v1x) {
+	                if (v0x > v2x) maxX = v0x;
+	                else maxX = v2x;
+	            } else {
+	                if (v1x > v2x) maxX = v1x;
+	                else maxX = v2x;
+	            }
+	            
+	            if (v0x < v1x) {
+	                if (v0x < v2x) minX = v0x;
+	                else minX = v2x;
+	            } else {
+	                if (v1x < v2x) minX = v1x;
+	                else minX = v2x;
+	            }
+	            
+	            if (v0y > v1y) {
+	                if (v0y > v2y) maxY = v0y;
+	                else maxY = v2y;
+	            } else {
+	                if (v1y > v2y) maxY = v1y;
+	                else maxY = v2y;
+	            }
+	            
+	            if (v0y < v1y) {
+	                if (v0y < v2y) minY = v0y;
+	                else minY = v2y;
+	            } else {
+	                if (v1y < v2y) minY = v1y;
+	                else minY = v2y;
+	            }
+	            
+	            if (v0z > v1z) {
+	                if (v0z > v2z) maxZ = v0z;
+	                else maxZ = v2z;
+	            } else {
+	                if (v1z > v2z) maxZ = v1z;
+	                else maxZ = v2z;
+	            }
+	            
+	            if (v0z < v1z) {
+	                if (v0z < v2z) minZ = v0z;
+	                else minZ = v2z;
+	            } else {
+	                if (v1z < v2z) minZ = v1z;
+	                else minZ = v2z;
+	            }
+	            
+	            //calculate screenZ used for sorting
+            	screenZ = (v0z + v1z + v2z) / 3;
             }
             
-            if (v0.x < v1.x) {
-                if (v0.x < v2.x) minX = v0.x;
-                else minX = v2.x;
-            } else {
-                if (v1.x < v2.x) minX = v1.x;
-                else minX = v2.x;
-            }
-            
-            if (v0.y > v1.y) {
-                if (v0.y > v2.y) maxY = v0.y;
-                else maxY = v2.y;
-            } else {
-                if (v1.y > v2.y) maxY = v1.y;
-                else maxY = v2.y;
-            }
-            
-            if (v0.y < v1.y) {
-                if (v0.y < v2.y) minY = v0.y;
-                else minY = v2.y;
-            } else {
-                if (v1.y < v2.y) minY = v1.y;
-                else minY = v2.y;
-            }
-            
-            if (v0.z > v1.z) {
-                if (v0.z > v2.z) maxZ = v0.z;
-                else maxZ = v2.z;
-            } else {
-                if (v1.z > v2.z) maxZ = v1.z;
-                else maxZ = v2.z;
-            }
-            
-            if (v0.z < v1.z) {
-                if (v0.z < v2.z) minZ = v0.z;
-                else minZ = v2.z;
-            } else {
-                if (v1.z < v2.z) minZ = v1.z;
-                else minZ = v2.z;
-            }
-            
-            screenZ = (v0.z + v1.z + v2.z) / 3;
-            area = 0.5 * (v0.x*(v2.y - v1.y) + v1.x*(v0.y - v2.y) + v2.x*(v1.y - v0.y));
+            area = 0.5 * (v0x*(v2y - v1y) + v1x*(v0y - v2y) + v2x*(v1y - v0y));
             
             if (area > 0)
         		_areaSign = 1;
         	else
         		_areaSign = -1;
-        	
-            vertices[0] = v0.x;
-            vertices[1] = v0.y;
-            vertices[2] = v1.x;
-            vertices[3] = v1.y;
-            vertices[4] = v2.x;
-            vertices[5] = v2.y;
-            
+        		
+        	// Disabled due to reported errors...
+        	/* if(_vertexCount > 3 && reverseArea)
+        	{
+        		area *= -1;
+        		_areaSign *= -1;
+        	} */
         }
         
 		/**

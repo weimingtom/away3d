@@ -22,6 +22,8 @@
     */
     public class BitmapMaterial extends EventDispatcher implements ITriangleMaterial, IUVMaterial, ILayerMaterial, IBillboardMaterial    {
     	/** @private */
+        arcane var _id:int;
+    	/** @private */
     	arcane var _texturemapping:Matrix;
     	/** @private */
     	arcane var _uvtData:Vector.<Number> = new Vector.<Number>(9, true);
@@ -119,7 +121,8 @@
 			}
 		}
 		
-		private var _view:View3D;
+		private var index:int;
+		private var _view:View3D;		private var _screenVertices:Array;		private var _screenCommands:Array;		private var _screenIndices:Array;
 		private var _near:Number;
 		private var _smooth:Boolean;
 		private var _debug:Boolean;
@@ -128,19 +131,8 @@
     	private var _shape:Shape;
     	private var _materialupdated:MaterialEvent;
         private var map:Matrix = new Matrix();
-        private var triangle:DrawTriangle = new DrawTriangle(); 
-        private var svArray:Array = new Array();
         private var x:Number;
-		private var y:Number;
-		private var _showNormals:Boolean;		private var _nn:Number3D;		private var _sv0:ScreenVertex;		private var _sv1:ScreenVertex;        
-        private function createVertexArray():void
-        {
-            var index:Number = 100;
-            while (index--) {
-                svArray.push(new ScreenVertex());
-            }
-        }
-        
+		private var y:Number;		private var _showNormals:Boolean;		private var _nn:Number3D = new Number3D();		private var _sv0x:Number;		private var _sv0y:Number;		private var _sv1x:Number;		private var _sv1y:Number;        
         /**
         * Instance of the Init object used to hold and parse default property values
         * specified by the initialiser object in the 3d object constructor.
@@ -232,7 +224,7 @@
 		
 		protected function getUVData(tri:DrawTriangle):Vector.<Number>
 		{			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
-						if (_view.camera.lens is ZoomFocusLens)        		_focus = tri.view.camera.focus;        	else        		_focus = 0;						if (tri.generated) {				_uvtData[2] = 1/(_focus + tri.v0.z);				_uvtData[5] = 1/(_focus + tri.v1.z);				_uvtData[8] = 1/(_focus + tri.v2.z);				_uvtData[0] = tri.uv0.u;	    		_uvtData[1] = 1 - tri.uv0.v;	    		_uvtData[3] = tri.uv1.u;	    		_uvtData[4] = 1 - tri.uv1.v;	    		_uvtData[6] = tri.uv2.u;	    		_uvtData[7] = 1 - tri.uv2.v;	    			    		return _uvtData;			}						_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0.z);			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1.z);			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2.z);						if (!_faceMaterialVO.invalidated)				return _faceMaterialVO.uvtData;						_faceMaterialVO.invalidated = false;        	        	_faceMaterialVO.uvtData[0] = tri.uv0.u;    		_faceMaterialVO.uvtData[1] = 1 - tri.uv0.v;    		_faceMaterialVO.uvtData[3] = tri.uv1.u;    		_faceMaterialVO.uvtData[4] = 1 - tri.uv1.v;    		_faceMaterialVO.uvtData[6] = tri.uv2.u;    		_faceMaterialVO.uvtData[7] = 1 - tri.uv2.v;        	
+						if (_view.camera.lens is ZoomFocusLens)        		_focus = tri.view.camera.focus;        	else        		_focus = 0;						if (tri.generated) {				_uvtData[2] = 1/(_focus + tri.v0z);				_uvtData[5] = 1/(_focus + tri.v1z);				_uvtData[8] = 1/(_focus + tri.v2z);				_uvtData[0] = tri.uv0.u;	    		_uvtData[1] = 1 - tri.uv0.v;	    		_uvtData[3] = tri.uv1.u;	    		_uvtData[4] = 1 - tri.uv1.v;	    		_uvtData[6] = tri.uv2.u;	    		_uvtData[7] = 1 - tri.uv2.v;	    			    		return _uvtData;			}						_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0z);			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1z);			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2z);						if (!_faceMaterialVO.invalidated)				return _faceMaterialVO.uvtData;						_faceMaterialVO.invalidated = false;        	        	_faceMaterialVO.uvtData[0] = tri.uv0.u;    		_faceMaterialVO.uvtData[1] = 1 - tri.uv0.v;    		_faceMaterialVO.uvtData[3] = tri.uv1.u;    		_faceMaterialVO.uvtData[4] = 1 - tri.uv1.v;    		_faceMaterialVO.uvtData[6] = tri.uv2.u;    		_faceMaterialVO.uvtData[7] = 1 - tri.uv2.v;        	
 			return _faceMaterialVO.uvtData;
 		}
 		
@@ -293,7 +285,7 @@
         
         
         /**
-        * Corrects distortion caused by the affine transformation (non-perpective) of textures.
+        * Corrects distortion caused by the affine transformation (non-perspective) of textures.
         * The number refers to the pixel correction value - ie. a value of 2 means a distorion correction to within 2 pixels of the correct perspective distortion.
         * 0 performs no precision.
         */
@@ -421,8 +413,7 @@
         	_blendMode = val;
         	_blendModeDirty = true;
         }
-				 /**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }        
-        public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_materialDirty = true;        }        
+				/**        * Displays the normals per face in pink lines.        */        public function get showNormals():Boolean        {        	return _showNormals;        }                public function set showNormals(val:Boolean):void        {        	if (_showNormals == val)        		return;        	        	_showNormals = val;        	        	_materialDirty = true;        }        		/**		 * @inheritDoc		 */        public function get visible():Boolean        {            return _alpha > 0;        }                		/**		 * @inheritDoc		 */        public function get id():int        {            return _id;        }        
 		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
@@ -444,8 +435,6 @@
             color = ini.getColor("color", _color);
             colorTransform = ini.getObject("colorTransform", ColorTransform) as ColorTransform;
             showNormals = ini.getBoolean("showNormals", false);            _colorTransformDirty = true;
-            
-            createVertexArray();
         }
         
 		/**
@@ -507,6 +496,7 @@
         {
         	//_mapping = getMapping(tri);
 			_session = tri.source.session;
+			_screenCommands = tri.screenCommands;			_screenVertices = tri.screenVertices;			_screenIndices = tri.screenIndices;
         	_view = tri.view;
         	_near = _view.screenClipping.minZ;        	
         	//if (!_graphics && _session.newLayer)        	//	_graphics = _session.newLayer.graphics;
@@ -514,8 +504,8 @@
 			_session.renderTriangleBitmapF10(_renderBitmap, tri.vertices, getUVData(tri), smooth, repeat, _graphics);
 			//_session.renderTriangleBitmap(_renderBitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, repeat, _graphics);
             if (debug)
-                _session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
-							if(showNormals){				if( _nn == null){					_nn = new Number3D();					_sv0 = new ScreenVertex();					_sv1 = new ScreenVertex();				}				        		var t:MatrixAway3D = tri.view.cameraVarsStore.viewTransformDictionary[tri.source];				_nn.rotate(tri.faceVO.face.normal, t);				 				_sv0.x = (tri.v0.x + tri.v1.x + tri.v2.x) / 3;				_sv0.y = (tri.v0.y + tri.v1.y + tri.v2.y) / 3;				_sv0.z = (tri.v0.z + tri.v1.z + tri.v2.z) / 3;				 				_sv1.x = (_sv0.x - (30*_nn.x));				_sv1.y = (_sv0.y - (30*_nn.y));				_sv1.z = (_sv0.z - (30*_nn.z));				 				_session.renderLine(_sv0, _sv1, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
+                _session.renderTriangleLine(0, 0x0000FF, 1, _screenVertices, _screenCommands, _screenIndices, tri.startIndex, tri.endIndex);
+							if(showNormals){								_nn.rotate(tri.faceVO.face.normal, tri.view.cameraVarsStore.viewTransformDictionary[tri.source]);				 				_sv0x = (tri.v0x + tri.v1x + tri.v2x) / 3;				_sv0y = (tri.v0y + tri.v1y + tri.v2y) / 3;				 				_sv1x = (_sv0x - (30*_nn.x));				_sv1y = (_sv0y - (30*_nn.y));				 				_session.renderLine(_sv0x, _sv0y, _sv1x, _sv1y, 0, 0xFF00FF, 1);			}        }        		/**		 * @inheritDoc		 */        public function renderBillboard(bill:DrawBillboard):void        {            bill.source.session.renderBillboardBitmap(_renderBitmap, bill, smooth);        }
         
 		/**
 		 * @inheritDoc
@@ -554,14 +544,6 @@
 			
 			return _faceMaterialVO;
 		}
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get visible():Boolean
-        {
-            return _alpha > 0;
-        }
         
 		/**
 		 * @inheritDoc

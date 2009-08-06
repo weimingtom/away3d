@@ -53,8 +53,7 @@
             _sessionDirty = true;
         }
         
-        private var _children:Array = new Array();
-        private var _radiusChild:Object3D = null;
+        private var _children:Array = [];
         
         private function onChildChange(event:Object3DEvent):void
         {
@@ -71,7 +70,7 @@
 	        	if (_scaleX < 0)
 	        		_boundingScale = -_scaleX;
 	        	else
-	        		_boundingScale = _scaleX
+	        		_boundingScale = _scaleX;
             	
             	if (_scaleY < 0 && _boundingScale < -_scaleY)
             		_boundingScale = -_scaleY;
@@ -231,8 +230,8 @@
 						if (bone.name == boneName)
 							return bone;
 					
-					if (bone.id)
-						if (bone.id == boneName)
+					if (bone.boneId)
+						if (bone.boneId == boneName)
 							return bone;
             	}
             	if (object3D is ObjectContainer3D) {
@@ -263,12 +262,33 @@
             if (traverser.match(this))
             {
                 traverser.enter(this);
-                traverser.apply(this);                for each (var child:Object3D in children)
+                traverser.apply(this);
+                for each (var child:Object3D in children)
                     child.traverse(traverser);
                 traverser.leave(this);
             }
         }
-		
+        
+		/**
+		 * Adjusts each pivot point of the container object's children so that they lies at the center of each childs geoemtry.
+		 */
+		public function centerMeshes():void
+        {
+        	for each (var child:Object3D in children)
+            	child.centerPivot();
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+		public override function centerPivot():void
+        {
+        	for each (var child:Object3D in children)
+            	child.centerPivot();
+            
+            super.centerPivot();
+        }
+        
 		/**
  		* Apply the local rotations to child objects without altering the appearance of the object container
  		*/
@@ -279,7 +299,7 @@
 			var z:Number;
 			var x1:Number;
 			var y1:Number;
-			var z1:Number;
+			//var z1:Number;
 			
 			var rad:Number = Math.PI / 180;
 			var rotx:Number = rotationX * rad;
@@ -416,7 +436,8 @@
         private function cloneBones(container:ObjectContainer3D, root:ObjectContainer3D):void
         {
         	//wire up new bones to new skincontrollers if available
-            for each (var child:Object3D in container.children) {
+        	var _container_children:Array = container.children;
+            for each (var child:Object3D in _container_children) {
             	if (child is ObjectContainer3D) {
             		(child as ObjectContainer3D).cloneBones(child as ObjectContainer3D, root);
              	} else if (child is Mesh) {
@@ -439,7 +460,7 @@
 		            //geometry.rootBone = rootBone;
 		            
 		            for each (skinController in skinControllers) {
-		            	//skinController.inverseTransform = new Matrix3D();
+		            	//skinController.inverseTransform = new MatrixAway3D();
 		            	skinController.inverseTransform = child.parent.inverseSceneTransform;
 		            }
 				}

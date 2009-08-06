@@ -69,10 +69,22 @@ package away3d.core.base
             
             dispatchEvent(_visiblechanged);
         }
-		
+		/** @private */
+        arcane function notifyMappingChange():void
+         {	
+            if (!hasEventListener(ElementEvent.MAPPING_CHANGED))
+                return;
+			
+            if (_mappingchanged == null)
+                _mappingchanged = new ElementEvent(ElementEvent.MAPPING_CHANGED, this);
+            
+            dispatchEvent(_mappingchanged);
+        }
+        
 		private var _vertexchanged:ElementEvent;
 		private var _vertexvaluechanged:ElementEvent;
 		private var _visiblechanged:ElementEvent;
+		private var _mappingchanged:ElementEvent;
 		
 		public var vertexDirty:Boolean;
 		
@@ -90,6 +102,14 @@ package away3d.core.base
 		 * Returns an array of vertex objects that make up the 3d element.
 		 */
         public function get vertices():Array
+        {
+            throw new Error("Not implemented");
+        }
+        
+		/**
+		 * Returns an array of drawing command strings that make up the 3d element.
+		 */
+        public function get commands():Array
         {
             throw new Error("Not implemented");
         }
@@ -234,7 +254,25 @@ package away3d.core.base
         {
             removeEventListener(ElementEvent.VISIBLE_CHANGED, listener, false);
         }
-
-
+        
+		/**
+		 * Default method for adding a mappingchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function addOnMappingChange(listener:Function):void
+        {
+            addEventListener(ElementEvent.MAPPING_CHANGED, listener, false, 0, true);
+        }
+		
+		/**
+		 * Default method for removing a mappingchanged event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function removeOnMappingChange(listener:Function):void
+        {
+            removeEventListener(ElementEvent.MAPPING_CHANGED, listener, false);
+        }
     }
 }

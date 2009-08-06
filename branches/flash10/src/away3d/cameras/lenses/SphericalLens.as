@@ -9,6 +9,8 @@ package away3d.cameras.lenses
 	
 	public class SphericalLens extends AbstractLens implements ILens
 	{
+		private var _length:int;
+		
 		private var _wx:Number;
 		private var _wy:Number;
 		private var _wz:Number;
@@ -22,7 +24,7 @@ package away3d.cameras.lenses
 			super.setView(val);
 			
 			if (_clipping.minZ == -Infinity)
-        		_near = _clipping.minZ = _camera.focus/2;
+        		_near = _camera.focus/2;
         	else
         		_near = _clipping.minZ;
 		}
@@ -88,48 +90,52 @@ package away3d.cameras.lenses
 			return ((_clipTop - _clipBottom)/Math.tan(_camera.fov*toRADIANS) - _clipTop*_clipBottom)/_camera.focus;
 		}
         
+		public function getPerspective(screenZ:Number):Number
+		{
+			return _camera.focus*_camera.zoom / screenZ;
+		}
+		
        /**
-        * Projects the vertex to the screen space of the view.
+        * Projects the vertices to the screen space of the view.
         */
-        public function project(viewTransform:MatrixAway3D, vertex:Vertex):ScreenVertex
+        public function project(viewTransform:MatrixAway3D, vertices:Array, screenVertices:Array):void
         {
-        	_screenVertex = _drawPrimitiveStore.createScreenVertex(vertex);
+        	_length = 0;
         	
-        	if (_screenVertex.viewTimer == _camera.view.viewTimer)
-        		return _screenVertex;
-        	
-        	_screenVertex.viewTimer = _camera.view.viewTimer;
-        	
-        	_vx = vertex.x;
-        	_vy = vertex.y;
-        	_vz = vertex.z;
-        	
-            
-    		_wx = _screenVertex.vx = _vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx;
-    		_wy = _screenVertex.vy = _vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty;
-    		_wz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
-			_wx2 = _wx*_wx;
-			_wy2 = _wy*_wy;
-    		_c = Math.sqrt(_wx2 + _wy2 + _wz*_wz);
-			_c2 = (_wx2 + _wy2);
-			_sz = (_c != 0 && _wz != -_c)? _c*Math.sqrt(0.5 + 0.5*_wz/_c) : 0;
-    		
-            if (isNaN(_sz))
-                throw new Error("isNaN(sz)");
-            
-            if (_sz < _near && _clipping is RectangleClipping) {
-                _screenVertex.visible = false;
-                return _screenVertex;
-            }
-            
-			_persp = _c2? _camera.zoom*_camera.focus*(_c - _wz)/_c2 : 0;
-			
-            _screenVertex.x = _screenVertex.vx * _persp;
-            _screenVertex.y = _screenVertex.vy * _persp;
-            _screenVertex.z = _sz;
-            _screenVertex.visible = true;
-            
-			return _screenVertex;
+        	for each (_vertex in vertices) {
+        		
+	        	_vx = _vertex.x;
+	        	_vy = _vertex.y;
+	        	_vz = _vertex.z;
+	        	
+	            
+	    		_wx = _vx * viewTransform.sxx + _vy * viewTransform.sxy + _vz * viewTransform.sxz + viewTransform.tx;
+	    		_wy = _vx * viewTransform.syx + _vy * viewTransform.syy + _vz * viewTransform.syz + viewTransform.ty;
+	    		_wz = _vx * viewTransform.szx + _vy * viewTransform.szy + _vz * viewTransform.szz + viewTransform.tz;
+				_wx2 = _wx*_wx;
+				_wy2 = _wy*_wy;
+	    		_c = Math.sqrt(_wx2 + _wy2 + _wz*_wz);
+				_c2 = (_wx2 + _wy2);
+				_sz = (_c != 0 && _wz != -_c)? _c*Math.sqrt(0.5 + 0.5*_wz/_c) : 0;
+	    		
+	            if (isNaN(_sz))
+	                throw new Error("isNaN(sz)");
+	            
+	            if (_sz < _near && _clipping is RectangleClipping) {
+	                screenVertices[_length] = null;
+	                screenVertices[_length+1] = null;
+	                screenVertices[_length+2] = null;
+	                _length += 3;
+	                continue;
+	            }
+	            
+				_persp = _c2? _camera.zoom*_camera.focus*(_c - _wz)/_c2 : 0;
+				
+	            screenVertices[_length] = _wx * _persp;
+	            screenVertices[_length+1] = _wy * _persp;
+	            screenVertices[_length+2] = _sz;
+	            _length += 3;
+	        }
         }
 	}
 }

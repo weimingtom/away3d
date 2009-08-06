@@ -1,5 +1,10 @@
 package awaybuilder.vo
-{	public class SceneObjectVO
+{
+	import awaybuilder.interfaces.IValueObject;
+	
+	
+	
+	public class SceneObjectVO implements IValueObject
 	{
 		public var x : Number = 0 ;
 		public var y : Number = 0 ;
@@ -10,4 +15,5 @@ package awaybuilder.vo
 		public var scaleX : Number = 1 ;
 		public var scaleY : Number = 1 ;
 		public var scaleZ : Number = 1 ;
-	}}
+	}
+}

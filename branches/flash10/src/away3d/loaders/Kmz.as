@@ -1,18 +1,17 @@
 package away3d.loaders
 {
-    import away3d.containers.*;
     import away3d.arcane;
+    import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.utils.*;
-    import away3d.events.LoaderEvent;
+    import away3d.events.*;
     import away3d.loaders.data.*;
     import away3d.loaders.utils.*;
     import away3d.materials.*;
     
-    import flash.display.Bitmap;
-    import flash.display.Loader;
-    import flash.events.Event;
-    import flash.utils.ByteArray;
+    import flash.display.*;
+    import flash.events.*;
+    import flash.utils.*;
     
     import nochump.util.zip.*;
 
@@ -23,33 +22,38 @@ package away3d.loaders
     */
     public class Kmz extends AbstractParser
     {
-        private var collada:XML;
-        private var _materialData:MaterialData;
-        private var _face:Face;
-    	private var kmzFile:ZipFile;
-    	
-        private function parseKmz(datastream:ByteArray, init:Object):void
+    	/** @private */
+        arcane override function prepareData(data:*):void
         {
+        	kmz = Cast.bytearray(data);
         	
-            kmzFile = new ZipFile(datastream);
-			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
-			for(var i:int = 0; i < kmzFile.entries.length; i++) {
+            kmzFile = new ZipFile(kmz);
+			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
 					collada = new XML(data.toString());
-					container = Collada.parse(collada, init);
-					if (container is Object3DLoader) {
-						(container as Object3DLoader).parser.container.materialLibrary.loadRequired = false;
-						(container as Object3DLoader).addOnSuccess(onParseGeometry);
+					container = Collada.parse(collada, ini);
+					if (container is Loader3D) {
+						(container as Loader3D).parser.container.materialLibrary.loadRequired = false;
+						(container as Loader3D).addOnSuccess(onParseGeometry);
 					} else {
 						parseImages();
 					}
 				}
 			}
         }
+        /** @private */
+        arcane override function parseNext():void
+        {
+        	notifySuccess();
+        }
         
-        private function onParseGeometry(event:LoaderEvent):void
+        private var kmz:ByteArray;
+        private var collada:XML;
+    	private var kmzFile:ZipFile;
+        
+        private function onParseGeometry(event:Loader3DEvent):void
         {
         	container = event.loader.handle;
         	parseImages();
@@ -60,8 +64,7 @@ package away3d.loaders
         	materialLibrary = container.materialLibrary;
 			materialLibrary.loadRequired = false;
 			
-			var totalMaterials:int = kmzFile.entries.join("@").split(".jpg").length;
-			for(var i:int = 0; i < kmzFile.entries.length; i++) {
+			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
 				var data:ByteArray = kmzFile.getInput(entry);
 				if((entry.name.indexOf(".jpg")>-1 || entry.name.indexOf(".png")>-1) && entry.name.indexOf("images/")>-1) {
@@ -74,9 +77,11 @@ package away3d.loaders
         }
         
         private function loadBitmapCompleteHandler(e:Event):void {
-			var loader:Loader = Loader(e.target.loader);
+			var loader:Loader = Loader(e.target["loader"]);
 			
 			//pass material instance to correct materialData
+			var _materialData:MaterialData;
+			var _face:Face;
 			for each (_materialData in materialLibrary) {
 				if (_materialData.textureFileName == loader.name) {
 					_materialData.textureBitmap = Bitmap(loader.content).bitmapData;
@@ -98,18 +103,19 @@ package away3d.loaders
         public var containerData:ContainerData;
 		
 		/**
-		 * Creates a new <code>Kmz</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * Creates a new <code>Kmz</code> object..
 		 * This loader is only compatible with the kmz 4 googleearth format that is exported from Google Sketchup.
 		 * 
-		 * @param	datastream			The binary zip data of a loaded file.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 * 
 		 * @see away3d.loaders.Kmz#parse()
 		 * @see away3d.loaders.Kmz#load()
 		 */
-        public function Kmz(data:*, init:Object = null)
+        public function Kmz(init:Object = null)
         {
-            parseKmz(Cast.bytearray(data), init);
+        	super(init);
+        	
+        	binary = true;
         }
 
 		/**
@@ -121,9 +127,9 @@ package away3d.loaders
 		 * 
 		 * @return						A 3d container object representation of the kmz file.
 		 */
-        public static function parse(data:*, init:Object = null, loader:Object3DLoader = null):ObjectContainer3D
+        public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-            return Object3DLoader.parseGeometry(data, Kmz, init).handle as ObjectContainer3D;
+            return Loader3D.parseGeometry(data, Kmz, init).handle as ObjectContainer3D;
         }
     	
     	/**
@@ -133,14 +139,9 @@ package away3d.loaders
     	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
     	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
     	 */
-        public static function load(url:String, init:Object = null):Object3DLoader
+        public static function load(url:String, init:Object = null):Loader3D
         {
-            return Object3DLoader.loadGeometry(url, Kmz, true, init);
-        }
-        
-        public override function parseNext():void
-        {
-        	notifySuccess();
+            return Loader3D.loadGeometry(url, Kmz, init);
         }
     }
 }

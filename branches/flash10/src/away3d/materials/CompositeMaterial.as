@@ -1,7 +1,7 @@
 package away3d.materials
 {
-	import away3d.containers.*;
 	import away3d.arcane;
+	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
 	import away3d.core.render.AbstractRenderSession;
@@ -24,6 +24,8 @@ package away3d.materials
 	 */
 	public class CompositeMaterial extends EventDispatcher implements ITriangleMaterial, ILayerMaterial
 	{
+		/** @private */
+        arcane var _id:int;
         /** @private */
 		arcane var _color:uint;
         /** @private */
@@ -33,10 +35,6 @@ package away3d.materials
         /** @private */
     	arcane var _colorTransformDirty:Boolean;
         /** @private */
-		arcane var _spriteDictionary:Dictionary = new Dictionary(true);
-        /** @private */
-        arcane var _sprite:Sprite;
-        /** @private */
         arcane var _source:Object3D;
         /** @private */
         arcane var _session:AbstractRenderSession;
@@ -45,13 +43,6 @@ package away3d.materials
 		private var _red:Number;
 		private var _green:Number;
 		private var _blue:Number;
-		private var _material:ILayerMaterial;
-        
-        private function clearSpriteDictionary():void
-        {
-        	for each (_sprite in _spriteDictionary)
-	        	_sprite.graphics.clear();
-        }
         
         private function onMaterialUpdate(event:MaterialEvent):void
         {
@@ -150,6 +141,14 @@ package away3d.materials
         }
         
 		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
+        
+		/**
 		 * Creates a new <code>CompositeMaterial</code> object.
 		 * 
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
@@ -163,7 +162,7 @@ package away3d.materials
 			alpha = ini.getNumber("alpha", 1, {min:0, max:1});
             color = ini.getColor("color", 0xFFFFFF);
             
-            for each (_material in materials)
+            for each (var _material:ILayerMaterial in materials)
             	_material.addOnMaterialUpdate(onMaterialUpdate);
             
             _colorTransformDirty = true;
@@ -192,12 +191,10 @@ package away3d.materials
 		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
-        	clearSpriteDictionary();
-        	
         	if (_colorTransformDirty)
         		setColorTransform();
         	
-        	for each (_material in materials)
+        	for each (var _material:ILayerMaterial in materials)
         		_material.updateMaterial(source, view);
         }
         
@@ -210,9 +207,9 @@ package away3d.materials
         	_session = _source.session;
     		var level:int = 0;
     		
-    		_sprite = _session.layer as Sprite;
+    		var _sprite:Sprite = _session.layer as Sprite;
     		
-        	if (!_sprite || _colorTransform || blendMode != BlendMode.NORMAL) {
+        	if (!_sprite || this != _session._material || _colorTransform || blendMode != BlendMode.NORMAL) {
         		_sprite = _session.getSprite(this, level++);
         		_sprite.blendMode = blendMode;
         	}
@@ -223,7 +220,7 @@ package away3d.materials
     			_sprite.transform.colorTransform = _defaultColorTransform;
 	        
     		//call renderLayer on each material
-    		for each (_material in materials)
+    		for each (var _material:ILayerMaterial in materials)
         		level = _material.renderLayer(tri, _sprite, level);
         }
         
@@ -232,6 +229,7 @@ package away3d.materials
 		 */
         public function renderLayer(tri:DrawTriangle, layer:Sprite, level:int):int
         {
+        	var _sprite:Sprite;
         	if (!_colorTransform && blendMode == BlendMode.NORMAL) {
         		_sprite = layer;
         	} else {
@@ -249,7 +247,7 @@ package away3d.materials
         	}
     		
 	    	//call renderLayer on each material
-    		for each (_material in materials)
+    		for each (var _material:ILayerMaterial in materials)
         		level = _material.renderLayer(tri, _sprite, level);
         	
         	return level;

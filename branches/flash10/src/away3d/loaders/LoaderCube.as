@@ -1,7 +1,6 @@
 package away3d.loaders
 {
     import away3d.core.utils.*;
-    import away3d.events.ParserEvent;
     import away3d.materials.*;
     import away3d.primitives.*;
     
@@ -12,22 +11,56 @@ package away3d.loaders
 	/**
 	 * Default loader class used as a placeholder for loading 3d content
 	 */
-    public class CubeLoader extends Object3DLoader
+    public class LoaderCube extends Loader3D
     {
         private var side:MovieClip;
+        private var cube:Cube;
         private var info:TextField;
         private var tf:TextFormat;
-        private var geometryTitle:String;
+        private var _loadersize:Number;
+        
+        /**
+		 * Defines the prefix string used for loading geometry.
+		 */
+        public var geometryTitle:String;
+        
+        /**
+		 * Defines the prefix string used for loading textures.
+		 */
 		private var textureTitle:String;
+        
+        /**
+		 * Defines the prefix string used for parsing geometry.
+		 */
 		private var parsingTitle:String;
         
+        
+        /**
+		 * Defines the width, height and depth of the cube. Defaults to 200.
+		 */
+        public function get loadersize():Number
+        {
+        	return _loadersize;
+        }
+    	
+        public function set loadersize(val:Number):void
+        {
+        	if (_loadersize == val)
+        		return;
+        	
+        	_loadersize = val;
+        	
+        	cube.width = _loadersize;
+        	cube.depth = _loadersize;
+        	cube.height = _loadersize;
+        }
+        
 		/**
-		 * Creates a new <code>CubeLoader</code> object.
-		 * Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods found on the file loader classes.
+		 * Creates a new <code>LoaderCube</code> object.
 		 * 
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 */
-        public function CubeLoader(init:Object = null) 
+        public function LoaderCube(init:Object = null) 
         {
             super(init);
             
@@ -45,27 +78,28 @@ package away3d.loaders
             info.wordWrap = true;
             side.addChild(info);
             
-            var size:Number = ini.getNumber("loadersize", 200);
             geometryTitle = ini.getString("geometrytitle", "Loading Geometry...");
             textureTitle = ini.getString("texturetitle", "Loading Texture...");
             parsingTitle = ini.getString("parsingtitle", "Parsing Geometry...");
+            _loadersize = ini.getNumber("loadersize", 200);
 
-            addChild(new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:size, height:size, depth:size}));
+            addChild(cube = new Cube({material:new MovieMaterial(side, {transparent:true, smooth:true}), width:_loadersize, height:_loadersize, depth:_loadersize}));
         }
 		
 		/**
 		 * Listener function for an error event.
 		 */
-        protected override function notifyError(event:Event):void 
+        protected override function notifyError():void 
         {
+        	super.notifyError();
         	
         	//write message
         	if (mode == LOADING_GEOMETRY)
-        		info.text = geometryTitle + "\n" + (event as IOErrorEvent).text;
+        		info.text = geometryTitle + "\n" + IOErrorText;
         	else if (mode == PARSING_GEOMETRY)
-        		info.text = parsingTitle + "\n" + (event as ParserEvent).parser;
+        		info.text = parsingTitle + "\n" + parser;
         	else if (mode == LOADING_TEXTURES)
-        		info.text = textureTitle + "\n" + (event as IOErrorEvent).text;
+        		info.text = textureTitle + "\n" + IOErrorText;
         	
         	info.setTextFormat(tf);
         	
@@ -74,24 +108,22 @@ package away3d.loaders
             graphics.beginFill(0xFF0000);
             graphics.drawRect(0, 0, 200, 200);
             graphics.endFill();
-            
-        	super.notifyError(event);
         }
 		
 		/**
 		 * Listener function for a progress event.
 		 */
-        protected override function notifyProgress(event:Event):void 
+        protected override function notifyProgress():void 
         {
-        	super.notifyProgress(event);
+        	super.notifyProgress();
         	
         	//write message
         	if (mode == LOADING_GEOMETRY)
-        		info.text = geometryTitle + "\n" + (event as ProgressEvent).bytesLoaded + " of " + (event as ProgressEvent).bytesTotal + " bytes";
+        		info.text = geometryTitle + "\n" + bytesLoaded + " of " + bytesTotal + " bytes";
         	else if (mode == PARSING_GEOMETRY)
-        		info.text = parsingTitle + "\n" + (event as ParserEvent).parser.parsedChunks + " of " + (event as ParserEvent).parser.totalChunks + " chunks";
+        		info.text = parsingTitle + "\n" + parser.parsedChunks + " of " + parser.totalChunks + " chunks";
         	else if (mode == LOADING_TEXTURES)
-        		info.text = textureTitle + "\n" + (event as ProgressEvent).bytesLoaded + " of " + (event as ProgressEvent).bytesTotal + " bytes";
+        		info.text = textureTitle + "\n" + bytesLoaded + " of " + bytesTotal + " bytes";
         	
             info.setTextFormat(tf);
             
@@ -99,7 +131,7 @@ package away3d.loaders
             if (mode == LOADING_GEOMETRY || mode == LOADING_TEXTURES) {
 	            var graphics:Graphics = side.graphics;
 	            graphics.lineStyle(1, 0x808080);
-	            graphics.drawCircle(100, 100, 100*(event as ProgressEvent).bytesLoaded/(event as ProgressEvent).bytesTotal);
+	            graphics.drawCircle(100, 100, 100*bytesLoaded/bytesTotal);
 	        }
         }
     }

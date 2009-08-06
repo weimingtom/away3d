@@ -1,7 +1,6 @@
 ﻿package away3d.primitives
 {
     import away3d.core.base.*;
-    import away3d.materials.*;
 	import away3d.core.math.Number3D;
     
     /**
@@ -51,8 +50,8 @@
 		 */
 		private function recalc(vp1:*,vp2:*):void
         {
-			p1=new Number3D(vp1.x,vp1.y,vp1.z);
-			p2=new Number3D(vp2.x,vp2.y,vp2.z);
+			p1=new Number3D(vp1["x"],vp1["y"],vp1["z"]);
+			p2=new Number3D(vp2["x"],vp2["y"],vp2["z"]);
 
             if(lsegments>1){
 				var _index:int = segments.length;
@@ -67,7 +66,7 @@
 				dify=(p1.y-p2.y)/lsegments;
 				difz=(p1.z-p2.z)/lsegments;
 			
-				for (i = 1; i <= lsegments; i++)
+				for (i = 1; i <= lsegments; ++i)
             		{
 						newsegmentstart=new Vertex(p1.x-(difx*(i)), p1.y-(dify*(i)), p1.z-(difz*(i)));
 						newsegmentend=new Vertex(p2.x+(difx*(lsegments-(i-1))), p2.y+(dify*(lsegments-(i-1))), p2.z+(difz*(lsegments-(i-1))));

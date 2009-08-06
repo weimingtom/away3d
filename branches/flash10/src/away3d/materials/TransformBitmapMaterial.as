@@ -38,8 +38,6 @@ package away3d.materials
 		private var y:Number;
 		private var px:Number;
 		private var py:Number;
-        private var w:Number;
-        private var h:Number;
         private var normalR:Number3D = new Number3D();
         private var _u0:Number;
         private var _u1:Number;
@@ -66,7 +64,6 @@ package away3d.materials
 		private var fPoint1:Point = new Point();
         private var fPoint2:Point = new Point();
         private var fPoint3:Point = new Point();
-        private var fPoint4:Point = new Point();
         private var mapa:Number;
         private var mapb:Number;
         private var mapc:Number;
@@ -77,13 +74,10 @@ package away3d.materials
         private var mPoint2:Point = new Point();
         private var mPoint3:Point = new Point();
         private var mPoint4:Point = new Point();
-        private var overlap:Boolean;
-        private var i:String;
         private var dot:Number;
 		private var line:Point = new Point();
         private var zero:Number;
         private var sign:Number;
-        private var point:Point;
 		private var point1:Point;
 		private var point2:Point;
 		private var point3:Point;
@@ -186,18 +180,20 @@ package away3d.materials
 		
 		private function checkEdge(points1:Array, points2:Array):Boolean
 		{
+            var _length:int = points1.length;
+            var i:String;
             for (i in points1) {
             	//get point 1
             	point2 = points1[i];
             	
             	//get point 2
             	if (int(i) == 0) {
-            		point1 = points1[points1.length-1];
-            		point3 = points1[points1.length-2];
+            		point1 = points1[_length-1];
+            		point3 = points1[_length-2];
             	} else {
             		point1 = points1[int(i)-1];
             		if (int(i) == 1)
-            			point3 = points1[points1.length-1];
+            			point3 = points1[_length-1];
             		else
             			point3 = points1[int(i)-2];
             	}
@@ -210,6 +206,7 @@ package away3d.materials
             	
             	//calculate each projected value for points2
 				flag = true;
+				var point:Point;
             	for each (point in points2) {
             		dot = point.x*line.x + point.y*line.y;
             		//return if zero is greater than dot
@@ -284,9 +281,9 @@ package away3d.materials
         		_focus = 0;
 			
 			if (tri.generated) {
-				_uvtData[2] = 1/(_focus + tri.v0.z);
-				_uvtData[5] = 1/(_focus + tri.v1.z);
-				_uvtData[8] = 1/(_focus + tri.v2.z);
+				_uvtData[2] = 1/(_focus + tri.v0z);
+				_uvtData[5] = 1/(_focus + tri.v1z);
+				_uvtData[8] = 1/(_focus + tri.v2z);
 				
 				if (projectionVector) {
 		    		_uvtData = projectUV(tri);
@@ -326,9 +323,9 @@ package away3d.materials
 			
 			_faceMaterialVO = getFaceMaterialVO(tri.faceVO, tri.source, tri.view);
 			
-			_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0.z);
-			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1.z);
-			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2.z);
+			_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0z);
+			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1z);
+			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2z);
 			
 			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.uvtData;

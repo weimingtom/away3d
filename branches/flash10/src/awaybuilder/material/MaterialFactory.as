@@ -1,6 +1,9 @@
 package awaybuilder.material
-{	import away3d.materials.ColorMaterial;
+{
+	import away3d.materials.PhongColorMaterial;	
+	import away3d.materials.ColorMaterial;
 	import away3d.materials.ShadingColorMaterial;
+	import away3d.materials.VideoMaterial;
 	import away3d.materials.WireColorMaterial;
 	import away3d.materials.WireframeMaterial;
 	
@@ -18,7 +21,8 @@ package awaybuilder.material
 		public function MaterialFactory ( )
 		{
 			this.propertyFactory = new MaterialPropertyFactory ( ) ;
-		}		
+		}
+		
 		
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -37,9 +41,10 @@ package awaybuilder.material
 				NOTE: Creation of materials that require external data happens
 				at the end of the geometry creation process. See SceneBuilder.
 				
-				case ColladaMaterialType.BITMAP_MATERIAL :
-				case ColladaMaterialType.BITMAP_FILE_MATERIAL :
-				case ColladaMaterialType.MOVIE_MATERIAL :
+				case MaterialType.BITMAP_MATERIAL :
+				case MaterialType.BITMAP_FILE_MATERIAL :
+				case MaterialType.MOVIE_MATERIAL :
+				case MaterialType.PHONG_BITMAP_MATERIAL :
 				*/
 				
 				case MaterialType.COLOR_MATERIAL :
@@ -47,9 +52,19 @@ package awaybuilder.material
 					vo.material = new ColorMaterial ( ) ;
 					break ;
 				}
+				case MaterialType.PHONG_COLOR_MATERIAL :
+				{
+					vo.material = new PhongColorMaterial ( 0x00FF00 ) ;
+					break ;
+				}
 				case MaterialType.SHADING_COLOR_MATERIAL :
 				{
 					vo.material = new ShadingColorMaterial ( ) ;
+					break ;
+				}
+				case MaterialType.VIDEO_MATERIAL :
+				{
+					vo.material = new VideoMaterial ( ) ;
 					break ;
 				}
 				case MaterialType.WIRE_COLOR_MATERIAL :

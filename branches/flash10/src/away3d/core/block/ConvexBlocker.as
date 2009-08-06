@@ -31,20 +31,25 @@ package away3d.core.block
             maxY = -Infinity;
             minX = Infinity;
             minY = Infinity;
-            for (var i:int = 0; i < vertices.length; i++)
+            
+            var _length:int = vertices.length/3;
+            for (var i:int = 0; i < _length; ++i)
             {
-                var v:ScreenVertex = vertices[i];
-                _boundlines.push(Line2D.from2points(v, vertices[(i+1) % vertices.length]));
-                if (screenZ < v.z)
-                    screenZ = v.z;
-                if (minX > v.x)
-                    minX = v.x;
-                if (maxX < v.x)
-                    maxX = v.x;
-                if (minY > v.y)
-                    minY = v.y;
-                if (maxY < v.y)
-                    maxY = v.y;
+                var vx:Number = vertices[i];
+                var vy:Number = vertices[i+1];
+                var vz:Number = vertices[i+2];
+                var next:int = ((i+3) % _length);
+                _boundlines.push(Line2D.from2points(vx, vy, vertices[next], vertices[next+1]));
+                if (screenZ < vz)
+                    screenZ = vz;
+                if (minX > vx)
+                    minX = vx;
+                if (maxX < vx)
+                    maxX = vx;
+                if (minY > vy)
+                    minY = vy;
+                if (maxY < vy)
+                    maxY = vy;
             }
             maxZ = screenZ;
             minZ = screenZ;
@@ -69,7 +74,7 @@ package away3d.core.block
             if (pri is DrawTriangle)
             {
                 var tri:DrawTriangle = pri as DrawTriangle;
-                return contains(tri.v0.x, tri.v0.y) && contains(tri.v1.x, tri.v1.y) && contains(tri.v2.x, tri.v2.y);
+                return contains(tri.v0x, tri.v0y) && contains(tri.v1x, tri.v1y) && contains(tri.v2x, tri.v2y);
             }
             return contains(pri.minX, pri.minY) && contains(pri.minX, pri.maxY) && contains(pri.maxX, pri.maxY) && contains(pri.maxX, pri.minY);
         }
@@ -81,11 +86,12 @@ package away3d.core.block
         {
             var graphics:Graphics = source.session.graphics;
             graphics.lineStyle(2, Color.fromHSV(0, 0, (Math.sin(getTimer()/1000)+1)/2));
-            for (var i:int = 0; i < _boundlines.length; i++)
+            var _length:int = _boundlines.length;
+            for (var i:int = 0; i < _length; ++i)
             {
                 var line:Line2D = _boundlines[i];
-                var prev:Line2D = _boundlines[(i-1+_boundlines.length) % _boundlines.length];
-                var next:Line2D = _boundlines[(i+1+_boundlines.length) % _boundlines.length];
+                var prev:Line2D = _boundlines[(i-1+_length) % _length];
+                var next:Line2D = _boundlines[(i+1+_length) % _length];
 
                 var a:ScreenVertex = Line2D.cross(prev, line);
                 var b:ScreenVertex = Line2D.cross(line, next);
@@ -98,7 +104,7 @@ package away3d.core.block
             var count:int = (maxX - minX) * (maxY - minY) / 2000;
             if (count > 50)
                 count = 50;
-            for (var k:int = 0; k < count; k++)
+            for (var k:int = 0; k < count; ++k)
             {
                 var x:Number = minX + (maxX - minX)*Math.random();
                 var y:Number = minY + (maxY - minY)*Math.random();

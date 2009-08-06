@@ -1,4 +1,4 @@
-package away3d.materials.shaders
+﻿package away3d.materials.shaders
 {
 	import away3d.arcane;
 	import away3d.containers.*;
@@ -7,11 +7,10 @@ package away3d.materials.shaders
 	import away3d.core.math.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
-	import away3d.events.*;
 	import away3d.materials.*;
+	import away3d.core.light.DirectionalLight;
 	
 	import flash.display.*;
-	import flash.filters.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	
@@ -39,12 +38,6 @@ package away3d.materials.shaders
 		private var _normal0z:Number;
 		private var _normal1z:Number;
 		private var _normal2z:Number;
-		private var _normalFx:Number;
-		private var _normalFy:Number;
-		private var _normalFz:Number;
-		private var _red:Number;
-		private var _green:Number;
-		private var _blue:Number;
 		private var _texturemapping:Matrix;
 		
         /**
@@ -80,10 +73,10 @@ package away3d.materials.shaders
         {
         	notifyMaterialUpdate();
         	
-        	for each (_faceMaterialVO in _faceDictionary)
-        		if (source == _faceMaterialVO.source)
-	        		if (!_faceMaterialVO.cleared)
-	        			_faceMaterialVO.clear();
+        	for each (var faceMaterialVO:FaceMaterialVO in _faceDictionary)
+        		if (source == faceMaterialVO.source)
+	        		if (!faceMaterialVO.cleared)
+	        			faceMaterialVO.clear();
         }
         
 		/**
@@ -91,8 +84,8 @@ package away3d.materials.shaders
 		 */
         public function invalidateFaces(source:Object3D = null, view:View3D = null):void
         {
-        	for each (_faceMaterialVO in _faceDictionary)
-        		_faceMaterialVO.invalidated = true;
+        	for each (var faceMaterialVO:FaceMaterialVO in _faceDictionary)
+        		faceMaterialVO.invalidated = true;
         }
         
 		/**
@@ -118,11 +111,14 @@ package away3d.materials.shaders
 			_n1 = _source.geometry.getVertexNormal(_face.v1);
 			_n2 = _source.geometry.getVertexNormal(_face.v2);
 			
-			for each (directional in _source.lightarray.directionals)
+			var _source_lightarray_directionals:Array = _source.lightarray.directionals;
+			
+			var directional:DirectionalLight;
+			
+			for each (directional in _source_lightarray_directionals)
 	    	{
 				_specularTransform = directional.specularTransform[_source];
-				
-				
+				 
 				_szx = _specularTransform.szx;
 				_szy = _specularTransform.szy;
 				_szz = _specularTransform.szz;
@@ -243,7 +239,9 @@ package away3d.materials.shaders
 		 */
 		public override function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (directional in source.lightarray.directionals) {
+        	var _source_lightarray_directionals:Array = source.lightarray.directionals;
+			var directional:DirectionalLight;
+        	for each (directional in _source_lightarray_directionals) {
         		if (!directional.specularTransform[source])
         			directional.specularTransform[source] = new Dictionary(true);
         		
@@ -262,7 +260,9 @@ package away3d.materials.shaders
         {
         	super.renderLayer(tri, layer, level);
         	
-        	for each (directional in _lights.directionals)
+        	var _lights_directionals:Array = _lights.directionals;
+			var directional:DirectionalLight;
+        	for each (directional in _lights_directionals)
         	{
 				_shape = _session.getLightShape(this, level++, layer, directional);
         		_shape.filters = [directional.normalMatrixSpecularTransform[_source][_view]];
@@ -271,11 +271,11 @@ package away3d.materials.shaders
         		
         		_mapping = getMapping(tri);
         		
-				_source.session.renderTriangleBitmap(_bitmap, _mapping, tri.v0, tri.v1, tri.v2, smooth, false, _graphics);
+				_source.session.renderTriangleBitmap(_bitmap, _mapping, tri.screenVertices, tri.screenIndices, tri.startIndex, tri.endIndex, smooth, false, _graphics);
         	}
 			
 			if (debug)
-                _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.v0, tri.v1, tri.v2);
+                _source.session.renderTriangleLine(0, 0x0000FF, 1, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
             
             return level;
         }

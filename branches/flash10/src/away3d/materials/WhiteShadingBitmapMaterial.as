@@ -80,9 +80,9 @@ package away3d.materials {
         		_focus = 0;
 			
 			if (tri.generated) {
-				_uvtData[2] = 1/(_focus + tri.v0.z);
-				_uvtData[5] = 1/(_focus + tri.v1.z);
-				_uvtData[8] = 1/(_focus + tri.v2.z);
+				_uvtData[2] = 1/(_focus + tri.v0z);
+				_uvtData[5] = 1/(_focus + tri.v1z);
+				_uvtData[8] = 1/(_focus + tri.v2z);
 				_uvtData[0] = tri.uv0.u;
 	    		_uvtData[1] = 1 - tri.uv0.v;
 	    		_uvtData[3] = tri.uv1.u;
@@ -93,9 +93,9 @@ package away3d.materials {
 	    		return _uvtData;
 			}
 			
-			_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0.z);
-			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1.z);
-			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2.z);
+			_faceMaterialVO.uvtData[2] = 1/(_focus + tri.v0z);
+			_faceMaterialVO.uvtData[5] = 1/(_focus + tri.v1z);
+			_faceMaterialVO.uvtData[8] = 1/(_focus + tri.v2z);
 			
 			if (!_faceMaterialVO.invalidated)
 				return _faceMaterialVO.uvtData;
@@ -120,20 +120,16 @@ package away3d.materials {
             //mapping = getMapping(tri);
             _view = tri.view;
             
-            v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
-            
             if ((br < 1) && (blackrender || ((step < 16) && (!_bitmap.transparent))))
             {
             	session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
-                session.renderTriangleColor(0x000000, 1 - br, v0, v1, v2);
+                session.renderTriangleColor(0x000000, 1 - br, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
             }
             else
             if ((br > 1) && (whiterender))
             {
             	session.renderTriangleBitmapF10(bitmap, tri.vertices, getUVData(tri), smooth, repeat);
-                session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, v0, v1, v2);
+                session.renderTriangleColor(0xFFFFFF, (br - 1)*whitek, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
             }
             else
             {

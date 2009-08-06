@@ -1,6 +1,6 @@
 /*
-VERSION: 1.0
-DATE: 1/8/2009
+VERSION: 1.01
+DATE: 2/17/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -27,7 +27,7 @@ package gs.plugins {
 	import gs.plugins.*;
 	
 	public class VolumePlugin extends TweenPlugin {
-		public static const VERSION:Number = 1.0;
+		public static const VERSION:Number = 1.01;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		protected var _target:Object;
@@ -46,7 +46,7 @@ package gs.plugins {
 			_target = $target;
 			_st = _target.soundTransform;
 			addTween(_st, "volume", _st.volume, $value, "volume");
-			return Boolean(_tweens.length != 0);
+			return true;
 		}
 		
 		override public function set changeFactor($n:Number):void {

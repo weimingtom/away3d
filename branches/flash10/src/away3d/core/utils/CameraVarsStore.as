@@ -5,7 +5,7 @@ package away3d.core.utils
 	import away3d.core.geom.*;
 	import away3d.core.math.*;
 	import away3d.core.render.*;
-	import away3d.materials.ITriangleMaterial;
+	import away3d.materials.*;
 	
 	import flash.utils.*;
 	
@@ -19,23 +19,25 @@ package away3d.core.utils
 		private var _uv:UV;
 		private var _vc:VertexClassification;
 		private var _faceVO:FaceVO;
+		private var _segmentVO:SegmentVO;
 		private var _object:Object;
 		private var _v:Object;
 		private var _source:Object3D;
 		private var _session:AbstractRenderSession;
-		private var _vtActive:Array = new Array();
-        private var _vtStore:Array = new Array();
-		private var _frActive:Array = new Array();
-        private var _frStore:Array = new Array();
-        private var _vActive:Array = new Array();
-		private var _vStore:Array = new Array();
-		private var _vcStore:Array = new Array();
-		private var _vcArray:Array;
+		private var _vtActive:Array = [];
+        private var _vtStore:Array = [];
+		private var _frActive:Array = [];
+        private var _frStore:Array = [];
+        private var _vActive:Array = [];
+		private var _vStore:Array = [];
+		private var _vcStore:Array = [];
 		private var _uvDictionary:Dictionary = new Dictionary(true);
 		private var _uvArray:Array;
-        private var _uvStore:Array = new Array();
-        private var _fActive:Array = new Array();
-        private var _fStore:Array = new Array();
+        private var _uvStore:Array = [];
+        private var _fActive:Array = [];
+        private var _fStore:Array = [];
+        private var _sActive:Array = [];
+        private var _sStore:Array = [];
 		public var view:View3D;
     	
         /**
@@ -43,7 +45,7 @@ package away3d.core.utils
         */
         public var viewTransformDictionary:Dictionary = new Dictionary(true);
         
-        public var nodeClassificationDictionary:Dictionary;
+        public var nodeClassificationDictionary:Dictionary = new Dictionary(true);
         
         public var frustumDictionary:Dictionary = new Dictionary(true);
         
@@ -120,7 +122,7 @@ package away3d.core.utils
         	return _uv;
         }
         
-        public function createFaceVO(face:Face, v0:Vertex, v1:Vertex, v2:Vertex, material:ITriangleMaterial, back:ITriangleMaterial, uv0:UV, uv1:UV, uv2:UV):FaceVO
+        public function createFaceVO(face:Face, material:ITriangleMaterial, back:ITriangleMaterial, uv0:UV, uv1:UV, uv2:UV):FaceVO
         {
         	if (_fStore.length)
         		_fActive.push(_faceVO = _fStore.pop());
@@ -128,9 +130,6 @@ package away3d.core.utils
         		_fActive.push(_faceVO = new FaceVO());
         	
         	_faceVO.face = face;
-        	_faceVO.v0 = v0;
-        	_faceVO.v1 = v1;
-        	_faceVO.v2 = v2;
         	_faceVO.uv0 = uv0;
         	_faceVO.uv1 = uv1;
         	_faceVO.uv2 = uv2;
@@ -139,6 +138,18 @@ package away3d.core.utils
         	_faceVO.generated = true;
         	
         	return _faceVO;
+        }
+        
+        public function createSegmentVO(material:ISegmentMaterial):SegmentVO
+        {
+        	if (_sStore.length)
+        		_sActive.push(_segmentVO = _sStore.pop());
+        	else
+        		_sActive.push(_segmentVO = new SegmentVO());
+        	
+        	_segmentVO.generated = true;
+        	
+        	return _segmentVO;
         }
         
         public function reset():void
@@ -157,22 +168,26 @@ package away3d.core.utils
         	nodeClassificationDictionary = new Dictionary(true);
         	
         	_vtStore = _vtStore.concat(_vtActive);
-        	_vtActive = new Array();
+        	_vtActive.length = 0;
         	_frStore = _frStore.concat(_frActive);
-        	_frActive = new Array();
+        	_frActive.length = 0;
         	_vStore = _vStore.concat(_vActive);
-        	_vActive = new Array();
+        	_vActive.length = 0;
         	
         	for (_object in _uvDictionary) {
 				_session = _object as AbstractRenderSession;
 				if (_session.updated) {
-					_uvStore = _uvStore.concat(_uvDictionary[_session] as Array);
-					_uvDictionary[_session] = [];
+					_uvArray = _uvDictionary[_session] as Array
+					_uvStore = _uvStore.concat();
+					_uvArray.length = 0;
 				}
 			}
 			
 			_fStore = _fStore.concat(_fActive);
-        	_fActive = new Array();
+        	_fActive.length = 0;
+        	
+			_sStore = _sStore.concat(_sActive);
+        	_sActive.length = 0;
         }
 	}
 }

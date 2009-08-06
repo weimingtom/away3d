@@ -2,16 +2,14 @@ package away3d.cameras.lenses
 {
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.base.*;
+	import away3d.core.base.Vertex;
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.geom.*;
 	import away3d.core.math.*;
-	import away3d.core.utils.*;
-	
-	import flash.utils.*;
-	
-    /**
+	import away3d.core.utils.*;	
+
+	/**
     * Abstract lens for resolving perspective using the <code>Camera3D</code> object's position and properties
     */
     public class AbstractLens
@@ -38,7 +36,7 @@ package away3d.cameras.lenses
         protected var _plane:Plane3D;
         protected var _len:Number;
         
-    	protected var _screenVertex:ScreenVertex;
+		protected var _vertex:Vertex;
     	protected var _sx:Number;
     	protected var _sy:Number;
     	protected var _sz:Number;
@@ -48,12 +46,21 @@ package away3d.cameras.lenses
         protected var _vz:Number;
         protected var _scz:Number;
         
-        protected var _projected:ScreenVertex;
         protected var _persp:Number;
         
     	protected var classification:int;
     	protected var viewTransform:MatrixAway3D;
     	protected var view:MatrixAway3D = new MatrixAway3D();
+		
+		public function get near():Number
+		{
+			return _near;
+		}
+		
+		public function get far():Number
+		{
+			return _far;
+		}
 		
 		public function setView(val:View3D):void
 		{

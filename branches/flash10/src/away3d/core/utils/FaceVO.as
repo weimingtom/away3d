@@ -7,13 +7,18 @@ package away3d.core.utils
 	
 	public class FaceVO
 	{
+		public var generated:Boolean;
 		
-        public var v0:Vertex;
+		public var commands:Array = new Array();
+		
+		public var vertices:Array = new Array();
+		
+		public var v0:Vertex;
 		
         public var v1:Vertex;
 		
         public var v2:Vertex;
-		
+        
         public var uv0:UV;
 		
         public var uv1:UV;
@@ -24,11 +29,11 @@ package away3d.core.utils
 		
 		public var back:ITriangleMaterial;
 		
-		public var generated:Boolean;
-		
 		public var face:Face;
 		
 		public var bitmapRect:Rectangle;
+		
+		public var reverseArea:Boolean;
 		        
     	/**
     	 * Returns the maximum u value of the face

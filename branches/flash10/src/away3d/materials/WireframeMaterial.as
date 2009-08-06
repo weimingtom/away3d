@@ -1,5 +1,6 @@
 package away3d.materials
 {
+	import away3d.arcane;
     import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
@@ -8,12 +9,17 @@ package away3d.materials
     import away3d.events.*;
     
     import flash.events.*;
-
+	
+	use namespace arcane;
+	
     /**
     * Wire material for face border outlining only
     */
     public class WireframeMaterial extends EventDispatcher implements ITriangleMaterial, ISegmentMaterial
     {
+    	/** @private */
+        arcane var _id:int;
+        
         /**
         * Instance of the Init object used to hold and parse default property values
         * specified by the initialiser object in the 3d object constructor.
@@ -35,6 +41,22 @@ package away3d.materials
 		 */
         public var width:Number;
     	
+		/**
+		 * @inheritDoc
+		 */
+        public function get visible():Boolean
+        {
+            return (alpha > 0);
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
+        
 		/**
 		 * Creates a new <code>WireframeMaterial</code> object.
 		 * 
@@ -70,7 +92,7 @@ package away3d.materials
             if (alpha <= 0)
                 return;
 			
-			seg.source.session.renderLine(seg.v0, seg.v1, width, color, alpha);
+			seg.source.session.renderLine(seg.v0x, seg.v0y, seg.v1x, seg.v1y, width, color, alpha);
         }
         
 		/**
@@ -81,15 +103,7 @@ package away3d.materials
             if (alpha <= 0)
                 return;
 
-            tri.source.session.renderTriangleLine(width, color, alpha, tri.v0, tri.v1, tri.v2);
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get visible():Boolean
-        {
-            return (alpha > 0);
+            tri.source.session.renderTriangleLine(width, color, alpha, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
         }
         
 		/**

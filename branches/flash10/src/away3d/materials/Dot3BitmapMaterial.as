@@ -1,4 +1,4 @@
-package away3d.materials
+﻿package away3d.materials
 {
 	import away3d.core.utils.*;
 	import away3d.materials.shaders.*;
@@ -79,15 +79,15 @@ package away3d.materials
 		 */
 		public function Dot3BitmapMaterial(bitmap:BitmapData, normalMap:BitmapData, init:Object = null)
 		{
-			if (init && init.materials)
-				delete init.materials;
+			if (init && init["materials"])
+				delete init["materials"];
 			
 			super(init);
 			
 			_shininess = ini.getNumber("shininess", 20);
 			_specular = ini.getNumber("specular", 0.5, {min:0, max:1});
 			
-			var renderNormalMap:BitmapData = new BitmapData(normalMap.width, normalMap.height, true, 0);
+            var renderNormalMap:BitmapData = new BitmapData(normalMap.width, normalMap.height, true, 0);
             
             var w:int = normalMap.width;
 			var h:int = normalMap.height;

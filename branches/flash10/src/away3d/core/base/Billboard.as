@@ -5,8 +5,6 @@ package away3d.core.base
     import away3d.events.*;
     import away3d.materials.*;
     
-    import flash.events.Event;
-    
     use namespace arcane;
     
 	 /**
@@ -27,37 +25,33 @@ package away3d.core.base
         arcane var _vertex:Vertex;
 		/** @private */
         arcane var _material:IBillboardMaterial;
-		/** @private */
-        arcane function notifyMaterialChange():void
-        {
-            if (!hasEventListener(BillboardEvent.MATERIAL_CHANGED))
-                return;
-
-            if (_materialchanged == null)
-                _materialchanged = new BillboardEvent(BillboardEvent.MATERIAL_CHANGED, this);
-                
-            dispatchEvent(_materialchanged);
-        }
         
-        private var _materialchanged:BillboardEvent;
 		private var _width:Number;
 		private var _height:Number;
-		private var _scaling:Number = 1;
-		private var _rotation:Number = 0;
+		private var _rotation:Number;
+		private var _scaling:Number;
+		private var _index:int;
+		private var _vertices:Array = new Array();
+		private var _commands:Array = new Array();
 		
-        private function onVertexValueChange(event:Event):void
-        {
-            notifyVertexValueChange();
-        }
+		public var billboardVO:BillboardVO = new BillboardVO();
 		
 		/**
-		 * Returns an array of vertex objects that are used by the segment.
+		 * Returns an array of vertex objects that are used by the billboard.
 		 */
         public override function get vertices():Array
         {
-            return [_vertex];
+            return _vertices;
         }
-		
+        
+		/**
+		 * Returns an array of drawing command strings that are used by the billboard.
+		 */
+        public override function get commands():Array
+        {
+            return _commands;
+        }
+        
 		/**
 		 * Defines the vertex of the billboard.
 		 */
@@ -70,16 +64,20 @@ package away3d.core.base
         {
             if (value == _vertex)
                 return;
-
-            if (_vertex != null)
-               _vertex.removeOnChange(onVertexValueChange);
-
-            _vertex = value;
-
-            if (_vertex != null)
-                _vertex.addOnChange(onVertexValueChange);
-
-            notifyVertexChange();
+			
+			if (_vertex) {
+	  			_index = _vertex.parents.indexOf(this);
+	  				if(_index != -1)
+	  					_vertex.parents.splice(_index, 1);
+	  		}
+	  		
+			_commands[0] = billboardVO.command = "M";
+            _vertices[0] = _vertex = billboardVO.vertex = value;
+			
+			if (_vertex)
+				_vertex.parents.push(this);
+  			
+  			vertexDirty = true;
         }
         
     	/**
@@ -170,10 +168,14 @@ package away3d.core.base
         {
             if (_material == value)
                 return;
-
-            _material = value;
 			
-            notifyMaterialChange();
+			if (_material != null && parent)
+				parent.removeMaterial(this, _material);
+			
+            _material = billboardVO.material = value;
+			
+			if (_material != null && parent)
+				parent.addMaterial(this, _material);
         }
         
 		/**
@@ -189,9 +191,9 @@ package away3d.core.base
             if (_width == value)
                 return;
 
-            _width = value;
+            _width = billboardVO.width = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -207,9 +209,9 @@ package away3d.core.base
             if (_height == value)
                 return;
 			
-            _height = value;
+            _height = billboardVO.height = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -225,9 +227,9 @@ package away3d.core.base
             if (_scaling == value)
                 return;
 			
-            _scaling = value;
+            _scaling = billboardVO.scaling = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -243,9 +245,9 @@ package away3d.core.base
             if (_rotation == value)
                 return;
 			
-            _rotation = value;
+            _rotation = billboardVO.rotation = value;
 			
-            notifyMaterialChange();
+            notifyMappingChange();
         }
         
 		/**
@@ -322,34 +324,18 @@ package away3d.core.base
 		 * @param	vertex					The vertex object of the billboard
 		 * @param	material	[optional]	The material used by the billboard to render
 		 */
-        public function Billboard(vertex:Vertex, material:IBillboardMaterial = null, width:Number = 10, height:Number = 10)
+        public function Billboard(vertex:Vertex, material:IBillboardMaterial = null, width:Number = 10, height:Number = 10, rotation:Number = 0, scaling:Number = 1)
         {
             this.vertex = vertex;
             this.material = material;
             this.width = width;
             this.height = height;
+            this.rotation = rotation;
+            this.scaling = scaling;
+            
+            billboardVO.billboard = this;
             
             vertexDirty = true;
-        }
-		
-		/**
-		 * Default method for adding a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function addOnMaterialChange(listener:Function):void
-        {
-            addEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false, 0, true);
-        }
-		
-		/**
-		 * Default method for removing a materialchanged event listener
-		 * 
-		 * @param	listener		The listener function
-		 */
-        public function removeOnMaterialChange(listener:Function):void
-        {
-            removeEventListener(SegmentEvent.MATERIAL_CHANGED, listener, false);
         }
     }
 }

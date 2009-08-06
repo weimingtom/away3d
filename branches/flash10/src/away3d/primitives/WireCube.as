@@ -8,22 +8,27 @@
     /**
     * Creates a 3d wire cube primitive.
     */ 
-    public class WireCube extends AbstractWirePrimitive
+    public class WireCube extends AbstractPrimitive
     {
     	private var _width:Number;
     	private var _height:Number;
     	private var _depth:Number;
     	
-    	private function buildWireCube(width:Number, height:Number, depth:Number):void
+		/**
+		 * @inheritDoc
+		 */
+    	protected override function buildPrimitive():void
     	{
-    		v000 = createVertex(-width/2, -height/2, -depth/2); 
-            v001 = createVertex(-width/2, -height/2, +depth/2); 
-            v010 = createVertex(-width/2, +height/2, -depth/2); 
-            v011 = createVertex(-width/2, +height/2, +depth/2); 
-            v100 = createVertex(+width/2, -height/2, -depth/2); 
-            v101 = createVertex(+width/2, -height/2, +depth/2); 
-            v110 = createVertex(+width/2, +height/2, -depth/2); 
-            v111 = createVertex(+width/2, +height/2, +depth/2); 
+    		super.buildPrimitive();
+    		
+    		v000 = createVertex(-_width/2, -_height/2, -_depth/2); 
+            v001 = createVertex(-_width/2, -_height/2, +_depth/2); 
+            v010 = createVertex(-_width/2, +_height/2, -_depth/2); 
+            v011 = createVertex(-_width/2, +_height/2, +_depth/2); 
+            v100 = createVertex(+_width/2, -_height/2, -_depth/2); 
+            v101 = createVertex(+_width/2, -_height/2, +_depth/2); 
+            v110 = createVertex(+_width/2, +_height/2, -_depth/2); 
+            v111 = createVertex(+_width/2, +_height/2, +_depth/2); 
 
             addSegment(createSegment(v000, v001));
             addSegment(createSegment(v011, v001));
@@ -114,20 +119,8 @@
             _height = ini.getNumber("height", 100, {min:0});
             _depth  = ini.getNumber("depth", 100, {min:0});
 			
-			buildWireCube(_width, _height, _depth);
-			
 			type = "WireCube";
         	url = "primitive";
         }
-        
-		/**
-		 * @inheritDoc
-		 */
-    	public override function buildPrimitive():void
-    	{
-    		super.buildPrimitive();
-    		
-            buildWireCube(_width, _height, _depth);
-    	}
     }
 }

@@ -113,6 +113,9 @@ package away3d.core.render
         private var d:Number;
         private var tx:Number;
         private var ty:Number;
+        private var _index0:int;
+        private var _index1:int;
+        private var _index2:int;
         private var v0x:Number;
         private var v0y:Number;
         private var v1x:Number;
@@ -125,11 +128,6 @@ package away3d.core.render
         private var d2:Number;
 		private var m:Matrix = new Matrix();
 		private var area:Number;
-        private var ds:DisplayObject;
-        private var time:int;
-        private var materials:Dictionary;
-        private var primitive:DrawPrimitive;
-        private var triangle:DrawTriangle;
         
         private function onObjectSessionUpdate(object:Object3DEvent):void
         {
@@ -227,7 +225,7 @@ package away3d.core.render
         /**
         * Array of child sessions.
         */
-       	public var sessions:Array;
+       	public var sessions:Array = new Array();
         
         /**
         * Reference to the current graphics object being used for drawing.
@@ -252,7 +250,7 @@ package away3d.core.render
 			
 			clearRenderers();
 			
-			for each (_session in sessions)
+			for each (var _session:AbstractRenderSession in sessions)
 				_session.clearRenderers();
 		}
         
@@ -440,7 +438,7 @@ package away3d.core.render
         	if (!(_array = _spriteLayer[material])) 
         		_array = _spriteLayer[material] = new Array();
         	
-        	if (!level && material != _material) {
+        	if (!parent && material != _material) {
         		_level = -1;
         		_material = material;
         	}
@@ -539,11 +537,11 @@ package away3d.core.render
         	
             if (primitive.rotation != 0) {   
 	            graphics.beginBitmapFill(bitmap, mapping, false, smooth);
-	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
-	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
-	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
-	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
-	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.moveTo(primitive.topleftx, primitive.toplefty);
+	            graphics.lineTo(primitive.toprightx, primitive.toprighty);
+	            graphics.lineTo(primitive.bottomrightx, primitive.bottomrighty);
+	            graphics.lineTo(primitive.bottomleftx, primitive.bottomlefty);
+	            graphics.lineTo(primitive.topleftx, primitive.toplefty);
 	            graphics.endFill();
             } else {
 	            graphics.beginBitmapFill(bitmap, mapping, false, smooth);	            
@@ -555,28 +553,32 @@ package away3d.core.render
         /**
          * Draws a segment element into the graphics object.
          */
-        public function renderLine(v0:ScreenVertex, v1:ScreenVertex, width:Number, color:uint, alpha:Number):void
+        public function renderLine(v0x:Number, v0y:Number, v1x:Number, v1y:Number, width:Number, color:uint, alpha:Number):void
         {
         	if (_layerDirty)
         		createLayer();
         	
             graphics.lineStyle(width, color, alpha);
-            graphics.moveTo(v0.x, v0.y);
-            graphics.lineTo(v1.x, v1.y);
+            graphics.moveTo(v0x, v0y);
+            graphics.lineTo(v1x, v1y);
         }
         
         /**
          * Draws a triangle element with a bitmap texture into the graphics object.
          */
-        public function renderTriangleBitmap(bitmap:BitmapData, map:Matrix, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        public function renderTriangleBitmap(bitmap:BitmapData, map:Matrix, screenVertices:Array, screenIndices:Array, startIndex:Number, endIndex:Number, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
         {
         	if (!layerGraphics && _layerDirty)
         		createLayer();
         	
-        	a2 = (v1x = v1.x) - (v0x = v0.x);
-        	b2 = (v1y = v1.y) - (v0y = v0.y);
-        	c2 = (v2x = v2.x) - v0x;
-        	d2 = (v2y = v2.y) - v0y;
+        	_index0 = screenIndices[startIndex]*3;
+        	_index1 = screenIndices[startIndex+1]*3;
+        	_index2 = screenIndices[startIndex+2]*3;
+        	
+        	a2 = (v1x = screenVertices[_index1]) - (v0x = screenVertices[_index0]);
+        	b2 = (v1y = screenVertices[_index1+1]) - (v0y = screenVertices[_index0+1]);
+        	c2 = (v2x = screenVertices[_index2]) - v0x;
+        	d2 = (v2y = screenVertices[_index2+1]) - v0y;
         	
 			m.a = (a = map.a)*a2 + (b = map.b)*c2;
 			m.b = a*b2 + b*d2;
@@ -610,25 +612,20 @@ package away3d.core.render
         /**
          * Draws a triangle element with a bitmap texture into the graphics object, with no uv transforms.
          */
-        //Temporal: for reflections testing...
-        public function renderTriangleBitmapMask(bitmap:BitmapData, offX:Number, offY:Number, sc:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
+        public function renderTriangleBitmapMask(bitmap:BitmapData, offX:Number, offY:Number, sc:Number, screenVertices:Array, screenIndices:Array, startIndex:Number, endIndex:Number, smooth:Boolean, repeat:Boolean, layerGraphics:Graphics = null):void
         {
         	if (_layerDirty)
         		createLayer();
         	
-        	a2 = (v1x = v1.x) - (v0x = v0.x);
-        	b2 = (v1y = v1.y) - (v0y = v0.y);
-        	c2 = (v2x = v2.x) - v0x;
-        	d2 = (v2y = v2.y) - v0y;
+        	_index0 = screenIndices[startIndex]*3;
+        	_index1 = screenIndices[startIndex+1]*3;
+        	_index2 = screenIndices[startIndex+2]*3;
         	
-			/* m.a = 1;
-			m.b = 1;
-			m.c = 1;
-			m.d = 1;
-			m.tx = 0;
-			m.ty = 0; */
-			//Review this. Apparently it is causing problems when the plane has rotationZ.
-			//Besides it can't be this simple!
+        	a2 = (v1x = screenVertices[_index1]) - (v0x = screenVertices[_index0]);
+        	b2 = (v1y = screenVertices[_index1+1]) - (v0y = screenVertices[_index0+1]);
+        	c2 = (v2x = screenVertices[_index2]) - v0x;
+        	d2 = (v2y = screenVertices[_index2+1]) - v0y;
+        	
 			m.identity();
 			m.scale(sc, sc);
 			m.translate(offX, offY);
@@ -678,69 +675,132 @@ package away3d.core.render
         /**
          * Draws a triangle element with a fill color into the graphics object.
          */
-        public function renderTriangleColor(color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex, layerGraphics:Graphics = null):void
+        public function renderTriangleColor(color:int, alpha:Number, screenVertices:Array, commands:Array, screenIndices:Array, startIndex:Number, endIndex:Number, layerGraphics:Graphics = null):void
         {
         	if (!layerGraphics && _layerDirty)
         		createLayer();
         	
-        	if (layerGraphics) {
-				layerGraphics.lineStyle();
-	            layerGraphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
-	            layerGraphics.beginFill(color, alpha);
-	            layerGraphics.lineTo(v1.x, v1.y);
-	            layerGraphics.lineTo(v2.x, v2.y);
-	            layerGraphics.endFill();
-	  		} else {
-	            graphics.lineStyle();
-	            graphics.moveTo(v0.x, v0.y); // Always move before begin will to prevent bugs
-	            graphics.beginFill(color, alpha);
-	            graphics.lineTo(v1.x, v1.y);
-	            graphics.lineTo(v2.x, v2.y);
-	            graphics.endFill();
-	    	}
+        	var applicableGraphics:Graphics = layerGraphics ? layerGraphics : graphics;
+        	
+        	if(endIndex - startIndex > 3) {
+        		
+        		applicableGraphics.lineStyle();
+        		applicableGraphics.beginFill(color, alpha);
+        		
+	            while(startIndex < endIndex) {
+	            	_index0 = screenIndices[startIndex]*3;
+					switch (commands[startIndex++]) {
+						case "M":
+							applicableGraphics.moveTo(screenVertices[_index0], screenVertices[_index0+1]);
+							break;
+						case "L":
+							applicableGraphics.lineTo(screenVertices[_index0], screenVertices[_index0+1]);
+							break;
+						case "C":
+							_index1 = screenIndices[startIndex++]*3;
+							applicableGraphics.curveTo(screenVertices[_index0], screenVertices[_index0+1], screenVertices[_index1], screenVertices[_index1+1]);
+							break;
+					}
+	            }
+	            applicableGraphics.endFill();
+	        } else {
+	        	_index0 = screenIndices[startIndex]*3;
+	        	_index1 = screenIndices[startIndex+1]*3;
+	        	_index2 = screenIndices[startIndex+2]*3;
+	        	applicableGraphics.lineStyle();
+	            applicableGraphics.moveTo(screenVertices[_index0], screenVertices[_index0+1]); // Always move before begin will to prevent bugs
+	            applicableGraphics.beginFill(color, alpha);
+	            applicableGraphics.lineTo(screenVertices[_index1], screenVertices[_index1+1]);
+	            applicableGraphics.lineTo(screenVertices[_index2], screenVertices[_index2+1]);
+	            applicableGraphics.endFill();
+	        }
         }
         
         /**
          * Draws a wire triangle element into the graphics object.
          */
-        public function renderTriangleLine(width:Number, color:int, alpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
+        public function renderTriangleLine(width:Number, color:int, alpha:Number, screenVertices:Array, commands:Array, screenIndices:Array, startIndex:Number, endIndex:Number):void
         {
         	if (_layerDirty)
         		createLayer();
         	
             graphics.lineStyle(width, color, alpha);
-            graphics.moveTo(v0x = v0.x, v0y = v0.y);
-            graphics.lineTo(v1.x, v1.y);
-            graphics.lineTo(v2.x, v2.y);
-            graphics.lineTo(v0x, v0y);
+            
+            if(endIndex - startIndex > 3) {
+	            while(startIndex < endIndex) {
+	            	_index0 = screenIndices[startIndex]*3;
+					switch (commands[startIndex++]) {
+						case "M":
+							graphics.moveTo(screenVertices[_index0], screenVertices[_index0+1]);
+							break;
+						case "L":
+							graphics.lineTo(screenVertices[_index0], screenVertices[_index0+1]);
+							break;
+						case "C":
+							_index1 = screenIndices[startIndex++]*3;
+							graphics.curveTo(screenVertices[_index0], screenVertices[_index0+1], screenVertices[_index1], screenVertices[_index1+1]);
+							break;
+					}
+	            }
+	        } else {
+	        	_index0 = screenIndices[startIndex]*3;
+	        	_index1 = screenIndices[startIndex+1]*3;
+	        	_index2 = screenIndices[startIndex+2]*3; 
+	        	
+	        	graphics.moveTo(v0x = screenVertices[_index0], v0y = screenVertices[_index0+1]);
+	            graphics.lineTo(screenVertices[_index1], screenVertices[_index1+1]);
+		        graphics.lineTo(screenVertices[_index2], screenVertices[_index2+1]);
+		        graphics.lineTo(v0x, v0y);
+	        }
         }
         
         /**
          * Draws a wire triangle element with a fill color into the graphics object.
          */
-        public function renderTriangleLineFill(width:Number, color:int, alpha:Number, wirecolor:int, wirealpha:Number, v0:ScreenVertex, v1:ScreenVertex, v2:ScreenVertex):void
+        public function renderTriangleLineFill(width:Number, color:int, alpha:Number, wirecolor:int, wirealpha:Number, screenVertices:Array, commands:Array, screenIndices:Array, startIndex:int, endIndex:int):void
         {
-        	if (_layerDirty)
+        	if(_layerDirty)
         		createLayer();
         	
-            if (wirealpha > 0)
+            if(wirealpha > 0)
                 graphics.lineStyle(width, wirecolor, wirealpha);
             else
                 graphics.lineStyle();
-    
-            graphics.moveTo(v0.x, v0.y);
-
-            if (alpha > 0)
-                graphics.beginFill(color, alpha);
-    
-            graphics.lineTo(v1.x, v1.y);
-            graphics.lineTo(v2.x, v2.y);
-    
-            if (wirealpha > 0)
-                graphics.lineTo(v0.x, v0.y);
-    
-            if (alpha > 0)
-                graphics.endFill();
+                
+            if(alpha > 0)
+            	graphics.beginFill(color, alpha);
+        	
+        	if(endIndex - startIndex > 3) {
+	            while(startIndex < endIndex) {
+	            	_index0 = screenIndices[startIndex]*3;
+					switch (commands[startIndex++]) {
+						case "M":
+							graphics.moveTo(screenVertices[_index0], screenVertices[_index0+1]);
+							break;
+						case "L":
+							graphics.lineTo(screenVertices[_index0], screenVertices[_index0+1]);
+							break;
+						case "C":
+							_index1 = screenIndices[startIndex++]*3;
+							graphics.curveTo(screenVertices[_index0], screenVertices[_index0+1], screenVertices[_index1], screenVertices[_index1+1]);
+							break;
+					}
+	            }
+	        } else {
+	        	_index0 = screenIndices[startIndex]*3;
+	        	_index1 = screenIndices[startIndex+1]*3;
+	        	_index2 = screenIndices[startIndex+2]*3;
+	        	
+	        	graphics.moveTo(v0x = screenVertices[_index0], v0y = screenVertices[_index0+1]);
+	            graphics.lineTo(screenVertices[_index1], screenVertices[_index1+1]);
+	        	graphics.lineTo(screenVertices[_index2], screenVertices[_index2+1]);
+	    
+	            if (wirealpha > 0)
+	                graphics.lineTo(v0x, v0y);
+	        }
+	        
+	        if(alpha > 0)
+	        	graphics.endFill();
         }
         
         /**
@@ -753,11 +813,11 @@ package away3d.core.render
         	
             if (primitive.rotation != 0) {
 	            graphics.beginFill(color, alpha);
-	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
-	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
-	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
-	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
-	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.moveTo(primitive.topleftx, primitive.toplefty);
+	            graphics.lineTo(primitive.toprightx, primitive.toprighty);
+	            graphics.lineTo(primitive.bottomrightx, primitive.bottomrighty);
+	            graphics.lineTo(primitive.bottomleftx, primitive.bottomlefty);
+	            graphics.lineTo(primitive.topleftx, primitive.toplefty);
 	            graphics.endFill();
             } else {
 	            graphics.beginFill(color, alpha);
@@ -776,11 +836,11 @@ package away3d.core.render
         	
             if (primitive.rotation != 0) {
 	            graphics.beginBitmapFill(bitmap, primitive.mapping, false, smooth);
-	            graphics.moveTo(primitive.topleft.x, primitive.topleft.y);
-	            graphics.lineTo(primitive.topright.x, primitive.topright.y);
-	            graphics.lineTo(primitive.bottomright.x, primitive.bottomright.y);
-	            graphics.lineTo(primitive.bottomleft.x, primitive.bottomleft.y);
-	            graphics.lineTo(primitive.topleft.x, primitive.topleft.y);
+	            graphics.moveTo(primitive.topleftx, primitive.toplefty);
+	            graphics.lineTo(primitive.toprightx, primitive.toprighty);
+	            graphics.lineTo(primitive.bottomrightx, primitive.bottomrighty);
+	            graphics.lineTo(primitive.bottomleftx, primitive.bottomlefty);
+	            graphics.lineTo(primitive.topleftx, primitive.toplefty);
 	            graphics.endFill();
             } else {
 	            graphics.beginBitmapFill(bitmap, primitive.mapping, false, smooth);

@@ -1,10 +1,11 @@
-package away3d.materials
+﻿package away3d.materials
 {
     import away3d.arcane;
     import away3d.containers.*;
     import away3d.core.base.*;
     import away3d.core.draw.*;
-    import away3d.core.light.*;
+    import away3d.core.light.DirectionalLight;
+    import away3d.core.light.PointLight;
     import away3d.core.math.*;
     import away3d.core.render.*;
     import away3d.core.utils.*;
@@ -13,7 +14,7 @@ package away3d.materials
     import flash.display.*;
     import flash.events.*;
     import flash.utils.*;
-
+	
 	use namespace arcane;
 	
     /**
@@ -22,14 +23,12 @@ package away3d.materials
     */
     public class CenterLightingMaterial extends EventDispatcher implements ITriangleMaterial
     {
-        /** @private */
-        arcane var v0:ScreenVertex;
-        /** @private */
-        arcane var v1:ScreenVertex;
-        /** @private */
-        arcane var v2:ScreenVertex;
+    	/** @private */
+        arcane var _id:int;
         /** @private */
         arcane var session:AbstractRenderSession;
+        /** @private */
+        arcane var _materialDirty:Boolean;
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {
@@ -44,11 +43,10 @@ package away3d.materials
             dispatchEvent(_materialupdated);
         }
         
-		private var point:PointLight;
-		private var directional:DirectionalLight;
-		private var global:AmbientLight;
+		//private var directional:DirectionalLight;
         private var focus:Number;
         private var zoom:Number;
+        private var persp:Number;
         private var v0x:Number;
         private var v0y:Number;
         private var v0z:Number;
@@ -126,7 +124,6 @@ package away3d.materials
         private var _viewPosition:Number3D;
         private var _source:Mesh;
         private var _view:View3D;
-        private var _materialDirty:Boolean;
         private var _materialupdated:MaterialEvent;
         
         /**
@@ -160,7 +157,23 @@ package away3d.materials
         * Coefficient for shininess level
         */
         public var shininess:Number = 20;
-		
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get visible():Boolean
+        {
+            throw new Error("Not implemented");
+        }
+                
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
+        
 		/**
 		 * @private
 		 */
@@ -176,7 +189,8 @@ package away3d.materials
 		 */
         public function updateMaterial(source:Object3D, view:View3D):void
         {
-        	for each (directional in source.lightarray.directionals) {
+        	var _source_lightarray_directionals:Array = source.lightarray.directionals;
+        	for each (var directional:DirectionalLight in _source_lightarray_directionals) {
         		if (!directional.diffuseTransform[source] || view.scene.updatedObjects[source]) {
         			directional.setDiffuseTransform(source);
         			_materialDirty = true;
@@ -191,7 +205,8 @@ package away3d.materials
         		}
         	}
         	
-        	for each (point in source.lightarray.points) {
+        	var source_lightarray_points:Array = source.lightarray.points;
+        	for each (var point:PointLight in source_lightarray_points) {
         		if (!point.viewPositions[view] || view.scene.updatedObjects[source] || view.updated) {
         			point.setViewPosition(view);
         			_materialDirty = true;
@@ -204,6 +219,8 @@ package away3d.materials
         
         public function clearFaces(source:Object3D = null, view:View3D = null):void
         {
+			source = source;
+			view = view;
         	notifyMaterialUpdate();
         }
         
@@ -213,23 +230,47 @@ package away3d.materials
         public function renderTriangle(tri:DrawTriangle):void
         {
         	session = tri.source.session;
-            v0 = tri.v0;
-            v1 = tri.v1;
-            v2 = tri.v2;
             focus = tri.view.camera.focus;
             zoom = tri.view.camera.zoom;
-			
-            v0x = v0.vx;
-            v0y = v0.vy;
-            v0z = v0.z;
-			
-            v1x = v1.vx;
-            v1y = v1.vy;
-            v1z = v1.z;
-			
-            v2x = v2.vx;
-            v2y = v2.vy;
-            v2z = v2.z;
+            
+            if(tri.endIndex - tri.startIndex > 10)
+            {
+            	var indexA:uint = tri.screenIndices[0]*3;
+            	var indexB:uint = tri.screenIndices[5]*3;
+            	var indexC:uint = tri.screenIndices[9]*3;
+            	
+            	v0z = tri.screenVertices[indexA+2];
+				persp = (1 + v0z / focus)/zoom;
+	            v0x = tri.screenVertices[indexA]*persp;
+	            v0y = tri.screenVertices[indexA+1]*persp;
+				
+	            v1z = tri.screenVertices[indexB+2];
+				persp = (1 + v1z / focus)/zoom;
+	            v1x = tri.screenVertices[indexB]*persp;
+	            v1y = tri.screenVertices[indexB+1]*persp;
+				
+	            v2z = tri.screenVertices[indexC+2];
+				persp = (1 + v2z / focus)/zoom;
+	            v2x = tri.screenVertices[indexC]*persp;
+	            v2y = tri.screenVertices[indexC+1]*persp;
+            }
+            else
+            {
+	            v0z = tri.v0z;
+				persp = (1 + v0z / focus)/zoom;
+	            v0x = tri.v0x*persp;
+	            v0y = tri.v0y*persp;
+				
+	            v1z = tri.v1z;
+				persp = (1 + v1z / focus)/zoom;
+	            v1x = tri.v1x*persp;
+	            v1y = tri.v1y*persp;
+				
+	            v2z = tri.v2z;
+				persp = (1 + v2z / focus)/zoom;
+	            v2x = tri.v2x*persp;
+	            v2y = tri.v2y*persp;
+            }
             
             d1x = v1x - v0x;
             d1y = v1y - v0y;
@@ -257,7 +298,10 @@ package away3d.materials
 			_source = tri.source as Mesh;
 			_view = tri.view;
 			
-			for each (directional in tri.source.lightarray.directionals)
+			var directional:DirectionalLight;
+			
+			var _tri_source_lightarray_directionals:Array = tri.source.lightarray.directionals;
+			for each (directional in _tri_source_lightarray_directionals)
             {
             	_diffuseTransform = directional.diffuseTransform[_source];
             	
@@ -305,7 +349,10 @@ package away3d.materials
                 ksb += blue * spec;
             }
             
-            for each (point in tri.source.lightarray.points)
+            var _tri_source_lightarray_points:Array = tri.source.lightarray.points;
+			var point:PointLight;
+			
+            for each (point in _tri_source_lightarray_points)
             {
                 red = point.red;
                 green = point.green;
@@ -377,7 +424,9 @@ package away3d.materials
                 }
 
                 if (draw_fall || draw_reflect)
-                    for each (point in tri.source.lightarray.points)
+                {
+                    var _tri_source_lightarray_points_new:Array = tri.source.lightarray.points;
+            		for each (point in _tri_source_lightarray_points_new)
                     {
                         red = point.red;
                         green = point.green;
@@ -431,15 +480,8 @@ package away3d.materials
                             graphics.moveTo(cx, cy);
                         }
                     }
+                }
             }
-        }
-        
-		/**
-		 * @private
-		 */
-        public function get visible():Boolean
-        {
-            throw new Error("Not implemented");
         }
         
 		/**

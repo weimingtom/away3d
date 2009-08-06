@@ -13,13 +13,12 @@ package away3d.core.project
 	public class DofSpriteProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;
-		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
+		private var _screenVertices:Array;
 		private var _dofsprite:DofSprite2D;
 		private var _lens:ILens;
 		private var _dofcache:DofCache;
-		private var _screenVertex:ScreenVertex;
-		private var _persp:Number;
+		private var _screenZ:Number;
 		
         public function get view():View3D
         {
@@ -33,23 +32,22 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
-        	_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+        	_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
         	
 			_dofsprite = source as DofSprite2D;
 			
 			_lens = _view.camera.lens;
 			
-			_screenVertex = _lens.project(viewTransform, _dofsprite.center);
+            _lens.project(viewTransform, _dofsprite.center, _screenVertices);
             
-            if (!_screenVertex.visible)
-                return;
-                
-            _persp = view.camera.zoom / (1 + _screenVertex.z / view.camera.focus);          
-            _screenVertex.z += _dofsprite.deltaZ;
+            if (_screenVertices[0] == null)
+            	return;
+            
+            _screenZ = (_screenVertices[2] += _dofsprite.deltaZ);
             
             _dofcache = DofCache.getDofCache(_dofsprite.bitmap);
             
-            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertex, _dofsprite.smooth, _dofcache.getBitmap(_screenVertex.z), _persp*_dofsprite.scaling, _dofsprite.rotation));
+            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertices, _dofsprite.smooth, _dofcache.getBitmap(_screenZ), _dofsprite.scaling*_view.camera.zoom / (1 + _screenZ / _view.camera.focus), _dofsprite.rotation));
 		}
 	}
 }

@@ -6,6 +6,13 @@ package awaybuilder.utils
 	
 	public class ConvertCoordinates
 	{
+		public static function radToDeg ( value : Number ) : Number
+		{
+			return value * ( 180 / Math.PI ) ;
+		}
+		
+		
+		
 		public static function groupPositionX ( n : Number , coordinateSystem : String ) : Number
 		{
 			switch ( coordinateSystem )
@@ -160,7 +167,6 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
-				case CoordinateSystem.AFTER_EFFECTS :
 				default :
 				{
 					return n ;
@@ -174,6 +180,7 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
+				case CoordinateSystem.CINEMA4D :
 				case CoordinateSystem.MAYA :
 				{
 					return n * -1 ;
@@ -191,6 +198,10 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
+				case CoordinateSystem.CINEMA4D :
+				{
+					return n * -1 ;
+				}
 				default :
 				{
 					return n ;
@@ -217,6 +228,7 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
+				case CoordinateSystem.CINEMA4D :
 				case CoordinateSystem.MAYA :
 				{
 					return n * -1 ;
@@ -234,6 +246,10 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
+				case CoordinateSystem.CINEMA4D :
+				{
+					return n * -1 ;
+				}
 				default :
 				{
 					return n ;
@@ -303,6 +319,7 @@ package awaybuilder.utils
 		{
 			switch ( coordinateSystem )
 			{
+				case CoordinateSystem.CINEMA4D :
 				case CoordinateSystem.MAYA :
 				{
 					return n * -1 ;
@@ -321,6 +338,7 @@ package awaybuilder.utils
 			switch ( coordinateSystem )
 			{
 				case CoordinateSystem.AFTER_EFFECTS :
+				case CoordinateSystem.CINEMA4D :
 				{
 					return n * -1 ;
 				}

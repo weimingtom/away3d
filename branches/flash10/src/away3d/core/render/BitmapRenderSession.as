@@ -26,10 +26,7 @@ package away3d.core.render
 		private var _cx:Number;
 		private var _cy:Number;
 		private var _base:BitmapData;
-		private var mStore:Array = new Array();
-		private var mActive:Array = new Array();
-		private var layers:Array = [];
-		private var _layer:DisplayObject;
+		private var layers:Array = new Array();
 		
 		/**
 		 * Creates a new <code>BitmapRenderSession</code> object.
@@ -112,7 +109,7 @@ package away3d.core.render
             }
             
             if (parent)
-            	parent.addChild(_sprite)
+            	parent.addChild(_sprite);
             else
             	layers.push(_sprite);
             
@@ -169,7 +166,7 @@ package away3d.core.render
 	        	_base.fillRect(_base.rect, 0);
 	            
 	            //remove all layers
-	            layers = [];
+	            layers.length = 0;
 	            _layerDirty = true;
 	            layer = null;
 	        }
@@ -189,7 +186,7 @@ package away3d.core.render
 	        super.render(view);
 	        	
         	if (updated) {
-	            for each (_layer in layers)
+	            for each (var _layer:DisplayObject in layers)
 	            	_base.draw(_layer, _cm, _layer.transform.colorTransform, _layer.blendMode, _base.rect);
 	           	
 	           _base.unlock();

@@ -1,6 +1,6 @@
 /*
-VERSION: 1.01
-DATE: 1/23/2009
+VERSION: 1.1
+DATE: 2/27/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -31,12 +31,13 @@ package gs.plugins {
 	import gs.utils.tween.TweenInfo;
 	
 	public class TintPlugin extends TweenPlugin {
-		public static const VERSION:Number = 1.01;
+		public static const VERSION:Number = 1.1;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		protected static var _props:Array = ["redMultiplier", "greenMultiplier", "blueMultiplier", "alphaMultiplier", "redOffset", "greenOffset", "blueOffset", "alphaOffset"];
 		
 		protected var _target:DisplayObject;
 		protected var _ct:ColorTransform;
+		protected var _ignoreAlpha:Boolean;
 		
 		public function TintPlugin() {
 			super();
@@ -52,12 +53,7 @@ package gs.plugins {
 			if ($value != null && $tween.exposedVars.removeTint != true) {
 				end.color = uint($value);
 			}
-			if ($tween.exposedVars.alpha != undefined || $tween.exposedVars.autoAlpha != undefined) {
-				end.alphaMultiplier = ($tween.exposedVars.alpha != undefined) ? $tween.exposedVars.alpha : $tween.exposedVars.autoAlpha;
-				$tween.killVars({alpha:1, autoAlpha:1});
-			} else {
-				end.alphaMultiplier = $target.alpha;
-			}
+			_ignoreAlpha = true;
 			init($target as DisplayObject, end);
 			return true;
 		}
@@ -76,6 +72,11 @@ package gs.plugins {
 		
 		override public function set changeFactor($n:Number):void {
 			updateTweens($n);
+			if (_ignoreAlpha) {
+				var ct:ColorTransform = _target.transform.colorTransform;
+				_ct.alphaMultiplier = ct.alphaMultiplier;
+				_ct.alphaOffset = ct.alphaOffset;
+			}
 			_target.transform.colorTransform = _ct;			
 		}
 		

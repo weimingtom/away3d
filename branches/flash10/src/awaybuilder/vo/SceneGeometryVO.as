@@ -1,11 +1,13 @@
 package awaybuilder.vo
 {
+	import awaybuilder.interfaces.IValueObject;	
+	
 	import away3d.core.base.Object3D;
 	import away3d.materials.IMaterial;
 	
 	
 	
-	public class SceneGeometryVO
+	public class SceneGeometryVO implements IValueObject
 	{
 		public var id : String ;
 		public var name : String ;
@@ -29,6 +31,8 @@ package awaybuilder.vo
 		public var targetCamera : String ;
 		public var flipTexture : Boolean ;
 		public var smoothTexture : Boolean ;
+		public var useHandCursor : Boolean ;
+		public var colladaScale : Number = -1 ;
 		
 		protected var _assetClass : String ;
 		protected var _assetFile : String ;

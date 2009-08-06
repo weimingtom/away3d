@@ -11,64 +11,80 @@ package away3d.core.project
 	import away3d.core.utils.*;
 	import away3d.materials.*;
 	
-	import flash.utils.*;
+	import flash.utils.Dictionary;
 	
 	public class MeshProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
 		private var _cameraVarsStore:CameraVarsStore;
+		private var _screenVertices:Array;
+		private var _screenIndices:Array;
+		private var _screenCommands:Array;
 		private var _mesh:Mesh;
-		private var _frustumClipping:Boolean;
-		private var _frustum:Frustum;
+		private var _clipFlag:Boolean;
+		private var _vertex:Vertex;
+		private var _defaultStartIndices:Array = new Array();
+		private var _startIndices:Array;
+		private var _defaultVertices:Array = new Array();
 		private var _vertices:Array;
-		private var _faces:Array;
-		private var _triangles:Array;
-		private var _clipFaceVOs:Boolean;
-		private var _clippedFaceVOs:Array;
-		private var _segments:Array;
-		private var _billboards:Array;
+		private var _defaultClippedFaceVOs:Array = new Array();
+		private var _faceVOs:Array;
+		private var _defaultClippedSegmentVOs:Array = new Array();
+		private var _segmentVOs:Array;
+		private var _defaultClippedBillboards:Array = new Array();
+		private var _billboardVOs:Array;
 		private var _camera:Camera3D;
 		private var _clipping:Clipping;
 		private var _lens:ILens;
 		private var _focus:Number;
 		private var _zoom:Number;
+		private var _outlineIndices:Dictionary = new Dictionary(true);
 		private var _faceMaterial:ITriangleMaterial;
 		private var _segmentMaterial:ISegmentMaterial;
 		private var _billboardMaterial:IBillboardMaterial;
-		private var _vertex:Vertex;
 		private var _face:Face;
 		private var _faceVO:FaceVO;
+		private var _index:int;
+		private var _startIndex:int;
+		private var _endIndex:int;
 		private var _tri:DrawTriangle;
-		private var _layerMaterial:ILayerMaterial;
-		private var _faceMaterialVO:FaceMaterialVO;
-		private var _uvt:UV;
-		private var _smaterial:ISegmentMaterial;
-		private var _bmaterial:IBillboardMaterial;
-		private var _segment:Segment;
-		private var _billboard:Billboard;
-		private var _drawTriangle:DrawTriangle;
-		private var _drawSegment:DrawSegment;
-		private var _drawBillBoard:DrawBillboard;
-		private var _backmat:ITriangleMaterial;
         private var _backface:Boolean;
-        private var _uvmaterial:Boolean;
-        private var _vt:ScreenVertex;
+		private var _backmat:ITriangleMaterial;
+		private var _segment:Segment;
+		private var _segmentVO:SegmentVO;
+		private var _seg:DrawSegment;
+		private var _smaterial:ISegmentMaterial;
+		private var _billboardVO:BillboardVO;
+		private var _bmaterial:IBillboardMaterial;
 		private var _n01:Face;
 		private var _n12:Face;
 		private var _n20:Face;
 		
-		private var _sv0:ScreenVertex;
-		private var _sv1:ScreenVertex;
-		private var _sv2:ScreenVertex;
+		private var _sv0x:Number;
+		private var _sv0y:Number;
+		private var _sv1x:Number;
+		private var _sv1y:Number;
+		private var _sv2x:Number;
+		private var _sv2y:Number;
 		
-        private function front(face:Face, viewTransform:MatrixAway3D):Number
+		private var _i:int;
+		
+        private function front(startIndex:int):Number
         {
-            _sv0 = _lens.project(viewTransform, face.v0);
-			_sv1 = _lens.project(viewTransform, face.v1);
-			_sv2 = _lens.project(viewTransform, face.v2);
-                
-            return (_sv0.x*(_sv2.y - _sv1.y) + _sv1.x*(_sv0.y - _sv2.y) + _sv2.x*(_sv1.y - _sv0.y));
+            _index = _screenIndices[startIndex]*3;
+        	_sv0x = _screenVertices[_index];
+        	_sv0y = _screenVertices[_index+1];
+        	
+            _index = _screenIndices[startIndex+1]*3;
+        	_sv1x = _screenVertices[_index];
+        	_sv1y = _screenVertices[_index+1];
+        	
+            _index = _screenIndices[startIndex+2]*3;
+        	_sv2x = _screenVertices[_index];
+        	_sv2y = _screenVertices[_index+1];
+        	
+            return (_sv0x*(_sv2y - _sv1y) + _sv1x*(_sv0y - _sv2y) + _sv2x*(_sv1y - _sv0y));
         }
         
         public function get view():View3D
@@ -84,14 +100,9 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
-			_drawPrimitiveStore.createVertexDictionary(source);
 			_cameraVarsStore.createVertexClassificationDictionary(source);
 			
 			_mesh = source as Mesh;
-			_vertices = _mesh.vertices;
-			_faces = _mesh.faces;
-			_segments = _mesh.segments;
-			_billboards = _mesh.billboards;
 			
 			_camera = _view.camera;
 			_clipping = _view.screenClipping;
@@ -105,38 +116,68 @@ package away3d.core.project
 			
 			_backmat = _mesh.back || _faceMaterial;
 			
-			_clippedFaceVOs = new Array();
-			
-			if (_cameraVarsStore.nodeClassificationDictionary[source] == Frustum.INTERSECT)
-				_clipFaceVOs = true;
-			else
-				_clipFaceVOs = false;
-			
-			//loop through all faces
-            for each (_face in _faces)
-            {
-                 if (!_face.visible)
-                    continue;
-                
-                //check if a face needs clipping
-                if (_clipFaceVOs)
-                	_clipping.checkFace(_face.faceVO, source, _clippedFaceVOs);
-                else
-                	_clippedFaceVOs.push(_face.faceVO);
+            //check if an element needs clipping
+            _clipFlag = _cameraVarsStore.nodeClassificationDictionary[source] == Frustum.INTERSECT && !(_clipping is RectangleClipping);
+            
+			if (_clipFlag) {
+            	_vertices = _defaultVertices;
+				_vertices.length = 0;
+            	_screenCommands = _drawPrimitiveStore.getScreenCommands(source.id);
+				_screenCommands.length = 0;
+				_screenIndices = _drawPrimitiveStore.getScreenIndices(source.id);
+				_screenIndices.length = 0;
+            	_startIndices = _defaultStartIndices;
+				_startIndices.length = 0;
+            	_faceVOs = _defaultClippedFaceVOs;
+				_faceVOs.length = 0;
+            	_segmentVOs = _defaultClippedSegmentVOs;
+				_segmentVOs.length = 0;
+            	_billboardVOs = _defaultClippedBillboards;
+				_billboardVOs.length = 0;
+            	_clipping.checkElements(_mesh, _faceVOs, _segmentVOs, _billboardVOs, _vertices, _screenCommands, _screenIndices, _startIndices);
+			} else {
+            	_vertices = _mesh.vertices;
+            	_screenCommands = _mesh.commands;
+            	_screenIndices = _mesh.indices;
+            	_startIndices = _mesh.startIndices;
+            	_faceVOs = _mesh.faceVOs;
+            	_segmentVOs = _mesh.segmentVOs;
+            	_billboardVOs = _mesh.billboardVOs;
             }
-
-            for each (_faceVO in _clippedFaceVOs) {
-				_sv0 = _lens.project(viewTransform, _faceVO.v0);
-				_sv1 = _lens.project(viewTransform, _faceVO.v1);
-				_sv2 = _lens.project(viewTransform, _faceVO.v2);
+            
+			_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
+			_screenVertices.length = 0;
+            _lens.project(viewTransform, _vertices, _screenVertices);
+            
+            if (_mesh.outline) {
+            	_i = _faceVOs.length;
+            	while (_i--)
+            		_outlineIndices[_faceVOs[_i]] = _i;
+            }
+            
+            _i = 0;
+            
+			//loop through all clipped faces
+            for each (_faceVO in _faceVOs) {
 				
-                if (!_sv0.visible || !_sv1.visible || !_sv2.visible)
-                    continue;
+				_startIndex = _startIndices[_i++];
+                _endIndex = _startIndices[_i];
+                
+				if (!_clipFlag) {
+					_index = _startIndex;
+					
+					while (_screenVertices[_screenIndices[_index]*3] != null && _index < _endIndex)
+						_index++;
+					
+					if (_index < _endIndex)
+						continue;
+				}
+                
                 
             	_face = _faceVO.face;
-                
-            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _sv0, _sv1, _sv2, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
-                
+            	
+            	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
+            	
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.backface = _tri.area < 0;
 				
@@ -167,7 +208,7 @@ package away3d.core.project
 				
 				//if there is no material and no outline, continue
                 if (!_mesh.outline && !_tri.material)
-                        continue;
+                	continue;
                 
                 //check whether screenClipping removes triangle
                 if (!consumer.primitive(_tri))
@@ -179,56 +220,90 @@ package away3d.core.project
                 if (_mesh.pushfront)
                     _tri.screenZ = _tri.minZ;
 				
-                if (_mesh.outline && !_backface)
-                {
+				_tri.screenZ += _mesh.screenZOffset;
+				
+                if (_mesh.outline && !_backface) {
                     _n01 = _mesh.geometry.neighbour01(_face);
-                    if (_n01 == null || front(_n01, viewTransform) <= 0)
-                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v0, _tri.v1));
+                    if (_n01 == null || front(_startIndices[_outlineIndices[_n01.faceVO]]) <= 0) {
+                    	_segmentVO = _cameraVarsStore.createSegmentVO(_mesh.outline);
+                    	_startIndex = _screenIndices.length;
+                    	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex];
+                    	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+1];
+                    	_endIndex = _screenIndices.length;
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex));
+                    }
 					
                     _n12 = _mesh.geometry.neighbour12(_face);
-                    if (_n12 == null || front(_n12, viewTransform) <= 0)
-                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v1, _tri.v2));
-					
+                    if (_n12 == null || front(_startIndices[_outlineIndices[_n12.faceVO]]) <= 0) {
+                    	_segmentVO = _cameraVarsStore.createSegmentVO(_mesh.outline);
+                    	_startIndex = _screenIndices.length;
+                    	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+1];
+                    	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+2];
+                    	_endIndex = _screenIndices.length;
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex));
+                    }
+                    
                     _n20 = _mesh.geometry.neighbour20(_face);
-                    if (_n20 == null || front(_n20, viewTransform) <= 0)
-                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _mesh.outline, _tri.v2, _tri.v0));
+                    if (_n20 == null || front(_startIndices[_outlineIndices[_n20.faceVO]]) <= 0) {
+                    	_segmentVO = _cameraVarsStore.createSegmentVO(_mesh.outline);
+                    	_startIndex = _screenIndices.length;
+                    	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex+2];
+                    	_screenIndices[_screenIndices.length] = _screenIndices[_tri.startIndex];
+                    	_endIndex = _screenIndices.length;
+                    	consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _segmentVO, _mesh.outline, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex));
+                    }
                 }
             }
             
-            //loop through all segments
-            for each (_segment in _segments)
+            for each (_segmentVO in _segmentVOs)
             {
-            	_sv0 = _lens.project(viewTransform, _segment.v0);
-            	_sv1 = _lens.project(viewTransform, _segment.v1);
-    
-                if (!_sv0.visible || !_sv1.visible)
-                    continue;
-            	
-            	_smaterial = _segment.material || _segmentMaterial;
+				_startIndex = _startIndices[_i++];
+                _endIndex = _startIndices[_i];
+                
+				if (!_clipFlag) {
+					_index = _startIndex;
+					
+					while (_screenVertices[_screenIndices[_index]*3] != null && _index < _endIndex)
+						_index++;
+					
+					if (_index < _endIndex)
+						continue;
+				}
+				
+            	_smaterial = _segmentVO.material || _segmentMaterial;
 				
                 if (!_smaterial.visible)
                     continue;
                 
-                consumer.primitive(_drawPrimitiveStore.createDrawSegment(source, _smaterial, _sv0, _sv1));
+                _seg = _drawPrimitiveStore.createDrawSegment(source, _segmentVO, _smaterial, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex, _segmentVO.generated)
+                
+                //check whether screenClipping removes segment
+                if (!consumer.primitive(_seg))
+                	continue;
+				
+                if (_mesh.pushback)
+                    _seg.screenZ = _seg.maxZ;
+				
+                if (_mesh.pushfront)
+                    _seg.screenZ = _seg.minZ;
+                
+				_seg.screenZ += _mesh.screenZOffset;
             }
             
-            //loop through all billboards
-            for each (_billboard in _billboards)
+            //loop through all clipped billboards
+            for each (_billboardVO in _billboardVOs)
             {
-                if (!_billboard.visible)
-                    continue;
+            	_index = _startIndices[_i++];
 				
-				_sv0 = _lens.project(viewTransform, _billboard.vertex);
-				
-            	if (!_sv0.visible)
-                    continue;
+				if(!_clipFlag && _screenVertices[_screenIndices[_index]*3] == null)
+					continue;
                 
-                _bmaterial = _billboard.material || _billboardMaterial;
+                _bmaterial = _billboardVO.material || _billboardMaterial;
                 
                 if (!_bmaterial.visible)
                     continue;
 		        
-	            consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _bmaterial, _sv0, _billboard.width, _billboard.height, _billboard.scaling*_zoom / (1 + _sv0.z / _focus), _billboard.rotation));
+	            consumer.primitive(_drawPrimitiveStore.createDrawBillboard(source, _billboardVO, _bmaterial, _screenVertices, _screenIndices, _index, _billboardVO.scaling*_zoom / (1 + _screenVertices[_screenIndices[_index]*3+2] / _focus)));
             }
 		}
 	}

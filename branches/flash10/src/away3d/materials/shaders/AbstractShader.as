@@ -24,6 +24,10 @@ package away3d.materials.shaders
     */
     public class AbstractShader extends EventDispatcher implements ILayerMaterial
     {
+    	/** @private */
+        arcane var _id:int;
+        /** @private */
+        arcane var _materialDirty:Boolean;
         /** @private */
 		arcane var _materialupdated:MaterialEvent;
         /** @private */
@@ -88,7 +92,9 @@ package away3d.materials.shaders
 		arcane var _mapping:Matrix = new Matrix();
 		/** @private */
         arcane function notifyMaterialUpdate():void
-        {	
+        {
+        	_materialDirty = false;
+        	
             if (!hasEventListener(MaterialEvent.MATERIAL_UPDATED))
                 return;
 			
@@ -142,7 +148,23 @@ package away3d.materials.shaders
         * Defines a blendMode value for the shader bitmap.
         */
         public var blendMode:String;
-    	
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get visible():Boolean
+        {
+            return true;
+        }
+        
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
+        
 		/**
 		 * Creates a new <code>AbstractShader</code> object.
 		 * 
@@ -156,6 +178,7 @@ package away3d.materials.shaders
             debug = ini.getBoolean("debug", false);
             blendMode = ini.getString("blendMode", BlendMode.NORMAL);
             
+            //_id = 
         }
         
 		/**
@@ -232,18 +255,11 @@ package away3d.materials.shaders
 		 */
         public function getFaceMaterialVO(faceVO:FaceVO, source:Object3D = null, view:View3D = null):FaceMaterialVO
         {
+        	source;view;//TODO : FDT Warning
         	if ((_faceMaterialVO = _faceDictionary[faceVO]))
         		return _faceMaterialVO;
         	
         	return _faceDictionary[faceVO] = new FaceMaterialVO();
-        }
-        
-		/**
-		 * @inheritDoc
-		 */
-        public function get visible():Boolean
-        {
-            return true;
         }
         
 		/**

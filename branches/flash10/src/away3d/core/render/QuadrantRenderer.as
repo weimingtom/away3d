@@ -14,7 +14,8 @@ package away3d.core.render
         private var _qdrntfilters:Array;
         private var _root:PrimitiveQuadrantTreeNode;
 		private var _center:Array;
-		private var _result:Array;
+		private var _result:Array = new Array();
+		private var _list:Array = new Array();
 		private var _except:Object3D;
 		private var _minX:Number;
 		private var _minY:Number;
@@ -23,35 +24,32 @@ package away3d.core.render
 		private var _child:DrawPrimitive;
 		private var _children:Array;
 		private var i:int;
-		private var _primitives:Array;
-		private var _clippedPrimitives:Array;
-        private var _view:View3D;
+		private var _primitives:Array = new Array();
         private var _scene:Scene3D;
         private var _camera:Camera3D;
         private var _screenClipping:Clipping;
-        private var _blockers:Array;
-		private var _filter:IPrimitiveQuadrantFilter;
 		
-		private function getList(node:PrimitiveQuadrantTreeNode):void
+		private function getList(node:PrimitiveQuadrantTreeNode, result:Array):void
         {
             if (node.onlysourceFlag && _except == node.onlysource)
                 return;
+            
             if (_minX < node.xdiv)
             {
                 if (node.lefttopFlag && _minY < node.ydiv)
-	                getList(node.lefttop);
+	                getList(node.lefttop, result);
 	            
                 if (node.leftbottomFlag && _maxY > node.ydiv)
-                	getList(node.leftbottom);
+                	getList(node.leftbottom, result);
             }
             
             if (_maxX > node.xdiv)
             {
                 if (node.righttopFlag && _minY < node.ydiv)
-                	getList(node.righttop);
+                	getList(node.righttop, result);
                 
                 if (node.rightbottomFlag && _maxY > node.ydiv)
-                	getList(node.rightbottom);
+                	getList(node.rightbottom, result);
                 
             }
             
@@ -62,12 +60,12 @@ package away3d.core.render
                 {
                 	_child = _children[i];
                     if ((_except == null || _child.source != _except) && _child.maxX > _minX && _child.minX < _maxX && _child.maxY > _minY && _child.minY < _maxY)
-                        _result.push(_child);
+                        result.push(_child);
                 }
-            }           
+            }
         }
         
-        private function getParent(node:PrimitiveQuadrantTreeNode = null):void
+        private function getParent(node:PrimitiveQuadrantTreeNode, result:Array):void
         {
         	node = node.parent;
         	
@@ -81,10 +79,10 @@ package away3d.core.render
                 {
                 	_child = _children[i];
                     if ((_except == null || _child.source != _except) && _child.maxX > _minX && _child.minX < _maxX && _child.maxY > _minY && _child.minY < _maxY)
-                        _result.push(_child);
+                        result.push(_child);
                 }
             }
-            getParent(node);
+            getParent(node, result);
         }
 		
 		/**
@@ -143,7 +141,7 @@ package away3d.core.render
 		 */
         public function get(pri:DrawPrimitive, ex:Object3D = null):Array
         {
-        	_result = [];
+        	_result.length = 0;
                     
 			_minX = pri.minX;
 			_minY = pri.minY;
@@ -151,8 +149,8 @@ package away3d.core.render
 			_maxY = pri.maxY;
 			_except = ex;
 			
-            getList(pri.quadrant);
-            getParent(pri.quadrant);
+            getList(pri.quadrant, _result);
+            getParent(pri.quadrant, _result);
             return _result;
         }
         
@@ -163,7 +161,7 @@ package away3d.core.render
 		 */
         public function list():Array
         {
-            _result = [];
+            _list.length = 0;
                     
 			_minX = -1000000;
 			_minY = -1000000;
@@ -171,14 +169,14 @@ package away3d.core.render
 			_maxY = 1000000;
 			_except = null;
 			
-            getList(_root);
+            getList(_root, _list);
             
-            return _result;
+            return _list;
         }
         
         public function clear(view:View3D):void
         {
-        	_primitives = [];
+        	_primitives.length = 0;
 			_scene = view.scene;
 			_camera = view.camera;
 			_screenClipping = view.screenClipping;
@@ -193,7 +191,7 @@ package away3d.core.render
         {
 			
         	//filter primitives array
-			for each (_filter in _qdrntfilters)
+			for each (var _filter:IPrimitiveQuadrantFilter in _qdrntfilters)
         		_filter.filter(this, _scene, _camera, _screenClipping);
         	
     		// render all primitives

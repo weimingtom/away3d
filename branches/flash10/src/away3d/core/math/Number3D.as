@@ -6,18 +6,13 @@
     public final class Number3D
     {
     	private const MathPI:Number = Math.PI;
-    	private const toDEGREES:Number = 180 / Math.PI;
     	private var mod:Number;
         private var dist:Number;
         private var num:Number3D;
         private var vx:Number;
         private var vy:Number;
         private var vz:Number;
-        private var nx:Number;
-        private var ny:Number;
-        private var nz:Number;
         private var m1:MatrixAway3D;
-        private var m2:MatrixAway3D;
         
         /**
         * The horizontal coordinate of the 3d number object.
@@ -238,7 +233,7 @@
     	 * 
     	 * @param	m	The 3d matrix object to use in the calculation.
     	 */
-        public function matrix2euler(m:MatrixAway3D, scaleX:Number = 1, scaleY:Number = 1, scaleZ:Number = 1):void
+        public function matrix2euler(m:MatrixAway3D):void
         {
             if (!m1)
             	m1 = new MatrixAway3D();

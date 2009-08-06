@@ -1,7 +1,6 @@
 package away3d.core.stats 
 {
 	import flash.display.Shape;
-	import flash.text.TextFormat;
 		
 	public class Logo extends Shape
 	{
@@ -12,7 +11,7 @@ package away3d.core.stats
             graphics.beginFill(0x000000);
             graphics.drawRect(0, 0, 18, 17);
             var _length:int = arr.length;
-            for(var i:int = 0;i<_length;i++){
+            for(var i:int = 0;i<_length;++i){
                 graphics.beginFill(Number(arr[i][2]));
                 graphics.drawRect(arr[i][0], arr[i][1], 1, 1);
             }

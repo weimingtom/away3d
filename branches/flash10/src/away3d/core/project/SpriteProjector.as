@@ -1,5 +1,6 @@
 package away3d.core.project
 {
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.draw.*;
@@ -12,11 +13,10 @@ package away3d.core.project
 	public class SpriteProjector implements IPrimitiveProvider
 	{
 		private var _view:View3D;
-		private var _vertexDictionary:Dictionary;
 		private var _drawPrimitiveStore:DrawPrimitiveStore;
+		private var _screenVertices:Array;
 		private var _sprite:Sprite2D;
-		private var _screenVertex:ScreenVertex;
-		private var _drawScaledBitmap:DrawScaledBitmap;
+		private var _lens:ILens;
 		
 		public function get view():View3D
         {
@@ -30,18 +30,20 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
-        	_vertexDictionary = _drawPrimitiveStore.createVertexDictionary(source);
+        	_screenVertices = _drawPrimitiveStore.getScreenVertices(source.id);
         	
 			_sprite = source as Sprite2D;
 			
-			_screenVertex = _view.camera.lens.project(viewTransform, _sprite.center);
+			_lens = _view.camera.lens;
+			
+            _lens.project(viewTransform, _sprite.center, _screenVertices);
             
-            if (!_screenVertex.visible)
-                return;
-                   
-            _screenVertex.z += _sprite.deltaZ;
+            if (_screenVertices[0] == null)
+            	return;
             
-            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertex, _sprite.smooth, _sprite.bitmap, _sprite.scaling*_view.camera.zoom / (1 + _screenVertex.z / _view.camera.focus), _sprite.rotation));
+            _screenVertices[2] += _sprite.deltaZ;
+            
+            consumer.primitive(_drawPrimitiveStore.createDrawScaledBitmap(source, _screenVertices, _sprite.smooth, _sprite.bitmap, _sprite.scaling*_view.camera.zoom / (1 + _screenVertices[2] / _view.camera.focus), _sprite.rotation));
 		}
 	}
 }

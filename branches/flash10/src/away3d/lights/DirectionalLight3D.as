@@ -1,10 +1,13 @@
 package away3d.lights
 {
+	import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.light.*;
     import away3d.core.utils.*;
     import away3d.materials.ColorMaterial;
     import away3d.primitives.Sphere;
+	
+	use namespace arcane;
 	
     /**
     * Lightsource that colors all shaded materials proportional to the dot product of the offset vector with the normal vector.
@@ -131,8 +134,10 @@ package away3d.lights
         
 		public function get debugPrimitive():Object3D
 		{
-			if (!_debugPrimitive)
+			if (!_debugPrimitive) {
 				_debugPrimitive = new Sphere({radius:10});
+				_scene.clearId(_id);
+			}
 			
 			if (!_debugMaterial) {
 				_debugMaterial = new ColorMaterial();

@@ -23,7 +23,21 @@ package away3d.core.clip
 	 * @see #maxZ
 	 * @see #minZ
 	 */
-	[Event(name="clipUpdated",type="away3d.events.ClipEvent")]
+	[Event(name="clippingUpdated",type="away3d.events.ClippingEvent")]
+	
+	/**
+	 * Dispatched when the clipping properties of a screenClipping object update.
+	 * 
+	 * @eventType away3d.events.ClipEvent
+	 * 
+	 * @see #maxX
+	 * @see #minX
+	 * @see #maxY
+	 * @see #minY
+	 * @see #maxZ
+	 * @see #minZ
+	 */
+	[Event(name="screenUpdated",type="away3d.events.ClippingEvent")]
 	
 	use namespace arcane;
 	
@@ -55,10 +69,11 @@ package away3d.core.clip
 		private var _maX:Number;
 		private var _maY:Number;
 		private var _clippingupdated:ClippingEvent;
+		private var _screenupdated:ClippingEvent;
 		
 		private function onScreenUpdate(event:ClippingEvent):void
 		{
-			dispatchEvent(event);
+			notifyScreenUpdate();
 		}
 		
         private function notifyClippingUpdate():void
@@ -71,9 +86,19 @@ package away3d.core.clip
                 
             dispatchEvent(_clippingupdated);
         }
-        
-        protected var ini:Init;
 		
+        private function notifyScreenUpdate():void
+        {
+            if (!hasEventListener(ClippingEvent.SCREEN_UPDATED))
+                return;
+			
+            if (_screenupdated == null)
+                _screenupdated = new ClippingEvent(ClippingEvent.SCREEN_UPDATED, this);
+                
+            dispatchEvent(_screenupdated);
+        }
+		
+        protected var ini:Init;
 		
 		public function get objectCulling():Boolean
 		{
@@ -232,9 +257,9 @@ package away3d.core.clip
             return true;
         }
 		
-		public function checkFace(faceVO:FaceVO, source:Object3D, clippedFaceVOs:Array):void
+		public function checkElements(mesh:Mesh, clippedFaceVOs:Array, clippedSegmentVOs:Array, clippedBillboards:Array, clippedVertices:Array, clippedCommands:Array, clippedIndices:Array, startIndices:Array):void
 		{
-			clippedFaceVOs.push(faceVO);
+			throw new Error("Not implemented");
 		}
 		
 		/**
@@ -297,106 +322,112 @@ package away3d.core.clip
         	}
         		
         	
-        	switch(_stage.align)
+        	if(_stage.align==StageAlign.TOP_LEFT)
         	{
-        		case StageAlign.TOP_LEFT:
-	            	_zeroPoint.x = 0;
-	            	_zeroPoint.y = 0;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _maX = (_miX = _globalPoint.x) + _stageWidth;
-	                _maY = (_miY = _globalPoint.y) + _stageHeight;
-	                break;
-	            case StageAlign.TOP_RIGHT:
-	            	_zeroPoint.x = _loaderWidth;
-	            	_zeroPoint.y = 0;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _miX = (_maX = _globalPoint.x) - _stageWidth;
-	                _maY = (_miY = _globalPoint.y) + _stageHeight;
-	                break;
-	            case StageAlign.BOTTOM_LEFT:
-	            	_zeroPoint.x = 0;
-	            	_zeroPoint.y = _loaderHeight;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                _maX = (_miX = _globalPoint.x) + _stageWidth;
-	                _miY = (_maY = _globalPoint.y) - _stageHeight;
-	                break;
-	            case StageAlign.BOTTOM_RIGHT:
-	            	_zeroPoint.x = _loaderWidth;
-	            	_zeroPoint.y = _loaderHeight;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _miX = (_maX = _globalPoint.x) - _stageWidth;
-	                _miY = (_maY = _globalPoint.y) - _stageHeight;
-	                break;
-	            case StageAlign.TOP:
-	            	_zeroPoint.x = _loaderWidth/2;
-	            	_zeroPoint.y = 0;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _miX = _globalPoint.x - _stageWidth/2;
-	                _maX = _globalPoint.x + _stageWidth/2;
-	                _maY = (_miY = _globalPoint.y) + _stageHeight;
-	                break;
-	            case StageAlign.BOTTOM:
-	            	_zeroPoint.x = _loaderWidth/2;
-	            	_zeroPoint.y = _loaderHeight;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _miX = _globalPoint.x - _stageWidth/2;
-	                _maX = _globalPoint.x + _stageWidth/2;
-	                _miY = (_maY = _globalPoint.y) - _stageHeight;
-	                break;
-	            case StageAlign.LEFT:
-	            	_zeroPoint.x = 0;
-	            	_zeroPoint.y = _loaderHeight/2;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _maX = (_miX = _globalPoint.x) + _stageWidth;
-	                _miY = _globalPoint.y - _stageHeight/2;
-	                _maY = _globalPoint.y + _stageHeight/2;
-	                break;
-	            case StageAlign.RIGHT:
-	            	_zeroPoint.x = _loaderWidth;
-	            	_zeroPoint.y = _loaderHeight/2;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	                
-	                _miX = (_maX = _globalPoint.x) - _stageWidth;
-	                _miY = _globalPoint.y - _stageHeight/2;
-	                _maY = _globalPoint.y + _stageHeight/2;
-	                break;
-	            default:
-	            	_zeroPoint.x = _loaderWidth/2;
-	            	_zeroPoint.y = _loaderHeight/2;
-	                _globalPoint = container.globalToLocal(_zeroPoint);
-	            	
-	                _miX = _globalPoint.x - _stageWidth/2;
-	                _maX = _globalPoint.x + _stageWidth/2;
-	                _miY = _globalPoint.y - _stageHeight/2;
-	                _maY = _globalPoint.y + _stageHeight/2;
+            	_zeroPoint.x = 0;
+            	_zeroPoint.y = 0;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _maX = (_miX = _globalPoint.x) + _stageWidth;
+                _maY = (_miY = _globalPoint.y) + _stageHeight;
+	        }
+	        else if(_stage.align==StageAlign.TOP_RIGHT)
+	        {
+            	_zeroPoint.x = _loaderWidth;
+            	_zeroPoint.y = 0;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _miX = (_maX = _globalPoint.x) - _stageWidth;
+                _maY = (_miY = _globalPoint.y) + _stageHeight;
+	        }
+	        else if(_stage.align==StageAlign.BOTTOM_LEFT)
+	        {
+            	_zeroPoint.x = 0;
+            	_zeroPoint.y = _loaderHeight;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                _maX = (_miX = _globalPoint.x) + _stageWidth;
+                _miY = (_maY = _globalPoint.y) - _stageHeight;
+	        }
+	        else if(_stage.align==StageAlign.BOTTOM_RIGHT)
+	        {
+            	_zeroPoint.x = _loaderWidth;
+            	_zeroPoint.y = _loaderHeight;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _miX = (_maX = _globalPoint.x) - _stageWidth;
+                _miY = (_maY = _globalPoint.y) - _stageHeight;
+	        }
+	        else if(_stage.align==StageAlign.TOP)
+	        {
+            	_zeroPoint.x = _loaderWidth/2;
+            	_zeroPoint.y = 0;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _miX = _globalPoint.x - _stageWidth/2;
+                _maX = _globalPoint.x + _stageWidth/2;
+                _maY = (_miY = _globalPoint.y) + _stageHeight;
+	        }
+	        else if(_stage.align==StageAlign.BOTTOM)
+	        {
+            	_zeroPoint.x = _loaderWidth/2;
+            	_zeroPoint.y = _loaderHeight;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _miX = _globalPoint.x - _stageWidth/2;
+                _maX = _globalPoint.x + _stageWidth/2;
+                _miY = (_maY = _globalPoint.y) - _stageHeight;
+	        }
+	        else if(_stage.align==StageAlign.LEFT)
+	        {
+            	_zeroPoint.x = 0;
+            	_zeroPoint.y = _loaderHeight/2;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _maX = (_miX = _globalPoint.x) + _stageWidth;
+                _miY = _globalPoint.y - _stageHeight/2;
+                _maY = _globalPoint.y + _stageHeight/2;
+	        }
+	        else if(_stage.align==StageAlign.RIGHT)
+	        {
+            	_zeroPoint.x = _loaderWidth;
+            	_zeroPoint.y = _loaderHeight/2;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+                
+                _miX = (_maX = _globalPoint.x) - _stageWidth;
+                _miY = _globalPoint.y - _stageHeight/2;
+                _maY = _globalPoint.y + _stageHeight/2;
+	        }
+	        else
+	        {
+            	_zeroPoint.x = _loaderWidth/2;
+            	_zeroPoint.y = _loaderHeight/2;
+                _globalPoint = container.globalToLocal(_zeroPoint);
+            	
+                _miX = _globalPoint.x - _stageWidth/2;
+                _maX = _globalPoint.x + _stageWidth/2;
+                _miY = _globalPoint.y - _stageHeight/2;
+                _maY = _globalPoint.y + _stageHeight/2;
         	}
-        	
-	
-            if (minX == -Infinity)
-            	_clippingClone.minX = _miX;
-            else
+			
+            if (_minX > _miX)
             	_clippingClone.minX = _minX;
-            
-            if (maxX == Infinity)
-            	_clippingClone.maxX = _maX;
             else
+            	_clippingClone.minX = _miX;
+            
+            if (_maxX < _maX)
             	_clippingClone.maxX = _maxX;
-            
-            if (minY == -Infinity)
-            	_clippingClone.minY = _miY;
             else
+            	_clippingClone.maxX = _maX;
+            
+            if (_minY > _miY)
             	_clippingClone.minY = _minY;
-            
-            if (maxY == Infinity)
-            	_clippingClone.maxY = _maY;
             else
+            	_clippingClone.minY = _miY;
+            
+            if (_maxY < _maY)
             	_clippingClone.maxY = _maxY;
+            else
+            	_clippingClone.maxY = _maY;
             
             _clippingClone.minZ = _minZ;
             _clippingClone.maxZ = _maxZ;
@@ -450,5 +481,24 @@ package away3d.core.clip
             removeEventListener(ClippingEvent.CLIPPING_UPDATED, listener, false);
         }
         
+		/**
+		 * Default method for adding a screenUpdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function addOnScreenUpdate(listener:Function):void
+        {
+            addEventListener(ClippingEvent.SCREEN_UPDATED, listener, false, 0, false);
+        }
+		
+		/**
+		 * Default method for removing a screenUpdated event listener
+		 * 
+		 * @param	listener		The listener function
+		 */
+        public function removeOnScreenUpdate(listener:Function):void
+        {
+            removeEventListener(ClippingEvent.SCREEN_UPDATED, listener, false);
+        }
     }
 }

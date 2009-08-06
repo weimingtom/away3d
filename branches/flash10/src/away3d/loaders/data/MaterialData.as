@@ -13,7 +13,6 @@ package away3d.loaders.data
 	public class MaterialData
 	{
 		private var _material:IMaterial;
-		private var _element:Element;
 		
 		/**
 		 * String representing a texture material.
@@ -87,6 +86,8 @@ package away3d.loaders.data
             
             if (_material is IUVMaterial)
             	textureBitmap = (_material as IUVMaterial).bitmap;
+            
+            var _element:Element;
             
             if(_material is ITriangleMaterial)
             	for each(_element in elements)

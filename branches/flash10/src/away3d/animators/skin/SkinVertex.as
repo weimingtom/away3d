@@ -1,19 +1,16 @@
-package away3d.animators.skin
+﻿package away3d.animators.skin
 {
 	import away3d.core.base.*;
-	import away3d.core.math.*;
+	import away3d.core.math.Number3D;
 	
     public class SkinVertex
     {
     	private var _i:int;
-    	private var _skinController:SkinController;
     	private var _position:Number3D = new Number3D();
-		private var _sceneTransform:MatrixAway3D = new MatrixAway3D();
-		
 		public var baseVertex:Vertex;
         public var skinnedVertex:Vertex;
-        public var weights:Array = new Array();
-        public var controllers:Array = new Array();
+        public var weights:Array = [];
+        public var controllers:Array = [];
 		
         public function SkinVertex(vertex:Vertex)
         {
@@ -24,8 +21,8 @@ package away3d.animators.skin
         public function update() : void
         {
         	var updated:Boolean = false;
-        	for each (_skinController in controllers)
-        		updated = updated || _skinController.updated;
+        	for each (var skinController:SkinController in controllers)
+        		updated = updated || skinController.updated;
         	
         	if (!updated)
         		return;

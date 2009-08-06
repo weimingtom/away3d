@@ -1,7 +1,8 @@
-package away3d.core.filter
+﻿package away3d.core.filter
 {
 	import away3d.arcane;
 	import away3d.cameras.*;
+	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
@@ -21,20 +22,11 @@ package away3d.core.filter
         
     	private var start:int;
         private var check:int;
-        
         private var primitives:Array;
-        private var pri:DrawPrimitive;
         private var turn:int;
-        private var leftover:Array;
-        
         private var rivals:Array;
-        private var rival:DrawPrimitive;
-        
         private var parts:Array;
-        private var part:DrawPrimitive;
-        private var subst:Array;
-        private var focus:Number;
-        
+        private var lens:ILens;
         private var positiveArea:Number;
         
         private var av0z:Number;
@@ -101,10 +93,6 @@ package away3d.core.filter
         private var sav1:Number;
         private var sav2:Number;
         
-        private var tv0:Vertex;
-        private var tv1:Vertex;
-        private var tv2:Vertex;
-        
         private var q0x:Number;
         private var q0y:Number;
         private var q1x:Number;
@@ -170,12 +158,22 @@ package away3d.core.filter
         private var d:Number;
         private var k0:Number;
         private var k1:Number;
-
+		private var k2:Number;
+		
         private var tv01z:Number;
         private var tv01p:Number;
         private var tv01x:Number;
         private var tv01y:Number;
-        private var v01:ScreenVertex = new ScreenVertex();
+        
+        private var tv12z:Number;
+        private var tv12p:Number;
+        private var tv12x:Number;
+        private var tv12y:Number;
+        
+        private var tv20z:Number;
+        private var tv20p:Number;
+        private var tv20x:Number;
+        private var tv20y:Number;
         
     	private function riddle(q:DrawPrimitive, w:DrawPrimitive):Array
         {
@@ -207,22 +205,22 @@ package away3d.core.filter
                 return null;
 			
 			//deperspective rival v0 
-            av0z = w.v0.z;
-            av0p = 1 + av0z / focus;
-            av0x = w.v0.x * av0p;
-            av0y = w.v0.y * av0p;
+            av0z = w.v0z;
+            av0p = lens.getPerspective(av0z);
+            av0x = w.v0x / av0p;
+            av0y = w.v0y / av0p;
 			
 			//deperspective rival v1
-            av1z = w.v1.z;
-            av1p = 1 + av1z / focus;
-            av1x = w.v1.x * av1p;
-            av1y = w.v1.y * av1p;
+            av1z = w.v1z;
+            av1p = lens.getPerspective(av1z);
+            av1x = w.v1x / av1p;
+            av1y = w.v1y / av1p;
 			
 			//deperspective rival v2
-            av2z = w.v2.z;
-            av2p = 1 + av2z / focus;
-            av2x = w.v2.x * av2p;
-            av2y = w.v2.y * av2p;
+            av2z = w.v2z;
+            av2p = lens.getPerspective(av2z);
+            av2x = w.v2x / av2p;
+            av2y = w.v2y / av2p;
 			
 			//calculate rival face normal
             ad1x = av1x - av0x;
@@ -245,22 +243,22 @@ package away3d.core.filter
                 return null;
 			
 			//deperspective v0
-            tv0z = q.v0.z;
-            tv0p = 1 + tv0z / focus;
-            tv0x = q.v0.x * tv0p;
-            tv0y = q.v0.y * tv0p;
+            tv0z = q.v0z;
+            tv0p = lens.getPerspective(tv0z);
+            tv0x = q.v0x / tv0p;
+            tv0y = q.v0y / tv0p;
 
 			//deperspective v1
-            tv1z = q.v1.z;
-            tv1p = 1 + tv1z / focus;
-            tv1x = q.v1.x * tv1p;
-            tv1y = q.v1.y * tv1p;
+            tv1z = q.v1z;
+            tv1p = lens.getPerspective(tv1z);
+            tv1x = q.v1x / tv1p;
+            tv1y = q.v1y / tv1p;
 			
 			//deperspective v2
-            tv2z = q.v2.z;
-            tv2p = 1 + tv2z / focus;
-            tv2x = q.v2.x * tv2p;
-            tv2y = q.v2.y * tv2p;
+            tv2z = q.v2z;
+            tv2p = lens.getPerspective(tv2z);
+            tv2x = q.v2x / tv2p;
+            tv2y = q.v2y / tv2p;
             
             //calculate the dot product of v0, v1 and v2 to the rival normal
             sv0 = apa*tv0x + apb*tv0y + apc*tv0z - apd;
@@ -313,47 +311,70 @@ package away3d.core.filter
                 return null;
 
             // TODO: segment cross check - now some extra cuts are made
+			d = sv0 - sv1;
+            k1 = sv0 / d;
+            k0 = -sv1 / d;
 
-            tv0 = q.v0.deperspective(focus);
-            tv1 = q.v1.deperspective(focus);
-            tv2 = q.v2.deperspective(focus);
-                
+            tv01z = (tv1z*k1 + tv0z*k0);
+            tv01p = lens.getPerspective(tv01z);
+            tv01x = (tv1x*k1 + tv0x*k0) * tv01p;
+            tv01y = (tv1y*k1 + tv0y*k0) * tv01p;
+            
+            d = sv1 - sv2;
+            k2 = sv1 / d;
+            k1 = -sv2 / d;
+
+            tv12z = (tv2z*k2 + tv1z*k1);
+            tv12p = lens.getPerspective(tv12z);
+            tv12x = (tv2x*k2 + tv1x*k1) * tv12p;
+            tv12y = (tv2y*k2 + tv1y*k1) * tv12p;
+            
+            d = sv2 - sv0;
+            k0 = sv2 / d;
+            k2 = -sv0 / d;
+
+            tv20z = (tv0z*k0 + tv2z*k2);
+            tv20p = lens.getPerspective(tv20z);
+            tv20x = (tv0x*k0 + tv2x*k2) * tv20p;
+            tv20y = (tv0y*k0 + tv2y*k2) * tv20p;
+            
             if (sv1*sv2 >= -1)
             {
-                return q.fivepointcut(q.v2,  Vertex.weighted(tv2, tv0, -sv0, sv2).perspective(focus), q.v0, Vertex.weighted(tv0, tv1, sv1, -sv0).perspective(focus), q.v1,
+            	
+                return q.fivepointcut(q.startIndex+2, tv20x, tv20y, tv20z, q.startIndex, tv01x, tv01y, tv01z, q.startIndex+1,
                     q.uv2, UV.weighted(q.uv2, q.uv0, -sv0, sv2), q.uv0, UV.weighted(q.uv0, q.uv1, sv1, -sv0), q.uv1);
             }                                                           
             else                                                        
             if (sv0*sv1 >= -1)                                           
             {
-                return q.fivepointcut(q.v1,  Vertex.weighted(tv1, tv2, -sv2, sv1).perspective(focus), q.v2, Vertex.weighted(tv2, tv0, sv0, -sv2).perspective(focus), q.v0,
+                return q.fivepointcut(q.startIndex+1, tv12x, tv12y, tv12z, q.startIndex+2, tv20x, tv20y, tv20z, q.startIndex,
                     q.uv1, UV.weighted(q.uv1, q.uv2, -sv2, sv1), q.uv2, UV.weighted(q.uv2, q.uv0, sv0, -sv2), q.uv0);
             }                                                           
             else                                                        
             {                                                           
-                return q.fivepointcut(q.v0,  Vertex.weighted(tv0, tv1, -sv1, sv0).perspective(focus), q.v1, Vertex.weighted(tv1, tv2, sv2, -sv1).perspective(focus), q.v2,
+                return q.fivepointcut(q.startIndex, tv01x, tv01y, tv01z, q.startIndex+1, tv12x, tv12y, tv12z, q.startIndex+2,
                     q.uv0, UV.weighted(q.uv0, q.uv1, -sv1, sv0), q.uv1, UV.weighted(q.uv1, q.uv2, sv2, -sv1), q.uv2);
             }
 
-            return null;    
+            return null;
         }
          
         private function overlap(q:DrawTriangle, w:DrawTriangle):Boolean
         {
         
-            q0x = q.v0.x;
-            q0y = q.v0.y;
-            q1x = q.v1.x;
-            q1y = q.v1.y;
-            q2x = q.v2.x;
-            q2y = q.v2.y;
+            q0x = q.v0x;
+            q0y = q.v0y;
+            q1x = q.v1x;
+            q1y = q.v1y;
+            q2x = q.v2x;
+            q2y = q.v2y;
         
-            w0x = w.v0.x;
-            w0y = w.v0.y;
-            w1x = w.v1.x;
-            w1y = w.v1.y;
-            w2x = w.v2.x;
-            w2y = w.v2.y;
+            w0x = w.v0x;
+            w0y = w.v0y;
+            w1x = w.v1x;
+            w1y = w.v1y;
+            w2x = w.v2x;
+            w2y = w.v2y;
         
             ql01a = q1y - q0y;
             ql01b = q0x - q1x;
@@ -427,20 +448,20 @@ package away3d.core.filter
         private function riddleTS(q:DrawTriangle, r:DrawSegment):Array
         {
 
-            av0z = q.v0.z;
-            av0p = 1 + av0z / focus;
-            av0x = q.v0.x * av0p;
-            av0y = q.v0.y * av0p;
+            av0z = q.v0z;
+            av0p = lens.getPerspective(av0z);
+            av0x = q.v0x / av0p;
+            av0y = q.v0y / av0p;
 
-            av1z = q.v1.z;
-            av1p = 1 + av1z / focus;
-            av1x = q.v1.x * av1p;
-            av1y = q.v1.y * av1p;
+            av1z = q.v1z;
+            av1p = lens.getPerspective(av1z);
+            av1x = q.v1x / av1p;
+            av1y = q.v1y / av1p;
 
-            av2z = q.v2.z;
-            av2p = 1 + av2z / focus;
-            av2x = q.v2.x * av2p;
-            av2y = q.v2.y * av2p;
+            av2z = q.v2z;
+            av2p = lens.getPerspective(av2z);
+            av2x = q.v2x / av2p;
+            av2y = q.v2y / av2p;
                                       
             ad1x = av1x - av0x;
             ad1y = av1y - av0y;
@@ -458,15 +479,15 @@ package away3d.core.filter
             if (apa*apa + apb*apb + apc*apc < 1)
                 return null;
 
-            tv0z = r.v0.z;
-            tv0p = 1 + tv0z / focus;
-            tv0x = r.v0.x * tv0p;
-            tv0y = r.v0.y * tv0p;
+            tv0z = r.v0z;
+            tv0p = lens.getPerspective(tv0z);
+            tv0x = r.v0x / tv0p;
+            tv0y = r.v0y / tv0p;
 
-            tv1z = r.v1.z;
-            tv1p = 1 + tv1z / focus;
-            tv1x = r.v1.x * tv1p;
-            tv1y = r.v1.y * tv1p;
+            tv1z = r.v1z;
+            tv1p = lens.getPerspective(tv1z);
+            tv1x = r.v1x / tv1p;
+            tv1y = r.v1y / tv1p;
 
             sv0 = apa*tv0x + apb*tv0y + apc*tv0z + apd;
             sv1 = apa*tv1x + apb*tv1y + apc*tv1z + apd;
@@ -479,18 +500,14 @@ package away3d.core.filter
             k1 = -sv0 / d;
 
             tv01z = (tv0z*k0 + tv1z*k1);
-            tv01p = 1 / (1 + tv01z /  focus);
+            tv01p = lens.getPerspective(tv01z);
             tv01x = (tv0x*k0 + tv1x*k1) * tv01p;
             tv01y = (tv0y*k0 + tv1y*k1) * tv01p;
 
             if (!q.contains(tv01x, tv01y))
                 return null;
 			
-			v01.x = tv01x;
-			v01.y = tv01y;
-			v01.z = tv01z;
-			
-			return r.onepointcut(v01);
+			return r.onepointcut(tv01x, tv01y, tv01z);
         }
         
 		/**
@@ -510,18 +527,19 @@ package away3d.core.filter
         {
             start = getTimer();
             check = 0;
-    		focus = camera.focus;
+    		lens = camera.lens;
     		
             primitives = tree.list();
             turn = 0;
             
             while (primitives.length > 0)
             {
-                var leftover:Array = new Array();
+                var leftover:Array = [];
+				var pri:DrawPrimitive;
                 for each (pri in primitives)
                 {
                     
-                    check++;
+                    ++check;
                     if (check == 10)
                         if (getTimer() - start > maxdelay)
                             return;
@@ -529,6 +547,7 @@ package away3d.core.filter
                             check = 0;
                     
                     rivals = tree.get(pri, pri.source);
+					var rival:DrawPrimitive;
                     for each (rival in rivals)
                     {
                         if (rival == pri)
@@ -545,6 +564,7 @@ package away3d.core.filter
                             continue;
     
                         tree.remove(pri);
+						var part:DrawPrimitive;
                         for each (part in parts)
                         {
                         	if (tree.primitive(part))

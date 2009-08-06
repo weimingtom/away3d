@@ -209,7 +209,7 @@ package away3d.core.draw
             leftbottomFlag = false;
             righttopFlag = false;
             rightbottomFlag = false;
-            center = new Array();
+            center.length = 0;
             
             onlysourceFlag = true;
             onlysource = null;

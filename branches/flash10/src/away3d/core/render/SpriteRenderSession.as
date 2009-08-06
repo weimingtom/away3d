@@ -7,7 +7,6 @@ package away3d.core.render
 	
 	import flash.display.*;
 	import flash.geom.*;
-	import flash.utils.*;
 	
 	use namespace arcane;
 	
@@ -74,9 +73,11 @@ package away3d.core.render
             }
             
             if (parent)
-            	parent.addChild(_sprite)
-            else
+            	parent.addChild(_sprite);
+            else {
             	_container.addChild(_sprite);
+            	layer = _sprite;
+            }
             
             _layerDirty = true;
             

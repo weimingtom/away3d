@@ -1,6 +1,6 @@
 /*
-VERSION: 1.01
-DATE: 1/8/2009
+VERSION: 1.1
+DATE: 3/20/2009
 ACTIONSCRIPT VERSION: 3.0 (AS2 version is also available)
 UPDATES & MORE DETAILED DOCUMENTATION AT: http://www.TweenMax.com
 DESCRIPTION:
@@ -58,7 +58,7 @@ package gs.plugins {
 	import gs.*;
 	
 	public class ColorMatrixFilterPlugin extends FilterPlugin {		
-		public static const VERSION:Number = 1.01;
+		public static const VERSION:Number = 1.1;
 		public static const API:Number = 1.0; //If the API/Framework for plugins changes in the future, this number helps determine compatibility
 		
 		protected static var _idMatrix:Array = [1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0];
@@ -79,7 +79,7 @@ package gs.plugins {
 			_target = $target;
 			_type = ColorMatrixFilter;
 			var cmf:Object = $value;
-			initFilter({}, new ColorMatrixFilter(_idMatrix.slice()));
+			initFilter({remove:$value.remove, index:$value.index, addFilter:$value.addFilter}, new ColorMatrixFilter(_idMatrix.slice()));
 			_matrix = ColorMatrixFilter(_filter).matrix;
 			var endMatrix:Array = [];
 			if (cmf.matrix != null && (cmf.matrix is Array)) {

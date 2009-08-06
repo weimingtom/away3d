@@ -12,6 +12,11 @@ package away3d.materials
     	 * Indicates whether the material is visible
     	 */
         function get visible():Boolean;
+		
+		/**
+    	 * Unique identifier
+    	 */
+        function get id():int;
         
         /**
     	 * Called once per render loop when material is visible.

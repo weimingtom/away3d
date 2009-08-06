@@ -17,6 +17,8 @@ package away3d.materials
     */
     public class ColorMaterial extends EventDispatcher implements ITriangleMaterial, IFogMaterial, IBillboardMaterial
     {
+    	/** @private */
+        arcane var _id:int;
 		/** @private */
         arcane function notifyMaterialUpdate():void
         {
@@ -83,6 +85,14 @@ package away3d.materials
         {
             return (alpha > 0);
         }
+                
+		/**
+		 * @inheritDoc
+		 */
+        public function get id():int
+        {
+            return _id;
+        }
     	
 		/**
 		 * Creates a new <code>ColorMaterial</code> object.
@@ -118,7 +128,7 @@ package away3d.materials
 		 */
         public function renderTriangle(tri:DrawTriangle):void
         {
-            tri.source.session.renderTriangleColor(_color, _alpha, tri.v0, tri.v1, tri.v2);
+        	tri.source.session.renderTriangleColor(_color, _alpha, tri.screenVertices, tri.screenCommands, tri.screenIndices, tri.startIndex, tri.endIndex);
         }
         
 		/**

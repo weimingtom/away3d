@@ -1,4 +1,4 @@
-package away3d.loaders
+﻿package away3d.loaders
 {
 	import away3d.animators.*;
 	import away3d.animators.skin.*;
@@ -20,16 +20,7 @@ package away3d.loaders
     */
     public class Collada extends AbstractParser
     {
-		/** @private */
-    	arcane var ini:Init;
-    	
         private var collada:XML;
-        private var material:ITriangleMaterial;
-        private var centerMeshes:Boolean;
-        private var scaling:Number;
-        private var shading:Boolean;
-        private var texturePath:String;
-        private var autoLoadTextures:Boolean;
         private var materialLibrary:MaterialLibrary;
         private var animationLibrary:AnimationLibrary;
         private var geometryLibrary:GeometryLibrary;
@@ -37,24 +28,8 @@ package away3d.loaders
         private var symbolLibrary:Dictionary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
-        private var _skinController:SkinController;
-    	private var _meshData:MeshData;
-    	private var _geometryData:GeometryData;
-        private var _materialData:MaterialData;
-        private var _animationData:AnimationData;
-		private var _meshMaterialData:MeshMaterialData;
-		private var numChildren:int;
-		private var _maxX:Number;
-		private var _minX:Number;
-		private var _maxY:Number;
-		private var _minY:Number;
-		private var _maxZ:Number;
-		private var _minZ:Number;
-    	private var _faceListIndex:int;
-    	private var _faceData:FaceData;
     	private var _faceMaterial:ITriangleMaterial;
     	private var _face:Face;
-    	private var _vertex:Vertex;
     	private var _moveVector:Number3D = new Number3D();
 		private var rotationMatrix:MatrixAway3D = new MatrixAway3D();
     	private var scalingMatrix:MatrixAway3D = new MatrixAway3D();
@@ -68,20 +43,17 @@ package away3d.loaders
 		private var _geometryArrayLength:int;
 		private var _channelArray:Array;
 		private var _channelArrayLength:int;
-		
-		/**
-		 * Collada Animation
-		 */
 		private var _defaultAnimationClip:AnimationData;
-		private var _haveAnimation:Boolean = false;
 		private var _haveClips:Boolean = false;
 		private var _containers:Dictionary = new Dictionary(true);
+		private var _materials:Object;
 		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
 			for each (var _objectData:ObjectData in containerData.children) {
 				if (_objectData is MeshData) {
-					buildMesh(_objectData as MeshData, parent);
+					var mesh:Mesh = buildMesh(_objectData as MeshData, parent);
+					_containers[_objectData.name] = mesh;
 				} else if (_objectData is BoneData) {
 					var _boneData:BoneData = _objectData as BoneData;
 					var bone:Bone = new Bone({name:_boneData.name});
@@ -90,7 +62,7 @@ package away3d.loaders
 					_containers[bone.name] = bone;
 					
 					//ColladaMaya 3.05B
-					bone.id = _boneData.id;
+					bone.boneId = _boneData.id;
 					
 					bone.transform = _boneData.transform;
 					
@@ -123,7 +95,7 @@ package away3d.loaders
 			}
 		}
 		
-		private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):void
+		private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):Mesh
 		{
 			Debug.trace(" + Build Mesh : "+_meshData.name);
 			
@@ -131,7 +103,7 @@ package away3d.loaders
 			mesh.transform = _meshData.transform;
 			mesh.bothsides = _meshData.geometry.bothsides;
 			
-			_geometryData = _meshData.geometry;
+			var _geometryData:GeometryData = _meshData.geometry;
 			var geometry:Geometry = _geometryData.geometry;
 			
 			if (!geometry) {
@@ -140,8 +112,9 @@ package away3d.loaders
 				mesh.geometry = geometry;
 				
 				//set materialdata for each face
-				for each (_meshMaterialData in _geometryData.materials) {
-					for each (_faceListIndex in _meshMaterialData.faceList) {
+				var _faceData:FaceData;
+				for each (var _meshMaterialData:MeshMaterialData in _geometryData.materials) {
+					for each (var _faceListIndex:int in _meshMaterialData.faceList) {
 						_faceData = _geometryData.faces[_faceListIndex] as FaceData;
 						_faceData.materialData = symbolLibrary[_meshMaterialData.symbol];
 					}
@@ -149,8 +122,6 @@ package away3d.loaders
 				
 				
 				if (_geometryData.skinVertices.length) {
-					var i:int;
-					var joints:Array;
 					var rootBone:Bone = (container as ObjectContainer3D).getBoneByName(_meshData.skeleton);
 					
 					geometry.skinVertices = _geometryData.skinVertices;
@@ -159,14 +130,11 @@ package away3d.loaders
 					
 		   			geometry.rootBone = rootBone;
 		   			
-		   			for each (_skinController in geometry.skinControllers)
+		   			for each (var _skinController:SkinController in geometry.skinControllers)
 		                _skinController.inverseTransform = parent.inverseSceneTransform;
 				}
 				
 				//create faces from face and mesh data
-				var face:Face;
-				var matData:MaterialData;
-				
 				for each(_faceData in _geometryData.faces) {
 					if (_faceData.materialData)
 						_faceMaterial = _faceData.materialData.material as ITriangleMaterial;
@@ -197,11 +165,12 @@ package away3d.loaders
 			
 			mesh.type = ".Collada";
 			parent.addChild(mesh);
+			return mesh;
 		}
 		
         private function buildMaterials():void
 		{
-			for each (_materialData in materialLibrary)
+			for each (var _materialData:MaterialData in materialLibrary)
 			{
 				Debug.trace(" + Build Material : "+_materialData.name);
 				
@@ -212,6 +181,8 @@ package away3d.loaders
 				//overridden by materials passed in contructor
 				if (_materialData.material)
 					continue;
+				
+				Debug.trace(" + Material Type : "+_materialData.materialType);
 				
 				switch (_materialData.materialType)
 				{
@@ -235,8 +206,8 @@ package away3d.loaders
 		{
 			var bone:Bone;
 			
-			for each (_geometryData in geometryLibrary) {
-				for each (_skinController in _geometryData.geometry.skinControllers) {
+			for each (var _geometryData:GeometryData in geometryLibrary) {
+				for each (var _skinController:SkinController in _geometryData.geometry.skinControllers) {
 					bone = (container as ObjectContainer3D).getBoneByName(_skinController.name);
 	                if (bone)
 	                    _skinController.joint = bone.joint;
@@ -245,7 +216,7 @@ package away3d.loaders
 	   			}
 	  		}
 		   			
-			for each (_animationData in animationLibrary)
+			for each (var _animationData:AnimationData in animationLibrary)
 			{
 				switch (_animationData.animationType)
 				{
@@ -262,6 +233,7 @@ package away3d.loaders
 						
 						for each (var channelData:ChannelData in _animationData.channels) {
 							var channel:Channel = channelData.channel;
+							
 							channel.target = _containers[channel.name];
 							animation.appendChannel(channel);
 							
@@ -292,12 +264,14 @@ package away3d.loaders
 				            switch(channelData.type)
 				            {
 				                case "translateX":
+								case "transform(3)(0)":
 				                	channel.type = ["x"];
 									if (yUp)
 										for each (param in channel.param)
 											param[0] *= -1*scaling;
 				                	break;
 								case "translateY":
+								case "transform(3)(1)":
 									if (yUp)
 										channel.type = ["y"];
 									else
@@ -306,6 +280,7 @@ package away3d.loaders
 										param[0] *= scaling;
 				     				break;
 								case "translateZ":
+								case "transform(3)(2)":
 									if (yUp)
 										channel.type = ["z"];
 									else
@@ -319,6 +294,7 @@ package away3d.loaders
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
+								case "rotateXANGLE":
 								case "rotateX":
 								case "RotX":
 				     				channel.type = [rX];
@@ -332,6 +308,7 @@ package away3d.loaders
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
+								case "rotateYANGLE":
 								case "rotateY":
 								case "RotY":
 									if (yUp)
@@ -348,6 +325,7 @@ package away3d.loaders
 										for each (param in channel.param)
 											param[0] *= -1;
 				     				break;
+								case "rotateZANGLE":
 								case "rotateZ":
 								case "RotZ":
 									if (yUp)
@@ -359,18 +337,21 @@ package away3d.loaders
 											param[0] *= -1;
 				            		break;
 								case "scaleX":
+								case "transform(0)(0)":
 									channel.type = [sX];
 									//if (yUp)
 									//	for each (param in channel.param)
 									//		param[0] *= -1;
 				            		break;
 								case "scaleY":
+								case "transform(1)(1)":
 									if (yUp)
 										channel.type = [sY];
 									else
 										channel.type = [sZ];
 				     				break;
 								case "scaleZ":
+								case "transform(2)(2)":
 									if (yUp)
 										channel.type = [sZ];
 									else
@@ -416,6 +397,10 @@ package away3d.loaders
 								case "transform":
 									channel.type = ["transform"];
 									break;
+								
+								case "visibility":
+									channel.type = ["visibility"];
+									break;
 				            }
 						}
 						
@@ -438,7 +423,7 @@ package away3d.loaders
 			
             var totalStrings:Number = strings.length;
 			
-            for (var i:Number = 0; i < totalStrings; i++)
+            for (var i:Number = 0; i < totalStrings; ++i)
             	if (strings[i] != "")
                 	numbers.push(Number(strings[i]));
 
@@ -480,36 +465,76 @@ package away3d.loaders
         {
             return url.split("#")[1];
         }
-    	
+        
+    	/**
+    	 * A scaling factor for all geometry in the model. Defaults to 1.
+    	 */
+        public var scaling:Number;
+        
+    	/**
+    	 * Controls the use of shading materials when color textures are encountered. Defaults to false.
+    	 */
+        public var shading:Boolean;
+        
+    	/**
+    	 * Overrides all materials in the model.
+    	 */
+        public var material:ITriangleMaterial;
+        
+    	/**
+    	 * Controls the automatic centering of geometry data in the model, improving culling and the accuracy of bounding dimension values. Defaults to false.
+    	 */
+        public var centerMeshes:Boolean;
+        
     	/**
     	 * Container data object used for storing the parsed collada data structure.
     	 */
         public var containerData:ContainerData;
+        
+    	/**
+    	 * Overides materials in the model using name:value pairs.
+    	 */
+        public function get materials():Object
+        {
+        	return _materials;
+        }
+		
+		public function set materials(val:Object):void
+		{
+			_materials = val;
+			
+			//organise the materials
+			var _materialData:MaterialData;
+            for (var name:String in _materials) {
+                _materialData = materialLibrary.addMaterial(name);
+                _materialData.material = Cast.material(_materials[name]);
+
+                //determine material type
+                if (_materialData.material is BitmapMaterial)
+                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
+                else if (_materialData.material is ShadingColorMaterial)
+                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
+                else if (_materialData.material is WireframeMaterial)
+                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
+   			}
+		}
 		
 		/**
-		 * Creates a new <code>Collada</code> object. Not intended for direct use, use the static <code>parse</code> or <code>load</code> methods.
+		 * Creates a new <code>Collada</code> object.
 		 *
-		 * @param	xml				The xml data of a loaded file.
 		 * @param	init	[optional]	An initialisation object for specifying default instance properties.
 		 *
 		 * @see away3d.loaders.Collada#parse()
 		 * @see away3d.loaders.Collada#load()
 		 */
-		
-        public function Collada(data:*, init:Object = null)
+        public function Collada(init:Object = null)
         {
-         	collada = Cast.xml(data);
+            super(init);
             
-            ini = Init.parse(init);
-			
-			texturePath = ini.getString("texturePath", "");
-			autoLoadTextures = ini.getBoolean("autoLoadTextures", true);
-            scaling = ini.getNumber("scaling", 1)*100;
+            scaling = ini.getNumber("scaling", 1);
             shading = ini.getBoolean("shading", false);
             material = ini.getMaterial("material") as ITriangleMaterial;
             centerMeshes = ini.getBoolean("centerMeshes", false);
-
-            var materials:Object = ini.getObject("materials") || {};
 			
 			//create the container
             container = new ObjectContainer3D(ini);
@@ -520,25 +545,10 @@ package away3d.loaders
 			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
 			channelLibrary = new ChannelLibrary();
 			symbolLibrary = new Dictionary(true);
-			materialLibrary.autoLoadTextures = autoLoadTextures;
-			materialLibrary.texturePath = texturePath;
 			
-			//organise the materials
-            for (var name:String in materials) {
-                _materialData = materialLibrary.addMaterial(name);
-                _materialData.material = Cast.material(materials[name]);
-
-                //determine material type
-                if (_materialData.material is BitmapMaterial)
-                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-                else if (_materialData.material is ShadingColorMaterial)
-                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
-                else if (_materialData.material is WireframeMaterial)
-                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
-   			}
-   			
-			//parse the collada file
-            parseCollada();
+			materials = ini.getObject("materials") || {};
+			
+			binary = false;
         }
 		
         /**
@@ -552,7 +562,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-            return Object3DLoader.parseGeometry(data, Collada, init).handle as ObjectContainer3D;
+            return Loader3D.parseGeometry(data, Collada, init).handle as ObjectContainer3D;
         }
 		
     	/**
@@ -560,29 +570,41 @@ package away3d.loaders
     	 *
     	 * @param	url					The url location of the file to load.
     	 * @param	init	[optional]	An initialisation object for specifying default instance properties.
+    	 * 
     	 * @return						A 3d loader object that can be used as a placeholder in a scene while the file is loading.
     	 */
-        public static function load(url:String, init:Object = null):Object3DLoader
+        public static function load(url:String, init:Object = null):Loader3D
         {
-			//texturePath as model folder
-			if (url)
-			{
-				var _pathArray		:Array = url.split("/");
-				var _imageName		:String = _pathArray.pop();
-				var _texturePath	:String = (_pathArray.length>0)?_pathArray.join("/")+"/":_pathArray.join("/");
-				
-				if (init)
-					init.texturePath = init.texturePath || _texturePath;
-				else
-					init = {texturePath:_texturePath};
-			}
-			return Object3DLoader.loadGeometry(url, Collada, false, init);
+			return Loader3D.loadGeometry(url, Collada, init);
         }
         
-		/**
-		 * @inheritDoc
-		 */
-        public override function parseNext():void
+        /** @private */
+        arcane override function prepareData(data:*):void
+        {
+        	collada = Cast.xml(data);
+        	
+			default xml namespace = collada.namespace();
+			Debug.trace(" ! ------------- Begin Parse Collada -------------");
+
+            // Get up axis
+            yUp = (collada["asset"].up_axis == "Y_UP")||(String(collada["asset"].up_axis) == "");
+
+    		if (yUp) {
+    			VALUE_X = "X";
+    			VALUE_Y = "Y";
+    			VALUE_Z = "Z";
+        	} else {
+                VALUE_X = "X";
+                VALUE_Y = "Z";
+                VALUE_Z = "Y";
+        	}
+			
+            parseScene();
+			
+			parseAnimationClips();
+        }
+    	/** @private */
+        arcane override function parseNext():void
         {
         	if (_parsedChunks < _geometryArrayLength)
         		parseGeometry(_geometryArray[_parsedChunks]);
@@ -609,36 +631,13 @@ package away3d.loaders
 				notifyProgress();
 	        }
         }
-
-        private function parseCollada():void
-        {
-			default xml namespace = collada.namespace();
-			Debug.trace(" ! ------------- Begin Parse Collada -------------");
-
-            // Get up axis
-            yUp = (collada.asset.up_axis == "Y_UP")||(String(collada.asset.up_axis) == "");
-
-    		if (yUp) {
-    			VALUE_X = "X";
-    			VALUE_Y = "Y";
-    			VALUE_Z = "Z";
-        	} else {
-                VALUE_X = "X";
-                VALUE_Y = "Z";
-                VALUE_Z = "Y";
-        	}
-			
-            parseScene();
-			
-			parseAnimationClips();
-        }
-		
+        		
 		/**
 		 * Converts the scene heirarchy to an Away3d data structure
 		 */
         private function parseScene():void
         {
-        	var scene:XML = collada.library_visual_scenes.visual_scene.(@id == getId(collada.scene.instance_visual_scene.@url))[0];
+        	var scene:XML = collada["library_visual_scenes"].visual_scene.(@id == getId(collada["scene"].instance_visual_scene.@url))[0];
         	
         	if (scene == null) {
         		Debug.trace(" ! ------------- No scene to parse -------------");
@@ -649,7 +648,7 @@ package away3d.loaders
 			
 			containerData = new ContainerData();
 			
-            for each (var node:XML in scene.node)
+            for each (var node:XML in scene["node"])
 				parseNode(node, containerData);
 			
 			Debug.trace(" ! ------------- End Parse Scene -------------");
@@ -669,19 +668,18 @@ package away3d.loaders
         {	
 			var _transform:MatrixAway3D;
 	    	var _objectData:ObjectData;
-	    	var _name:String = node.name().localName;
 	    	
-        	if (String(node.instance_light.@url) != "" || String(node.instance_camera.@url) != "")
+        	if (String(node["instance_light"].@url) != "" || String(node["instance_camera"].@url) != "")
         		return;
 	    	
 	    	
-			if (String(node.instance_controller) == "" && String(node.instance_geometry) == "")
+			if (String(node["instance_controller"]) == "" && String(node["instance_geometry"]) == "")
 			{
 				
 				if (String(node.@type) == "JOINT")
 					_objectData = new BoneData();
 				else {
-					if (String(node.instance_node.@url) == "" && (String(node.node) == "" || parent is BoneData))
+					if (String(node["instance_node"].@url) == "" && (String(node["node"]) == "" || parent is BoneData))
 						return;
 					_objectData = new ContainerData();
 				}
@@ -702,7 +700,8 @@ package away3d.loaders
             _transform = _objectData.transform;
 			
 			Debug.trace(" + Parse Node : " + _objectData.id + " : " + _objectData.name);
-
+			
+			var nodeName:String;
            	var geo:XML;
            	var ctrlr:XML;
            	var sid:String;
@@ -713,7 +712,8 @@ package away3d.loaders
             for each (var childNode:XML in node.children())
             {
                 arrayChild = getArray(childNode);
-				switch (childNode.name().localName)
+                nodeName = String(childNode.name()["localName"]);
+				switch(nodeName)
                 {
 					case "translate":
                         _transform.multiply(_transform, translateMatrix(arrayChild));
@@ -757,7 +757,7 @@ package away3d.loaders
                         break;
 
     				case "instance_node":
-    					parseNode(collada.library_nodes.node.(@id == getId(childNode.@url))[0], _objectData as ContainerData);
+    					parseNode(collada["library_nodes"].node.(@id == getId(childNode.@url))[0], _objectData as ContainerData);
     					
     					break;
 
@@ -768,7 +768,7 @@ package away3d.loaders
 	                        for each (instance_material in childNode..instance_material)
 	                        	parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 							
-							geo = collada.library_geometries.geometry.(@id == getId(childNode.@url))[0];
+							geo = collada["library_geometries"].geometry.(@id == getId(childNode.@url))[0];
 							
 	                        (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo);
 	                    }
@@ -781,12 +781,12 @@ package away3d.loaders
 						for each (instance_material in childNode..instance_material)
 							parseMaterial(instance_material.@symbol, getId(instance_material.@target));
 						
-						ctrlr = collada.library_controllers.controller.(@id == getId(childNode.@url))[0];
-						geo = collada.library_geometries.geometry.(@id == getId(ctrlr.skin[0].@source))[0];
+						ctrlr = collada["library_controllers"].controller.(@id == getId(childNode.@url))[0];
+						geo = collada["library_geometries"].geometry.(@id == getId(ctrlr["skin"][0].@source))[0];
 						
 	                    (_objectData as MeshData).geometry = geometryLibrary.addGeometry(geo.@id, geo, ctrlr);
 						
-						(_objectData as MeshData).skeleton = getId(childNode.skeleton);
+						(_objectData as MeshData).skeleton = getId(childNode["skeleton"]);
 						break;
                 }
             }
@@ -830,12 +830,19 @@ package away3d.loaders
 			var verticesDictionary:Dictionary = new Dictionary(true);
 			
             // Triangles
-            for each (var triangles:XML in geometryData.geoXML.mesh.triangles)
+            var trianglesXMLList:XMLList = geometryData.geoXML["mesh"].triangles;
+            
+            // C4D
+            var isC4D:Boolean = (trianglesXMLList.length()==0 && geometryData.geoXML["mesh"].polylist.length()>0);
+            if(isC4D)
+            	trianglesXMLList = geometryData.geoXML["mesh"].polylist;
+            
+            for each (var triangles:XML in trianglesXMLList)
             {
                 // Input
                 var field:Array = [];
-				
-                for each(var input:XML in triangles.input)
+                
+                for each(var input:XML in triangles["input"])
                 {
                 	var semantic:String = input.@semantic;
                 	switch(semantic)
@@ -851,19 +858,19 @@ package away3d.loaders
                     field.push(input.@semantic);
                 }
 
-                var data     :Array  = triangles.p.split(' ');
+                var data     :Array  = triangles["p"].split(' ');
                 var len      :Number = triangles.@count;
                 var symbol :String = triangles.@material;
                 
 				Debug.trace(" + Parse MeshMaterialData");
-                _meshMaterialData = new MeshMaterialData();
+                var _meshMaterialData:MeshMaterialData = new MeshMaterialData();
     			_meshMaterialData.symbol = symbol;
 				geometryData.materials.push(_meshMaterialData);
 				
 				//if (!materialLibrary[material])
 				//	parseMaterial(material, material);
 					
-                for (var j:Number = 0; j < len; j++)
+                for (var j:Number = 0; j < len; ++j)
                 {
                     var _faceData:FaceData = new FaceData();
 
@@ -884,7 +891,7 @@ package away3d.loaders
                         	}
                         }
                     }
-                    //trace(_faceData.v0);
+                    
                     verticesDictionary[_faceData.v0] = geometryData.vertices[_faceData.v0];
                     verticesDictionary[_faceData.v1] = geometryData.vertices[_faceData.v1];
                     verticesDictionary[_faceData.v2] = geometryData.vertices[_faceData.v2];
@@ -902,7 +909,7 @@ package away3d.loaders
 				geometryData.minY = Infinity;
 				geometryData.maxZ = -Infinity;
 				geometryData.minZ = Infinity;
-                for each (_vertex in verticesDictionary) {
+                for each (var _vertex:Vertex in verticesDictionary) {
 					if (geometryData.maxX < _vertex._x)
 						geometryData.maxX = _vertex._x;
 					if (geometryData.minX > _vertex._x)
@@ -919,8 +926,8 @@ package away3d.loaders
 			}
 			
 			// Double Side
-			if (String(geometryData.geoXML.extra.technique.double_sided) != "")
-            	geometryData.bothsides = (geometryData.geoXML.extra.technique.double_sided[0].toString() == "1");
+			if (String(geometryData.geoXML["extra"].technique.double_sided) != "")
+            	geometryData.bothsides = (geometryData.geoXML["extra"].technique.double_sided[0].toString() == "1");
             else
             	geometryData.bothsides = false;
 			
@@ -928,25 +935,24 @@ package away3d.loaders
 			if (!geometryData.ctrlXML)
 				return;
 			
-			var skin:XML = geometryData.ctrlXML.skin[0];
+			var skin:XML = geometryData.ctrlXML["skin"][0];
 			
-			var jointId:String = getId(skin.joints.input.(@semantic == "JOINT")[0].@source);
-            var tmp:String = skin.source.(@id == jointId).Name_array.toString();
+			var jointId:String = getId(skin["joints"].input.(@semantic == "JOINT")[0].@source);
+            var tmp:String = skin["source"].(@id == jointId)["Name_array"].toString();
 			//Blender?
-			if (!tmp) tmp = skin.source.(@id == jointId).IDREF_array.toString();
+			if (!tmp) tmp = skin["source"].(@id == jointId)["IDREF_array"].toString();
             tmp = tmp.replace(/\n/g, " ");
             var nameArray:Array = tmp.split(" ");
             
 			var bind_shape:MatrixAway3D = new MatrixAway3D();
-			bind_shape.array2matrix(getArray(skin.bind_shape_matrix[0].toString()), yUp, scaling);
+			bind_shape.array2matrix(getArray(skin["bind_shape_matrix"][0].toString()), yUp, scaling);
 			
-			var bindMatrixId:String = getId(skin.joints.input.(@semantic == "INV_BIND_MATRIX").@source);
-            var float_array:Array = getArray(skin.source.(@id == bindMatrixId)[0].float_array.toString());
+			var bindMatrixId:String = getId(skin["joints"].input.(@semantic == "INV_BIND_MATRIX").@source);
+            var float_array:Array = getArray(skin["source"].(@id == bindMatrixId)[0].float_array.toString());
             
             var v:Array;
             var matrix:MatrixAway3D;
             var name:String;
-            var joints:Array = new Array();
 			var skinController:SkinController;
             var i:int = 0;
             
@@ -966,18 +972,16 @@ package away3d.loaders
 			
 			Debug.trace(" + SkinWeight");
 
-            tmp = skin.vertex_weights[0].@count;
-            var num_weights:int = int(skin.vertex_weights[0].@count);
-
-			var weightsId:String = getId(skin.vertex_weights.input.(@semantic == "WEIGHT")[0].@source);
+            tmp = skin["vertex_weights"][0].@count;
+			var weightsId:String = getId(skin["vertex_weights"].input.(@semantic == "WEIGHT")[0].@source);
 			
-            tmp = skin.source.(@id == weightsId).float_array.toString();
+            tmp = skin["source"].(@id == weightsId)["float_array"].toString();
             var weights:Array = tmp.split(" ");
 			
-            tmp = skin.vertex_weights.vcount.toString();
+            tmp = skin["vertex_weights"].vcount.toString();
             var vcount:Array = tmp.split(" ");
 			
-            tmp = skin.vertex_weights.v.toString();
+            tmp = skin["vertex_weights"].v.toString();
             v = tmp.split(" ");
 			
 			var skinVertex	:SkinVertex;
@@ -997,9 +1001,9 @@ package away3d.loaders
                     count++;
                     skinVertex.weights.push(Number(weights[int(v[count])]));
                     count++;
-                    j++;
+                    ++j;
                 }
-                i++;
+                ++i;
             }
 		}
 		
@@ -1010,7 +1014,7 @@ package away3d.loaders
         {
 			
         	//Check for animations
-			var anims:XML = collada.library_animations[0];
+			var anims:XML = collada["library_animations"][0];
 			
 			if (!anims) {
         		Debug.trace(" ! ------------- No animations to parse -------------");
@@ -1018,19 +1022,38 @@ package away3d.loaders
 			}
         	
 			//Check to see if animation clips exist
-			var clips:XML = collada.library_animation_clips[0];
+			var clips:XML = collada["library_animation_clips"][0];
 			
 			Debug.trace(" ! Animation Clips Exist : " + _haveClips);
 			
             Debug.trace(" ! ------------- Begin Parse Animation -------------");
             
             //loop through all animation channels
-			for each (var channel:XML in anims.animation)
-				channelLibrary.addChannel(channel.@id, channel);
-			
+			for each (var channel:XML in anims["animation"])
+			{
+				if(String(channel.@id).length>0)
+					channelLibrary.addChannel(channel.@id, channel);
+			}
+
+			// C4D 
+			// issue#1 : animation -> animation.animation
+			// issue#2 : missing channel.@id -> use automatic id instead
+			var _channel_id:uint = 0;
+			for each (channel in anims["animation"]["animation"])
+			{
+				if(String(channel.@id).length>0)
+				{
+					channelLibrary.addChannel(channel.@id, channel);
+				}else{
+					Debug.trace(" ! C4D id : C4D_"+_channel_id);
+					channelLibrary.addChannel("C4D_"+String(_channel_id), channel);
+				}
+				++_channel_id;
+			}
+				
 			if (clips) {
 				//loop through all animation clips
-				for each (var clip:XML in clips.animation_clip)
+				for each (var clip:XML in clips["animation_clip"])
 					parseAnimationClip(clip);
 			}
 			
@@ -1050,26 +1073,30 @@ package away3d.loaders
         {
 			var animationClip:AnimationData = animationLibrary.addAnimation(clip.@id);
 			
-			for each (var channel:XML in clip.instance_animation)
+			for each (var channel:XML in clip["instance_animation"])
 				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
         }
 		
 		private function parseChannel(channelData:ChannelData) : void
         {
         	var node:XML = channelData.xml;
-			var id:String = node.channel.@target;
+			var id:String = node["channel"].@target;
 			var name:String = id.split("/")[0];
             var type:String = id.split("/")[1];
-			var sampler:XML = node.sampler[0];
+			var sampler:XML = node["sampler"][0];
 			
             if (!type) {
             	Debug.trace(" ! No animation type detected");
             	return;
             }
             
+            // C4D : didn't have @id
+            var isC4D:Boolean = (String(node.@id).length<=0);
+            var isC4DType:String = type.split(".").join("");
+            
             type = type.split(".")[0];
 			
-            if (type == "image" || node.@id.split(".")[1] == "frameExtension")
+            if (!isC4D && (type == "image" || node.@id.split(".")[1] == "frameExtension"))
             {
                 //TODO : Material Animation
 				Debug.trace(" ! Material animation not yet implemented");
@@ -1084,17 +1111,20 @@ package away3d.loaders
 			
 			Debug.trace(" ! channelType : " + type);
 			
-            for each (var input:XML in sampler.input)
+            for each (var input:XML in sampler["input"])
             {
-				var src:XML = node.source.(@id == getId(input.@source))[0];
-                var count:int = int(src.float_array.@count);
-                var list:Array = String(src.float_array).split(" ");
-                var len:int = int(src.technique_common.accessor.@count);
-                var stride:int = int(src.technique_common.accessor.@stride);
+				var src:XML = node["source"].(@id == getId(input.@source))[0];
+                var list:Array = String(src["float_array"]).split(" ");
+                var len:int = int(src["technique_common"].accessor.@count);
+                var stride:int = int(src["technique_common"].accessor.@stride);
                 var semantic:String = input.@semantic;
 				
+				//C4D : no stride defined
+				if (stride == 0)
+					stride=1;
+				
 				var p:String;
-				var sign:int = (type.charAt(type.length - 1) == "X")? -1 : 1;
+				
                 switch(semantic) {
                     case "INPUT":
                         for each (p in list)
@@ -1110,7 +1140,7 @@ package away3d.loaders
                     case "OUTPUT":
                         i=0;
                         while (i < len) {
-                            channel.param[i] = new Array();
+                           channel.param[i] = [];
                             
                             if (stride == 16) {
 		                    	var m:MatrixAway3D = new MatrixAway3D();
@@ -1120,11 +1150,12 @@ package away3d.loaders
 	                            j = 0;
 	                            while (j < stride) {
 	                            	channel.param[i].push(Number(list[i*stride + j]));
-	                            	j++;
+	                            	++j;
 	                            }
                             }
-                            i++;
+                            ++i;
                         }
+                        Debug.trace("OUTPUT:"+len);
                         break;
                     case "INTERPOLATION":
                         for each (p in list)
@@ -1136,32 +1167,33 @@ package away3d.loaders
                         i=0;
                         while (i < len)
                         {
-                        	channel.inTangent[i] = new Array();
+                        	channel.inTangent[i] = [];
                         	j = 0;
                             while (j < stride) {
                                 channel.inTangent[i].push(new Number2D(Number(list[stride * i + j]), Number(list[stride * i + j + 1])));
-                            	j++;
+                            	++j;
                             }
-                            i++;
+                            ++i;
                         }
                         break;
                     case "OUT_TANGENT":
                         i=0;
                         while (i < len)
                         {
-                        	channel.outTangent[i] = new Array();
+                        	channel.outTangent[i] = [];
                         	j = 0;
                             while (j < stride) {
                                 channel.outTangent[i].push(new Number2D(Number(list[stride * i + j]), Number(list[stride * i + j + 1])));
-                            	j++;
+                            	++j;
                             }
-                            i++;
+                            ++i;
                         }
                         break;
                 }
             }
             
-			channelData.type = type;
+			channelData.type = isC4D?isC4DType:type;
+			Debug.trace("channelData.type:"+channelData.type);
         }
 		
 		/**
@@ -1170,12 +1202,12 @@ package away3d.loaders
 		private function getTextureFileName( materialName:String ):String
 		{
 			var filename :String = null;
-			var material:XML = collada.library_materials.material.(@id == materialName)[0];
+			var material:XML = collada["library_materials"].material.(@id == materialName)[0];
 	
 			if( material )
 			{
-				var effectId:String = getId( material.instance_effect.@url );
-				var effect:XML = collada.library_effects.effect.(@id == effectId)[0];
+				var effectId:String = getId( material["instance_effect"].@url );
+				var effect:XML = collada["library_effects"].effect.(@id == effectId)[0];
 	
 				if (effect..texture.length() == 0) return null;
 	
@@ -1195,9 +1227,9 @@ package away3d.loaders
 					imageId = source..init_from[0];
 				}
 	
-				var image:XML = collada.library_images.image.(@id == imageId)[0];
+				var image:XML = collada["library_images"].image.(@id == imageId)[0];
 	
-				filename = image.init_from;
+				filename = image["init_from"];
 	
 				if (filename.substr(0, 2) == "./")
 				{
@@ -1248,7 +1280,7 @@ package away3d.loaders
             var id:String = input.@source.split("#")[1];
 
             // Source?
-            var acc:XMLList = geo..source.(@id == id).technique_common.accessor;
+            var acc:XMLList = geo..source.(@id == id)["technique_common"].accessor;
 
             if (acc != new XMLList())
             {
@@ -1262,12 +1294,10 @@ package away3d.loaders
                 var params:Array = [];
 				var param:String;
 				
-                for each (var par:XML in acc.param)
+                for each (var par:XML in acc["param"])
                     params.push(par.@name);
 
                 // Build output array
-                var count:int = acc.@count;
-                var stride:int = acc.@stride;
     			var len:int = floats.length;
     			var i:int = 0;
                 while (i < len)
@@ -1294,7 +1324,7 @@ package away3d.loaders
 	                    			break;
 	                    		default:
 	                    	}
-	                    	i++;
+	                    	++i;
 	                    }
 		            } else if (element is UV) {
 		            	var uv:UV = element as UV;
@@ -1309,7 +1339,7 @@ package away3d.loaders
 	                    			break;
 	                    		default:
 	                    	}
-	                    	i++;
+	                    	++i;
 	                    }
 		            }
 	                output.push(element);

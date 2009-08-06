@@ -1,44 +1,24 @@
 package awaybuilder
 {
-	import away3d.loaders.data.MaterialData;	
-	import away3d.loaders.utils.MaterialLibrary;	
-	import away3d.core.base.UV;	
-	import away3d.loaders.data.GeometryData;	
-	import away3d.containers.ObjectContainer3D;
-	import away3d.containers.View3D;
-	import away3d.core.base.Mesh;
-	import away3d.core.base.Object3D;
-	import away3d.loaders.Collada;
-	import away3d.loaders.Object3DLoader;
-	import away3d.materials.BitmapFileMaterial;
-	import away3d.materials.BitmapMaterial;
-	import away3d.materials.MovieMaterial;
+	import away3d.containers.*;
+	import away3d.core.base.*;
+	import away3d.events.Loader3DEvent;
+	import away3d.loaders.*;
+	import away3d.loaders.data.*;
+	import away3d.loaders.utils.*;
+	import away3d.materials.*;
 	
-	import awaybuilder.abstracts.AbstractBuilder;
-	import awaybuilder.camera.CameraFactory;
-	import awaybuilder.events.SceneEvent;
-	import awaybuilder.geometry.GeometryAttributes;
-	import awaybuilder.geometry.GeometryFactory;
-	import awaybuilder.geometry.GeometryType;
-	import awaybuilder.interfaces.IAssetContainer;
-	import awaybuilder.interfaces.IBuilder;
-	import awaybuilder.interfaces.ISceneContainer;
-	import awaybuilder.material.MaterialAttributes;
-	import awaybuilder.material.MaterialFactory;
-	import awaybuilder.material.MaterialType;
-	import awaybuilder.utils.ConvertCoordinates;
-	import awaybuilder.vo.DynamicAttributeVO;
-	import awaybuilder.vo.SceneCameraVO;
-	import awaybuilder.vo.SceneGeometryVO;
-	import awaybuilder.vo.SceneObjectVO;
-	import awaybuilder.vo.SceneSectionVO;
+	import awaybuilder.abstracts.*;
+	import awaybuilder.camera.*;
+	import awaybuilder.events.*;
+	import awaybuilder.geometry.*;
+	import awaybuilder.interfaces.*;
+	import awaybuilder.material.*;
+	import awaybuilder.utils.*;
+	import awaybuilder.vo.*;
 	
-	import flash.display.BitmapData;
-	import flash.display.DisplayObject;
-	import flash.display.MovieClip;
-	import flash.events.Event;
-	
-	
+	import flash.display.*;
+	import flash.events.*;
 	
 	public class SceneBuilder extends AbstractBuilder implements IBuilder , IAssetContainer , ISceneContainer
 	{
@@ -56,14 +36,16 @@ package awaybuilder
 		protected var bitmapDataAssets : Array = [ ] ;
 		protected var displayObjectAssets : Array = [ ] ;
 		protected var colladaAssets : Array = [ ] ;
-		
+		protected var materialPropertyFactory : MaterialPropertyFactory ;
+
 		
 		
 		public function SceneBuilder ( )
 		{
 			super ( ) ;
+			this.materialPropertyFactory = new MaterialPropertyFactory ( ) ;
 		}
-		
+
 		
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +110,21 @@ package awaybuilder
 			return this.sections ;
 		}
 
+		
+		
+		override public function getSectionById ( id : String ) : SceneSectionVO
+		{
+			var result : SceneSectionVO ;
+			
+			for each ( var section : SceneSectionVO in this.sections )
+			{
+				if ( section.id == id ) result = section ;
+			}
+			
+			if ( ! result ) throw new Error ( "section with id [" + id + "] not found" ) ;
+			return result ;
+		}
+		
 		
 		
 		override public function getCameraById ( id : String ) : SceneCameraVO
@@ -286,9 +283,9 @@ package awaybuilder
 			if ( vo.smoothTexture ) this.smoothMaterials ( target.materialLibrary ) ;
 			this.applyPosition ( target , values ) ;
 			this.applyColladaRotation ( target , values ) ;
-			this.applyColladaScale ( target , values ) ;
+			this.applyColladaScale ( target , values , vo ) ;
 		}
-		
+
 		
 		
 		protected function flipTexture ( handle : Object3D ) : void
@@ -385,6 +382,8 @@ package awaybuilder
 		
 		protected function applyExternalAssets ( section : SceneSectionVO , vo : SceneGeometryVO ) : void
 		{
+			var applySpecialProperties : Boolean ;
+			
 			switch ( vo.materialType )
 			{
 				case MaterialType.BITMAP_MATERIAL :
@@ -393,26 +392,22 @@ package awaybuilder
 					
 					vo.materialData = bitmapData ;
 					vo.material = new BitmapMaterial ( bitmapData ) ;
-					vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
-					vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 					Mesh ( vo.mesh ).material = vo.material as BitmapMaterial ;
+					applySpecialProperties = true ;
 					break ;
 				}
 				case MaterialType.BITMAP_FILE_MATERIAL :
 				{
 					vo.material = new BitmapFileMaterial ( vo.assetFile ) ;
-					vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
-					vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 					Mesh ( vo.mesh ).material = vo.material as BitmapFileMaterial ;
 					
 					if ( vo.assetFileBack )
 					{
 						vo.materialBack = new BitmapFileMaterial ( vo.assetFileBack ) ;
-						vo.materialBack[ MaterialAttributes.SMOOTH ] = vo.smooth ;
-						vo.materialBack[ MaterialAttributes.PRECISION ] = vo.precision ;
 						Mesh ( vo.mesh ).back = vo.materialBack as BitmapFileMaterial ;
 					}
 					
+					applySpecialProperties = true ;
 					break ;
 				}
 				case MaterialType.MOVIE_MATERIAL :
@@ -422,8 +417,27 @@ package awaybuilder
 					vo.materialData = movieClip ;
 					vo.material = new MovieMaterial ( movieClip ) ;
 					Mesh ( vo.mesh ).material = vo.material as MovieMaterial ;
+					applySpecialProperties = true ;
 					break ;
 				}
+				case MaterialType.PHONG_BITMAP_MATERIAL :
+				{
+					var phongBitmapData : BitmapData = this.bitmapDataAssets[ vo.assetClass ] ;
+					
+					vo.materialData = phongBitmapData ;
+					vo.material = new PhongBitmapMaterial ( phongBitmapData ) ;
+					// TODO: Implement across all materials.
+					vo.materialType = vo.materialType ;
+					vo = this.materialPropertyFactory.build ( vo ) ;
+					Mesh ( vo.mesh ).material = vo.material as PhongBitmapMaterial ;
+					break ;
+				}
+			}
+			
+			if ( applySpecialProperties )
+			{
+				vo.material[ MaterialAttributes.SMOOTH ] = vo.smooth ;
+				vo.material[ MaterialAttributes.PRECISION ] = vo.precision ;
 			}
 			
 			switch ( vo.geometryType )
@@ -441,9 +455,8 @@ package awaybuilder
 					}
 					else if ( vo.assetFile != null )
 					{
-						var loader : Object3DLoader = Collada.load ( vo.assetFile ) ;
+						var loader : Loader3D = Collada.load ( vo.assetFile ) ;
 						
-						vo.mesh = ( loader.handle ) ;
 						loader.extra = vo ;
 						loader.addOnSuccess ( this.onColladaLoadSuccess ) ;
 						section.pivot.addChild ( loader ) ;
@@ -462,13 +475,16 @@ package awaybuilder
 
 		
 		
-		protected function onColladaLoadSuccess ( event : Event ) : void
+		protected function onColladaLoadSuccess ( event : Loader3DEvent ) : void
 		{
-			var loader : Object3DLoader = event.target as Object3DLoader ;
+			var loader : Loader3D = event.loader ;
 			var vo : SceneGeometryVO = loader.extra as SceneGeometryVO ;
+			var geometryEvent : GeometryEvent = new GeometryEvent ( GeometryEvent.COLLADA_COMPLETE ) ;
 			
+			vo.mesh = loader.handle ;
 			this.applyColladaValues ( loader.handle , vo.values , vo ) ;
-			this.dispatchEvent ( new SceneEvent ( SceneEvent.RENDER ) ) ;
+			geometryEvent.data = vo ;
+			this.dispatchEvent ( geometryEvent ) ;
 		}
 		
 		
@@ -520,24 +536,25 @@ package awaybuilder
 		
 		protected function applyScale ( target : Mesh , values : SceneObjectVO ) : void
 		{
-			// NOTE: Input Y and Z are switched. This is due to differences in creation plane.
 			target.scaleX = values.scaleX ;
-			target.scaleY = values.scaleZ ;
-			target.scaleZ = values.scaleY ;
+			target.scaleY = values.scaleY ;
+			target.scaleZ = values.scaleZ ;
 		}
 		
 		
 		
 		protected function applyPivotScale ( target : Object3D , values : SceneObjectVO ) : void
 		{
+			// FIXME: Use custom geometry scaling property instead of geometry x scale value?
 			target.scale ( values.scaleX ) ;
 		}
 
 		
 		
-		protected function applyColladaScale ( target : Object3D , values : SceneObjectVO ) : void
+		protected function applyColladaScale ( target : Object3D , values : SceneObjectVO , vo : SceneGeometryVO ) : void
 		{
-			var multiplier : uint ;
+			var multiplier : uint = 1 ;
+			var scale : Number = values.scaleX ;
 			
 			switch ( this.coordinateSystem )
 			{
@@ -547,14 +564,10 @@ package awaybuilder
 					multiplier = this.precision / 100 ;
 					break ;
 				}
-				case CoordinateSystem.NATIVE :
-				{
-					multiplier = 1 ;
-					break ;
-				}
 			}
-			// FIXME: Use custom geometry scaling property instead of geometry x scale value?
-			target.scale ( multiplier * values.scaleX ) ;
+			
+			if ( vo.colladaScale > 0 ) scale = vo.colladaScale ;
+			target.scale ( multiplier * scale ) ;
 		}
 	}
 }

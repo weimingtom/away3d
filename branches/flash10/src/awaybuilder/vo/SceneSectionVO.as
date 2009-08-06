@@ -1,10 +1,14 @@
 package awaybuilder.vo
-{	import away3d.containers.ObjectContainer3D;
+{
+	import awaybuilder.interfaces.IValueObject;	
+	
+	import away3d.containers.ObjectContainer3D;
 	
 	
 	
-	public class SceneSectionVO 
-	{		public var id : String = "" ;
+	public class SceneSectionVO implements IValueObject
+	{
+		public var id : String = "" ;
 		public var name : String = "" ;
 		public var values : SceneObjectVO ;
 		public var pivot : ObjectContainer3D ;
@@ -20,4 +24,5 @@ package awaybuilder.vo
 			this.values = new SceneObjectVO ( ) ;
 			this.pivot = new ObjectContainer3D ( ) ;
 		}
-	}}
+	}
+}

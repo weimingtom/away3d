@@ -1,10 +1,9 @@
 ﻿package away3d.primitives
 {
 	import away3d.*;
-	import away3d.core.base.*
-	import away3d.core.math.*;
+	import away3d.core.base.*;
 	import away3d.core.utils.*;
-	import away3d.materials.*
+	import away3d.materials.*;
 	import away3d.primitives.data.PatchData;
 	import flash.utils.*;
 
@@ -25,15 +24,10 @@
 		private var _pI:Array;
 		private var _patchVertices:Dictionary = new Dictionary();
 		private var _edgeCache:Array;
-		private var _gen:Array = new Array();
-		private var _patchName:String;
-		private var _patchCount:int;
+		private var _gen:Array = [];
 		private var _normDir:Boolean;
 		private var _material:ITriangleMaterial;
 		       
-		private var _w1:WireColorMaterial;
-		private var _w2:WireColorMaterial;
-		
 		private const resol:int = 1000;
 		public static const PATCH:int = 0;
 		public static const WIRE_ONLY:int = 1;
@@ -77,7 +71,7 @@
 		public static const BOTTOMLEFT:int = 3;
 		public static const BOTTOMRIGHT:int = 4;
 		
-		private static const OPPOSITE_OR:Array = new Array();
+		private static const OPPOSITE_OR:Array = [];
 		OPPOSITE_OR[X | X] = N;
 		OPPOSITE_OR[XY | X] = Y;
 		OPPOSITE_OR[XZ | X] = Z;
@@ -93,7 +87,7 @@
 		OPPOSITE_OR[XYZ | Z] = XY;
 		OPPOSITE_OR[YZ | Z] = Y;
 		           
-		private static const SCALINGS:Array = new Array();
+		private static const SCALINGS:Array = [];
 		SCALINGS[1] = [1, 1, 1];
 		SCALINGS[2] = [-1, 1, 1];
 		SCALINGS[4] = [-1, 1, -1];
@@ -111,7 +105,7 @@
 		 */
 		public function BezierPatch(patchDataPrm:PatchData, init:Object = null) {
 			
-			super(init)
+			super(init);
 
 			_material = material as ITriangleMaterial;
 			patchData = patchDataPrm;
@@ -130,10 +124,9 @@
 		 * Generate the patch mesh based on the patch data and render modes.
 		 */
 		public function buildPatch():void {
-			var start:int = getTimer();
 			
 			_patchVertices = new Dictionary();
-			_edgeCache = new Array();
+			_edgeCache = [];
 			geometry = new Geometry();
 			
 			// Iterate through all the items in the patch array
@@ -141,7 +134,6 @@
 				if (renderMode == WIRE_ONLY || renderMode == BASEWIRE_ONLY || renderMode == MIRRORWIRE_ONLY) buildWirePatch( key );
 				if (renderMode == PATCH) buildTrianglePatch( key );
 			}
-
 		}
 		
 		// Render the wireframe of the patch
@@ -211,10 +203,6 @@
 		private var vx5:Vertex = new Vertex();
 		private var vx6:Vertex = new Vertex();
 		private var vx7:Vertex = new Vertex();
-		private var ovx0:Vertex;
-		private var ovx1:Vertex;
-		private var ovx2:Vertex;
-		private var ovx3:Vertex;
 
 		// Render the full uv mapped patch
 		private function buildTrianglePatch( key:String ):void {	
@@ -229,12 +217,8 @@
 			for (var p:int = 0; p < _pI[key].patchCount; p++) {	
 				var x:Number;
 				var y:Number;
-				var tv0:Vertex = new Vertex();
-				var tv1:Vertex = new Vertex();
-				var tv2:Vertex = new Vertex();
 				var thisOr:int;
 				var orientation:int;
-				var f:Face;
 				
 				definePatchData(key, p);
 				
@@ -250,7 +234,6 @@
 							// If we have the correct orientation proceed
 							if (thisOr>0) {								
 
-								var hasUVs:Boolean = false;
 								var xOr:Boolean = ((orientation & X) | (orientation & XY) | (orientation & XZ) | (orientation & XYZ)) > 0;
 								var yOr:Boolean = ((orientation & Y) | (orientation & XY) | (orientation & YZ) | (orientation & XYZ)) > 0;
 								var zOr:Boolean = ((orientation & Z) | (orientation & YZ) | (orientation & XZ) | (orientation & XYZ)) > 0;
@@ -343,18 +326,17 @@
 		}
 
 		private function definePatchData(key:String, p:int):void {
-			var v:Vertex = new Vertex();
 			var xCtr:int = 0;
 			var yCtr:int = 0;
 			var thisOr:int = 0;
 
-			_gen[p] = new Array();
+			_gen[p] = [];
 			// Generate mesh for base patch and apply to the other orientations and store
 			for (var yPos:Number = 0; yPos <= 1 + (_pI[key].yStp / 2); yPos += _pI[key].yStp) {
-				_gen[p][yCtr] = new Array();
+				_gen[p][yCtr] = [];
 				xCtr = 0;				
 				for (var xPos:Number = 0; xPos <= 1 + (_pI[key].xStp / 2); xPos += _pI[key].xStp) {
-					_gen[p][yCtr][xCtr] = new Array();
+					_gen[p][yCtr][xCtr] = [];
 
 					for each (var orientation:int in [1, 2, 4, 8, 16, 32, 64, 128]) {
 						thisOr = _pI[key].oOr & orientation;
@@ -377,12 +359,7 @@
 		 * Refresh the patch with updated patch data information - this is far quicker than re-building the patch
 		 */
 		public function refreshPatch():void {
-			var start:int = getTimer();
-			var xCtr:int;
-			var yCtr:int;
 			var v:Vertex;
-			var vData:Array;
-			var tempVertices:Array;
 			var pId:int;
 			var yId:int;
 			var xId:int;
@@ -409,7 +386,6 @@
 					}
 				}
 			}
-
 			_objectDirty = true;
 			updateObject();
 		}
@@ -498,7 +474,7 @@
 		}
 		
 		private function fillPatchMirrorHoles(pUV:Array, fillPoints:Array, key:String, p:int, segW:int, segH:int):void {
-
+			key;//TODO : FDT Warning
 			for each (var vData:Array in fillPoints) {
 				var vId:int = vData[0];
 				var vOr:Array = vData[1];

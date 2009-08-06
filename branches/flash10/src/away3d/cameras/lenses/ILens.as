@@ -8,6 +8,10 @@ package away3d.cameras.lenses
 	
 	public interface ILens
 	{
+		function get near():Number;
+		
+		function get far():Number;
+		
 		function setView(val:View3D):void
 		
 		function getFrustum(node:Object3D, viewTransform:MatrixAway3D):Frustum;
@@ -16,9 +20,11 @@ package away3d.cameras.lenses
 		
 		function getZoom():Number;
         
+        function getPerspective(screenZ:Number):Number;
+        
        /**
-        * Projects the vertex to the screen space of the view.
+        * Projects the vertices to the screen space of the view.
         */
-        function project(viewTransform:MatrixAway3D, vertex:Vertex):ScreenVertex;
+        function project(viewTransform:MatrixAway3D, vertices:Array, screenVertices:Array):void;
 	}
 }
