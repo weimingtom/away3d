@@ -1,4 +1,4 @@
-package
+﻿package
 {
 	import away3d.animators.SkinAnimation;
 	import away3d.containers.ObjectContainer3D;
@@ -26,7 +26,7 @@ package
 		public function ExColladaAnimation()
 		{
 			// just title
-			super("Material", "Simple Collada Animation Example by katopz");
+			super("Animation", "Simple Collada Animation Example by katopz");
 		}
 
 		override protected function create():void
