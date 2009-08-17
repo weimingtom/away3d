@@ -593,9 +593,13 @@ package awaybuilder
 			{
 				case CoordinateSystem.MAYA :
 				{
-					// NOTE: The divider is due to the Collada class having an internal scaling multiplier of 100.
-					multiplier = this.precision /*/ 100*/ ;
+					multiplier = this.precision ;
 					break ;
+				}
+				default :
+				{
+					multiplier = 100 ;
+					break;
 				}
 			}
 			
