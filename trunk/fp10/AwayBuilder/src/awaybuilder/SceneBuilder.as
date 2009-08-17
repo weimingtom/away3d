@@ -1,24 +1,48 @@
 package awaybuilder
-{
-	import away3d.containers.*;
-	import away3d.core.base.*;
+{	import away3d.containers.ObjectContainer3D;
+	import away3d.containers.View3D;
+	import away3d.core.base.Mesh;
+	import away3d.core.base.Object3D;
+	import away3d.core.base.UV;
 	import away3d.events.Loader3DEvent;
-	import away3d.loaders.*;
-	import away3d.loaders.data.*;
-	import away3d.loaders.utils.*;
-	import away3d.materials.*;
+	import away3d.loaders.Collada;
+	import away3d.loaders.Loader3D;
+	import away3d.loaders.LoaderCube;
+	import away3d.loaders.data.GeometryData;
+	import away3d.loaders.data.MaterialData;
+	import away3d.loaders.utils.MaterialLibrary;
+	import away3d.materials.BitmapFileMaterial;
+	import away3d.materials.BitmapMaterial;
+	import away3d.materials.MovieMaterial;
+	import away3d.materials.PhongBitmapMaterial;
 	
-	import awaybuilder.abstracts.*;
-	import awaybuilder.camera.*;
-	import awaybuilder.events.*;
-	import awaybuilder.geometry.*;
-	import awaybuilder.interfaces.*;
-	import awaybuilder.material.*;
-	import awaybuilder.utils.*;
-	import awaybuilder.vo.*;
+	import awaybuilder.abstracts.AbstractBuilder;
+	import awaybuilder.camera.CameraFactory;
+	import awaybuilder.events.GeometryEvent;
+	import awaybuilder.events.SceneEvent;
+	import awaybuilder.geometry.GeometryAttributes;
+	import awaybuilder.geometry.GeometryFactory;
+	import awaybuilder.geometry.GeometryType;
+	import awaybuilder.interfaces.IAssetContainer;
+	import awaybuilder.interfaces.IBuilder;
+	import awaybuilder.interfaces.ISceneContainer;
+	import awaybuilder.material.MaterialAttributes;
+	import awaybuilder.material.MaterialFactory;
+	import awaybuilder.material.MaterialPropertyFactory;
+	import awaybuilder.material.MaterialType;
+	import awaybuilder.utils.ConvertCoordinates;
+	import awaybuilder.vo.DynamicAttributeVO;
+	import awaybuilder.vo.SceneCameraVO;
+	import awaybuilder.vo.SceneGeometryVO;
+	import awaybuilder.vo.SceneObjectVO;
+	import awaybuilder.vo.SceneSectionVO;
 	
-	import flash.display.*;
-	import flash.events.*;
+	import flash.display.BitmapData;
+	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
+	import flash.events.Event;
+	
+	
 	
 	public class SceneBuilder extends AbstractBuilder implements IBuilder , IAssetContainer , ISceneContainer
 	{
@@ -37,7 +61,7 @@ package awaybuilder
 		protected var displayObjectAssets : Array = [ ] ;
 		protected var colladaAssets : Array = [ ] ;
 		protected var materialPropertyFactory : MaterialPropertyFactory ;
-
+		
 		
 		
 		public function SceneBuilder ( )
@@ -444,7 +468,7 @@ package awaybuilder
 			{
 				case GeometryType.COLLADA :
 				{
-					if ( vo.assetClass != null )
+					if ( vo.assetClass )
 					{
 						var xml : XML = this.colladaAssets[ vo.assetClass ] ;
 						var container : ObjectContainer3D = Collada.parse ( xml ) ;
@@ -453,13 +477,22 @@ package awaybuilder
 						section.pivot.addChild ( container ) ;
 						this.applyColladaValues ( container , vo.values , vo ) ;
 					}
-					else if ( vo.assetFile != null )
+					else if ( vo.assetFile )
 					{
+						/*
 						var loader : Loader3D = Collada.load ( vo.assetFile ) ;
 						
 						loader.extra = vo ;
 						loader.addOnSuccess ( this.onColladaLoadSuccess ) ;
 						section.pivot.addChild ( loader ) ;
+						*/
+						
+						var loader : LoaderCube = new LoaderCube ( );
+						
+						loader.extra = vo;
+						loader.addOnSuccess ( onColladaLoadSuccess );
+						section.pivot.addChild ( loader );
+						loader.loadGeometry ( vo.assetFile , new Collada ( ) );
 					}
 					
 					break ;
@@ -561,7 +594,7 @@ package awaybuilder
 				case CoordinateSystem.MAYA :
 				{
 					// NOTE: The divider is due to the Collada class having an internal scaling multiplier of 100.
-					multiplier = this.precision / 100 ;
+					multiplier = this.precision /*/ 100*/ ;
 					break ;
 				}
 			}
