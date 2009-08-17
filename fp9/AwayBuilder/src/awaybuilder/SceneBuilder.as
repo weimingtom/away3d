@@ -441,7 +441,7 @@ package awaybuilder
 			{
 				case GeometryType.COLLADA :
 				{
-					if ( vo.assetClass != null )
+					if ( vo.assetClass )
 					{
 						var xml : XML = this.colladaAssets[ vo.assetClass ] ;
 						var container : ObjectContainer3D = Collada.parse ( xml ) ;
@@ -450,13 +450,22 @@ package awaybuilder
 						section.pivot.addChild ( container ) ;
 						this.applyColladaValues ( container , vo.values , vo ) ;
 					}
-					else if ( vo.assetFile != null )
+					else if ( vo.assetFile )
 					{
+						/*
 						var loader : Loader3D = Collada.load ( vo.assetFile ) ;
 						
 						loader.extra = vo ;
 						loader.addOnSuccess ( this.onColladaLoadSuccess ) ;
 						section.pivot.addChild ( loader ) ;
+						*/
+						
+						var loader : LoaderCube = new LoaderCube ( );
+						
+						loader.extra = vo;
+						loader.addOnSuccess ( onColladaLoadSuccess );
+						section.pivot.addChild ( loader );
+						loader.loadGeometry ( vo.assetFile , new Collada ( ) );
 					}
 					
 					break ;
@@ -555,7 +564,7 @@ package awaybuilder
 				case CoordinateSystem.MAYA :
 				{
 					// NOTE: The divider is due to the Collada class having an internal scaling multiplier of 100.
-					multiplier = this.precision / 100 ;
+					multiplier = this.precision /*/ 100*/ ;
 					break ;
 				}
 			}
