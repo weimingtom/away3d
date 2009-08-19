@@ -1,6 +1,5 @@
 package
 {
-	import away3d.animators.SkinAnimation;
 	import away3d.animators.skin.Bone;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.utils.Debug;

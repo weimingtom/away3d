@@ -1,6 +1,5 @@
 package
 {
-	import away3d.animators.SkinAnimation;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.utils.Debug;
 	import away3d.events.Loader3DEvent;
