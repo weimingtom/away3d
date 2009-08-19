@@ -8,7 +8,7 @@
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.data.AnimationData;
 	import away3d.test.SimpleView;
-
+	
 	import flash.utils.getTimer;
 
 	[SWF(backgroundColor="0xFFFFFF",frameRate="30",width="800",height="600")]
