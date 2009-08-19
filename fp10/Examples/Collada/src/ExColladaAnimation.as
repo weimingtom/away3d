@@ -1,4 +1,4 @@
-﻿package
+package
 {
 	import away3d.animators.SkinAnimation;
 	import away3d.containers.ObjectContainer3D;
@@ -8,7 +8,7 @@
 	import away3d.loaders.Loader3D;
 	import away3d.loaders.data.AnimationData;
 	import away3d.test.SimpleView;
-
+	
 	import flash.utils.getTimer;
 
 	[SWF(backgroundColor="0xFFFFFF",frameRate="30",width="800",height="600")]
@@ -26,7 +26,7 @@
 		public function ExColladaAnimation()
 		{
 			// just title
-			super("Animation", "Simple Collada Animation Example by katopz");
+			super("Material", "Simple Collada Animation Example by katopz");
 		}
 
 		override protected function create():void

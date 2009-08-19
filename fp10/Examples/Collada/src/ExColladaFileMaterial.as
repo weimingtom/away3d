@@ -1,15 +1,14 @@
 package
 {
-	import away3d.animators.SkinAnimation;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.utils.Debug;
-	import away3d.events.LoaderEvent;
+	import away3d.events.Loader3DEvent;
 	import away3d.loaders.Collada;
-	import away3d.loaders.Object3DLoader;
+	import away3d.loaders.Loader3D;
 	import away3d.loaders.data.MaterialData;
 	import away3d.materials.BitmapFileMaterial;
 	import away3d.test.SimpleView;
-	
+
 	[SWF(backgroundColor="0xFFFFFF", frameRate="30", width="800", height="600")]
 	
 	/**
@@ -20,8 +19,6 @@ package
 	 */
 	public class ExColladaFileMaterial extends SimpleView
 	{
-        private var skinAnimation:SkinAnimation;
-        
         public function ExColladaFileMaterial()
         {
         	// just title
@@ -34,15 +31,16 @@ package
 			Debug.active = true;
 			
 			// load and wait...
-			var loader:Object3DLoader = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/10_box_still.dae");
+			var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/10_box_still.dae");
 			loader.addOnSuccess(onLoaderSuccess);
 			view.scene.addChild(loader);
         }
         
-		private function onLoaderSuccess(event:LoaderEvent):void
+		private function onLoaderSuccess(event:Loader3DEvent):void
 		{
 			// camera auto lookAt target in simple view
 			target = ObjectContainer3D(event.loader.handle);
+			target.scale(100);
             
             // try change "lambert1" material
             var targetMaterial:MaterialData = target.materialLibrary.getMaterial("lambert1");
