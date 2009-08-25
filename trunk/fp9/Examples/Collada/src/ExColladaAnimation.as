@@ -1,4 +1,4 @@
-﻿package
+package
 {
 	import away3d.animators.SkinAnimation;
 	import away3d.containers.ObjectContainer3D;
@@ -26,7 +26,7 @@
 		public function ExColladaAnimation()
 		{
 			// just title
-			super("Animation", "Simple Collada Animation Example by katopz");
+			super("Material", "Simple Collada Animation Example by katopz");
 		}
 
 		override protected function create():void
@@ -38,7 +38,7 @@
 			
 			// ---------------------------- Maya8.5 Collada Maya 3.05B ---------------------------- 
 
-			var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/30_box_smooth_translate.dae");
+			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/30_box_smooth_translate.dae");
 			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/40_box_smooth_rotate.dae");
 			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/41_box_rigid_rotate.dae");
 			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/42_box_rigid_member_rotate.dae");
@@ -46,7 +46,17 @@
 			
 			// ---------------------------- 3dsMax11 11.008 ---------------------------- 
 
-			//var loader:Loader3D = Collada.load("assets/3dsMax11/ColladaMax3.05B/advance/30_transforms.dae");
+			//var loader:Loader3D = Collada.load("test2.dae");
+			
+			// ---------------------------- 3dsMax2009 11.008 COLLADAMax NextGen v1.1.0---------------------------- 
+
+			//var loader:Loader3D = Collada.load("assets/3dsMax2009/COLLADAMaxNextGen1.1.0/basic/10_box_still_max.dae");
+			//TODO//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/20_box_still_bone_max.dae");
+			var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/30_box_smooth_translate.dae");
+			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/40_box_smooth_rotate.dae");
+			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/41_box_rigid_rotate.dae");
+			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/42_box_rigid_member_rotate.dae");
+			//var loader:Loader3D = Collada.load("assets/Maya8.5/ColladaMaya3.05B/basic/50_box_smooth_scale.dae");
 			
 			// ---------------------------- Cinema4D 11.008 ---------------------------- 
 
