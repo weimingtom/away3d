@@ -1,7 +1,7 @@
 package jiglib.plugin.away3dlite
 {
 	import away3dlite.containers.View3D;
-	import away3dlite.core.base.Object3D;
+	import away3dlite.core.base.Mesh;
 	import away3dlite.materials.Material;
 	import away3dlite.primitives.Ground;
 	import away3dlite.primitives.SimpleCube;
@@ -28,9 +28,9 @@ package jiglib.plugin.away3dlite
 			this.view = view;
 		}
 
-		public function getMesh(body:RigidBody):Object3D
+		public function getMesh(body:RigidBody):Mesh
 		{
-			return Away3DLiteMesh(body.skin).mesh;
+			return Away3DLiteMesh(body.skin).mesh as Mesh;
 		}
 
 		public function createSphere(material:Material, radius:Number = 100, segmentsW:int = 8, segmentsH:int = 6):RigidBody
