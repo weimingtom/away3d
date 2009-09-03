@@ -79,7 +79,7 @@ package jiglib.physics.constraint
 			var worldPos1:Vector3D = JNumber3D.add(_body1.currentState.position, r1);
 			_worldPos = JNumber3D.multiply(JNumber3D.add(worldPos0, worldPos1), 0.5);
 
-			var deviation:Vector3D = JNumber3D.sub(worldPos0, worldPos1);
+			var deviation:Vector3D = worldPos0.subtract(worldPos1);
 			var deviationAmount:Number = deviation.length;
 			if (deviationAmount > _allowedDistance)
 			{
@@ -102,7 +102,7 @@ package jiglib.physics.constraint
 
 			var currentVel0:Vector3D = _body0.getVelocity(r0);
 			var currentVel1:Vector3D = _body1.getVelocity(r1);
-			var Vr:Vector3D = JNumber3D.add(_vrExtra, JNumber3D.sub(currentVel0, currentVel1));
+			var Vr:Vector3D = JNumber3D.add(_vrExtra, currentVel0.subtract(currentVel1));
 
 			var normalVel:Number = Vr.length;
 			if (normalVel < _minVelForProcessing)

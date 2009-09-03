@@ -64,13 +64,13 @@ package jiglib.physics
 			_extraTorque = 0;
 
 			_hingeAxis.normalize();
-			var _hingePosRel1:Vector3D = JNumber3D.add(_body0.currentState.position, JNumber3D.sub(_hingePosRel0, _body1.currentState.position));
+			var _hingePosRel1:Vector3D = JNumber3D.add(_body0.currentState.position, _hingePosRel0.subtract(_body1.currentState.position));
 
-			var relPos0a:Vector3D = JNumber3D.add(_hingePosRel0, JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
-			var relPos0b:Vector3D = JNumber3D.sub(_hingePosRel0, JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
+			var relPos0a:Vector3D = _hingePosRel0.add(JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
+			var relPos0b:Vector3D = _hingePosRel0.subtract(JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
 
-			var relPos1a:Vector3D = JNumber3D.add(_hingePosRel1, JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
-			var relPos1b:Vector3D = JNumber3D.sub(_hingePosRel1, JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
+			var relPos1a:Vector3D = _hingePosRel1.add(JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
+			var relPos1b:Vector3D = _hingePosRel1.subtract(JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
 
 			var timescale:Number = 1 / 20;
 			var allowedDistanceMid:Number = 0.005;
@@ -102,9 +102,9 @@ package jiglib.physics
 				var hingeHalfAngle:Number = 0.5 * (hingeFwdAngle + hingeBckAngle);
 				var allowedDistance:Number = len * 2 * Math.sin(0.5 * hingeHalfAngle * Math.PI / 180);
 
-				var hingePos:Vector3D = JNumber3D.add(_body1.currentState.position, _hingePosRel0);
-				var relPos0c:Vector3D = JNumber3D.add(hingePos, JNumber3D.sub(hingeRelAnchorPos0, _body0.currentState.position));
-				var relPos1c:Vector3D = JNumber3D.add(hingePos, JNumber3D.sub(hingeRelAnchorPos1, _body1.currentState.position));
+				var hingePos:Vector3D = _body1.currentState.position.add(_hingePosRel0);
+				var relPos0c:Vector3D = hingePos.add(hingeRelAnchorPos0.subtract(_body0.currentState.position));
+				var relPos1c:Vector3D = hingePos.add(hingeRelAnchorPos1.subtract(_body1.currentState.position));
 
 				maxDistanceConstraint = new JConstraintMaxDistance(_body0, relPos0c, _body1, relPos1c, allowedDistance);
 				_usingLimit = true;
@@ -205,7 +205,7 @@ package jiglib.physics
 		{
 			if (_damping > 0)
 			{
-				var hingeAxis:Vector3D = JNumber3D.sub(_body1.currentState.rotVelocity, _body0.currentState.rotVelocity);
+				var hingeAxis:Vector3D = _body1.currentState.rotVelocity.subtract(_body0.currentState.rotVelocity);
 				hingeAxis.normalize();
 
 				var angRot1:Number = JNumber3D.dot(_body0.currentState.rotVelocity, hingeAxis);

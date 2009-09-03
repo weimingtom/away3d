@@ -73,7 +73,7 @@ package jiglib.collision
 				var pos0:Vector3D = oldSeg0.getPoint(oldObj.t0);
 				var pos1:Vector3D = oldSeg1.getPoint(oldObj.t1);
 
-				var delta:Vector3D = JNumber3D.sub(pos0, pos1);
+				var delta:Vector3D = pos0.subtract(pos1);
 				var dist:Number = Math.sqrt(oldDistSq);
 				var depth:Number = radSum - dist;
 
@@ -90,8 +90,8 @@ package jiglib.collision
 				var worldPos:Vector3D = pos1.add(JNumber3D.multiply(delta, capsule1.radius - 0.5 * depth));
 
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(worldPos, capsule0.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(worldPos, capsule1.oldState.position);
+				cpInfo.r0 = worldPos.subtract(capsule0.oldState.position);
+				cpInfo.r1 = worldPos.subtract(capsule1.oldState.position);
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 			}
@@ -111,7 +111,7 @@ package jiglib.collision
 				pos0 = oldSeg0.getPoint(oldObj.t0);
 				pos1 = oldSeg1.getPoint(oldObj.t1);
 
-				delta = JNumber3D.sub(pos0, pos1);
+				delta = pos0.subtract(pos1);
 				dist = Math.sqrt(oldDistSq);
 				depth = radSum - dist;
 
@@ -125,11 +125,11 @@ package jiglib.collision
 					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), delta);
 				}
 
-				worldPos = JNumber3D.add(pos1, JNumber3D.multiply(delta, capsule1.radius - 0.5 * depth));
+				worldPos = pos1.add(JNumber3D.multiply(delta, capsule1.radius - 0.5 * depth));
 
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(worldPos, capsule0.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(worldPos, capsule1.oldState.position);
+				cpInfo.r0 = worldPos.subtract(capsule0.oldState.position);
+				cpInfo.r1 = worldPos.subtract(capsule1.oldState.position);
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 

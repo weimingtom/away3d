@@ -48,8 +48,8 @@ package jiglib.collision
 			var sphere0:JSphere = info.body0 as JSphere;
 			var sphere1:JSphere = info.body1 as JSphere;
 
-			var oldDelta:Vector3D = JNumber3D.sub(sphere0.oldState.position, sphere1.oldState.position);
-			var newDelta:Vector3D = JNumber3D.sub(sphere0.currentState.position, sphere1.currentState.position);
+			var oldDelta:Vector3D = sphere0.oldState.position.subtract(sphere1.oldState.position);
+			var newDelta:Vector3D = sphere0.currentState.position.subtract(sphere1.currentState.position);
 
 			var oldDistSq:Number = oldDelta.lengthSquared;
 			var newDistSq:Number = newDelta.lengthSquared;
@@ -73,8 +73,8 @@ package jiglib.collision
 
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				var cpInfo:CollPointInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(worldPos, sphere0.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(worldPos, sphere1.oldState.position);
+				cpInfo.r0 = worldPos.subtract(sphere0.oldState.position);
+				cpInfo.r1 = worldPos.subtract(sphere1.oldState.position);
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 

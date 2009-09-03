@@ -70,21 +70,21 @@ package jiglib.collision {
 				var dir:Vector3D;
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				if (oldDist < -JNumber3D.NUM_TINY) {
-					dir = JNumber3D.sub(JNumber3D.sub(oldBoxPoint.pos, sphere.oldState.position), oldBoxPoint.pos);
+					dir = oldBoxPoint.pos.subtract(sphere.oldState.position).subtract(oldBoxPoint.pos);
 					dir.normalize();
 				}
 				else if (oldDist > JNumber3D.NUM_TINY) {
-					dir = JNumber3D.sub(sphere.oldState.position, oldBoxPoint.pos);
+					dir = sphere.oldState.position.subtract(oldBoxPoint.pos);
 					dir.normalize();
 				}
 				else {
-					dir = JNumber3D.sub(sphere.oldState.position, box.oldState.position);
+					dir = sphere.oldState.position.subtract(box.oldState.position);
 					dir.normalize();
 				}
 				
 				var cpInfo:CollPointInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(oldBoxPoint.pos, sphere.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(oldBoxPoint.pos, box.oldState.position);
+				cpInfo.r0 = oldBoxPoint.pos.subtract(sphere.oldState.position);
+				cpInfo.r1 = oldBoxPoint.pos.subtract(box.oldState.position);
 				cpInfo.initialPenetration = oldDepth;
 				collPts.push(cpInfo);
 				

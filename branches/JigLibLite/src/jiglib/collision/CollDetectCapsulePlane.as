@@ -68,11 +68,11 @@ package jiglib.collision
 			if (Math.min(oldDist, newDist) < capsule.radius + JConfig.collToll)
 			{
 				var oldDepth:Number = capsule.radius - oldDist;
-				var worldPos:Vector3D = JNumber3D.sub(oldPos, JNumber3D.multiply(plane.normal, capsule.radius));
+				var worldPos:Vector3D = oldPos.subtract(JNumber3D.multiply(plane.normal, capsule.radius));
 
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(worldPos, capsule.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(worldPos, plane.oldState.position);
+				cpInfo.r0 = worldPos.subtract(capsule.oldState.position);
+				cpInfo.r1 = worldPos.subtract(plane.oldState.position);
 				cpInfo.initialPenetration = oldDepth;
 				collPts.push(cpInfo);
 			}
@@ -84,11 +84,11 @@ package jiglib.collision
 			if (Math.min(oldDist, newDist) < capsule.radius + JConfig.collToll)
 			{
 				oldDepth = capsule.radius - oldDist;
-				worldPos = JNumber3D.sub(oldPos, JNumber3D.multiply(plane.normal, capsule.radius));
+				worldPos = oldPos.subtract(JNumber3D.multiply(plane.normal, capsule.radius));
 
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(worldPos, capsule.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(worldPos, plane.oldState.position);
+				cpInfo.r0 = worldPos.subtract(capsule.oldState.position);
+				cpInfo.r1 = worldPos.subtract(plane.oldState.position);
 				cpInfo.initialPenetration = oldDepth;
 				collPts.push(cpInfo);
 			}

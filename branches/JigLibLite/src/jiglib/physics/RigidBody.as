@@ -328,7 +328,7 @@ package jiglib.physics
 				return;
 			}
 			_force = _force.add(f);
-			addWorldTorque(JNumber3D.cross(f, JNumber3D.sub(p, _currState.position)));
+			addWorldTorque(JNumber3D.cross(f, p.subtract(_currState.position)));
 			_velChanged = true;
 			setActive();
 		}
@@ -358,7 +358,7 @@ package jiglib.physics
 			}
 			_currState.linVelocity = _currState.linVelocity.add(JNumber3D.multiply(impulse, _invMass));
 
-			var rotImpulse:Vector3D = JNumber3D.cross(impulse, JNumber3D.sub(pos, _currState.position));
+			var rotImpulse:Vector3D = JNumber3D.cross(impulse, pos.subtract(_currState.position));
 			JMatrix3D.multiplyVector(_worldInvInertia, rotImpulse);
 			_currState.rotVelocity = _currState.rotVelocity.add(rotImpulse);
 
@@ -373,7 +373,7 @@ package jiglib.physics
 			}
 			_currLinVelocityAux = _currLinVelocityAux.add(JNumber3D.multiply(impulse, _invMass));
 
-			var rotImpulse:Vector3D = JNumber3D.cross(impulse, JNumber3D.sub(pos, _currState.position));
+			var rotImpulse:Vector3D = JNumber3D.cross(impulse, pos.subtract(_currState.position));
 			JMatrix3D.multiplyVector(_worldInvInertia, rotImpulse);
 			_currRotVelocityAux = _currRotVelocityAux.add(rotImpulse);
 
@@ -540,7 +540,7 @@ package jiglib.physics
 			{
 				return;
 			}
-			if (JNumber3D.sub(_currState.position, _lastPositionForDeactivation).length > JConfig.posThreshold)
+			if (_currState.position.subtract(_lastPositionForDeactivation).length > JConfig.posThreshold)
 			{
 				_lastPositionForDeactivation = _currState.position.clone();
 				_inactiveTime = 0;
@@ -681,7 +681,7 @@ package jiglib.physics
 
 		public function doMovementActivations():void
 		{
-			if (_bodiesToBeActivatedOnMovement.length == 0 || JNumber3D.sub(_currState.position, _storedPositionForActivation).length < JConfig.posThreshold)
+			if (_bodiesToBeActivatedOnMovement.length == 0 || _currState.position.subtract(_storedPositionForActivation).length < JConfig.posThreshold)
 			{
 				return;
 			}
@@ -734,7 +734,7 @@ package jiglib.physics
 
 		public function hitTestObject3D(obj3D:RigidBody):Boolean
 		{
-			var num1:Number = JNumber3D.sub(_currState.position, obj3D.currentState.position).length;
+			var num1:Number = _currState.position.subtract(obj3D.currentState.position).length;
 			var num2:Number = _boundingSphere + obj3D.boundingSphere;
 
 			if (num1 <= num2)

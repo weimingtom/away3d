@@ -183,7 +183,7 @@ package jiglib.vehicles
 			wheelLeft.normalize();
 
 			var rayLen:Number = 2 * _radius + _travel;
-			wheelRayEnd = JNumber3D.sub(worldPos, JNumber3D.multiply(worldAxis, _radius));
+			wheelRayEnd = worldPos.subtract(JNumber3D.multiply(worldAxis, _radius));
 			wheelRay = new JSegment(JNumber3D.add(wheelRayEnd, JNumber3D.multiply(worldAxis, rayLen)), JNumber3D.multiply(worldAxis, -rayLen));
 
 			var collSystem:CollisionSystem = PhysicsSystem.getInstance().getCollisionSystem();
@@ -236,7 +236,7 @@ package jiglib.vehicles
 				{
 					if (objArr[iRay].fracOut <= 1)
 					{
-						groundNormal = JNumber3D.add(groundNormal, JNumber3D.multiply(JNumber3D.sub(worldPos, segments[iRay].getEnd()), 1 - objArr[iRay].fracOut));
+						groundNormal = JNumber3D.add(groundNormal, JNumber3D.multiply(worldPos.subtract(segments[iRay].getEnd()), 1 - objArr[iRay].fracOut));
 					}
 				}
 				groundNormal.normalize();
@@ -275,15 +275,15 @@ package jiglib.vehicles
 
 			var tempv:Vector3D = _pos.clone();
 			JMatrix3D.multiplyVector(carBody.currentState.orientation, tempv);
-			wheelPointVel = JNumber3D.add(carBody.currentState.linVelocity, JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
+			wheelPointVel = carBody.currentState.linVelocity.add(JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
 
-			rimVel = JNumber3D.multiply(JNumber3D.cross(JNumber3D.sub(groundPos, worldPos), wheelLeft), _angVel);
+			rimVel = JNumber3D.multiply(JNumber3D.cross(groundPos.subtract(worldPos), wheelLeft), _angVel);
 			wheelPointVel = JNumber3D.add(wheelPointVel, rimVel);
 
 			if (otherBody.movable)
 			{
-				worldVel = JNumber3D.add(otherBody.currentState.linVelocity, JNumber3D.cross(JNumber3D.sub(groundPos, otherBody.currentState.position), otherBody.currentState.rotVelocity));
-				wheelPointVel = JNumber3D.sub(wheelPointVel, worldVel);
+				worldVel = otherBody.currentState.linVelocity.add(JNumber3D.cross(groundPos.subtract(otherBody.currentState.position), otherBody.currentState.rotVelocity));
+				wheelPointVel = wheelPointVel.subtract(worldVel);
 			}
 
 			var friction:Number = _sideFriction;

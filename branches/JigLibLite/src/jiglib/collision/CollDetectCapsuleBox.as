@@ -90,12 +90,12 @@ package jiglib.collision
 				var dir:Vector3D;
 				if (dist > JNumber3D.NUM_TINY)
 				{
-					dir = JNumber3D.sub(segPos, boxPos);
+					dir = segPos.subtract(boxPos);
 					dir.normalize();
 				}
-				else if (JNumber3D.sub(segPos, box.oldState.position).length > JNumber3D.NUM_TINY)
+				else if (segPos.subtract(box.oldState.position).length > JNumber3D.NUM_TINY)
 				{
-					dir = JNumber3D.sub(segPos, box.oldState.position);
+					dir = segPos.subtract(box.oldState.position);
 					dir.normalize();
 				}
 				else
@@ -105,8 +105,8 @@ package jiglib.collision
 				}
 
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(boxPos, capsule.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(boxPos, box.oldState.position);
+				cpInfo.r0 = boxPos.subtract(capsule.oldState.position);
+				cpInfo.r1 = boxPos.subtract(box.oldState.position);
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 			}
@@ -133,12 +133,12 @@ package jiglib.collision
 
 				if (dist > JNumber3D.NUM_TINY)
 				{
-					dir = JNumber3D.sub(segPos, boxPos);
+					dir = segPos.subtract(boxPos);
 					dir.normalize();
 				}
-				else if (JNumber3D.sub(segPos, box.oldState.position).length > JNumber3D.NUM_TINY)
+				else if (segPos.subtract(box.oldState.position).length > JNumber3D.NUM_TINY)
 				{
-					dir = JNumber3D.sub(segPos, box.oldState.position);
+					dir = segPos.subtract(box.oldState.position);
 					dir.normalize();
 				}
 				else
@@ -148,8 +148,8 @@ package jiglib.collision
 				}
 
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(boxPos, capsule.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(boxPos, box.oldState.position);
+				cpInfo.r0 = boxPos.subtract(capsule.oldState.position);
+				cpInfo.r1 = boxPos.subtract(box.oldState.position);
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 			}

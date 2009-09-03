@@ -71,8 +71,8 @@ package jiglib.collision
 
 			var worldPos:Vector3D = sphere.oldState.position.subtract(JNumber3D.multiply(plane.normal, sphere.radius));
 			cpInfo = new CollPointInfo();
-			cpInfo.r0 = JNumber3D.sub(worldPos, sphere.oldState.position);
-			cpInfo.r1 = JNumber3D.sub(worldPos, plane.oldState.position);
+			cpInfo.r0 = worldPos.subtract(sphere.oldState.position);
+			cpInfo.r1 = worldPos.subtract(plane.oldState.position);
 			cpInfo.initialPenetration = depth;
 			collPts.push(cpInfo);
 

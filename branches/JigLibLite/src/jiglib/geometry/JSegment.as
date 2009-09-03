@@ -82,7 +82,7 @@ package jiglib.geometry
 			out.t0 = 0;
 			out.t1 = 0;
 
-			var kDiff:Vector3D = JNumber3D.sub(_origin, seg.origin);
+			var kDiff:Vector3D = _origin.subtract(seg.origin);
 			var fA00:Number = _delta.lengthSquared;
 			var fA01:Number = -JNumber3D.dot(_delta, seg.delta);
 			var fA11:Number = seg.delta.lengthSquared;
@@ -430,7 +430,7 @@ package jiglib.geometry
 		{
 			out.t = 0;
 
-			var kDiff:Vector3D = JNumber3D.sub(pt, _origin);
+			var kDiff:Vector3D = pt.subtract( _origin);
 			var fT:Number = JNumber3D.dot(kDiff, _delta);
 
 			if (fT <= 0)
@@ -443,12 +443,12 @@ package jiglib.geometry
 				if (fT >= fSqrLen)
 				{
 					fT = 1;
-					kDiff = JNumber3D.sub(kDiff, _delta);
+					kDiff = kDiff.subtract(_delta);
 				}
 				else
 				{
 					fT /= fSqrLen;
-					kDiff = JNumber3D.sub(kDiff, JNumber3D.multiply(_delta, fT));
+					kDiff = kDiff.subtract(JNumber3D.multiply(_delta, fT));
 				}
 			}
 
@@ -499,7 +499,7 @@ package jiglib.geometry
 			out.num1 = 0;
 			out.num2 = 0;
 
-			var kDiff:Vector3D = JNumber3D.sub(rkLine.origin, boxState.position);
+			var kDiff:Vector3D = rkLine.origin.subtract(boxState.position);
 			var kPnt:Vector3D = new JNumber3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[1]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[2]));
@@ -611,7 +611,7 @@ package jiglib.geometry
 		private function sqrDistancePoint(out:Object, rkPoint:Vector3D, rkBox:JBox, boxState:PhysicsState):Number
 		{
 
-			var kDiff:Vector3D = JNumber3D.sub(rkPoint, boxState.position);
+			var kDiff:Vector3D = rkPoint.subtract(boxState.position);
 			var kClosest:Vector3D = new JNumber3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[1]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[2]));

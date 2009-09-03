@@ -72,7 +72,7 @@ package jiglib.physics.constraint
 			var worldPos1:Vector3D = JNumber3D.add(_body1.currentState.position, r1);
 			_worldPos = JNumber3D.multiply(JNumber3D.add(worldPos0, worldPos1), 0.5);
 
-			_currentRelPos0 = JNumber3D.sub(worldPos0, worldPos1);
+			_currentRelPos0 = worldPos0.subtract(worldPos1);
 		}
 
 		override public function apply(dt:Number):Boolean
@@ -87,7 +87,7 @@ package jiglib.physics.constraint
 			var currentVel0:Vector3D = _body0.getVelocity(r0);
 			var currentVel1:Vector3D = _body1.getVelocity(r1);
 
-			var predRelPos0:Vector3D = JNumber3D.add(_currentRelPos0, JNumber3D.multiply(JNumber3D.sub(currentVel0, currentVel1), dt));
+			var predRelPos0:Vector3D = JNumber3D.add(_currentRelPos0, JNumber3D.multiply(currentVel0.subtract(currentVel1), dt));
 			var clampedRelPos0:Vector3D = predRelPos0.clone();
 			var clampedRelPos0Mag:Number = clampedRelPos0.length;
 			if (clampedRelPos0Mag <= JNumber3D.NUM_TINY)
@@ -99,8 +99,8 @@ package jiglib.physics.constraint
 				clampedRelPos0 = JNumber3D.multiply(clampedRelPos0, _maxDistance / clampedRelPos0Mag);
 			}
 
-			var desiredRelVel0:Vector3D = JNumber3D.divide(JNumber3D.sub(clampedRelPos0, _currentRelPos0), dt);
-			var Vr:Vector3D = JNumber3D.sub(JNumber3D.sub(currentVel0, currentVel1), desiredRelVel0);
+			var desiredRelVel0:Vector3D = JNumber3D.divide(clampedRelPos0.subtract(_currentRelPos0), dt);
+			var Vr:Vector3D = currentVel0.subtract(currentVel1).subtract(desiredRelVel0);
 
 			var normalVel:Number = Vr.length;
 			if (normalVel > _maxVelMag)

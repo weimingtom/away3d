@@ -63,12 +63,12 @@ package jiglib.physics.constraint {
 			var worldPos:Vector3D = _pointOnBody.clone();
 			JMatrix3D.multiplyVector(_body.currentState.orientation, worldPos);
 			worldPos = worldPos.add( _body.currentState.position);
-			var R:Vector3D = JNumber3D.sub(worldPos, _body.currentState.position);
+			var R:Vector3D = worldPos.subtract(_body.currentState.position);
 			var currentVel:Vector3D = _body.currentState.linVelocity.add(JNumber3D.cross(R, _body.currentState.rotVelocity));
 			
 			var desiredVel:Vector3D;
 			var deviationDir:Vector3D;
-			var deviation:Vector3D = JNumber3D.sub(worldPos, _worldPosition);
+			var deviation:Vector3D = worldPos.subtract(_worldPosition);
 			var deviationDistance:Number = deviation.length;
 			if (deviationDistance > allowedDeviation) {
 				deviationDir = JNumber3D.divide(deviation, deviationDistance);
@@ -77,7 +77,7 @@ package jiglib.physics.constraint {
 				desiredVel = JNumber3D.ZERO;
 			}
 			
-			var N:Vector3D = JNumber3D.sub(currentVel, desiredVel);
+			var N:Vector3D = currentVel.subtract(desiredVel);
 			var normalVel:Number = N.length;
 			if (normalVel < minVelForProcessing) {
 				return false;

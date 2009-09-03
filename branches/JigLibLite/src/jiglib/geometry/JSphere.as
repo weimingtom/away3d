@@ -69,7 +69,7 @@ package jiglib.geometry
 
 			var frac:Number = 0;
 			var r:Vector3D = seg.delta;
-			var s:Vector3D = JNumber3D.sub(seg.origin, state.position);
+			var s:Vector3D = seg.origin.subtract(state.position);
 
 			var radiusSq:Number = _radius * _radius;
 			var rSq:Number = r.lengthSquared;
@@ -77,7 +77,7 @@ package jiglib.geometry
 			{
 				out.fracOut = 0;
 				out.posOut = seg.origin.clone();
-				out.normalOut = JNumber3D.sub(out.posOut, state.position);
+				out.normalOut = out.posOut.subtract(state.position);
 				out.normalOut.normalize();
 				return true;
 			}
@@ -99,7 +99,7 @@ package jiglib.geometry
 			frac = Math.max(lambda1, 0);
 			out.fracOut = frac;
 			out.posOut = seg.getPoint(frac);
-			out.normalOut = JNumber3D.sub(out.posOut, state.position);
+			out.normalOut = out.posOut.subtract(state.position);
 			out.normalOut.normalize();
 			return true;
 		}

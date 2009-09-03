@@ -30,19 +30,19 @@
 			n.y = y;
 			n.z = z;
 		}
-
-		/**
-		 * Substract.
-		 */
+		
+		/*
 		public static function sub(v:Vector3D, w:Vector3D):Vector3D
 		{
 			return new JNumber3D(v.x - w.x, v.y - w.y, v.z - w.z);
 		}
-		
+		*/
+		/*
 		public static function add(v:Vector3D, w:Vector3D):Vector3D
 		{
 			return new JNumber3D(v.x + w.x, v.y + w.y, v.z + w.z);
 		}
+		*/
 		
 		/**
 		 * Dot product.

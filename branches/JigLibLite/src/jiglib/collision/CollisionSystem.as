@@ -183,7 +183,7 @@ package jiglib.collision
 
 			if (obj.type != "PLANE")
 			{
-				var num1:Number = JNumber3D.sub(pos, obj.currentState.position).length;
+				var num1:Number = pos.subtract(obj.currentState.position).length;
 				var num2:Number = r + obj.boundingSphere;
 				if (num1 <= num2)
 				{

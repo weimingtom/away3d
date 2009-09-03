@@ -80,8 +80,8 @@ package jiglib.collision
 				if (Math.max(newDepth, oldDepth) > -JConfig.collToll)
 				{
 					cpInfo = new CollPointInfo();
-					cpInfo.r0 = JNumber3D.sub(oldPt, box.oldState.position);
-					cpInfo.r1 = JNumber3D.sub(oldPt, plane.oldState.position);
+					cpInfo.r0 = oldPt.subtract(box.oldState.position);
+					cpInfo.r1 = oldPt.subtract(plane.oldState.position);
 					cpInfo.initialPenetration = oldDepth;
 					collPts.push(cpInfo);
 				}

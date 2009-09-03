@@ -491,7 +491,7 @@ package jiglib.physics
 					{
 						continue;
 					}
-					var distSq:Number = (_cachedContact.Pair.body0 == body0) ? JNumber3D.sub(_cachedContact.Pair.r, ptInfo.r0).lengthSquared : JNumber3D.sub(_cachedContact.Pair.r, ptInfo.r1).lengthSquared;
+					var distSq:Number = (_cachedContact.Pair.body0 == body0) ? _cachedContact.Pair.r.subtract(ptInfo.r0).lengthSquared : _cachedContact.Pair.r.subtract(ptInfo.r1).lengthSquared;
 
 					if (distSq < bestDistSq)
 					{
@@ -509,7 +509,7 @@ package jiglib.physics
 				if (ptInfo.accumulatedNormalImpulse != 0)
 				{
 					var impulse:Vector3D = JNumber3D.multiply(N, ptInfo.accumulatedNormalImpulse);
-					impulse = JNumber3D.add(impulse, ptInfo.accumulatedFrictionImpulse);
+					impulse = impulse.add(ptInfo.accumulatedFrictionImpulse);
 					body0.applyBodyWorldImpulse(impulse, ptInfo.r0);
 					body1.applyBodyWorldImpulse(JNumber3D.multiply(impulse, -1), ptInfo.r1);
 				}
@@ -548,7 +548,7 @@ package jiglib.physics
 
 				Vr0 = body0.getVelocity(ptInfo.r0);
 				Vr1 = body1.getVelocity(ptInfo.r1);
-				normalVel = JNumber3D.dot(JNumber3D.sub(Vr0, Vr1), N);
+				normalVel = JNumber3D.dot(Vr0.subtract(Vr1), N);
 				if (normalVel > ptInfo.minSeparationVel)
 				{
 					continue;
@@ -572,8 +572,8 @@ package jiglib.physics
 				body1.applyBodyWorldImpulse(JNumber3D.multiply(impulse, -1), ptInfo.r1);
 
 				var tempV:Vector3D;
-				var VR:Vector3D = JNumber3D.sub(Vr0, Vr1);
-				var tangent_vel:Vector3D = JNumber3D.sub(VR, JNumber3D.multiply(N, JNumber3D.dot(VR, N)));
+				var VR:Vector3D = Vr0.subtract(Vr1);
+				var tangent_vel:Vector3D = VR.subtract(JNumber3D.multiply(N, JNumber3D.dot(VR, N)));
 				var tangent_speed:Number = tangent_vel.length;
 
 				if (tangent_speed > _minVelForProcessing)
@@ -637,7 +637,7 @@ package jiglib.physics
 
 				Vr0 = body0.getVelocity(ptInfo.r0);
 				Vr1 = body1.getVelocity(ptInfo.r1);
-				normalVel = JNumber3D.dot(JNumber3D.sub(Vr0, Vr1), N);
+				normalVel = JNumber3D.dot(Vr0.subtract(Vr1), N);
 
 				deltaVel = -normalVel;
 				if (ptInfo.minSeparationVel < 0)
@@ -661,7 +661,7 @@ package jiglib.physics
 
 				Vr0 = body0.getVelocityAux(ptInfo.r0);
 				Vr1 = body1.getVelocityAux(ptInfo.r1);
-				normalVel = JNumber3D.dot(JNumber3D.sub(Vr0, Vr1), N);
+				normalVel = JNumber3D.dot(Vr0.subtract(Vr1), N);
 
 				deltaVel = -normalVel;
 				if (ptInfo.minSeparationVel > 0)
@@ -688,8 +688,8 @@ package jiglib.physics
 					Vr0 = body0.getVelocity(ptInfo.r0);
 					Vr1 = body1.getVelocity(ptInfo.r1);
 					var tempV:Vector3D;
-					var VR:Vector3D = JNumber3D.sub(Vr0, Vr1);
-					var tangent_vel:Vector3D = JNumber3D.sub(VR, JNumber3D.multiply(N, JNumber3D.dot(VR, N)));
+					var VR:Vector3D = Vr0.subtract(Vr1);
+					var tangent_vel:Vector3D = VR.subtract(JNumber3D.multiply(N, JNumber3D.dot(VR, N)));
 					var tangent_speed:Number = tangent_vel.length;
 					if (tangent_speed > _minVelForProcessing)
 					{
@@ -724,7 +724,7 @@ package jiglib.physics
 								ptInfo.accumulatedFrictionImpulse = JNumber3D.multiply(ptInfo.accumulatedFrictionImpulse, maxAllowedAFIMag / AFIMag);
 							}
 
-							var actualFrictionImpulse:Vector3D = JNumber3D.sub(ptInfo.accumulatedFrictionImpulse, origAccumulatedFrictionImpulse);
+							var actualFrictionImpulse:Vector3D = ptInfo.accumulatedFrictionImpulse.subtract(origAccumulatedFrictionImpulse);
 
 							body0.applyBodyWorldImpulse(actualFrictionImpulse, ptInfo.r0);
 							body1.applyBodyWorldImpulse(JNumber3D.multiply(actualFrictionImpulse, -1), ptInfo.r1);

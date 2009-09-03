@@ -74,7 +74,7 @@ package jiglib.collision
 			if (Math.min(oldDistSq, newDistSq) < Math.pow(radSum + JConfig.collToll, 2))
 			{
 				var segPos:Vector3D = oldSeg.getPoint(oldObj.t);
-				var delta:Vector3D = JNumber3D.sub(sphere.oldState.position, segPos);
+				var delta:Vector3D = sphere.oldState.position.subtract(segPos);
 
 				var dist:Number = Math.sqrt(oldDistSq);
 				var depth:Number = radSum - dist;
@@ -89,12 +89,12 @@ package jiglib.collision
 					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), delta);
 				}
 
-				var worldPos:Vector3D = JNumber3D.add(segPos, JNumber3D.multiply(delta, capsule.radius - 0.5 * depth));
+				var worldPos:Vector3D = segPos.add(JNumber3D.multiply(delta, capsule.radius - 0.5 * depth));
 
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				var cpInfo:CollPointInfo = new CollPointInfo();
-				cpInfo.r0 = JNumber3D.sub(worldPos, sphere.oldState.position);
-				cpInfo.r1 = JNumber3D.sub(worldPos, capsule.oldState.position);
+				cpInfo.r0 = worldPos.subtract(sphere.oldState.position);
+				cpInfo.r1 = worldPos.subtract(capsule.oldState.position);
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 
