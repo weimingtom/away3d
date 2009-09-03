@@ -517,7 +517,7 @@ package jiglib.math {
 
 		// _________________________________________________________________________________ VECTOR
 
-		public static function multiplyVector( m:JMatrix3D, v:JNumber3D ):void {
+		public static function multiplyVector( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -527,7 +527,7 @@ package jiglib.math {
 			v.z = vx * m.n31 + vy * m.n32 + vz * m.n33 + m.n34;
 		}
 
-		public static function multiplyVector3x3( m:JMatrix3D, v:JNumber3D ):void {
+		public static function multiplyVector3x3( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -538,7 +538,7 @@ package jiglib.math {
 		}
 
 		
-		public static function rotateAxis( m:JMatrix3D, v:JNumber3D ):void {
+		public static function rotateAxis( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -551,7 +551,7 @@ package jiglib.math {
 		}
 
 		/*
-		public static function projectVector( m:JMatrix3D, v:JNumber3D ):void
+		public static function projectVector( m:JMatrix3D, v:Vector3D ):void
 		{
 		var c:Number = 1 / ( v.x * m.n41 + v.y * m.n42 + v.z * m.n43 + 1 );
 		multiplyVector( m, v );
@@ -565,9 +565,9 @@ package jiglib.math {
 		// _________________________________________________________________________________ EULER
 
 		/*
-		public static function matrix2eulerOLD( m:JMatrix3D ):JNumber3D
+		public static function matrix2eulerOLD( m:JMatrix3D ):Vector3D
 		{
-		var angle:JNumber3D = new JNumber3D();
+		var angle:Vector3D = new JNumber3D();
 
 		var d :Number = -Math.asin( Math.max( -1, Math.min( 1, m.n13 ) ) ); // Calculate Y-axis angle
 		var c :Number =  Math.cos( d );
@@ -604,7 +604,7 @@ package jiglib.math {
 		}
 		 */
 
-		public static function matrix2euler( m:JMatrix3D, euler:JNumber3D = null, scale:JNumber3D = null ):JNumber3D {
+		public static function matrix2euler( m:JMatrix3D, euler:Vector3D = null, scale:Vector3D = null ):Vector3D {
 			euler = euler || new JNumber3D();
 		
 			// need to get rid of scale
@@ -652,7 +652,7 @@ package jiglib.math {
 		}
 
 		
-		public static function euler2matrix( deg:JNumber3D ):JMatrix3D {
+		public static function euler2matrix( deg:Vector3D ):JMatrix3D {
 			var m:JMatrix3D = IDENTITY;
 
 			var ax:Number = deg.x * toRADIANS;
@@ -752,7 +752,7 @@ package jiglib.math {
 			return m;
 		}
 
-		public static function rotationMatrixWithReference( axis:JNumber3D, rad:Number, ref:JNumber3D ):JMatrix3D {
+		public static function rotationMatrixWithReference( axis:Vector3D, rad:Number, ref:Vector3D ):JMatrix3D {
 			var m:JMatrix3D = JMatrix3D.translationMatrix(ref.x, -ref.y, ref.z);
 
 			m.calculateMultiply(m, JMatrix3D.rotationMatrix(axis.x, axis.y, axis.z, rad));
@@ -898,17 +898,12 @@ package jiglib.math {
 		static private var _sin:Function = Math.sin;
 		static private var _cos:Function = Math.cos;
 
-		
-		
-		
-		
-		
-		
 		/*
 		 * modify by Muzer
 		 */
-		public function getCols():Vector.<JNumber3D> {
-			var cols:Vector.<JNumber3D> = new Vector.<JNumber3D>();
+		public function getCols():Vector.<Vector3D>
+		{
+			var cols:Vector.<Vector3D> = new Vector.<Vector3D>();
 			cols[0] = new JNumber3D(n11, n21, n31);
 			cols[1] = new JNumber3D(n12, n22, n32);
 			cols[2] = new JNumber3D(n13, n23, n33);

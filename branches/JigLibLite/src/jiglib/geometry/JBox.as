@@ -1,5 +1,7 @@
 package jiglib.geometry
 {
+	import flash.geom.Vector3D;
+
 	import jiglib.data.SpanData;
 	import jiglib.math.*;
 	import jiglib.physics.PhysicsState;
@@ -12,8 +14,8 @@ package jiglib.geometry
 	 */
 	public class JBox extends RigidBody
 	{
-		private var _sideLengths:JNumber3D;
-		private var _points:Vector.<JNumber3D>;
+		private var _sideLengths:Vector3D;
+		private var _points:Vector.<Vector3D>;
 		private var _edges:Vector.<Object> = Vector.<Object>([
 			{ind0: 0, ind1: 1}, {ind0: 3, ind1: 1}, {ind0: 2, ind1: 3},
 			{ind0: 2, ind1: 0}, {ind0: 4, ind1: 5}, {ind0: 5, ind1: 7},
@@ -31,15 +33,15 @@ package jiglib.geometry
 			_type = "BOX";
 
 			_sideLengths = new JNumber3D(width, height, depth);
-			_boundingSphere = 0.5 * _sideLengths.modulo;
+			_boundingSphere = 0.5 * _sideLengths.length;
 			initPoint();
 			mass = 1;
 		}
 
 		private function initPoint():void
 		{
-			var halfSide:JNumber3D = getHalfSideLengths();
-			_points = new Vector.<JNumber3D>();
+			var halfSide:Vector3D = getHalfSideLengths();
+			_points = new Vector.<Vector3D>();
 			_points[0] = new JNumber3D(halfSide.x, -halfSide.y, halfSide.z);
 			_points[1] = new JNumber3D(halfSide.x, halfSide.y, halfSide.z);
 			_points[2] = new JNumber3D(-halfSide.x, -halfSide.y, halfSide.z);
@@ -50,16 +52,16 @@ package jiglib.geometry
 			_points[7] = new JNumber3D(halfSide.x, halfSide.y, -halfSide.z);
 		}
 
-		public function set sideLengths(size:JNumber3D):void
+		public function set sideLengths(size:Vector3D):void
 		{
 			_sideLengths = size.clone();
-			_boundingSphere = 0.5 * _sideLengths.modulo;
+			_boundingSphere = 0.5 * _sideLengths.length;
 			initPoint();
 			setInertia(getInertiaProperties(mass));
 			setActive();
 		}
 
-		public function get sideLengths():JNumber3D
+		public function get sideLengths():Vector3D
 		{
 			return _sideLengths;
 		}
@@ -79,12 +81,12 @@ package jiglib.geometry
 			return 2 * (_sideLengths.x * _sideLengths.y + _sideLengths.x * _sideLengths.z + _sideLengths.y * _sideLengths.z);
 		}
 
-		public function getHalfSideLengths():JNumber3D
+		public function getHalfSideLengths():Vector3D
 		{
 			return JNumber3D.multiply(_sideLengths, 0.5);
 		}
 
-		public function getSpan(axis:JNumber3D):SpanData
+		public function getSpan(axis:Vector3D):SpanData
 		{
 			var obj:SpanData = new SpanData();
 			var s:Number = Math.abs(JNumber3D.dot(axis, currentState.orientation.getCols()[0])) * (0.5 * _sideLengths.x);
@@ -98,12 +100,12 @@ package jiglib.geometry
 			return obj;
 		}
 
-		public function getCornerPoints(state:PhysicsState):Vector.<JNumber3D>
+		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
 		{
-			var vertex:JNumber3D;
-			var arr:Vector.<JNumber3D> = new Vector.<JNumber3D>();
+			var vertex:Vector3D;
+			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
 			var transform:JMatrix3D = JMatrix3D.multiply(JMatrix3D.translationMatrix(state.position.x, state.position.y, state.position.z), state.orientation);
-			for each (var _point:JNumber3D in _points)
+			for each (var _point:Vector3D in _points)
 			{
 				vertex = new JNumber3D(_point.x, _point.y, _point.z);
 				JMatrix3D.multiplyVector(transform, vertex);
@@ -113,14 +115,14 @@ package jiglib.geometry
 			return arr;
 		}
 
-		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:JNumber3D):Number
+		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			closestBoxPoint.pos = JNumber3D.sub(point, state.position);
 			JMatrix3D.multiplyVector(JMatrix3D.transpose(state.orientation), closestBoxPoint.pos);
 
 			var delta:Number = 0;
 			var sqDistance:Number = 0;
-			var halfSideLengths:JNumber3D = getHalfSideLengths();
+			var halfSideLengths:Vector3D = getHalfSideLengths();
 
 			if (closestBoxPoint.pos.x < -halfSideLengths.x)
 			{
@@ -165,21 +167,21 @@ package jiglib.geometry
 			return sqDistance;
 		}
 
-		public function getDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:JNumber3D):Number
+		public function getDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			return Math.sqrt(getSqDistanceToPoint(state, closestBoxPoint, point));
 		}
 
-		public function pointIntersect(pos:JNumber3D):Boolean
+		public function pointIntersect(pos:Vector3D):Boolean
 		{
-			var p:JNumber3D = JNumber3D.sub(pos, currentState.position);
-			var h:JNumber3D = JNumber3D.multiply(_sideLengths, 0.5);
-			var dirVec:JNumber3D;
+			var p:Vector3D = JNumber3D.sub(pos, currentState.position);
+			var h:Vector3D = JNumber3D.multiply(_sideLengths, 0.5);
+			var dirVec:Vector3D;
 			for (var dir:int; dir < 3; dir++)
 			{
 				dirVec = currentState.orientation.getCols()[dir].clone();
 				dirVec.normalize();
-				if (Math.abs(JNumber3D.dot(dirVec, p)) > h.toArray()[dir] + JNumber3D.NUM_TINY)
+				if (Math.abs(JNumber3D.dot(dirVec, p)) > JNumber3D.toArray(h)[dir] + JNumber3D.NUM_TINY)
 				{
 					return false;
 				}
@@ -187,12 +189,12 @@ package jiglib.geometry
 			return true;
 		}
 
-		public function getSupportVertices(axis:JNumber3D):Vector.<JNumber3D>
+		public function getSupportVertices(axis:Vector3D):Vector.<Vector3D>
 		{
-			var vertices:Vector.<JNumber3D> = new Vector.<JNumber3D>();
+			var vertices:Vector.<Vector3D> = new Vector.<Vector3D>();
 			var d:Vector.<uint> = new Vector.<uint>(3, true);
-			var H:JNumber3D;
-			var temp:Vector.<JNumber3D> = currentState.orientation.getCols();
+			var H:Vector3D;
+			var temp:Vector.<Vector3D> = currentState.orientation.getCols();
 			temp[0].normalize();
 			temp[1].normalize();
 			temp[2].normalize();
@@ -224,12 +226,12 @@ package jiglib.geometry
 
 					H = currentState.position.clone();
 					k = (d[m] > 0) ? -1 : 1;
-					H = JNumber3D.add(H, JNumber3D.multiply(temp[m], k * _sideLengths.toArray()[m] / 2));
+					H = JNumber3D.add(H, JNumber3D.multiply(temp[m], k * JNumber3D.toArray(_sideLengths)[m] / 2));
 					k = (d[n] > 0) ? -1 : 1;
-					H = JNumber3D.add(H, JNumber3D.multiply(temp[n], k * _sideLengths.toArray()[n] / 2));
+					H = JNumber3D.add(H, JNumber3D.multiply(temp[n], k * JNumber3D.toArray(_sideLengths)[n] / 2));
 
-					vertices[0] = JNumber3D.add(H, JNumber3D.multiply(temp[i], _sideLengths.toArray()[i] / 2));
-					vertices[1] = JNumber3D.add(H, JNumber3D.multiply(temp[i], -_sideLengths.toArray()[i] / 2));
+					vertices[0] = JNumber3D.add(H, JNumber3D.multiply(temp[i], JNumber3D.toArray(_sideLengths)[i] / 2));
+					vertices[1] = JNumber3D.add(H, JNumber3D.multiply(temp[i], -JNumber3D.toArray(_sideLengths)[i] / 2));
 					return vertices;
 				}
 			}
@@ -256,10 +258,10 @@ package jiglib.geometry
 			var dirMin:Number = 0;
 			var dirMax:Number = 0;
 			var dir:Number = 0;
-			var p:JNumber3D = JNumber3D.sub(state.position, seg.origin);
-			var h:JNumber3D = JNumber3D.multiply(_sideLengths, 0.5);
+			var p:Vector3D = JNumber3D.sub(state.position, seg.origin);
+			var h:Vector3D = JNumber3D.multiply(_sideLengths, 0.5);
 
-			//var tempV:JNumber3D;
+			//var tempV:Vector3D;
 			var e:Number;
 			var f:Number;
 			var t:Number;
@@ -271,8 +273,8 @@ package jiglib.geometry
 				f = JNumber3D.dot(state.orientation.getCols()[dir], seg.delta);
 				if (Math.abs(f) > JNumber3D.NUM_TINY)
 				{
-					t1 = (e + h.toArray()[dir]) / f;
-					t2 = (e - h.toArray()[dir]) / f;
+					t1 = (e + JNumber3D.toArray(h)[dir]) / f;
+					t2 = (e - JNumber3D.toArray(h)[dir]) / f;
 					if (t1 > t2)
 					{
 						t = t1;
@@ -294,7 +296,7 @@ package jiglib.geometry
 					if (max < 0)
 						return false;
 				}
-				else if (-e - h.toArray()[dir] > 0 || -e + h.toArray()[dir] < 0)
+				else if (-e - JNumber3D.toArray(h)[dir] > 0 || -e + JNumber3D.toArray(h)[dir] < 0)
 				{
 					return false;
 				}

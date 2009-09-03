@@ -26,6 +26,8 @@ distribution.
 
 package jiglib.physics.constraint {
 
+	import flash.geom.Vector3D;
+	
 	import jiglib.math.*;
 	import jiglib.physics.RigidBody;
 	
@@ -36,10 +38,10 @@ package jiglib.physics.constraint {
 		private const timescale:Number = 4;
 		
 		private var _body:RigidBody;
-		private var _pointOnBody:JNumber3D;
-		private var _worldPosition:JNumber3D;
+		private var _pointOnBody:Vector3D;
+		private var _worldPosition:Vector3D;
 		
-		public function JConstraintWorldPoint(body:RigidBody, pointOnBody:JNumber3D, worldPosition:JNumber3D) {
+		public function JConstraintWorldPoint(body:RigidBody, pointOnBody:Vector3D, worldPosition:Vector3D) {
 			super();
 			_body = body;
 			_pointOnBody = pointOnBody;
@@ -47,27 +49,27 @@ package jiglib.physics.constraint {
 			body.addConstraint(this);
 		}
 		
-		public function set worldPosition(pos:JNumber3D):void {
+		public function set worldPosition(pos:Vector3D):void {
 			_worldPosition = pos;
 		}
 		
-		public function get worldPosition():JNumber3D {
+		public function get worldPosition():Vector3D {
 			return _worldPosition;
 		}
 		
 		override public function apply(dt:Number):Boolean {
 			this.satisfied = true;
-			
-			var worldPos:JNumber3D = _pointOnBody.clone();
+
+			var worldPos:Vector3D = _pointOnBody.clone();
 			JMatrix3D.multiplyVector(_body.currentState.orientation, worldPos);
-			worldPos = JNumber3D.add(worldPos, _body.currentState.position);
-			var R:JNumber3D = JNumber3D.sub(worldPos, _body.currentState.position);
-			var currentVel:JNumber3D = JNumber3D.add(_body.currentState.linVelocity, JNumber3D.cross(R, _body.currentState.rotVelocity));
+			worldPos = worldPos.add( _body.currentState.position);
+			var R:Vector3D = JNumber3D.sub(worldPos, _body.currentState.position);
+			var currentVel:Vector3D = _body.currentState.linVelocity.add(JNumber3D.cross(R, _body.currentState.rotVelocity));
 			
-			var desiredVel:JNumber3D;
-			var deviationDir:JNumber3D;
-			var deviation:JNumber3D = JNumber3D.sub(worldPos, _worldPosition);
-			var deviationDistance:Number = deviation.modulo;
+			var desiredVel:Vector3D;
+			var deviationDir:Vector3D;
+			var deviation:Vector3D = JNumber3D.sub(worldPos, _worldPosition);
+			var deviationDistance:Number = deviation.length;
 			if (deviationDistance > allowedDeviation) {
 				deviationDir = JNumber3D.divide(deviation, deviationDistance);
 				desiredVel = JNumber3D.multiply(deviationDir, (allowedDeviation - deviationDistance) / (timescale * dt));
@@ -75,14 +77,14 @@ package jiglib.physics.constraint {
 				desiredVel = JNumber3D.ZERO;
 			}
 			
-			var N:JNumber3D = JNumber3D.sub(currentVel, desiredVel);
-			var normalVel:Number = N.modulo;
+			var N:Vector3D = JNumber3D.sub(currentVel, desiredVel);
+			var normalVel:Number = N.length;
 			if (normalVel < minVelForProcessing) {
 				return false;
 			}
 			N = JNumber3D.divide(N, normalVel);
 			
-			var tempV:JNumber3D = JNumber3D.cross(N, R);
+			var tempV:Vector3D = JNumber3D.cross(N, R);
 			JMatrix3D.multiplyVector(_body.worldInvInertia, tempV);
 			var denominator:Number = _body.invMass + JNumber3D.dot(N, JNumber3D.cross(R, tempV));
 			 

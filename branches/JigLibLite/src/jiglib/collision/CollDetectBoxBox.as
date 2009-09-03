@@ -25,6 +25,8 @@
 
 package jiglib.collision
 {
+	import flash.geom.Vector3D;
+
 	import jiglib.cof.JConfig;
 	import jiglib.data.SpanData;
 	import jiglib.geometry.*;
@@ -44,7 +46,7 @@ package jiglib.collision
 			type1 = "BOX";
 		}
 
-		private function disjoint(out:SpanData, axis:JNumber3D, box0:JBox, box1:JBox):Boolean
+		private function disjoint(out:SpanData, axis:Vector3D, box0:JBox, box1:JBox):Boolean
 		{
 			var obj0:SpanData = box0.getSpan(axis);
 			var obj1:SpanData = box1.getSpan(axis);
@@ -71,13 +73,13 @@ package jiglib.collision
 			return false;
 		}
 
-		private function addPoint(contactPoints:Vector.<JNumber3D>, pt:JNumber3D, combinationDistanceSq:Number):Boolean
+		private function addPoint(contactPoints:Vector.<Vector3D>, pt:Vector3D, combinationDistanceSq:Number):Boolean
 		{
-			for each (var contactPoint:JNumber3D in contactPoints)
+			for each (var contactPoint:Vector3D in contactPoints)
 			{
-				if (JNumber3D.sub(contactPoint, pt).modulo2 < combinationDistanceSq)
+				if (JNumber3D.sub(contactPoint, pt).lengthSquared < combinationDistanceSq)
 				{
-					contactPoint = JNumber3D.divide(JNumber3D.add(contactPoint, pt), 2);
+					contactPoint = JNumber3D.divide(contactPoint.add(pt), 2);
 					return false;
 				}
 			}
@@ -85,13 +87,13 @@ package jiglib.collision
 			return true;
 		}
 
-		private function getBox2BoxEdgesIntersectionPoints(contactPoint:Vector.<JNumber3D>, box0:JBox, box1:JBox, newState:Boolean):Number
+		private function getBox2BoxEdgesIntersectionPoints(contactPoint:Vector.<Vector3D>, box0:JBox, box1:JBox, newState:Boolean):Number
 		{
 			var num:Number = 0;
 			var seg:JSegment;
 			var box0State:PhysicsState = (newState) ? box0.currentState : box0.oldState;
 			var box1State:PhysicsState = (newState) ? box1.currentState : box1.oldState;
-			var boxPts:Vector.<JNumber3D> = box1.getCornerPoints(box1State);
+			var boxPts:Vector.<Vector3D> = box1.getCornerPoints(box1State);
 			var boxEdges:Vector.<Object> = box1.edges;
 			var outObj:Object;
 			for each (var boxEdge:*in boxEdges)
@@ -109,7 +111,7 @@ package jiglib.collision
 			return num;
 		}
 
-		private function getBoxBoxIntersectionPoints(contactPoint:Vector.<JNumber3D>, box0:JBox, box1:JBox, newState:Boolean):uint
+		private function getBoxBoxIntersectionPoints(contactPoint:Vector.<Vector3D>, box0:JBox, box1:JBox, newState:Boolean):uint
 		{
 			getBox2BoxEdgesIntersectionPoints(contactPoint, box0, box1, newState);
 			getBox2BoxEdgesIntersectionPoints(contactPoint, box1, box0, newState);
@@ -122,16 +124,16 @@ package jiglib.collision
 		 * Original Author: Olivier renault
 		 * http://uk.geocities.com/olivier_rebellion/
 		 */
-		private function getPointPointContacts(PA:JNumber3D, PB:JNumber3D, CA:Vector.<JNumber3D>, CB:Vector.<JNumber3D>):void
+		private function getPointPointContacts(PA:Vector3D, PB:Vector3D, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
 		{
 			CA.push(PA.clone());
 			CB.push(PB.clone());
 		}
 
-		private function getPointEdgeContacts(PA:JNumber3D, PB0:JNumber3D, PB1:JNumber3D, CA:Vector.<JNumber3D>, CB:Vector.<JNumber3D>):void
+		private function getPointEdgeContacts(PA:Vector3D, PB0:Vector3D, PB1:Vector3D, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
 		{
-			var B0A:JNumber3D = JNumber3D.sub(PA, PB0);
-			var BD:JNumber3D = JNumber3D.sub(PB1, PB0);
+			var B0A:Vector3D = JNumber3D.sub(PA, PB0);
+			var BD:Vector3D = JNumber3D.sub(PB1, PB0);
 
 			var t:Number = JNumber3D.dot(B0A, BD) / JNumber3D.dot(BD, BD);
 			if (t < 0)
@@ -144,10 +146,10 @@ package jiglib.collision
 			}
 
 			CA.push(PA.clone());
-			CB.push(JNumber3D.add(PB0, JNumber3D.multiply(BD, t)));
+			CB.push(PB0.add(JNumber3D.multiply(BD, t)));
 		}
 
-		private function getPointFaceContacts(PA:JNumber3D, BN:JNumber3D, BD:Number, CA:Vector.<JNumber3D>, CB:Vector.<JNumber3D>):void
+		private function getPointFaceContacts(PA:Vector3D, BN:Vector3D, BD:Number, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
 		{
 			var dist:Number = JNumber3D.dot(PA, BN) - BD;
 
@@ -157,12 +159,12 @@ package jiglib.collision
 			//CB.push(JNumber3D.sub(PA, JNumber3D.multiply(BN, dist)));
 		}
 
-		private function getEdgeEdgeContacts(PA0:JNumber3D, PA1:JNumber3D, PB0:JNumber3D, PB1:JNumber3D, CA:Vector.<JNumber3D>, CB:Vector.<JNumber3D>):void
+		private function getEdgeEdgeContacts(PA0:Vector3D, PA1:Vector3D, PB0:Vector3D, PB1:Vector3D, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
 		{
-			var AD:JNumber3D = JNumber3D.sub(PA1, PA0);
-			var BD:JNumber3D = JNumber3D.sub(PB1, PB0);
-			var N:JNumber3D = JNumber3D.cross(BD, AD);
-			var M:JNumber3D = JNumber3D.cross(BD, N);
+			var AD:Vector3D = JNumber3D.sub(PA1, PA0);
+			var BD:Vector3D = JNumber3D.sub(PB1, PB0);
+			var N:Vector3D = JNumber3D.cross(BD, AD);
+			var M:Vector3D = JNumber3D.cross(BD, N);
 			var md:Number = JNumber3D.dot(M, PB0);
 			var at:Number = (md - JNumber3D.dot(PA0, M)) / JNumber3D.dot(AD, M);
 			if (at < 0)
@@ -174,37 +176,37 @@ package jiglib.collision
 				at = 1;
 			}
 
-			getPointEdgeContacts(JNumber3D.add(PA0, JNumber3D.multiply(AD, at)), PB0, PB1, CA, CB);
+			getPointEdgeContacts(PA0.add(JNumber3D.multiply(AD, at)), PB0, PB1, CA, CB);
 		}
 
-		private function getPolygonContacts(Clipper:Vector.<JNumber3D>, Poly:Vector.<JNumber3D>, CA:Vector.<JNumber3D>, CB:Vector.<JNumber3D>):void
+		private function getPolygonContacts(Clipper:Vector.<Vector3D>, Poly:Vector.<Vector3D>, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
 		{
 			if (!polygonClip(Clipper, Poly, CB))
 			{
 				return;
 			}
-			var ClipperNormal:JNumber3D = JNumber3D.getNormal(Clipper[0], Clipper[1], Clipper[2]);
+			var ClipperNormal:Vector3D = JNumber3D.getNormal(Clipper[0], Clipper[1], Clipper[2]);
 			var clipper_d:Number = JNumber3D.dot(Clipper[0], ClipperNormal);
 
-			var temp:Vector.<JNumber3D> = new Vector.<JNumber3D>();
-			for each (var cb:JNumber3D in CB)
+			var temp:Vector.<Vector3D> = new Vector.<Vector3D>();
+			for each (var cb:Vector3D in CB)
 			{
 				getPointFaceContacts(cb, ClipperNormal, clipper_d, temp, CA);
 			}
 		}
 
-		private function polygonClip(axClipperVertices:Vector.<JNumber3D>, axPolygonVertices:Vector.<JNumber3D>, axClippedPolygon:Vector.<JNumber3D>):Boolean
+		private function polygonClip(axClipperVertices:Vector.<Vector3D>, axPolygonVertices:Vector.<Vector3D>, axClippedPolygon:Vector.<Vector3D>):Boolean
 		{
 			if (axClipperVertices.length <= 2)
 			{
 				return false;
 			}
-			var ClipperNormal:JNumber3D = JNumber3D.getNormal(axClipperVertices[0], axClipperVertices[1], axClipperVertices[2]);
+			var ClipperNormal:Vector3D = JNumber3D.getNormal(axClipperVertices[0], axClipperVertices[1], axClipperVertices[2]);
 
 			var i:int = axClipperVertices.length - 1;
-			var N:JNumber3D;
-			var D:JNumber3D;
-			var temp:Vector.<JNumber3D> = axPolygonVertices.concat();
+			var N:Vector3D;
+			var D:Vector3D;
+			var temp:Vector.<Vector3D> = axPolygonVertices.concat();
 			var len:int = axClipperVertices.length;
 			for (var ip1:int = 0; ip1 < len; i = ip1, ip1++)
 			{
@@ -221,7 +223,7 @@ package jiglib.collision
 			return true;
 		}
 
-		private function planeClip(A:Vector.<JNumber3D>, B:Vector.<JNumber3D>, xPlaneNormal:JNumber3D, planeD:Number):Boolean
+		private function planeClip(A:Vector.<Vector3D>, B:Vector.<Vector3D>, xPlaneNormal:Vector3D, planeD:Number):Boolean
 		{
 			var bBack:Vector.<Boolean> = new Vector.<Boolean>();
 			var bBackVerts:Boolean = false;
@@ -269,9 +271,9 @@ package jiglib.collision
 					{
 						return true;
 					}
-					var D:JNumber3D = JNumber3D.sub(A[ip1], A[i]);
+					var D:Vector3D = JNumber3D.sub(A[ip1], A[i]);
 					var t:Number = (planeD - JNumber3D.dot(A[i], xPlaneNormal)) / JNumber3D.dot(D, xPlaneNormal);
-					B[n++] = JNumber3D.add(A[i], JNumber3D.multiply(D, t));
+					B[n++] = A[i].add(JNumber3D.multiply(D, t));
 				}
 			}
 
@@ -288,10 +290,10 @@ package jiglib.collision
 				return;
 			}
 
-			var dirs0Arr:Vector.<JNumber3D> = box0.currentState.orientation.getCols();
-			var dirs1Arr:Vector.<JNumber3D> = box1.currentState.orientation.getCols();
+			var dirs0Arr:Vector.<Vector3D> = box0.currentState.orientation.getCols();
+			var dirs1Arr:Vector.<Vector3D> = box1.currentState.orientation.getCols();
 
-			var axes:Vector.<JNumber3D> = Vector.<JNumber3D>([dirs0Arr[0], dirs0Arr[1], dirs0Arr[2],
+			var axes:Vector.<Vector3D> = Vector.<Vector3D>([dirs0Arr[0], dirs0Arr[1], dirs0Arr[2],
 				dirs1Arr[0], dirs1Arr[1], dirs1Arr[2],
 				JNumber3D.cross(dirs1Arr[0], dirs0Arr[0]),
 				JNumber3D.cross(dirs1Arr[0], dirs0Arr[1]),
@@ -310,13 +312,13 @@ package jiglib.collision
 			{
 				var _overlapDepth:SpanData = overlapDepths[i] = new SpanData();
 				_overlapDepth.depth = JNumber3D.NUM_HUGE;
-				
-				l2 = axes[i].modulo2;
+
+				l2 = axes[i].lengthSquared;
 				if (l2 < JNumber3D.NUM_TINY)
 				{
 					continue;
 				}
-				var ax:JNumber3D = axes[i].clone();
+				var ax:Vector3D = axes[i].clone();
 				ax.normalize();
 				if (disjoint(overlapDepths[i], ax, box0, box1))
 				{
@@ -329,7 +331,7 @@ package jiglib.collision
 
 			for (i = 0; i < axes.length; i++)
 			{
-				l2 = axes[i].modulo2;
+				l2 = axes[i].lengthSquared;
 				if (l2 < JNumber3D.NUM_TINY)
 				{
 					continue;
@@ -345,7 +347,7 @@ package jiglib.collision
 			{
 				return;
 			}
-			var N:JNumber3D = axes[minAxis].clone();
+			var N:Vector3D = axes[minAxis].clone();
 			if (JNumber3D.dot(JNumber3D.sub(box1.currentState.position, box0.currentState.position), N) > 0)
 			{
 				N = JNumber3D.multiply(N, -1);
@@ -362,10 +364,10 @@ package jiglib.collision
 			}
 		}
 
-		private function boxEdgesCollDetect(info:CollDetectInfo, collArr:Vector.<CollisionInfo>, box0:JBox, box1:JBox, N:JNumber3D, depth:Number):void
+		private function boxEdgesCollDetect(info:CollDetectInfo, collArr:Vector.<CollisionInfo>, box0:JBox, box1:JBox, N:Vector3D, depth:Number):void
 		{
 			var contactPointsFromOld:Boolean = true;
-			var contactPoints:Vector.<JNumber3D> = new Vector.<JNumber3D>();
+			var contactPoints:Vector.<Vector3D> = new Vector.<Vector3D>();
 			combinationDist = 0.5 * Math.min(Math.min(box0.sideLengths.x, box0.sideLengths.y, box0.sideLengths.z), Math.min(box1.sideLengths.x, box1.sideLengths.y, box1.sideLengths.z));
 			combinationDist *= combinationDist;
 
@@ -379,7 +381,7 @@ package jiglib.collision
 				getBoxBoxIntersectionPoints(contactPoints, box0, box1, true);
 			}
 
-			var bodyDelta:JNumber3D = JNumber3D.sub(JNumber3D.sub(box0.currentState.position, box0.oldState.position), JNumber3D.sub(box1.currentState.position, box1.oldState.position));
+			var bodyDelta:Vector3D = JNumber3D.sub(JNumber3D.sub(box0.currentState.position, box0.oldState.position), JNumber3D.sub(box1.currentState.position, box1.oldState.position));
 			var bodyDeltaLen:Number = JNumber3D.dot(bodyDelta, N);
 			var oldDepth:Number = depth + bodyDeltaLen;
 
@@ -387,7 +389,7 @@ package jiglib.collision
 			if (contactPoints.length > 0)
 			{
 				var cpInfo:CollPointInfo;
-				for each (var contactPoint:JNumber3D in contactPoints)
+				for each (var contactPoint:Vector3D in contactPoints)
 				{
 					if (contactPointsFromOld)
 					{
@@ -423,12 +425,12 @@ package jiglib.collision
 			}
 		}
 
-		private function boxSortCollDetect(info:CollDetectInfo, collArr:Vector.<CollisionInfo>, box0:JBox, box1:JBox, N:JNumber3D, depth:Number):void
+		private function boxSortCollDetect(info:CollDetectInfo, collArr:Vector.<CollisionInfo>, box0:JBox, box1:JBox, N:Vector3D, depth:Number):void
 		{
-			var contactA:Vector.<JNumber3D> = new Vector.<JNumber3D>();
-			var contactB:Vector.<JNumber3D> = new Vector.<JNumber3D>();
-			var supportVertA:Vector.<JNumber3D> = box0.getSupportVertices(N);
-			var supportVertB:Vector.<JNumber3D> = box1.getSupportVertices(JNumber3D.multiply(N, -1));
+			var contactA:Vector.<Vector3D> = new Vector.<Vector3D>();
+			var contactB:Vector.<Vector3D> = new Vector.<Vector3D>();
+			var supportVertA:Vector.<Vector3D> = box0.getSupportVertices(N);
+			var supportVertB:Vector.<Vector3D> = box1.getSupportVertices(JNumber3D.multiply(N, -1));
 			var iNumVertsA:int = supportVertA.length;
 			var iNumVertsB:int = supportVertB.length;
 
@@ -450,7 +452,7 @@ package jiglib.collision
 				else
 				{
 					//trace("++++ iNumVertsA=1::::iNumVertsB=4");
-					var BN:JNumber3D = JNumber3D.getNormal(supportVertB[0], supportVertB[1], supportVertB[2]);
+					var BN:Vector3D = JNumber3D.getNormal(supportVertB[0], supportVertB[1], supportVertB[2]);
 					var BD:Number = JNumber3D.dot(BN, supportVertB[0]);
 					getPointFaceContacts(supportVertA[0], BN, BD, contactA, contactB);
 				}

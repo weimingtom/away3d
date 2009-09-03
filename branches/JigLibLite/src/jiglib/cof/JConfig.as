@@ -1,6 +1,8 @@
-package jiglib.cof {
+package jiglib.cof
+{
 
-	public class JConfig {
+	public class JConfig
+	{
 		public static var solverType:String = "ACCUMULATED"; //allowable value: FAST,NORMAL,ACCUMULATED
 		public static var boxCollisionsType:String = "EDGEBASE"; //allowable value: EDGEBASE or SORTBASE
 		public static var rotationType:String = "DEGREES"; // can be either RADIANS or DEGREES;

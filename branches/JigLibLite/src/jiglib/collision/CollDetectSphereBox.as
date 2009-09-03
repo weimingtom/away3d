@@ -25,11 +25,13 @@ distribution.
 
 package jiglib.collision {
 	
+	import flash.geom.Vector3D;
+	
 	import jiglib.cof.JConfig;
 	import jiglib.geometry.*;
 	import jiglib.math.*;
-	import jiglib.physics.RigidBody;
 	import jiglib.physics.MaterialProperties;
+	import jiglib.physics.RigidBody;
 
 	public class CollDetectSphereBox extends CollDetectFunctor {
 		
@@ -53,8 +55,8 @@ package jiglib.collision {
 			if (!sphere.hitTestObject3D(box)) {
 				return;
 			}
-			//var spherePos:JNumber3D = sphere.oldState.position;
-			//var boxPos:JNumber3D = box.oldState.position;
+			//var spherePos:Vector3D = sphere.oldState.position;
+			//var boxPos:Vector3D = box.oldState.position;
 			
 			var oldBoxPoint:Object={};
 			var newBoxPoint:Object={};
@@ -65,7 +67,7 @@ package jiglib.collision {
 			var oldDepth:Number = sphere.radius - oldDist;
 			var newDepth:Number = sphere.radius - newDist;
 			if (Math.max(oldDepth, newDepth) > -JConfig.collToll) {
-				var dir:JNumber3D;
+				var dir:Vector3D;
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				if (oldDist < -JNumber3D.NUM_TINY) {
 					dir = JNumber3D.sub(JNumber3D.sub(oldBoxPoint.pos, sphere.oldState.position), oldBoxPoint.pos);

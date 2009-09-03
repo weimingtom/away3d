@@ -25,11 +25,12 @@ distribution.
 
 package jiglib.geometry{
 
+	import flash.geom.Vector3D;
+	
 	import jiglib.math.*;
-	import jiglib.plugin.ISkin3D;
-	import jiglib.geometry.JSegment;
-	import jiglib.physics.RigidBody;
 	import jiglib.physics.PhysicsState;
+	import jiglib.physics.RigidBody;
+	import jiglib.plugin.ISkin3D;
 	
 	public class JCapsule extends RigidBody {
 		
@@ -65,16 +66,16 @@ package jiglib.geometry{
 			return _length;
 		}
 		 
-		public function getBottomPos(state:PhysicsState):JNumber3D {
-			var temp:JNumber3D = state.orientation.getCols()[1];
+		public function getBottomPos(state:PhysicsState):Vector3D {
+			var temp:Vector3D = state.orientation.getCols()[1];
 			temp.normalize();
-			return JNumber3D.add(state.position, JNumber3D.multiply(temp, -_length / 2));
+			return state.position.add(JNumber3D.multiply(temp, -_length / 2));
 		}
-		 
-		public function getEndPos(state:PhysicsState):JNumber3D {
-			var temp:JNumber3D = state.orientation.getCols()[1];
+		
+		public function getEndPos(state:PhysicsState):Vector3D {
+			var temp:Vector3D = state.orientation.getCols()[1];
 			temp.normalize();
-			return JNumber3D.add(state.position, JNumber3D.multiply(temp, _length / 2));
+			return state.position.add(JNumber3D.multiply(temp, _length / 2));
 		}
 		 
 		override public function segmentIntersect(out:Object, seg:JSegment, state:PhysicsState):Boolean {
@@ -82,13 +83,13 @@ package jiglib.geometry{
 			out.posOut = new JNumber3D();
 			out.normalOut = new JNumber3D();
 			
-			var Ks:JNumber3D = seg.delta;
+			var Ks:Vector3D = seg.delta;
 			var kss:Number = JNumber3D.dot(Ks, Ks);
 			var radiusSq:Number = _radius * _radius;
 			
 			var cylinderAxis:JSegment = new JSegment(getBottomPos(state), state.orientation.getCols()[1]);
-			var Ke:JNumber3D = cylinderAxis.delta;
-			var Kg:JNumber3D = JNumber3D.sub(cylinderAxis.origin, seg.origin);
+			var Ke:Vector3D = cylinderAxis.delta;
+			var Kg:Vector3D = JNumber3D.sub(cylinderAxis.origin, seg.origin);
 			var kee:Number = JNumber3D.dot(Ke, Ke);
 			if (Math.abs(kee) < JNumber3D.NUM_TINY) {
 				return false;
@@ -99,7 +100,7 @@ package jiglib.geometry{
 			var keg:Number = JNumber3D.dot(Ke, Kg);
 			var kgg:Number = JNumber3D.dot(Kg, Kg);
 			
-			var distSq:Number = JNumber3D.sub(Kg, JNumber3D.divide(JNumber3D.multiply(Ke, keg), kee)).modulo2;
+			var distSq:Number = JNumber3D.sub(Kg, JNumber3D.divide(JNumber3D.multiply(Ke, keg), kee)).lengthSquared;
 			if (distSq < radiusSq) {
 				out.fracOut = 0;
 				out.posOut = seg.origin.clone();

@@ -6,7 +6,7 @@ package jiglib.plugin.away3dlite
 	import away3dlite.primitives.Ground;
 	import away3dlite.primitives.SimpleCube;
 	import away3dlite.primitives.Sphere;
-	
+
 	import jiglib.geometry.JBox;
 	import jiglib.geometry.JPlane;
 	import jiglib.geometry.JSphere;
