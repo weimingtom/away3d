@@ -41,7 +41,7 @@ package
 
 		override protected function build():void
 		{
-			title += " | Constraint : Click to reset | ";
+			title += " | Constraint : Use mouse to drag red ball | ";
 
 			camera.y = 1000;
 			
