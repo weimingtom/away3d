@@ -43,7 +43,7 @@ package jiglib.geometry
 
 		public function getOrigin(t:Number):Vector3D
 		{
-			return origin.add(JNumber3D.multiply(dir, t));
+			return origin.add(JNumber3D.scaleVector(dir, t));
 		}
 	}
 }

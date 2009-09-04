@@ -71,19 +71,19 @@ package jiglib.physics.constraint
 			this.satisfied = false;
 
 			r0 = _body0Pos.clone();
-			JMatrix3D.multiplyVector(_body0.currentState.orientation, r0);
+			JMatrix3D.scaleVectorVector(_body0.currentState.orientation, r0);
 			r1 = _body1Pos.clone();
-			JMatrix3D.multiplyVector(_body1.currentState.orientation, r1);
+			JMatrix3D.scaleVectorVector(_body1.currentState.orientation, r1);
 
 			var worldPos0:Vector3D = _body0.currentState.position.add(r0);
 			var worldPos1:Vector3D = _body1.currentState.position.add(r1);
-			_worldPos = JNumber3D.multiply(worldPos0.add(worldPos1), 0.5);
+			_worldPos = JNumber3D.scaleVector(worldPos0.add(worldPos1), 0.5);
 
 			var deviation:Vector3D = worldPos0.subtract(worldPos1);
 			var deviationAmount:Number = deviation.length;
 			if (deviationAmount > _allowedDistance)
 			{
-				_vrExtra = JNumber3D.multiply(deviation, (deviationAmount - _allowedDistance) / (deviationAmount * Math.max(_timescale, dt)));
+				_vrExtra = JNumber3D.scaleVector(deviation, (deviationAmount - _allowedDistance) / (deviationAmount * Math.max(_timescale, dt)));
 			}
 			else
 			{
@@ -112,24 +112,24 @@ package jiglib.physics.constraint
 
 			if (normalVel > _maxVelMag)
 			{
-				Vr = JNumber3D.multiply(Vr, _maxVelMag / normalVel);
+				Vr = JNumber3D.scaleVector(Vr, _maxVelMag / normalVel);
 				normalVel = _maxVelMag;
 			}
 
-			var N:Vector3D = JNumber3D.divide(Vr, normalVel);
+			var N:Vector3D = JNumber3D.divideVector(Vr, normalVel);
 			var tempVec1:Vector3D = JNumber3D.cross(N, r0);
-			JMatrix3D.multiplyVector(_body0.worldInvInertia, tempVec1);
+			JMatrix3D.scaleVectorVector(_body0.worldInvInertia, tempVec1);
 			var tempVec2:Vector3D = JNumber3D.cross(N, r1);
-			JMatrix3D.multiplyVector(_body1.worldInvInertia, tempVec2);
+			JMatrix3D.scaleVectorVector(_body1.worldInvInertia, tempVec2);
 			var denominator:Number = _body0.invMass + _body1.invMass + JNumber3D.dot(N, JNumber3D.cross(r0, tempVec1)) + JNumber3D.dot(N, JNumber3D.cross(r1, tempVec2));
 			if (denominator < JNumber3D.NUM_TINY)
 			{
 				return false;
 			}
 
-			var normalImpulse:Vector3D = JNumber3D.multiply(N, -normalVel / denominator);
+			var normalImpulse:Vector3D = JNumber3D.scaleVector(N, -normalVel / denominator);
 			_body0.applyWorldImpulse(normalImpulse, _worldPos);
-			_body1.applyWorldImpulse(JNumber3D.multiply(normalImpulse, -1), _worldPos);
+			_body1.applyWorldImpulse(JNumber3D.scaleVector(normalImpulse, -1), _worldPos);
 
 			_body0.setConstraintsAndCollisionsUnsatisfied();
 			_body1.setConstraintsAndCollisionsUnsatisfied();

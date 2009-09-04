@@ -61,7 +61,7 @@ package jiglib.physics.constraint {
 			this.satisfied = true;
 
 			var worldPos:Vector3D = _pointOnBody.clone();
-			JMatrix3D.multiplyVector(_body.currentState.orientation, worldPos);
+			JMatrix3D.scaleVectorVector(_body.currentState.orientation, worldPos);
 			worldPos = worldPos.add( _body.currentState.position);
 			var R:Vector3D = worldPos.subtract(_body.currentState.position);
 			var currentVel:Vector3D = _body.currentState.linVelocity.add(JNumber3D.cross(R, _body.currentState.rotVelocity));
@@ -71,8 +71,8 @@ package jiglib.physics.constraint {
 			var deviation:Vector3D = worldPos.subtract(_worldPosition);
 			var deviationDistance:Number = deviation.length;
 			if (deviationDistance > allowedDeviation) {
-				deviationDir = JNumber3D.divide(deviation, deviationDistance);
-				desiredVel = JNumber3D.multiply(deviationDir, (allowedDeviation - deviationDistance) / (timescale * dt));
+				deviationDir = JNumber3D.divideVector(deviation, deviationDistance);
+				desiredVel = JNumber3D.scaleVector(deviationDir, (allowedDeviation - deviationDistance) / (timescale * dt));
 			} else {
 				desiredVel = new Vector3D();
 			}
@@ -82,10 +82,10 @@ package jiglib.physics.constraint {
 			if (normalVel < minVelForProcessing) {
 				return false;
 			}
-			N = JNumber3D.divide(N, normalVel);
+			N = JNumber3D.divideVector(N, normalVel);
 			
 			var tempV:Vector3D = JNumber3D.cross(N, R);
-			JMatrix3D.multiplyVector(_body.worldInvInertia, tempV);
+			JMatrix3D.scaleVectorVector(_body.worldInvInertia, tempV);
 			var denominator:Number = _body.invMass + JNumber3D.dot(N, JNumber3D.cross(R, tempV));
 			 
 			if (denominator < JNumber3D.NUM_TINY) {
@@ -94,7 +94,7 @@ package jiglib.physics.constraint {
 			 
 			var normalImpulse:Number = -normalVel / denominator;
 			
-			_body.applyWorldImpulse(JNumber3D.multiply(N, normalImpulse), worldPos);
+			_body.applyWorldImpulse(JNumber3D.scaleVector(N, normalImpulse), worldPos);
 			
 			_body.setConstraintsAndCollisionsUnsatisfied();
 			this.satisfied = true;

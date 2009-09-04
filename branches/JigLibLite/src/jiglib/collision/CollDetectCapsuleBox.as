@@ -66,8 +66,8 @@ package jiglib.collision
 			var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 			var cpInfo:CollPointInfo;
 
-			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.multiply(capsule.oldState.orientation.getCols()[1], capsule.length));
-			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.multiply(capsule.currentState.orientation.getCols()[1], capsule.length));
+			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.scaleVector(capsule.oldState.orientation.getCols()[1], capsule.length));
+			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.scaleVector(capsule.currentState.orientation.getCols()[1], capsule.length));
 			var radius:Number = capsule.radius;
 
 			var oldObj:Object = {};
@@ -80,9 +80,9 @@ package jiglib.collision
 			{
 				var segPos:Vector3D = oldSeg.getPoint(Number(oldObj.pfLParam));
 				var boxPos:Vector3D = box.oldState.position.clone();
-				boxPos = boxPos.add(JNumber3D.multiply(arr[0], oldObj.pfLParam0));
-				boxPos = boxPos.add(JNumber3D.multiply(arr[1], oldObj.pfLParam1));
-				boxPos = boxPos.add(JNumber3D.multiply(arr[2], oldObj.pfLParam2));
+				boxPos = boxPos.add(JNumber3D.scaleVector(arr[0], oldObj.pfLParam0));
+				boxPos = boxPos.add(JNumber3D.scaleVector(arr[1], oldObj.pfLParam1));
+				boxPos = boxPos.add(JNumber3D.scaleVector(arr[2], oldObj.pfLParam2));
 
 				var dist:Number = Math.sqrt(oldDistSq);
 				var depth:Number = radius - dist;
@@ -101,7 +101,7 @@ package jiglib.collision
 				else
 				{
 					dir = Vector3D.Y_AXIS;
-					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
+					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 				}
 
 				cpInfo = new CollPointInfo();
@@ -112,8 +112,8 @@ package jiglib.collision
 			}
 
 
-			oldSeg = new JSegment(capsule.getEndPos(capsule.oldState), JNumber3D.multiply(capsule.oldState.orientation.getCols()[1], capsule.length));
-			newSeg = new JSegment(capsule.getEndPos(capsule.currentState), JNumber3D.multiply(capsule.currentState.orientation.getCols()[1], capsule.length));
+			oldSeg = new JSegment(capsule.getEndPos(capsule.oldState), JNumber3D.scaleVector(capsule.oldState.orientation.getCols()[1], capsule.length));
+			newSeg = new JSegment(capsule.getEndPos(capsule.currentState), JNumber3D.scaleVector(capsule.currentState.orientation.getCols()[1], capsule.length));
 
 			oldObj = {};
 			oldDistSq = oldSeg.segmentBoxDistanceSq(oldObj, box, box.oldState);
@@ -124,9 +124,9 @@ package jiglib.collision
 			{
 				segPos = oldSeg.getPoint(Number(oldObj.pfLParam));
 				boxPos = box.oldState.position.clone();
-				boxPos = boxPos.add(JNumber3D.multiply(arr[0], oldObj.pfLParam0));
-				boxPos = boxPos.add(JNumber3D.multiply(arr[1], oldObj.pfLParam1));
-				boxPos = boxPos.add(JNumber3D.multiply(arr[2], oldObj.pfLParam2));
+				boxPos = boxPos.add(JNumber3D.scaleVector(arr[0], oldObj.pfLParam0));
+				boxPos = boxPos.add(JNumber3D.scaleVector(arr[1], oldObj.pfLParam1));
+				boxPos = boxPos.add(JNumber3D.scaleVector(arr[2], oldObj.pfLParam2));
 
 				dist = Math.sqrt(oldDistSq);
 				depth = radius - dist;
@@ -144,7 +144,7 @@ package jiglib.collision
 				else
 				{
 					dir = Vector3D.Y_AXIS;
-					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
+					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 				}
 
 				cpInfo = new CollPointInfo();

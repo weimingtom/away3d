@@ -61,15 +61,15 @@ package jiglib.collision
 				var depth:Number = radSum - oldDist;
 				if (oldDist > JNumber3D.NUM_TINY)
 				{
-					oldDelta = JNumber3D.divide(oldDelta, oldDist);
+					oldDelta = JNumber3D.divideVector(oldDelta, oldDist);
 				}
 				else
 				{
 					oldDelta = Vector3D.Y_AXIS;
-					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), oldDelta);
+					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), oldDelta);
 				}
 
-				var worldPos:Vector3D = sphere1.oldState.position.add(JNumber3D.multiply(oldDelta, sphere1.radius - 0.5 * depth));
+				var worldPos:Vector3D = sphere1.oldState.position.add(JNumber3D.scaleVector(oldDelta, sphere1.radius - 0.5 * depth));
 
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				var cpInfo:CollPointInfo = new CollPointInfo();

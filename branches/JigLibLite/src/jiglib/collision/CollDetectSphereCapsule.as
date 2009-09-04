@@ -62,8 +62,8 @@ package jiglib.collision
 				return;
 			}
 
-			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.multiply(capsule.oldState.orientation.getCols()[1], capsule.length));
-			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.multiply(capsule.currentState.orientation.getCols()[1], capsule.length));
+			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.scaleVector(capsule.oldState.orientation.getCols()[1], capsule.length));
+			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.scaleVector(capsule.currentState.orientation.getCols()[1], capsule.length));
 			var radSum:Number = sphere.radius + capsule.radius;
 
 			var oldObj:Object = {};
@@ -81,15 +81,15 @@ package jiglib.collision
 
 				if (dist > JNumber3D.NUM_TINY)
 				{
-					delta = JNumber3D.divide(delta, dist);
+					delta = JNumber3D.divideVector(delta, dist);
 				}
 				else
 				{
 					delta = Vector3D.Y_AXIS;
-					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), delta);
+					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), delta);
 				}
 
-				var worldPos:Vector3D = segPos.add(JNumber3D.multiply(delta, capsule.radius - 0.5 * depth));
+				var worldPos:Vector3D = segPos.add(JNumber3D.scaleVector(delta, capsule.radius - 0.5 * depth));
 
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				var cpInfo:CollPointInfo = new CollPointInfo();

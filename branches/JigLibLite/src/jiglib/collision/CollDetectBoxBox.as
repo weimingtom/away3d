@@ -79,7 +79,7 @@ package jiglib.collision
 			{
 				if (contactPoint.subtract(pt).lengthSquared < combinationDistanceSq)
 				{
-					contactPoint = JNumber3D.divide(contactPoint.add(pt), 2);
+					contactPoint = JNumber3D.divideVector(contactPoint.add(pt), 2);
 					return false;
 				}
 			}
@@ -146,7 +146,7 @@ package jiglib.collision
 			}
 
 			CA.push(PA.clone());
-			CB.push(PB0.add(JNumber3D.multiply(BD, t)));
+			CB.push(PB0.add(JNumber3D.scaleVector(BD, t)));
 		}
 
 		private function getPointFaceContacts(PA:Vector3D, BN:Vector3D, BD:Number, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
@@ -154,9 +154,9 @@ package jiglib.collision
 			var dist:Number = JNumber3D.dot(PA, BN) - BD;
 
 			addPoint(CA, PA.clone(), combinationDist);
-			addPoint(CB, PA.subtract(JNumber3D.multiply(BN, dist)), combinationDist);
+			addPoint(CB, PA.subtract(JNumber3D.scaleVector(BN, dist)), combinationDist);
 			//CA.push(PA.clone());
-			//CB.push(PA.subtract(JNumber3D.multiply(BN, dist)));
+			//CB.push(PA.subtract(JNumber3D.scaleVector(BN, dist)));
 		}
 
 		private function getEdgeEdgeContacts(PA0:Vector3D, PA1:Vector3D, PB0:Vector3D, PB1:Vector3D, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
@@ -176,7 +176,7 @@ package jiglib.collision
 				at = 1;
 			}
 
-			getPointEdgeContacts(PA0.add(JNumber3D.multiply(AD, at)), PB0, PB1, CA, CB);
+			getPointEdgeContacts(PA0.add(JNumber3D.scaleVector(AD, at)), PB0, PB1, CA, CB);
 		}
 
 		private function getPolygonContacts(Clipper:Vector.<Vector3D>, Poly:Vector.<Vector3D>, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
@@ -273,7 +273,7 @@ package jiglib.collision
 					}
 					var D:Vector3D = A[ip1].subtract(A[i]);
 					var t:Number = (planeD - JNumber3D.dot(A[i], xPlaneNormal)) / JNumber3D.dot(D, xPlaneNormal);
-					B[n++] = A[i].add(JNumber3D.multiply(D, t));
+					B[n++] = A[i].add(JNumber3D.scaleVector(D, t));
 				}
 			}
 
@@ -350,7 +350,7 @@ package jiglib.collision
 			var N:Vector3D = axes[minAxis].clone();
 			if (JNumber3D.dot(box1.currentState.position.subtract(box0.currentState.position), N) > 0)
 			{
-				N = JNumber3D.multiply(N, -1);
+				N = JNumber3D.scaleVector(N, -1);
 			}
 			N.normalize();
 
@@ -430,7 +430,7 @@ package jiglib.collision
 			var contactA:Vector.<Vector3D> = new Vector.<Vector3D>();
 			var contactB:Vector.<Vector3D> = new Vector.<Vector3D>();
 			var supportVertA:Vector.<Vector3D> = box0.getSupportVertices(N);
-			var supportVertB:Vector.<Vector3D> = box1.getSupportVertices(JNumber3D.multiply(N, -1));
+			var supportVertB:Vector.<Vector3D> = box1.getSupportVertices(JNumber3D.scaleVector(N, -1));
 			var iNumVertsA:int = supportVertA.length;
 			var iNumVertsB:int = supportVertB.length;
 

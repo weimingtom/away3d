@@ -284,7 +284,7 @@ package jiglib.math {
 			this.n34 = a31 * b14 + a32 * b24 + a33 * b34 + a34;
 		}
 
-		public static function multiply( a:JMatrix3D, b:JMatrix3D ):JMatrix3D {
+		public static function scaleVector( a:JMatrix3D, b:JMatrix3D ):JMatrix3D {
 			var m:JMatrix3D = new JMatrix3D();
 		
 			m.calculateMultiply(a, b);
@@ -384,7 +384,7 @@ package jiglib.math {
 			this.n44 = a41 * b14 + a42 * b24 + a43 * b34 + a44;
 		}
 
-		public static function multiply3x3( a:JMatrix3D, b:JMatrix3D ):JMatrix3D {
+		public static function scaleVector3x3( a:JMatrix3D, b:JMatrix3D ):JMatrix3D {
 			var m:JMatrix3D = new JMatrix3D();
 		
 			m.calculateMultiply3x3(a, b);
@@ -517,7 +517,7 @@ package jiglib.math {
 
 		// _________________________________________________________________________________ VECTOR
 
-		public static function multiplyVector( m:JMatrix3D, v:Vector3D ):void {
+		public static function scaleVectorVector( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -527,7 +527,7 @@ package jiglib.math {
 			v.z = vx * m.n31 + vy * m.n32 + vz * m.n33 + m.n34;
 		}
 
-		public static function multiplyVector3x3( m:JMatrix3D, v:Vector3D ):void {
+		public static function scaleVectorVector3x3( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -554,7 +554,7 @@ package jiglib.math {
 		public static function projectVector( m:JMatrix3D, v:Vector3D ):void
 		{
 		var c:Number = 1 / ( v.x * m.n41 + v.y * m.n42 + v.z * m.n43 + 1 );
-		multiplyVector( m, v );
+		scaleVectorVector( m, v );
 
 		v.x = v.x * c;
 		v.y = v.y * c;
@@ -869,7 +869,7 @@ package jiglib.math {
 		}
 
 		
-		public static function multiplyQuaternion( a:Vector3D, b:Vector3D ):Vector3D {
+		public static function scaleVectorQuaternion( a:Vector3D, b:Vector3D ):Vector3D {
 			var ax:Number = a.x;  
 			var ay:Number = a.y;  
 			var az:Number = a.z;  

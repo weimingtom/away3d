@@ -8,29 +8,29 @@
 		{
 			super(x, y, z, w);
 		}
-		
+
 		public function copy():JNumber3D
 		{
 			return new JNumber3D(x, y, z, w);
 		}
-		
+
 		public static function toJNumber3D(v:Vector3D):JNumber3D
 		{
 			return new JNumber3D(v.x, v.y, v.z, v.w);
 		}
-		
+
 		public static function toVector3D(jn:JNumber3D):Vector3D
 		{
 			return new Vector3D(jn.x, jn.y, jn.z, jn.w);
 		}
-		
+
 		public function copyTo(n:Vector3D):void
 		{
 			n.x = x;
 			n.y = y;
 			n.z = z;
 		}
-		
+
 		/**
 		 * Dot product.
 		 */
@@ -58,65 +58,25 @@
 			return false;
 		}
 
-		// ______________________________________________________________________
-
-		/**
-		 * Returns a Number3D object with x, y and z properties set to zero.
-		 *
-		 * @return A Number3D object.
-		 *
-		static public function get ZERO():Vector3D
-		{
-			return new Vector3D();
-		}*/
-
-		/**
-		 * Returns a string value representing the three-dimensional values in the specified Number3D object.
-		 *
-		 * @return	A string.
-		 *
-		   public function toString():String
-		   {
-		   return 'x:' + x + ' y:' + y + ' z:' + z;
-		   }
-		 */
-
-		/*
-		 * modify by Muzer
-		 *
-		public function setTo(x:Number = 0, y:Number = 0, z:Number = 0):void
-		{
-			this.x = x;
-			this.y = y;
-			this.z = z;
-		}
-		*/
-
 		public static function toArray(v:Vector3D):Array
 		{
 			return [v.x, v.y, v.z];
 		}
-/*
-		public function get lengthSquared():Number
+
+		public static function scaleVector(v:Vector3D, s:Number):Vector3D
 		{
-			return lengthSquared;
-			//x * x + y * y + z * z;
-		}
-*/
-		public static function multiply(v:*, w:Number):Vector3D
-		{
-			return new Vector3D(v.x * w, v.y * w, v.z * w);
+			return new Vector3D(v.x * s, v.y * s, v.z * s);
 		}
 
-		public static function divide(v:*, w:Number):Vector3D
+		public static function divideVector(v:Vector3D, w:Number):Vector3D
 		{
 			if (w != 0)
 			{
-				return new JNumber3D(v.x / w, v.y / w, v.z / w);
+				return new Vector3D(v.x / w, v.y / w, v.z / w);
 			}
 			else
 			{
-				return new JNumber3D(0, 0, 0);
+				return new Vector3D(0, 0, 0);
 			}
 		}
 
@@ -153,22 +113,7 @@
 			}
 			return n;
 		}
-/*
-		static public function get UP():Vector3D
-		{
-			return new JNumber3D(0, 1, 0);
-		}
 
-		static public function get RIGHT():Vector3D
-		{
-			return new JNumber3D(1, 0, 0);
-		}
-
-		static public function get FRONT():Vector3D
-		{
-			return new JNumber3D(0, 0, 1);
-		}
-*/
 		static public function get NUM_TINY():Number
 		{
 			return 0.00001;
