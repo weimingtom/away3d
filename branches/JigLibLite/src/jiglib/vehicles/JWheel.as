@@ -257,7 +257,7 @@ package jiglib.vehicles
 			}
 
 			var displacementForceMag:Number = _displacement * _spring;
-			displacementForceMag *= JNumber3D.dot(groundNormal, worldAxis);
+			displacementForceMag *= groundNormal.dotProduct(worldAxis);
 
 			var dampingForceMag:Number = _upSpeed * _damping;
 			var totalForceMag:Number = displacementForceMag + dampingForceMag;
@@ -287,7 +287,7 @@ package jiglib.vehicles
 			}
 
 			var friction:Number = _sideFriction;
-			var sideVel:Number = JNumber3D.dot(wheelPointVel, groundLeft);
+			var sideVel:Number = wheelPointVel, groundLeft);
 			if ((sideVel > slipVel) || (sideVel < -slipVel))
 			{
 				friction *= slipFactor;
@@ -310,7 +310,7 @@ package jiglib.vehicles
 			force = force.add(extraForce);
 
 			friction = _fwdFriction;
-			var fwdVel:Number = JNumber3D.dot(wheelPointVel, groundFwd);
+			var fwdVel:Number = wheelPointVel, groundFwd);
 			if ((fwdVel > slipVel) || (fwdVel < -slipVel))
 			{
 				friction *= slipFactor;
@@ -332,7 +332,7 @@ package jiglib.vehicles
 			force = force.add(extraForce);
 
 			wheelCentreVel = carBody.currentState.linVelocity.add(JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
-			_angVelForGrip = JNumber3D.dot(wheelCentreVel, groundFwd) / _radius;
+			_angVelForGrip = wheelCentreVel, groundFwd) / _radius;
 			_torque += (-fwdForce * _radius);
 
 			carBody.addWorldForce(force, groundPos);

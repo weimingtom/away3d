@@ -84,28 +84,28 @@ package jiglib.geometry{
 			out.normalOut = new Vector3D();
 			
 			var Ks:Vector3D = seg.delta;
-			var kss:Number = JNumber3D.dot(Ks, Ks);
+			var kss:Number = Ks.dotProduct(Ks);
 			var radiusSq:Number = _radius * _radius;
 			
 			var cylinderAxis:JSegment = new JSegment(getBottomPos(state), state.orientation.getCols()[1]);
 			var Ke:Vector3D = cylinderAxis.delta;
 			var Kg:Vector3D = cylinderAxis.origin.subtract(seg.origin);
-			var kee:Number = JNumber3D.dot(Ke, Ke);
+			var kee:Number = Ke.dotProduct(Ke);
 			if (Math.abs(kee) < JNumber3D.NUM_TINY) {
 				return false;
 			}
 			
-			var kes:Number = JNumber3D.dot(Ke, Ks);
-			var kgs:Number = JNumber3D.dot(Kg, Ks);
-			var keg:Number = JNumber3D.dot(Ke, Kg);
-			var kgg:Number = JNumber3D.dot(Kg, Kg);
+			var kes:Number = Ke.dotProduct(Ks);
+			var kgs:Number = Kg.dotProduct(Ks);
+			var keg:Number = Ke.dotProduct(Kg);
+			var kgg:Number = Kg.dotProduct(Kg);
 			
 			var distSq:Number = Kg.subtract(JNumber3D.divideVector(JNumber3D.scaleVector(Ke, keg), kee)).lengthSquared;
 			if (distSq < radiusSq) {
 				out.fracOut = 0;
 				out.posOut = seg.origin.clone();
 				out.normalOut = out.posOut.subtract(getBottomPos(state));
-				out.normalOut = out.normalOut.subtract(JNumber3D.scaleVector(state.orientation.getCols()[1], JNumber3D.dot(out.normalOut, state.orientation.getCols()[1])));
+				out.normalOut = out.normalOut.subtract(JNumber3D.scaleVector(state.orientation.getCols()[1], out.normalOut.dotProduct(state.orientation.getCols()[1])));
 				out.normalOut.normalize();
 				return true;
 			}
@@ -127,7 +127,7 @@ package jiglib.geometry{
 			out.fracOut = t;
 			out.posOut = seg.getPoint(t);
 			out.normalOut = out.posOut.subtract(getBottomPos(state));
-			out.normalOut = out.normalOut.subtract(JNumber3D.scaleVector(state.orientation.getCols()[1], JNumber3D.dot(out.normalOut, state.orientation.getCols()[1])));
+			out.normalOut = out.normalOut.subtract(JNumber3D.scaleVector(state.orientation.getCols()[1], out.normalOut.dotProduct(state.orientation.getCols()[1])));
 			out.normalOut.normalize();
 			return true;
 		}

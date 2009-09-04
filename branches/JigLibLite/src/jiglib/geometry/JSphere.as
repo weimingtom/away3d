@@ -82,7 +82,7 @@ package jiglib.geometry
 				return true;
 			}
 
-			var sDotr:Number = JNumber3D.dot(s, r);
+			var sDotr:Number = s.dotProduct(r);
 			var sSq:Number = s.lengthSquared;
 			var sigma:Number = sDotr * sDotr - rSq * (sSq - radiusSq);
 			if (sigma < 0)

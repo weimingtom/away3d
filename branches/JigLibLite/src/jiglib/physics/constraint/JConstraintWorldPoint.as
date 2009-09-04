@@ -86,7 +86,7 @@ package jiglib.physics.constraint {
 			
 			var tempV:Vector3D = JNumber3D.cross(N, R);
 			JMatrix3D.scaleVectorVector(_body.worldInvInertia, tempV);
-			var denominator:Number = _body.invMass + JNumber3D.dot(N, JNumber3D.cross(R, tempV));
+			var denominator:Number = _body.invMass + N.dotProduct(JNumber3D.cross(R, tempV));
 			 
 			if (denominator < JNumber3D.NUM_TINY) {
 				return false;

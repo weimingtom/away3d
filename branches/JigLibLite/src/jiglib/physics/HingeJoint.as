@@ -26,6 +26,8 @@
 package jiglib.physics
 {
 
+	import flash.geom.Vector3D;
+	
 	import jiglib.math.*;
 	import jiglib.physics.constraint.*;
 
@@ -85,7 +87,7 @@ package jiglib.physics
 			if (hingeFwdAngle <= MAX_HINGE_ANGLE_LIMIT)
 			{
 				var perpDir:Vector3D = new Vector3D(0, 1, 0);
-				if (JNumber3D.dot(perpDir, _hingeAxis) > 0.1)
+				if (perpDir.dotProduct(_hingeAxis) > 0.1)
 				{
 					perpDir.x = 1;
 					perpDir.y = 0;
@@ -210,8 +212,8 @@ package jiglib.physics
 				var hingeAxis:Vector3D = _body1.currentState.rotVelocity.subtract(_body0.currentState.rotVelocity);
 				hingeAxis.normalize();
 
-				var angRot1:Number = JNumber3D.dot(_body0.currentState.rotVelocity, hingeAxis);
-				var angRot2:Number = JNumber3D.dot(_body1.currentState.rotVelocity, hingeAxis);
+				var angRot1:Number = _body0.currentState.rotVelocity.dotProduct(hingeAxis);
+				var angRot2:Number = _body1.currentState.rotVelocity.dotProduct(hingeAxis);
 
 				var avAngRot:Number = 0.5 * (angRot1 + angRot2);
 				var frac:Number = 1 - _damping;

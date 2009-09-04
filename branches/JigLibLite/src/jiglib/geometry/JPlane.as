@@ -60,7 +60,7 @@ package jiglib.geometry
 
 		public function pointPlaneDistance(pt:Vector3D):Number
 		{
-			return JNumber3D.dot(_normal, pt) - _distance;
+			return _normal.dotProduct(pt) - _distance;
 		}
 
 		override public function segmentIntersect(out:Object, seg:JSegment, state:PhysicsState):Boolean
@@ -73,10 +73,10 @@ package jiglib.geometry
 
 			var t:Number;
 
-			var denom:Number = JNumber3D.dot(_normal, seg.delta);
+			var denom:Number = _normal.dotProduct(seg.delta);
 			if (Math.abs(denom) > JNumber3D.NUM_TINY)
 			{
-				t = -1 * (JNumber3D.dot(_normal, seg.origin) - _distance) / denom;
+				t = -1 * (_normal.dotProduct(seg.origin) - _distance) / denom;
 
 				if (t < 0 || t > 1)
 				{
@@ -103,7 +103,7 @@ package jiglib.geometry
 			super.updateState();
 			_normal = new Vector3D(0, 0, -1);
 			JMatrix3D.scaleVectorVector(_currState.orientation, _normal);
-			_distance = JNumber3D.dot(_currState.position, _normal);
+			_distance = _currState.position.dotProduct(_normal);
 		}
 	}
 }

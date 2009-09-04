@@ -84,9 +84,9 @@ package jiglib.geometry
 
 			var kDiff:Vector3D = _origin.subtract(seg.origin);
 			var fA00:Number = _delta.lengthSquared;
-			var fA01:Number = -JNumber3D.dot(_delta, seg.delta);
+			var fA01:Number = -_delta.dotProduct(seg.delta);
 			var fA11:Number = seg.delta.lengthSquared;
-			var fB0:Number = JNumber3D.dot(kDiff, _delta);
+			var fB0:Number = kDiff.dotProduct(_delta);
 			var fC:Number = kDiff.lengthSquared;
 			var fDet:Number = Math.abs(fA00 * fA11 - fA01 * fA01);
 			var fB1:Number;
@@ -97,7 +97,7 @@ package jiglib.geometry
 
 			if (fDet >= JNumber3D.NUM_TINY)
 			{
-				fB1 = -JNumber3D.dot(kDiff, seg.delta);
+				fB1 = -kDiff.dotProduct(seg.delta);
 				fS = fA01 * fB1 - fA11 * fB0;
 				fT = fA01 * fB0 - fA00 * fB1;
 
@@ -374,7 +374,7 @@ package jiglib.geometry
 					}
 					else
 					{
-						fB1 = -JNumber3D.dot(kDiff, seg.delta);
+						fB1 = -kDiff.dotProduct(seg.delta);
 						fS = 1;
 						fTmp = fA00 + fB0;
 						if (-fTmp >= fA01)
@@ -405,7 +405,7 @@ package jiglib.geometry
 					}
 					else
 					{
-						fB1 = -JNumber3D.dot(kDiff, seg.delta);
+						fB1 = -kDiff.dotProduct(seg.delta);
 						fS = 0;
 						if (fB0 >= -fA01)
 						{
@@ -431,7 +431,7 @@ package jiglib.geometry
 			out.t = 0;
 
 			var kDiff:Vector3D = pt.subtract( _origin);
-			var fT:Number = JNumber3D.dot(kDiff, _delta);
+			var fT:Number = kDiff.dotProduct(_delta);
 
 			if (fT <= 0)
 			{
@@ -500,13 +500,13 @@ package jiglib.geometry
 			out.num2 = 0;
 
 			var kDiff:Vector3D = rkLine.origin.subtract(boxState.position);
-			var kPnt:Vector3D = new Vector3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
-				JNumber3D.dot(kDiff, boxState.orientation.getCols()[1]),
-				JNumber3D.dot(kDiff, boxState.orientation.getCols()[2]));
+			var kPnt:Vector3D = new Vector3D(kDiff.dotProduct(boxState.orientation.getCols()[0]),
+				kDiff.dotProduct(boxState.orientation.getCols()[1]),
+				kDiff.dotProduct(boxState.orientation.getCols()[2]));
 
-			var kDir:Vector3D = new Vector3D(JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[0]),
-				JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[1]),
-				JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[2]));
+			var kDir:Vector3D = new Vector3D(rkLine.dir.dotProduct(boxState.orientation.getCols()[0]),
+				rkLine.dir.dotProduct(boxState.orientation.getCols()[1]),
+				rkLine.dir.dotProduct(boxState.orientation.getCols()[2]));
 
 			var kPntArr:Array = JNumber3D.toArray(kPnt);
 			var kDirArr:Array = JNumber3D.toArray(kDir);
@@ -612,9 +612,9 @@ package jiglib.geometry
 		{
 
 			var kDiff:Vector3D = rkPoint.subtract(boxState.position);
-			var kClosest:Vector3D = new Vector3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
-				JNumber3D.dot(kDiff, boxState.orientation.getCols()[1]),
-				JNumber3D.dot(kDiff, boxState.orientation.getCols()[2]));
+			var kClosest:Vector3D = new Vector3D(kDiff.dotProduct(boxState.orientation.getCols()[0]),
+				kDiff.dotProduct(boxState.orientation.getCols()[1]),
+				kDiff.dotProduct(boxState.orientation.getCols()[2]));
 
 			var fSqrDistance:Number = 0;
 			var fDelta:Number;

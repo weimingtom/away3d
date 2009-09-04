@@ -27,6 +27,8 @@
 package jiglib.physics.constraint
 {
 
+	import flash.geom.Vector3D;
+	
 	import jiglib.math.*;
 	import jiglib.physics.RigidBody;
 
@@ -118,7 +120,7 @@ package jiglib.physics.constraint
 			JMatrix3D.scaleVectorVector(_body0.worldInvInertia, tempVec1);
 			var tempVec2:Vector3D = JNumber3D.cross(N, r1);
 			JMatrix3D.scaleVectorVector(_body1.worldInvInertia, tempVec2);
-			var denominator:Number = _body0.invMass + _body1.invMass + JNumber3D.dot(N, JNumber3D.cross(r0, tempVec1)) + JNumber3D.dot(N, JNumber3D.cross(r1, tempVec2));
+			var denominator:Number = _body0.invMass + _body1.invMass + N.dotProduct(JNumber3D.cross(r0, tempVec1)) + N.dotProduct(JNumber3D.cross(r1, tempVec2));
 			if (denominator < JNumber3D.NUM_TINY)
 			{
 				return false;

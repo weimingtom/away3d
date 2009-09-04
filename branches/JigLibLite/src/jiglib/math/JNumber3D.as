@@ -8,15 +8,10 @@
 		{
 			return new Vector3D(jn.x, jn.y, jn.z, jn.w);
 		}
-
-		public static function dot(v1:Vector3D, v2:Vector3D):Number
-		{
-			return v1.dotProduct(v2);
-		}
 		
 		public static function cross(v1:Vector3D, v2:Vector3D):Vector3D
 		{
-			return v1.crossProduct(v2);
+			return v2.crossProduct(v1);
 		}
 
 		public static function toArray(v:Vector3D):Array

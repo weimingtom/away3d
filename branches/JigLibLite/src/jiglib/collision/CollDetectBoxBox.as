@@ -135,7 +135,7 @@ package jiglib.collision
 			var B0A:Vector3D = PA.subtract(PB0);
 			var BD:Vector3D = PB1.subtract(PB0);
 
-			var t:Number = JNumber3D.dot(B0A, BD) / JNumber3D.dot(BD, BD);
+			var t:Number = B0A.dotProduct(BD) / BD.dotProduct(BD);
 			if (t < 0)
 			{
 				t = 0;
@@ -151,7 +151,7 @@ package jiglib.collision
 
 		private function getPointFaceContacts(PA:Vector3D, BN:Vector3D, BD:Number, CA:Vector.<Vector3D>, CB:Vector.<Vector3D>):void
 		{
-			var dist:Number = JNumber3D.dot(PA, BN) - BD;
+			var dist:Number = PA.dotProduct(BN) - BD;
 
 			addPoint(CA, PA.clone(), combinationDist);
 			addPoint(CB, PA.subtract(JNumber3D.scaleVector(BN, dist)), combinationDist);
@@ -165,8 +165,8 @@ package jiglib.collision
 			var BD:Vector3D = PB1.subtract(PB0);
 			var N:Vector3D = JNumber3D.cross(BD, AD);
 			var M:Vector3D = JNumber3D.cross(BD, N);
-			var md:Number = JNumber3D.dot(M, PB0);
-			var at:Number = (md - JNumber3D.dot(PA0, M)) / JNumber3D.dot(AD, M);
+			var md:Number = M.dotProduct(PB0);
+			var at:Number = (md - PA0.dotProduct(M)) / AD.dotProduct(M);
 			if (at < 0)
 			{
 				at = 0;
@@ -186,7 +186,7 @@ package jiglib.collision
 				return;
 			}
 			var ClipperNormal:Vector3D = JNumber3D.getNormal(Clipper[0], Clipper[1], Clipper[2]);
-			var clipper_d:Number = JNumber3D.dot(Clipper[0], ClipperNormal);
+			var clipper_d:Number = Clipper[0].dotProduct(ClipperNormal);
 
 			var temp:Vector.<Vector3D> = new Vector.<Vector3D>();
 			for each (var cb:Vector3D in CB)
@@ -212,7 +212,7 @@ package jiglib.collision
 			{
 				D = axClipperVertices[ip1].subtract(axClipperVertices[i]);
 				N = JNumber3D.cross(ClipperNormal, D);
-				var dis:Number = JNumber3D.dot(axClipperVertices[i], N);
+				var dis:Number = axClipperVertices[i].dotProduct(N);
 
 				if (!planeClip(temp, axClippedPolygon, N, dis))
 				{
@@ -232,7 +232,7 @@ package jiglib.collision
 			var side:Number;
 			for (var s:String in A)
 			{
-				side = JNumber3D.dot(A[s], xPlaneNormal) - planeD;
+				side = A[s].dotProduct(xPlaneNormal) - planeD;
 				bBack[s] = (side < 0) ? true : false;
 				bBackVerts = bBackVerts || bBack[s];
 				bFrontVerts = bBackVerts || !bBack[s];
@@ -272,7 +272,7 @@ package jiglib.collision
 						return true;
 					}
 					var D:Vector3D = A[ip1].subtract(A[i]);
-					var t:Number = (planeD - JNumber3D.dot(A[i], xPlaneNormal)) / JNumber3D.dot(D, xPlaneNormal);
+					var t:Number = (planeD - A[i].dotProduct(xPlaneNormal)) / D.dotProduct(xPlaneNormal);
 					B[n++] = A[i].add(JNumber3D.scaleVector(D, t));
 				}
 			}
@@ -348,7 +348,7 @@ package jiglib.collision
 				return;
 			}
 			var N:Vector3D = axes[minAxis].clone();
-			if (JNumber3D.dot(box1.currentState.position.subtract(box0.currentState.position), N) > 0)
+			if (box1.currentState.position.subtract(box0.currentState.position).dotProduct(N) > 0)
 			{
 				N = JNumber3D.scaleVector(N, -1);
 			}
@@ -382,7 +382,7 @@ package jiglib.collision
 			}
 
 			var bodyDelta:Vector3D = box0.currentState.position.subtract(box0.oldState.position).subtract(box1.currentState.position.subtract(box1.oldState.position));
-			var bodyDeltaLen:Number = JNumber3D.dot(bodyDelta, N);
+			var bodyDeltaLen:Number = bodyDelta.dotProduct(N);
 			var oldDepth:Number = depth + bodyDeltaLen;
 
 			var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
@@ -453,7 +453,7 @@ package jiglib.collision
 				{
 					//trace("++++ iNumVertsA=1::::iNumVertsB=4");
 					var BN:Vector3D = JNumber3D.getNormal(supportVertB[0], supportVertB[1], supportVertB[2]);
-					var BD:Number = JNumber3D.dot(BN, supportVertB[0]);
+					var BD:Number = BN.dotProduct(supportVertB[0]);
 					getPointFaceContacts(supportVertA[0], BN, BD, contactA, contactB);
 				}
 			}
@@ -481,7 +481,7 @@ package jiglib.collision
 				{
 					//trace("++++ iNumVertsA=4::::iNumVertsB=1");
 					BN = JNumber3D.getNormal(supportVertA[0], supportVertA[1], supportVertA[2]);
-					BD = JNumber3D.dot(BN, supportVertA[0]);
+					BD = BN.dotProduct(supportVertA[0]);
 					getPointFaceContacts(supportVertB[0], BN, BD, contactB, contactA);
 				}
 				else

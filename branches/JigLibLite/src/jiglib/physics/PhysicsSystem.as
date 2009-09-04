@@ -323,13 +323,13 @@ package jiglib.physics
 				{
 					tempV = JNumber3D.cross(N, ptInfo.r0);
 					JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-					ptInfo.denominator = body0.invMass + JNumber3D.dot(N, JNumber3D.cross(ptInfo.r0, tempV));
+					ptInfo.denominator = body0.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
 				}
 				if (body1.movable)
 				{
 					tempV = JNumber3D.cross(N, ptInfo.r1);
 					JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-					ptInfo.denominator += (body1.invMass + JNumber3D.dot(N, JNumber3D.cross(ptInfo.r1, tempV)));
+					ptInfo.denominator += (body1.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
 				{
@@ -384,14 +384,14 @@ package jiglib.physics
 				{
 					tempV = JNumber3D.cross(N, ptInfo.r0);
 					JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-					ptInfo.denominator = body0.invMass + JNumber3D.dot(N, JNumber3D.cross(ptInfo.r0, tempV));
+					ptInfo.denominator = body0.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
 				}
 
 				if (body1.movable)
 				{
 					tempV = JNumber3D.cross(N, ptInfo.r1);
 					JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-					ptInfo.denominator += (body1.invMass + JNumber3D.dot(N, JNumber3D.cross(ptInfo.r1, tempV)));
+					ptInfo.denominator += (body1.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
 				{
@@ -447,14 +447,14 @@ package jiglib.physics
 				{
 					tempV = JNumber3D.cross(N, ptInfo.r0);
 					JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-					ptInfo.denominator = body0.invMass + JNumber3D.dot(N, JNumber3D.cross(ptInfo.r0, tempV));
+					ptInfo.denominator = body0.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
 				}
 
 				if (body1.movable)
 				{
 					tempV = JNumber3D.cross(N, ptInfo.r1);
 					JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-					ptInfo.denominator += (body1.invMass + JNumber3D.dot(N, JNumber3D.cross(ptInfo.r1, tempV)));
+					ptInfo.denominator += (body1.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
 				{
@@ -548,7 +548,7 @@ package jiglib.physics
 
 				Vr0 = body0.getVelocity(ptInfo.r0);
 				Vr1 = body1.getVelocity(ptInfo.r1);
-				normalVel = JNumber3D.dot(Vr0.subtract(Vr1), N);
+				normalVel = Vr0.subtract(Vr1).dotProduct(N);
 				if (normalVel > ptInfo.minSeparationVel)
 				{
 					continue;
@@ -573,7 +573,7 @@ package jiglib.physics
 
 				var tempV:Vector3D;
 				var VR:Vector3D = Vr0.subtract(Vr1);
-				var tangent_vel:Vector3D = VR.subtract(JNumber3D.scaleVector(N, JNumber3D.dot(VR, N)));
+				var tangent_vel:Vector3D = VR.subtract(JNumber3D.scaleVector(N, VR.dotProduct(N)));
 				var tangent_speed:Number = tangent_vel.length;
 
 				if (tangent_speed > _minVelForProcessing)
@@ -585,14 +585,14 @@ package jiglib.physics
 					{
 						tempV = JNumber3D.cross(T, ptInfo.r0);
 						JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-						denominator = body0.invMass + JNumber3D.dot(T, JNumber3D.cross(ptInfo.r0, tempV));
+						denominator = body0.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
 					}
 
 					if (body1.movable)
 					{
 						tempV = JNumber3D.cross(T, ptInfo.r1);
 						JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-						denominator += (body1.invMass + JNumber3D.dot(T, JNumber3D.cross(ptInfo.r1, tempV)));
+						denominator += (body1.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
 					}
 
 					if (denominator > JNumber3D.NUM_TINY)
@@ -637,7 +637,7 @@ package jiglib.physics
 
 				Vr0 = body0.getVelocity(ptInfo.r0);
 				Vr1 = body1.getVelocity(ptInfo.r1);
-				normalVel = JNumber3D.dot(Vr0.subtract(Vr1), N);
+				normalVel = Vr0.subtract(Vr1).dotProduct(N);
 
 				deltaVel = -normalVel;
 				if (ptInfo.minSeparationVel < 0)
@@ -661,7 +661,7 @@ package jiglib.physics
 
 				Vr0 = body0.getVelocityAux(ptInfo.r0);
 				Vr1 = body1.getVelocityAux(ptInfo.r1);
-				normalVel = JNumber3D.dot(Vr0.subtract(Vr1), N);
+				normalVel = Vr0.subtract(Vr1).dotProduct(N);
 
 				deltaVel = -normalVel;
 				if (ptInfo.minSeparationVel > 0)
@@ -689,7 +689,7 @@ package jiglib.physics
 					Vr1 = body1.getVelocity(ptInfo.r1);
 					var tempV:Vector3D;
 					var VR:Vector3D = Vr0.subtract(Vr1);
-					var tangent_vel:Vector3D = VR.subtract(JNumber3D.scaleVector(N, JNumber3D.dot(VR, N)));
+					var tangent_vel:Vector3D = VR.subtract(JNumber3D.scaleVector(N, VR.dotProduct(N)));
 					var tangent_speed:Number = tangent_vel.length;
 					if (tangent_speed > _minVelForProcessing)
 					{
@@ -700,13 +700,13 @@ package jiglib.physics
 						{
 							tempV = JNumber3D.cross(T, ptInfo.r0);
 							JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-							denominator = body0.invMass + JNumber3D.dot(T, JNumber3D.cross(ptInfo.r0, tempV));
+							denominator = body0.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
 						}
 						if (body1.movable)
 						{
 							tempV = JNumber3D.cross(T, ptInfo.r1);
 							JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-							denominator += (body1.invMass + JNumber3D.dot(T, JNumber3D.cross(ptInfo.r1, tempV)));
+							denominator += (body1.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
 						}
 						if (denominator > JNumber3D.NUM_TINY)
 						{
@@ -870,7 +870,7 @@ package jiglib.physics
 					other_body = _collisions[i].objInfo.body1;
 					thisBody_normal = JNumber3D.scaleVector(_collisions[i].dirToBody, -1);
 				}
-				if (!other_body.isActive && JNumber3D.dot(other_body.force, thisBody_normal) < -JNumber3D.NUM_TINY)
+				if (!other_body.isActive && other_body.force.dotProduct(thisBody_normal) < -JNumber3D.NUM_TINY)
 				{
 					activateObject(other_body);
 				}
