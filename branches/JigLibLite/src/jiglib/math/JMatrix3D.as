@@ -567,7 +567,7 @@ package jiglib.math {
 		/*
 		public static function matrix2eulerOLD( m:JMatrix3D ):Vector3D
 		{
-		var angle:Vector3D = new JNumber3D();
+		var angle:Vector3D = new Vector3D();
 
 		var d :Number = -Math.asin( Math.max( -1, Math.min( 1, m.n13 ) ) ); // Calculate Y-axis angle
 		var c :Number =  Math.cos( d );
@@ -605,7 +605,7 @@ package jiglib.math {
 		 */
 
 		public static function matrix2euler( m:JMatrix3D, euler:Vector3D = null, scale:Vector3D = null ):Vector3D {
-			euler = euler || new JNumber3D();
+			euler = euler || new Vector3D();
 		
 			// need to get rid of scale
 			// TODO: whene scale is uniform, we can save some cycles. s = 3x3 determinant i beleive
@@ -904,9 +904,9 @@ package jiglib.math {
 		public function getCols():Vector.<Vector3D>
 		{
 			var cols:Vector.<Vector3D> = new Vector.<Vector3D>();
-			cols[0] = new JNumber3D(n11, n21, n31);
-			cols[1] = new JNumber3D(n12, n22, n32);
-			cols[2] = new JNumber3D(n13, n23, n33);
+			cols[0] = new Vector3D(n11, n21, n31);
+			cols[1] = new Vector3D(n12, n22, n32);
+			cols[2] = new Vector3D(n13, n23, n33);
 			return cols;
 		}
 

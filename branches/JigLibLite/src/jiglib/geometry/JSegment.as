@@ -500,11 +500,11 @@ package jiglib.geometry
 			out.num2 = 0;
 
 			var kDiff:Vector3D = rkLine.origin.subtract(boxState.position);
-			var kPnt:Vector3D = new JNumber3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
+			var kPnt:Vector3D = new Vector3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[1]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[2]));
 
-			var kDir:Vector3D = new JNumber3D(JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[0]),
+			var kDir:Vector3D = new Vector3D(JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[0]),
 				JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[1]),
 				JNumber3D.dot(rkLine.dir, boxState.orientation.getCols()[2]));
 
@@ -612,7 +612,7 @@ package jiglib.geometry
 		{
 
 			var kDiff:Vector3D = rkPoint.subtract(boxState.position);
-			var kClosest:Vector3D = new JNumber3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
+			var kClosest:Vector3D = new Vector3D(JNumber3D.dot(kDiff, boxState.orientation.getCols()[0]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[1]),
 				JNumber3D.dot(kDiff, boxState.orientation.getCols()[2]));
 
@@ -856,7 +856,7 @@ package jiglib.geometry
 		private function caseNoZeros(out:Object, rkDir:Vector3D, rkBox:JBox):void
 		{
 			var boxHalfSide:Vector3D = rkBox.getHalfSideLengths();
-			var kPmE:Vector3D = new JNumber3D(out.rkPnt.x - boxHalfSide.x, out.rkPnt.y - boxHalfSide.y, out.rkPnt.z - boxHalfSide.z);
+			var kPmE:Vector3D = new Vector3D(out.rkPnt.x - boxHalfSide.x, out.rkPnt.y - boxHalfSide.y, out.rkPnt.z - boxHalfSide.z);
 
 			var fProdDxPy:Number = rkDir.x * kPmE.y;
 			var fProdDyPx:Number = rkDir.y * kPmE.x;

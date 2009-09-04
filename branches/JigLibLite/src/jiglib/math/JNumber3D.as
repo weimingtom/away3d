@@ -4,58 +4,19 @@
 
 	public class JNumber3D extends Vector3D
 	{
-		public function JNumber3D(x:Number = 0, y:Number = 0, z:Number = 0, w:Number = 0)
-		{
-			super(x, y, z, w);
-		}
-
-		public function copy():JNumber3D
-		{
-			return new JNumber3D(x, y, z, w);
-		}
-
-		public static function toJNumber3D(v:Vector3D):JNumber3D
-		{
-			return new JNumber3D(v.x, v.y, v.z, v.w);
-		}
-
 		public static function toVector3D(jn:JNumber3D):Vector3D
 		{
 			return new Vector3D(jn.x, jn.y, jn.z, jn.w);
 		}
 
-		public function copyTo(n:Vector3D):void
+		public static function dot(v1:Vector3D, v2:Vector3D):Number
 		{
-			n.x = x;
-			n.y = y;
-			n.z = z;
+			return v1.dotProduct(v2);
 		}
-
-		/**
-		 * Dot product.
-		 */
-		public static function dot(v:Vector3D, w:Vector3D):Number
+		
+		public static function cross(v1:Vector3D, v2:Vector3D):Vector3D
 		{
-			return (v.x * w.x + v.y * w.y + w.z * v.z);
-		}
-
-		/**
-		 * Cross product.
-		 */
-		public static function cross(v:Vector3D, w:Vector3D):Vector3D
-		{
-			return new JNumber3D((w.y * v.z) - (w.z * v.y), (w.z * v.x) - (w.x * v.z), (w.x * v.y) - (w.y * v.x));
-		}
-
-		public function isFinite():Boolean
-		{
-			if (x > 1000000 || x < -1000000)
-				return true;
-			if (y > 1000000 || y < -1000000)
-				return true;
-			if (z > 1000000 || z < -1000000)
-				return true;
-			return false;
+			return v1.crossProduct(v2);
 		}
 
 		public static function toArray(v:Vector3D):Array
@@ -87,7 +48,7 @@
 			var N:Vector3D = E.subtract(v0).crossProduct(F.subtract(v1));
 			N.normalize();
 
-			return JNumber3D.toJNumber3D(N);
+			return N;
 		}
 
 		public static function copyFromArray(v:Vector3D, arr:Array):void
@@ -114,12 +75,12 @@
 			return n;
 		}
 
-		static public function get NUM_TINY():Number
+		public static function get NUM_TINY():Number
 		{
 			return 0.00001;
 		}
 
-		static public function get NUM_HUGE():Number
+		public static function get NUM_HUGE():Number
 		{
 			return 100000;
 		}

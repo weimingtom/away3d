@@ -140,8 +140,8 @@ package jiglib.collision
 		public function segmentIntersect(out:Object, seg:JSegment, ownerBody:RigidBody):Boolean
 		{
 			out.fracOut = JNumber3D.NUM_HUGE;
-			out.posOut = new JNumber3D();
-			out.normalOut = new JNumber3D();
+			out.posOut = new Vector3D();
+			out.normalOut = new Vector3D();
 
 			var obj:Object = {};
 			for each (var _collBody:RigidBody in collBody)

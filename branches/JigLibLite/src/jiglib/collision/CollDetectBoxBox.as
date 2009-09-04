@@ -516,8 +516,8 @@ package jiglib.collision
 			else
 			{
 				cpInfo = new CollPointInfo();
-				cpInfo.r0 = new JNumber3D();
-				cpInfo.r1 = new JNumber3D();
+				cpInfo.r0 = new Vector3D();
+				cpInfo.r1 = new Vector3D();
 				cpInfo.initialPenetration = depth;
 				collPts.push(cpInfo);
 			}

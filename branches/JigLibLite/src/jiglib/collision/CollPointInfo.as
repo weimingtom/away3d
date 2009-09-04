@@ -41,6 +41,6 @@ package jiglib.collision
 
 		public var accumulatedNormalImpulse:Number = 0;
 		public var accumulatedNormalImpulseAux:Number = 0;
-		public var accumulatedFrictionImpulse:Vector3D = new JNumber3D();
+		public var accumulatedFrictionImpulse:Vector3D = new Vector3D();
 	}
 }

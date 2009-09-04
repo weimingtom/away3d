@@ -80,8 +80,8 @@ package jiglib.geometry{
 		 
 		override public function segmentIntersect(out:Object, seg:JSegment, state:PhysicsState):Boolean {
 			out.fracOut = 0;
-			out.posOut = new JNumber3D();
-			out.normalOut = new JNumber3D();
+			out.posOut = new Vector3D();
+			out.normalOut = new Vector3D();
 			
 			var Ks:Vector3D = seg.delta;
 			var kss:Number = JNumber3D.dot(Ks, Ks);

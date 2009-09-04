@@ -32,7 +32,7 @@ package jiglib.geometry
 			super(skin);
 			_type = "BOX";
 
-			_sideLengths = new JNumber3D(width, height, depth);
+			_sideLengths = new Vector3D(width, height, depth);
 			_boundingSphere = 0.5 * _sideLengths.length;
 			initPoint();
 			mass = 1;
@@ -42,14 +42,14 @@ package jiglib.geometry
 		{
 			var halfSide:Vector3D = getHalfSideLengths();
 			_points = new Vector.<Vector3D>();
-			_points[0] = new JNumber3D(halfSide.x, -halfSide.y, halfSide.z);
-			_points[1] = new JNumber3D(halfSide.x, halfSide.y, halfSide.z);
-			_points[2] = new JNumber3D(-halfSide.x, -halfSide.y, halfSide.z);
-			_points[3] = new JNumber3D(-halfSide.x, halfSide.y, halfSide.z);
-			_points[4] = new JNumber3D(-halfSide.x, -halfSide.y, -halfSide.z);
-			_points[5] = new JNumber3D(-halfSide.x, halfSide.y, -halfSide.z);
-			_points[6] = new JNumber3D(halfSide.x, -halfSide.y, -halfSide.z);
-			_points[7] = new JNumber3D(halfSide.x, halfSide.y, -halfSide.z);
+			_points[0] = new Vector3D(halfSide.x, -halfSide.y, halfSide.z);
+			_points[1] = new Vector3D(halfSide.x, halfSide.y, halfSide.z);
+			_points[2] = new Vector3D(-halfSide.x, -halfSide.y, halfSide.z);
+			_points[3] = new Vector3D(-halfSide.x, halfSide.y, halfSide.z);
+			_points[4] = new Vector3D(-halfSide.x, -halfSide.y, -halfSide.z);
+			_points[5] = new Vector3D(-halfSide.x, halfSide.y, -halfSide.z);
+			_points[6] = new Vector3D(halfSide.x, -halfSide.y, -halfSide.z);
+			_points[7] = new Vector3D(halfSide.x, halfSide.y, -halfSide.z);
 		}
 
 		public function set sideLengths(size:Vector3D):void
@@ -107,7 +107,7 @@ package jiglib.geometry
 			var transform:JMatrix3D = JMatrix3D.scaleVector(JMatrix3D.translationMatrix(state.position.x, state.position.y, state.position.z), state.orientation);
 			for each (var _point:Vector3D in _points)
 			{
-				vertex = new JNumber3D(_point.x, _point.y, _point.z);
+				vertex = new Vector3D(_point.x, _point.y, _point.z);
 				JMatrix3D.scaleVectorVector(transform, vertex);
 				arr.push(vertex);
 			}
@@ -249,8 +249,8 @@ package jiglib.geometry
 		override public function segmentIntersect(out:Object, seg:JSegment, state:PhysicsState):Boolean
 		{
 			out.fracOut = 0;
-			out.posOut = new JNumber3D();
-			out.normalOut = new JNumber3D();
+			out.posOut = new Vector3D();
+			out.normalOut = new Vector3D();
 
 			var frac:Number = JNumber3D.NUM_HUGE;
 			var min:Number = -JNumber3D.NUM_HUGE;

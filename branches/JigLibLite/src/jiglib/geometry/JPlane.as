@@ -43,7 +43,7 @@ package jiglib.geometry
 
 			super(skin);
 			_type = "PLANE";
-			_normal = new JNumber3D(0, 0, -1);
+			_normal = new Vector3D(0, 0, -1);
 			_distance = 0;
 			this.movable = false;
 		}
@@ -66,8 +66,8 @@ package jiglib.geometry
 		override public function segmentIntersect(out:Object, seg:JSegment, state:PhysicsState):Boolean
 		{
 			out.fracOut = 0;
-			out.posOut = new JNumber3D();
-			out.normalOut = new JNumber3D();
+			out.posOut = new Vector3D();
+			out.normalOut = new Vector3D();
 
 			var frac:Number = 0;
 
@@ -101,7 +101,7 @@ package jiglib.geometry
 		override protected function updateState():void
 		{
 			super.updateState();
-			_normal = new JNumber3D(0, 0, -1);
+			_normal = new Vector3D(0, 0, -1);
 			JMatrix3D.scaleVectorVector(_currState.orientation, _normal);
 			_distance = JNumber3D.dot(_currState.position, _normal);
 		}

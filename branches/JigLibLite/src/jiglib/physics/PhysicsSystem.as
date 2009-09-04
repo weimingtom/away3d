@@ -289,8 +289,8 @@ package jiglib.physics
 
 			if (ptNum > 1)
 			{
-				var avR0:Vector3D = new JNumber3D();
-				var avR1:Vector3D = new JNumber3D();
+				var avR0:Vector3D = new Vector3D();
+				var avR1:Vector3D = new Vector3D();
 				var avDepth:Number = 0;
 
 				for (var i:int = 0; i < ptNum; i++)
@@ -480,7 +480,7 @@ package jiglib.physics
 
 				ptInfo.accumulatedNormalImpulse = 0;
 				ptInfo.accumulatedNormalImpulseAux = 0;
-				ptInfo.accumulatedFrictionImpulse = new JNumber3D();
+				ptInfo.accumulatedFrictionImpulse = new Vector3D();
 
 				var bestDistSq:Number = 0.04;
 				var bp:BodyPair = new BodyPair(body0, body1, new Vector3D(), new Vector3D());
