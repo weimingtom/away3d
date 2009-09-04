@@ -328,7 +328,7 @@ package jiglib.physics
 				return;
 			}
 			_force = _force.add(f);
-			addWorldTorque(JNumber3D.cross(f, p.subtract(_currState.position)));
+			addWorldTorque(p.subtract(_currState.position).crossProduct(f));
 			_velChanged = true;
 			setActive();
 		}
@@ -358,7 +358,7 @@ package jiglib.physics
 			}
 			_currState.linVelocity = _currState.linVelocity.add(JNumber3D.scaleVector(impulse, _invMass));
 
-			var rotImpulse:Vector3D = JNumber3D.cross(impulse, pos.subtract(_currState.position));
+			var rotImpulse:Vector3D = pos.subtract(_currState.position).crossProduct(impulse);
 			JMatrix3D.scaleVectorVector(_worldInvInertia, rotImpulse);
 			_currState.rotVelocity = _currState.rotVelocity.add(rotImpulse);
 
@@ -373,7 +373,7 @@ package jiglib.physics
 			}
 			_currLinVelocityAux = _currLinVelocityAux.add(JNumber3D.scaleVector(impulse, _invMass));
 
-			var rotImpulse:Vector3D = JNumber3D.cross(impulse, pos.subtract(_currState.position));
+			var rotImpulse:Vector3D = pos.subtract(_currState.position).crossProduct(impulse);
 			JMatrix3D.scaleVectorVector(_worldInvInertia, rotImpulse);
 			_currRotVelocityAux = _currRotVelocityAux.add(rotImpulse);
 
@@ -388,7 +388,7 @@ package jiglib.physics
 			}
 			_currState.linVelocity = _currState.linVelocity.add(JNumber3D.scaleVector(impulse, _invMass));
 
-			var rotImpulse:Vector3D = JNumber3D.cross(impulse, delta);
+			var rotImpulse:Vector3D = delta.crossProduct(impulse);
 			JMatrix3D.scaleVectorVector(_worldInvInertia, rotImpulse);
 			_currState.rotVelocity = _currState.rotVelocity.add(rotImpulse);
 
@@ -403,7 +403,7 @@ package jiglib.physics
 			}
 			_currLinVelocityAux = _currLinVelocityAux.add(JNumber3D.scaleVector(impulse, _invMass));
 
-			var rotImpulse:Vector3D = JNumber3D.cross(impulse, delta);
+			var rotImpulse:Vector3D = delta.crossProduct(impulse);
 			JMatrix3D.scaleVectorVector(_worldInvInertia, rotImpulse);
 			_currRotVelocityAux = _currRotVelocityAux.add(rotImpulse);
 
@@ -639,12 +639,12 @@ package jiglib.physics
 
 		public function getVelocity(relPos:Vector3D):Vector3D
 		{
-			return _currState.linVelocity.add(JNumber3D.cross(relPos, _currState.rotVelocity));
+			return _currState.linVelocity.add(_currState.rotVelocity.crossProduct(relPos));
 		}
 
 		public function getVelocityAux(relPos:Vector3D):Vector3D
 		{
-			return _currLinVelocityAux.add(JNumber3D.cross(relPos, _currRotVelocityAux));
+			return _currLinVelocityAux.add(_currRotVelocityAux.crossProduct(relPos));
 		}
 
 		public function getShouldBeActive():Boolean

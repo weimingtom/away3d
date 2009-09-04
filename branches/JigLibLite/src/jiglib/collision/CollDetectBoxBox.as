@@ -163,8 +163,8 @@ package jiglib.collision
 		{
 			var AD:Vector3D = PA1.subtract(PA0);
 			var BD:Vector3D = PB1.subtract(PB0);
-			var N:Vector3D = JNumber3D.cross(BD, AD);
-			var M:Vector3D = JNumber3D.cross(BD, N);
+			var N:Vector3D = AD.crossProduct(BD);
+			var M:Vector3D = N.crossProduct(BD);
 			var md:Number = M.dotProduct(PB0);
 			var at:Number = (md - PA0.dotProduct(M)) / AD.dotProduct(M);
 			if (at < 0)
@@ -211,7 +211,7 @@ package jiglib.collision
 			for (var ip1:int = 0; ip1 < len; i = ip1, ip1++)
 			{
 				D = axClipperVertices[ip1].subtract(axClipperVertices[i]);
-				N = JNumber3D.cross(ClipperNormal, D);
+				N = D.crossProduct(ClipperNormal);
 				var dis:Number = axClipperVertices[i].dotProduct(N);
 
 				if (!planeClip(temp, axClippedPolygon, N, dis))
@@ -295,15 +295,15 @@ package jiglib.collision
 
 			var axes:Vector.<Vector3D> = Vector.<Vector3D>([dirs0Arr[0], dirs0Arr[1], dirs0Arr[2],
 				dirs1Arr[0], dirs1Arr[1], dirs1Arr[2],
-				JNumber3D.cross(dirs1Arr[0], dirs0Arr[0]),
-				JNumber3D.cross(dirs1Arr[0], dirs0Arr[1]),
-				JNumber3D.cross(dirs1Arr[0], dirs0Arr[2]),
-				JNumber3D.cross(dirs1Arr[1], dirs0Arr[0]),
-				JNumber3D.cross(dirs1Arr[1], dirs0Arr[1]),
-				JNumber3D.cross(dirs1Arr[1], dirs0Arr[2]),
-				JNumber3D.cross(dirs1Arr[2], dirs0Arr[0]),
-				JNumber3D.cross(dirs1Arr[2], dirs0Arr[1]),
-				JNumber3D.cross(dirs1Arr[2], dirs0Arr[2])]);
+				dirs0Arr[0].crossProduct(dirs1Arr[0]),
+				dirs0Arr[1].crossProduct(dirs1Arr[0]),
+				dirs0Arr[2].crossProduct(dirs1Arr[0]),
+				dirs0Arr[0].crossProduct(dirs1Arr[1]),
+				dirs0Arr[1].crossProduct(dirs1Arr[1]),
+				dirs0Arr[2].crossProduct(dirs1Arr[1]),
+				dirs0Arr[0].crossProduct(dirs1Arr[2]),
+				dirs0Arr[1].crossProduct(dirs1Arr[2]),
+				dirs0Arr[2].crossProduct(dirs1Arr[2])]);
 
 			var l2:Number;
 			var overlapDepths:Vector.<SpanData> = new Vector.<SpanData>();

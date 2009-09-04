@@ -64,7 +64,7 @@ package jiglib.physics.constraint {
 			JMatrix3D.scaleVectorVector(_body.currentState.orientation, worldPos);
 			worldPos = worldPos.add( _body.currentState.position);
 			var R:Vector3D = worldPos.subtract(_body.currentState.position);
-			var currentVel:Vector3D = _body.currentState.linVelocity.add(JNumber3D.cross(R, _body.currentState.rotVelocity));
+			var currentVel:Vector3D = _body.currentState.linVelocity.add(_body.currentState.rotVelocity.crossProduct(R));
 			
 			var desiredVel:Vector3D;
 			var deviationDir:Vector3D;
@@ -84,9 +84,9 @@ package jiglib.physics.constraint {
 			}
 			N = JNumber3D.divideVector(N, normalVel);
 			
-			var tempV:Vector3D = JNumber3D.cross(N, R);
+			var tempV:Vector3D = R.crossProduct(N);
 			JMatrix3D.scaleVectorVector(_body.worldInvInertia, tempV);
-			var denominator:Number = _body.invMass + N.dotProduct(JNumber3D.cross(R, tempV));
+			var denominator:Number = _body.invMass + N.dotProduct(tempV.crossProduct(R));
 			 
 			if (denominator < JNumber3D.NUM_TINY) {
 				return false;

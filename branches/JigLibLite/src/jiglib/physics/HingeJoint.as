@@ -93,8 +93,8 @@ package jiglib.physics
 					perpDir.y = 0;
 					perpDir.z = 0;
 				}
-				var sideAxis:Vector3D = JNumber3D.cross(perpDir, _hingeAxis);
-				perpDir = JNumber3D.cross(_hingeAxis, sideAxis);
+				var sideAxis:Vector3D = _hingeAxis.crossProduct(perpDir);
+				perpDir = sideAxis.crossProduct(_hingeAxis);
 				perpDir.normalize();
 
 				var len:Number = 10 * hingeHalfWidth;

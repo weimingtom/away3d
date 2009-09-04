@@ -179,7 +179,7 @@ package jiglib.vehicles
 			wheelFwd = carBody.currentState.orientation.getCols()[2].clone();
 			JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(worldAxis.x, worldAxis.y, worldAxis.z, _steerAngle * Math.PI / 180), wheelFwd);
 			wheelUp = worldAxis;
-			wheelLeft = JNumber3D.cross(wheelFwd, wheelUp);
+			wheelLeft = wheelUp.crossProduct(wheelFwd);
 			wheelLeft.normalize();
 
 			var rayLen:Number = 2 * _radius + _travel;
@@ -269,20 +269,20 @@ package jiglib.vehicles
 			force = force.add(extraForce);
 
 			groundUp = groundNormal;
-			groundLeft = JNumber3D.cross(wheelFwd, groundNormal);
+			groundLeft = groundNormal.crossProduct(wheelFwd);
 			groundLeft.normalize();
-			groundFwd = JNumber3D.cross(groundUp, groundLeft);
+			groundFwd = groundLeft.crossProduct(groundUp);
 
 			var tempv:Vector3D = _pos.clone();
 			JMatrix3D.scaleVectorVector(carBody.currentState.orientation, tempv);
-			wheelPointVel = carBody.currentState.linVelocity.add(JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
+			wheelPointVel = carBody.currentState.linVelocity.add(carBody.currentState.rotVelocity.crossProduct(tempv));
 
-			rimVel = JNumber3D.scaleVector(JNumber3D.cross(groundPos.subtract(worldPos), wheelLeft), _angVel);
+			rimVel = JNumber3D.scaleVector(wheelLeft.crossProduct(groundPos.subtract(worldPos)), _angVel);
 			wheelPointVel = wheelPointVel.add(rimVel);
 
 			if (otherBody.movable)
 			{
-				worldVel = otherBody.currentState.linVelocity.add(JNumber3D.cross(groundPos.subtract(otherBody.currentState.position), otherBody.currentState.rotVelocity));
+				worldVel = otherBody.currentState.linVelocity.add(otherBody.currentState.rotVelocity.crossProduct(groundPos.subtract(otherBody.currentState.position)));
 				wheelPointVel = wheelPointVel.subtract(worldVel);
 			}
 
@@ -331,7 +331,7 @@ package jiglib.vehicles
 			extraForce = JNumber3D.scaleVector(groundFwd, fwdForce);
 			force = force.add(extraForce);
 
-			wheelCentreVel = carBody.currentState.linVelocity.add(JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
+			wheelCentreVel = carBody.currentState.linVelocity.add(carBody.currentState.rotVelocity.crossProduct(tempv));
 			_angVelForGrip = wheelCentreVel, groundFwd) / _radius;
 			_torque += (-fwdForce * _radius);
 

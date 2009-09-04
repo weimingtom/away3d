@@ -9,11 +9,6 @@
 			return new Vector3D(jn.x, jn.y, jn.z, jn.w);
 		}
 		
-		public static function cross(v1:Vector3D, v2:Vector3D):Vector3D
-		{
-			return v2.crossProduct(v1);
-		}
-
 		public static function toArray(v:Vector3D):Array
 		{
 			return [v.x, v.y, v.z];
@@ -40,7 +35,7 @@
 		{
 			var E:Vector3D = v1.clone();
 			var F:Vector3D = v2.clone();
-			var N:Vector3D = E.subtract(v0).crossProduct(F.subtract(v1));
+			var N:Vector3D = F.subtract(v1).crossProduct(E.subtract(v0));
 			N.normalize();
 
 			return N;

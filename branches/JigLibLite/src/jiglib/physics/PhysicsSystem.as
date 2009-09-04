@@ -321,15 +321,15 @@ package jiglib.physics
 				}
 				else
 				{
-					tempV = JNumber3D.cross(N, ptInfo.r0);
+					tempV = ptInfo.r0.crossProduct(N);
 					JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-					ptInfo.denominator = body0.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
+					ptInfo.denominator = body0.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r0));
 				}
 				if (body1.movable)
 				{
-					tempV = JNumber3D.cross(N, ptInfo.r1);
+					tempV = ptInfo.r1.crossProduct(N);
 					JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-					ptInfo.denominator += (body1.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
+					ptInfo.denominator += (body1.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r1)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
 				{
@@ -382,16 +382,16 @@ package jiglib.physics
 				}
 				else
 				{
-					tempV = JNumber3D.cross(N, ptInfo.r0);
+					tempV = ptInfo.r0.crossProduct(N);
 					JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-					ptInfo.denominator = body0.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
+					ptInfo.denominator = body0.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r0));
 				}
 
 				if (body1.movable)
 				{
-					tempV = JNumber3D.cross(N, ptInfo.r1);
+					tempV = ptInfo.r1.crossProduct(N);
 					JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-					ptInfo.denominator += (body1.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
+					ptInfo.denominator += (body1.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r1)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
 				{
@@ -445,16 +445,16 @@ package jiglib.physics
 				}
 				else
 				{
-					tempV = JNumber3D.cross(N, ptInfo.r0);
+					tempV = ptInfo.r0.crossProduct(N);
 					JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-					ptInfo.denominator = body0.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
+					ptInfo.denominator = body0.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r0));
 				}
 
 				if (body1.movable)
 				{
-					tempV = JNumber3D.cross(N, ptInfo.r1);
+					tempV = ptInfo.r1.crossProduct(N);
 					JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-					ptInfo.denominator += (body1.invMass + N.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
+					ptInfo.denominator += (body1.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r1)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
 				{
@@ -583,16 +583,16 @@ package jiglib.physics
 
 					if (body0.movable)
 					{
-						tempV = JNumber3D.cross(T, ptInfo.r0);
+						tempV = ptInfo.r0.crossProduct(T);
 						JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-						denominator = body0.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
+						denominator = body0.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r0));
 					}
 
 					if (body1.movable)
 					{
-						tempV = JNumber3D.cross(T, ptInfo.r1);
+						tempV = ptInfo.r1.crossProduct(T);
 						JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-						denominator += (body1.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
+						denominator += (body1.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r1)));
 					}
 
 					if (denominator > JNumber3D.NUM_TINY)
@@ -698,15 +698,15 @@ package jiglib.physics
 						var denominator:Number = 0;
 						if (body0.movable)
 						{
-							tempV = JNumber3D.cross(T, ptInfo.r0);
+							tempV = ptInfo.r0.crossProduct(T);
 							JMatrix3D.scaleVectorVector(body0.worldInvInertia, tempV);
-							denominator = body0.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r0, tempV));
+							denominator = body0.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r0));
 						}
 						if (body1.movable)
 						{
-							tempV = JNumber3D.cross(T, ptInfo.r1);
+							tempV = ptInfo.r1.crossProduct(T);
 							JMatrix3D.scaleVectorVector(body1.worldInvInertia, tempV);
-							denominator += (body1.invMass + T.dotProduct(JNumber3D.cross(ptInfo.r1, tempV)));
+							denominator += (body1.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r1)));
 						}
 						if (denominator > JNumber3D.NUM_TINY)
 						{
