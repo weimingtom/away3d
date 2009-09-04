@@ -68,9 +68,9 @@ package jiglib.physics.constraint
 			r1 = _body1Pos.clone();
 			JMatrix3D.multiplyVector(_body1.currentState.orientation, r1);
 
-			var worldPos0:Vector3D = JNumber3D.add(_body0.currentState.position, r0);
-			var worldPos1:Vector3D = JNumber3D.add(_body1.currentState.position, r1);
-			_worldPos = JNumber3D.multiply(JNumber3D.add(worldPos0, worldPos1), 0.5);
+			var worldPos0:Vector3D = _body0.currentState.position.add(r0);
+			var worldPos1:Vector3D = _body1.currentState.position.add(r1);
+			_worldPos = JNumber3D.multiply(worldPos0.add(worldPos1), 0.5);
 
 			_currentRelPos0 = worldPos0.subtract(worldPos1);
 		}
@@ -87,7 +87,7 @@ package jiglib.physics.constraint
 			var currentVel0:Vector3D = _body0.getVelocity(r0);
 			var currentVel1:Vector3D = _body1.getVelocity(r1);
 
-			var predRelPos0:Vector3D = JNumber3D.add(_currentRelPos0, JNumber3D.multiply(currentVel0.subtract(currentVel1), dt));
+			var predRelPos0:Vector3D = _currentRelPos0.add(JNumber3D.multiply(currentVel0.subtract(currentVel1), dt));
 			var clampedRelPos0:Vector3D = predRelPos0.clone();
 			var clampedRelPos0Mag:Number = clampedRelPos0.length;
 			if (clampedRelPos0Mag <= JNumber3D.NUM_TINY)

@@ -135,7 +135,7 @@ package jiglib.vehicles
 
 		public function getActualPos():Vector3D
 		{
-			return JNumber3D.add(_pos, JNumber3D.multiply(_axisUp, _displacement));
+			return _pos.add(JNumber3D.multiply(_axisUp, _displacement));
 		}
 
 		public function getRadius():Number
@@ -172,7 +172,7 @@ package jiglib.vehicles
 			var carBody:JChassis = _car.chassis;
 			worldPos = _pos.clone();
 			JMatrix3D.multiplyVector(carBody.currentState.orientation, worldPos);
-			worldPos = JNumber3D.add(carBody.currentState.position, worldPos);
+			worldPos = carBody.currentState.position.add(worldPos);
 			worldAxis = _axisUp.clone();
 			JMatrix3D.multiplyVector(carBody.currentState.orientation, worldAxis);
 
@@ -184,7 +184,7 @@ package jiglib.vehicles
 
 			var rayLen:Number = 2 * _radius + _travel;
 			wheelRayEnd = worldPos.subtract(JNumber3D.multiply(worldAxis, _radius));
-			wheelRay = new JSegment(JNumber3D.add(wheelRayEnd, JNumber3D.multiply(worldAxis, rayLen)), JNumber3D.multiply(worldAxis, -rayLen));
+			wheelRay = new JSegment(wheelRayEnd.add(JNumber3D.multiply(worldAxis, rayLen)), JNumber3D.multiply(worldAxis, -rayLen));
 
 			var collSystem:CollisionSystem = PhysicsSystem.getInstance().getCollisionSystem();
 
@@ -209,7 +209,7 @@ package jiglib.vehicles
 				distFwd = (deltaFwdStart + iRay * deltaFwd) - _radius;
 				yOffset = _radius * (1 - Math.cos(90 * (distFwd / _radius) * Math.PI / 180));
 				segments[iRay] = wheelRay.clone();
-				segments[iRay].origin = JNumber3D.add(segments[iRay].origin, JNumber3D.add(JNumber3D.multiply(wheelFwd, distFwd), JNumber3D.multiply(wheelUp, yOffset)));
+				segments[iRay].origin = segments[iRay].origin.add(JNumber3D.multiply(wheelFwd, distFwd).add(JNumber3D.multiply(wheelUp, yOffset)));
 				if (collSystem.segmentIntersect(objArr[iRay], segments[iRay], carBody))
 				{
 					_lastOnFloor = true;
@@ -236,7 +236,7 @@ package jiglib.vehicles
 				{
 					if (objArr[iRay].fracOut <= 1)
 					{
-						groundNormal = JNumber3D.add(groundNormal, JNumber3D.multiply(worldPos.subtract(segments[iRay].getEnd()), 1 - objArr[iRay].fracOut));
+						groundNormal = groundNormal.add(JNumber3D.multiply(worldPos.subtract(segments[iRay].getEnd()), 1 - objArr[iRay].fracOut));
 					}
 				}
 				groundNormal.normalize();
@@ -266,7 +266,7 @@ package jiglib.vehicles
 				totalForceMag = 0;
 			}
 			var extraForce:Vector3D = JNumber3D.multiply(worldAxis, totalForceMag);
-			force = JNumber3D.add(force, extraForce);
+			force = force.add(extraForce);
 
 			groundUp = groundNormal;
 			groundLeft = JNumber3D.cross(wheelFwd, groundNormal);
@@ -278,7 +278,7 @@ package jiglib.vehicles
 			wheelPointVel = carBody.currentState.linVelocity.add(JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
 
 			rimVel = JNumber3D.multiply(JNumber3D.cross(groundPos.subtract(worldPos), wheelLeft), _angVel);
-			wheelPointVel = JNumber3D.add(wheelPointVel, rimVel);
+			wheelPointVel = wheelPointVel.add(rimVel);
 
 			if (otherBody.movable)
 			{
@@ -307,7 +307,7 @@ package jiglib.vehicles
 
 			var sideForce:Number = -friction * totalForceMag;
 			extraForce = JNumber3D.multiply(groundLeft, sideForce);
-			force = JNumber3D.add(force, extraForce);
+			force = force.add(extraForce);
 
 			friction = _fwdFriction;
 			var fwdVel:Number = JNumber3D.dot(wheelPointVel, groundFwd);
@@ -329,9 +329,9 @@ package jiglib.vehicles
 			}
 			var fwdForce:Number = -friction * totalForceMag;
 			extraForce = JNumber3D.multiply(groundFwd, fwdForce);
-			force = JNumber3D.add(force, extraForce);
+			force = force.add(extraForce);
 
-			wheelCentreVel = JNumber3D.add(carBody.currentState.linVelocity, JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
+			wheelCentreVel = carBody.currentState.linVelocity.add(JNumber3D.cross(tempv, carBody.currentState.rotVelocity));
 			_angVelForGrip = JNumber3D.dot(wheelCentreVel, groundFwd) / _radius;
 			_torque += (-fwdForce * _radius);
 

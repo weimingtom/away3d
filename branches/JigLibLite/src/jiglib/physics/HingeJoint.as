@@ -64,7 +64,7 @@ package jiglib.physics
 			_extraTorque = 0;
 
 			_hingeAxis.normalize();
-			var _hingePosRel1:Vector3D = JNumber3D.add(_body0.currentState.position, _hingePosRel0.subtract(_body1.currentState.position));
+			var _hingePosRel1:Vector3D = _body0.currentState.position.add(_hingePosRel0.subtract(_body1.currentState.position));
 
 			var relPos0a:Vector3D = _hingePosRel0.add(JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
 			var relPos0b:Vector3D = _hingePosRel0.subtract(JNumber3D.multiply(_hingeAxis, hingeHalfWidth));
@@ -216,8 +216,8 @@ package jiglib.physics
 				var newAngRot1:Number = avAngRot + (angRot1 - avAngRot) * frac;
 				var newAngRot2:Number = avAngRot + (angRot2 - avAngRot) * frac;
 
-				var newAngVel1:Vector3D = JNumber3D.add(_body0.currentState.rotVelocity, JNumber3D.multiply(hingeAxis, newAngRot1 - angRot1));
-				var newAngVel2:Vector3D = JNumber3D.add(_body1.currentState.rotVelocity, JNumber3D.multiply(hingeAxis, newAngRot2 - angRot2));
+				var newAngVel1:Vector3D = _body0.currentState.rotVelocity.add(JNumber3D.multiply(hingeAxis, newAngRot1 - angRot1));
+				var newAngVel2:Vector3D = _body1.currentState.rotVelocity.add(JNumber3D.multiply(hingeAxis, newAngRot2 - angRot2));
 
 				_body0.setAngVel(newAngVel1);
 				_body1.setAngVel(newAngVel2);
