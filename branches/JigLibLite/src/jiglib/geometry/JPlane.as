@@ -102,7 +102,7 @@ package jiglib.geometry
 		{
 			super.updateState();
 			_normal = new Vector3D(0, 0, -1);
-			JMatrix3D.scaleVectorVector(_currState.orientation, _normal);
+			JMatrix3D.multiplyVector(_currState.orientation, _normal);
 			_distance = _currState.position.dotProduct(_normal);
 		}
 	}

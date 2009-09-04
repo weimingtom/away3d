@@ -101,7 +101,7 @@ package jiglib.collision
 				else
 				{
 					dir = Vector3D.Y_AXIS;
-					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
+					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 				}
 
 				cpInfo = new CollPointInfo();
@@ -144,7 +144,7 @@ package jiglib.collision
 				else
 				{
 					dir = Vector3D.Y_AXIS;
-					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
+					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 				}
 
 				cpInfo = new CollPointInfo();

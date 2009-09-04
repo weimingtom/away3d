@@ -55,7 +55,7 @@ package jiglib.math {
 
 	 */
 
-	public class JMatrix3D extends Matrix3D {
+	public class JMatrix3D{
 		/**
 		 * X O O O
 		 * O O O O
@@ -517,7 +517,7 @@ package jiglib.math {
 
 		// _________________________________________________________________________________ VECTOR
 
-		public static function scaleVectorVector( m:JMatrix3D, v:Vector3D ):void {
+		public static function multiplyVector( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -527,7 +527,7 @@ package jiglib.math {
 			v.z = vx * m.n31 + vy * m.n32 + vz * m.n33 + m.n34;
 		}
 
-		public static function scaleVectorVector3x3( m:JMatrix3D, v:Vector3D ):void {
+		public static function multiplyVector3x3( m:JMatrix3D, v:Vector3D ):void {
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
@@ -554,7 +554,7 @@ package jiglib.math {
 		public static function projectVector( m:JMatrix3D, v:Vector3D ):void
 		{
 		var c:Number = 1 / ( v.x * m.n41 + v.y * m.n42 + v.z * m.n43 + 1 );
-		scaleVectorVector( m, v );
+		multiplyVector( m, v );
 
 		v.x = v.x * c;
 		v.y = v.y * c;

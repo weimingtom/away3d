@@ -66,7 +66,7 @@ package jiglib.collision
 				else
 				{
 					oldDelta = Vector3D.Y_AXIS;
-					JMatrix3D.scaleVectorVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), oldDelta);
+					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), oldDelta);
 				}
 
 				var worldPos:Vector3D = sphere1.oldState.position.add(JNumber3D.scaleVector(oldDelta, sphere1.radius - 0.5 * depth));
