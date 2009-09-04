@@ -260,8 +260,8 @@ package jiglib.physics
 
 		protected function updateState():void
 		{
-			_currState.linVelocity = JNumber3D.ZERO;
-			_currState.rotVelocity = JNumber3D.ZERO;
+			_currState.linVelocity = new Vector3D();
+			_currState.rotVelocity = new Vector3D();
 			copyCurrentStateToOld();
 		}
 
@@ -346,8 +346,8 @@ package jiglib.physics
 
 		public function clearForces():void
 		{
-			_force = JNumber3D.ZERO;
-			_torque = JNumber3D.ZERO;
+			_force = new Vector3D();
+			_torque = new Vector3D();
 		}
 
 		public function applyWorldImpulse(impulse:Vector3D, pos:Vector3D):void
@@ -493,8 +493,8 @@ package jiglib.physics
 		{
 			if (!_movable || !_activity)
 			{
-				_currLinVelocityAux = JNumber3D.ZERO;
-				_currRotVelocityAux = JNumber3D.ZERO;
+				_currLinVelocityAux = new Vector3D();
+				_currRotVelocityAux = new Vector3D();
 				return;
 			}
 			var ga:int = PhysicsSystem.getInstance().gravityAxis;
@@ -523,8 +523,8 @@ package jiglib.physics
 				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), _invOrientation);
 				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), _invOrientation);
 			}
-			_currLinVelocityAux = JNumber3D.ZERO;
-			_currRotVelocityAux = JNumber3D.ZERO;
+			_currLinVelocityAux = new Vector3D();
+			_currRotVelocityAux = new Vector3D();
 
 			JMatrix3D.multiplyVector(_worldInvInertia, angMomBefore);
 			_currState.rotVelocity = angMomBefore.clone();

@@ -74,7 +74,7 @@ package jiglib.physics.constraint {
 				deviationDir = JNumber3D.divide(deviation, deviationDistance);
 				desiredVel = JNumber3D.multiply(deviationDir, (allowedDeviation - deviationDistance) / (timescale * dt));
 			} else {
-				desiredVel = JNumber3D.ZERO;
+				desiredVel = new Vector3D();
 			}
 			
 			var N:Vector3D = currentVel.subtract(desiredVel);

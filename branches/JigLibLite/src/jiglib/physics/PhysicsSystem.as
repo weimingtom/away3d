@@ -86,7 +86,7 @@ package jiglib.physics
 			_cachedContacts = new Vector.<Object>();
 			_collisionSystem = new CollisionSystem();
 
-			setGravity(JNumber3D.multiply(JNumber3D.UP, -10));
+			setGravity(JNumber3D.multiply(Vector3D.Y_AXIS, -10));
 		}
 
 		private function getAllExternalForces(dt:Number):void
@@ -483,7 +483,7 @@ package jiglib.physics
 				ptInfo.accumulatedFrictionImpulse = new JNumber3D();
 
 				var bestDistSq:Number = 0.04;
-				var bp:BodyPair = new BodyPair(body0, body1, JNumber3D.ZERO, JNumber3D.ZERO);
+				var bp:BodyPair = new BodyPair(body0, body1, new Vector3D(), new Vector3D());
 
 				for each (var _cachedContact:Object in _cachedContacts)
 				{
@@ -899,8 +899,8 @@ package jiglib.physics
 					{
 						if (_body.getVelChanged())
 						{
-							_body.setVelocity(JNumber3D.ZERO);
-							_body.setAngVel(JNumber3D.ZERO);
+							_body.setVelocity(new Vector3D());
+							_body.setAngVel(new Vector3D());
 							_body.clearVelChanged();
 						}
 					}

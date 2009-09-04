@@ -85,7 +85,7 @@ package jiglib.collision
 				}
 				else
 				{
-					delta = JNumber3D.UP;
+					delta = Vector3D.Y_AXIS;
 					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), delta);
 				}
 

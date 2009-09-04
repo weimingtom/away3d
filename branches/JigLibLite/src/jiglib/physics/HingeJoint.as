@@ -87,7 +87,9 @@ package jiglib.physics
 				var perpDir:Vector3D = new JNumber3D(0, 1, 0);
 				if (JNumber3D.dot(perpDir, _hingeAxis) > 0.1)
 				{
-					perpDir.setTo(1, 0, 0);
+					perpDir.x = 1;
+					perpDir.y = 0;
+					perpDir.z = 0;
 				}
 				var sideAxis:Vector3D = JNumber3D.cross(perpDir, _hingeAxis);
 				perpDir = JNumber3D.cross(_hingeAxis, sideAxis);

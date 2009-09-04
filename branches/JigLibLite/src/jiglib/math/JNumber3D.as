@@ -58,35 +58,17 @@
 			return false;
 		}
 
-		/**
-		 * Normalize.
-		 *
-		   public function normalize():void
-		   {
-		   var mod:Number = length;
-
-		   if (mod != 0 && mod != 1)
-		   {
-		   x /= mod;
-		   y /= mod;
-		   z /= mod;
-		   }
-		 }*/
-
-
 		// ______________________________________________________________________
-
 
 		/**
 		 * Returns a Number3D object with x, y and z properties set to zero.
 		 *
 		 * @return A Number3D object.
-		 */
+		 *
 		static public function get ZERO():Vector3D
 		{
 			return new Vector3D();
-		}
-
+		}*/
 
 		/**
 		 * Returns a string value representing the three-dimensional values in the specified Number3D object.
@@ -101,13 +83,14 @@
 
 		/*
 		 * modify by Muzer
-		 */
+		 *
 		public function setTo(x:Number = 0, y:Number = 0, z:Number = 0):void
 		{
 			this.x = x;
 			this.y = y;
 			this.z = z;
 		}
+		*/
 
 		public static function toArray(v:Vector3D):Array
 		{
@@ -170,7 +153,7 @@
 			}
 			return n;
 		}
-
+/*
 		static public function get UP():Vector3D
 		{
 			return new JNumber3D(0, 1, 0);
@@ -185,7 +168,7 @@
 		{
 			return new JNumber3D(0, 0, 1);
 		}
-
+*/
 		static public function get NUM_TINY():Number
 		{
 			return 0.00001;

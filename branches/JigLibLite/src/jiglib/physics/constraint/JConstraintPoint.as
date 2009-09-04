@@ -87,7 +87,7 @@ package jiglib.physics.constraint
 			}
 			else
 			{
-				_vrExtra = JNumber3D.ZERO;
+				_vrExtra = new Vector3D();
 			}
 		}
 
