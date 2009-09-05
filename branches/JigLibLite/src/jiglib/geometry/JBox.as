@@ -1,5 +1,6 @@
 package jiglib.geometry
 {
+	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
 	
 	import jiglib.data.SpanData;
@@ -99,22 +100,70 @@ package jiglib.geometry
 
 			return obj;
 		}
-
+		
+		/*
 		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
 		{
 			var vertex:Vector3D;
 			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
-			var transform:JMatrix3D = JMatrix3D.scaleVector(JMatrix3D.translationMatrix(state.position.x, state.position.y, state.position.z), state.orientation);
+			var transform:JMatrix3D = JMatrix3D.multiply(
+				JMatrix3D.getTranslationMatrix(state.position.x, state.position.y, state.position.z),
+				state.orientation);
+			
 			for each (var _point:Vector3D in _points)
 			{
 				vertex = new Vector3D(_point.x, _point.y, _point.z);
 				JMatrix3D.multiplyVector(transform, vertex);
 				arr.push(vertex);
 			}
-
+			
+			arr.fixed = true;
 			return arr;
 		}
+		*/
+		
+		/*
+		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
+		{
+			var vertex:Vector3D;
+			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
+			
+			//JMatrix3D.getTranslationMatrix
+			var _matrix3d:Matrix3D = new Matrix3D();
+			_matrix3d.appendTranslation(state.position.x, state.position.y, state.position.z);
+			
+			//JMatrix3D.multiply
+			var transform:Matrix3D = new Matrix3D();
+			transform.append(state.__orientation);
+			transform.append(_matrix3d);
+			
+			for each (var _point:Vector3D in _points)
+			{
+				//JMatrix3D.multiplyVector
+				arr.push(transform.transformVector(new Vector3D(_point.x, _point.y, _point.z)));
+			}
 
+			arr.fixed = true;
+			return arr;
+		}
+		*/
+		
+		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
+		{
+			var vertex:Vector3D;
+			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
+			
+			var transform:Matrix3D = JMatrix3D.getTranslationMatrix(state.position.x, state.position.y, state.position.z);
+			
+			transform = JMatrix3D.getAppendMatrix3D(state.__orientation, transform);
+			
+			for each (var _point:Vector3D in _points)
+				arr.push(transform.transformVector(new Vector3D(_point.x, _point.y, _point.z)));
+
+			arr.fixed = true;
+			return arr;
+		}
+		
 		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			closestBoxPoint.pos = point.subtract(state.position);
