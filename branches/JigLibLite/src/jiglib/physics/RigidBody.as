@@ -213,7 +213,7 @@ package jiglib.physics
 		public function setOrientation(orient:JMatrix3D):void
 		{
 			_currState.orientation.copy(orient);
-			_invOrientation = JMatrix3D.transpose(_currState.orientation);
+			_invOrientation = JMatrix3D.toJMatrix3D(JMatrix3D.getTransposeMatrix(_currState.orientation));
 			_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), _invOrientation);
 			_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), _invOrientation);
 			updateState();
@@ -480,7 +480,7 @@ package jiglib.physics
 				ang *= dt;
 				var rot:JMatrix3D = JMatrix3D.rotationMatrix(dir.x, dir.y, dir.z, ang);
 				_currState.orientation = JMatrix3D.multiply(rot, _currState.orientation);
-				_invOrientation = JMatrix3D.transpose(_currState.orientation);
+				_invOrientation = JMatrix3D.toJMatrix3D(JMatrix3D.getTransposeMatrix(_currState.orientation));
 				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), _invOrientation);
 				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), _invOrientation);
 			}
@@ -519,7 +519,7 @@ package jiglib.physics
 				ang *= dt;
 				var rot:JMatrix3D = JMatrix3D.rotationMatrix(dir.x, dir.y, dir.z, ang);
 				_currState.orientation = JMatrix3D.multiply(rot, _currState.orientation);
-				_invOrientation = JMatrix3D.transpose(_currState.orientation);
+				_invOrientation = JMatrix3D.toJMatrix3D(JMatrix3D.getTransposeMatrix(_currState.orientation));
 				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), _invOrientation);
 				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), _invOrientation);
 			}

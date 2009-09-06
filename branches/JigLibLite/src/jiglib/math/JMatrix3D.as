@@ -400,17 +400,6 @@ package jiglib.math
 
 		// _________________________________________________________________________________ VECTOR
 
-		public static function multiplyVector(m:JMatrix3D, v:Vector3D):void
-		{
-			var vx:Number = v.x;
-			var vy:Number = v.y;
-			var vz:Number = v.z;
-
-			v.x = vx * m.n11 + vy * m.n12 + vz * m.n13 + m.n14;
-			v.y = vx * m.n21 + vy * m.n22 + vz * m.n23 + m.n24;
-			v.z = vx * m.n31 + vy * m.n32 + vz * m.n33 + m.n34;
-		}
-
 		public static function multiplyVector3x3(m:JMatrix3D, v:Vector3D):void
 		{
 			var vx:Number = v.x;
@@ -667,23 +656,6 @@ package jiglib.math
 			return m;
 		}
 
-		public static function getTranslationMatrix(x:Number, y:Number, z:Number):Matrix3D
-		{
-			var _matrix3d:Matrix3D = new Matrix3D();
-			_matrix3d.appendTranslation(x, y, z);
-
-			return _matrix3d;
-		}
-
-		public static function getAppendMatrix3D(a:Matrix3D, b:Matrix3D):Matrix3D
-		{
-			var matrix3D:Matrix3D = new Matrix3D();
-			matrix3D.append(a);
-			matrix3D.append(b);
-
-			return matrix3D;
-		}
-
 		// _________________________________________________________________________________ QUATERNIONS
 
 		public static function magnitudeQuaternion(q:Vector3D):Number
@@ -841,32 +813,50 @@ package jiglib.math
 
 			return m;
 		}
-
-		public static function transpose(m:JMatrix3D):JMatrix3D
+		
+		public static function multiplyVector( m:JMatrix3D, v:Vector3D ):void {
+			var vx:Number = v.x;
+			var vy:Number = v.y;
+			var vz:Number = v.z;
+		
+			v.x = vx * m.n11 + vy * m.n12 + vz * m.n13 + m.n14;
+			v.y = vx * m.n21 + vy * m.n22 + vz * m.n23 + m.n24;
+			v.z = vx * m.n31 + vy * m.n32 + vz * m.n33 + m.n34;
+		}
+		
+		public static function __multiplyVector(matrix3d:Matrix3D, v:Vector3D):void
 		{
-			var tr:JMatrix3D = new JMatrix3D();
+			var vx:Number = v.x;
+			var vy:Number = v.y;
+			var vz:Number = v.z;
 
-			tr.n11 = m.n11;
-			tr.n12 = m.n21;
-			tr.n13 = m.n31;
-			tr.n14 = m.n41;
+			v.x = vx * matrix3d.rawData[0] + vy * matrix3d.rawData[1] + vz * matrix3d.rawData[2] + matrix3d.rawData[3];
+			v.y = vx * matrix3d.rawData[4] + vy * matrix3d.rawData[5] + vz * matrix3d.rawData[6] + matrix3d.rawData[7];
+			v.z = vx * matrix3d.rawData[8] + vy * matrix3d.rawData[9] + vz * matrix3d.rawData[10] + matrix3d.rawData[11];
+		}
+		
+		// utils
+		public static function getTransposeMatrix(m:JMatrix3D):Matrix3D
+		{
+			var matrix3d:Matrix3D = new Matrix3D();
+			matrix3d = toMatrix3D(m);
+			matrix3d.transpose();
+			return matrix3d;
+		}
+		
+		public static function getTranslationMatrix(x:Number, y:Number, z:Number):Matrix3D
+		{
+			var matrix3d:Matrix3D = new Matrix3D();
+			matrix3d.appendTranslation(x, y, z);
+			return matrix3d;
+		}
 
-			tr.n21 = m.n12;
-			tr.n22 = m.n22;
-			tr.n23 = m.n32;
-			tr.n24 = m.n42;
-
-			tr.n31 = m.n13;
-			tr.n32 = m.n23;
-			tr.n33 = m.n33;
-			tr.n34 = m.n43;
-
-			tr.n41 = m.n14;
-			tr.n42 = m.n24;
-			tr.n43 = m.n34;
-			tr.n44 = m.n44;
-
-			return tr;
+		public static function getAppendMatrix3D(a:Matrix3D, b:Matrix3D):Matrix3D
+		{
+			var matrix3D:Matrix3D = new Matrix3D();
+			matrix3D.append(a);
+			matrix3D.append(b);
+			return matrix3D;
 		}
 	}
 }
