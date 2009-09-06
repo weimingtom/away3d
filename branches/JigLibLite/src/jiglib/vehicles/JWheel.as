@@ -287,7 +287,7 @@ package jiglib.vehicles
 			}
 
 			var friction:Number = _sideFriction;
-			var sideVel:Number = wheelPointVel, groundLeft);
+			var sideVel:Number = wheelPointVel.dotProduct(groundLeft);
 			if ((sideVel > slipVel) || (sideVel < -slipVel))
 			{
 				friction *= slipFactor;
@@ -310,7 +310,7 @@ package jiglib.vehicles
 			force = force.add(extraForce);
 
 			friction = _fwdFriction;
-			var fwdVel:Number = wheelPointVel, groundFwd);
+			var fwdVel:Number = wheelPointVel.dotProduct(groundFwd);
 			if ((fwdVel > slipVel) || (fwdVel < -slipVel))
 			{
 				friction *= slipFactor;
@@ -332,7 +332,7 @@ package jiglib.vehicles
 			force = force.add(extraForce);
 
 			wheelCentreVel = carBody.currentState.linVelocity.add(carBody.currentState.rotVelocity.crossProduct(tempv));
-			_angVelForGrip = wheelCentreVel, groundFwd) / _radius;
+			_angVelForGrip = wheelCentreVel.dotProduct(groundFwd) / _radius;
 			_torque += (-fwdForce * _radius);
 
 			carBody.addWorldForce(force, groundPos);
