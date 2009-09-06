@@ -79,7 +79,7 @@ package
 			}
 			
 			boxBody = [];
-			for (i = 0; i < 32; i++)
+			for (i = 0; i < 3; i++)
 			{
 				boxBody[i] = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
 				boxBody[i].moveTo(new Vector3D(500*Math.random()-500*Math.random(), 500+500*Math.random(), 500*Math.random()-500*Math.random()));
