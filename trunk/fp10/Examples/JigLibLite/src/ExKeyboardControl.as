@@ -5,7 +5,6 @@ package
 	import away3dlite.templates.ui.LiteKeyboard;
 	
 	import flash.geom.Vector3D;
-	import flash.utils.Dictionary;
 	
 	import jiglib.physics.RigidBody;
 	import jiglib.plugin.away3dlite.Away3DLiteMesh;
@@ -32,23 +31,23 @@ package
 			//event
 			new LiteKeyboard(this.stage);
 			
-			//player
-			for (var i:int = 0; i < 3; i++)
+			//decor
+			for (var i:int = 0; i < 10; i++)
+			{
+				var box:RigidBody = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
+				box.moveTo(new Vector3D(0, 500 + (100 * i + 100), 0));
+			}
+			
+			for (i=0; i < 3; i++)
 			{
 				var color:uint = (i == 0) ? 0xff8888 : 0xeeee00;
 				var sphere:RigidBody = physics.createSphere(new WireframeMaterial(), 25);
 				sphere.mass = 5;
 				sphere.moveTo(new Vector3D(-100, 500 + (100 * i + 100), -100));
-
-				ball = sphere;
 			}
 			
-			//decor
-			for (i = 0; i < 6; i++)
-			{
-				var box:RigidBody = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
-				box.moveTo(new Vector3D(0, 500 + (100 * i + 100), 0));
-			}
+			//player
+			ball = sphere;
 		}
 
 		override protected function onPreRender():void
