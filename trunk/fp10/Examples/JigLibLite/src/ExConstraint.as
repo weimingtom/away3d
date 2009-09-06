@@ -63,9 +63,9 @@ package
 			var sphere:RigidBody;
 			var prevSphere:RigidBody;
 			
-			for(var i:int = 0; i<5; i++)
+			for(var i:int = 0; i<4; i++)
 			{
-				if(i==4)
+				if(i==0)
 				{
 					sphere = physics.createSphere(new PhongColorMaterial(light, 0xFF0000), 25);
 					
@@ -74,26 +74,30 @@ package
 					Away3DLiteMesh(sphere.skin).mesh.layer = layer;
 				}else{
 					sphere = physics.createSphere(new WireframeMaterial(), 25);
-					sphere.currentState.position = (i == 0) ? new Vector3D(-100, 100, 0) : prevSphere.currentState.position.add(new Vector3D(50, 100, 0));
 				}
 				
 				sphere.mass = 5;
+				sphere.currentState.position.x = -i*50;
+				sphere.currentState.position.y = 300;
 				
-				if(i != 0){
-					var pos1:Vector3D = JNumber3D.scaleVector(Vector3D.Y_AXIS, -prevSphere.boundingSphere);
-					var pos2:Vector3D = JNumber3D.scaleVector(Vector3D.Y_AXIS, sphere.boundingSphere);
-					var constraint:JConstraintPoint = new JConstraintPoint(prevSphere, pos1, sphere, pos2, 0, 0.1);
+				if(i != 0)
+				{
+					var pos1:Vector3D = JNumber3D.getScaleVector(Vector3D.Y_AXIS, -prevSphere.boundingSphere);
+					var pos2:Vector3D = JNumber3D.getScaleVector(Vector3D.Y_AXIS, sphere.boundingSphere);
+					var constraint:JConstraintPoint = new JConstraintPoint(prevSphere, pos1, sphere, pos2, 1, 1);
 				}
 				
 				prevSphere = sphere;
 			}
 			
 			boxBody = [];
-			for (i = 0; i < 32; i++)
+			for (i = 0; i < 16; i++)
 			{
 				boxBody[i] = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
 				boxBody[i].moveTo(new Vector3D(500*Math.random()-500*Math.random(), 500+500*Math.random(), 500*Math.random()-500*Math.random()));
 			}
+			
+			physics.createSphere(new WireframeMaterial(0x00FF00), 50).moveTo(new Vector3D(300,50,50));
 			
 			layer.addEventListener(MouseEvent.MOUSE_DOWN, handleMousePress);
 		}
