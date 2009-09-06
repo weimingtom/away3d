@@ -69,13 +69,13 @@ package jiglib.geometry{
 		public function getBottomPos(state:PhysicsState):Vector3D {
 			var temp:Vector3D = state.orientation.getCols()[1];
 			temp.normalize();
-			return state.position.add(JNumber3D.scaleVector(temp, -_length / 2));
+			return state.position.add(JNumber3D.getScaleVector(temp, -_length / 2));
 		}
 		
 		public function getEndPos(state:PhysicsState):Vector3D {
 			var temp:Vector3D = state.orientation.getCols()[1];
 			temp.normalize();
-			return state.position.add(JNumber3D.scaleVector(temp, _length / 2));
+			return state.position.add(JNumber3D.getScaleVector(temp, _length / 2));
 		}
 		 
 		override public function segmentIntersect(out:Object, seg:JSegment, state:PhysicsState):Boolean {
@@ -100,12 +100,12 @@ package jiglib.geometry{
 			var keg:Number = Ke.dotProduct(Kg);
 			var kgg:Number = Kg.dotProduct(Kg);
 			
-			var distSq:Number = Kg.subtract(JNumber3D.divideVector(JNumber3D.scaleVector(Ke, keg), kee)).lengthSquared;
+			var distSq:Number = Kg.subtract(JNumber3D.getDivideVector(JNumber3D.getScaleVector(Ke, keg), kee)).lengthSquared;
 			if (distSq < radiusSq) {
 				out.fracOut = 0;
 				out.posOut = seg.origin.clone();
 				out.normalOut = out.posOut.subtract(getBottomPos(state));
-				out.normalOut = out.normalOut.subtract(JNumber3D.scaleVector(state.orientation.getCols()[1], out.normalOut.dotProduct(state.orientation.getCols()[1])));
+				out.normalOut = out.normalOut.subtract(JNumber3D.getScaleVector(state.orientation.getCols()[1], out.normalOut.dotProduct(state.orientation.getCols()[1])));
 				out.normalOut.normalize();
 				return true;
 			}
@@ -127,7 +127,7 @@ package jiglib.geometry{
 			out.fracOut = t;
 			out.posOut = seg.getPoint(t);
 			out.normalOut = out.posOut.subtract(getBottomPos(state));
-			out.normalOut = out.normalOut.subtract(JNumber3D.scaleVector(state.orientation.getCols()[1], out.normalOut.dotProduct(state.orientation.getCols()[1])));
+			out.normalOut = out.normalOut.subtract(JNumber3D.getScaleVector(state.orientation.getCols()[1], out.normalOut.dotProduct(state.orientation.getCols()[1])));
 			out.normalOut.normalize();
 			return true;
 		}

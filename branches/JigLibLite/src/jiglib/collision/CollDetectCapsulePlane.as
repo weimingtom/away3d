@@ -68,7 +68,7 @@ package jiglib.collision
 			if (Math.min(oldDist, newDist) < capsule.radius + JConfig.collToll)
 			{
 				var oldDepth:Number = capsule.radius - oldDist;
-				var worldPos:Vector3D = oldPos.subtract(JNumber3D.scaleVector(plane.normal, capsule.radius));
+				var worldPos:Vector3D = oldPos.subtract(JNumber3D.getScaleVector(plane.normal, capsule.radius));
 
 				cpInfo = new CollPointInfo();
 				cpInfo.r0 = worldPos.subtract(capsule.oldState.position);
@@ -84,7 +84,7 @@ package jiglib.collision
 			if (Math.min(oldDist, newDist) < capsule.radius + JConfig.collToll)
 			{
 				oldDepth = capsule.radius - oldDist;
-				worldPos = oldPos.subtract(JNumber3D.scaleVector(plane.normal, capsule.radius));
+				worldPos = oldPos.subtract(JNumber3D.getScaleVector(plane.normal, capsule.radius));
 
 				cpInfo = new CollPointInfo();
 				cpInfo.r0 = worldPos.subtract(capsule.oldState.position);

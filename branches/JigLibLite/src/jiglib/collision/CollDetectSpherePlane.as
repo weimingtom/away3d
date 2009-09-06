@@ -69,7 +69,7 @@ package jiglib.collision
 			var cpInfo:CollPointInfo;
 			var depth:Number = sphere.radius - oldDist;
 
-			var worldPos:Vector3D = sphere.oldState.position.subtract(JNumber3D.scaleVector(plane.normal, sphere.radius));
+			var worldPos:Vector3D = sphere.oldState.position.subtract(JNumber3D.getScaleVector(plane.normal, sphere.radius));
 			cpInfo = new CollPointInfo();
 			cpInfo.r0 = worldPos.subtract(sphere.oldState.position);
 			cpInfo.r1 = worldPos.subtract(plane.oldState.position);

@@ -71,8 +71,8 @@ package jiglib.physics.constraint {
 			var deviation:Vector3D = worldPos.subtract(_worldPosition);
 			var deviationDistance:Number = deviation.length;
 			if (deviationDistance > allowedDeviation) {
-				deviationDir = JNumber3D.divideVector(deviation, deviationDistance);
-				desiredVel = JNumber3D.scaleVector(deviationDir, (allowedDeviation - deviationDistance) / (timescale * dt));
+				deviationDir = JNumber3D.getDivideVector(deviation, deviationDistance);
+				desiredVel = JNumber3D.getScaleVector(deviationDir, (allowedDeviation - deviationDistance) / (timescale * dt));
 			} else {
 				desiredVel = new Vector3D();
 			}
@@ -82,7 +82,7 @@ package jiglib.physics.constraint {
 			if (normalVel < minVelForProcessing) {
 				return false;
 			}
-			N = JNumber3D.divideVector(N, normalVel);
+			N = JNumber3D.getDivideVector(N, normalVel);
 			
 			var tempV:Vector3D = R.crossProduct(N);
 			JMatrix3D.multiplyVector(_body.worldInvInertia, tempV);
@@ -94,7 +94,7 @@ package jiglib.physics.constraint {
 			 
 			var normalImpulse:Number = -normalVel / denominator;
 			
-			_body.applyWorldImpulse(JNumber3D.scaleVector(N, normalImpulse), worldPos);
+			_body.applyWorldImpulse(JNumber3D.getScaleVector(N, normalImpulse), worldPos);
 			
 			_body.setConstraintsAndCollisionsUnsatisfied();
 			this.satisfied = true;

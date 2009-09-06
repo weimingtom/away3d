@@ -17,5 +17,9 @@ package jiglib.physics
 		{ 
 			return JMatrix3D.toMatrix3D(orientation);
 		}
+		public function set __orientation(m:Matrix3D):void
+		{ 
+			orientation = JMatrix3D.toJMatrix3D(m);
+		}
 	}
 }

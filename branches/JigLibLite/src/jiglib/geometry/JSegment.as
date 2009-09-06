@@ -64,7 +64,7 @@ package jiglib.geometry
 
 		public function getPoint(t:Number):Vector3D
 		{
-			return _origin.add(JNumber3D.scaleVector(_delta, t));
+			return _origin.add(JNumber3D.getScaleVector(_delta, t));
 		}
 
 		public function getEnd():Vector3D
@@ -448,7 +448,7 @@ package jiglib.geometry
 				else
 				{
 					fT /= fSqrLen;
-					kDiff = kDiff.subtract(JNumber3D.scaleVector(_delta, fT));
+					kDiff = kDiff.subtract(JNumber3D.getScaleVector(_delta, fT));
 				}
 			}
 

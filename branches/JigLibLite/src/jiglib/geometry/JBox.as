@@ -84,7 +84,7 @@ package jiglib.geometry
 
 		public function getHalfSideLengths():Vector3D
 		{
-			return JNumber3D.scaleVector(_sideLengths, 0.5);
+			return JNumber3D.getScaleVector(_sideLengths, 0.5);
 		}
 
 		public function getSpan(axis:Vector3D):SpanData
@@ -167,7 +167,7 @@ package jiglib.geometry
 		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			closestBoxPoint.pos = point.subtract(state.position);
-			JMatrix3D.multiplyVector(JMatrix3D.toJMatrix3D(JMatrix3D.getTransposeMatrix(state.orientation)), closestBoxPoint.pos);
+			JMatrix3D.multiplyVector(JMatrix3D.toJMatrix3D(JMatrix3D.getTransposeMatrix(state.__orientation)), closestBoxPoint.pos);
 
 			var delta:Number = 0;
 			var sqDistance:Number = 0;
@@ -224,7 +224,7 @@ package jiglib.geometry
 		public function pointIntersect(pos:Vector3D):Boolean
 		{
 			var p:Vector3D = pos.subtract(currentState.position);
-			var h:Vector3D = JNumber3D.scaleVector(_sideLengths, 0.5);
+			var h:Vector3D = JNumber3D.getScaleVector(_sideLengths, 0.5);
 			var dirVec:Vector3D;
 			for (var dir:int; dir < 3; dir++)
 			{
@@ -257,9 +257,9 @@ package jiglib.geometry
 					{
 						H = _points[_face[f][j]];
 						var _vj:Vector3D = vertices[j] = currentState.position.clone();
-						_vj = _vj.add(JNumber3D.scaleVector(temp[0], H.x));
-						_vj = _vj.add(JNumber3D.scaleVector(temp[1], H.y));
-						_vj = _vj.add(JNumber3D.scaleVector(temp[2], H.z));
+						_vj = _vj.add(JNumber3D.getScaleVector(temp[0], H.x));
+						_vj = _vj.add(JNumber3D.getScaleVector(temp[1], H.y));
+						_vj = _vj.add(JNumber3D.getScaleVector(temp[2], H.z));
 					}
 					return vertices;
 				}
@@ -275,23 +275,23 @@ package jiglib.geometry
 
 					H = currentState.position.clone();
 					k = (d[m] > 0) ? -1 : 1;
-					H = H.add(JNumber3D.scaleVector(temp[m], k * JNumber3D.toArray(_sideLengths)[m] / 2));
+					H = H.add(JNumber3D.getScaleVector(temp[m], k * JNumber3D.toArray(_sideLengths)[m] / 2));
 					k = (d[n] > 0) ? -1 : 1;
-					H = H.add(JNumber3D.scaleVector(temp[n], k * JNumber3D.toArray(_sideLengths)[n] / 2));
+					H = H.add(JNumber3D.getScaleVector(temp[n], k * JNumber3D.toArray(_sideLengths)[n] / 2));
 
-					vertices[0] = H.add(JNumber3D.scaleVector(temp[i], JNumber3D.toArray(_sideLengths)[i] / 2));
-					vertices[1] = H.add(JNumber3D.scaleVector(temp[i], -JNumber3D.toArray(_sideLengths)[i] / 2));
+					vertices[0] = H.add(JNumber3D.getScaleVector(temp[i], JNumber3D.toArray(_sideLengths)[i] / 2));
+					vertices[1] = H.add(JNumber3D.getScaleVector(temp[i], -JNumber3D.toArray(_sideLengths)[i] / 2));
 					return vertices;
 				}
 			}
 
 			var _v0:Vector3D =vertices[0] = currentState.position.clone();
 			k = (d[0] > 0) ? -1 : 1;
-			vertices[0] = _v0.add(JNumber3D.scaleVector(temp[0], k * _sideLengths.x / 2));
+			vertices[0] = _v0.add(JNumber3D.getScaleVector(temp[0], k * _sideLengths.x / 2));
 			k = (d[1] > 0) ? -1 : 1;
-			vertices[0] = _v0.add(JNumber3D.scaleVector(temp[1], k * _sideLengths.y / 2));
+			vertices[0] = _v0.add(JNumber3D.getScaleVector(temp[1], k * _sideLengths.y / 2));
 			k = (d[2] > 0) ? -1 : 1;
-			vertices[0] = _v0.add(JNumber3D.scaleVector(temp[2], k * _sideLengths.z / 2));
+			vertices[0] = _v0.add(JNumber3D.getScaleVector(temp[2], k * _sideLengths.z / 2));
 			return vertices;
 		}
 
@@ -308,7 +308,7 @@ package jiglib.geometry
 			var dirMax:Number = 0;
 			var dir:Number = 0;
 			var p:Vector3D = state.position.subtract(seg.origin);
-			var h:Vector3D = JNumber3D.scaleVector(_sideLengths, 0.5);
+			var h:Vector3D = JNumber3D.getScaleVector(_sideLengths, 0.5);
 
 			//var tempV:Vector3D;
 			var e:Number;
@@ -373,7 +373,7 @@ package jiglib.geometry
 			out.posOut = seg.getPoint(frac);
 			if (state.orientation.getCols()[dir].dotProduct(seg.delta) < 0)
 			{
-				out.normalOut = JNumber3D.scaleVector(state.orientation.getCols()[dir], -1);
+				out.normalOut = JNumber3D.getScaleVector(state.orientation.getCols()[dir], -1);
 			}
 			else
 			{

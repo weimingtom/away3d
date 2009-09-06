@@ -26,8 +26,9 @@
 package jiglib.collision
 {
 
+	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
-
+	
 	import jiglib.cof.JConfig;
 	import jiglib.geometry.*;
 	import jiglib.math.*;
@@ -61,15 +62,15 @@ package jiglib.collision
 				var depth:Number = radSum - oldDist;
 				if (oldDist > JNumber3D.NUM_TINY)
 				{
-					oldDelta = JNumber3D.divideVector(oldDelta, oldDist);
+					oldDelta = JNumber3D.getDivideVector(oldDelta, oldDist);
 				}
 				else
 				{
 					oldDelta = Vector3D.Y_AXIS;
-					JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), oldDelta);
+					JMatrix3D.__multiplyVector(JMatrix3D.__rotationMatrix(0, 0, 1, 360 * Math.random()), oldDelta);
 				}
 
-				var worldPos:Vector3D = sphere1.oldState.position.add(JNumber3D.scaleVector(oldDelta, sphere1.radius - 0.5 * depth));
+				var worldPos:Vector3D = sphere1.oldState.position.add(JNumber3D.getScaleVector(oldDelta, sphere1.radius - 0.5 * depth));
 
 				var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 				var cpInfo:CollPointInfo = new CollPointInfo();

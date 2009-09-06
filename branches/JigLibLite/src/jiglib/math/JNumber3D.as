@@ -2,24 +2,24 @@
 {
 	import flash.geom.Vector3D;
 
-	public class JNumber3D extends Vector3D
+	public class JNumber3D
 	{
-		public static function toVector3D(jn:JNumber3D):Vector3D
-		{
-			return new Vector3D(jn.x, jn.y, jn.z, jn.w);
-		}
+		public static const NUM_TINY:Number = 0.00001;
+		public static const NUM_HUGE:Number = 100000;
 		
 		public static function toArray(v:Vector3D):Array
 		{
 			return [v.x, v.y, v.z];
 		}
 
-		public static function scaleVector(v:Vector3D, s:Number):Vector3D
+		public static function getScaleVector(v:Vector3D, s:Number):Vector3D
 		{
-			return new Vector3D(v.x * s, v.y * s, v.z * s);
+			var vector3D:Vector3D = v.clone();
+			vector3D.scaleBy(s);
+			return vector3D;
 		}
 
-		public static function divideVector(v:Vector3D, w:Number):Vector3D
+		public static function getDivideVector(v:Vector3D, w:Number):Vector3D
 		{
 			if (w != 0)
 			{
@@ -51,7 +51,7 @@
 			}
 		}
 
-		public static function limiteNumber(num:Number, min:Number, max:Number):Number
+		public static function getLimiteNumber(num:Number, min:Number, max:Number):Number
 		{
 			var n:Number = num;
 			if (n < min)
@@ -63,16 +63,6 @@
 				n = max;
 			}
 			return n;
-		}
-
-		public static function get NUM_TINY():Number
-		{
-			return 0.00001;
-		}
-
-		public static function get NUM_HUGE():Number
-		{
-			return 100000;
 		}
 	}
 }

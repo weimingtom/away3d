@@ -72,7 +72,7 @@ package jiglib.physics.constraint
 
 			var worldPos0:Vector3D = _body0.currentState.position.add(r0);
 			var worldPos1:Vector3D = _body1.currentState.position.add(r1);
-			_worldPos = JNumber3D.scaleVector(worldPos0.add(worldPos1), 0.5);
+			_worldPos = JNumber3D.getScaleVector(worldPos0.add(worldPos1), 0.5);
 
 			_currentRelPos0 = worldPos0.subtract(worldPos1);
 		}
@@ -89,7 +89,7 @@ package jiglib.physics.constraint
 			var currentVel0:Vector3D = _body0.getVelocity(r0);
 			var currentVel1:Vector3D = _body1.getVelocity(r1);
 
-			var predRelPos0:Vector3D = _currentRelPos0.add(JNumber3D.scaleVector(currentVel0.subtract(currentVel1), dt));
+			var predRelPos0:Vector3D = _currentRelPos0.add(JNumber3D.getScaleVector(currentVel0.subtract(currentVel1), dt));
 			var clampedRelPos0:Vector3D = predRelPos0.clone();
 			var clampedRelPos0Mag:Number = clampedRelPos0.length;
 			if (clampedRelPos0Mag <= JNumber3D.NUM_TINY)
@@ -98,16 +98,16 @@ package jiglib.physics.constraint
 			}
 			if (clampedRelPos0Mag > _maxDistance)
 			{
-				clampedRelPos0 = JNumber3D.scaleVector(clampedRelPos0, _maxDistance / clampedRelPos0Mag);
+				clampedRelPos0 = JNumber3D.getScaleVector(clampedRelPos0, _maxDistance / clampedRelPos0Mag);
 			}
 
-			var desiredRelVel0:Vector3D = JNumber3D.divideVector(clampedRelPos0.subtract(_currentRelPos0), dt);
+			var desiredRelVel0:Vector3D = JNumber3D.getDivideVector(clampedRelPos0.subtract(_currentRelPos0), dt);
 			var Vr:Vector3D = currentVel0.subtract(currentVel1).subtract(desiredRelVel0);
 
 			var normalVel:Number = Vr.length;
 			if (normalVel > _maxVelMag)
 			{
-				Vr = JNumber3D.scaleVector(Vr, _maxVelMag / normalVel);
+				Vr = JNumber3D.getScaleVector(Vr, _maxVelMag / normalVel);
 				normalVel = _maxVelMag;
 			}
 			else if (normalVel < _minVelForProcessing)
@@ -115,7 +115,7 @@ package jiglib.physics.constraint
 				return false;
 			}
 
-			var N:Vector3D = JNumber3D.divideVector(Vr, normalVel);
+			var N:Vector3D = JNumber3D.getDivideVector(Vr, normalVel);
 			var tempVec1:Vector3D = r0.crossProduct(N);
 			JMatrix3D.multiplyVector(_body0.worldInvInertia, tempVec1);
 			var tempVec2:Vector3D = r1.crossProduct(N);
@@ -126,9 +126,9 @@ package jiglib.physics.constraint
 				return false;
 			}
 
-			var normalImpulse:Vector3D = JNumber3D.scaleVector(N, -normalVel / denominator);
+			var normalImpulse:Vector3D = JNumber3D.getScaleVector(N, -normalVel / denominator);
 			_body0.applyWorldImpulse(normalImpulse, _worldPos);
-			_body1.applyWorldImpulse(JNumber3D.scaleVector(normalImpulse, -1), _worldPos);
+			_body1.applyWorldImpulse(JNumber3D.getScaleVector(normalImpulse, -1), _worldPos);
 
 			_body0.setConstraintsAndCollisionsUnsatisfied();
 			_body1.setConstraintsAndCollisionsUnsatisfied();

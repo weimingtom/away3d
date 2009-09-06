@@ -632,7 +632,7 @@ package jiglib.math
 
 			return m;
 		}
-
+		
 		public static function rotationMatrixWithReference(axis:Vector3D, rad:Number, ref:Vector3D):JMatrix3D
 		{
 			var m:JMatrix3D = JMatrix3D.translationMatrix(ref.x, -ref.y, ref.z);
@@ -835,11 +835,24 @@ package jiglib.math
 			v.z = vx * matrix3d.rawData[8] + vy * matrix3d.rawData[9] + vz * matrix3d.rawData[10] + matrix3d.rawData[11];
 		}
 		
-		// utils
-		public static function getTransposeMatrix(m:JMatrix3D):Matrix3D
+		public static function __rotationMatrix(x:Number, y:Number, z:Number, rad:Number):Matrix3D
 		{
 			var matrix3d:Matrix3D = new Matrix3D();
-			matrix3d = toMatrix3D(m);
+			matrix3d.appendRotation(rad, new Vector3D(x, y, z));
+			return matrix3d;
+		}
+		
+		// utils
+		public static function getInverseMatrix(m:Matrix3D):Matrix3D
+		{
+			var matrix3d:Matrix3D = m.clone();
+			matrix3d.invert();
+			return matrix3d;
+		}
+		
+		public static function getTransposeMatrix(m:Matrix3D):Matrix3D
+		{
+			var matrix3d:Matrix3D = m.clone();
 			matrix3d.transpose();
 			return matrix3d;
 		}
