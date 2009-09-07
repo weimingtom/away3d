@@ -73,7 +73,7 @@ package jiglib.physics
 
 		private var _storedPositionForActivation:Vector3D;
 		private var _lastPositionForDeactivation:Vector3D;
-		private var _lastOrientationForDeactivation:JMatrix3D;
+		private var _lastOrientationForDeactivation:Matrix3D;
 
 		private var _material:MaterialProperties;
 
@@ -96,13 +96,13 @@ package jiglib.physics
 			_material = new MaterialProperties();
 
 			_bodyInertia = JMatrix3D.IDENTITY;
-			_bodyInvInertia = JMatrix3D.inverse(_bodyInertia);
+			_bodyInvInertia = JMatrix3D.getJMatrix3D(JMatrix3D.getInverseMatrix(JMatrix3D.getMatrix3D(_bodyInertia)));
 
 			_currState = new PhysicsState();
 			_oldState = new PhysicsState();
 			_storeState = new PhysicsState();
 			//_invOrientation = JMatrix3D.inverse(_currState.orientation);
-			_invOrientation = JMatrix3D.getInverseMatrix(_currState.__orientation);
+			_invOrientation = JMatrix3D.getInverseMatrix(_currState.orientation);
 			_currLinVelocityAux = new Vector3D();
 			_currRotVelocityAux = new Vector3D();
 
@@ -123,7 +123,7 @@ package jiglib.physics
 			_storedPositionForActivation = new Vector3D();
 			_bodiesToBeActivatedOnMovement = new Vector.<RigidBody>();
 			_lastPositionForDeactivation = _currState.position.clone();
-			_lastOrientationForDeactivation = JMatrix3D.clone(_currState.orientation);
+			_lastOrientationForDeactivation = _currState.orientation.clone();//JMatrix3D.clone(_currState.orientation);
 
 			_type = "Object3D";
 			_boundingSphere = 0;
@@ -187,19 +187,19 @@ package jiglib.physics
 		public function pitch(rot:Number):void
 		{
 			//var rad:Number = (_useDegrees) ? degreesToRadians(rot) : rot;
-			setOrientation(JMatrix3D.multiply(currentState.orientation, JMatrix3D.rotationX(rot)));
+			setOrientation(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(currentState.orientation), JMatrix3D.rotationX(rot)));
 		}
 
 		public function yaw(rot:Number):void
 		{
 			//var rad:Number = (_useDegrees) ? degreesToRadians(rot) : rot;
-			setOrientation(JMatrix3D.multiply(currentState.orientation, JMatrix3D.rotationY(rot)));
+			setOrientation(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(currentState.orientation), JMatrix3D.rotationY(rot)));
 		}
 
 		public function roll(rot:Number):void
 		{
 			//var rad:Number = (_useDegrees) ? degreesToRadians(rot) : rot;
-			setOrientation(JMatrix3D.multiply(currentState.orientation, JMatrix3D.rotationZ(rot)));
+			setOrientation(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(currentState.orientation), JMatrix3D.rotationZ(rot)));
 		}
 
 		private function createRotationMatrix():JMatrix3D
@@ -214,10 +214,10 @@ package jiglib.physics
 
 		public function setOrientation(orient:JMatrix3D):void
 		{
-			_currState.orientation.copy(orient);
-			_invOrientation = JMatrix3D.getTransposeMatrix(_currState.__orientation);
-			_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia),  JMatrix3D.toJMatrix3D(_invOrientation));
-			_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), JMatrix3D.toJMatrix3D(_invOrientation));
+			_currState.orientation = JMatrix3D.getMatrix3D(orient).clone();
+			_invOrientation = JMatrix3D.getTransposeMatrix(_currState.orientation);
+			_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInertia),  JMatrix3D.getJMatrix3D(_invOrientation));
+			_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInvInertia), JMatrix3D.getJMatrix3D(_invOrientation));
 			updateState();
 		}
 
@@ -319,7 +319,7 @@ package jiglib.physics
 			{
 				return;
 			}
-			JMatrix3D.multiplyVector(_currState.orientation, t);
+			JMatrix3D.__multiplyVector(_currState.orientation, t);
 			addWorldTorque(t);
 		}
 
@@ -341,8 +341,8 @@ package jiglib.physics
 			{
 				return;
 			}
-			JMatrix3D.multiplyVector(_currState.orientation, f);
-			JMatrix3D.multiplyVector(_currState.orientation, p);
+			JMatrix3D.__multiplyVector(_currState.orientation, f);
+			JMatrix3D.__multiplyVector(_currState.orientation, p);
 			addWorldForce(f, _currState.position.add(p));
 		}
 
@@ -481,11 +481,11 @@ package jiglib.physics
 				dir.normalize();
 				ang *= dt;
 				var rot:JMatrix3D = JMatrix3D.rotationMatrix(dir.x, dir.y, dir.z, ang);
-				_currState.orientation = JMatrix3D.multiply(rot, _currState.orientation);
+				_currState.orientation = JMatrix3D.getMatrix3D(JMatrix3D.multiply(rot, JMatrix3D.getJMatrix3D(_currState.orientation)));
 
-				_invOrientation = JMatrix3D.getTransposeMatrix(_currState.__orientation);
-				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), JMatrix3D.toJMatrix3D(_invOrientation));
-				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), JMatrix3D.toJMatrix3D(_invOrientation));
+				_invOrientation = JMatrix3D.getTransposeMatrix(_currState.orientation);
+				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInertia), JMatrix3D.getJMatrix3D(_invOrientation));
+				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInvInertia), JMatrix3D.getJMatrix3D(_invOrientation));
 			}
 
 			JMatrix3D.multiplyVector(_worldInvInertia, angMomBefore);
@@ -521,11 +521,11 @@ package jiglib.physics
 				dir.normalize();
 				ang *= dt;
 				var rot:JMatrix3D = JMatrix3D.rotationMatrix(dir.x, dir.y, dir.z, ang);
-				_currState.orientation = JMatrix3D.multiply(rot, _currState.orientation);
+				_currState.orientation = JMatrix3D.getMatrix3D(JMatrix3D.multiply(rot, JMatrix3D.getJMatrix3D(_currState.orientation)));
 				
-				_invOrientation = JMatrix3D.getTransposeMatrix(_currState.__orientation);
-				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), JMatrix3D.toJMatrix3D(_invOrientation));
-				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), JMatrix3D.toJMatrix3D(_invOrientation));
+				_invOrientation = JMatrix3D.getTransposeMatrix(_currState.orientation);
+				_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInertia), JMatrix3D.getJMatrix3D(_invOrientation));
+				_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInvInertia), JMatrix3D.getJMatrix3D(_invOrientation));
 			}
 			_currLinVelocityAux = new Vector3D();
 			_currRotVelocityAux = new Vector3D();
@@ -552,11 +552,13 @@ package jiglib.physics
 			}
 
 			var ot:Number = JConfig.orientThreshold;
-			var deltaMat:JMatrix3D = JMatrix3D.sub(_currState.orientation, _lastOrientationForDeactivation);
-			if (deltaMat.getCols()[0].length > ot || deltaMat.getCols()[1].length > ot || deltaMat.getCols()[2].length > ot)
+			var deltaMat:Matrix3D = JMatrix3D.getPrependMatrix(_currState.orientation, _lastOrientationForDeactivation);
+			
+			var cols:* = JMatrix3D.__getCols(deltaMat);
+			
+			if (cols[0].length > ot || cols[1].length > ot || cols[2].length > ot)
 			{
-
-				_lastOrientationForDeactivation.copy(_currState.orientation);
+				_lastOrientationForDeactivation = _currState.orientation.clone();
 				_inactiveTime = 0;
 				return;
 			}
@@ -568,7 +570,7 @@ package jiglib.physics
 			if (_inactiveTime > JConfig.deactivationTime)
 			{
 				_lastPositionForDeactivation = _currState.position.clone();
-				_lastOrientationForDeactivation.copy(_currState.orientation);
+				_lastOrientationForDeactivation = _currState.orientation.clone();
 				setInactive();
 			}
 		}
@@ -580,13 +582,15 @@ package jiglib.physics
 			setInertia(getInertiaProperties(m));
 		}
 
-		public function setInertia(i:JMatrix3D):void
+		public function setInertia(matrix3D:JMatrix3D):void
 		{
-			_bodyInertia = JMatrix3D.clone(i);
-			_bodyInvInertia = JMatrix3D.inverse(i);
+			_bodyInertia = JMatrix3D.clone(matrix3D);
+			_bodyInvInertia = JMatrix3D.getJMatrix3D(JMatrix3D.getInverseMatrix(JMatrix3D.getMatrix3D(matrix3D)));
+			
+			var __bodyInvInertia:Matrix3D = JMatrix3D.getMatrix3D(_bodyInvInertia);
 
-			_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInertia), JMatrix3D.toJMatrix3D(_invOrientation));
-			_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(_currState.orientation, _bodyInvInertia), JMatrix3D.toJMatrix3D(_invOrientation));
+			_worldInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInertia), JMatrix3D.getJMatrix3D(_invOrientation));
+			_worldInvInertia = JMatrix3D.multiply(JMatrix3D.multiply(JMatrix3D.getJMatrix3D(_currState.orientation), _bodyInvInertia), JMatrix3D.getJMatrix3D(_invOrientation));
 		}
 
 		public var isActive:Boolean;
@@ -780,7 +784,7 @@ package jiglib.physics
 		public function copyCurrentStateToOld():void
 		{
 			_oldState.position = _currState.position.clone();
-			_oldState.orientation.copy(_currState.orientation);
+			_oldState.orientation = _currState.orientation.clone();
 			_oldState.linVelocity = _currState.linVelocity.clone();
 			_oldState.rotVelocity = _currState.rotVelocity.clone();
 		}
@@ -788,7 +792,7 @@ package jiglib.physics
 		public function storeState():void
 		{
 			_storeState.position = _currState.position.clone();
-			_storeState.orientation.copy(_currState.orientation);
+			_storeState.orientation = _currState.orientation.clone();
 			_storeState.linVelocity = _currState.linVelocity.clone();
 			_storeState.rotVelocity = _currState.rotVelocity.clone();
 		}
@@ -796,7 +800,7 @@ package jiglib.physics
 		public function restoreState():void
 		{
 			_currState.position = _storeState.position.clone();
-			_currState.orientation.copy(_storeState.orientation);
+			_currState.orientation = _storeState.orientation.clone();
 			_currState.linVelocity = _storeState.linVelocity.clone();
 			_currState.rotVelocity = _storeState.rotVelocity.clone();
 		}
@@ -898,7 +902,7 @@ package jiglib.physics
 		{
 			if (_skin != null)
 			{
-				var m:JMatrix3D = JMatrix3D.multiply(JMatrix3D.translationMatrix(_currState.position.x, _currState.position.y, _currState.position.z), _currState.orientation);
+				var m:JMatrix3D = JMatrix3D.multiply(JMatrix3D.translationMatrix(_currState.position.x, _currState.position.y, _currState.position.z), JMatrix3D.getJMatrix3D(_currState.orientation));
 				_skin.transform = m;
 			}
 		}

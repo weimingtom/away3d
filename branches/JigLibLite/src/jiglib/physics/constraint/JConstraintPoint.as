@@ -73,9 +73,9 @@ package jiglib.physics.constraint
 			this.satisfied = false;
 
 			r0 = _body0Pos.clone();
-			JMatrix3D.multiplyVector(_body0.currentState.orientation, r0);
+			JMatrix3D.multiplyVector(JMatrix3D.getJMatrix3D(_body0.currentState.orientation), r0);
 			r1 = _body1Pos.clone();
-			JMatrix3D.multiplyVector(_body1.currentState.orientation, r1);
+			JMatrix3D.multiplyVector(JMatrix3D.getJMatrix3D(_body1.currentState.orientation), r1);
 
 			var worldPos0:Vector3D = _body0.currentState.position.add(r0);
 			var worldPos1:Vector3D = _body1.currentState.position.add(r1);

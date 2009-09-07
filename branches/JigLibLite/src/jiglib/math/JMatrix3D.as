@@ -1,7 +1,5 @@
 package jiglib.math
 {
-	import __AS3__.vec.Vector;
-	
 	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
 
@@ -30,7 +28,7 @@ package jiglib.math
 		public var sid:String;
 		public var type:String = "";
 
-		public function JMatrix3D(args:Vector.<Number>=null)
+		public function JMatrix3D(args:Vector.<Number> = null)
 		{
 			if (!args || args.length < 12)
 			{
@@ -76,27 +74,28 @@ package jiglib.math
 		}
 
 		// dirty proxy for testing perpose, to be remove
-		public static function toMatrix3D(m:JMatrix3D):Matrix3D
+		/*
+		public function toMatrix3D():Matrix3D
 		{
-			return new Matrix3D(Vector.<Number>([
-				m.n11, m.n21, m.n31, m.n41,
-				m.n12, m.n22, m.n32, m.n42,
-				m.n13, m.n23, m.n33, m.n43,
-				m.n14, m.n24, m.n34, m.n44
-				]));
+			return new Matrix3D(Vector.<Number>([n11, n21, n31, n41, n12, n22, n32, n42, n13, n23, n33, n43, n14, n24, n34, n44]));
 		}
 
-		public static function toJMatrix3D(m:Matrix3D):JMatrix3D
+		public function toJMatrix3D():JMatrix3D
+		{
+			return new JMatrix3D(Vector.<Number>([rawData[0], rawData[4], rawData[8], rawData[12], rawData[1], rawData[5], rawData[9], rawData[13], rawData[2], rawData[6], rawData[10], rawData[14], rawData[3], rawData[7], rawData[11], rawData[15]]));
+		}
+		*/
+		public static function getMatrix3D(m:JMatrix3D):Matrix3D
+		{
+			return new Matrix3D(Vector.<Number>([m.n11, m.n21, m.n31, m.n41, m.n12, m.n22, m.n32, m.n42, m.n13, m.n23, m.n33, m.n43, m.n14, m.n24, m.n34, m.n44]));
+		}
+
+		public static function getJMatrix3D(m:Matrix3D):JMatrix3D
 		{
 			var _rawData:Vector.<Number> = m.rawData;
-			return new JMatrix3D(Vector.<Number>([
-				_rawData[0], _rawData[4], _rawData[8], _rawData[12],
-				_rawData[1], _rawData[5], _rawData[9], _rawData[13],
-				_rawData[2], _rawData[6], _rawData[10], _rawData[14],
-				_rawData[3], _rawData[7], _rawData[11], _rawData[15]
-				]));
+			return new JMatrix3D(Vector.<Number>([_rawData[0], _rawData[4], _rawData[8], _rawData[12], _rawData[1], _rawData[5], _rawData[9], _rawData[13], _rawData[2], _rawData[6], _rawData[10], _rawData[14], _rawData[3], _rawData[7], _rawData[11], _rawData[15]]));
 		}
-
+		
 		// _________________________________________________________________________________ trace
 
 		public function toString():String
@@ -265,82 +264,6 @@ package jiglib.math
 			return m;
 		}
 
-
-		public function calculateAdd(a:JMatrix3D, b:JMatrix3D):void
-		{
-			this.n11 = a.n11 + b.n11;
-			this.n12 = a.n12 + b.n12;
-			this.n13 = a.n13 + b.n13;
-			this.n14 = a.n14 + b.n14;
-
-			this.n21 = a.n21 + b.n21;
-			this.n22 = a.n22 + b.n22;
-			this.n23 = a.n23 + b.n23;
-			this.n24 = a.n24 + b.n24;
-
-			this.n31 = a.n31 + b.n31;
-			this.n32 = a.n32 + b.n32;
-			this.n33 = a.n33 + b.n33;
-			this.n34 = a.n34 + b.n34;
-		}
-
-		public static function add(a:JMatrix3D, b:JMatrix3D):JMatrix3D
-		{
-			var m:JMatrix3D = new JMatrix3D();
-
-			m.calculateAdd(a, b);
-
-			return m;
-		}
-
-
-		public function calculateInverse(m:JMatrix3D):void
-		{
-			var d:Number = m.det;
-
-			if (Math.abs(d) > 0.001)
-			{
-				d = 1 / d;
-
-				var m11:Number = m.n11;
-				var m21:Number = m.n21;
-				var m31:Number = m.n31;
-				var m12:Number = m.n12;
-				var m22:Number = m.n22;
-				var m32:Number = m.n32;
-				var m13:Number = m.n13;
-				var m23:Number = m.n23;
-				var m33:Number = m.n33;
-				var m14:Number = m.n14;
-				var m24:Number = m.n24;
-				var m34:Number = m.n34;
-
-				this.n11 = d * (m22 * m33 - m32 * m23);
-				this.n12 = -d * (m12 * m33 - m32 * m13);
-				this.n13 = d * (m12 * m23 - m22 * m13);
-				this.n14 = -d * (m12 * (m23 * m34 - m33 * m24) - m22 * (m13 * m34 - m33 * m14) + m32 * (m13 * m24 - m23 * m14));
-
-				this.n21 = -d * (m21 * m33 - m31 * m23);
-				this.n22 = d * (m11 * m33 - m31 * m13);
-				this.n23 = -d * (m11 * m23 - m21 * m13);
-				this.n24 = d * (m11 * (m23 * m34 - m33 * m24) - m21 * (m13 * m34 - m33 * m14) + m31 * (m13 * m24 - m23 * m14));
-
-				this.n31 = d * (m21 * m32 - m31 * m22);
-				this.n32 = -d * (m11 * m32 - m31 * m12);
-				this.n33 = d * (m11 * m22 - m21 * m12);
-				this.n34 = -d * (m11 * (m22 * m34 - m32 * m24) - m21 * (m12 * m34 - m32 * m14) + m31 * (m12 * m24 - m22 * m14));
-			}
-		}
-
-		public static function inverse(m:JMatrix3D):JMatrix3D
-		{
-			var inv:JMatrix3D = new JMatrix3D();
-
-			inv.calculateInverse(m);
-
-			return inv;
-		}
-
 		public function get det():Number
 		{
 			return (this.n11 * this.n22 - this.n21 * this.n12) * this.n33 - (this.n11 * this.n32 - this.n31 * this.n12) * this.n23 + (this.n21 * this.n32 - this.n31 * this.n22) * this.n13;
@@ -393,9 +316,7 @@ package jiglib.math
 
 		public static function clone(m:JMatrix3D):JMatrix3D
 		{
-			return new JMatrix3D(Vector.<Number>([m.n11, m.n12, m.n13, m.n14,
-				m.n21, m.n22, m.n23, m.n24,
-				m.n31, m.n32, m.n33, m.n34]));
+			return new JMatrix3D(Vector.<Number>([m.n11, m.n12, m.n13, m.n14, m.n21, m.n22, m.n23, m.n24, m.n31, m.n32, m.n33, m.n34]));
 		}
 
 		// _________________________________________________________________________________ VECTOR
@@ -424,60 +345,6 @@ package jiglib.math
 
 			v.normalize();
 		}
-
-		/*
-		   public static function projectVector( m:JMatrix3D, v:Vector3D ):void
-		   {
-		   var c:Number = 1 / ( v.x * m.n41 + v.y * m.n42 + v.z * m.n43 + 1 );
-		   multiplyVector( m, v );
-
-		   v.x = v.x * c;
-		   v.y = v.y * c;
-		   v.z = 0;
-		   }
-		 */
-
-		// _________________________________________________________________________________ EULER
-
-		/*
-		   public static function matrix2eulerOLD( m:JMatrix3D ):Vector3D
-		   {
-		   var angle:Vector3D = new Vector3D();
-
-		   var d :Number = -Math.asin( Math.max( -1, Math.min( 1, m.n13 ) ) ); // Calculate Y-axis angle
-		   var c :Number =  Math.cos( d );
-
-		   angle.y = d * toDEGREES;
-
-		   var trX:Number, trY:Number;
-
-		   if( Math.abs( c ) > 0.005 )  // Gimball lock?
-		   {
-		   trX =  m.n33 / c;  // No, so get X-axis angle
-		   trY = -m.n23 / c;
-
-		   angle.x = Math.atan2( trY, trX ) * toDEGREES;
-
-		   trX =  m.n11 / c;  // Get Z-axis angle
-		   trY = -m.n12 / c;
-
-		   angle.z = Math.atan2( trY, trX ) * toDEGREES;
-		   }
-		   else  // Gimball lock has occurred
-		   {
-		   angle.x = 0;  // Set X-axis angle to zero
-
-		   trX = m.n22;  // And calculate Z-axis angle
-		   trY = m.n21;
-
-		   angle.z = Math.atan2( trY, trX ) * toDEGREES;
-		   }
-
-		   // TODO: Clamp all angles to range
-
-		   return angle;
-		   }
-		 */
 
 		public static function matrix2euler(m:JMatrix3D, euler:Vector3D = null, scale:Vector3D = null):Vector3D
 		{
@@ -632,7 +499,7 @@ package jiglib.math
 
 			return m;
 		}
-		
+
 		public static function rotationMatrixWithReference(axis:Vector3D, rad:Number, ref:Vector3D):JMatrix3D
 		{
 			var m:JMatrix3D = JMatrix3D.translationMatrix(ref.x, -ref.y, ref.z);
@@ -744,7 +611,6 @@ package jiglib.math
 			return m;
 		}
 
-
 		public static function scaleVectorQuaternion(a:Vector3D, b:Vector3D):Vector3D
 		{
 			var ax:Number = a.x;
@@ -766,7 +632,6 @@ package jiglib.math
 			return q;
 		}
 
-
 		// _________________________________________________________________________________ TRIG
 
 		static private var toDEGREES:Number = 180 / Math.PI;
@@ -775,55 +640,28 @@ package jiglib.math
 		static private var _sin:Function = Math.sin;
 		static private var _cos:Function = Math.cos;
 
-		/*
-		 * modify by Muzer
-		 */
-		public function getCols():Vector.<Vector3D>
+		public static function __getCols(matrix3d:Matrix3D):Vector.<Vector3D>
 		{
+			//var matrix3d:Matrix3D = getMatrix3D(this);
+			
 			var cols:Vector.<Vector3D> = new Vector.<Vector3D>();
-			cols[0] = new Vector3D(n11, n21, n31);
-			cols[1] = new Vector3D(n12, n22, n32);
-			cols[2] = new Vector3D(n13, n23, n33);
+			cols[0] = new Vector3D(matrix3d.rawData[0], matrix3d.rawData[4], matrix3d.rawData[8]);
+			cols[1] = new Vector3D(matrix3d.rawData[1], matrix3d.rawData[5], matrix3d.rawData[9]);
+			cols[2] = new Vector3D(matrix3d.rawData[2], matrix3d.rawData[6], matrix3d.rawData[10]);
 			return cols;
 		}
-
-		public function calculateSub(a:JMatrix3D, b:JMatrix3D):void
-		{
-			this.n11 = a.n11 - b.n11;
-			this.n12 = a.n12 - b.n12;
-			this.n13 = a.n13 - b.n13;
-			this.n14 = a.n14 - b.n14;
-
-			this.n21 = a.n21 - b.n21;
-			this.n22 = a.n22 - b.n22;
-			this.n23 = a.n23 - b.n23;
-			this.n24 = a.n24 - b.n24;
-
-			this.n31 = a.n31 - b.n31;
-			this.n32 = a.n32 - b.n32;
-			this.n33 = a.n33 - b.n33;
-			this.n34 = a.n34 - b.n34;
-		}
-
-		public static function sub(a:JMatrix3D, b:JMatrix3D):JMatrix3D
-		{
-			var m:JMatrix3D = new JMatrix3D();
-
-			m.calculateSub(a, b);
-
-			return m;
-		}
 		
-		public static function multiplyVector( m:JMatrix3D, v:Vector3D ):void {
+		public static function multiplyVector(m:JMatrix3D, v:Vector3D):void
+		{
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
-		
+
 			v.x = vx * m.n11 + vy * m.n12 + vz * m.n13 + m.n14;
 			v.y = vx * m.n21 + vy * m.n22 + vz * m.n23 + m.n24;
 			v.z = vx * m.n31 + vy * m.n32 + vz * m.n33 + m.n34;
 		}
-		
+
 		public static function __multiplyVector(matrix3d:Matrix3D, v:Vector3D):void
 		{
 			var vx:Number = v.x;
@@ -835,32 +673,32 @@ package jiglib.math
 			v.z = vx * matrix3d.rawData[8] + vy * matrix3d.rawData[9] + vz * matrix3d.rawData[10] + matrix3d.rawData[11];
 		}
 		
-		public static function __rotationMatrix(x:Number, y:Number, z:Number, rad:Number):Matrix3D
+		//////////////////////////////////////// utils ////////////////////////////////////////
+		
+		public static function getTranslationMatrix(x:Number, y:Number, z:Number):Matrix3D
+		{
+			var matrix3d:Matrix3D = new Matrix3D();
+			matrix3d.appendTranslation(x, y, z);
+			return matrix3d;
+		}
+		public static function getRotationMatrix(x:Number, y:Number, z:Number, rad:Number):Matrix3D
 		{
 			var matrix3d:Matrix3D = new Matrix3D();
 			matrix3d.appendRotation(rad, new Vector3D(x, y, z));
 			return matrix3d;
 		}
 		
-		// utils
 		public static function getInverseMatrix(m:Matrix3D):Matrix3D
 		{
 			var matrix3d:Matrix3D = m.clone();
 			matrix3d.invert();
 			return matrix3d;
 		}
-		
+
 		public static function getTransposeMatrix(m:Matrix3D):Matrix3D
 		{
 			var matrix3d:Matrix3D = m.clone();
 			matrix3d.transpose();
-			return matrix3d;
-		}
-		
-		public static function getTranslationMatrix(x:Number, y:Number, z:Number):Matrix3D
-		{
-			var matrix3d:Matrix3D = new Matrix3D();
-			matrix3d.appendTranslation(x, y, z);
 			return matrix3d;
 		}
 
@@ -869,6 +707,14 @@ package jiglib.math
 			var matrix3D:Matrix3D = new Matrix3D();
 			matrix3D.append(a);
 			matrix3D.append(b);
+			return matrix3D;
+		}
+
+		public static function getPrependMatrix(a:Matrix3D, b:Matrix3D):Matrix3D
+		{
+			var matrix3D:Matrix3D = new Matrix3D();
+			matrix3D.prepend(a);
+			matrix3D.prepend(b);
 			return matrix3D;
 		}
 	}

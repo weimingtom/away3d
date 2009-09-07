@@ -176,7 +176,7 @@ package jiglib.vehicles
 			worldAxis = _axisUp.clone();
 			JMatrix3D.multiplyVector(carBody.currentState.orientation, worldAxis);
 
-			wheelFwd = carBody.currentState.orientation.getCols()[2].clone();
+			wheelFwd = carBody.currentState.orientation__getCols()[2].clone();
 			JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(worldAxis.x, worldAxis.y, worldAxis.z, _steerAngle * Math.PI / 180), wheelFwd);
 			wheelUp = worldAxis;
 			wheelLeft = wheelUp.crossProduct(wheelFwd);

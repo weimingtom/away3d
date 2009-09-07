@@ -66,15 +66,15 @@ package jiglib.collision
 			var collPts:Vector.<CollPointInfo> = new Vector.<CollPointInfo>();
 			var cpInfo:CollPointInfo;
 
-			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.getScaleVector(capsule.oldState.orientation.getCols()[1], capsule.length));
-			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.getScaleVector(capsule.currentState.orientation.getCols()[1], capsule.length));
+			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.getScaleVector(capsule.oldState.orientation__getCols()[1], capsule.length));
+			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.getScaleVector(capsule.currentState.orientation__getCols()[1], capsule.length));
 			var radius:Number = capsule.radius;
 
 			var oldObj:Object = {};
 			var oldDistSq:Number = oldSeg.segmentBoxDistanceSq(oldObj, box, box.oldState);
 			var newObj:Object = {};
 			var newDistSq:Number = newSeg.segmentBoxDistanceSq(newObj, box, box.currentState);
-			var arr:Vector.<Vector3D> = box.oldState.orientation.getCols();
+			var arr:Vector.<Vector3D> = box.oldState.orientation__getCols();
 
 			if (Math.min(oldDistSq, newDistSq) < Math.pow(radius + JConfig.collToll, 2))
 			{
@@ -112,8 +112,8 @@ package jiglib.collision
 			}
 
 
-			oldSeg = new JSegment(capsule.getEndPos(capsule.oldState), JNumber3D.getScaleVector(capsule.oldState.orientation.getCols()[1], capsule.length));
-			newSeg = new JSegment(capsule.getEndPos(capsule.currentState), JNumber3D.getScaleVector(capsule.currentState.orientation.getCols()[1], capsule.length));
+			oldSeg = new JSegment(capsule.getEndPos(capsule.oldState), JNumber3D.getScaleVector(capsule.oldState.orientation__getCols()[1], capsule.length));
+			newSeg = new JSegment(capsule.getEndPos(capsule.currentState), JNumber3D.getScaleVector(capsule.currentState.orientation__getCols()[1], capsule.length));
 
 			oldObj = {};
 			oldDistSq = oldSeg.segmentBoxDistanceSq(oldObj, box, box.oldState);

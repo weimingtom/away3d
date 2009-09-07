@@ -8,18 +8,25 @@ package jiglib.physics
 	public class PhysicsState
 	{
 		public var position:Vector3D = new Vector3D();
-		public var orientation:JMatrix3D = new JMatrix3D();
+		public var orientation:Matrix3D = new Matrix3D();
 		public var linVelocity:Vector3D = new Vector3D();
 		public var rotVelocity:Vector3D = new Vector3D();
 		
+		public function orientation__getCols():Vector.<Vector3D>
+		{
+			return JMatrix3D.__getCols(orientation);
+		}
+		
+		/*
 		//tobe delete
-		public function get __orientation():Matrix3D
+		public function get orientation.toMatrix3D()():Matrix3D
 		{ 
-			return JMatrix3D.toMatrix3D(orientation);
+			return JMatrix3D.getMatrix3D(orientation);
 		}
-		public function set __orientation(m:Matrix3D):void
+		public function set orientation.toMatrix3D()(m:Matrix3D):void
 		{ 
-			orientation = JMatrix3D.toJMatrix3D(m);
+			orientation = JMatrix3D.getMatrix3D(m);
 		}
+		*/
 	}
 }

@@ -90,9 +90,9 @@ package jiglib.geometry
 		public function getSpan(axis:Vector3D):SpanData
 		{
 			var obj:SpanData = new SpanData();
-			var s:Number = Math.abs(axis.dotProduct(currentState.orientation.getCols()[0])) * (0.5 * _sideLengths.x);
-			var u:Number = Math.abs(axis.dotProduct(currentState.orientation.getCols()[1])) * (0.5 * _sideLengths.y);
-			var d:Number = Math.abs(axis.dotProduct(currentState.orientation.getCols()[2])) * (0.5 * _sideLengths.z);
+			var s:Number = Math.abs(axis.dotProduct(currentState.orientation__getCols()[0])) * (0.5 * _sideLengths.x);
+			var u:Number = Math.abs(axis.dotProduct(currentState.orientation__getCols()[1])) * (0.5 * _sideLengths.y);
+			var d:Number = Math.abs(axis.dotProduct(currentState.orientation__getCols()[2])) * (0.5 * _sideLengths.z);
 			var r:Number = s + u + d;
 			var p:Number = currentState.position.dotProduct(axis);
 			obj.min = p - r;
@@ -134,7 +134,7 @@ package jiglib.geometry
 			
 			//JMatrix3D.multiply
 			var transform:Matrix3D = new Matrix3D();
-			transform.append(state.__orientation);
+			transform.append(state.orientation);
 			transform.append(_matrix3d);
 			
 			for each (var _point:Vector3D in _points)
@@ -155,7 +155,7 @@ package jiglib.geometry
 			
 			var transform:Matrix3D = JMatrix3D.getTranslationMatrix(state.position.x, state.position.y, state.position.z);
 			
-			transform = JMatrix3D.getAppendMatrix3D(state.__orientation, transform);
+			transform = JMatrix3D.getAppendMatrix3D(state.orientation, transform);
 			
 			for each (var _point:Vector3D in _points)
 				arr.push(transform.transformVector(new Vector3D(_point.x, _point.y, _point.z)));
@@ -167,7 +167,7 @@ package jiglib.geometry
 		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			closestBoxPoint.pos = point.subtract(state.position);
-			JMatrix3D.multiplyVector(JMatrix3D.toJMatrix3D(JMatrix3D.getTransposeMatrix(state.__orientation)), closestBoxPoint.pos);
+			JMatrix3D.multiplyVector(JMatrix3D.getJMatrix3D(JMatrix3D.getTransposeMatrix(state.orientation)), closestBoxPoint.pos);
 
 			var delta:Number = 0;
 			var sqDistance:Number = 0;
@@ -211,7 +211,7 @@ package jiglib.geometry
 				sqDistance += (delta * delta);
 				closestBoxPoint.pos.z = halfSideLengths.z;
 			}
-			JMatrix3D.__multiplyVector(state.__orientation, closestBoxPoint.pos);
+			JMatrix3D.__multiplyVector(state.orientation, closestBoxPoint.pos);
 			closestBoxPoint.pos = state.position.add(closestBoxPoint.pos);
 			return sqDistance;
 		}
@@ -228,7 +228,7 @@ package jiglib.geometry
 			var dirVec:Vector3D;
 			for (var dir:int; dir < 3; dir++)
 			{
-				dirVec = currentState.orientation.getCols()[dir].clone();
+				dirVec = currentState.orientation__getCols()[dir].clone();
 				dirVec.normalize();
 				if (Math.abs(dirVec.dotProduct(p)) > JNumber3D.toArray(h)[dir] + JNumber3D.NUM_TINY)
 				{
@@ -243,7 +243,7 @@ package jiglib.geometry
 			var vertices:Vector.<Vector3D> = new Vector.<Vector3D>();
 			var d:Vector.<uint> = new Vector.<uint>(3, true);
 			var H:Vector3D;
-			var temp:Vector.<Vector3D> = currentState.orientation.getCols();
+			var temp:Vector.<Vector3D> = currentState.orientation__getCols();
 			temp[0].normalize();
 			temp[1].normalize();
 			temp[2].normalize();
@@ -318,8 +318,8 @@ package jiglib.geometry
 			var t2:Number;
 			for (dir = 0; dir < 3; dir++)
 			{
-				e = state.orientation.getCols()[dir].dotProduct(p);
-				f = state.orientation.getCols()[dir].dotProduct(seg.delta);
+				e = state.orientation__getCols()[dir].dotProduct(p);
+				f = state.orientation__getCols()[dir].dotProduct(seg.delta);
 				if (Math.abs(f) > JNumber3D.NUM_TINY)
 				{
 					t1 = (e + JNumber3D.toArray(h)[dir]) / f;
@@ -371,13 +371,13 @@ package jiglib.geometry
 			}
 			out.fracOut = frac;
 			out.posOut = seg.getPoint(frac);
-			if (state.orientation.getCols()[dir].dotProduct(seg.delta) < 0)
+			if (state.orientation__getCols()[dir].dotProduct(seg.delta) < 0)
 			{
-				out.normalOut = JNumber3D.getScaleVector(state.orientation.getCols()[dir], -1);
+				out.normalOut = JNumber3D.getScaleVector(state.orientation__getCols()[dir], -1);
 			}
 			else
 			{
-				out.normalOut = state.orientation.getCols()[dir];
+				out.normalOut = state.orientation__getCols()[dir];
 			}
 			out.normalOut.normalize();
 			return true;

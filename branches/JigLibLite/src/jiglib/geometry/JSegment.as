@@ -500,13 +500,13 @@ package jiglib.geometry
 			out.num2 = 0;
 
 			var kDiff:Vector3D = rkLine.origin.subtract(boxState.position);
-			var kPnt:Vector3D = new Vector3D(kDiff.dotProduct(boxState.orientation.getCols()[0]),
-				kDiff.dotProduct(boxState.orientation.getCols()[1]),
-				kDiff.dotProduct(boxState.orientation.getCols()[2]));
+			var kPnt:Vector3D = new Vector3D(kDiff.dotProduct(boxState.orientation__getCols()[0]),
+				kDiff.dotProduct(boxState.orientation__getCols()[1]),
+				kDiff.dotProduct(boxState.orientation__getCols()[2]));
 
-			var kDir:Vector3D = new Vector3D(rkLine.dir.dotProduct(boxState.orientation.getCols()[0]),
-				rkLine.dir.dotProduct(boxState.orientation.getCols()[1]),
-				rkLine.dir.dotProduct(boxState.orientation.getCols()[2]));
+			var kDir:Vector3D = new Vector3D(rkLine.dir.dotProduct(boxState.orientation__getCols()[0]),
+				rkLine.dir.dotProduct(boxState.orientation__getCols()[1]),
+				rkLine.dir.dotProduct(boxState.orientation__getCols()[2]));
 
 			var kPntArr:Array = JNumber3D.toArray(kPnt);
 			var kDirArr:Array = JNumber3D.toArray(kDir);
@@ -612,9 +612,9 @@ package jiglib.geometry
 		{
 
 			var kDiff:Vector3D = rkPoint.subtract(boxState.position);
-			var kClosest:Vector3D = new Vector3D(kDiff.dotProduct(boxState.orientation.getCols()[0]),
-				kDiff.dotProduct(boxState.orientation.getCols()[1]),
-				kDiff.dotProduct(boxState.orientation.getCols()[2]));
+			var kClosest:Vector3D = new Vector3D(kDiff.dotProduct(boxState.orientation__getCols()[0]),
+				kDiff.dotProduct(boxState.orientation__getCols()[1]),
+				kDiff.dotProduct(boxState.orientation__getCols()[2]));
 
 			var fSqrDistance:Number = 0;
 			var fDelta:Number;
