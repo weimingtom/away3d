@@ -4,7 +4,6 @@ package
 	import away3dlite.lights.Light;
 	import away3dlite.materials.WireframeMaterial;
 	import away3dlite.materials.shaders.PhongColorMaterial;
-	import away3dlite.templates.PhysicsTemplate;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -15,6 +14,7 @@ package
 	import jiglib.physics.*;
 	import jiglib.physics.constraint.*;
 	import jiglib.plugin.away3dlite.Away3DLiteMesh;
+	import jiglib.templates.PhysicsTemplate;
 
 	[SWF(backgroundColor="#666666",frameRate="30",quality="MEDIUM",width="800",height="600")]
 	/**
