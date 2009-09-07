@@ -3,12 +3,12 @@ package
 	import away3dlite.materials.ColorMaterial;
 	import away3dlite.materials.WireframeMaterial;
 	import away3dlite.primitives.SimpleCube;
-	import away3dlite.templates.PhysicsTemplate;
 	
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	
 	import jiglib.physics.RigidBody;
+	import jiglib.templates.PhysicsTemplate;
 
 	[SWF(backgroundColor="#666666", frameRate = "30", quality = "MEDIUM", width = "800", height = "600")]
 	/**

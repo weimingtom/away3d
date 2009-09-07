@@ -1,13 +1,13 @@
 package
 {
 	import away3dlite.materials.WireframeMaterial;
-	import away3dlite.templates.PhysicsTemplate;
 	import away3dlite.templates.ui.LiteKeyboard;
 	
 	import flash.geom.Vector3D;
 	
 	import jiglib.physics.RigidBody;
 	import jiglib.plugin.away3dlite.Away3DLiteMesh;
+	import jiglib.templates.PhysicsTemplate;
 
 	[SWF(backgroundColor="#666666", frameRate = "30", quality = "MEDIUM", width = "800", height = "600")]
 	/**
