@@ -28,7 +28,7 @@ package jiglib.vehicles
 
 
 	import flash.geom.Vector3D;
-	
+
 	import jiglib.physics.PhysicsSystem;
 	import jiglib.plugin.ISkin3D;
 
@@ -103,24 +103,24 @@ package jiglib.vehicles
 			_destAccelerate = val;
 		}
 
-		public function setSteer(wheels:Vector.<JWheel>, val:Number):void
+		public function setSteer(wheels:Array, val:Number):void
 		{
 			_destSteering = val;
 			_steerWheels = [];
-			for each (var wheel:JWheel in wheels)
+			for (var i:String in wheels)
 			{
-				if (findWheel(wheel))
+				if (findWheel(wheels[i]))
 				{
-					_steerWheels[wheel] = _wheels[wheel];
+					_steerWheels[wheels[i]] = _wheels[wheels[i]];
 				}
 			}
 		}
 
-		private function findWheel(wheel:JWheel):Boolean
+		private function findWheel(_name:String):Boolean
 		{
-			for each (var _wheel:JWheel in _wheels)
+			for (var i:String in _wheels)
 			{
-				if (wheel == _wheel)
+				if (i == _name)
 				{
 					return true;
 				}
