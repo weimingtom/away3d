@@ -91,10 +91,13 @@ package jiglib.math
 		
 		public static function getCols(matrix3d:Matrix3D):Vector.<Vector3D>
 		{
+			var _rawData:Vector.<Number> =  matrix3d.rawData;
 			var cols:Vector.<Vector3D> = new Vector.<Vector3D>();
-			cols[0] = new Vector3D(matrix3d.rawData[0], matrix3d.rawData[4], matrix3d.rawData[8]);
-			cols[1] = new Vector3D(matrix3d.rawData[1], matrix3d.rawData[5], matrix3d.rawData[9]);
-			cols[2] = new Vector3D(matrix3d.rawData[2], matrix3d.rawData[6], matrix3d.rawData[10]);
+			
+			cols[0] = new Vector3D(_rawData[0], _rawData[4], _rawData[8]);
+			cols[1] = new Vector3D(_rawData[1], _rawData[5], _rawData[9]);
+			cols[2] = new Vector3D(_rawData[2], _rawData[6], _rawData[10]);
+			
 			return cols;
 		}
 
@@ -104,9 +107,11 @@ package jiglib.math
 			var vy:Number = v.y;
 			var vz:Number = v.z;
 			
-			v.x = vx * matrix3d.rawData[0] + vy * matrix3d.rawData[4] + vz * matrix3d.rawData[8] + matrix3d.rawData[12];
-			v.y = vx * matrix3d.rawData[1] + vy * matrix3d.rawData[5] + vz * matrix3d.rawData[9] + matrix3d.rawData[13];
-			v.z = vx * matrix3d.rawData[2] + vy * matrix3d.rawData[6] + vz * matrix3d.rawData[10] + matrix3d.rawData[14];
+			var _rawData:Vector.<Number> =  matrix3d.rawData;
+			
+			v.x = vx * _rawData[0] + vy * _rawData[4] + vz * _rawData[8] + _rawData[12];
+			v.y = vx * _rawData[1] + vy * _rawData[5] + vz * _rawData[9] + _rawData[13];
+			v.z = vx * _rawData[2] + vy * _rawData[6] + vz * _rawData[10] + _rawData[14];
 		}
 	}
 }
