@@ -90,9 +90,9 @@ package jiglib.geometry
 		public function getSpan(axis:Vector3D):SpanData
 		{
 			var obj:SpanData = new SpanData();
-			var s:Number = Math.abs(axis.dotProduct(currentState.orientation__getCols()[0])) * (0.5 * _sideLengths.x);
-			var u:Number = Math.abs(axis.dotProduct(currentState.orientation__getCols()[1])) * (0.5 * _sideLengths.y);
-			var d:Number = Math.abs(axis.dotProduct(currentState.orientation__getCols()[2])) * (0.5 * _sideLengths.z);
+			var s:Number = Math.abs(axis.dotProduct(currentState.getOrientationCols()[0])) * (0.5 * _sideLengths.x);
+			var u:Number = Math.abs(axis.dotProduct(currentState.getOrientationCols()[1])) * (0.5 * _sideLengths.y);
+			var d:Number = Math.abs(axis.dotProduct(currentState.getOrientationCols()[2])) * (0.5 * _sideLengths.z);
 			var r:Number = s + u + d;
 			var p:Number = currentState.position.dotProduct(axis);
 			obj.min = p - r;
@@ -180,7 +180,7 @@ package jiglib.geometry
 			var dirVec:Vector3D;
 			for (var dir:int; dir < 3; dir++)
 			{
-				dirVec = currentState.orientation__getCols()[dir].clone();
+				dirVec = currentState.getOrientationCols()[dir].clone();
 				dirVec.normalize();
 				if (Math.abs(dirVec.dotProduct(p)) > JNumber3D.toArray(h)[dir] + JNumber3D.NUM_TINY)
 				{
@@ -195,7 +195,7 @@ package jiglib.geometry
 			var vertices:Vector.<Vector3D> = new Vector.<Vector3D>();
 			var d:Vector.<uint> = new Vector.<uint>(3, true);
 			var H:Vector3D;
-			var temp:Vector.<Vector3D> = currentState.orientation__getCols();
+			var temp:Vector.<Vector3D> = currentState.getOrientationCols();
 			temp[0].normalize();
 			temp[1].normalize();
 			temp[2].normalize();
@@ -270,8 +270,8 @@ package jiglib.geometry
 			var t2:Number;
 			for (dir = 0; dir < 3; dir++)
 			{
-				e = state.orientation__getCols()[dir].dotProduct(p);
-				f = state.orientation__getCols()[dir].dotProduct(seg.delta);
+				e = state.getOrientationCols()[dir].dotProduct(p);
+				f = state.getOrientationCols()[dir].dotProduct(seg.delta);
 				if (Math.abs(f) > JNumber3D.NUM_TINY)
 				{
 					t1 = (e + JNumber3D.toArray(h)[dir]) / f;
@@ -323,13 +323,13 @@ package jiglib.geometry
 			}
 			out.fracOut = frac;
 			out.posOut = seg.getPoint(frac);
-			if (state.orientation__getCols()[dir].dotProduct(seg.delta) < 0)
+			if (state.getOrientationCols()[dir].dotProduct(seg.delta) < 0)
 			{
-				out.normalOut = JNumber3D.getScaleVector(state.orientation__getCols()[dir], -1);
+				out.normalOut = JNumber3D.getScaleVector(state.getOrientationCols()[dir], -1);
 			}
 			else
 			{
-				out.normalOut = state.orientation__getCols()[dir];
+				out.normalOut = state.getOrientationCols()[dir];
 			}
 			out.normalOut.normalize();
 			return true;

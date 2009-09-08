@@ -290,8 +290,8 @@ package jiglib.collision
 				return;
 			}
 
-			var dirs0Arr:Vector.<Vector3D> = box0.currentState.orientation__getCols();
-			var dirs1Arr:Vector.<Vector3D> = box1.currentState.orientation__getCols();
+			var dirs0Arr:Vector.<Vector3D> = box0.currentState.getOrientationCols();
+			var dirs1Arr:Vector.<Vector3D> = box1.currentState.getOrientationCols();
 
 			var axes:Vector.<Vector3D> = Vector.<Vector3D>([dirs0Arr[0], dirs0Arr[1], dirs0Arr[2],
 				dirs1Arr[0], dirs1Arr[1], dirs1Arr[2],

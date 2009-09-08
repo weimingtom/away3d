@@ -12,7 +12,7 @@ package jiglib.physics
 		public var linVelocity:Vector3D = new Vector3D();
 		public var rotVelocity:Vector3D = new Vector3D();
 		
-		public function orientation__getCols():Vector.<Vector3D>
+		public function getOrientationCols():Vector.<Vector3D>
 		{
 			return JMatrix3D.getCols(orientation);
 		}

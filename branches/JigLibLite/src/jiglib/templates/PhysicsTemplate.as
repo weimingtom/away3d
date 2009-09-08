@@ -39,6 +39,7 @@ package jiglib.templates
 		{
 			super.debug = val;
 			
+			/*
 			// debug cube, to be remove
 			var length:int = 300;
 			var oCube:Cube6 = new Cube6(10, 10, 10);
@@ -59,6 +60,7 @@ package jiglib.templates
 			zCube.material = new ColorMaterial(0x0000FF)
 			zCube.z = length;
 			scene.addChild(zCube);
+			*/
 		}
 		
 		protected function build():void

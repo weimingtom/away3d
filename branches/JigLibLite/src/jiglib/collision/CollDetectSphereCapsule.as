@@ -62,8 +62,8 @@ package jiglib.collision
 				return;
 			}
 
-			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.getScaleVector(capsule.oldState.orientation__getCols()[1], capsule.length));
-			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.getScaleVector(capsule.currentState.orientation__getCols()[1], capsule.length));
+			var oldSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.oldState), JNumber3D.getScaleVector(capsule.oldState.getOrientationCols()[1], capsule.length));
+			var newSeg:JSegment = new JSegment(capsule.getBottomPos(capsule.currentState), JNumber3D.getScaleVector(capsule.currentState.getOrientationCols()[1], capsule.length));
 			var radSum:Number = sphere.radius + capsule.radius;
 
 			var oldObj:Object = {};
