@@ -45,10 +45,6 @@ package
 
 		override protected function build():void
 		{
-			var jm:JMatrix3D = new JMatrix3D();
-			var m:Matrix3D = JMatrix3D.getMatrix3D(jm); 
-			var m2:Matrix3D = new Matrix3D();
-			var jm2:JMatrix3D = JMatrix3D.getJMatrix3D(m2); 
 			title += " | HingeJoint : Use mouse to drag red ball | ";
 
 			camera.y = 1000;
