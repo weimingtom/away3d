@@ -101,7 +101,7 @@ package jiglib.math
 			return cols;
 		}
 
-		public static function getMultiplyVector(matrix3d:Matrix3D, v:Vector3D):void
+		public static function multiplyVector(matrix3d:Matrix3D, v:Vector3D):void
 		{
 			var vx:Number = v.x;
 			var vy:Number = v.y;

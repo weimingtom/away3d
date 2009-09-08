@@ -312,7 +312,7 @@ package jiglib.physics
 			{
 				return;
 			}
-			JMatrix3D.getMultiplyVector(_currState.orientation, t);
+			JMatrix3D.multiplyVector(_currState.orientation, t);
 			addWorldTorque(t);
 		}
 
@@ -334,8 +334,8 @@ package jiglib.physics
 			{
 				return;
 			}
-			JMatrix3D.getMultiplyVector(_currState.orientation, f);
-			JMatrix3D.getMultiplyVector(_currState.orientation, p);
+			JMatrix3D.multiplyVector(_currState.orientation, f);
+			JMatrix3D.multiplyVector(_currState.orientation, p);
 			addWorldForce(f, _currState.position.add(p));
 		}
 
@@ -354,7 +354,7 @@ package jiglib.physics
 			_currState.linVelocity = _currState.linVelocity.add(JNumber3D.getScaleVector(impulse, _invMass));
 
 			var rotImpulse:Vector3D = pos.subtract(_currState.position).crossProduct(impulse);
-			JMatrix3D.getMultiplyVector(_worldInvInertia, rotImpulse);
+			JMatrix3D.multiplyVector(_worldInvInertia, rotImpulse);
 			_currState.rotVelocity = _currState.rotVelocity.add(rotImpulse);
 
 			_velChanged = true;
@@ -369,7 +369,7 @@ package jiglib.physics
 			_currLinVelocityAux = _currLinVelocityAux.add(JNumber3D.getScaleVector(impulse, _invMass));
 
 			var rotImpulse:Vector3D = pos.subtract(_currState.position).crossProduct(impulse);
-			JMatrix3D.getMultiplyVector(_worldInvInertia, rotImpulse);
+			JMatrix3D.multiplyVector(_worldInvInertia, rotImpulse);
 			_currRotVelocityAux = _currRotVelocityAux.add(rotImpulse);
 
 			_velChanged = true;
@@ -384,7 +384,7 @@ package jiglib.physics
 			_currState.linVelocity = _currState.linVelocity.add(JNumber3D.getScaleVector(impulse, _invMass));
 
 			var rotImpulse:Vector3D = delta.crossProduct(impulse);
-			JMatrix3D.getMultiplyVector(_worldInvInertia, rotImpulse);
+			JMatrix3D.multiplyVector(_worldInvInertia, rotImpulse);
 			_currState.rotVelocity = _currState.rotVelocity.add(rotImpulse);
 
 			_velChanged = true;
@@ -399,7 +399,7 @@ package jiglib.physics
 			_currLinVelocityAux = _currLinVelocityAux.add(JNumber3D.getScaleVector(impulse, _invMass));
 
 			var rotImpulse:Vector3D = delta.crossProduct(impulse);
-			JMatrix3D.getMultiplyVector(_worldInvInertia, rotImpulse);
+			JMatrix3D.multiplyVector(_worldInvInertia, rotImpulse);
 			_currRotVelocityAux = _currRotVelocityAux.add(rotImpulse);
 
 			_velChanged = true;
@@ -447,7 +447,7 @@ package jiglib.physics
 			_currState.linVelocity = _currState.linVelocity.add(JNumber3D.getScaleVector(_force, _invMass * dt));
 
 			var rac:Vector3D = JNumber3D.getScaleVector(_torque, dt);
-			JMatrix3D.getMultiplyVector(_worldInvInertia, rac);
+			JMatrix3D.multiplyVector(_worldInvInertia, rac);
 			_currState.rotVelocity = _currState.rotVelocity.add(rac);
 
 			var damping:Number = JConfig.damping;
@@ -502,7 +502,7 @@ package jiglib.physics
 			}
 
 			var angMomBefore:Vector3D = _currState.rotVelocity.clone();
-			JMatrix3D.getMultiplyVector(_worldInertia, angMomBefore);
+			JMatrix3D.multiplyVector(_worldInertia, angMomBefore);
 
 			_currState.position = _currState.position.add(JNumber3D.getScaleVector(_currState.linVelocity.add(_currLinVelocityAux), dt));
 
@@ -524,7 +524,7 @@ package jiglib.physics
 			_currLinVelocityAux = new Vector3D();
 			_currRotVelocityAux = new Vector3D();
 
-			JMatrix3D.getMultiplyVector(_worldInvInertia, angMomBefore);
+			JMatrix3D.multiplyVector(_worldInvInertia, angMomBefore);
 			_currState.rotVelocity = angMomBefore.clone();
 		}
 

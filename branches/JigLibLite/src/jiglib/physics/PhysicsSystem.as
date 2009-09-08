@@ -322,13 +322,13 @@ package jiglib.physics
 				else
 				{
 					tempV = ptInfo.r0.crossProduct(N);
-					JMatrix3D.getMultiplyVector(body0.worldInvInertia, tempV);
+					JMatrix3D.multiplyVector(body0.worldInvInertia, tempV);
 					ptInfo.denominator = body0.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r0));
 				}
 				if (body1.movable)
 				{
 					tempV = ptInfo.r1.crossProduct(N);
-					JMatrix3D.getMultiplyVector(body1.worldInvInertia, tempV);
+					JMatrix3D.multiplyVector(body1.worldInvInertia, tempV);
 					ptInfo.denominator += (body1.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r1)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
@@ -383,14 +383,14 @@ package jiglib.physics
 				else
 				{
 					tempV = ptInfo.r0.crossProduct(N);
-					JMatrix3D.getMultiplyVector(body0.worldInvInertia, tempV);
+					JMatrix3D.multiplyVector(body0.worldInvInertia, tempV);
 					ptInfo.denominator = body0.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r0));
 				}
 
 				if (body1.movable)
 				{
 					tempV = ptInfo.r1.crossProduct(N);
-					JMatrix3D.getMultiplyVector(body1.worldInvInertia, tempV);
+					JMatrix3D.multiplyVector(body1.worldInvInertia, tempV);
 					ptInfo.denominator += (body1.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r1)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
@@ -446,14 +446,14 @@ package jiglib.physics
 				else
 				{
 					tempV = ptInfo.r0.crossProduct(N);
-					JMatrix3D.getMultiplyVector(body0.worldInvInertia, tempV);
+					JMatrix3D.multiplyVector(body0.worldInvInertia, tempV);
 					ptInfo.denominator = body0.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r0));
 				}
 
 				if (body1.movable)
 				{
 					tempV = ptInfo.r1.crossProduct(N);
-					JMatrix3D.getMultiplyVector(body1.worldInvInertia, tempV);
+					JMatrix3D.multiplyVector(body1.worldInvInertia, tempV);
 					ptInfo.denominator += (body1.invMass + N.dotProduct(tempV.crossProduct(ptInfo.r1)));
 				}
 				if (ptInfo.denominator < JNumber3D.NUM_TINY)
@@ -584,14 +584,14 @@ package jiglib.physics
 					if (body0.movable)
 					{
 						tempV = ptInfo.r0.crossProduct(T);
-						JMatrix3D.getMultiplyVector(body0.worldInvInertia, tempV);
+						JMatrix3D.multiplyVector(body0.worldInvInertia, tempV);
 						denominator = body0.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r0));
 					}
 
 					if (body1.movable)
 					{
 						tempV = ptInfo.r1.crossProduct(T);
-						JMatrix3D.getMultiplyVector(body1.worldInvInertia, tempV);
+						JMatrix3D.multiplyVector(body1.worldInvInertia, tempV);
 						denominator += (body1.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r1)));
 					}
 
@@ -699,13 +699,13 @@ package jiglib.physics
 						if (body0.movable)
 						{
 							tempV = ptInfo.r0.crossProduct(T);
-							JMatrix3D.getMultiplyVector(body0.worldInvInertia, tempV);
+							JMatrix3D.multiplyVector(body0.worldInvInertia, tempV);
 							denominator = body0.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r0));
 						}
 						if (body1.movable)
 						{
 							tempV = ptInfo.r1.crossProduct(T);
-							JMatrix3D.getMultiplyVector(body1.worldInvInertia, tempV);
+							JMatrix3D.multiplyVector(body1.worldInvInertia, tempV);
 							denominator += (body1.invMass + T.dotProduct(tempV.crossProduct(ptInfo.r1)));
 						}
 						if (denominator > JNumber3D.NUM_TINY)
