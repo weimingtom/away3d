@@ -2,21 +2,20 @@ package
 {
 	import away3dlite.materials.ColorMaterial;
 	import away3dlite.materials.WireframeMaterial;
-	import away3dlite.primitives.SimpleCube;
-	
+
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
-	
+
 	import jiglib.physics.RigidBody;
 	import jiglib.templates.PhysicsTemplate;
 
-	[SWF(backgroundColor="#666666", frameRate = "30", quality = "MEDIUM", width = "800", height = "600")]
+	[SWF(backgroundColor="#666666",frameRate="30",quality="MEDIUM",width="800",height="600")]
 	/**
 	 * Example : Gravity
-	 * 
- 	 * @see http://away3d.googlecode.com/svn/trunk/fp10/Away3DLite/src
+	 *
+	 * @see http://away3d.googlecode.com/svn/trunk/fp10/Away3DLite/src
 	 * @see http://away3d.googlecode.com/svn/branches/JigLibLite/src
-	 * 
+	 *
 	 * @author katopz
 	 */
 	public class ExGravity extends PhysicsTemplate
@@ -38,23 +37,6 @@ package
 				cube.material.restitution = .1;
 				cubes[i] = cube;
 			}
-
-			// debug cube, to be remove
-			var length:int = 300;
-			var oCube:SimpleCube = new SimpleCube(10, new ColorMaterial(0xFFFFFF));
-			scene.addChild(oCube);
-
-			var xCube:SimpleCube = new SimpleCube(10, new ColorMaterial(0xFF0000));
-			xCube.x = length;
-			scene.addChild(xCube);
-
-			var yCube:SimpleCube = new SimpleCube(10, new ColorMaterial(0x00FF00));
-			yCube.y = length;
-			scene.addChild(yCube);
-
-			var zCube:SimpleCube = new SimpleCube(10, new ColorMaterial(0x0000FF));
-			zCube.z = length;
-			scene.addChild(zCube);
 
 			//reset
 			reset();
