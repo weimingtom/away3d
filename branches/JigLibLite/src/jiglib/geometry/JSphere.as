@@ -107,13 +107,8 @@ package jiglib.geometry
 
 		override public function getInertiaProperties(m:Number):Matrix3D
 		{
-			var inertiaTensor:JMatrix3D = new JMatrix3D();
 			var Ixx:Number = 0.4 * m * _radius * _radius;
-			inertiaTensor.n11 = Ixx;
-			inertiaTensor.n22 = Ixx;
-			inertiaTensor.n33 = Ixx;
-
-			return JMatrix3D.getMatrix3D(inertiaTensor);
+			return JMatrix3D.getScaleMatrix(Ixx, Ixx, Ixx);
 		}
 	}
 }

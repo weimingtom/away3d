@@ -119,7 +119,7 @@ package jiglib.geometry
 		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			closestBoxPoint.pos = point.subtract(state.position);
-			JMatrix3D.__multiplyVector(JMatrix3D.getTransposeMatrix(state.orientation), closestBoxPoint.pos);
+			JMatrix3D.getMultiplyVector(JMatrix3D.getTransposeMatrix(state.orientation), closestBoxPoint.pos);
 
 			var delta:Number = 0;
 			var sqDistance:Number = 0;
@@ -163,7 +163,7 @@ package jiglib.geometry
 				sqDistance += (delta * delta);
 				closestBoxPoint.pos.z = halfSideLengths.z;
 			}
-			JMatrix3D.__multiplyVector(state.orientation, closestBoxPoint.pos);
+			JMatrix3D.getMultiplyVector(state.orientation, closestBoxPoint.pos);
 			closestBoxPoint.pos = state.position.add(closestBoxPoint.pos);
 			return sqDistance;
 		}
@@ -337,11 +337,10 @@ package jiglib.geometry
 
 		override public function getInertiaProperties(m:Number):Matrix3D
 		{
-			var inertiaTensor:JMatrix3D = new JMatrix3D();
-			inertiaTensor.n11 = (m / 12) * (_sideLengths.y * _sideLengths.y + _sideLengths.z * _sideLengths.z);
-			inertiaTensor.n22 = (m / 12) * (_sideLengths.x * _sideLengths.x + _sideLengths.z * _sideLengths.z);
-			inertiaTensor.n33 = (m / 12) * (_sideLengths.x * _sideLengths.x + _sideLengths.y * _sideLengths.y);
-			return JMatrix3D.getMatrix3D(inertiaTensor);
+			return JMatrix3D.getScaleMatrix(
+			(m / 12) * (_sideLengths.y * _sideLengths.y + _sideLengths.z * _sideLengths.z),
+			(m / 12) * (_sideLengths.x * _sideLengths.x + _sideLengths.z * _sideLengths.z),
+			(m / 12) * (_sideLengths.x * _sideLengths.x + _sideLengths.y * _sideLengths.y))
 		}
 	}
 }

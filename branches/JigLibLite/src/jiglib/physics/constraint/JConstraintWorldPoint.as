@@ -61,7 +61,7 @@ package jiglib.physics.constraint {
 			this.satisfied = true;
 
 			var worldPos:Vector3D = _pointOnBody.clone();
-			JMatrix3D.__multiplyVector(_body.currentState.orientation, worldPos);
+			JMatrix3D.getMultiplyVector(_body.currentState.orientation, worldPos);
 			worldPos = worldPos.add( _body.currentState.position);
 			var R:Vector3D = worldPos.subtract(_body.currentState.position);
 			var currentVel:Vector3D = _body.currentState.linVelocity.add(_body.currentState.rotVelocity.crossProduct(R));
@@ -85,7 +85,7 @@ package jiglib.physics.constraint {
 			N = JNumber3D.getDivideVector(N, normalVel);
 			
 			var tempV:Vector3D = R.crossProduct(N);
-			JMatrix3D.__multiplyVector(_body.worldInvInertia, tempV);
+			JMatrix3D.getMultiplyVector(_body.worldInvInertia, tempV);
 			var denominator:Number = _body.invMass + N.dotProduct(tempV.crossProduct(R));
 			 
 			if (denominator < JNumber3D.NUM_TINY) {

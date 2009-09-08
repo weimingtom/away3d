@@ -14,19 +14,7 @@ package jiglib.physics
 		
 		public function orientation__getCols():Vector.<Vector3D>
 		{
-			return JMatrix3D.__getCols(orientation);
+			return JMatrix3D.getCols(orientation);
 		}
-		
-		/*
-		//tobe delete
-		public function get orientation.toMatrix3D()():Matrix3D
-		{ 
-			return JMatrix3D.getMatrix3D(orientation);
-		}
-		public function set orientation.toMatrix3D()(m:Matrix3D):void
-		{ 
-			orientation = JMatrix3D.getMatrix3D(m);
-		}
-		*/
 	}
 }

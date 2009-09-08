@@ -1,6 +1,6 @@
 package jiglib.plugin
 {
-	import jiglib.math.JMatrix3D;
+	import flash.geom.Matrix3D;
 
 	/**
 	 * Represents a mesh from a 3D engine inside JigLib.
@@ -18,11 +18,11 @@ package jiglib.plugin
 		/**
 		 * @return A matrix with the current transformation values of the mesh.
 		 */
-		function get transform():JMatrix3D;
+		function get transform():Matrix3D;
 
 		/**
 		 * Apply a matrix to the mesh.
 		 */
-		function set transform(m:JMatrix3D):void;
+		function set transform(m:Matrix3D):void;
 	}
 }

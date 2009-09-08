@@ -143,13 +143,15 @@ package jiglib.geometry{
 			Ixx += (0.4 * endMass * _radius * _radius + endMass * Math.pow(0.5 * _length, 2));
 			Iyy += (0.2 * endMass * _radius * _radius);
 			Izz += (0.4 * endMass * _radius * _radius + endMass * Math.pow(0.5 * _length, 2));
-			 
+			
+			 /*
 			var inertiaTensor:JMatrix3D = new JMatrix3D();
 			inertiaTensor.n11 = Ixx;
 			inertiaTensor.n22 = Iyy;
 			inertiaTensor.n33 = Izz;
-			 
-			return JMatrix3D.getMatrix3D(inertiaTensor);
+			*/
+			
+			return JMatrix3D.getScaleMatrix(Ixx, Iyy, Izz);
 		}
 		
 		private function getBoundingSphere(r:Number, l:Number):Number {

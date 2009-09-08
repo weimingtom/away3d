@@ -7,6 +7,8 @@ package jiglib.plugin.away3dlite
 	import away3dlite.primitives.Plane;
 	import away3dlite.primitives.Sphere;
 	
+	import flash.geom.Vector3D;
+	
 	import jiglib.geometry.JBox;
 	import jiglib.geometry.JPlane;
 	import jiglib.geometry.JSphere;
@@ -64,7 +66,7 @@ package jiglib.plugin.away3dlite
 			
 			var jGround:JPlane = new JPlane(new Away3DLiteMesh(ground));
 			jGround.movable = false;
-			jGround.setOrientation(JMatrix3D.getMatrix3D(JMatrix3D.rotationX(Math.PI / 2)));
+			jGround.setOrientation(JMatrix3D.getRotationMatrixAxis(90, Vector3D.X_AXIS));
 			jGround.y = level;
 			addBody(jGround);
 			return jGround;
