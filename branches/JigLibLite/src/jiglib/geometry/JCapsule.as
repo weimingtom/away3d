@@ -25,6 +25,7 @@ distribution.
 
 package jiglib.geometry{
 
+	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
 	
 	import jiglib.math.*;
@@ -131,8 +132,8 @@ package jiglib.geometry{
 			out.normalOut.normalize();
 			return true;
 		}
-		 
-		override public function getInertiaProperties(m:Number):JMatrix3D {
+		
+		override public function getInertiaProperties(m:Number):Matrix3D {
 			var cylinderMass:Number = m * Math.PI * _radius * _radius * _length / getVolume();
 			var Ixx:Number = 0.25 * cylinderMass * _radius * _radius + (1 / 12) * cylinderMass * _length * _length;
 			var Iyy:Number = 0.5 * cylinderMass * _radius * _radius;
@@ -148,7 +149,7 @@ package jiglib.geometry{
 			inertiaTensor.n22 = Iyy;
 			inertiaTensor.n33 = Izz;
 			 
-			return inertiaTensor;
+			return JMatrix3D.getMatrix3D(inertiaTensor);
 		}
 		
 		private function getBoundingSphere(r:Number, l:Number):Number {

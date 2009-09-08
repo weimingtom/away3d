@@ -25,8 +25,9 @@
 
 package jiglib.geometry
 {
+	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
-
+	
 	import jiglib.math.*;
 	import jiglib.physics.PhysicsState;
 	import jiglib.physics.RigidBody;
@@ -104,7 +105,7 @@ package jiglib.geometry
 			return true;
 		}
 
-		override public function getInertiaProperties(m:Number):JMatrix3D
+		override public function getInertiaProperties(m:Number):Matrix3D
 		{
 			var inertiaTensor:JMatrix3D = new JMatrix3D();
 			var Ixx:Number = 0.4 * m * _radius * _radius;
@@ -112,7 +113,7 @@ package jiglib.geometry
 			inertiaTensor.n22 = Ixx;
 			inertiaTensor.n33 = Ixx;
 
-			return inertiaTensor;
+			return JMatrix3D.getMatrix3D(inertiaTensor);
 		}
 	}
 }

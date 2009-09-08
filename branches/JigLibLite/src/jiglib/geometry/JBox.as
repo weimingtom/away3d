@@ -101,60 +101,12 @@ package jiglib.geometry
 			return obj;
 		}
 		
-		/*
-		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
-		{
-			var vertex:Vector3D;
-			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
-			var transform:JMatrix3D = JMatrix3D.multiply(
-				JMatrix3D.getTranslationMatrix(state.position.x, state.position.y, state.position.z),
-				state.orientation);
-			
-			for each (var _point:Vector3D in _points)
-			{
-				vertex = new Vector3D(_point.x, _point.y, _point.z);
-				JMatrix3D.multiplyVector(transform, vertex);
-				arr.push(vertex);
-			}
-			
-			arr.fixed = true;
-			return arr;
-		}
-		*/
-		
-		/*
-		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
-		{
-			var vertex:Vector3D;
-			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
-			
-			//JMatrix3D.getTranslationMatrix
-			var _matrix3d:Matrix3D = new Matrix3D();
-			_matrix3d.appendTranslation(state.position.x, state.position.y, state.position.z);
-			
-			//JMatrix3D.multiply
-			var transform:Matrix3D = new Matrix3D();
-			transform.append(state.orientation);
-			transform.append(_matrix3d);
-			
-			for each (var _point:Vector3D in _points)
-			{
-				//JMatrix3D.multiplyVector
-				arr.push(transform.transformVector(new Vector3D(_point.x, _point.y, _point.z)));
-			}
-
-			arr.fixed = true;
-			return arr;
-		}
-		*/
-		
 		public function getCornerPoints(state:PhysicsState):Vector.<Vector3D>
 		{
 			var vertex:Vector3D;
 			var arr:Vector.<Vector3D> = new Vector.<Vector3D>();
 			
 			var transform:Matrix3D = JMatrix3D.getTranslationMatrix(state.position.x, state.position.y, state.position.z);
-			
 			transform = JMatrix3D.getAppendMatrix3D(state.orientation, transform);
 			
 			for each (var _point:Vector3D in _points)
@@ -167,7 +119,7 @@ package jiglib.geometry
 		public function getSqDistanceToPoint(state:PhysicsState, closestBoxPoint:Object, point:Vector3D):Number
 		{
 			closestBoxPoint.pos = point.subtract(state.position);
-			JMatrix3D.multiplyVector(JMatrix3D.getJMatrix3D(JMatrix3D.getTransposeMatrix(state.orientation)), closestBoxPoint.pos);
+			JMatrix3D.__multiplyVector(JMatrix3D.getTransposeMatrix(state.orientation), closestBoxPoint.pos);
 
 			var delta:Number = 0;
 			var sqDistance:Number = 0;
@@ -383,13 +335,13 @@ package jiglib.geometry
 			return true;
 		}
 
-		override public function getInertiaProperties(m:Number):JMatrix3D
+		override public function getInertiaProperties(m:Number):Matrix3D
 		{
 			var inertiaTensor:JMatrix3D = new JMatrix3D();
 			inertiaTensor.n11 = (m / 12) * (_sideLengths.y * _sideLengths.y + _sideLengths.z * _sideLengths.z);
 			inertiaTensor.n22 = (m / 12) * (_sideLengths.x * _sideLengths.x + _sideLengths.z * _sideLengths.z);
 			inertiaTensor.n33 = (m / 12) * (_sideLengths.x * _sideLengths.x + _sideLengths.y * _sideLengths.y);
-			return inertiaTensor;
+			return JMatrix3D.getMatrix3D(inertiaTensor);
 		}
 	}
 }

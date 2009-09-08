@@ -230,7 +230,7 @@ package jiglib.physics
 			if (_extraTorque != 0)
 			{
 				var torque1:Vector3D = _hingeAxis.clone();
-				JMatrix3D.multiplyVector(_body0.currentState.orientation, torque1);
+				JMatrix3D.__multiplyVector(_body0.currentState.orientation, torque1);
 				torque1 = JNumber3D.getScaleVector(torque1, _extraTorque);
 
 				_body0.addWorldTorque(torque1);
