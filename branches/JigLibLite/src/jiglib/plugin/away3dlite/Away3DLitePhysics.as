@@ -37,8 +37,7 @@ package jiglib.plugin.away3dlite
 
 		public function createSphere(material:Material, radius:Number = 100, segmentsW:int = 8, segmentsH:int = 6):RigidBody
 		{
-			var sphere:Sphere = new Sphere(radius, segmentsW, segmentsH);
-			sphere.material = material;
+			var sphere:Sphere = new Sphere(material, radius, segmentsW, segmentsH);
 			scene.addChild(sphere);
 			
 			var jsphere:JSphere = new JSphere(new Away3DLiteMesh(sphere), radius);
@@ -48,8 +47,7 @@ package jiglib.plugin.away3dlite
 
 		public function createCube(material:Material, width:Number = 100, depth:Number = 100, height:Number = 100):RigidBody
 		{
-			var cube:Cube6 = new Cube6(width, height, depth);
-			cube.material = material;
+			var cube:Cube6 = new Cube6(material, width, height, depth);
 			scene.addChild(cube);
 			
 			var jbox:JBox = new JBox(new Away3DLiteMesh(cube), width, depth, height);
@@ -59,9 +57,8 @@ package jiglib.plugin.away3dlite
 
 		public function createGround(material:Material, size:Number, level:Number):RigidBody
 		{
-			var ground:Plane = new Plane(size, size, 1, 1);
-			ground.material = material;
-			ground.rotationX = 90;
+			var ground:Plane = new Plane(material, size, size, 1, 1);
+			ground.yUp = true;
 			scene.addChild(ground);
 			
 			var jGround:JPlane = new JPlane(new Away3DLiteMesh(ground));
