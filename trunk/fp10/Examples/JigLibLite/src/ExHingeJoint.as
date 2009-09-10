@@ -1,14 +1,10 @@
 package
 {
-	import away3dlite.core.geom.Plane3D;
-	import away3dlite.lights.Light;
+	import away3dlite.materials.ColorMaterial;
 	import away3dlite.materials.WireframeMaterial;
-	import away3dlite.materials.shaders.PhongColorMaterial;
 	
 	import flash.display.Sprite;
-	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
 	
 	import jiglib.cof.JConfig;
@@ -35,9 +31,7 @@ package
 
 		private var currDragBody:RigidBody;
 		private var dragConstraint:JConstraintWorldPoint;
-		private var planeToDragOn:Plane3D;
-
-		private var light:Light;
+		private var planeToDragOn:Vector3D;
 
 		private var startMousePos:Vector3D;
 
@@ -48,9 +42,6 @@ package
 			title += " | HingeJoint : Use mouse to drag red ball | ";
 
 			camera.y = 1000;
-
-			light = new Light();
-			light.setPosition(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
 
 			init3D();
 
@@ -75,7 +66,7 @@ package
 			{
 				if (i == 0)
 				{
-					sphere = physics.createSphere(new PhongColorMaterial(light, 0xFF0000), 20, 3, 2);
+					sphere = physics.createSphere(new ColorMaterial(0xFF0000), 20, 3, 2);
 
 					// draggable
 					currDragBody = sphere;
@@ -90,8 +81,8 @@ package
 
 				if (i != 0)
 				{
-					var pos1:Vector3D = JNumber3D.getScaleVector(Vector3D.Y_AXIS, -prevSphere.boundingSphere);
-					var pos2:Vector3D = JNumber3D.getScaleVector(Vector3D.Y_AXIS, sphere.boundingSphere);
+					var pos1:Vector3D = JNumber3D.getScaleVector(JNumber3D.UP, -prevSphere.boundingSphere);
+					var pos2:Vector3D = JNumber3D.getScaleVector(JNumber3D.UP, sphere.boundingSphere);
 
 					//set up the hinge joints.
 					chain[i] = new HingeJoint(prevSphere, sphere, Vector3D.X_AXIS, new Vector3D(0, 15, 0), 10, 30, 30, 0.1, 0.5);
@@ -122,8 +113,7 @@ package
 
 			startMousePos = new Vector3D(currDragBody.x, currDragBody.y, currDragBody.z);
 
-			planeToDragOn = new Plane3D();
-			planeToDragOn.fromNormalAndPoint(new Vector3D(0, 1, 0), new Vector3D(0, 0, -startMousePos.z));
+			planeToDragOn = JMath3D.fromNormalAndPoint(new Vector3D(0, 1, 0), new Vector3D(0, 0, -startMousePos.z));
 
 			var p:Vector3D = currDragBody.currentState.position;
 			var bodyPoint:Vector3D = startMousePos.subtract(new Vector3D(p.x, p.y, p.z));
@@ -140,12 +130,12 @@ package
 		{
 			if (onDraging)
 			{
-				var ray:Vector3D = view.camera.unproject(view.mouseX, -view.mouseY);
+				var ray:Vector3D = JMath3D.unproject(camera.transform.matrix3D, camera.focus , camera.zoom, view.mouseX, -view.mouseY);
 				ray.add(new Vector3D(view.camera.x, view.camera.y, view.camera.z));
 
 				var cameraVector3D:Vector3D = new Vector3D(view.camera.x, view.camera.y, view.camera.z);
 				var rayVector3D:Vector3D = new Vector3D(ray.x, ray.y, ray.z);
-				var intersectPoint:Vector3D = planeToDragOn.getIntersectionLine(cameraVector3D, rayVector3D);
+				var intersectPoint:Vector3D = JMath3D.getIntersectionLine(planeToDragOn, cameraVector3D, rayVector3D);
 
 				dragConstraint.worldPosition = new Vector3D(intersectPoint.x, intersectPoint.y, intersectPoint.z);
 			}
@@ -160,24 +150,15 @@ package
 				currDragBody.setActive();
 			}
 		}
-
+		
+		private var step:Number = Math.PI / 2;
 		override protected function onPreRender():void
 		{
 			physics.step();
-
+			scene.rotationY++;
+			//ground.setOrientation(JMatrix3D.rotationX(step));
+			//step+=.1
 			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, 1, 0));
-		}
-
-		override protected function onEnterFrame(event:Event):void
-		{
-			// BUG : avoid shader bug...
-			try
-			{
-				super.onEnterFrame(event);
-			}
-			catch (e:*)
-			{
-			}
 		}
 	}
 }
