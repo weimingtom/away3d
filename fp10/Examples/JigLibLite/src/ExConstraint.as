@@ -1,6 +1,5 @@
 package
 {
-	import away3dlite.core.Plane3D;
 	import away3dlite.materials.ColorMaterial;
 	import away3dlite.materials.WireframeMaterial;
 	
