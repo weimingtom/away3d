@@ -95,7 +95,7 @@ package
 			}
 
 			boxBody = [];
-			for (i = 0; i < 16; i++)
+			for (i = 0; i < 10; i++)
 			{
 				boxBody[i] = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
 				boxBody[i].moveTo(new Vector3D(500 * Math.random() - 500 * Math.random(), 500 + 500 * Math.random(), 500 * Math.random() - 500 * Math.random()));
@@ -155,7 +155,7 @@ package
 		override protected function onPreRender():void
 		{
 			physics.step();
-			scene.rotationY++;
+			//scene.rotationY++;
 			//ground.setOrientation(JMatrix3D.rotationX(step));
 			//step+=.1
 			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, 1, 0));
