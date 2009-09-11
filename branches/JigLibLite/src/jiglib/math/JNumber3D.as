@@ -37,7 +37,7 @@
 		{
 			var E:Vector3D = v1.clone();
 			var F:Vector3D = v2.clone();
-			var N:Vector3D = F.subtract(v1).crossProduct(E.subtract(v0));
+			var N:Vector3D = E.subtract(v0).crossProduct(F.subtract(v1));
 			N.normalize();
 
 			return N;
