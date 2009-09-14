@@ -38,7 +38,7 @@ package
 				box.moveTo(new Vector3D(0, 500 + (100 * i + 100), 0));
 			}
 			
-			for (i=0; i < 3; i++)
+			for (i=0; i < 10; i++)
 			{
 				var color:uint = (i == 0) ? 0xff8888 : 0xeeee00;
 				var sphere:RigidBody = physics.createSphere(new WireframeMaterial(), 25);
