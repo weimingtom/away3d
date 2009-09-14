@@ -32,13 +32,13 @@ package
 			new LiteKeyboard(this.stage);
 			
 			//decor
-			for (var i:int = 0; i < 10; i++)
+			for (var i:int = 0; i < 16; i++)
 			{
 				var box:RigidBody = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
 				box.moveTo(new Vector3D(0, 500 + (100 * i + 100), 0));
 			}
 			
-			for (i=0; i < 10; i++)
+			for (i=0; i < 4; i++)
 			{
 				var color:uint = (i == 0) ? 0xff8888 : 0xeeee00;
 				var sphere:RigidBody = physics.createSphere(new WireframeMaterial(), 25);
