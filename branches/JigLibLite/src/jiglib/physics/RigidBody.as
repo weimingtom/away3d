@@ -200,11 +200,11 @@ package jiglib.physics
 
 		private function createRotationMatrix():Matrix3D
 		{
-			var matrix3d:Matrix3D = new Matrix3D();
-			matrix3d.appendRotation(_rotationX, Vector3D.X_AXIS);
-			matrix3d.appendRotation(_rotationY, Vector3D.Y_AXIS);
-			matrix3d.appendRotation(_rotationZ, Vector3D.Z_AXIS);
-			return matrix3d;
+			var matrix3D:Matrix3D = new Matrix3D();
+			matrix3D.appendRotation(_rotationX, Vector3D.X_AXIS);
+			matrix3D.appendRotation(_rotationY, Vector3D.Y_AXIS);
+			matrix3D.appendRotation(_rotationZ, Vector3D.Z_AXIS);
+			return matrix3D;
 		}
 
 		public function setOrientation(orient:Matrix3D):void
