@@ -83,13 +83,13 @@ package
 			}
 			
 			boxBody = [];
-			for (i = 0; i < 16; i++)
+			for (i = 0; i < 10; i++)
 			{
 				boxBody[i] = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
 				boxBody[i].moveTo(new Vector3D(500*Math.random()-500*Math.random(), 500+500*Math.random(), 500*Math.random()-500*Math.random()));
 			}
 			
-			//physics.createSphere(new WireframeMaterial(0x00FF00), 50).moveTo(new Vector3D(300,50,50));
+			physics.createSphere(new WireframeMaterial(0x00FF00), 50).moveTo(new Vector3D(300,50,50));
 			
 			layer.addEventListener(MouseEvent.MOUSE_DOWN, handleMousePress);
 		}
