@@ -507,7 +507,7 @@ package jiglib.physics
 			_currState.position = _currState.position.add(JNumber3D.getScaleVector(_currState.linVelocity.add(_currLinVelocityAux), dt));
 
 			var dir:Vector3D = _currState.rotVelocity.add(_currRotVelocityAux);
-			var ang:Number = dir.length;
+			var ang:Number = dir.length*180/Math.PI;
 			if (ang > 0)
 			{
 				dir.normalize();

@@ -64,7 +64,8 @@ package jiglib.plugin.away3dlite
 			
 			var jGround:JPlane = new JPlane(new Away3DLiteMesh(ground));
 			jGround.movable = false;
-			jGround.setOrientation(JMatrix3D.rotationX(Math.PI / 2));
+			//jGround.setOrientation(JMatrix3D.rotationX(Math.PI / 2));
+			jGround.setOrientation(JMatrix3D.getRotationMatrixAxis(90));
 			jGround.y = level;
 			addBody(jGround);
 			

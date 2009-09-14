@@ -101,7 +101,8 @@ package jiglib.physics
 				var hingeRelAnchorPos0:Vector3D = JNumber3D.getScaleVector(perpDir, len);
 				var angleToMiddle:Number = 0.5 * (hingeFwdAngle - hingeBckAngle);
 				var hingeRelAnchorPos1:Vector3D = hingeRelAnchorPos0.clone();
-				JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(_hingeAxis.x, _hingeAxis.y, _hingeAxis.z, -angleToMiddle * Math.PI / 180), hingeRelAnchorPos1);
+				//JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(_hingeAxis.x, _hingeAxis.y, _hingeAxis.z, -angleToMiddle * Math.PI / 180), hingeRelAnchorPos1);
+				JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(_hingeAxis.x, _hingeAxis.y, _hingeAxis.z, -angleToMiddle), hingeRelAnchorPos1);
 
 				var hingeHalfAngle:Number = 0.5 * (hingeFwdAngle + hingeBckAngle);
 				var allowedDistance:Number = len * 2 * Math.sin(0.5 * hingeHalfAngle * Math.PI / 180);

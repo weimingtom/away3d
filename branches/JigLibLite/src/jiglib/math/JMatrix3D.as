@@ -19,37 +19,11 @@ package jiglib.math
 			return matrix3d;
 		}
 		
-		public static function getRotationMatrix(x:Number, y:Number, z:Number, rad:Number, pivotPoint:Vector3D=null):Matrix3D
+		public static function getRotationMatrix(x:Number, y:Number, z:Number, degree:Number, pivotPoint:Vector3D=null):Matrix3D
 		{
-			var nCos:Number = Math.cos(rad);
-			var nSin:Number = Math.sin(rad);
-			var scos:Number = 1 - nCos;
-
-			var sxy:Number = x * y * scos;
-			var syz:Number = y * z * scos;
-			var sxz:Number = x * z * scos;
-			var sz:Number = nSin * z;
-			var sy:Number = nSin * y;
-			var sx:Number = nSin * x;
-
-			var rawData:Vector.<Number> = new Vector.<Number>(16, true);
-			
-			rawData[0] = nCos + x * x * scos;
-			rawData[4] = -sz + sxy;
-			rawData[8] = sy + sxz;
-			
-			rawData[1] = sz + sxy;
-			rawData[5] = nCos + y * y * scos;
-			rawData[9] = -sx + syz;
-
-			rawData[2] = -sy + sxz;
-			rawData[6] = sx + syz;
-			rawData[10] = nCos + z * z * scos;
-			
-			rawData[15] = 1;
-			
-			var matrix3d:Matrix3D = new Matrix3D(rawData);
-			return matrix3d;
+			var matrix3D:Matrix3D = new Matrix3D();
+			matrix3D.appendRotation(degree, new Vector3D(x,y,z),pivotPoint);
+			return matrix3D;
 		}
 		
 		public static function getInverseMatrix(m:Matrix3D):Matrix3D
@@ -82,10 +56,10 @@ package jiglib.math
 			return matrix3D;
 		}
 		
-		public static function getRotationMatrixAxis(rad:Number, rotateAxis:Vector3D = Vector3D.X_AXIS):Matrix3D
+		public static function getRotationMatrixAxis(degree:Number, rotateAxis:Vector3D = null):Matrix3D
 		{
     		var matrix3d:Matrix3D = new Matrix3D();
-    		matrix3d.appendRotation(rad, rotateAxis);
+    		matrix3d.appendRotation(degree, rotateAxis?rotateAxis:Vector3D.X_AXIS);
     		return matrix3d;
 		}
 		
@@ -94,9 +68,9 @@ package jiglib.math
 			var _rawData:Vector.<Number> =  matrix3d.rawData;
 			var cols:Vector.<Vector3D> = new Vector.<Vector3D>();
 			
-			cols[0] = new Vector3D(_rawData[0], _rawData[4], _rawData[8]);
-			cols[1] = new Vector3D(_rawData[1], _rawData[5], _rawData[9]);
-			cols[2] = new Vector3D(_rawData[2], _rawData[6], _rawData[10]);
+			cols[0] = new Vector3D(_rawData[0], _rawData[1], _rawData[2]);
+			cols[1] = new Vector3D(_rawData[4], _rawData[5], _rawData[6]);
+			cols[2] = new Vector3D(_rawData[8], _rawData[9], _rawData[10]);
 			
 			return cols;
 		}
@@ -106,12 +80,13 @@ package jiglib.math
 			var vx:Number = v.x;
 			var vy:Number = v.y;
 			var vz:Number = v.z;
-			
 			var _rawData:Vector.<Number> =  matrix3d.rawData;
 			
-			v.x = vx * _rawData[0] + vy * _rawData[4] + vz * _rawData[8] + _rawData[12];
-			v.y = vx * _rawData[1] + vy * _rawData[5] + vz * _rawData[9] + _rawData[13];
+			v.x = vx * _rawData[0] + vy * _rawData[4] + vz * _rawData[8]  + _rawData[12];
+			v.y = vx * _rawData[1] + vy * _rawData[5] + vz * _rawData[9]  + _rawData[13];
 			v.z = vx * _rawData[2] + vy * _rawData[6] + vz * _rawData[10] + _rawData[14];
+			
+			v = matrix3d.transformVector(v);
 		}
 	}
 }
