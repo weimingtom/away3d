@@ -26,10 +26,11 @@ package
 		{
 			//system
 			title += " | Keyboard Control | Use Key Up, Down, Left, Right | ";
-			camera.y = 1000;
+			
+			camera.y = -1000;
 			
 			//event
-			new LiteKeyboard(this.stage);
+			new LiteKeyboard(stage);
 			
 			//decor
 			for (var i:int = 0; i < 16; i++)
@@ -54,14 +55,15 @@ package
 		{
 			//move
 			var position:Vector3D = LiteKeyboard.position.clone();
-			position.scaleBy(50);
+			position.scaleBy(20);
+			
 			ball.addWorldForce(position, ball.currentState.position);
 			
 			//run
 			physics.step();
 
 			//system
-			camera.lookAt(Away3DLiteMesh(ball.skin).mesh.position, new Vector3D(0, 1, 0));
+			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, -1, 0));
 		}
 	}
 }

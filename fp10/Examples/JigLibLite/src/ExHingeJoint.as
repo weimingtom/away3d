@@ -41,7 +41,7 @@ package
 		{
 			title += " | HingeJoint : Use mouse to drag red ball | ";
 
-			camera.y = 1000;
+			camera.y = -1000;
 
 			init3D();
 
@@ -101,8 +101,6 @@ package
 				boxBody[i].moveTo(new Vector3D(500 * Math.random() - 500 * Math.random(), 500 + 500 * Math.random(), 500 * Math.random() - 500 * Math.random()));
 			}
 
-			physics.createSphere(new WireframeMaterial(0x00FF00), 50).moveTo(new Vector3D(300, 50, 50));
-
 			layer.addEventListener(MouseEvent.MOUSE_DOWN, handleMousePress);
 		}
 
@@ -151,14 +149,13 @@ package
 			}
 		}
 		
-		private var step:Number = Math.PI / 2;
 		override protected function onPreRender():void
 		{
+			//run
 			physics.step();
-			//scene.rotationY++;
-			//ground.setOrientation(JMatrix3D.rotationX(step));
-			//step+=.1
-			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, 1, 0));
+
+			//system
+			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, -1, 0));
 		}
 	}
 }

@@ -38,7 +38,7 @@ package
 		{
 			title += " | Constraint : Use mouse to drag red ball | ";
 
-			camera.y = 1000;
+			camera.y = -1000;
 			
 			init3D();
 			
@@ -141,8 +141,11 @@ package
 
 		override protected function onPreRender():void
 		{
+			//run
 			physics.step();
-			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, 1, 0));
+
+			//system
+			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, -1, 0));
 		}
 	}
 }
