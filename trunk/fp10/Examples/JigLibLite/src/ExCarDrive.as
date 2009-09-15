@@ -12,7 +12,6 @@ package
 	import flash.geom.Vector3D;
 	import flash.ui.Keyboard;
 	
-	import jiglib.physics.RigidBody;
 	import jiglib.plugin.away3dlite.Away3DLiteMesh;
 	import jiglib.templates.PhysicsTemplate;
 	import jiglib.vehicles.JCar;
@@ -42,7 +41,8 @@ package
 		{
 			//system
 			title += " | Car Drive | Use Key Up, Down, Left, Right | ";
-			camera.y = 1000;
+			
+			camera.y = -1000;
 
 			//event
 			new LiteKeyboard(this.stage);
@@ -152,7 +152,7 @@ package
 			physics.step();
 
 			//system
-			camera.lookAt(new Vector3D(0, 0, 0), new Vector3D(0, 1, 0));
+			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, -1, 0));
 		}
 	}
 }

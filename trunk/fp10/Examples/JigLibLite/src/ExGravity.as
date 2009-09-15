@@ -1,12 +1,13 @@
 package
 {
-	import away3dlite.materials.ColorMaterial;
+	import away3dlite.materials.BitmapFileMaterial;
 	import away3dlite.materials.WireframeMaterial;
-
+	
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
-
+	
 	import jiglib.physics.RigidBody;
+	import jiglib.plugin.away3dlite.Away3DLiteMesh;
 	import jiglib.templates.PhysicsTemplate;
 
 	[SWF(backgroundColor="#666666",frameRate="30",quality="MEDIUM",width="800",height="600")]
@@ -27,7 +28,7 @@ package
 			title += " | Gravity : Click to reset | ";
 
 			// move camera to top view
-			camera.y = 1000;
+			camera.y = -1000;
 
 			// random decor
 			cubes = new Vector.<RigidBody>(20, true);
@@ -37,7 +38,9 @@ package
 				cube.material.restitution = .1;
 				cubes[i] = cube;
 			}
-
+			
+			physics.createSphere(new BitmapFileMaterial("assets/earth.jpg"), 50).moveTo(new Vector3D(0, 50, 0));
+			
 			//reset
 			reset();
 			stage.addEventListener(MouseEvent.CLICK, reset);
@@ -59,8 +62,11 @@ package
 
 		override protected function onPreRender():void
 		{
+			//run
 			physics.step();
-			camera.lookAt(new Vector3D(), new Vector3D(0, 1, 0));
+
+			//system
+			camera.lookAt(Away3DLiteMesh(ground.skin).mesh.position, new Vector3D(0, -1, 0));
 		}
 	}
 }
