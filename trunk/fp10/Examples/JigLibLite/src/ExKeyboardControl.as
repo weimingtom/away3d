@@ -1,7 +1,7 @@
 package
 {
 	import away3dlite.materials.WireframeMaterial;
-	import away3dlite.templates.ui.LiteKeyboard;
+	import away3dlite.templates.ui.Keyboard3D;
 	
 	import flash.geom.Vector3D;
 	
@@ -30,7 +30,7 @@ package
 			camera.y = -1000;
 			
 			//event
-			new LiteKeyboard(stage);
+			new Keyboard3D(stage);
 			
 			//decor
 			for (var i:int = 0; i < 16; i++)
@@ -54,7 +54,7 @@ package
 		override protected function onPreRender():void
 		{
 			//move
-			var position:Vector3D = LiteKeyboard.position.clone();
+			var position:Vector3D = Keyboard3D.position.clone();
 			position.scaleBy(20);
 			
 			ball.addWorldForce(position, ball.currentState.position);
