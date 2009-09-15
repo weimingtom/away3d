@@ -28,7 +28,8 @@ package jiglib.vehicles
 
 
 	import flash.geom.Vector3D;
-
+	
+	import jiglib.math.JNumber3D;
 	import jiglib.physics.PhysicsSystem;
 	import jiglib.plugin.ISkin3D;
 
