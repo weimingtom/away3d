@@ -2,7 +2,10 @@ package jiglib.math
 {
 	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
-
+	
+	/**
+	 * @author katopz
+	 */
 	public class JMatrix3D
 	{
 		public static function getTranslationMatrix(x:Number, y:Number, z:Number):Matrix3D

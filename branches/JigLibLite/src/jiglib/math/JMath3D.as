@@ -2,7 +2,10 @@ package jiglib.math
 {
 	import flash.geom.Matrix3D;
 	import flash.geom.Vector3D;
-
+	
+	/**
+	 * @author katopz
+	 */
 	public class JMath3D
 	{
         public static function fromNormalAndPoint( normal:Vector3D, point:Vector3D):Vector3D

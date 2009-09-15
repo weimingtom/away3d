@@ -40,7 +40,7 @@ package jiglib.templates
 			super.debug = val;
 			
 			// debug cube, to be remove
-			var length:int = 300;
+			var length:int = 250;
 			var oCube:Cube6 = new Cube6(new ColorMaterial(0xFFFFFF), 10, 10, 10);
 			scene.addChild(oCube);
 
@@ -48,15 +48,25 @@ package jiglib.templates
 			xCube.x = length;
 			scene.addChild(xCube);
 
-			var yCube:Cube6 = new Cube6(new ColorMaterial(0x00FF00F), 10, 10, 10);
+			var yCube:Cube6 = new Cube6(new ColorMaterial(0x00FF00), 10, 10, 10);
 			yCube.y = length;
 			scene.addChild(yCube);
 
 			var zCube:Cube6 = new Cube6(new ColorMaterial(0x0000FF), 10, 10, 10);
 			zCube.z = length;
 			scene.addChild(zCube);
+			
+			//
+			
+			var _xCube:Cube6 = new Cube6(new ColorMaterial(0x660000), 10, 10, 10);
+			_xCube.x = -length;
+			scene.addChild(_xCube);
 
-			var _zCube:Cube6 = new Cube6(new ColorMaterial(0x0000CC), 10, 10, 10);
+			var _yCube:Cube6 = new Cube6(new ColorMaterial(0x006600), 10, 10, 10);
+			_yCube.y = -length;
+			scene.addChild(_yCube);
+
+			var _zCube:Cube6 = new Cube6(new ColorMaterial(0x000066), 10, 10, 10);
 			_zCube.z = -length;
 			scene.addChild(_zCube);
 		}
