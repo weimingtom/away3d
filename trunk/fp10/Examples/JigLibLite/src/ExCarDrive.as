@@ -6,7 +6,7 @@ package
 	import away3dlite.loaders.Collada;
 	import away3dlite.loaders.Loader3D;
 	import away3dlite.materials.WireframeMaterial;
-	import away3dlite.templates.ui.LiteKeyboard;
+	import away3dlite.templates.ui.Keyboard3D;
 	
 	import flash.events.KeyboardEvent;
 	import flash.geom.Vector3D;
@@ -45,7 +45,7 @@ package
 			camera.y = -1000;
 
 			//event
-			new LiteKeyboard(this.stage);
+			new Keyboard3D(this.stage);
 /*
 			//decor
 			for (var i:int = 0; i < 10; i++)
@@ -101,10 +101,10 @@ package
 
 		private function checkKey():void
 		{
-			var power:int = (LiteKeyboard.keyType == KeyboardEvent.KEY_DOWN) ? 1 : 0;
-			title = String(LiteKeyboard.keyType+", "+ LiteKeyboard.keyCode+", "+ power);
+			var power:int = (Keyboard3D.keyType == KeyboardEvent.KEY_DOWN) ? 1 : 0;
+			title = String(Keyboard3D.keyType+", "+ Keyboard3D.keyCode+", "+ power);
 			
-			switch (LiteKeyboard.keyCode)
+			switch (Keyboard3D.keyCode)
 			{
 				case Keyboard.UP:
 					carBody.setAccelerate(1 * power);
@@ -119,7 +119,7 @@ package
 					carBody.setSteer(["WheelFL", "WheelFR"], 1 * power);
 					break;
 				case Keyboard.SPACE:
-					carBody.setHBrake(1* power);
+					carBody.setHBrake(power);
 					break;
 			}
 		}
