@@ -101,7 +101,6 @@ package jiglib.collision
 				else
 				{
 					dir = JNumber3D.UP;
-					//JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 					JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 				}
 
@@ -145,7 +144,6 @@ package jiglib.collision
 				else
 				{
 					dir = JNumber3D.UP;
-					//JMatrix3D.multiplyVector(JMatrix3D.rotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 					JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(0, 0, 1, 360 * Math.random()), dir);
 				}
 
