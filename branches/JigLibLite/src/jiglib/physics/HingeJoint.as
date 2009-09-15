@@ -86,7 +86,7 @@ package jiglib.physics
 
 			if (hingeFwdAngle <= MAX_HINGE_ANGLE_LIMIT)
 			{
-				var perpDir:Vector3D = new Vector3D(0, 1, 0);
+				var perpDir:Vector3D = JNumber3D.UP;
 				if (perpDir.dotProduct(_hingeAxis) > 0.1)
 				{
 					perpDir.x = 1;
@@ -101,7 +101,6 @@ package jiglib.physics
 				var hingeRelAnchorPos0:Vector3D = JNumber3D.getScaleVector(perpDir, len);
 				var angleToMiddle:Number = 0.5 * (hingeFwdAngle - hingeBckAngle);
 				var hingeRelAnchorPos1:Vector3D = hingeRelAnchorPos0.clone();
-				//JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(_hingeAxis.x, _hingeAxis.y, _hingeAxis.z, -angleToMiddle * Math.PI / 180), hingeRelAnchorPos1);
 				JMatrix3D.multiplyVector(JMatrix3D.getRotationMatrix(_hingeAxis.x, _hingeAxis.y, _hingeAxis.z, -angleToMiddle), hingeRelAnchorPos1);
 
 				var hingeHalfAngle:Number = 0.5 * (hingeFwdAngle + hingeBckAngle);
