@@ -12,11 +12,12 @@ package
 	import flash.geom.Vector3D;
 	import flash.ui.Keyboard;
 	
+	import jiglib.physics.RigidBody;
 	import jiglib.plugin.away3dlite.Away3DLiteMesh;
 	import jiglib.templates.PhysicsTemplate;
 	import jiglib.vehicles.JCar;
 
-	[SWF(backgroundColor="#666666", frameRate = "30", quality = "MEDIUM", width = "800", height = "600")]
+	[SWF(backgroundColor="#666666",frameRate="30",quality="MEDIUM",width="800",height="600")]
 	/**
 	 * Example : Car Drive (didn't work yet)
 	 *
@@ -31,7 +32,7 @@ package
 
 		private var steerFR:ObjectContainer3D;
 		private var steerFL:ObjectContainer3D;
-		
+
 		private var wheelFR:Mesh;
 		private var wheelFL:Mesh;
 		private var wheelBR:Mesh;
@@ -41,19 +42,19 @@ package
 		{
 			//system
 			title += " | Car Drive | Use Key Up, Down, Left, Right | ";
-			
+
 			camera.y = -1000;
 
 			//event
 			new Keyboard3D(this.stage);
-/*
+
 			//decor
 			for (var i:int = 0; i < 10; i++)
 			{
 				var box:RigidBody = physics.createCube(new WireframeMaterial(0xFFFFFF * Math.random()), 25, 25, 25);
-				box.moveTo(new Vector3D(500*Math.random()-500*Math.random(), 500 + (100 * i + 100), 500*Math.random()-500*Math.random()));
+				box.moveTo(new Vector3D(500 * Math.random() - 500 * Math.random(), 500 + (100 * i + 100), 500 * Math.random() - 500 * Math.random()));
 			}
-*/
+
 			//player
 			initCar();
 		}
@@ -61,6 +62,7 @@ package
 		private function initCar():void
 		{
 			var collada:Collada = new Collada();
+			collada.scaling = 2;
 
 			var loader:Loader3D = new Loader3D();
 			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
@@ -87,12 +89,12 @@ package
 
 			steerFL = carSkin.getChildByName("WheelFL") as ObjectContainer3D;
 			steerFR = carSkin.getChildByName("WheelFR") as ObjectContainer3D;
-			
+
 			wheelFL = carSkin.getChildByName("WheelFL_PIVOT") as Mesh;
 			wheelFL.material = new WireframeMaterial();
 			wheelFR = carSkin.getChildByName("WheelFR_PIVOT") as Mesh;
 			wheelFR.material = new WireframeMaterial();
-			
+
 			wheelBL = carSkin.getChildByName("WheelBL") as Mesh;
 			wheelBL.material = new WireframeMaterial();
 			wheelBR = carSkin.getChildByName("WheelBR") as Mesh;
@@ -102,8 +104,8 @@ package
 		private function checkKey():void
 		{
 			var power:int = (Keyboard3D.keyType == KeyboardEvent.KEY_DOWN) ? 1 : 0;
-			title = String(Keyboard3D.keyType+", "+ Keyboard3D.keyCode+", "+ power);
-			
+			title = String(Keyboard3D.keyType + ", " + Keyboard3D.keyCode + ", " + power);
+
 			switch (Keyboard3D.keyCode)
 			{
 				case Keyboard.UP:
@@ -123,30 +125,42 @@ package
 					break;
 			}
 		}
-		
-		// TODO : fix and finish this
-		/*
+
 		private function updateWheelSkin():void
 		{
+			if (!carBody)
+				return;
+
 			steerFL.rotationY = carBody.wheels["WheelFL"].getSteerAngle();
 			steerFR.rotationY = carBody.wheels["WheelFR"].getSteerAngle();
-			
+
+			/*
 			wheelFL.pitch(carBody.wheels["WheelFL"].getRollAngle());
 			wheelFR.pitch(carBody.wheels["WheelFR"].getRollAngle());
+			 */
+			wheelFL.rotationX = carBody.wheels["WheelFL"].getRollAngle();
+			wheelFR.rotationX = carBody.wheels["WheelFR"].getRollAngle();
+
+			/*
 			wheelBL.roll(carBody.wheels["WheelBL"].getRollAngle());
 			wheelBR.roll(carBody.wheels["WheelBR"].getRollAngle());
+			*/
+			wheelFL.rotationX = carBody.wheels["WheelBL"].getRollAngle();
+			wheelFR.rotationX = carBody.wheels["WheelBR"].getRollAngle();
 			
-			steerFL.y = carBody.wheels["WheelFL"].getActualPos().y;
-			steerFR.y = carBody.wheels["WheelFR"].getActualPos().y;
-			wheelBL.y = carBody.wheels["WheelBL"].getActualPos().y;
-			wheelBR.y = carBody.wheels["WheelBR"].getActualPos().y;
+			steerFL.y = -carBody.wheels["WheelFL"].getActualPos().y;
+			steerFR.y = -carBody.wheels["WheelFR"].getActualPos().y;
+			wheelBL.y = -carBody.wheels["WheelBL"].getActualPos().y;
+			wheelBR.y = -carBody.wheels["WheelBR"].getActualPos().y;
 		}
-		*/
 
 		override protected function onPreRender():void
 		{
 			//move
 			checkKey();
+
+			//update
+			updateWheelSkin()
 
 			//run
 			physics.step();
