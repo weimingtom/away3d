@@ -140,17 +140,17 @@ package jiglib.physics
 
 		public function get rotationX():Number
 		{
-			return (_useDegrees) ? radiansToDegrees(_rotationX) : _rotationX;
+			return _rotationX;//(_useDegrees) ? radiansToDegrees(_rotationX) : _rotationX;
 		}
 
 		public function get rotationY():Number
 		{
-			return (_useDegrees) ? radiansToDegrees(_rotationY) : _rotationY;
+			return _rotationY;//(_useDegrees) ? radiansToDegrees(_rotationY) : _rotationY;
 		}
 
 		public function get rotationZ():Number
 		{
-			return (_useDegrees) ? radiansToDegrees(_rotationZ) : _rotationZ;
+			return _rotationZ;//(_useDegrees) ? radiansToDegrees(_rotationZ) : _rotationZ;
 		}
 
 		/**
@@ -158,8 +158,8 @@ package jiglib.physics
 		 */
 		public function set rotationX(px:Number):void
 		{
-			var rad:Number = (_useDegrees) ? degreesToRadians(px) : px;
-			_rotationX = rad;
+			//var rad:Number = (_useDegrees) ? degreesToRadians(px) : px;
+			_rotationX = px;
 			setOrientation(createRotationMatrix());
 		}
 
@@ -168,8 +168,8 @@ package jiglib.physics
 		 */
 		public function set rotationY(py:Number):void
 		{
-			var rad:Number = (_useDegrees) ? degreesToRadians(py) : py;
-			_rotationY = rad;
+			//var rad:Number = (_useDegrees) ? degreesToRadians(py) : py;
+			_rotationY = py;
 			setOrientation(createRotationMatrix());
 		}
 
@@ -178,8 +178,8 @@ package jiglib.physics
 		 */
 		public function set rotationZ(pz:Number):void
 		{
-			var rad:Number = (_useDegrees) ? degreesToRadians(pz) : pz;
-			_rotationZ = rad;
+			//var rad:Number = (_useDegrees) ? degreesToRadians(pz) : pz;
+			_rotationZ = pz;
 			setOrientation(createRotationMatrix());
 		}
 
