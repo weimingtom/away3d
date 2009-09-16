@@ -1,5 +1,6 @@
 package
 {
+	import away3dlite.materials.ColorMaterial;
 	import away3dlite.materials.WireframeMaterial;
 	import away3dlite.templates.ui.Keyboard3D;
 	
@@ -25,7 +26,7 @@ package
 		override protected function build():void
 		{
 			//system
-			title += " | Keyboard Control | Use Key Up, Down, Left, Right | ";
+			title += " | Keyboard Control | Use Arrow Key to move, C to jump | ";
 			
 			camera.y = -1000;
 			
@@ -41,14 +42,18 @@ package
 			
 			for (i=0; i < 4; i++)
 			{
-				var color:uint = (i == 0) ? 0xff8888 : 0xeeee00;
-				var sphere:RigidBody = physics.createSphere(new WireframeMaterial(), 25);
+				var sphere:RigidBody;
+				if(i==2)
+				{
+					//controllable
+					ball = sphere = physics.createSphere(new ColorMaterial(0xFF0000), 25);
+				}else{
+					sphere = physics.createSphere(new WireframeMaterial(), 25);
+				}
+				
 				sphere.mass = 5;
 				sphere.moveTo(new Vector3D(-100, 500 + (100 * i + 100), -100));
 			}
-			
-			//player
-			ball = sphere;
 		}
 
 		override protected function onPreRender():void
@@ -56,6 +61,9 @@ package
 			//move
 			var position:Vector3D = Keyboard3D.position.clone();
 			position.scaleBy(20);
+			
+			//jump by type "C" 
+			position.y *= ball.mass;
 			
 			ball.addWorldForce(position, ball.currentState.position);
 			
