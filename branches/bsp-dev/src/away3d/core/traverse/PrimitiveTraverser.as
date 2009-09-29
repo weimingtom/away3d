@@ -54,7 +54,6 @@ package away3d.core.traverse
 			_projectorDictionary[ProjectorType.DIR_SPRITE] = _view._dirSpriteProjector;
 			_projectorDictionary[ProjectorType.DOF_SPRITE] = _view._dofSpriteProjector;
 			_projectorDictionary[ProjectorType.MESH] = _view._meshProjector;
-			_projectorDictionary[ProjectorType.BSP] = _view._bspProjector;
 			_projectorDictionary[ProjectorType.MOVIE_CLIP_SPRITE] = _view._movieClipSpriteProjector;
 			_projectorDictionary[ProjectorType.OBJECT_CONTAINER] = _view._objectContainerProjector;
 			_projectorDictionary[ProjectorType.SPRITE] = _view._spriteProjector;
@@ -96,10 +95,10 @@ package away3d.core.traverse
         public override function apply(node:Object3D):void
         {
         	if (node.session.updated) {
-        		if (node is BSPTree) {
+        		// Check if object is BSPTree, if so, call update
+        		if (node is BSPTree)
         			BSPTree(node).update(_view.camera);
-        		}
-        			
+        		
 	        	_viewTransform = _cameraVarsStore.viewTransformDictionary[node];
 	        	_consumer = node.session.getConsumer(_view);
 	        	

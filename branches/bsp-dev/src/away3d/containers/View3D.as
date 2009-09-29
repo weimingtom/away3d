@@ -77,8 +77,6 @@ package away3d.containers
     	/** @private */
     	arcane var _meshProjector:MeshProjector = new MeshProjector();
     	/** @private */
-    	arcane var _bspProjector:BSPProjector = new BSPProjector();
-    	/** @private */
     	arcane var _movieClipSpriteProjector:MovieClipSpriteProjector = new MovieClipSpriteProjector();
     	/** @private */
     	arcane var _objectContainerProjector:ObjectContainerProjector = new ObjectContainerProjector();
