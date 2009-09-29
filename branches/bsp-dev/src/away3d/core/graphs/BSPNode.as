@@ -31,6 +31,8 @@ package away3d.core.graphs
 		private var _mesh : Mesh;					// contains the model for this face
 		arcane var _visList : Vector.<int>;		// indices of leafs visible from this leaf
 		
+		private var _lastIterationPositive : Boolean;
+		
 		public function BSPNode(parent : BSPNode)
 		{
 			_parent = parent;
@@ -55,8 +57,15 @@ package away3d.core.graphs
             	}
 	        }
 	        else {
-				if (_positiveNode) _positiveNode.traverse(traverser);
-				if (_negativeNode) _negativeNode.traverse(traverser);
+	        	// depending on last camera check, traverse the tree correctly
+	        	if (_lastIterationPositive) {
+					if (_negativeNode) _negativeNode.traverse(traverser);
+					if (_positiveNode) _positiveNode.traverse(traverser);
+	        	}
+				else {
+					if (_positiveNode) _positiveNode.traverse(traverser);
+					if (_negativeNode) _negativeNode.traverse(traverser);
+				}
 	        }
         }
 		
@@ -82,12 +91,15 @@ package away3d.core.graphs
 								_partitionPlane.c*point.z +
 								_partitionPlane.d;
 			
-			// point is on negative side of partition plane
-			if (dot < 0)
-				return _negativeNode.getLeafContaining(point);
-			else
-			// point is on positive side of partition plane
+			// used to make iterations faster when doing camera and object tests
+			_lastIterationPositive = dot > 0;
+			
+			if (_lastIterationPositive)
+				// point is on positive side of partition plane
 				return _positiveNode.getLeafContaining(point);
+			else
+				// point is on negative side of partition plane
+				return _negativeNode.getLeafContaining(point);
 		}
 		
 		arcane function addFaces(faces : Vector.<Face>) : void
