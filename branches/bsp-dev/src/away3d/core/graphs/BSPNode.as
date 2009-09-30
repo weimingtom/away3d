@@ -58,6 +58,12 @@ package away3d.core.graphs
 	        }
 	        else {
 	        	// depending on last camera check, traverse the tree correctly
+	        	// WAIT: last night's tired coding...
+	        	// the camera check does not move through all nodes
+	        	// the first traversed node does not have index info
+	        	// but don't want to redo the whole iteration
+	        	// TO DO: once everything is culled, iterate the whole unculled
+	        	// tree and set _lastIterationPositive correctly
 	        	if (_lastIterationPositive) {
 					if (_negativeNode) _negativeNode.traverse(traverser);
 					if (_positiveNode) _positiveNode.traverse(traverser);
