@@ -164,6 +164,7 @@ package away3d.loaders
         	
         	//start parsing
         	_parseStart = getTimer();
+        	
         	parseNext();
         	
         	return container;

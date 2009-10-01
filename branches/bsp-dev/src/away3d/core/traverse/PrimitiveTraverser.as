@@ -96,12 +96,8 @@ package away3d.core.traverse
         {
         	if (node.session.updated) {
         		// Check if object is BSPTree, if so, call update
-        		if (node is BSPTree)
-        			BSPTree(node).update(_view.camera);
-        		
 	        	_viewTransform = _cameraVarsStore.viewTransformDictionary[node];
 	        	_consumer = node.session.getConsumer(_view);
-	        	
 	        	if (node.projectorType)
 	        		(_projectorDictionary[node.projectorType] as IPrimitiveProvider).primitives(node, _viewTransform, _consumer);
 	            

@@ -7,6 +7,7 @@ package away3d.core.traverse
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.geom.*;
+	import away3d.core.graphs.BSPTree;
 	import away3d.core.math.*;
 	import away3d.core.project.*;
 	import away3d.core.utils.*;
@@ -63,6 +64,9 @@ package away3d.core.traverse
         	//check if node is visible
             if (!node.visible)
                 return false;
+            
+            if (node is BSPTree)
+        		BSPTree(node).update(_view.camera);
             
             //compute viewTransform matrix
             _viewTransform = _cameraVarsStore.createViewTransform(node);
