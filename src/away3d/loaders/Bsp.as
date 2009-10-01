@@ -1,5 +1,7 @@
 package away3d.loaders
 {
+	import __AS3__.vec.Vector;
+	
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.UV;
@@ -69,7 +71,8 @@ package away3d.loaders
 		private var _materials : Vector.<BitmapMaterial>;
 		
 		private var _faceIdLookUp : Dictionary;
-		private var _triangles : Vector.<Face>;
+		
+		private var _currentModel : QBSPModel;
 		
 		public function Bsp(init:Object=null)
 		{
@@ -86,7 +89,7 @@ package away3d.loaders
 		 */
         public static function parse(data:*, init:Object = null):BSPTree
         {
-            return Loader3D.parseGeometry(data, Bsp, init).handle as BSPTree;
+        	return Loader3D.parseGeometry(data, Bsp, init).handle as BSPTree;
         }
     	
     	/**
@@ -133,6 +136,8 @@ package away3d.loaders
         private function parseData() : void
         {
         	var materialLibrary : MaterialLibrary = parseMaterials();
+        	_faceIdLookUp = new Dictionary(true);
+        	parseFaces();
         	parseModels(materialLibrary);
         }
         
@@ -154,40 +159,15 @@ package away3d.loaders
 			return library;
         }
         
-        private function parseModels(materialLibrary : MaterialLibrary) : void
-        {
-			var current : BSPTree;
-			
-			for (var i : int = 0; i < 1; ++i) {
-			//for (var i : int = 0; i < _numModels; i++) {
-				current = parseModel(_models[i], i);
-				current.materialLibrary = materialLibrary;
-				current.init();
-				// temp
-				if (i == 0) container = _bspTree = current;
-			}
-        }
-        
-        private function parseModel(model : QBSPModel, index : int) : BSPTree
-        {
-        	_faceIdLookUp = new Dictionary(true);
-        	parseFaces(model);
-        	return parseBSP(model);
-        }
-        
-        private function parseFaces(model : QBSPModel) : void
+        // convert all faces to triangles
+        private function parseFaces() : void
         {
         	var face : QBSPFace;
 			var texinfo : QBSPTexInfo;
 			var currentFaceVertices : Vector.<Vertex>;
-			var len : int = model.numfaces;
-			//if (len > 100) len = 100;
 			
-			_triangles = new Vector.<Face>();
-			
-			for (var i : int = 0; i < len; i++) {
-				
-				face = _faces[model.firstface+i];
+			for (var i : int = 0; i < _numFaces; i++) {
+				face = _faces[i];
 				texinfo = _texInfo[face.texinfo];
 				
 				currentFaceVertices = new Vector.<Vertex>();
@@ -206,11 +186,11 @@ package away3d.loaders
 		{
 			var id : int = _surfEdges[index];
 			var edge : QBSPEdge;
-			if (id < 0) return _edges[-id];
+			if (id > 0) return _edges[id];
 			
 			edge = new QBSPEdge();
-			edge.v0 = _edges[id].v1;
-			edge.v1 = _edges[id].v0;
+			edge.v0 = _edges[-id].v1;
+			edge.v1 = _edges[-id].v0;
 			return edge;
 		}
         
@@ -233,11 +213,27 @@ package away3d.loaders
 				uv2 = parseUV(v2, texinfo, material);
 				uv3 = parseUV(v3, texinfo, material);
 				triangle = new Face(v3, v2, v1, material, uv3, uv2, uv1);
-				_triangles.push(triangle);
+				
 				_faceIdLookUp[face].push(triangle);
 			}
 		}
-		
+        
+        private function parseModels(materialLibrary : MaterialLibrary) : void
+        {
+			var current : BSPTree;
+			
+			for (var i : int = 0; i < 1; ++i) {
+			//for (var i : int = 0; i < _numModels; i++) {
+				_currentModel = _models[i];
+				current = parseBSP(_currentModel);
+				current.materialLibrary = materialLibrary;
+				current.init();
+				
+				// temp
+				/*if (i == 0)*/ container = _bspTree = current;
+			}
+        }
+        
 		private function parseUV(vertex : Vertex, texinfo : QBSPTexInfo, material : BitmapMaterial) : UV
 		{
 			var uv : UV = new UV();
@@ -255,7 +251,7 @@ package away3d.loaders
         	bspTree.y = model.origin2;
         	bspTree.z = model.origin1;
         	
-        	bspTree._leaves = new Vector.<BSPNode>(_numLeaves);
+        	bspTree._leaves = new Vector.<BSPNode>(model.numLeafs+1);	// include 0-leaf
         	
 			parseBSPNode(bspTree, _nodes[firstNode], bspTree._rootNode);
         	
@@ -273,20 +269,22 @@ package away3d.loaders
 			var plane : Plane3D = _planes[sourceNode.planeNum];
 			
 			currentNode._partitionPlane = plane;
-			currentNode._positiveNode = frontNode;
-			currentNode._negativeNode = backNode;
+			currentNode.positiveNode = frontNode;
+			currentNode.negativeNode = backNode;
 			
 			if (isFrontChildNode)
 				parseBSPNode(tree, _nodes[front], frontNode);
 			else {
-				front = -front-1;
+				front = -(front+1);
+				//front = ~front;
 				parseBSPLeaf(tree, _leaves[front], frontNode, front);
 			}
 			
 			if (isBackChildNode)
 				parseBSPNode(tree, _nodes[back], backNode);
 			else {
-				back = -back-1;
+				back = -(back+1);
+				//back = ~back;
 				parseBSPLeaf(tree, _leaves[back], backNode, back);
 			}
 			frontNode.id = front;
@@ -297,20 +295,23 @@ package away3d.loaders
 		{
 			var triangles : Vector.<Face>;
 			var face : QBSPFace;
-			var len : int = sourceNode.numMarkSurface;
-			
-			currentNode._isLeaf = true
+			var len : int = sourceNode.firstMarkSurface + sourceNode.numMarkSurface;
+			var faceId : int;
+			currentNode._isLeaf = true;
 			
 			if (index > 0) {
 				tree._leaves[index] = currentNode;
-				for (var i : int = 0; i < len; i++) {
-					face = _faces[_markSurfaces[sourceNode.firstMarkSurface+i]];
+			
+				for (var i : int = sourceNode.firstMarkSurface; i < len; i++) {
+					faceId = _markSurfaces[i];
+					face = _faces[faceId];
+					
 					triangles = _faceIdLookUp[face] as Vector.<Face>;
 					if (triangles) currentNode.addFaces(triangles);
 					else {
-						//throw(new Error("Triangles = null!"));
-						//currentNode.add([]);
-					} 
+							//throw(new Error("Triangles = null!"));
+							//currentNode.add([]);
+					}
 				}
 				parseVisList(sourceNode, currentNode);
 			}
@@ -383,7 +384,7 @@ package away3d.loaders
 			_numClipNodes = _header.clipnodes.size/QBSPClipNode.SIZE_OF;
 			_numFaces = _header.faces.size/QBSPFace.SIZE_OF;
 			_numEdges = _header.edges.size/QBSPEdge.SIZE_OF;
-			_numMarkSurfaces = _header.markSurfaces.size/2;	// = short
+			_numMarkSurfaces = _header.markSurfaces.size;	// = short
 			_numSurfaceEdges = _header.surfaceEdges.size/4;
 			
 			_textureDataSize = _header.textures.size;
@@ -412,11 +413,11 @@ package away3d.loaders
 				current.origin0 = data.readFloat();
 				current.origin1 = data.readFloat();
 				current.origin2 = data.readFloat();
-				current.headnode0 = data.readFloat();
-				current.headnode1 = data.readFloat();
-				current.headnode2 = data.readFloat();
-				current.headnode3 = data.readFloat();
-				current.visLeafs = data.readInt();
+				current.headnode0 = data.readInt();
+				current.headnode1 = data.readInt();
+				current.headnode2 = data.readInt();
+				current.headnode3 = data.readInt();
+				current.numLeafs = data.readInt();
 				current.firstface = data.readInt();
 				current.numfaces = data.readInt();
 				_models[i] = current;
@@ -453,6 +454,7 @@ package away3d.loaders
 				y = data.readFloat();
 				d = data.readFloat();
 				data.position += 4;
+				
 				_planes[i] = new Plane3D(x, y, z, -d);
 			}
 		}
@@ -469,20 +471,23 @@ package away3d.loaders
 				current.contents = data.readInt();
 				current.visofs = data.readInt();
 				
-				/* current.mins[0] = data.readShort();
-				current.mins[1] = data.readShort();
-				current.mins[2] = data.readShort();
-				current.maxs[0] = data.readShort();
-				current.maxs[1] = data.readShort();
-				current.maxs[2] = data.readShort(); */
+				// skip bounding box, use native
+				/* data.readShort();
+				data.readShort();
+				data.readShort();
+				data.readShort();
+				data.readShort();
+				data.readShort(); */
 				data.position += 12;
 				
 				current.firstMarkSurface = data.readUnsignedShort();
 				current.numMarkSurface = data.readUnsignedShort();
-				/* current.ambientLevel[0] = data.readByte();
-				current.ambientLevel[1] = data.readByte();
-				current.ambientLevel[2] = data.readByte();
-				current.ambientLevel[3] = data.readByte(); */
+				
+				// skip sound-related properties
+				/* data.readByte();
+				data.readByte();
+				data.readByte();
+				data.readByte(); */
 				data.position += 4;
 				_leaves[i] = current;
 			}
@@ -500,15 +505,20 @@ package away3d.loaders
 				current.planeNum = data.readInt();
 				current.children0 = data.readShort();
 				current.children1 = data.readShort();
+				
+				// skip bounding box
 				/* current.mins[0] = data.readShort();
 				current.mins[1] = data.readShort();
 				current.mins[2] = data.readShort();
 				current.maxs[0] = data.readShort();
 				current.maxs[1] = data.readShort();
 				current.maxs[2] = data.readShort(); */
-				data.position += 12;
-				current.firstface = data.readUnsignedShort();
-				current.numfaces = data.readUnsignedShort();
+				
+				// only used for collision detection, ignore
+				//current.firstface = data.readUnsignedShort();
+				//current.numfaces = data.readUnsignedShort();
+				
+				data.position += 16;
 				
 				_nodes[i] = current;
 			}
@@ -574,10 +584,10 @@ package away3d.loaders
 				current.firstedge = data.readInt();
 				current.numedges = data.readShort();
 				current.texinfo = data.readShort();
-				current.styles[0] = data.readByte();
-				current.styles[1] = data.readByte();
-				current.styles[2] = data.readByte();
-				current.styles[3] = data.readByte();
+				current.styles[0] = data.readUnsignedByte();
+				current.styles[1] = data.readUnsignedByte();
+				current.styles[2] = data.readUnsignedByte();
+				current.styles[3] = data.readUnsignedByte();
 				current.lightOfs = data.readInt();
 				
 				_faces[i] = current;
@@ -782,8 +792,8 @@ class QBSPEdge
 {
 	public static const SIZE_OF : int = 4;
 	
-	public var v0 : int;	// originally: unsigned short[]
-	public var v1 : int;
+	public var v0 : uint;	// originally: unsigned short[]
+	public var v1 : uint;
 }
 
 class QBSPFace
@@ -791,7 +801,8 @@ class QBSPFace
 	public static const SIZE_OF : int = 20;
 	
 	public var planeNum : int;	// originally: short
-	public var side : int;		// originally: short
+	// Side is zero if this plane faces in the same direction as the face (i.e. "out" of the face) or non-zero otherwise.
+	public var side : int;		// originally: short,
 	public var firstedge : int;	// we must support > 64k edges
 	public var numedges : int;	// originally: short
 	public var texinfo : int;	// originally: short
@@ -803,7 +814,7 @@ class QBSPFace
 
 class QBSPLeaf
 {
-	public static const SIZE_OF : int = 20;
+	public static const SIZE_OF : int = 28;
 	
 	public static const AMBIENT_WATER : int = 0;
 	public static const AMBIENT_SKY : int = 1;
@@ -812,8 +823,8 @@ class QBSPLeaf
 	
 	public var contents : int;
 	public var visofs : int;				// -1 = no visibility info
-	public var firstMarkSurface : uint;	// originally: unsigned short
-	public var numMarkSurface : uint;	// originally: unsigned short
+	public var firstMarkSurface : int;	// originally: unsigned short
+	public var numMarkSurface : int;	// originally: unsigned short
 	
 }
 
@@ -849,7 +860,7 @@ class QBSPModel
 	public var headnode1 : Number;
 	public var headnode2 : Number;
 	public var headnode3 : Number;
-	public var visLeafs : int;	// not including the solid leaf 0
+	public var numLeafs : int;	// not including the solid leaf 0
 	public var firstface : int;
 	public var numfaces : int;
 }

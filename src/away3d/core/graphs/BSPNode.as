@@ -24,14 +24,18 @@ package away3d.core.graphs
 		
 		// non-leaf only
 		arcane var _partitionPlane : Plane3D;		// the plane that divides the node in half
-		arcane var _positiveNode : BSPNode;		// node on the positive side of the division plane
-		arcane var _negativeNode : BSPNode;		// node on the negative side of the division plane
+		private var _positiveNode : BSPNode;		// node on the positive side of the division plane
+		private var _negativeNode : BSPNode;		// node on the negative side of the division plane
 		
 		// leaf only
 		private var _mesh : Mesh;					// contains the model for this face
 		arcane var _visList : Vector.<int>;		// indices of leafs visible from this leaf
 		
 		private var _lastIterationPositive : Boolean;
+		
+		//arcane var _session : AbstractRenderSession;
+		
+		public var extra : Object = new Object();
 		
 		public function BSPNode(parent : BSPNode)
 		{
@@ -43,14 +47,9 @@ package away3d.core.graphs
 		// once there's a seperate system that doesn't do z-sorting
 		public function traverse(traverser:Traverser):void
         {
-        	if (_culled) return;
 			if (_isLeaf) {
 				if (mesh && traverser.match(mesh))
             	{
-            		// this will cause mesh to be added to the normal render pipeline
-            		// TO DO: add seperate state to handle BSPNode and pass (this)
-            		// instead of mesh, so it can add it to a seperate projector
-            		// which won't end up doing z-sorting?
 	                traverser.enter(mesh);
 	                traverser.apply(mesh);
 	                traverser.leave(mesh);
@@ -58,22 +57,52 @@ package away3d.core.graphs
 	        }
 	        else {
 	        	// depending on last camera check, traverse the tree correctly
-	        	// WAIT: last night's tired coding...
-	        	// the camera check does not move through all nodes
-	        	// the first traversed node does not have index info
-	        	// but don't want to redo the whole iteration
-	        	// TO DO: once everything is culled, iterate the whole unculled
-	        	// tree and set _lastIterationPositive correctly
 	        	if (_lastIterationPositive) {
-					if (_negativeNode) _negativeNode.traverse(traverser);
-					if (_positiveNode) _positiveNode.traverse(traverser);
+					if (_negativeNode && !_negativeNode._culled) _negativeNode.traverse(traverser);
+					if (_positiveNode && !_positiveNode._culled) _positiveNode.traverse(traverser);
 	        	}
 				else {
-					if (_positiveNode) _positiveNode.traverse(traverser);
-					if (_negativeNode) _negativeNode.traverse(traverser);
+					if (_positiveNode && !_positiveNode._culled) _positiveNode.traverse(traverser);
+					if (_negativeNode && !_negativeNode._culled) _negativeNode.traverse(traverser);
 				}
 	        }
         }
+		
+		arcane function get positiveNode() : BSPNode
+		{
+			return _positiveNode;
+		}
+		
+		arcane function set positiveNode(value : BSPNode) : void
+		{
+			_positiveNode = value;
+			//_positiveNode._session = _session;
+		}
+		
+		arcane function get negativeNode() : BSPNode
+		{
+			return _negativeNode;
+		}
+		
+		arcane function set negativeNode(value : BSPNode) : void
+		{
+			_negativeNode = value;
+			//_negativeNode._session = _session;
+		}
+		
+		arcane function orderNodes(point : Number3D) : void
+		{
+			var dot : Number = 	_partitionPlane.a*point.x +
+								_partitionPlane.b*point.y +
+								_partitionPlane.c*point.z +
+								_partitionPlane.d
+								
+			if (dot > 0) _lastIterationPositive = true;	
+			else _lastIterationPositive = false;
+			
+			if (_positiveNode && !_positiveNode._culled && !_positiveNode._isLeaf) _positiveNode.orderNodes(point);
+			if (_negativeNode && !_negativeNode._culled && !_negativeNode._isLeaf) _negativeNode.orderNodes(point);
+		}
 		
 		public function get mesh() : Mesh
 		{
@@ -98,9 +127,7 @@ package away3d.core.graphs
 								_partitionPlane.d;
 			
 			// used to make iterations faster when doing camera and object tests
-			_lastIterationPositive = dot > 0;
-			
-			if (_lastIterationPositive)
+			if (dot > 0)
 				// point is on positive side of partition plane
 				return _positiveNode.getLeafContaining(point);
 			else
@@ -113,12 +140,19 @@ package away3d.core.graphs
 			var len : int = faces.length;
 			var i : int;
 			
-			if (!_mesh) _mesh = new Mesh();
+			if (!_mesh) {
+				_mesh = new Mesh();
+				// faster screenZ calc
+				//_mesh.material = new WireframeMaterial(0x0000ff);
+				//_mesh.pushfront = true;
+			}
 			
 			if (len == 0) return;
 			
 			do {
 				_mesh.addFace(Face(faces[i]));
+				//faces[i].material = WireframeMaterial(_mesh.material);
+				
 			} while (++i < len);
 		}
 		
@@ -126,6 +160,6 @@ package away3d.core.graphs
 		{
 			if (!_visList) _visList = new Vector.<int>();
 			_visList.push(index);
-		}		
+		}
 	}
 }

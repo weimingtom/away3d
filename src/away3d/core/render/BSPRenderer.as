@@ -10,16 +10,12 @@ package away3d.core.render
     
     use namespace arcane;
     
-    /** 
-    * Default renderer for a view.
-    * Contains the main render loop for rendering a scene to a view,
-    * which resolves the projection, culls any drawing primitives that are occluded or outside the viewport,
-    * and then z-sorts and renders them to screen.
+   /** 
+    * BSP renderer for a view.
+    * Should not be used directly, it's used automatically in the BSPTree class
     */
-    public class BasicRenderer implements IRenderer, IPrimitiveConsumer
+    public class BSPRenderer implements IRenderer, IPrimitiveConsumer
     {
-    	private var _filters:Array;
-    	private var _filter:IPrimitiveFilter
         private var _primitives:Array = new Array();
         private var _primitive:DrawPrimitive
         private var _scene:Scene3D;
@@ -28,28 +24,11 @@ package away3d.core.render
         private var _blockers:Array;
         
 		/**
-		 * Defines the array of filters to be used on the drawing primitives.
-		 */
-		public function get filters():Array
-		{
-			return _filters.slice(0, _filters.length - 1);
-		}
-		
-		public function set filters(val:Array):void
-		{
-			_filters = val;
-			_filters.push(new ZSortFilter());
-		}
-		
-		/**
-		 * Creates a new <code>BasicRenderer</code> object.
+		 * Creates a new <code>BSPRenderer</code> object.
 		 *
-		 * @param	filters	[optional]	An array of filters to use on projected drawing primitives before rendering them to screen.
 		 */
-        public function BasicRenderer(...filters)
+        public function BSPRenderer()
         {
-            _filters = filters;
-            _filters.push(new ZSortFilter());
         }
         
 		/**
@@ -60,12 +39,12 @@ package away3d.core.render
         	if (!_screenClipping.checkPrimitive(pri))
         		return false;
         	
-            for each (var _blocker:Blocker in _blockers) {
+           /*  for each (var _blocker:Blocker in _blockers) {
                 if (_blocker.screenZ > pri.minZ)
                     continue;
                 if (_blocker.block(pri))
                     return false;
-            }
+            } */
             
             _primitives.push(pri);
             
@@ -93,11 +72,6 @@ package away3d.core.render
         
         public function render(view:View3D):void
         {
-        	
-        	//filter primitives array
-			for each (_filter in _filters)
-        		_primitives = _filter.filter(_primitives, _scene, _camera, _screenClipping);
-        	
     		// render all primitives
             for each (_primitive in _primitives)
                 _primitive.render();
@@ -108,14 +82,12 @@ package away3d.core.render
 		 */
         public function toString():String
         {
-            return "Basic [" + _filters.join("+") + "]";
+            return "BSPRenderer";
         }
         
         public function clone():IPrimitiveConsumer
         {
-        	var renderer:BasicRenderer = new BasicRenderer();
-        	renderer.filters = filters;
-        	return renderer;
+        	return new BSPRenderer();
         }
     }
 }

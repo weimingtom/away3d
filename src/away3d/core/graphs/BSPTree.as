@@ -4,7 +4,9 @@ package away3d.core.graphs
 	import away3d.cameras.Camera3D;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.math.Number3D;
+	import away3d.core.render.BSPRenderer;
 	import away3d.core.traverse.Traverser;
+	import away3d.materials.WireframeMaterial;
 
 	use namespace arcane;
 
@@ -26,17 +28,35 @@ package away3d.core.graphs
 			_rootNode = new BSPNode(null);
 		}
 		
+		override public function set parent(value:ObjectContainer3D):void
+		{
+			super.parent = value;
+			ownCanvas = true;
+			renderer = new BSPRenderer();
+		}
+		
 		public function update(camera : Camera3D) : void
 		{
+			var oldLeaf : BSPNode = _activeLeaf;
+			
 			// transform camera into local coordinate system
 			_transformPt.transform(camera.position, inverseSceneTransform);
-			
 			// figure out leaf containing that point
-			// TO DO: this can be done through iteration instead of recursion 
+			// TO DO: this can be done through iteration instead of recursion
+			/* if (_activeLeaf && _activeLeaf.mesh) {
+				WireframeMaterial(_activeLeaf.mesh.material).color = 0x0000ff;
+			} */
 			_activeLeaf = _rootNode.getLeafContaining(_transformPt);
+			/* if (_activeLeaf && _activeLeaf.mesh) {
+				WireframeMaterial(_activeLeaf.mesh.material).color = 0xff00ff;
+			} */
 			
-			// process the list
-			processVisList(_activeLeaf);
+			
+			if (oldLeaf != _activeLeaf) {
+				processVisList(_activeLeaf);
+				// order nodes for primitive traversal
+				_rootNode.orderNodes(_transformPt);
+			}
 		}
 		
 		public function getLeafContaining(point : Number3D) : BSPNode
@@ -49,11 +69,14 @@ package away3d.core.graphs
         {
         	// applying PrimitiveTraverser on a BSPTree
         	// will cause update(_camera) to be called
-        	traverser.apply(this);
+        	if (traverser.match(this)) {
+        		traverser.apply(this);
         	
+        		_rootNode.traverse(traverser);
+        	}
         	// after apply, visList will be processed
         	// and most nodes won't need to be traversed
-			_rootNode.traverse(traverser);
+			
         }
         
         private function processVisList(activeNode : BSPNode) : void
@@ -73,7 +96,8 @@ package away3d.core.graphs
 	        		if (!_leaves[i]) continue;
 	        		if (j < vislist.length && i == vislist[j]) {
 	        			_leaves[i]._culled = false;
-	        			// TO DO: add further frustum, while we're looping anyway
+	        			// TO DO: add further frustum culling, while we're looping anyway
+	        			// or use objectCulling?
 	        			++j;
 	        		}
 	        		else {
@@ -89,12 +113,13 @@ package away3d.core.graphs
 			_rootNode.checkCulled();
         }
         
-        public function init() : void
+        arcane function init() : void
        	{
        		var l : int = _leaves.length;
        		for (var i : int = 0; i < l; ++i)
        		{
-       			if (_leaves[i] && _leaves[i].mesh) addChild(_leaves[i].mesh);
+       			if (_leaves[i] && _leaves[i].mesh)
+       				addChild(_leaves[i].mesh);
        		}
        	}
 	}
