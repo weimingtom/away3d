@@ -153,6 +153,8 @@ package away3d.loaders
 			for (var i : int = 0; i < _numTextures; i++) {
 				materialData = library.addMaterial(_textureDataDetails[i].name);
 				materialData.material = _materials[i] = new BitmapMaterial(_bitmapDatas[i]);
+				
+				// is repeat needed or can we find another way
 				_materials[i].repeat = true;
 			}
 			
@@ -213,7 +215,6 @@ package away3d.loaders
 				uv2 = parseUV(v2, texinfo, material);
 				uv3 = parseUV(v3, texinfo, material);
 				triangle = new Face(v3, v2, v1, material, uv3, uv2, uv1);
-				
 				_faceIdLookUp[face].push(triangle);
 			}
 		}
@@ -269,8 +270,8 @@ package away3d.loaders
 			var plane : Plane3D = _planes[sourceNode.planeNum];
 			
 			currentNode._partitionPlane = plane;
-			currentNode.positiveNode = frontNode;
-			currentNode.negativeNode = backNode;
+			currentNode._positiveNode = frontNode;
+			currentNode._negativeNode = backNode;
 			
 			if (isFrontChildNode)
 				parseBSPNode(tree, _nodes[front], frontNode);

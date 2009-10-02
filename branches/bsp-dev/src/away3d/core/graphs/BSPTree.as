@@ -3,10 +3,12 @@ package away3d.core.graphs
 	import away3d.arcane;
 	import away3d.cameras.Camera3D;
 	import away3d.containers.ObjectContainer3D;
+	import away3d.core.geom.Frustum;
+	import away3d.core.geom.Plane3D;
+	import away3d.core.math.MatrixAway3D;
 	import away3d.core.math.Number3D;
 	import away3d.core.render.BSPRenderer;
 	import away3d.core.traverse.Traverser;
-	import away3d.materials.WireframeMaterial;
 
 	use namespace arcane;
 
@@ -22,6 +24,11 @@ package away3d.core.graphs
 		
 		private var _activeLeaf : BSPNode;
 		
+		private var _viewToLocal : MatrixAway3D = new MatrixAway3D();
+		
+		// debug var
+		public var freezeCulling : Boolean;
+		
 		public function BSPTree()
 		{
 			super();
@@ -35,34 +42,38 @@ package away3d.core.graphs
 			renderer = new BSPRenderer();
 		}
 		
-		public function update(camera : Camera3D) : void
+		public function update(camera : Camera3D, frustum : Frustum) : void
 		{
-			var oldLeaf : BSPNode = _activeLeaf;
+			var invSceneTransform : MatrixAway3D = inverseSceneTransform;
+			
+			// get frustum for local coordinate system
+			_viewToLocal.multiply(invSceneTransform, camera.transform);
 			
 			// transform camera into local coordinate system
-			_transformPt.transform(camera.position, inverseSceneTransform);
+			_transformPt.transform(camera.position, invSceneTransform);
+			
 			// figure out leaf containing that point
-			// TO DO: this can be done through iteration instead of recursion
-			/* if (_activeLeaf && _activeLeaf.mesh) {
-				WireframeMaterial(_activeLeaf.mesh.material).color = 0x0000ff;
-			} */
-			_activeLeaf = _rootNode.getLeafContaining(_transformPt);
-			/* if (_activeLeaf && _activeLeaf.mesh) {
-				WireframeMaterial(_activeLeaf.mesh.material).color = 0xff00ff;
-			} */
+			_activeLeaf = getLeafContaining(_transformPt); //_rootNode.getLeafContaining(_transformPt);
 			
-			
-			if (oldLeaf != _activeLeaf) {
-				processVisList(_activeLeaf);
-				// order nodes for primitive traversal
-				_rootNode.orderNodes(_transformPt);
-			}
+			if (!freezeCulling)
+				doCulling(_activeLeaf, frustum);
+			// order nodes for primitive traversal
+			_rootNode.orderNodes(_transformPt);
 		}
 		
 		public function getLeafContaining(point : Number3D) : BSPNode
 		{
-			// TO DO: this can be done through iteration instead of recursion
-			return _rootNode.getLeafContaining(point);
+			var node : BSPNode = _rootNode;
+			var dot : Number;
+			var plane : Plane3D;
+			do
+			{
+				plane = node._partitionPlane;
+				dot = point.x*plane.a+point.y*plane.b+point.z*plane.c+plane.d;
+				node = dot > 0? node._positiveNode : node._negativeNode;
+			} while (!node._isLeaf);
+			
+			return node;
 		}
 		
 		public override function traverse(traverser:Traverser):void
@@ -79,16 +90,20 @@ package away3d.core.graphs
 			
         }
         
-        private function processVisList(activeNode : BSPNode) : void
+        private function doCulling(activeNode : BSPNode, frustum : Frustum) : void
         {
         	var len : int = _leaves.length;
         	var comp : BSPNode;
         	var vislist : Vector.<int> = activeNode._visList;
         	var i : int, j : int;
         	
+        	// process PVS
         	if (!vislist || vislist.length == 0) {
         		for (i = 0; i < len; ++i) {
-        			if (_leaves[i]) _leaves[i]._culled = false;
+        			if (_leaves[i]) {
+        				_leaves[i]._culled = false;
+        				_leaves[i]._mesh._preCullClassification = Frustum.IN;
+        			}
         		}
         	} 
         	else {
@@ -96,8 +111,7 @@ package away3d.core.graphs
 	        		if (!_leaves[i]) continue;
 	        		if (j < vislist.length && i == vislist[j]) {
 	        			_leaves[i]._culled = false;
-	        			// TO DO: add further frustum culling, while we're looping anyway
-	        			// or use objectCulling?
+	        			_leaves[i]._mesh._preCullClassification = Frustum.IN;
 	        			++j;
 	        		}
 	        		else {
@@ -110,7 +124,8 @@ package away3d.core.graphs
 			// propagate culled state. Nodes don't need to be traversed
 			// if none of the leafs contained are visible
 			// this should be done using iteration instead
-			_rootNode.checkCulled();
+			_rootNode.propagateCulled();
+			_rootNode.cullToFrustum(frustum);
         }
         
         arcane function init() : void
@@ -121,6 +136,7 @@ package away3d.core.graphs
        			if (_leaves[i] && _leaves[i].mesh)
        				addChild(_leaves[i].mesh);
        		}
+       		_rootNode.propagateBounds();
        	}
 	}
 }
