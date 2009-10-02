@@ -65,29 +65,35 @@ package away3d.core.traverse
             if (!node.visible)
                 return false;
             
-            if (node is BSPTree)
-        		BSPTree(node).update(_view.camera);
-            
             //compute viewTransform matrix
             _viewTransform = _cameraVarsStore.createViewTransform(node);
             _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform);
             
-            if (_clipping.objectCulling) {
-	        	_frustum = _lens.getFrustum(node, _viewTransform);
-	        	
-	            if ((node is Scene3D || _cameraVarsStore.nodeClassificationDictionary[node.parent] == Frustum.INTERSECT)) {
-	            	if (node.pivotZero)
-	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifyRadius(node.boundingRadius);
-	            	else
-	            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
-	            } else {
-	            	_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _cameraVarsStore.nodeClassificationDictionary[node.parent];
-	            }
-	            
-	            if (_nodeClassification == Frustum.OUT) {
-	            	node.updateObject();
-	            	return false;
-	            }
+            if (node is BSPTree) {
+            	BSPTree(node).update(_view.camera, _lens.getFrustum(node, _viewTransform));
+            }
+            // only check culling if not pre-culled by a scene graph
+            else if (_clipping.objectCulling) {
+            	if (node._preCulled) {
+            		_cameraVarsStore.nodeClassificationDictionary[node] = node._preCullClassification;
+            		return true;
+            	}
+            	else {
+		        	_frustum = _lens.getFrustum(node, _viewTransform);
+		        	
+		            if ((node is Scene3D || _cameraVarsStore.nodeClassificationDictionary[node.parent] == Frustum.INTERSECT)) {
+		            	if (node.pivotZero)
+		            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifyRadius(node.boundingRadius);
+		            	else
+		            		_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _frustum.classifySphere(node.pivotPoint, node.boundingRadius);
+		            } else {
+		            	_nodeClassification = _cameraVarsStore.nodeClassificationDictionary[node] = _cameraVarsStore.nodeClassificationDictionary[node.parent];
+		            }
+		            if (_nodeClassification == Frustum.OUT) {
+		            	node.updateObject();
+		            	return false;
+		            }
+            	}
             }
             
             //check which LODObject is visible
