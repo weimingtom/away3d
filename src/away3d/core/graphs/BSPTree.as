@@ -2,16 +2,24 @@ package away3d.core.graphs
 {
 	import away3d.arcane;
 	import away3d.cameras.Camera3D;
+	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
+	import away3d.core.base.Face;
 	import away3d.core.geom.Frustum;
 	import away3d.core.geom.Plane3D;
 	import away3d.core.math.MatrixAway3D;
 	import away3d.core.math.Number3D;
 	import away3d.core.render.BSPRenderer;
 	import away3d.core.traverse.Traverser;
+	
+	import flash.events.Event;
 
 	use namespace arcane;
-
+	
+	/**
+	 * BSPTree is a scene graph structure that allows static scenes to be rendered without z-sorting or z-conflicts,
+	 * and performs early culling to remove big parts of the geometry that don't need to be rendered. It also speeds up collision detection.
+	 */
 	public class BSPTree extends ObjectContainer3D
 	{
 		private var _transformPt : Number3D = new Number3D();
@@ -26,15 +34,23 @@ package away3d.core.graphs
 		
 		private var _viewToLocal : MatrixAway3D = new MatrixAway3D();
 		
+		private var _complete : Boolean;
+		
 		// debug var
 		public var freezeCulling : Boolean;
 		
+		/**
+		 * Creates a new BSPTree object.
+		 */
 		public function BSPTree()
 		{
 			super();
 			_rootNode = new BSPNode(null);
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
 		override public function set parent(value:ObjectContainer3D):void
 		{
 			super.parent = value;
@@ -42,8 +58,58 @@ package away3d.core.graphs
 			renderer = new BSPRenderer();
 		}
 		
-		public function update(camera : Camera3D, frustum : Frustum) : void
+		/**
+		 * Finds the leaf that contains a given point
+		 */
+		public function getLeafContaining(point : Number3D) : BSPNode
 		{
+			var node : BSPNode = _rootNode;
+			var dot : Number;
+			var plane : Plane3D;
+			
+			while (!node._isLeaf)
+			{
+				plane = node._partitionPlane;
+				dot = point.x*plane.a+point.y*plane.b+point.z*plane.c+plane.d;
+				node = dot > 0? node._positiveNode : node._negativeNode;
+			} 
+			
+			return node;
+		}
+		
+		/**
+		 * Build a BSP tree from the current faces.
+		 * 
+		 * @param faces A list of Face objects from which to build the tree.
+		 */
+		public function build(faces : Vector.<Face>) : void
+		{
+			_rootNode.addEventListener(Event.COMPLETE, onBuildComplete);
+			_rootNode.build(faces);
+		}
+		
+		private function onBuildComplete(event : Event) : void
+		{
+			_rootNode.removeEventListener(Event.COMPLETE, onBuildComplete);
+			_leaves = new Vector.<BSPNode>();
+			_rootNode.gatherLeaves(_leaves);
+			init();
+		}
+		
+		/**
+		 * Updates the tree's state. This method is called before the first traversal.
+		 * Performs early culling and ordering of nodes.
+		 * 
+		 * @private
+		 */
+		arcane function update(camera : Camera3D, frustum : Frustum) : void
+		{
+			if (!(camera.lens is PerspectiveLens)) {
+				throw new Error("Lens is of incorrect type! BSP needs a PerspectiveLens instance assigned to Camera3D.lens");
+			}
+			
+			if (!_complete) return;
+			
 			var invSceneTransform : MatrixAway3D = inverseSceneTransform;
 			
 			// get frustum for local coordinate system
@@ -61,35 +127,40 @@ package away3d.core.graphs
 			_rootNode.orderNodes(_transformPt);
 		}
 		
-		public function getLeafContaining(point : Number3D) : BSPNode
-		{
-			var node : BSPNode = _rootNode;
-			var dot : Number;
-			var plane : Plane3D;
-			do
-			{
-				plane = node._partitionPlane;
-				dot = point.x*plane.a+point.y*plane.b+point.z*plane.c+plane.d;
-				node = dot > 0? node._positiveNode : node._negativeNode;
-			} while (!node._isLeaf);
-			
-			return node;
-		}
-		
+		/**
+		 * @inheritDoc
+		 */
 		public override function traverse(traverser:Traverser):void
         {
-        	// applying PrimitiveTraverser on a BSPTree
+        	// matching PrimitiveTraverser on a BSPTree
         	// will cause update(_camera) to be called
         	if (traverser.match(this)) {
-        		traverser.apply(this);
-        	
-        		_rootNode.traverse(traverser);
+        		// after apply, visList will be processed
+        		// and most nodes won't need to be traversed
+        		if (_complete && !_rootNode._culled) {
+        			traverser.apply(this);
+       				_rootNode.traverse(traverser);
+        		}
         	}
-        	// after apply, visList will be processed
-        	// and most nodes won't need to be traversed
-			
         }
         
+		/**
+		 * Finds the closest colliding Face between start and end position
+		 * 
+		 * @param start The starting position of the object (ie the object's current position)
+		 * @param end The position the object is trying to reach
+		 * @param radii The radii of the object's bounding eclipse
+		 * 
+		 * @return The closest Face colliding with the object. Null if no collision was found.
+		 */
+        public function traceCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
+        {
+        	return _rootNode.traceCollision(start, end, radii);
+        }
+
+		/**
+		 * Performs early culling by processing the PVS and/or testing nodes against the frustum
+		 */ 
         private function doCulling(activeNode : BSPNode, frustum : Frustum) : void
         {
         	var len : int = _leaves.length;
@@ -101,8 +172,12 @@ package away3d.core.graphs
         	if (!vislist || vislist.length == 0) {
         		for (i = 0; i < len; ++i) {
         			if (_leaves[i]) {
-        				_leaves[i]._culled = false;
-        				_leaves[i]._mesh._preCullClassification = Frustum.IN;
+        				if (_leaves[i]._mesh) {
+        					_leaves[i]._culled = false;
+        					_leaves[i]._mesh._preCullClassification = Frustum.IN;
+        				}
+        				else 
+        					_leaves[i]._culled = true;
         			}
         		}
         	} 
@@ -121,13 +196,17 @@ package away3d.core.graphs
 	        }
 			activeNode._culled = false;
 			
-			// propagate culled state. Nodes don't need to be traversed
-			// if none of the leafs contained are visible
-			// this should be done using iteration instead
+			// propagate culled state. Nodes don't need to be traversed if none of the leafs contained are visible
+			// TO DO: this should be done using iteration instead
 			_rootNode.propagateCulled();
 			_rootNode.cullToFrustum(frustum);
         }
         
+		/**
+		 * Finalizes the tree. Must be called by build() or by custom parser
+		 * 
+		 * @private
+		 */
         arcane function init() : void
        	{
        		var l : int = _leaves.length;
@@ -137,6 +216,7 @@ package away3d.core.graphs
        				addChild(_leaves[i].mesh);
        		}
        		_rootNode.propagateBounds();
+       		_complete = true;
        	}
 	}
 }

@@ -1,7 +1,5 @@
 package away3d.loaders
 {
-	import __AS3__.vec.Vector;
-	
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.UV;
@@ -9,6 +7,7 @@ package away3d.loaders
 	import away3d.core.geom.Plane3D;
 	import away3d.core.graphs.BSPNode;
 	import away3d.core.graphs.BSPTree;
+	import away3d.core.math.Number3D;
 	import away3d.loaders.data.MaterialData;
 	import away3d.loaders.utils.MaterialLibrary;
 	import away3d.materials.BitmapMaterial;
@@ -24,6 +23,7 @@ package away3d.loaders
 	public class Bsp extends AbstractParser
 	{
 		private static const BSP_VERSION : int = 29;
+		private static const COLINEAR_EPSILON : Number = 1/32;
 		
 		private var _header : QBSPHeader;
 		
@@ -167,18 +167,16 @@ package away3d.loaders
         	var face : QBSPFace;
 			var texinfo : QBSPTexInfo;
 			var currentFaceVertices : Vector.<Vertex>;
+			var edge : QBSPEdge;
 			
 			for (var i : int = 0; i < _numFaces; i++) {
 				face = _faces[i];
 				texinfo = _texInfo[face.texinfo];
 				
-				currentFaceVertices = new Vector.<Vertex>();
+				currentFaceVertices = new Vector.<Vertex>(face.numedges);
 				for (var j : int = 0; j < face.numedges; j++) {
-					var edge : QBSPEdge = getEdge(face.firstedge+j);
-					var v1 : Vertex, v2 : Vertex;
-					var index1 : int = edge.v0, index2 : int = edge.v1;
-			
-					currentFaceVertices.push(_vertices[index2]);
+					edge = getEdge(face.firstedge+j);
+					currentFaceVertices[j] = _vertices[edge.v0];
 				}
 				triangulateFace(texinfo, face, currentFaceVertices);
 			}
@@ -187,10 +185,9 @@ package away3d.loaders
         private function getEdge(index : int) : QBSPEdge
 		{
 			var id : int = _surfEdges[index];
-			var edge : QBSPEdge;
 			if (id > 0) return _edges[id];
 			
-			edge = new QBSPEdge();
+			var edge : QBSPEdge = new QBSPEdge();
 			edge.v0 = _edges[-id].v1;
 			edge.v1 = _edges[-id].v0;
 			return edge;
@@ -198,25 +195,53 @@ package away3d.loaders
         
 		private function triangulateFace(texinfo : QBSPTexInfo, face : QBSPFace, currentFaceVertices : Vector.<Vertex>) : void
 		{
+			var dot : Number;
+			var u : Number3D = new Number3D();
+			var v : Number3D = new Number3D();
+			var cross : Number3D = new Number3D();
 			var v1 : Vertex, v2 : Vertex, v3 : Vertex;
 			var uv1 : UV, uv2 : UV, uv3 : UV;
 			var triangle : Face;
 			var material : BitmapMaterial = _materials[texinfo.miptex];
 			var len : int = currentFaceVertices.length-1;
-			
+			var lookUp : Vector.<Face>;
 			v1 = currentFaceVertices[0];
 			uv1 = parseUV(v1, texinfo, material);
 			
-			_faceIdLookUp[face] = new Vector.<Face>();
+			_faceIdLookUp[face] = lookUp = new Vector.<Face>();
 			
 			for (var i : int = 1; i < len; i++) {
 				v2 = currentFaceVertices[i];
 				v3 = currentFaceVertices[i+1];
+				
+				// check if collinear (caused by t-junctions)
+				u.x = v2.x-v1.x;
+				u.y = v2.y-v1.y;
+				u.z = v2.z-v1.z;
+				v.x = v1.x-v3.x;
+				v.y = v1.y-v3.y;
+				v.z = v1.z-v3.z;
+				cross.cross(u, v);
+				if (cross.modulo < COLINEAR_EPSILON) continue;
+				
+				/*dot = u.dot(v)/(u.modulo*v.modulo);
+				if (dot > 1-COLINEAR_EPSILON) continue; */
+				
+				
 				uv2 = parseUV(v2, texinfo, material);
 				uv3 = parseUV(v3, texinfo, material);
 				triangle = new Face(v3, v2, v1, material, uv3, uv2, uv1);
-				_faceIdLookUp[face].push(triangle);
+				triangle._plane = _planes[face.planeNum];
+				lookUp.push(triangle);
 			}
+		}
+        
+        private function parseUV(vertex : Vertex, texinfo : QBSPTexInfo, material : BitmapMaterial) : UV
+		{
+			var uv : UV = new UV();
+			uv.u = (vertex.x*texinfo.vectorS0 + vertex.y*texinfo.vectorS1 + vertex.z*texinfo.vectorS2 + texinfo.offsetS)/material.width;
+			uv.v = -(vertex.x*texinfo.vectorT0 + vertex.y*texinfo.vectorT1 + vertex.z*texinfo.vectorT2 + texinfo.offsetT)/material.height;
+			return uv;
 		}
         
         private function parseModels(materialLibrary : MaterialLibrary) : void
@@ -235,15 +260,7 @@ package away3d.loaders
 			}
         }
         
-		private function parseUV(vertex : Vertex, texinfo : QBSPTexInfo, material : BitmapMaterial) : UV
-		{
-			var uv : UV = new UV();
-			uv.u = (vertex.x*texinfo.vectorS0+vertex.y*texinfo.vectorS2+vertex.z*texinfo.vectorS1+texinfo.offsetS)/material.width;
-			uv.v = 1-(vertex.x*texinfo.vectorT0+vertex.y*texinfo.vectorT2+vertex.z*texinfo.vectorT1+texinfo.offsetT)/material.height;
-			return uv;
-		}
-        
-        private function parseBSP(model : QBSPModel) : BSPTree
+		private function parseBSP(model : QBSPModel) : BSPTree
         {
         	var bspTree : BSPTree = new BSPTree();
         	var firstNode : int = model.headnode0;
@@ -536,12 +553,12 @@ package away3d.loaders
 				current = new QBSPTexInfo();
 				
 				current.vectorS0 = data.readFloat();
-				current.vectorS1 = data.readFloat();
 				current.vectorS2 = data.readFloat();
+				current.vectorS1 = data.readFloat();
 				current.offsetS = data.readFloat();
 				current.vectorT0 = data.readFloat();
-				current.vectorT1 = data.readFloat();
 				current.vectorT2 = data.readFloat();
+				current.vectorT1 = data.readFloat();
 				current.offsetT = data.readFloat();
 				
 				current.miptex = data.readInt();
