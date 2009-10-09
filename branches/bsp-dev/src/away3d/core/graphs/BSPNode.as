@@ -1,17 +1,18 @@
 package away3d.core.graphs
 {
+	import __AS3__.vec.Vector;
+	
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
 	import away3d.core.base.UV;
 	import away3d.core.base.Vertex;
 	import away3d.core.geom.Frustum;
+	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
 	import away3d.core.math.Number3D;
 	import away3d.core.traverse.Traverser;
-	import away3d.materials.ITriangleMaterial;
 	
-	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.getTimer;
@@ -63,7 +64,6 @@ package away3d.core.graphs
 		private var _middle : Number3D = new Number3D();
 		
 		// used for building tree
-		private static const BUILD_EPSILON : Number = 1/128;	
 		private var _splitCount : int;
 		private var _positiveCount : int;
 		private var _negativeCount : int;
@@ -74,11 +74,11 @@ package away3d.core.graphs
 		private var _balanceWeight : Number = 1;
 		private var _maxTimeout : int = 1000;
 		private var _deferralTime : int = 1;
-		private var _buildFaces : Vector.<Face>;
+		private var _buildFaces : Vector.<NGon>;
 		private var _buildStepIndex : int;
 		private var _countStepIndex : int;
-		private var _positiveFaces : Vector.<Face>;
-		private var _negativeFaces : Vector.<Face>;
+		private var _positiveFaces : Vector.<NGon>;
+		private var _negativeFaces : Vector.<NGon>;
 		private var _completeCount : int;
 		
 		/**
@@ -334,12 +334,12 @@ package away3d.core.graphs
 			_bounds = [];
 			_bounds.push(new Number3D(_minX, _minY, _minZ));
 			_bounds.push(new Number3D(_maxX, _minY, _minZ));
+			_bounds.push(new Number3D(_maxX, _maxY, _minZ));
 			_bounds.push(new Number3D(_minX, _maxY, _minZ));
 			_bounds.push(new Number3D(_minX, _minY, _maxZ));
-			_bounds.push(new Number3D(_maxX, _maxY, _minZ));
 			_bounds.push(new Number3D(_maxX, _minY, _maxZ));
-			_bounds.push(new Number3D(_minX, _maxY, _maxZ));
 			_bounds.push(new Number3D(_maxX, _maxY, _maxZ));
+			_bounds.push(new Number3D(_minX, _maxY, _maxZ));
 		}
  
 		/**
@@ -365,7 +365,7 @@ package away3d.core.graphs
 		 * 
 		 * @private
 		 */
-		arcane function build(faces : Vector.<Face>) : void
+		arcane function build(faces : Vector.<NGon>) : void
 		{
 			var plane : Plane3D;
 			var i : int;
@@ -375,7 +375,36 @@ package away3d.core.graphs
 			
 			_bestScore = Number.POSITIVE_INFINITY;
 			
+			collapseFaces(faces);
 			buildStep();
+		}
+		
+		/**
+		 * Collapses convex NGons if they still form a new convex NGon
+		 * 
+		 * @private
+		 */
+		private function collapseFaces(polys : Vector.<NGon>) : void
+		{
+			var poly1 : NGon;
+			var poly2 : NGon;
+			var listChanged : Boolean;
+			
+			do {
+				listChanged = false;
+				// length changes during loop, do not store in var
+				for (var i : int = 0; i < polys.length; ++i) {
+					poly1 = polys[i];
+					for (var j : int = i+1; j < polys.length; ++j) {
+						poly2 = polys[j];
+						if (poly1.collapse(poly2)) {
+							// remove second poly & adjust index
+							polys.splice(j--, 1);
+							listChanged = true;
+						}
+					}
+				}
+			} while (listChanged);
 		}
 		
 		/**
@@ -385,7 +414,7 @@ package away3d.core.graphs
 		 */
 		arcane function buildStep() : void
 		{
-			var face : Face;
+			var face : NGon;
 			var len : int = _buildFaces.length;
 			
 			if (_buildStepIndex < len) {
@@ -402,9 +431,18 @@ package away3d.core.graphs
 					// no best plane, must be leaf
 					_isLeaf = true;
 					if (_buildFaces.length > 0)
-						addFaces(_buildFaces);
+						addNGons(_buildFaces);
 					completeNode();
 				}
+			}
+		}
+		
+		private function addNGons(faces : Vector.<NGon>) : void
+		{
+			var tris : Vector.<Face>;
+			var len : int = faces.length;
+			for (var i : int = 0; i < len; ++i) {
+				addFaces(faces[i].triangulate());
 			}
 		}
 		
@@ -429,63 +467,26 @@ package away3d.core.graphs
 		private function getPlaneScoreStep() : void
 		{
 			var score : Number;
-			var face : Face;
-			var len : int = _buildFaces.length;
-			var numPos : int;
-			var numNeg : int;
-			var numDoubt : int;
-			var v : Vertex;
-			var dist : Number;
-			var sideCount : int;
-			var plane : Plane3D = _canditatePlane;
 			var startTime : int = getTimer();
+			var classification : int;
+			var len : int = _buildFaces.length;
+			var plane : Plane3D;
+			var face : NGon;
 			
 			do {
 				face = _buildFaces[_countStepIndex];
-				numPos = 0;
-				numNeg = 0;
-				numDoubt = 0;
-				
-				v = face._v0;
-				dist = plane.a*v._x + plane.b*v._y + plane.c*v._z + plane.d;
-				if (dist > BUILD_EPSILON)
-					++numPos;
-				else if (dist < -BUILD_EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-				
-				v = face._v1;
-				dist = plane.a*v._x + plane.b*v._y + plane.c*v._z + plane.d;
-				if (dist > BUILD_EPSILON)
-					++numPos;
-				else if (dist < -BUILD_EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-					
-				v = face._v2;
-				dist = plane.a*v._x + plane.b*v._y + plane.c*v._z + plane.d;
-				if (dist > BUILD_EPSILON)
-					++numPos;
-				else if (dist < -BUILD_EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-				//trace (numPos, numNeg, numDoubt);
-				if (numDoubt == 3) {
-					var plane2 : Plane3D = face.plane;
-					// triangle coincides with plane
-					// if facing into positive side, add to positive
-					if (plane2.a * plane.a + plane2.b * plane.b + plane2.c * plane.c > 0)
+				classification = face.classifyToPlane(_canditatePlane);
+				if (classification == -2) { 
+					plane = face.plane;
+					if (_canditatePlane.a * plane.a + _canditatePlane.b * plane.b + _canditatePlane.c * plane.c > 0)
 						++_positiveCount;
 					else
 						++_negativeCount;
 				}
-				else if (numPos > 0 && numNeg == 0)
-					++_positiveCount;
-				else if (numNeg > 0 && numPos == 0)
+				else if (classification == Plane3D.BACK)
 					++_negativeCount;
+				else if (classification == Plane3D.FRONT)
+					++_positiveCount;
 				else
 					++_splitCount;
 					
@@ -500,7 +501,7 @@ package away3d.core.graphs
 				
 				if (score > 0 && score < _bestScore) {
 					_bestScore = score;
-					_bestPlane = plane;
+					_bestPlane = _canditatePlane;
 				}
 				
 				setTimeout(buildStep, _deferralTime);
@@ -517,8 +518,8 @@ package away3d.core.graphs
 		{
 			_buildStepIndex = 0;
 			
-			_positiveFaces = new Vector.<Face>();
-			_negativeFaces = new Vector.<Face>();
+			_positiveFaces = new Vector.<NGon>();
+			_negativeFaces = new Vector.<NGon>();
 			
 			_partitionPlane = plane;
 			
@@ -530,64 +531,31 @@ package away3d.core.graphs
 		 */
 		private function constructStep() : void
 		{
-			var numPos : int;
-			var numNeg : int;
-			var numDoubt : int;
-			var v : Vertex;
-			var dist : Number;
-			var face : Face;
-			var len : int = _buildFaces.length;
-			var plane : Plane3D = _partitionPlane;
 			var startTime : int = getTimer();
+			var classification : int;
+			var face : NGon;
+			var len : int = _buildFaces.length;
+			var plane : Plane3D;
 			
 			do {
 				face = _buildFaces[_buildStepIndex];
-				numPos = 0;
-				numNeg = 0;
-				numDoubt = 0;
+				classification = face.classifyToPlane(_partitionPlane);
 				
-				v = face._v0;
-				dist = plane.a*v.x + plane.b*v.y + plane.c*v.z + plane.d;
-				if (dist > BUILD_EPSILON)
-					++numPos;
-				else if (dist < -BUILD_EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-				
-				v = face._v1;
-				dist = plane.a*v.x + plane.b*v.y + plane.c*v.z + plane.d;
-				if (dist > BUILD_EPSILON)
-					++numPos;
-				else if (dist < -BUILD_EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-					
-				v = face._v2;
-				dist = plane.a*v.x + plane.b*v.y + plane.c*v.z + plane.d;
-				if (dist > BUILD_EPSILON)
-					++numPos;
-				else if (dist < -BUILD_EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-				
-				if (numDoubt == 3) {
-					// triangle coincides with plane
-					// if facing into positive side, add to positive
-					var plane2 : Plane3D = face.plane;
-					if (plane2.a * plane.a + plane2.b * plane.b + plane2.c * plane.c > 0)
+				if (classification == -2) { 
+					plane = face.plane;
+					if (_partitionPlane.a * plane.a + _partitionPlane.b * plane.b + _partitionPlane.c * plane.c > 0)
 						_positiveFaces.push(face);
 					else
 						_negativeFaces.push(face);
 				}
-				else if (numPos > 0 && numNeg == 0)
+				else if (classification == Plane3D.FRONT)
 					_positiveFaces.push(face);
-				else if (numNeg > 0 && numPos == 0)
+				else if (classification == Plane3D.BACK)
 					_negativeFaces.push(face);
 				else {
-					splitFace(face, plane, _positiveFaces, _negativeFaces);
+					var splits : Vector.<NGon> = face.split(_partitionPlane);
+					_positiveFaces.push(splits[0]);
+					_negativeFaces.push(splits[1]);
 				}
 			} while (++_buildStepIndex < len && (getTimer()-startTime < _maxTimeout));
 			
@@ -626,121 +594,20 @@ package away3d.core.graphs
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
-		/**
-		 * Splits up a face into two along a given plane. Used to split up triangles along a partition plane.
-		 */
-		private function splitFace(face : Face, plane : Plane3D, posFaces : Vector.<Face>, negFaces : Vector.<Face>) : void
+/*
+ * Methods used to generate the PVS
+ */
+		arcane function findPortals() : void
 		{
-			var v0 : Vertex = face._v0;
-			var v1 : Vertex = face._v1;
-			var v2 : Vertex = face._v2;
-			var uv0 : UV = face._uv0;
-			var uv1 : UV = face._uv1;
-			var uv2 : UV = face._uv2;
-			var vertPos : Array = new Array(), vertNeg : Array = new Array();
-			var uvPos : Array = new Array(), uvNeg : Array = new Array();
-			var faces : Array = new Array();
-			var t : Number;
-			var dot1 : Number = plane.a*v0.x + plane.b*v0.y + plane.c*v0.z + plane.d;
-			var dot2 : Number = plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d;
-			var dot3 : Number = plane.a*v2.x + plane.b*v2.y + plane.c*v2.z + plane.d;
+			if (_positiveNode && !_positiveNode._isLeaf) _positiveNode.findPortals();
+			if (_negativeNode && !_negativeNode._isLeaf) _negativeNode.findPortals();
 			
-			if (Math.abs(dot1) < 0.01) dot1 = 0;
-			if (Math.abs(dot2) < 0.01) dot2 = 0;
-			if (Math.abs(dot3) < 0.01) dot3 = 0;
-			
-			if (dot1 >= 0) {
-				vertPos.push(v0);
-				uvPos.push(uv0);
-			}
-			if (dot1 <= 0) {
-				vertNeg.push(v0);
-				uvNeg.push(uv0);
-			}
-			
-			// different signs (= intersects plane):
-			if (dot1*dot2 < 0) {
-				t = splitEdge(plane, v0, v1, vertPos, vertNeg);
-				if (uv0) splitUV(uv0, uv1, t, uvPos, uvNeg);
-			}
-			
-			if (dot2 >= 0) {
-				vertPos.push(v1);
-				uvPos.push(uv1);
-			}
-			if (dot2 <= 0) {
-				vertNeg.push(v1);
-				uvNeg.push(uv1);
-			}
-			
-			if (dot2*dot3 < 0) {
-				t = splitEdge(plane, v1, v2, vertPos, vertNeg);
-				if (uv0) splitUV(uv1, uv2, t, uvPos, uvNeg);
-			}
-			
-			if (dot3 >= 0) {
-				vertPos.push(v2);
-				uvPos.push(uv2);
-			}
-			if (dot3 <= 0) {
-				vertNeg.push(v2);
-				uvNeg.push(uv2);
-			}
-			
-			if (dot3*dot1 < 0) {
-				t = splitEdge(plane, v2, v0, vertPos, vertNeg);
-				if (uv0) splitUV(uv2, uv0, t, uvPos, uvNeg);
-			}
-			
-			createTriangles(vertPos, uvPos, posFaces, face.material);
-			createTriangles(vertNeg, uvNeg, negFaces, face.material);
-		}
-		
-		/**
-		 * Splits an edge of a triangle along a plane and adds the new vertex to the vertices arrays.
-		 * targetPos and targetNeg are arrays containing vertices for resp. the positive triangle and negative triangle
-		 * returns t (in ]0, 1[) of intersection interval
-		 */
-		private function splitEdge(plane : Plane3D, v1 : Vertex, v2 : Vertex, targetPos : Array, targetNeg : Array) : Number
-		{
-			var div : Number, t : Number;
-			var v : Vertex;
-			
-			div = plane.a*(v2.x-v1.x)+plane.b*(v2.y-v1.y)+plane.c*(v2.z-v1.z);
-			
-			t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
-					
-			v = new Vertex(v1.x+t*(v2.x-v1.x), v1.y+t*(v2.y-v1.y), v1.z+t*(v2.z-v1.z));
-			
-			targetPos.push(v);
-			targetNeg.push(v);
-			return t;
-		}
-		
-		/**
-		 * Calculates the uv values at the new vertex of a split edge. t is the value returned by splitEdge
-		 */
-		private function splitUV(uv1 : UV, uv2 : UV, t : Number, targetPos : Array, targetNeg : Array) : void
-		{
-			var uv : UV = new UV(uv1.u+t*(uv2.u-uv1.u), uv1.v+t*(uv2.v-uv1.v));
-			targetPos.push(uv);
-			targetNeg.push(uv);
-		}
-		
-		/**
-		 * Triangulates a given set of vertices. Used when splitting faces.
-		 */
-		private function createTriangles(vertices : Array, uv : Array, target : Vector.<Face>, material : ITriangleMaterial) : void
-		{
-			var len : int = vertices.length - 1;
-			var v1 : Vertex = vertices[0];
-			var uv1 : UV = uv[0];
-			for (var i : int = 1; i < len; ++i) {
-				var face : Face = new Face(v1, vertices[i], vertices[i+1], material, uv1, uv[i], uv[i+1]);
-				target.push(face);
+			if (!_isLeaf) {
+				var portal : BSPPortal = new BSPPortal();
+				portal.fromNode(this);
 			}
 		}
-		
+
 /*
  * Methods used for colision detection
  */

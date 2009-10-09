@@ -185,6 +185,17 @@ package away3d.core.geom
 			return closest;
 		}
 		
+		public function getIntersectionSegmentNumbers( v0: Number3D, v1: Number3D ) : Number3D
+		{
+			var div : Number = a*(v1.x-v0.x)+b*(v1.y-v0.y)+c*(v1.z-v0.z);
+			var t : Number = -(a*v0.x + b*v0.y + c*v0.z + d)/div;
+			
+			if (t >= 0 && t <= 1)
+				return new Number3D(v0.x+t*(v1.x-v0.x), v0.y+t*(v1.y-v0.y), v0.z+t*(v1.z-v0.z));
+			
+			return null;
+		}
+		
 		public function getIntersectionLineNumbers( v0: Number3D, v1: Number3D ): Number3D
 		{
 			var d0: Number = _point.x * v0.x + _point.y * v0.y + _point.z * v0.z - d;
