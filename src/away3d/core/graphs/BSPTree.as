@@ -1,11 +1,14 @@
 package away3d.core.graphs
 {
+	import __AS3__.vec.Vector;
+	
 	import away3d.arcane;
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.base.Face;
 	import away3d.core.geom.Frustum;
+	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
 	import away3d.core.math.MatrixAway3D;
 	import away3d.core.math.Number3D;
@@ -84,8 +87,28 @@ package away3d.core.graphs
 		 */
 		public function build(faces : Vector.<Face>) : void
 		{
+			var polys : Vector.<NGon> = convertFaces(faces);
+			
 			_rootNode.addEventListener(Event.COMPLETE, onBuildComplete);
-			_rootNode.build(faces);
+			_rootNode.build(polys);
+		}
+		
+		/**
+		 * converts faces to N-Gons
+		 */
+		private function convertFaces(faces : Vector.<Face>) : Vector.<NGon>
+		{
+			var polys : Vector.<NGon> = new Vector.<NGon>();
+			var ngon : NGon;
+			var len : int = faces.length;
+			var i : int;
+			
+			do {
+				ngon = new NGon();
+				ngon.fromTriangle(faces[i]);
+				polys[i] = ngon;
+			} while (++i < len);
+			return polys;
 		}
 		
 		private function onBuildComplete(event : Event) : void
@@ -94,6 +117,7 @@ package away3d.core.graphs
 			_leaves = new Vector.<BSPNode>();
 			_rootNode.gatherLeaves(_leaves);
 			init();
+			_rootNode.findPortals();
 		}
 		
 		/**
@@ -176,7 +200,7 @@ package away3d.core.graphs
         					_leaves[i]._culled = false;
         					_leaves[i]._mesh._preCullClassification = Frustum.IN;
         				}
-        				else 
+        				else
         					_leaves[i]._culled = true;
         			}
         		}
