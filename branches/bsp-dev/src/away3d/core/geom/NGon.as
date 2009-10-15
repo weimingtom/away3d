@@ -62,18 +62,31 @@ package away3d.core.geom
 			return Plane3D.INTERSECT;
 		}
 		
+		public function clone() : NGon
+		{
+			var c : NGon = new NGon();
+			c.vertices = vertices.concat();
+			if (uvs) c.uvs = uvs.concat();
+			c.material = material;
+			c.plane = new Plane3D(plane.a, plane.b, plane.c, plane.d);
+			return c;
+		}
+		
 		public function triangulate() : Vector.<Face>
 		{
 			var len : int = vertices.length - 1;
+			if (len < 1) return null;
 			var tris : Vector.<Face> = new Vector.<Face>(len-1);
 			var v0 : Vertex = vertices[0], v1 : Vertex, v2 : Vertex;
-			var uv0 : UV = uvs[0], uv1 : UV, uv2 : UV;
+			var uv0 : UV, uv1 : UV, uv2 : UV;
+			
+			if (uvs) uv0 = uvs[0];
 			
 			for (var i : int = 1; i < len; ++i) {
 				v1 = vertices[i];
 				v2 = vertices[i+1];
-				uv1 = uvs[i];
-				uv1 = uvs[i+1];
+				if (uvs) uv1 = uvs[i];
+				if (uvs) uv2 = uvs[i+1];
 				tris[i-1] = new Face(v0, v1, v2, material, uv0, uv1, uv2);
 			}
 			
@@ -122,7 +135,6 @@ package away3d.core.geom
 			var posUV : Vector.<UV>;
 			var negUV : Vector.<UV>;
 			var j : int;
-			var t : Number;
 			ngons[0] = posNGon;
 			ngons[1] = negNGon;
 			negNGon.plane = posNGon.plane = this.plane;
@@ -130,8 +142,9 @@ package away3d.core.geom
 			negNGon.material = posNGon.material = this.material;
 			posVerts = posNGon.vertices = new Vector.<Vertex>();
 			negVerts = negNGon.vertices = new Vector.<Vertex>();
-			posUV = posNGon.uvs = new Vector.<UV>();
-			negUV = negNGon.uvs = new Vector.<UV>();
+			
+			if (uvs) posUV = posNGon.uvs = new Vector.<UV>();
+			if (uvs) negUV = negNGon.uvs = new Vector.<UV>();
 			
 			for (var i : int = 0; i < len; ++i) {
 				v1 = vertices[i];
@@ -146,21 +159,87 @@ package away3d.core.geom
 				
 				if (dists[i] >= 0) {
 					posVerts.push(vertices[i]);
-					posUV.push(uvs[i]);
+					if (uvs) posUV.push(uvs[i]);
 				}
 				if (dists[i] <= 0) {
 					negVerts.push(vertices[i]);
-					negUV.push(uvs[i]);
+					if (uvs) negUV.push(uvs[i]);
 				}
 				
 				if (dists[i]*dists[j] < 0) {
-					splitEdge(plane, v1, v2, uvs[i], uvs[j], posNGon, negNGon);
+					if (uvs) splitEdge(plane, v1, v2, uvs[i], uvs[j], posNGon, negNGon);
+					else splitEdge(plane, v1, v2, null, null, posNGon, negNGon);
 				}
 				
 				if (++j == len) j = 0;
 			}
 			
+			if (posVerts.length < 3) ngons[0] = null;
+			if (negVerts.length < 3) ngons[1] = null;
+			
 			return ngons;
+		}
+		
+		public function trim(plane : Plane3D) : void
+		{
+			if (vertices.length < 2) return;
+			
+			var len : int = vertices.length;
+			var dists : Vector.<Number> = new Vector.<Number>(len);
+			var v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV;
+			var j : int, k : int;
+			var newVerts : Vector.<Vertex> = new Vector.<Vertex>();
+			var newUVs : Vector.<UV>;
+			
+			for (var i : int = 0; i < len; ++i) {
+				v1 = vertices[i];
+				dists[i] = plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d;
+				if (dists[i] > -EPSILON && dists[i] < EPSILON) dists[i] = 0;
+			}
+			
+			if (uvs) newUVs = new Vector.<UV>()
+			
+			j = 1;
+			for (i = 0; i < len; ++i) {
+				v1 = vertices[i];
+				v2 = vertices[j];
+				if (uvs) {
+					uv1 = uvs[i];
+					uv2 = uvs[j];
+				}
+				
+				if (dists[i] >= 0) {
+					newVerts.push(v1);
+					if (uvs) newUVs.push(uv1);
+				}
+				
+				if (dists[i]*dists[j] < 0) {
+					trimEdge(plane, v1, v2, uv1, uv2, newVerts, newUVs);
+				}
+				
+				if (++j == len) j = 0;
+			}
+			
+			vertices = newVerts;
+			uvs = newUVs;
+		}
+		
+		private function trimEdge(plane : Plane3D, v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV, newVerts : Vector.<Vertex>, newUV : Vector.<UV>) : void
+		{
+			var div : Number, t : Number;
+			var v : Vertex;
+			var uv : UV;
+			
+			div = plane.a*(v2.x-v1.x)+plane.b*(v2.y-v1.y)+plane.c*(v2.z-v1.z);
+			
+			t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
+					
+			v = new Vertex(v1.x+t*(v2.x-v1.x), v1.y+t*(v2.y-v1.y), v1.z+t*(v2.z-v1.z));
+			newVerts.push(v);
+			if (uv1 && uv2) {
+				uv = new UV(uv1.u+t*(uv2.u-uv1.u), uv1.v+t*(uv2.v-uv1.v));
+				newUV.push(uv);
+			}
 		}
 		
 		private function splitEdge(plane : Plane3D, v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV, pos : NGon, neg : NGon) : void
@@ -174,12 +253,16 @@ package away3d.core.geom
 			t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
 					
 			v = new Vertex(v1.x+t*(v2.x-v1.x), v1.y+t*(v2.y-v1.y), v1.z+t*(v2.z-v1.z));
-			uv = new UV(uv1.u+t*(uv2.u-uv1.u), uv1.v+t*(uv2.v-uv1.v));
 			
-			pos.vertices.push(v);
-			neg.vertices.push(v);
-			pos.uvs.push(uv);
-			neg.uvs.push(uv);			
+			if (pos) pos.vertices.push(v);
+			if (neg) neg.vertices.push(v);
+
+			if (uv1 && uv2) {
+				uv = new UV(uv1.u+t*(uv2.u-uv1.u), uv1.v+t*(uv2.v-uv1.v));
+				if (pos) pos.uvs.push(uv);
+				if (neg) neg.uvs.push(uv);
+			}
+						
 		}
 		
 		/**
@@ -216,6 +299,7 @@ package away3d.core.geom
 			var count : int;
 			var len1 : int;
 			var len2 : int;
+			
 			// if normals not equal enough or planes not incident, quit early
 			if (Math.abs(plane.d - srcPlane.d) > EPSILON ||
 				Math.abs(plane.a*srcPlane.a + plane.b*srcPlane.b + plane.c*srcPlane.c - 1) > EPSILON)
@@ -226,12 +310,19 @@ package away3d.core.geom
 			sharedVerticesA = new Vector.<Boolean>(len1);
 			sharedVerticesB = new Vector.<Boolean>(len2);
 			
-			// keep track of shared vertices
 			for (var i : int = 0; i < len1; ++i) {
+				sharedVerticesA[i] = false;
+			}
+			for (var j : int = 0; j < len2; ++j) {
+				sharedVerticesB[j] = false;
+			}
+
+			// keep track of shared vertices
+			for (i = 0; i < len1; ++i) {
 				v1 = vertices[i];
 				uv1 = uvs[i];
 				
-				for (var j : int = 0; j < len2; ++j) {
+				for (j = 0; j < len2; ++j) {
 					v2 = srcVert[j];
 					uv2 = srcUV[j];
 					du = Math.abs(uv1.u-uv2.u);
@@ -243,20 +334,23 @@ package away3d.core.geom
 						sharedVerticesB[j] = true;
 						if (lastSharedIndexA == -1) {
 							lastSharedIndexA = i;
-							lastSharedIndexB = i;
+							lastSharedIndexB = j;
 						}
 						else {
 							// considering preconditions: two shared vertices need to be adjacent
-							if (!(	(i - lastSharedIndexA <= 1) ||
+							if (!(	(i - lastSharedIndexA == 1) ||
 									(lastSharedIndexA == 0 && i == len1-1)
 								)) return false;
-							if (!(	(Math.abs(j - lastSharedIndexB) <= 1) ||
+							if (!(	(Math.abs(j - lastSharedIndexB) == 1) ||
 									(j == 0 && lastSharedIndexB == len2-1) ||
 									(lastSharedIndexB == 0 && j == len2-1)
 								)) return false;
 						}
 						// more than 2 vertices shared. Considering preconditions, we can assume no merge is possible
 						if (++count > 2) return false;
+						
+						// once match for i has been found, skip all other in second tri
+						j = len2;
 					}
 				}
 			}
@@ -270,17 +364,22 @@ package away3d.core.geom
 				// check if 0 is not the second vertex of the edge
 				// otherwise increment index as insertion point (after last vertex) 
 				if (!(i == 0 && !sharedVerticesA[1]))
-					++i;
+					i++;
+				
+				j = lastSharedIndexB = sharedVerticesB.indexOf(true);
 				
 				// loop through input set and add unshared vertices
-				for (j = 0; j < len2; ++j) {
+				do {
 					if (!sharedVerticesB[j]) {
 						vertices.splice(i, 0, srcVert[j]);
 						uvs.splice(i, 0, srcUV[j]);
+						++i;
 					}
-				}
+					if (++j == len2) j = 0;
+				} while (j != lastSharedIndexB);
 				removeColinears();
 				return true;
+				
 			}
 			return false;
 		}
@@ -303,14 +402,15 @@ package away3d.core.geom
 				u.x = v1.x-v0.x;
 				u.y = v1.y-v0.y;
 				u.z = v1.z-v0.z;
-				v.x = v0.x-v2.x;
-				v.y = v0.y-v2.y;
-				v.z = v0.z-v2.z;
+				v.x = v2.x-v0.x;
+				v.y = v2.y-v0.y;
+				v.z = v2.z-v0.z;
 				cross.cross(u, v);
 				
 				if (cross.modulo < EPSILON) {
 					vertices.splice(j, 1);
 					uvs.splice(j, 1);
+					--i;
 				}
 				else {
 					++j;
