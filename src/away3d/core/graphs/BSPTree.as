@@ -16,6 +16,8 @@ package away3d.core.graphs
 	import away3d.core.traverse.Traverser;
 	
 	import flash.events.Event;
+	import flash.utils.getTimer;
+	import flash.utils.setTimeout;
 
 	use namespace arcane;
 	
@@ -117,7 +119,65 @@ package away3d.core.graphs
 			_leaves = new Vector.<BSPNode>();
 			_rootNode.gatherLeaves(_leaves);
 			init();
-			_rootNode.findPortals();
+			//createPVS();
+		}
+		
+		private function createPVS() : void
+		{
+			var portals : Vector.<BSPPortal> = new Vector.<BSPPortal>();
+			_rootNode.findPortals(portals);
+			_splitPortals = new Vector.<BSPPortal>();
+			setTimeout(splitPortals, 1, portals);
+		}
+		
+		private var _portalIndex : int;
+		private var _maxTimeout : int = 500;
+		private var _splitPortals : Vector.<BSPPortal>;
+		
+		private function splitPortals(portals : Vector.<BSPPortal>) : void
+		{
+			var startTime : int = getTimer();
+			var len : int = portals.length;
+			do
+			{
+				_splitPortals = _splitPortals.concat(_rootNode.splitPortal(portals[_portalIndex]));
+			} while (++_portalIndex < len && getTimer()-startTime < _maxTimeout);
+			
+			if (_portalIndex == portals.length) {
+				_portalIndex = 0;
+				setTimeout(assignPortals, 1); 
+			}
+			else {
+				setTimeout(splitPortals, 1, portals);
+			}
+		}
+		
+		private function assignPortals() : void
+		{
+			var startTime : int = getTimer();
+			var len : int = _splitPortals.length;
+			//if (len == 0) return;
+			do
+			{
+				_rootNode.assignPortal(_splitPortals[_portalIndex]);
+			} while (++_portalIndex < len && getTimer()-startTime < _maxTimeout);
+			
+			if (_portalIndex < len) {
+				setTimeout(assignPortals, 1);
+			}
+			else {
+				setTimeout(linkPortals, 1);
+			}
+		}
+		
+		private function linkPortals() : void
+		{
+			for (var i : int = 0; i < _leaves.length; ++i) {
+				if (_leaves[i]) {
+					_leaves[i].linkPortals();
+					if (_leaves[i]._tempMesh) addChild(_leaves[i]._tempMesh);
+				}
+			}
 		}
 		
 		/**
@@ -164,6 +224,7 @@ package away3d.core.graphs
         		if (_complete && !_rootNode._culled) {
         			traverser.apply(this);
        				_rootNode.traverse(traverser);
+       				if (_activeLeaf && _activeLeaf._tempMesh) _activeLeaf._tempMesh.traverse(traverser);
         		}
         	}
         }
@@ -204,7 +265,7 @@ package away3d.core.graphs
         					_leaves[i]._culled = true;
         			}
         		}
-        	} 
+        	}
         	else {
 	        	for (i = 0; i < len; ++i) {
 	        		if (!_leaves[i]) continue;

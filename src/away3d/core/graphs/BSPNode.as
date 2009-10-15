@@ -5,8 +5,6 @@ package away3d.core.graphs
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
-	import away3d.core.base.UV;
-	import away3d.core.base.Vertex;
 	import away3d.core.geom.Frustum;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
@@ -25,6 +23,8 @@ package away3d.core.graphs
 	 */
 	public class BSPNode extends EventDispatcher
 	{
+		private static var EPSILON : Number = 1/32;
+		
 		public var id : int;
 		// indicates whether this node is a leaf or not
 		// leaves contain triangles
@@ -70,7 +70,7 @@ package away3d.core.graphs
 		private var _bestPlane : Plane3D;
 		private var _canditatePlane : Plane3D;
 		private var _bestScore : Number;
-		private var _splitWeight : Number = 3;
+		private var _splitWeight : Number = 10;
 		private var _balanceWeight : Number = 1;
 		private var _maxTimeout : int = 1000;
 		private var _deferralTime : int = 1;
@@ -80,6 +80,10 @@ package away3d.core.graphs
 		private var _positiveFaces : Vector.<NGon>;
 		private var _negativeFaces : Vector.<NGon>;
 		private var _completeCount : int;
+		
+		arcane var _tempMesh : Mesh;
+		
+		private var _portals : Vector.<BSPPortal>;
 		
 		/**
 		 * Creates a new BSPNode object.
@@ -367,15 +371,12 @@ package away3d.core.graphs
 		 */
 		arcane function build(faces : Vector.<NGon>) : void
 		{
-			var plane : Plane3D;
-			var i : int;
-			
 			_buildStepIndex = 0;
 			_buildFaces = faces;
 			
 			_bestScore = Number.POSITIVE_INFINITY;
 			
-			collapseFaces(faces);
+			//collapseFaces(faces);
 			buildStep();
 		}
 		
@@ -417,6 +418,7 @@ package away3d.core.graphs
 			var face : NGon;
 			var len : int = _buildFaces.length;
 			
+			// check if best score == 0, if so, best plane hands down
 			if (_buildStepIndex < len) {
 				face = _buildFaces[_buildStepIndex];
 				getPlaneScore(face.plane);
@@ -597,14 +599,204 @@ package away3d.core.graphs
 /*
  * Methods used to generate the PVS
  */
-		arcane function findPortals() : void
+		arcane function findPortals(portals : Vector.<BSPPortal>) : void
 		{
-			if (_positiveNode && !_positiveNode._isLeaf) _positiveNode.findPortals();
-			if (_negativeNode && !_negativeNode._isLeaf) _negativeNode.findPortals();
+			var portal : BSPPortal;
 			
 			if (!_isLeaf) {
-				var portal : BSPPortal = new BSPPortal();
+				if (_positiveNode) _positiveNode.findPortals(portals);
+				if (_negativeNode) _negativeNode.findPortals(portals);
+				portal = new BSPPortal();
 				portal.fromNode(this);
+				/* if (_parent) {
+					var s : Vector.<BSPPortal> = portal.split(_parent._partitionPlane);
+					if (this == _parent._positiveNode)
+						portal = s[0];
+					else
+						portal = s[1];
+				} */
+				
+				portals.push(portal);
+			}
+			
+			/* var pos : Vector.<BSPPortal>;
+			var neg : Vector.<BSPPortal>;
+			var portal : BSPPortal;
+			var len : int;
+			var splits : Vector.<BSPPortal>;
+			
+			if (!_isLeaf) {
+				pos = new Vector.<BSPPortal>();
+				neg = new Vector.<BSPPortal>();
+				if (portals) {
+					len = portals.length;
+					
+					for (var i : int = 0; i < len; ++i) {
+						splits = portals[i].split(_partitionPlane);
+						if (splits[0]) pos.push(splits[0]);
+						if (splits[1]) neg.push(splits[1]);
+					}
+				}
+				
+				portal = new BSPPortal();
+				portal.fromNode(this);
+				if (portals) trimPortal(portal, portals);
+				pos.push(portal);
+				
+				var n : BSPPortal = portal.clone();
+				n.nGon.plane.a = -portal.nGon.plane.a;
+				n.nGon.plane.b = -portal.nGon.plane.b;
+				n.nGon.plane.c = -portal.nGon.plane.c;
+				n.nGon.plane.d = -portal.nGon.plane.d;
+				neg.push(n);
+				
+				if (_positiveNode) _positiveNode.findPortals(pos);
+				if (_negativeNode) _negativeNode.findPortals(neg);
+			}
+			else {
+				_tempMesh = new Mesh();
+				var tris : Vector.<Face>;
+				for (var j : int = 0; j < portals.length; ++j) {
+					tris = portals[j].nGon.triangulate();
+					if (tris) {
+						for (i = 0; i < tris.length; ++i) {
+							_tempMesh.addFace(tris[i]);
+							_tempMesh.bothsides = true;
+						}
+					}
+				}
+			} */
+		}
+		
+		arcane function splitPortal(portal : BSPPortal) : Vector.<BSPPortal>
+		{
+			var pos : Vector.<BSPPortal>;
+			var neg : Vector.<BSPPortal>;
+			var splits : Vector.<BSPPortal>;
+			
+			if (_isLeaf) {
+				splits = new Vector.<BSPPortal>(1);
+				splits[0] = portal;
+				return splits;
+			}
+			
+			if (portal.nGon.plane == _partitionPlane) {
+				if (_positiveNode) pos = _positiveNode.splitPortal(portal);
+				if (_negativeNode) {
+					for (var i : int = 0; i < pos.length; ++i) {
+						if (!neg) neg = _negativeNode.splitPortal(pos[i]);
+						else neg = neg.concat(_negativeNode.splitPortal(pos[i]));
+					}
+					
+				}
+			}
+			else {
+				splits = portal.split(_partitionPlane)
+				
+				if (splits[0] && _positiveNode) pos = _positiveNode.splitPortal(splits[0]);
+				if (splits[1] && _negativeNode) neg = _negativeNode.splitPortal(splits[1]);
+			}
+			
+			if (pos != null && neg != null) return pos.concat(neg);
+			else if (pos) return pos;
+			else return neg;
+		}
+		
+		arcane function assignPortal(portal : BSPPortal) : void
+		{
+			var classification : int;
+			
+			if (_isLeaf) {
+				if (!isHierarchyValid(portal)) return;
+				if (!_portals) _portals = new Vector.<BSPPortal>();
+				_portals.push(portal);
+				//trimPortalToLeaf(portal);
+				if (!portal.leaves) portal.leaves = new Vector.<BSPNode>();
+				portal.leaves.push(this);
+				return;
+			}
+			
+			if (portal.nGon.plane == _partitionPlane) {
+				if (_positiveNode) _positiveNode.assignPortal(portal);
+				if (_negativeNode) _negativeNode.assignPortal(portal);
+			}
+			else {
+				classification = portal.nGon.classifyToPlane(_partitionPlane)
+				if (classification == Plane3D.BACK) {
+					if (_negativeNode) _negativeNode.assignPortal(portal);
+				}
+				else if (classification == Plane3D.FRONT) {
+					if (_positiveNode) _positiveNode.assignPortal(portal);
+				}
+			}
+		}
+		
+		/**
+		 * Checks if portal matches the hierarchy. Only occurs due to bounding box approx
+		 */
+		private function isHierarchyValid(portal : BSPPortal) : Boolean
+		{
+			var node : BSPNode = this;
+			if (!node._parent) return true;
+			
+			do {
+				if (node == portal.sourceNode) return true;
+			} while (node = node._parent);
+			return false;
+		}
+		
+		arcane function linkPortals() : void
+		{
+			var len : int = _portals.length;
+			var portal : BSPPortal;
+			
+			for (var i : int = 0; i < len; ++i) {
+				portal = _portals[i];
+				// portal only belongs to this leaf or is trimmed away
+				if (portal.leaves.length < 2 || portal.nGon.vertices.length < 3) {
+					// dispose
+					_portals.splice(i, 1);
+					--len;
+					--i;
+				}
+				else {
+					if (!_tempMesh) {
+						_tempMesh = new Mesh();
+						_tempMesh.bothsides = true;
+					}
+					var faces : Vector.<Face> = portal.nGon.triangulate();
+					for (var j : int = 0; j < faces.length; ++j)
+					{
+						_tempMesh.addFace(faces[j]);
+					}
+				}
+			}
+		}
+		
+		private function trimPortalToLeaf(portal : BSPPortal) : void
+		{
+			var len : int = _mesh.faces.length;
+			var face : Face;
+			var facePlane : Plane3D;
+			var portalPlane : Plane3D;
+			var dot : Number;
+			for (var i : int = 0; i < len; ++i) {
+				face = _mesh.faces[i];
+				facePlane = face.plane;
+				portalPlane = portal.nGon.plane;
+				dot = Math.abs(facePlane.a*portalPlane.a + facePlane.b*portalPlane.b + facePlane.c*portalPlane.c);
+				// maybe I should split if they intersect?
+				if (Math.abs(dot-1) > EPSILON)
+					portal.nGon.trim(facePlane);
+			}
+		}
+		
+		private function trimPortal(portal : BSPPortal, portals : Vector.<BSPPortal>) : void
+		{
+			var len : int = portals.length;
+			
+			for (var i : int = 0; i < len; ++i) {
+				portal.nGon.trim(portals[i].nGon.plane);
 			}
 		}
 
