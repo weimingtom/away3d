@@ -7,6 +7,7 @@ package away3d.core.graphs
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.base.Face;
+	import away3d.core.base.Mesh;
 	import away3d.core.geom.Frustum;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
@@ -89,10 +90,71 @@ package away3d.core.graphs
 		 */
 		public function build(faces : Vector.<Face>) : void
 		{
-			var polys : Vector.<NGon> = convertFaces(faces);
+			_rootNode._buildFaces = convertFaces(faces);
+			_currentBuildNode = _rootNode;
+			_needBuild = true;
+			buildStep();
+		}
+		
+		
+		private var _currentBuildNode : BSPNode;
+		private var _state : int;
+		private static const TRAVERSE_PRE : int = 0;
+		private static const TRAVERSE_IN : int = 1;
+		private static const TRAVERSE_POST : int = 2;
+		
+		public var maxTimeout : int = 500;
+		
+		private var _needBuild : Boolean;
+		
+		private function buildStep(event : Event = null) : void
+		{
+			if (event) {
+				if (_currentBuildNode.hasEventListener(Event.COMPLETE))
+					_currentBuildNode.removeEventListener(Event.COMPLETE, buildStep);
+				switch(_state) {
+					case TRAVERSE_PRE:
+						if (_currentBuildNode._positiveNode) {
+							_currentBuildNode = _currentBuildNode._positiveNode;
+							_needBuild = true;
+						}
+						else {
+							_state = TRAVERSE_IN;
+							_needBuild = false;
+						}
+						break;
+					case TRAVERSE_IN:
+						if (_currentBuildNode._negativeNode) {
+							_currentBuildNode = _currentBuildNode._negativeNode;
+							_state = TRAVERSE_PRE;
+							_needBuild = true;
+						}
+						else {
+							_state = TRAVERSE_POST;
+							_needBuild = false;
+						}
+						break;
+					case TRAVERSE_POST:
+						if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+							_state = TRAVERSE_IN;
+						_currentBuildNode = _currentBuildNode._parent;
+						_needBuild = false;
+						break;
+				}
+				if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
+					onBuildComplete();
+					return;
+				}
+			}
 			
-			_rootNode.addEventListener(Event.COMPLETE, onBuildComplete);
-			_rootNode.build(polys);
+			// this times out, which means something is wrong in the iterations
+			if (_needBuild) {
+				_currentBuildNode.addEventListener(Event.COMPLETE, buildStep);
+				_currentBuildNode.build();
+			}
+			else {
+				buildStep(event);
+			}
 		}
 		
 		/**
@@ -113,12 +175,12 @@ package away3d.core.graphs
 			return polys;
 		}
 		
-		private function onBuildComplete(event : Event) : void
+		private function onBuildComplete() : void
 		{
-			_rootNode.removeEventListener(Event.COMPLETE, onBuildComplete);
 			_leaves = new Vector.<BSPNode>();
 			_rootNode.gatherLeaves(_leaves);
 			init();
+			dispatchEvent(new Event(Event.COMPLETE));
 			//createPVS();
 		}
 		
@@ -208,7 +270,65 @@ package away3d.core.graphs
 			if (!freezeCulling)
 				doCulling(_activeLeaf, frustum);
 			// order nodes for primitive traversal
-			_rootNode.orderNodes(_transformPt);
+			orderNodes(_transformPt);
+		}
+		
+		private function orderNodes(point : Number3D) : void
+		{
+			var partitionPlane : Plane3D;
+			var pos : BSPNode;
+			var neg : BSPNode;
+			_needBuild = true;
+			_state = TRAVERSE_PRE;
+			_currentBuildNode = _rootNode;
+			
+			if (_currentBuildNode._culled) return;
+			
+			do {
+				if (_needBuild && !_currentBuildNode._isLeaf) {
+					partitionPlane = _currentBuildNode._partitionPlane;
+					_currentBuildNode._lastIterationPositive = (	partitionPlane.a*point.x +
+																	partitionPlane.b*point.y +
+																	partitionPlane.c*point.z +
+																	partitionPlane.d ) > 0;
+				}
+				
+				pos = _currentBuildNode._positiveNode;
+				neg = _currentBuildNode._negativeNode;
+				
+				switch(_state) {
+					case TRAVERSE_PRE:
+						if (pos && !pos._culled) {
+							_currentBuildNode = _currentBuildNode._positiveNode;
+							_needBuild = true;
+							break;
+						}
+						else {
+							_state = TRAVERSE_IN;
+							//_needBuild = false;
+						}
+					case TRAVERSE_IN:
+						if (neg && !neg._culled) {
+							_currentBuildNode = _currentBuildNode._negativeNode;
+							_state = TRAVERSE_PRE;
+							_needBuild = true;
+							break;
+						}
+						else {
+							_state = TRAVERSE_POST;
+							//_needBuild = false;
+						}
+						//break;
+					case TRAVERSE_POST:
+						if (_currentBuildNode._parent) {
+							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+								_state = TRAVERSE_IN;
+							_currentBuildNode = _currentBuildNode._parent;
+							_needBuild = false;
+						}
+						break;
+				}
+			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
 		}
 		
 		/**
@@ -223,10 +343,81 @@ package away3d.core.graphs
         		// and most nodes won't need to be traversed
         		if (_complete && !_rootNode._culled) {
         			traverser.apply(this);
-       				_rootNode.traverse(traverser);
-       				if (_activeLeaf && _activeLeaf._tempMesh) _activeLeaf._tempMesh.traverse(traverser);
+        			doTraverse(traverser);
+       				//_rootNode.traverse(traverser);
+       				//if (_activeLeaf && _activeLeaf._tempMesh) _activeLeaf._tempMesh.traverse(traverser);
         		}
         	}
+        }
+        
+        private function doTraverse(traverser:Traverser) : void
+        {
+        	var mesh : Mesh;
+        	var first : BSPNode;
+        	var second : BSPNode;
+        	var isLeaf : Boolean;
+        	var changed : Boolean = true;
+			_state = TRAVERSE_PRE;
+			_currentBuildNode = _rootNode;
+        	
+        	if (_currentBuildNode._culled) return;
+        	
+        	do {
+        		if (changed) {
+        			isLeaf = _currentBuildNode._isLeaf
+					if (isLeaf) {
+						mesh = _currentBuildNode._mesh;
+						if (mesh && traverser.match(mesh))
+	            		{
+		                	traverser.enter(mesh);
+		                	traverser.apply(mesh);
+		                	traverser.leave(mesh);
+	            		}
+	            		_state = TRAVERSE_POST;
+					}
+					else {
+						if (_currentBuildNode._lastIterationPositive) {
+							first = _currentBuildNode._negativeNode;
+							second = _currentBuildNode._positiveNode;
+						}
+						else {
+							first = _currentBuildNode._positiveNode;
+							second = _currentBuildNode._negativeNode;
+						}
+					}
+        		}
+        		
+				switch(_state) {
+					case TRAVERSE_PRE:
+						if (first && !first._culled) {
+							_currentBuildNode = first;
+							changed = true;
+						}
+						else {
+							_state = TRAVERSE_IN;
+							changed = false;
+						}
+						break;
+					case TRAVERSE_IN:
+						if (second && !second._culled) {
+							_currentBuildNode = second;
+							_state = TRAVERSE_PRE;
+							changed = true;
+						}
+						else {
+							_state = TRAVERSE_POST;
+							changed = false;
+						}
+						break;
+					case TRAVERSE_POST:
+						if ((_currentBuildNode._parent._lastIterationPositive && _currentBuildNode == _currentBuildNode._parent._negativeNode) ||
+							(!_currentBuildNode._parent._lastIterationPositive && _currentBuildNode == _currentBuildNode._parent._positiveNode))
+							_state = TRAVERSE_IN;
+						_currentBuildNode = _currentBuildNode._parent;
+						changed = true;
+						break;
+				}
+			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
         }
         
 		/**
@@ -282,9 +473,128 @@ package away3d.core.graphs
 			activeNode._culled = false;
 			
 			// propagate culled state. Nodes don't need to be traversed if none of the leafs contained are visible
-			// TO DO: this should be done using iteration instead
-			_rootNode.propagateCulled();
-			_rootNode.cullToFrustum(frustum);
+			propagateCulled();
+			cullToFrustum(frustum);
+        }
+        
+        private function propagateCulled() : void
+        {
+        	var partitionPlane : Plane3D;
+			var pos : BSPNode;
+			var neg : BSPNode;
+			_state = TRAVERSE_PRE;
+			_currentBuildNode = _rootNode;
+			
+			if (_currentBuildNode._culled) return;
+			
+			do {
+				pos = _currentBuildNode._positiveNode;
+				neg = _currentBuildNode._negativeNode;
+				
+				switch(_state) {
+					case TRAVERSE_PRE:
+						if (pos && !pos._isLeaf) {
+							_currentBuildNode = pos;
+						}
+						else {
+							_state = TRAVERSE_IN;
+						}
+						break;
+					case TRAVERSE_IN:
+						if (neg && !neg._isLeaf) {
+							_currentBuildNode = neg;
+							_state = TRAVERSE_PRE;
+						}
+						else {
+							_state = TRAVERSE_POST;
+						}
+						break;
+					case TRAVERSE_POST:
+						if (_currentBuildNode._parent) {
+							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+								_state = TRAVERSE_IN;
+							_currentBuildNode = _currentBuildNode._parent;
+						}
+						break;
+				}
+
+				if (_state == TRAVERSE_POST && !_currentBuildNode._isLeaf) {
+					pos = _currentBuildNode._positiveNode;
+					neg = _currentBuildNode._negativeNode;
+					_currentBuildNode._culled = (!pos || pos._culled) && (!neg || neg._culled);
+				}
+				
+			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
+        }
+        
+        private function cullToFrustum(frustum : Frustum) : void
+        {
+        	var partitionPlane : Plane3D;
+			var pos : BSPNode;
+			var neg : BSPNode;
+			var classification : int;
+			var needCheck : Boolean = true;
+			
+			_state = TRAVERSE_PRE;
+			_currentBuildNode = _rootNode;
+			
+			if (_currentBuildNode._culled) return;
+			
+			do {
+				if (needCheck) {
+					classification = frustum.classifyAABB(_currentBuildNode._bounds);
+					_currentBuildNode._culled = (classification == Frustum.OUT);
+					
+					if (_currentBuildNode._isLeaf) {
+						if (_currentBuildNode._mesh) _currentBuildNode._mesh._preCullClassification = classification;
+						_state = TRAVERSE_POST;
+					}
+					// no further descension is needed if whole bounding box completely inside or outside frustum
+					else if (classification != Frustum.INTERSECT)
+						_state = TRAVERSE_POST;
+				}
+				
+				pos = _currentBuildNode._positiveNode;
+				neg = _currentBuildNode._negativeNode;
+				
+				switch(_state) {
+					case TRAVERSE_PRE:
+						if (pos && !pos._culled) {
+							_currentBuildNode = pos;
+							needCheck = true;
+						}
+						else {
+							_state = TRAVERSE_IN;
+							needCheck = false;
+						}
+						break;
+					case TRAVERSE_IN:
+						if (neg && !neg._culled) {
+							_currentBuildNode = neg;
+							_state = TRAVERSE_PRE;
+							needCheck = true;
+						}
+						else {
+							_state = TRAVERSE_POST;
+							needCheck = false;
+						}
+						break;
+					case TRAVERSE_POST:
+						if (_currentBuildNode._parent) {
+							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+								_state = TRAVERSE_IN;
+							_currentBuildNode = _currentBuildNode._parent;
+						}
+						needCheck = false;
+						break;
+				}
+				
+				/* if (_state == TRAVERSE_POST && !_currentBuildNode._isLeaf) {
+					pos = _currentBuildNode._positiveNode;
+					neg = _currentBuildNode._negativeNode;
+					_currentBuildNode._culled = (!pos || pos._culled) && (!neg || neg._culled);
+				} */
+			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
         }
         
 		/**
