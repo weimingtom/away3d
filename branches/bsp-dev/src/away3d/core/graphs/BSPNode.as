@@ -45,7 +45,7 @@ package away3d.core.graphs
 		arcane var _mesh : Mesh;					// contains the model for this face
 		arcane var _visList : Vector.<int>;		// indices of leafs visible from this leaf
 		
-		private var _lastIterationPositive : Boolean;
+		arcane var _lastIterationPositive : Boolean;
 		
 		//arcane var _session : AbstractRenderSession;
 		
@@ -64,22 +64,17 @@ package away3d.core.graphs
 		private var _middle : Number3D = new Number3D();
 		
 		// used for building tree
-		private var _splitCount : int;
-		private var _positiveCount : int;
-		private var _negativeCount : int;
 		private var _bestPlane : Plane3D;
-		private var _canditatePlane : Plane3D;
 		private var _bestScore : Number;
 		private var _splitWeight : Number = 10;
 		private var _balanceWeight : Number = 1;
 		private var _maxTimeout : int = 1000;
 		private var _deferralTime : int = 1;
-		private var _buildFaces : Vector.<NGon>;
-		private var _buildStepIndex : int;
-		private var _countStepIndex : int;
 		private var _positiveFaces : Vector.<NGon>;
 		private var _negativeFaces : Vector.<NGon>;
 		private var _completeCount : int;
+		
+		arcane var _buildFaces : Vector.<NGon>;
 		
 		arcane var _tempMesh : Mesh;
 		
@@ -369,73 +364,45 @@ package away3d.core.graphs
 		 * 
 		 * @private
 		 */
-		arcane function build(faces : Vector.<NGon>) : void
+		arcane function build(faces : Vector.<NGon> = null) : void
 		{
-			_buildStepIndex = 0;
-			_buildFaces = faces;
-			
+			if (faces) _buildFaces = faces;
 			_bestScore = Number.POSITIVE_INFINITY;
-			
-			//collapseFaces(faces);
-			buildStep();
+			getBestScore(_buildFaces);
+			// check if best score == 0, if so, best plane hands down
 		}
 		
-		/**
-		 * Collapses convex NGons if they still form a new convex NGon
-		 * 
-		 * @private
-		 */
-		private function collapseFaces(polys : Vector.<NGon>) : void
-		{
-			var poly1 : NGon;
-			var poly2 : NGon;
-			var listChanged : Boolean;
-			
-			do {
-				listChanged = false;
-				// length changes during loop, do not store in var
-				for (var i : int = 0; i < polys.length; ++i) {
-					poly1 = polys[i];
-					for (var j : int = i+1; j < polys.length; ++j) {
-						poly2 = polys[j];
-						if (poly1.collapse(poly2)) {
-							// remove second poly & adjust index
-							polys.splice(j--, 1);
-							listChanged = true;
-						}
-					}
-				}
-			} while (listChanged);
-		}
 		
-		/**
-		 * One step in the build process, to prevent lock-ups
-		 * 
-		 * @private
-		 */
-		arcane function buildStep() : void
+		private var _planeCount : int;
+		private var _maxTimeOut : int = 500;
+		
+		private function getBestScore(faces : Vector.<NGon>) : void
 		{
 			var face : NGon;
-			var len : int = _buildFaces.length;
+			var len : int = faces.length;
+			var startTime : int = getTimer();
 			
-			// check if best score == 0, if so, best plane hands down
-			if (_buildStepIndex < len) {
-				face = _buildFaces[_buildStepIndex];
-				getPlaneScore(face.plane);
-				++_buildStepIndex;
-			}
-			else {
+			do {
+				face = faces[_planeCount];
+				getPlaneScore(face.plane, faces);
+				if (_bestScore == 0) _planeCount = len;
+			} while (++_planeCount < len && getTimer()-startTime < _maxTimeOut);
+			
+			if (_planeCount >= len) {
 				if (_bestPlane) {
 					// best plane was found, subdivide
-					constructChildren(_bestPlane);
+					setTimeout(constructChildren, 1, _bestPlane, faces);
 				}
 				else {
 					// no best plane, must be leaf
 					_isLeaf = true;
-					if (_buildFaces.length > 0)
-						addNGons(_buildFaces);
+					if (faces.length > 0)
+						addNGons(faces);
 					completeNode();
 				}
+			}
+			else {
+				setTimeout(getBestScore, 1, faces);
 			}
 		}
 		
@@ -452,95 +419,65 @@ package away3d.core.graphs
 		 * Calculates the score for a given plane. The lower the score, the better a partition plane it is.
 		 * Score is -1 if the plane is completely unsuited.
 		 */
-		private function getPlaneScore(plane : Plane3D) : void
-		{
-			_canditatePlane = plane;
-			_splitCount = 0;
-			_positiveCount = 0;
-			_negativeCount = 0;
-			_countStepIndex = 0;
-			
-			getPlaneScoreStep();
-		}
-		
-		/**
-		 * One step in the plane scoring process, used to avoid lock-ups
-		 */
-		private function getPlaneScoreStep() : void
+		private function getPlaneScore(candidate : Plane3D, faces : Vector.<NGon>) : void
 		{
 			var score : Number;
-			var startTime : int = getTimer();
 			var classification : int;
-			var len : int = _buildFaces.length;
+			var len : int = faces.length;
 			var plane : Plane3D;
 			var face : NGon;
+			var i : int;
+			var posCount : int, negCount : int, splitCount : int;
 			
 			do {
-				face = _buildFaces[_countStepIndex];
-				classification = face.classifyToPlane(_canditatePlane);
+				face = faces[i];
+				classification = face.classifyToPlane(candidate);
 				if (classification == -2) { 
 					plane = face.plane;
-					if (_canditatePlane.a * plane.a + _canditatePlane.b * plane.b + _canditatePlane.c * plane.c > 0)
-						++_positiveCount;
+					if (candidate.a * plane.a + candidate.b * plane.b + candidate.c * plane.c > 0)
+						++posCount;
 					else
-						++_negativeCount;
+						++negCount;
 				}
 				else if (classification == Plane3D.BACK)
-					++_negativeCount;
+					++negCount;
 				else if (classification == Plane3D.FRONT)
-					++_positiveCount;
+					++posCount;
 				else
-					++_splitCount;
+					++splitCount;
 					
-			} while (++_countStepIndex < len && (getTimer()-startTime < _maxTimeout));
+			} while (++i < len);
 			
-			if (_countStepIndex == len) {
-				// all polys are on one side
-				if ((_positiveCount == 0 || _negativeCount == 0) && _splitCount == 0)
-					score = -1;
-				else
-					score = Math.abs(_negativeCount-_positiveCount)*_balanceWeight+_splitCount*_splitWeight
-				
-				if (score > 0 && score < _bestScore) {
-					_bestScore = score;
-					_bestPlane = _canditatePlane;
-				}
-				
-				setTimeout(buildStep, _deferralTime);
-			}
-			else {
-				setTimeout(getPlaneScoreStep, _deferralTime);
+			// all polys are on one side
+			if ((posCount == 0 || negCount == 0) && splitCount == 0)
+				score = -1;
+			else
+				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight
+			
+			if (score >= 0 && score < _bestScore) {
+				_bestScore = score;
+				_bestPlane = candidate;
 			}
 		}
 		
 		/**
 		 * Builds the child nodes, based on the partition plane
 		 */
-		private function constructChildren(plane : Plane3D) : void
+		private function constructChildren(plane : Plane3D, faces : Vector.<NGon>) : void
 		{
-			_buildStepIndex = 0;
-			
 			_positiveFaces = new Vector.<NGon>();
 			_negativeFaces = new Vector.<NGon>();
 			
 			_partitionPlane = plane;
 			
-			constructStep();
-		}
-		
-		/**
-		 * One step in the child-building process, to prevent lock-ups
-		 */
-		private function constructStep() : void
-		{
-			var startTime : int = getTimer();
 			var classification : int;
 			var face : NGon;
-			var len : int = _buildFaces.length;
+			var len : int = faces.length;
 			var plane : Plane3D;
+			var i : int = 0;
 			
 			do {
-				face = _buildFaces[_buildStepIndex];
+				face = faces[i];
 				classification = face.classifyToPlane(_partitionPlane);
 				
 				if (classification == -2) { 
@@ -559,31 +496,18 @@ package away3d.core.graphs
 					_positiveFaces.push(splits[0]);
 					_negativeFaces.push(splits[1]);
 				}
-			} while (++_buildStepIndex < len && (getTimer()-startTime < _maxTimeout));
+			} while (++i < len);
 			
-			if (_buildStepIndex == len) {
-				_positiveNode = new BSPNode(this);
-				_negativeNode = new BSPNode(this);
-				
-				_completeCount = 0;
-				_positiveNode.addEventListener(Event.COMPLETE, onBuildChildComplete);
-				_positiveNode.build(_positiveFaces);
-				_negativeNode.addEventListener(Event.COMPLETE, onBuildChildComplete);
-				_negativeNode.build(_negativeFaces);
-			}
-			else {
-				setTimeout(constructStep, _deferralTime);
-			}
+			_positiveNode = new BSPNode(this);
+			_negativeNode = new BSPNode(this);
+			_positiveNode._buildFaces = _positiveFaces;
+			//_positiveNode.build(_positiveFaces);
+			_negativeNode._buildFaces = _negativeFaces;
+			//_negativeNode.build(_negativeFaces);
+			completeNode();
 		}
 		
-		/**
-		 * Called when a child has finished building
-		 */
-		private function onBuildChildComplete(event : Event) : void
-		{
-			event.target.removeEventListener(Event.COMPLETE, onBuildChildComplete);
-			if (++_completeCount == 2) completeNode();
-		}
+		private static const COMPLETE_EVENT : Event = new Event(Event.COMPLETE);
 		
 		/**
 		 * Cleans up temporary data and notifies parent of completion
@@ -593,7 +517,7 @@ package away3d.core.graphs
 			_negativeFaces = null;
 			_positiveFaces = null;
 			_buildFaces = null;
-			dispatchEvent(new Event(Event.COMPLETE));
+			dispatchEvent(COMPLETE_EVENT);
 		}
 		
 /*
@@ -819,7 +743,7 @@ package away3d.core.graphs
 			// when nodes are convex, we could return first intersecting poly
 			// since we're supposed to be inside the leaf
 			while (face = Face(faces[--i])) {
-				plane = face._plane;
+				plane = face.plane;
 				radX = radii.x*plane.a;
 				radY = radii.y*plane.b;
 				radZ = radii.z*plane.c;
