@@ -23,7 +23,7 @@ package
 			renderer.cullObjects = true;
 			
 			// center
-			//scene.addChild(new Sphere(null, 100, 6, 6));
+			scene.addChild(new Sphere(null, 100, 6, 6));
 
 			var colors:Array = [0xFFFFFF, 0xFF0000, 0x00FF00, 0x0000FF];
 			
@@ -33,8 +33,8 @@ package
 			{
 				var sphere:Sphere = new Sphere(new WireColorMaterial(colors[j%4]), 50, 6, 6);
 				scene.addChild(sphere);
-				sphere.x = 1000 * Math.cos(i);
-				sphere.z = 1000 * Math.sin(i);
+				sphere.x = 1500 * Math.cos(i);
+				sphere.z = 1500 * Math.sin(i);
 				i += 2 * Math.PI / max;
 				spheres.push(sphere);
 			}

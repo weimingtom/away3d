@@ -32,13 +32,6 @@ package away3dlite.core.render
 		
 		private function collectFaces(object:Object3D):void
 		{
-			if(cullObjects && object.culled)
-			{	
-				++numCulled;
-				object.culled = false;
-				return;
-			}
-			
 			_mouseEnabledArray.push(_mouseEnabled);
 			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 			
@@ -63,7 +56,12 @@ package away3dlite.core.render
 					
 					collectFaces(child);
 				}
-				
+			}
+			
+			if(cullObjects && object.culled)
+			{
+				numCulled++;
+				return;
 			}
 			
 			if (object is Mesh) {
@@ -112,17 +110,20 @@ package away3dlite.core.render
 							
 							drawParticles(_mesh.screenZ);
 							
-							if(_mesh.layer)
+							if(!_mesh.culled)
 							{
-								_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-								_graphicsDatas[_material_graphicsData] = _mesh.layer;
-							}
-							else if(_mesh.canvas)
-							{
-								_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
-								_graphicsDatas[_material_graphicsData] = _mesh.canvas;
-							}else{
-								_view_graphics_drawGraphicsData(_material_graphicsData);
+								if(_mesh.layer)
+								{
+									_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
+									_graphicsDatas[_material_graphicsData] = _mesh.layer;
+								}
+								else if(_mesh.canvas)
+								{
+									_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
+									_graphicsDatas[_material_graphicsData] = _mesh.canvas;
+								}else{
+									_view_graphics_drawGraphicsData(_material_graphicsData);
+								}
 							}
 						}
 						
@@ -263,20 +264,23 @@ package away3dlite.core.render
 			{
 				drawParticles(_mesh.screenZ);
 				
-				_material_graphicsData = _material.graphicsData;
-				_material_graphicsData[_material.trianglesIndex] = _triangles;
-				
-				if(_mesh.layer)
+				if(!_mesh.culled)
 				{
-					_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-					_graphicsDatas[_material_graphicsData] = _mesh.layer;
-				}
-				else if(_mesh.canvas)
-				{
-					_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
-					_graphicsDatas[_material_graphicsData] = _mesh.canvas;
-				}else{				
-					_view_graphics_drawGraphicsData(_material_graphicsData);
+					_material_graphicsData = _material.graphicsData;
+					_material_graphicsData[_material.trianglesIndex] = _triangles;
+					
+					if(_mesh.layer)
+					{
+						_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
+						_graphicsDatas[_material_graphicsData] = _mesh.layer;
+					}
+					else if(_mesh.canvas)
+					{
+						_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
+						_graphicsDatas[_material_graphicsData] = _mesh.canvas;
+					}else{				
+						_view_graphics_drawGraphicsData(_material_graphicsData);
+					}
 				}
 			}
 			

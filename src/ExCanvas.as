@@ -14,7 +14,7 @@ package
 	 * Canvas Example
 	 * @author katopz
 	 */
-	public class ExCanvas extends BasicTemplate
+	public class ExCanvas extends FastTemplate
 	{
 		private var step:Number = 0;
 		
