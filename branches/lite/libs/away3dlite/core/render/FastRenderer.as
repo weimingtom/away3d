@@ -18,21 +18,47 @@ package away3dlite.core.render
 		private var _x:Number;
 		private var _y:Number;
 		
-		private function collectParticles(object:Object3D):void
+		private function collectFaces(object:Object3D):void
 		{
-			if (object is ObjectContainer3D) {
+			_mouseEnabledArray.push(_mouseEnabled);
+			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
+			
+			if (object is ObjectContainer3D) 
+			{
 				var children:Array = (object as ObjectContainer3D).children;
 				var child:Object3D;
 				
+				if (sortObjects)
+					children.sortOn("screenZ", 18);
+					
 				for each (child in children) 
 				{
+					if(cullObjects)
+						_culler.cull(child);
+						
+					if(child.canvas)
+					{
+						var _child_canvas:Sprite = child.canvas;
+						_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
+						_child_canvas.graphics.clear();
+					}
+					
 					if(child.layer)
 						child.layer.graphics.clear();
 					
-					collectParticles(child);
+					collectFaces(child);
 				}
 					
-			}else if (object is Particles) {
+			}
+			
+			if(cullObjects && object.culled)
+			{
+				numCulled++;
+				return;
+			}
+			
+			if (object is Particles) 
+			{
 				var _particles_lists:Array = (object as Particles).lists;
 				
 				if(_particles_lists.length>0)
@@ -40,28 +66,17 @@ package away3dlite.core.render
 			}
 		}
 		
-		private function collectFaces(object:Object3D):void
+		private function drawFaces(object:Object3D):void
 		{
-			_mouseEnabledArray.push(_mouseEnabled);
-			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
+			if(cullObjects && object.culled)return;
 			
-			if (object is ObjectContainer3D) {
+			if (object is ObjectContainer3D) 
+			{
 				var children:Array = (object as ObjectContainer3D).children;
 				var child:Object3D;
 				
-				if (sortObjects)
-					children.sortOn("screenZ", 18);
-				
 				for each (child in children) 
-				{
-					if(child.canvas)
-					{
-						var _child_canvas:Sprite = child.canvas;
-						_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
-						_child_canvas.graphics.clear();
-					}
-					collectFaces(child);
-				}
+					drawFaces(child);
 			}
 			
 			if (object is Mesh) 
@@ -210,12 +225,12 @@ package away3dlite.core.render
 		{
 			super.render();
 			
-			collectParticles(_scene);
+			collectFaces(_scene);
 			
 			// sort merged particles
 			_particles.sortOn("screenZ", 18);
 				
-			collectFaces(_scene);
+			drawFaces(_scene);
 			
 			// draw front
 			drawParticles();
