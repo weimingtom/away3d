@@ -111,7 +111,7 @@ package away3dlite.core.base
 		/**
 		 * Cull status, use for Frustum object culler 
 		 */	
-		public var culled:Boolean = false;
+		//public var culled:Boolean = false;
 		
 		/**
 		 * Dirty status, use old matrix3D if not
@@ -191,6 +191,27 @@ package away3dlite.core.base
 		public function get position():Vector3D
 		{
 			return transform.matrix3D.position;
+		}
+		
+		override public function set visible(value:Boolean):void
+		{
+			super.visible = value;
+			if(canvas && canvas.visible != value)
+				canvas.visible = value;
+		}
+		
+		override public function set filters(value:Array):void
+		{
+			super.filters = value;
+			if(canvas && canvas.filters != value)
+				canvas.filters = value;
+		}
+		
+		override public function set blendMode(value:String):void
+		{
+			super.blendMode = value;
+			if(canvas && canvas.blendMode != value)
+				canvas.blendMode = value;
 		}
 		
 		/**

@@ -268,8 +268,8 @@ package away3dlite.loaders
 			_faceMaterials.fixed = true;
 			
 			// calculate normals for the shaders
-			//if (_material is IShader)
- 			//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
+			if (_material is IShader)
+ 				IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
  			
  			if (_scene)
  				_scene._dirtyFaces = true;

@@ -27,9 +27,6 @@ package away3dlite.core.render
 		
 		private var _material_graphicsData:Vector.<IGraphicsData>;
 		
-		// Layer
-		private var _graphicsDatas:Dictionary = new Dictionary(true);
-		
 		private function collectFaces(object:Object3D):void
 		{
 			_mouseEnabledArray.push(_mouseEnabled);
@@ -58,7 +55,7 @@ package away3dlite.core.render
 				}
 			}
 			
-			if(cullObjects && object.culled)
+			if(cullObjects && !object.visible)
 			{
 				numCulled++;
 				return;
@@ -110,18 +107,18 @@ package away3dlite.core.render
 							
 							drawParticles(_mesh.screenZ);
 							
-							if(!_mesh.culled)
+							if(_mesh.visible)
 							{
 								if(_mesh.layer)
 								{
 									_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-									_graphicsDatas[_material_graphicsData] = _mesh.layer;
 								}
 								else if(_mesh.canvas)
 								{
 									_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
-									_graphicsDatas[_material_graphicsData] = _mesh.canvas;
-								}else{
+								}
+								else
+								{
 									_view_graphics_drawGraphicsData(_material_graphicsData);
 								}
 							}
@@ -264,7 +261,7 @@ package away3dlite.core.render
 			{
 				drawParticles(_mesh.screenZ);
 				
-				if(!_mesh.culled)
+				if(_mesh.visible)
 				{
 					_material_graphicsData = _material.graphicsData;
 					_material_graphicsData[_material.trianglesIndex] = _triangles;
@@ -272,13 +269,13 @@ package away3dlite.core.render
 					if(_mesh.layer)
 					{
 						_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-						_graphicsDatas[_material_graphicsData] = _mesh.layer;
 					}
 					else if(_mesh.canvas)
 					{
 						_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
-						_graphicsDatas[_material_graphicsData] = _mesh.canvas;
-					}else{				
+					}
+					else
+					{
 						_view_graphics_drawGraphicsData(_material_graphicsData);
 					}
 				}

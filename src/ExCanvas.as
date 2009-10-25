@@ -29,12 +29,12 @@ package
 			sphere1.canvas = view.addChild(new Sprite()) as Sprite;
 			sphere1.canvas.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
 
-			// canvas with Filters + BlendMode
+			// with Filters + BlendMode
 			var sphere2:Sphere = scene.addChild(new Sphere(null, 50, 6, 6)) as Sphere;
 			sphere2.x = -150;
 			sphere2.canvas = view.addChild(new Sprite()) as Sprite;
-			sphere2.canvas.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
-			sphere2.canvas.blendMode = BlendMode.ADD;
+			sphere2.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
+			sphere2.blendMode = BlendMode.ADD;
 			
 			// orbit canvas
 			var i:int = 0;

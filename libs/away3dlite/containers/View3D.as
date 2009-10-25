@@ -35,7 +35,7 @@ package away3dlite.containers {
         		updateScreenClipping();
         		_screenClippingDirty = false;
         		
-        		return _screenClipping = _clipping.screen(this, _loaderWidth, _loaderHeight);
+        		return _screenClipping = _clipping.screen(this, _screenWidth, _screenHeight);
         	}
         	
         	return _screenClipping;
@@ -54,6 +54,8 @@ package away3dlite.containers {
 		private var _scene:Scene3D;
         private var _clipping:Clipping;
         private var _screenClipping:Clipping;
+		private var _screenWidth:Number;
+		private var _screenHeight:Number;
         private var _loaderWidth:Number;
 		private var _loaderHeight:Number;
 		private var _loaderDirty:Boolean;
@@ -73,6 +75,8 @@ package away3dlite.containers {
         private var _lastmove_mouseX:Number;
         private var _lastmove_mouseY:Number;
 		private var _face:Face;
+		
+		private var _autoSize:Boolean = true;
         
 		private function onClippingUpdated(e:ClippingEvent):void
 		{
@@ -101,12 +105,48 @@ package away3dlite.containers {
         	contextMenu = _customContextMenu;
         }
         
+		public function get screenWidth():Number
+		{
+			return _screenWidth;
+		}
+		
+		public function get screenHeight():Number
+		{
+			return _screenHeight;
+		}
+		
+		public function get autoSize():Boolean
+		{
+			return _autoSize;
+		}
+		
+		public function set autoSize(value:Boolean):void
+		{
+			_autoSize = value;
+			if(!_autoSize)
+			{
+				setSize(_screenWidth, _screenHeight);
+			}
+		}
+		
+		public function setSize(width:Number, height:Number):void
+		{
+			_screenWidth = width;
+			_screenHeight = height;
+			
+			x = _screenWidth/2;
+			y = _screenHeight/2;
+			
+			_autoSize = false;
+			_screenClippingDirty = true;
+		}
+		
 		private function updateScreenClipping():void
 		{
         	//check for loaderInfo update
         	try {
-        		_loaderWidth = loaderInfo.width;
-        		_loaderHeight = loaderInfo.height;
+				_loaderWidth = loaderInfo.width;
+				_loaderHeight = loaderInfo.height;
         		if (_loaderDirty) {
         			_loaderDirty = false;
         			_screenClippingDirty = true;
@@ -125,10 +165,17 @@ package away3dlite.containers {
 			if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
         		_x = _viewZero.x;
         		_y = _viewZero.y;
-        		_stageWidth = stage.stageWidth;
-        		_stageHeight = stage.stageHeight;
+				_screenWidth = _stageWidth = stage.stageWidth;
+				_screenHeight = _stageHeight = stage.stageHeight;
         		_screenClippingDirty = true;
    			}
+			
+			if(!_autoSize)
+			{
+				_x = _screenWidth/2;
+				_y = _screenHeight/2;
+				_screenClippingDirty = true;
+			}
 		}
 		
 		private function onStageResized(event:Event):void
@@ -354,10 +401,8 @@ package away3dlite.containers {
 			if (_camera == val)
 				return;
 				
-			if (_camera) {
+			if (_camera)
 				removeChild(_camera);
-				_camera._view = null;
-			}
 			
 			_camera = val;
 			

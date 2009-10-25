@@ -13,7 +13,7 @@ package
 	 * Example : Layer
 	 * @author katopz
 	 */
-	public class ExLayer extends FastTemplate
+	public class ExLayer extends BasicTemplate
 	{
 		private function onClick(event:MouseEvent):void
 		{
@@ -29,7 +29,9 @@ package
 		
 		override protected function onInit():void
 		{
-			title += " : Layer, Click plane to change filters"; 
+			title += " : Layer, Click plane to change filters";
+			
+			view.setSize(800, 600);
 			
 			// index layer
 			var plane:Plane;
@@ -50,6 +52,10 @@ package
 				
 				// Event
 				plane.layer.addEventListener(MouseEvent.CLICK, onClick);
+				
+				//visibility
+				if(i==2)
+					plane.visible = false;
 			}
 			
 			// no layer test

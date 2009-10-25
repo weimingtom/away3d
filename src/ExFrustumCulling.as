@@ -33,13 +33,44 @@ package
 			{
 				var sphere:Sphere = new Sphere(new WireColorMaterial(colors[j%4]), 50, 6, 6);
 				scene.addChild(sphere);
-				sphere.x = 1500 * Math.cos(i);
-				sphere.z = 1500 * Math.sin(i);
+				sphere.x = 600 * Math.cos(i);
+				sphere.z = 600 * Math.sin(i);
 				i += 2 * Math.PI / max;
 				spheres.push(sphere);
 			}
 			
-			// layer test
+			// debug axis cube
+			var length:int = 900;
+			var oCube:Cube6 = new Cube6(new ColorMaterial(0xFFFFFF), 10, 10, 10);
+			scene.addChild(oCube);
+
+			var xCube:Cube6 = new Cube6(new ColorMaterial(0xFF0000), 10, 10, 10);
+			xCube.x = length;
+			scene.addChild(xCube);
+
+			var yCube:Cube6 = new Cube6(new ColorMaterial(0x00FF00), 10, 10, 10);
+			yCube.y = length;
+			scene.addChild(yCube);
+
+			var zCube:Cube6 = new Cube6(new ColorMaterial(0x0000FF), 10, 10, 10);
+			zCube.z = length;
+			scene.addChild(zCube);
+			
+			//
+			
+			var _xCube:Cube6 = new Cube6(new ColorMaterial(0x660000), 10, 10, 10);
+			_xCube.x = -length;
+			scene.addChild(_xCube);
+
+			var _yCube:Cube6 = new Cube6(new ColorMaterial(0x006600), 10, 10, 10);
+			_yCube.y = -length;
+			scene.addChild(_yCube);
+
+			var _zCube:Cube6 = new Cube6(new ColorMaterial(0x000066), 10, 10, 10);
+			_zCube.z = -length;
+			scene.addChild(_zCube);
+			
+			 // toggle
 			stage.addEventListener(MouseEvent.CLICK, onClick);
 		}
 

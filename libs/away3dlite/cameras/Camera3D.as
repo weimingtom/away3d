@@ -24,7 +24,7 @@ package away3dlite.cameras
 			
 			if(_fieldOfViewDirty) {
 				_fieldOfViewDirty = false;
-				_projection.fieldOfView = 360*Math.atan2(stage.stageWidth, 2*_zoom*_focus)/Math.PI;
+				_projection.fieldOfView = 360*Math.atan2(_view.screenWidth, 2*_zoom*_focus)/Math.PI;
 			}
 			
 			_projectionMatrix3D = _projection.toMatrix3D();
@@ -84,7 +84,7 @@ package away3dlite.cameras
 		 */		
 		public function get ratio():Number
 		{
-			return stage.stageWidth/stage.stageHeight;
+			return _view.screenWidth/_view.screenHeight;
 		}
 		
 		/**
@@ -92,7 +92,7 @@ package away3dlite.cameras
 		 */	
 		public function get angle():Number
 		{
-			return Math.atan2(stage.stageWidth/2, Math.abs(z));
+			return Math.atan2(_view.screenWidth/2, Math.abs(z));
 		}
 		
 		/**

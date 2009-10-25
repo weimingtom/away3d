@@ -4,7 +4,8 @@ package away3dlite.core.base
 	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
 	import away3dlite.materials.*;
-	
+	import away3dlite.materials.shaders.*;
+		
 	import flash.display.*;
 	import flash.geom.*;
 	
@@ -51,8 +52,8 @@ package away3dlite.core.base
 			super.project(camera, parentSceneMatrix3D);
 			
 			// project the normals
-			//if (material is IShader)
-			//	_triangles.uvtData = IShader(material).getUVData(transform.matrix3D.clone());
+			if (material is IShader)
+				_uvtData = IShader(material).getUVData(transform.matrix3D.clone());
 			
 			//DO NOT CHANGE vertices getter!!!!!!!
 			Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
@@ -86,8 +87,8 @@ package away3dlite.core.base
 			_vertices.fixed = _uvtData.fixed = _indices.fixed = _faceLengths.fixed = _faceMaterials.fixed = _faces.fixed = _sort.fixed = true;
 			
 			// calculate normals for the shaders
-			//if (_material is IShader)
- 			//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
+			if (_material is IShader)
+ 				IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
  			
  			if (_scene)
  				_scene._dirtyFaces = true;
@@ -168,8 +169,8 @@ package away3dlite.core.base
 				_faces[i].material = _faceMaterials[i] || _material;
 				
 			// calculate normals for the shaders
-			//if (_material is IShader)
- 			//	IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
+			if (_material is IShader)
+ 				IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
 		}
 		
 		/**
