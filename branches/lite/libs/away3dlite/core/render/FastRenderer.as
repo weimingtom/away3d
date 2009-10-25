@@ -51,7 +51,7 @@ package away3dlite.core.render
 					
 			}
 			
-			if(cullObjects && object.culled)
+			if(cullObjects && !object.visible)
 			{
 				numCulled++;
 				return;
@@ -68,7 +68,7 @@ package away3dlite.core.render
 		
 		private function drawFaces(object:Object3D):void
 		{
-			if(cullObjects && object.culled)return;
+			if(cullObjects && !object.visible)return;
 			
 			if (object is ObjectContainer3D) 
 			{

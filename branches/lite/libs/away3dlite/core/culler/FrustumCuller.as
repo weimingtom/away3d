@@ -53,9 +53,9 @@ package away3dlite.core.culler
 				var _position:Vector3D = object3D.projectPosition.clone();
 				//_position.z = _position.z+object3D.screenZ;
 	
-				object3D.culled = (sphereInFrustum(_position, object3D.maxRadius) == 0);
+				object3D.visible = (sphereInFrustum(_position, object3D.maxRadius) != 0);
 				
-				if(object3D.culled)
+				if(!object3D.visible)
 					trace(_position + " + " + object3D.maxRadius)
 			}
 		}
