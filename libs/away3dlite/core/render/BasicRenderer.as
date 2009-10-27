@@ -246,18 +246,16 @@ package away3dlite.core.render
 			
 			_view._renderedFaces = _faces.length;
 			
-			_scene._dirtyFaces = false;
-			
 			if (_faces.length)
 			{
-				_sort.fixed = false;
-				_sort.length = _faces.length;
-				_sort.fixed = true;
-				
-				sortFaces();
+			_sort.fixed = false;
+			_sort.length = _faces.length;
+			_sort.fixed = true;
+			
+			sortFaces();
 			}
 			
-			if (_material) 
+			if (_material)
 			{
 				drawParticles(_mesh.screenZ);
 				

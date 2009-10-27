@@ -21,7 +21,7 @@ package
 		private var materials:ParticleMaterial;
 
 		private const radius:uint = 200;
-		private const max:int = 1000;
+		private const max:int = 3000;
 		private const size:uint = 10;
 
 		private const numFrames:uint = 30;
@@ -68,6 +68,12 @@ package
 
 			// layer test
 			stage.addEventListener(MouseEvent.CLICK, onClick);
+			
+			//view.visible = false;
+			//addChild(view.bitmap);
+			
+			for(var ii:int = 0; ii<10; ii++)
+				view.addChild(new Bitmap(new BitmapData(800,600)));
 		}
 
 		private function createMaterial():ParticleMaterial

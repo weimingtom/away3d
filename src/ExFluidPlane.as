@@ -13,7 +13,7 @@ package
 	 * Fluid Plane Example
 	 * @author katopz
 	 */
-	public class ExFluidPlane extends FastTemplate
+	public class ExFluidPlane extends BasicTemplate
 	{
 		private var force:Number = 0;
 		private var plane:Plane;
