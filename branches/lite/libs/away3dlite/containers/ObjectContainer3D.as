@@ -22,7 +22,7 @@ package away3dlite.containers
 			if (scene == val)
 				return;
 			
-			_scene = val;
+			super.updateScene(val);
 			
 			var child:Object3D;
 			
@@ -33,6 +33,9 @@ package away3dlite.containers
 		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{
 			_cameraInvSceneMatrix3D = camera.invSceneMatrix3D;
+			_cameraSceneMatrix3D.rawData = _cameraInvSceneMatrix3D.rawData;
+			_cameraSceneMatrix3D.invert();
+			_cameraPosition = _cameraSceneMatrix3D.position;
 			
 			super.project(camera, parentSceneMatrix3D);
 			
@@ -48,8 +51,14 @@ package away3dlite.containers
         private var _spriteVertices:Vector.<Number> = new Vector.<Number>();
         private var _spriteIndices:Vector.<int> = new Vector.<int>();
         private var _spritesDirty:Boolean;
+        private var _cameraPosition:Vector3D;
+        private var _spritePosition:Vector3D;
+        private var _NEGATIVE_Y_AXIS:Vector3D = new Vector3D(0,-1,0);
+        private var _cameraSceneMatrix3D:Matrix3D = new Matrix3D();
         private var _cameraInvSceneMatrix3D:Matrix3D = new Matrix3D();
 		private var _orientationMatrix3D:Matrix3D = new Matrix3D();
+		private var _cameraMatrix3D:Matrix3D = new Matrix3D();
+		
 		private var _viewDecomposed:Vector.<Vector3D>;
 		
         /**
@@ -103,7 +112,13 @@ package away3dlite.containers
 	    		_orientationMatrix3D.appendRotation(-_viewDecomposed[1].w*180/Math.PI, _viewDecomposed[1]);
 	    		
 	    		for each (sprite in _sprites) {
-	    			_orientationMatrix3D.transformVectors(sprite.vertices, _spriteVertices);
+	    			if (sprite.alignmentType == AlignmentType.VIEWPLANE) {
+	    				_orientationMatrix3D.transformVectors(sprite.vertices, _spriteVertices);
+	    			} else {
+	    				_spritePosition = sprite.position.subtract(_cameraPosition);
+						_cameraMatrix3D.pointAt(_spritePosition, Vector3D.Z_AXIS, _NEGATIVE_Y_AXIS);
+	    				_cameraMatrix3D.transformVectors(sprite.vertices, _spriteVertices);
+	    			}
 	    			
 					index = sprite.index*12;
 	    			i = 12;
@@ -146,9 +161,6 @@ package away3dlite.containers
 			
 			(child as Object3D).updateScene(_scene);
 			
-			if (_scene)
-				_scene._dirtyFaces = true;
-			
 			return child;
 		}
         
@@ -168,9 +180,7 @@ package away3dlite.containers
 			
 			_children.splice(_index, 1);
 			
-			(child as Object3D)._scene = null;
-			
-			_scene._dirtyFaces = true;
+			(child as Object3D).updateScene(null);
 			
 			return child;
 		}
