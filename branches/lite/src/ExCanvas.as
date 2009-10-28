@@ -14,7 +14,7 @@ package
 	 * Canvas Example
 	 * @author katopz
 	 */
-	public class ExCanvas extends FastTemplate
+	public class ExCanvas extends BasicTemplate
 	{
 		private var step:Number = 0;
 		
@@ -29,12 +29,19 @@ package
 			sphere1.canvas = view.addChild(new Sprite()) as Sprite;
 			sphere1.canvas.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
 
-			// with Filters + BlendMode
+			// object3d with Filters + BlendMode
 			var sphere2:Sphere = scene.addChild(new Sphere(null, 50, 6, 6)) as Sphere;
 			sphere2.x = -150;
 			sphere2.canvas = view.addChild(new Sprite()) as Sprite;
 			sphere2.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
 			sphere2.blendMode = BlendMode.ADD;
+			
+			// object3d with alpha 
+			var sphere3:Sphere = scene.addChild(new Sphere(null, 50, 6, 6)) as Sphere;
+			sphere3.y = -150;
+			sphere3.canvas = view.addChild(new Sprite()) as Sprite;
+			sphere3.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
+			sphere3.alpha = .1;
 			
 			// orbit canvas
 			var i:int = 0;
@@ -62,14 +69,16 @@ package
 		{
 			title = "Away3DLite | Canvas | Click to toggle sort object ("+ renderer.sortObjects + ") | (center sphere is not sort, no canvas)";
 			
-			scene.rotationX += .5;
+			//scene.rotationX += .5;
 			scene.rotationY += .5;
-			scene.rotationZ += .5;
+			//scene.rotationZ += .5;
 
+			/*
 			camera.x = 1000 * Math.cos(step);
 			camera.y = 10 * (300 - mouseY);
 			camera.z = 1000 * Math.sin(step);
 			camera.lookAt(new Vector3D(0, 0, 0));
+			*/
 			
 			step += .01;
 		}
