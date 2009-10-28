@@ -193,11 +193,18 @@ package away3dlite.core.base
 			return transform.matrix3D.position;
 		}
 		
-		override public function set visible(value:Boolean):void
+		override public function set alpha(value:Number):void
 		{
-			super.visible = value;
-			if(canvas && canvas.visible != value)
-				canvas.visible = value;
+			super.alpha = value;
+			if(canvas && canvas.alpha != value)
+				canvas.alpha = value;
+		}
+		
+		override public function set blendMode(value:String):void
+		{
+			super.blendMode = value;
+			if(canvas && canvas.blendMode != value)
+				canvas.blendMode = value;
 		}
 		
 		override public function set filters(value:Array):void
@@ -207,11 +214,11 @@ package away3dlite.core.base
 				canvas.filters = value;
 		}
 		
-		override public function set blendMode(value:String):void
+		override public function set visible(value:Boolean):void
 		{
-			super.blendMode = value;
-			if(canvas && canvas.blendMode != value)
-				canvas.blendMode = value;
+			super.visible = value;
+			if(canvas && canvas.visible != value)
+				canvas.visible = value;
 		}
 		
 		/**
