@@ -36,6 +36,9 @@ package away3dlite.core.render
 				var children:Array = (object as ObjectContainer3D).children;
 				var child:Object3D;
 				
+				if (sortObjects)
+					children.sortOn("screenZ", 18);
+					
 				for each (child in children)
 				{
 					if(cullObjects)
