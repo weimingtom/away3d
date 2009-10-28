@@ -41,7 +41,7 @@ package
 			sphere3.y = -150;
 			sphere3.canvas = view.addChild(new Sprite()) as Sprite;
 			sphere3.filters = [new GlowFilter(0xFF0000,1,16,16,2)];
-			sphere3.alpha = .1;
+			sphere3.alpha = .25;
 			
 			// orbit canvas
 			var i:int = 0;
@@ -70,15 +70,13 @@ package
 			title = "Away3DLite | Canvas | Click to toggle sort object ("+ renderer.sortObjects + ") | (center sphere is not sort, no canvas)";
 			
 			//scene.rotationX += .5;
-			scene.rotationY += .5;
+			//scene.rotationY += .5;
 			//scene.rotationZ += .5;
 
-			/*
 			camera.x = 1000 * Math.cos(step);
 			camera.y = 10 * (300 - mouseY);
 			camera.z = 1000 * Math.sin(step);
 			camera.lookAt(new Vector3D(0, 0, 0));
-			*/
 			
 			step += .01;
 		}
