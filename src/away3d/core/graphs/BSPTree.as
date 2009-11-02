@@ -8,6 +8,7 @@ package away3d.core.graphs
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
+	import away3d.core.base.Vertex;
 	import away3d.core.geom.Frustum;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
@@ -26,8 +27,16 @@ package away3d.core.graphs
 	 * BSPTree is a scene graph structure that allows static scenes to be rendered without z-sorting or z-conflicts,
 	 * and performs early culling to remove big parts of the geometry that don't need to be rendered. It also speeds up collision detection.
 	 */
+	 
+	// TO DO:
+	// - check for empty leaves and remove if so
+	//
+	// - looping can probably be optimized with a check if leaf,
+	//   --> state can automatically be set to POST in that case
 	public class BSPTree extends ObjectContainer3D
 	{
+		private static const EPSILON : Number = 1/32;
+		
 		private var _transformPt : Number3D = new Number3D();
 		
 		// the root node in the tree
@@ -41,6 +50,12 @@ package away3d.core.graphs
 		private var _viewToLocal : MatrixAway3D = new MatrixAway3D();
 		
 		private var _complete : Boolean;
+		
+		// portal generation
+		private var _portalIndex : int;
+		private var _maxTimeout : int = 500;
+		private var _portals : Vector.<BSPPortal>;
+
 		
 		// debug var
 		public var freezeCulling : Boolean;
@@ -165,12 +180,33 @@ package away3d.core.graphs
 			var polys : Vector.<NGon> = new Vector.<NGon>();
 			var ngon : NGon;
 			var len : int = faces.length;
-			var i : int;
+			var i : int, c : int;
+			var u : Number3D, v : Number3D, cross : Number3D;
+			var v1 : Vertex, v2 : Vertex, v3 : Vertex;
+			var face : Face;
+			
+			u = new Number3D();
+			v = new Number3D();
+			cross = new Number3D();
 			
 			do {
-				ngon = new NGon();
-				ngon.fromTriangle(faces[i]);
-				polys[i] = ngon;
+				face = faces[i];
+				v1 = face._v0;
+				v2 = face._v1;
+				v3 = face._v2;
+				// check if collinear (caused by t-junctions)
+				u.x = v2.x-v1.x;
+				u.y = v2.y-v1.y;
+				u.z = v2.z-v1.z;
+				v.x = v1.x-v3.x;
+				v.y = v1.y-v3.y;
+				v.z = v1.z-v3.z;
+				cross.cross(u, v);
+				if (cross.modulo > EPSILON) {
+					ngon = new NGon();
+					ngon.fromTriangle(faces[i]);
+					polys[c++] = ngon;
+				}
 			} while (++i < len);
 			return polys;
 		}
@@ -181,63 +217,136 @@ package away3d.core.graphs
 			_rootNode.gatherLeaves(_leaves);
 			init();
 			dispatchEvent(new Event(Event.COMPLETE));
-			//createPVS();
+			createPVS();
 		}
 		
 		private function createPVS() : void
 		{
-			var portals : Vector.<BSPPortal> = new Vector.<BSPPortal>();
-			_rootNode.findPortals(portals);
-			_splitPortals = new Vector.<BSPPortal>();
-			setTimeout(splitPortals, 1, portals);
+			_portals = new Vector.<BSPPortal>();
+			_needBuild = true;
+			_currentBuildNode = _rootNode;
+			_state = TRAVERSE_PRE;
+			createPVSStep();
 		}
 		
-		private var _portalIndex : int;
-		private var _maxTimeout : int = 500;
-		private var _splitPortals : Vector.<BSPPortal>;
-		
-		private function splitPortals(portals : Vector.<BSPPortal>) : void
+		private function createPVSStep() : void
 		{
 			var startTime : int = getTimer();
-			var len : int = portals.length;
-			do
-			{
-				_splitPortals = _splitPortals.concat(_rootNode.splitPortal(portals[_portalIndex]));
-			} while (++_portalIndex < len && getTimer()-startTime < _maxTimeout);
+			var pos : BSPNode;
+			var neg : BSPNode;
+			var partitionPlane : Plane3D;
+			var portals : Vector.<BSPPortal>;
 			
-			if (_portalIndex == portals.length) {
-				_portalIndex = 0;
-				setTimeout(assignPortals, 1); 
+			do {
+				if (_needBuild && !_currentBuildNode._isLeaf) {
+					portals = _currentBuildNode.generatePortals(_rootNode);
+					_portals = _portals.concat(portals);
+				}
+				
+				pos = _currentBuildNode._positiveNode;
+				neg = _currentBuildNode._negativeNode;
+				
+				switch(_state) {
+					case TRAVERSE_PRE:
+						if (pos) {
+							_currentBuildNode = pos;
+							_needBuild = true;
+						}
+						else {
+							_state = TRAVERSE_IN;
+							_needBuild = false;
+						}
+						break;
+					case TRAVERSE_IN:
+						if (neg) {
+							_currentBuildNode = neg;
+							_state = TRAVERSE_PRE;
+							_needBuild = true;
+						}
+						else {
+							_state = TRAVERSE_POST;
+							_needBuild = false;
+						}
+						break;
+					case TRAVERSE_POST:
+						if (_currentBuildNode._parent) {
+							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+								_state = TRAVERSE_IN;
+							_currentBuildNode = _currentBuildNode._parent;
+						}
+						_needBuild = false;
+						break;
+				}
+			} while (	(_currentBuildNode != _rootNode || _state != TRAVERSE_POST) &&
+						getTimer()-startTime < _maxTimeout);
+			
+			if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
+				setTimeout(removeOneSidedPortals, 1);
 			}
 			else {
-				setTimeout(splitPortals, 1, portals);
+				setTimeout(createPVSStep, 1);
 			}
 		}
 		
-		private function assignPortals() : void
+		private function removeOneSidedPortals() : void
+		{
+			var portal : BSPPortal;
+			
+			for (var i : int = 0; i < _portals.length; ++i) {
+				portal = _portals[i];
+				
+				if (portal.frontNode == null || portal.backNode == null)
+					_portals.splice(i--, 1);
+			}
+			
+			_portalIndex = 0;
+			setTimeout(cutSolidStep, 1);
+		}
+		
+		private function cutSolidStep() : void
 		{
 			var startTime : int = getTimer();
-			var len : int = _splitPortals.length;
-			//if (len == 0) return;
-			do
-			{
-				_rootNode.assignPortal(_splitPortals[_portalIndex]);
-			} while (++_portalIndex < len && getTimer()-startTime < _maxTimeout);
+			var portal : BSPPortal;
+			var newPortals : Vector.<BSPPortal>;
 			
-			if (_portalIndex < len) {
-				setTimeout(assignPortals, 1);
+			do {
+				portal = _portals[_portalIndex];
+				newPortals = portal.cutSolids();
+				if (newPortals) {
+					_portals.splice(_portalIndex--, 1);
+					
+					// sigh... using a Vector in splice arguments doesn't actually work
+					for (var i : int = 0; i < newPortals.length; ++i) {
+						_portals.splice(_portalIndex++, 0, newPortals[i]);
+					}
+				}
+			} while (++_portalIndex < _portals.length && getTimer() - startTime < _maxTimeout);
+			
+			if (_portalIndex >= _portals.length) {
+				linkPortals();
 			}
 			else {
-				setTimeout(linkPortals, 1);
+				setTimeout(cutSolidStep, 1);
 			}
 		}
 		
 		private function linkPortals() : void
 		{
-			for (var i : int = 0; i < _leaves.length; ++i) {
+			var i : int;
+			var portal : BSPPortal;
+			
+			for (i = 0; i < _portals.length; ++i) {
+				portal = _portals[i];
+				portal.frontNode.assignPortal(portal);
+				portal.backNode.assignPortal(portal);
+			}
+			
+			for (i = 0; i < _leaves.length; ++i) {
 				if (_leaves[i]) {
-					_leaves[i].linkPortals();
-					if (_leaves[i]._tempMesh) addChild(_leaves[i]._tempMesh);
+					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
+						addChild(_leaves[i]._tempMesh);
+						_leaves[i]._tempMesh.extra = {created: true};
+					}
 				}
 			}
 		}
@@ -275,31 +384,31 @@ package away3d.core.graphs
 		
 		private function orderNodes(point : Number3D) : void
 		{
+			var loopNode : BSPNode = _rootNode;
 			var partitionPlane : Plane3D;
 			var pos : BSPNode;
 			var neg : BSPNode;
 			_needBuild = true;
 			_state = TRAVERSE_PRE;
-			_currentBuildNode = _rootNode;
 			
-			if (_currentBuildNode._culled) return;
+			if (loopNode._culled) return;
 			
 			do {
-				if (_needBuild && !_currentBuildNode._isLeaf) {
-					partitionPlane = _currentBuildNode._partitionPlane;
-					_currentBuildNode._lastIterationPositive = (	partitionPlane.a*point.x +
-																	partitionPlane.b*point.y +
-																	partitionPlane.c*point.z +
-																	partitionPlane.d ) > 0;
+				if (_needBuild && !loopNode._isLeaf) {
+					partitionPlane = loopNode._partitionPlane;
+					loopNode._lastIterationPositive = (	partitionPlane.a*point.x +
+															partitionPlane.b*point.y +
+															partitionPlane.c*point.z +
+															partitionPlane.d ) > 0;
 				}
 				
-				pos = _currentBuildNode._positiveNode;
-				neg = _currentBuildNode._negativeNode;
+				pos = loopNode._positiveNode;
+				neg = loopNode._negativeNode;
 				
 				switch(_state) {
 					case TRAVERSE_PRE:
 						if (pos && !pos._culled) {
-							_currentBuildNode = _currentBuildNode._positiveNode;
+							loopNode = loopNode._positiveNode;
 							_needBuild = true;
 							break;
 						}
@@ -309,7 +418,7 @@ package away3d.core.graphs
 						}
 					case TRAVERSE_IN:
 						if (neg && !neg._culled) {
-							_currentBuildNode = _currentBuildNode._negativeNode;
+							loopNode = loopNode._negativeNode;
 							_state = TRAVERSE_PRE;
 							_needBuild = true;
 							break;
@@ -320,15 +429,15 @@ package away3d.core.graphs
 						}
 						//break;
 					case TRAVERSE_POST:
-						if (_currentBuildNode._parent) {
-							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+						if (loopNode._parent) {
+							if (loopNode == loopNode._parent._positiveNode)
 								_state = TRAVERSE_IN;
-							_currentBuildNode = _currentBuildNode._parent;
+							loopNode = loopNode._parent;
 							_needBuild = false;
 						}
 						break;
 				}
-			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
+			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
 		}
 		
 		/**
@@ -345,7 +454,7 @@ package away3d.core.graphs
         			traverser.apply(this);
         			doTraverse(traverser);
        				//_rootNode.traverse(traverser);
-       				//if (_activeLeaf && _activeLeaf._tempMesh) _activeLeaf._tempMesh.traverse(traverser);
+       				if (_activeLeaf && _activeLeaf._tempMesh) _activeLeaf._tempMesh.traverse(traverser);
         		}
         	}
         }
@@ -357,16 +466,16 @@ package away3d.core.graphs
         	var second : BSPNode;
         	var isLeaf : Boolean;
         	var changed : Boolean = true;
+        	var loopNode : BSPNode = _rootNode;
 			_state = TRAVERSE_PRE;
-			_currentBuildNode = _rootNode;
         	
-        	if (_currentBuildNode._culled) return;
+        	if (loopNode._culled) return;
         	
         	do {
         		if (changed) {
-        			isLeaf = _currentBuildNode._isLeaf
+        			isLeaf = loopNode._isLeaf
 					if (isLeaf) {
-						mesh = _currentBuildNode._mesh;
+						mesh = loopNode._mesh;
 						if (mesh && traverser.match(mesh))
 	            		{
 		                	traverser.enter(mesh);
@@ -376,13 +485,13 @@ package away3d.core.graphs
 	            		_state = TRAVERSE_POST;
 					}
 					else {
-						if (_currentBuildNode._lastIterationPositive) {
-							first = _currentBuildNode._negativeNode;
-							second = _currentBuildNode._positiveNode;
+						if (loopNode._lastIterationPositive) {
+							first = loopNode._negativeNode;
+							second = loopNode._positiveNode;
 						}
 						else {
-							first = _currentBuildNode._positiveNode;
-							second = _currentBuildNode._negativeNode;
+							first = loopNode._positiveNode;
+							second = loopNode._negativeNode;
 						}
 					}
         		}
@@ -390,7 +499,7 @@ package away3d.core.graphs
 				switch(_state) {
 					case TRAVERSE_PRE:
 						if (first && !first._culled) {
-							_currentBuildNode = first;
+							loopNode = first;
 							changed = true;
 						}
 						else {
@@ -400,7 +509,7 @@ package away3d.core.graphs
 						break;
 					case TRAVERSE_IN:
 						if (second && !second._culled) {
-							_currentBuildNode = second;
+							loopNode = second;
 							_state = TRAVERSE_PRE;
 							changed = true;
 						}
@@ -410,14 +519,14 @@ package away3d.core.graphs
 						}
 						break;
 					case TRAVERSE_POST:
-						if ((_currentBuildNode._parent._lastIterationPositive && _currentBuildNode == _currentBuildNode._parent._negativeNode) ||
-							(!_currentBuildNode._parent._lastIterationPositive && _currentBuildNode == _currentBuildNode._parent._positiveNode))
+						if ((loopNode._parent._lastIterationPositive && loopNode == loopNode._parent._negativeNode) ||
+							(!loopNode._parent._lastIterationPositive && loopNode == loopNode._parent._positiveNode))
 							_state = TRAVERSE_IN;
-						_currentBuildNode = _currentBuildNode._parent;
+						loopNode = loopNode._parent;
 						changed = true;
 						break;
 				}
-			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
+			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
         }
         
 		/**
@@ -443,6 +552,8 @@ package away3d.core.graphs
         	var comp : BSPNode;
         	var vislist : Vector.<int> = activeNode._visList;
         	var i : int, j : int;
+        	
+        	_rootNode._culled = false;
         	
         	// process PVS
         	if (!vislist || vislist.length == 0) {
@@ -482,19 +593,19 @@ package away3d.core.graphs
         	var partitionPlane : Plane3D;
 			var pos : BSPNode;
 			var neg : BSPNode;
+			var loopNode : BSPNode = _rootNode;
 			_state = TRAVERSE_PRE;
-			_currentBuildNode = _rootNode;
 			
-			if (_currentBuildNode._culled) return;
+			if (loopNode._culled) return;
 			
 			do {
-				pos = _currentBuildNode._positiveNode;
-				neg = _currentBuildNode._negativeNode;
+				pos = loopNode._positiveNode;
+				neg = loopNode._negativeNode;
 				
 				switch(_state) {
 					case TRAVERSE_PRE:
 						if (pos && !pos._isLeaf) {
-							_currentBuildNode = pos;
+							loopNode = pos;
 						}
 						else {
 							_state = TRAVERSE_IN;
@@ -502,7 +613,7 @@ package away3d.core.graphs
 						break;
 					case TRAVERSE_IN:
 						if (neg && !neg._isLeaf) {
-							_currentBuildNode = neg;
+							loopNode = neg;
 							_state = TRAVERSE_PRE;
 						}
 						else {
@@ -510,21 +621,21 @@ package away3d.core.graphs
 						}
 						break;
 					case TRAVERSE_POST:
-						if (_currentBuildNode._parent) {
-							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+						if (loopNode._parent) {
+							if (loopNode == loopNode._parent._positiveNode)
 								_state = TRAVERSE_IN;
-							_currentBuildNode = _currentBuildNode._parent;
+							loopNode = loopNode._parent;
 						}
 						break;
 				}
 
-				if (_state == TRAVERSE_POST && !_currentBuildNode._isLeaf) {
-					pos = _currentBuildNode._positiveNode;
-					neg = _currentBuildNode._negativeNode;
-					_currentBuildNode._culled = (!pos || pos._culled) && (!neg || neg._culled);
+				if (_state == TRAVERSE_POST && !loopNode._isLeaf) {
+					pos = loopNode._positiveNode;
+					neg = loopNode._negativeNode;
+					loopNode._culled = (!pos || pos._culled) && (!neg || neg._culled);
 				}
 				
-			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
+			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
         }
         
         private function cullToFrustum(frustum : Frustum) : void
@@ -534,19 +645,19 @@ package away3d.core.graphs
 			var neg : BSPNode;
 			var classification : int;
 			var needCheck : Boolean = true;
+			var loopNode : BSPNode = _rootNode;
 			
 			_state = TRAVERSE_PRE;
-			_currentBuildNode = _rootNode;
 			
-			if (_currentBuildNode._culled) return;
+			if (loopNode._culled) return;
 			
 			do {
 				if (needCheck) {
-					classification = frustum.classifyAABB(_currentBuildNode._bounds);
-					_currentBuildNode._culled = (classification == Frustum.OUT);
+					classification = frustum.classifyAABB(loopNode._bounds);
+					loopNode._culled = (classification == Frustum.OUT);
 					
-					if (_currentBuildNode._isLeaf) {
-						if (_currentBuildNode._mesh) _currentBuildNode._mesh._preCullClassification = classification;
+					if (loopNode._isLeaf) {
+						if (loopNode._mesh) loopNode._mesh._preCullClassification = classification;
 						_state = TRAVERSE_POST;
 					}
 					// no further descension is needed if whole bounding box completely inside or outside frustum
@@ -554,13 +665,13 @@ package away3d.core.graphs
 						_state = TRAVERSE_POST;
 				}
 				
-				pos = _currentBuildNode._positiveNode;
-				neg = _currentBuildNode._negativeNode;
+				pos = loopNode._positiveNode;
+				neg = loopNode._negativeNode;
 				
 				switch(_state) {
 					case TRAVERSE_PRE:
 						if (pos && !pos._culled) {
-							_currentBuildNode = pos;
+							loopNode = pos;
 							needCheck = true;
 						}
 						else {
@@ -570,7 +681,7 @@ package away3d.core.graphs
 						break;
 					case TRAVERSE_IN:
 						if (neg && !neg._culled) {
-							_currentBuildNode = neg;
+							loopNode = neg;
 							_state = TRAVERSE_PRE;
 							needCheck = true;
 						}
@@ -580,21 +691,15 @@ package away3d.core.graphs
 						}
 						break;
 					case TRAVERSE_POST:
-						if (_currentBuildNode._parent) {
-							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
+						if (loopNode._parent) {
+							if (loopNode == loopNode._parent._positiveNode)
 								_state = TRAVERSE_IN;
-							_currentBuildNode = _currentBuildNode._parent;
+							loopNode = loopNode._parent;
 						}
 						needCheck = false;
 						break;
 				}
-				
-				/* if (_state == TRAVERSE_POST && !_currentBuildNode._isLeaf) {
-					pos = _currentBuildNode._positiveNode;
-					neg = _currentBuildNode._negativeNode;
-					_currentBuildNode._culled = (!pos || pos._culled) && (!neg || neg._culled);
-				} */
-			} while (_currentBuildNode != _rootNode || _state != TRAVERSE_POST);
+			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
         }
         
 		/**
