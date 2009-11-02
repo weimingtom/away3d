@@ -11,7 +11,7 @@ package away3d.core.geom
 	
 	use namespace arcane;
 	
-	public class NGon
+	public final class NGon
 	{
 		private static const EPSILON : Number = 1/128;
 		
@@ -43,13 +43,14 @@ package away3d.core.geom
 			
 			for (var i : int = 0; i < len; ++i) {
 				v = vertices[i];
-				dist = compPlane.a*v._x + compPlane.b*v._y + compPlane.c*v._z + compPlane.d;
+				dist = compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d;
 				if (dist > EPSILON)
 					++numPos;
 				else if (dist < -EPSILON)
 					++numNeg;
 				else
 					++numDoubt;
+				if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
 			}
 			
 			if (numDoubt == len)
@@ -135,6 +136,8 @@ package away3d.core.geom
 			var posUV : Vector.<UV>;
 			var negUV : Vector.<UV>;
 			var j : int;
+			var d : Number;
+			
 			ngons[0] = posNGon;
 			ngons[1] = negNGon;
 			negNGon.plane = posNGon.plane = this.plane;
@@ -143,13 +146,16 @@ package away3d.core.geom
 			posVerts = posNGon.vertices = new Vector.<Vertex>();
 			negVerts = negNGon.vertices = new Vector.<Vertex>();
 			
-			if (uvs) posUV = posNGon.uvs = new Vector.<UV>();
-			if (uvs) negUV = negNGon.uvs = new Vector.<UV>();
+			if (uvs) {
+				posUV = posNGon.uvs = new Vector.<UV>();
+				negUV = negNGon.uvs = new Vector.<UV>();
+			}
 			
 			for (var i : int = 0; i < len; ++i) {
 				v1 = vertices[i];
-				dists[i] = plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d;
-				if (dists[i] > -EPSILON && dists[i] < EPSILON) dists[i] = 0;
+				d = plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d;
+				if (d > -EPSILON && d < EPSILON) d = 0;
+				dists[i] = d;
 			}
 			
 			j = 1;
@@ -197,7 +203,7 @@ package away3d.core.geom
 				if (dists[i] > -EPSILON && dists[i] < EPSILON) dists[i] = 0;
 			}
 			
-			if (uvs) newUVs = new Vector.<UV>()
+			if (uvs) newUVs = new Vector.<UV>();
 			
 			j = 1;
 			for (i = 0; i < len; ++i) {
@@ -222,6 +228,34 @@ package away3d.core.geom
 			
 			vertices = newVerts;
 			uvs = newUVs;
+		}
+		
+		public function get area() : Number
+		{
+			var area : Number = 0;
+			var v1 : Vertex = vertices[0];
+			var v2 : Vertex, v3 : Vertex;
+			var len : int = vertices.length-1;
+			var u : Number3D, v : Number3D, cross : Number3D;
+			
+			u = new Number3D();
+			v = new Number3D();
+			cross = new Number3D();
+			
+			for (var i : int = 1; i < len; ++i) {
+				v2 = vertices[i];
+				v3 = vertices[i+1];
+				u.x = v2.x-v1.x;
+				u.y = v2.y-v1.y;
+				u.z = v2.z-v1.z;
+				v.x = v3.x-v1.x;
+				v.y = v3.y-v1.y;
+				v.z = v3.z-v1.z;
+				cross.cross(u, v);
+				area += cross.modulo;
+			}
+			
+			return area;
 		}
 		
 		private function trimEdge(plane : Plane3D, v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV, newVerts : Vector.<Vertex>, newUV : Vector.<UV>) : void

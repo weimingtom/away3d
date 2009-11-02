@@ -21,9 +21,9 @@ package away3d.core.graphs
 	/**
 	 * BSPNode is a single node in a BSPTree
 	 */
-	public class BSPNode extends EventDispatcher
+	public final class BSPNode extends EventDispatcher
 	{
-		private static var EPSILON : Number = 1/32;
+		private static var EPSILON : Number = 1/128;
 		
 		public var id : int;
 		// indicates whether this node is a leaf or not
@@ -35,6 +35,8 @@ package away3d.core.graphs
 		
 		// a reference to the parent node
 		arcane var _parent : BSPNode;
+		
+		arcane var _name : String = "_root";
 		
 		// non-leaf only
 		arcane var _partitionPlane : Plane3D;		// the plane that divides the node in half
@@ -499,11 +501,11 @@ package away3d.core.graphs
 			} while (++i < len);
 			
 			_positiveNode = new BSPNode(this);
+			_positiveNode._name = _name+" -> +";
 			_negativeNode = new BSPNode(this);
+			_negativeNode._name = _name+" -> -";
 			_positiveNode._buildFaces = _positiveFaces;
-			//_positiveNode.build(_positiveFaces);
 			_negativeNode._buildFaces = _negativeFaces;
-			//_negativeNode.build(_negativeFaces);
 			completeNode();
 		}
 		
@@ -523,207 +525,92 @@ package away3d.core.graphs
 /*
  * Methods used to generate the PVS
  */
-		arcane function findPortals(portals : Vector.<BSPPortal>) : void
-		{
-			var portal : BSPPortal;
-			
-			if (!_isLeaf) {
-				if (_positiveNode) _positiveNode.findPortals(portals);
-				if (_negativeNode) _negativeNode.findPortals(portals);
-				portal = new BSPPortal();
-				portal.fromNode(this);
-				/* if (_parent) {
-					var s : Vector.<BSPPortal> = portal.split(_parent._partitionPlane);
-					if (this == _parent._positiveNode)
-						portal = s[0];
-					else
-						portal = s[1];
-				} */
-				
+ 		arcane function generatePortals(rootNode : BSPNode) : Vector.<BSPPortal>
+ 		{
+ 			if (_isLeaf) return null;
+ 			
+ 			var portal : BSPPortal = new BSPPortal();
+ 			var posPortals : Vector.<BSPPortal>;
+ 			var finalPortals : Vector.<BSPPortal>;
+ 			var splits : Vector.<BSPPortal>;
+ 			
+ 			portal.fromNode(this, rootNode);
+ 			portal.frontNode = _positiveNode;
+ 			portal.backNode = _negativeNode;
+ 			posPortals = _positiveNode.splitPortalByChildren(portal, Plane3D.FRONT);
+ 			
+ 			finalPortals = new Vector.<BSPPortal>();
+ 			
+ 			if (posPortals) {
+	 			for (var i : int = 0; i < posPortals.length; ++i) {
+	 				splits = _negativeNode.splitPortalByChildren(posPortals[i], Plane3D.BACK)
+	 				if (splits) finalPortals = finalPortals.concat(splits);
+	 			}
+	 		}
+ 			
+ 			return finalPortals;
+ 		}
+ 		
+ 		arcane function splitPortalByChildren(portal : BSPPortal, side : int) : Vector.<BSPPortal>
+ 		{
+ 			var portals : Vector.<BSPPortal>;
+ 			var splits : Vector.<BSPPortal>;
+ 			var classification : int;
+ 			
+ 			if (!portal) return new Vector.<BSPPortal>();
+ 			
+			if (_isLeaf) {
+				if (side == Plane3D.FRONT)
+					portal.frontNode = this;
+				else
+					portal.backNode = this;
+				portals = new Vector.<BSPPortal>();
 				portals.push(portal);
+				return portals;
 			}
-			
-			/* var pos : Vector.<BSPPortal>;
-			var neg : Vector.<BSPPortal>;
-			var portal : BSPPortal;
-			var len : int;
-			var splits : Vector.<BSPPortal>;
-			
-			if (!_isLeaf) {
-				pos = new Vector.<BSPPortal>();
-				neg = new Vector.<BSPPortal>();
-				if (portals) {
-					len = portals.length;
-					
-					for (var i : int = 0; i < len; ++i) {
-						splits = portals[i].split(_partitionPlane);
-						if (splits[0]) pos.push(splits[0]);
-						if (splits[1]) neg.push(splits[1]);
-					}
-				}
-				
-				portal = new BSPPortal();
-				portal.fromNode(this);
-				if (portals) trimPortal(portal, portals);
-				pos.push(portal);
-				
-				var n : BSPPortal = portal.clone();
-				n.nGon.plane.a = -portal.nGon.plane.a;
-				n.nGon.plane.b = -portal.nGon.plane.b;
-				n.nGon.plane.c = -portal.nGon.plane.c;
-				n.nGon.plane.d = -portal.nGon.plane.d;
-				neg.push(n);
-				
-				if (_positiveNode) _positiveNode.findPortals(pos);
-				if (_negativeNode) _negativeNode.findPortals(neg);
-			}
-			else {
-				_tempMesh = new Mesh();
-				var tris : Vector.<Face>;
-				for (var j : int = 0; j < portals.length; ++j) {
-					tris = portals[j].nGon.triangulate();
-					if (tris) {
-						for (i = 0; i < tris.length; ++i) {
-							_tempMesh.addFace(tris[i]);
-							_tempMesh.bothsides = true;
-						}
-					}
-				}
-			} */
-		}
-		
-		arcane function splitPortal(portal : BSPPortal) : Vector.<BSPPortal>
-		{
-			var pos : Vector.<BSPPortal>;
-			var neg : Vector.<BSPPortal>;
-			var splits : Vector.<BSPPortal>;
-			
-			if (_isLeaf) {
-				splits = new Vector.<BSPPortal>(1);
-				splits[0] = portal;
-				return splits;
-			}
-			
-			if (portal.nGon.plane == _partitionPlane) {
-				if (_positiveNode) pos = _positiveNode.splitPortal(portal);
-				if (_negativeNode) {
-					for (var i : int = 0; i < pos.length; ++i) {
-						if (!neg) neg = _negativeNode.splitPortal(pos[i]);
-						else neg = neg.concat(_negativeNode.splitPortal(pos[i]));
-					}
-					
-				}
-			}
-			else {
-				splits = portal.split(_partitionPlane)
-				
-				if (splits[0] && _positiveNode) pos = _positiveNode.splitPortal(splits[0]);
-				if (splits[1] && _negativeNode) neg = _negativeNode.splitPortal(splits[1]);
-			}
-			
-			if (pos != null && neg != null) return pos.concat(neg);
-			else if (pos) return pos;
-			else return neg;
-		}
-		
-		arcane function assignPortal(portal : BSPPortal) : void
-		{
-			var classification : int;
-			
-			if (_isLeaf) {
-				if (!isHierarchyValid(portal)) return;
-				if (!_portals) _portals = new Vector.<BSPPortal>();
-				_portals.push(portal);
-				//trimPortalToLeaf(portal);
-				if (!portal.leaves) portal.leaves = new Vector.<BSPNode>();
-				portal.leaves.push(this);
-				return;
-			}
-			
-			if (portal.nGon.plane == _partitionPlane) {
-				if (_positiveNode) _positiveNode.assignPortal(portal);
-				if (_negativeNode) _negativeNode.assignPortal(portal);
-			}
-			else {
-				classification = portal.nGon.classifyToPlane(_partitionPlane)
-				if (classification == Plane3D.BACK) {
-					if (_negativeNode) _negativeNode.assignPortal(portal);
-				}
-				else if (classification == Plane3D.FRONT) {
-					if (_positiveNode) _positiveNode.assignPortal(portal);
-				}
-			}
-		}
-		
-		/**
-		 * Checks if portal matches the hierarchy. Only occurs due to bounding box approx
-		 */
-		private function isHierarchyValid(portal : BSPPortal) : Boolean
-		{
-			var node : BSPNode = this;
-			if (!node._parent) return true;
-			
-			do {
-				if (node == portal.sourceNode) return true;
-			} while (node = node._parent);
-			return false;
-		}
-		
-		arcane function linkPortals() : void
-		{
-			var len : int = _portals.length;
-			var portal : BSPPortal;
-			
-			for (var i : int = 0; i < len; ++i) {
-				portal = _portals[i];
-				// portal only belongs to this leaf or is trimmed away
-				if (portal.leaves.length < 2 || portal.nGon.vertices.length < 3) {
-					// dispose
-					_portals.splice(i, 1);
-					--len;
-					--i;
-				}
-				else {
-					if (!_tempMesh) {
-						_tempMesh = new Mesh();
-						_tempMesh.bothsides = true;
-					}
-					var faces : Vector.<Face> = portal.nGon.triangulate();
-					for (var j : int = 0; j < faces.length; ++j)
-					{
-						_tempMesh.addFace(faces[j]);
-					}
-				}
-			}
-		}
-		
-		private function trimPortalToLeaf(portal : BSPPortal) : void
-		{
-			var len : int = _mesh.faces.length;
-			var face : Face;
-			var facePlane : Plane3D;
-			var portalPlane : Plane3D;
-			var dot : Number;
-			for (var i : int = 0; i < len; ++i) {
-				face = _mesh.faces[i];
-				facePlane = face.plane;
-				portalPlane = portal.nGon.plane;
-				dot = Math.abs(facePlane.a*portalPlane.a + facePlane.b*portalPlane.b + facePlane.c*portalPlane.c);
-				// maybe I should split if they intersect?
-				if (Math.abs(dot-1) > EPSILON)
-					portal.nGon.trim(facePlane);
-			}
-		}
-		
-		private function trimPortal(portal : BSPPortal, portals : Vector.<BSPPortal>) : void
-		{
-			var len : int = portals.length;
-			
-			for (var i : int = 0; i < len; ++i) {
-				portal.nGon.trim(portals[i].nGon.plane);
-			}
-		}
+ 			
+ 			classification = portal.nGon.classifyToPlane(_partitionPlane);
+ 			
+ 			switch (classification) {
+ 				case Plane3D.FRONT:
+ 					portals = _positiveNode.splitPortalByChildren(portal, side);
+ 					break;
+ 				case Plane3D.BACK:
+ 					portals = _negativeNode.splitPortalByChildren(portal, side);
+ 					break;
+ 				case Plane3D.INTERSECT:
+ 					splits = portal.split(_partitionPlane);
+ 					portals = _positiveNode.splitPortalByChildren(splits[0], side);
+ 					splits = _negativeNode.splitPortalByChildren(splits[1], side);
+ 					if (portals && splits)
+ 						portals = portals.concat(splits);
+ 					else if (!portals) portals = splits;
+ 					break;
+ 				default:
+ 					// send down both sides?
+ 					// or does this indicate something is horribly horribly wrong?
+ 					break;
+ 			}
+ 			
+ 			return portals;
+ 		}
 
+		arcane function assignPortal(portal : BSPPortal) : void
+ 		{
+ 			var faces : Vector.<Face>;
+ 			if (!_portals) _portals = new Vector.<BSPPortal>();
+ 			_portals.push(portal);
+ 			
+ 			if(!_tempMesh) {
+				_tempMesh = new Mesh();
+				_tempMesh.bothsides = true;
+			}
+			faces = portal.nGon.triangulate();
+			for (var j : int = 0; j < faces.length; j++) {
+				_tempMesh.addFace(faces[j]);
+			}
+ 		}
+ 		
 /*
  * Methods used for colision detection
  */

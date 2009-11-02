@@ -11,7 +11,7 @@ package away3d.core.geom
     	public static const FRONT:int = 1;
     	public static const BACK:int = -1;
     	public static const INTERSECT:int = 0;
-    	public static const EPSILON:Number = 0.001;
+    	public static const EPSILON:Number = 1/128;
     	
     	
     	/**
