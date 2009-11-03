@@ -82,6 +82,15 @@ package away3dlite.containers
 			return _sprites;
 		}
 		
+		override public function set layer(value:Sprite):void
+		{
+			super.layer = value;
+			
+            for each(var object3D:Object3D in children) 
+            	if (object3D is Mesh)
+            		object3D.layer = value
+		}
+
 		/**
 		 * @inheritDoc
 		 */

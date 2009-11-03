@@ -27,9 +27,6 @@ package away3dlite.containers
 		// still need array for sortOn
 		public var lists:Array;
 		
-		// by pass
-		private var _layer:Sprite;
-		
 		/** @private */
 		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{

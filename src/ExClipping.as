@@ -80,12 +80,12 @@ package
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
-			view.clipping = clipping;
-						
+			view.x = 800/2;
+			view.y = 600/2;
 			//view.addSourceURL("srcview/index.html");
 			addChild(view);
 			
-			view.setSize(800, 600);
+			view.clipping = clipping;
 			
 			var debugRect:Sprite = new Sprite();
 			debugRect.graphics.lineStyle(1, 0xFF0000);

@@ -35,7 +35,7 @@ package away3dlite.containers {
         		updateScreenClipping();
         		_screenClippingDirty = false;
         		
-        		return _screenClipping = _clipping.screen(this, _screenWidth, _screenHeight);
+        		return _screenClipping = _clipping.screen(this, _loaderWidth, _loaderHeight);
         	}
         	
         	return _screenClipping;
@@ -54,6 +54,8 @@ package away3dlite.containers {
 		private var _scene:Scene3D;
         private var _clipping:Clipping;
         private var _screenClipping:Clipping;
+		private var _customWidth:Number;
+		private var _customHeight:Number;
 		private var _screenWidth:Number;
 		private var _screenHeight:Number;
         private var _loaderWidth:Number;
@@ -133,19 +135,12 @@ package away3dlite.containers {
 		public function set autoSize(value:Boolean):void
 		{
 			_autoSize = value;
-			if(!_autoSize)
-			{
-				setSize(_screenWidth, _screenHeight);
-			}
 		}
 		
 		public function setSize(width:Number, height:Number):void
 		{
-			_screenWidth = width;
-			_screenHeight = height;
-			
-			x = _screenWidth/2;
-			y = _screenHeight/2;
+			_customWidth = width;
+			_customHeight = height;
 			
 			_autoSize = false;
 			_screenClippingDirty = true;
@@ -182,8 +177,9 @@ package away3dlite.containers {
 			
 			if(!_autoSize)
 			{
-				_x = _screenWidth/2;
-				_y = _screenHeight/2;
+				_screenWidth = _customWidth;
+				_screenHeight = _customHeight;
+				
 				_screenClippingDirty = true;
 			}
 		}
