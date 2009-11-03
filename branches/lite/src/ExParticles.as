@@ -72,8 +72,8 @@ package
 			//view.visible = false;
 			//addChild(view.bitmap);
 			
-			for(var ii:int = 0; ii<10; ii++)
-				view.addChild(new Bitmap(new BitmapData(800,600)));
+			//for(var ii:int = 0; ii<10; ii++)
+			//	view.addChild(new Bitmap(new BitmapData(800,600)));
 		}
 
 		private function createMaterial():ParticleMaterial

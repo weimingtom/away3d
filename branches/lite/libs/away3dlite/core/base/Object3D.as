@@ -121,7 +121,16 @@ package away3dlite.core.base
 		/**
 		 * An optional layer sprite used to draw into inseatd of the default view.
 		 */
-		public var layer:Sprite;
+		protected var _layer:Sprite;
+		public function set layer(value:Sprite):void
+		{
+			_layer = value;
+		}
+		
+		public function get layer():Sprite
+		{
+			return _layer;
+		}
 		
 		/**
 		 * An optional canvas sprite used to draw into inseatd of the default view.

@@ -13,6 +13,7 @@ package
 	
 	import flash.display.*;
 	import flash.events.*;
+	import flash.geom.Vector3D;
 	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
@@ -32,7 +33,15 @@ package
 		{
 			loaded = true;
 			model = loader.handle;
+			model.layer = new Sprite();
+			view.addChild(model.layer);
+			
+			var sphere:Sphere = new Sphere();
+			scene.addChild(sphere);
+			sphere.layer = model.layer;
+			
 			skinAnimation = model.animationLibrary.getAnimation("default").animation as BonesAnimator;
+			
 		}
 		
 		/**
@@ -43,14 +52,18 @@ package
 			title += " : Collada Example.";
 			Debug.active = true;
 			camera.y = -500;
-			camera.z = -2000;
+			camera.lookAt(new Vector3D());
+			
+			var plane:Plane = new Plane(new WireColorMaterial, 500, 500);
+			scene.addChild(plane);
+			plane.layer = new Sprite();
+			view.addChild(plane.layer);
 			
 			collada = new Collada();
-			collada.scaling = 100;
-			//collada.centerMeshes = true;
-			
+			collada.scaling = 25;
+
 			loader = new Loader3D();
-			loader.loadGeometry("nemuvine/nemuvine.dae", collada);
+			loader.loadGeometry("assets/30_box_smooth_translate.dae", collada);
 			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
 			scene.addChild(loader);
 		}
@@ -61,8 +74,8 @@ package
 		override protected function onPreRender():void
 		{
 			//update the collada animation
-			//if(skinAnimation)
-			//	skinAnimation.update(getTimer()*2/1000);
+			if(skinAnimation)
+				skinAnimation.update(getTimer()*2/1000);
 			
 			scene.rotationY++;
 		}
