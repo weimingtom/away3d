@@ -1,7 +1,6 @@
 package away3d.core.graphs
 {
-	import __AS3__.vec.Vector;
-	
+	import away3d.events.TraceEvent;
 	import away3d.arcane;
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
@@ -29,13 +28,15 @@ package away3d.core.graphs
 	 */
 	 
 	// TO DO:
-	// - check for empty leaves and remove if so
-	//
 	// - looping can probably be optimized with a check if leaf,
 	//   --> state can automatically be set to POST in that case
+	//
+	// - use if instead of switch?
 	public class BSPTree extends ObjectContainer3D
 	{
 		private static const EPSILON : Number = 1/32;
+		
+		private var _progressEvent : TraceEvent;
 		
 		private var _transformPt : Number3D = new Number3D();
 		
@@ -51,11 +52,24 @@ package away3d.core.graphs
 		
 		private var _complete : Boolean;
 		
+		// building
+		private var _currentBuildNode : BSPNode;
+		private var _numNodes : int = 0;
+		private var _state : int;
+		private static const TRAVERSE_PRE : int = 0;
+		private static const TRAVERSE_IN : int = 1;
+		private static const TRAVERSE_POST : int = 2;
+		
+		public var maxTimeout : int = 500;
+		
+		private var _needBuild : Boolean;
+		
 		// portal generation
 		private var _portalIndex : int;
-		private var _maxTimeout : int = 500;
 		private var _portals : Vector.<BSPPortal>;
-
+		
+		private var _totalFaces : int;
+		private var _assignedFaces : int;
 		
 		// debug var
 		public var freezeCulling : Boolean;
@@ -67,8 +81,9 @@ package away3d.core.graphs
 		{
 			super();
 			_rootNode = new BSPNode(null);
+			_rootNode.maxTimeOut = maxTimeout;
 		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
@@ -105,26 +120,27 @@ package away3d.core.graphs
 		 */
 		public function build(faces : Vector.<Face>) : void
 		{
+			trace ("=== Building BSP tree ===");
+			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
+			_progressEvent.totalParts = 9;
 			_rootNode._buildFaces = convertFaces(faces);
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
+			_progressEvent.count = 0;
+			_progressEvent.message = "Building BSP tree";
+			_totalFaces = faces.length;
+			
 			buildStep();
 		}
-		
-		
-		private var _currentBuildNode : BSPNode;
-		private var _state : int;
-		private static const TRAVERSE_PRE : int = 0;
-		private static const TRAVERSE_IN : int = 1;
-		private static const TRAVERSE_POST : int = 2;
-		
-		public var maxTimeout : int = 500;
-		
-		private var _needBuild : Boolean;
 		
 		private function buildStep(event : Event = null) : void
 		{
 			if (event) {
+				if (_needBuild) {
+					_assignedFaces += _currentBuildNode._assignedFaces;
+					_totalFaces += _currentBuildNode._newFaces;
+				}
+				
 				if (_currentBuildNode.hasEventListener(Event.COMPLETE))
 					_currentBuildNode.removeEventListener(Event.COMPLETE, buildStep);
 				switch(_state) {
@@ -162,12 +178,13 @@ package away3d.core.graphs
 				}
 			}
 			
-			// this times out, which means something is wrong in the iterations
+			notifyProgress(_assignedFaces, _totalFaces);
+			
 			if (_needBuild) {
+				++_numNodes;
 				_currentBuildNode.addEventListener(Event.COMPLETE, buildStep);
 				_currentBuildNode.build();
-			}
-			else {
+			} else {
 				buildStep(event);
 			}
 		}
@@ -213,23 +230,32 @@ package away3d.core.graphs
 		
 		private function onBuildComplete() : void
 		{
+			trace ("=== Building BSP complete ===");
 			_leaves = new Vector.<BSPNode>();
 			_rootNode.gatherLeaves(_leaves);
 			init();
 			dispatchEvent(new Event(Event.COMPLETE));
+			
 			createPVS();
 		}
 		
 		private function createPVS() : void
 		{
+			trace ("=== Creating PVS ===");
 			_portals = new Vector.<BSPPortal>();
 			_needBuild = true;
 			_currentBuildNode = _rootNode;
 			_state = TRAVERSE_PRE;
-			createPVSStep();
+			trace ("Creating portals...");
+			
+			_progressEvent.count = 2;
+			_progressEvent.message = "Creating portals";
+			_portalIndex = 0;
+			
+			createPortals();
 		}
 		
-		private function createPVSStep() : void
+		private function createPortals() : void
 		{
 			var startTime : int = getTimer();
 			var pos : BSPNode;
@@ -237,10 +263,13 @@ package away3d.core.graphs
 			var partitionPlane : Plane3D;
 			var portals : Vector.<BSPPortal>;
 			
+			notifyProgress(_portalIndex, _numNodes-_leaves.length);
+			
 			do {
 				if (_needBuild && !_currentBuildNode._isLeaf) {
 					portals = _currentBuildNode.generatePortals(_rootNode);
 					_portals = _portals.concat(portals);
+					++_portalIndex;
 				}
 				
 				pos = _currentBuildNode._positiveNode;
@@ -278,28 +307,35 @@ package away3d.core.graphs
 						break;
 				}
 			} while (	(_currentBuildNode != _rootNode || _state != TRAVERSE_POST) &&
-						getTimer()-startTime < _maxTimeout);
+						getTimer()-startTime < maxTimeout);
 			
 			if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
 				setTimeout(removeOneSidedPortals, 1);
 			}
 			else {
-				setTimeout(createPVSStep, 1);
+				setTimeout(createPortals, 1);
 			}
 		}
 		
 		private function removeOneSidedPortals() : void
 		{
 			var portal : BSPPortal;
+			var len : int = _portals.length;
 			
-			for (var i : int = 0; i < _portals.length; ++i) {
+			for (var i : int = 0; i < len; ++i) {
 				portal = _portals[i];
 				
-				if (portal.frontNode == null || portal.backNode == null)
+				if (portal.frontNode == null || portal.backNode == null ||
+					!portal.frontNode._isLeaf || !portal.backNode._isLeaf)
 					_portals.splice(i--, 1);
 			}
 			
 			_portalIndex = 0;
+			trace ("Removing solids from portals...");
+			
+			_progressEvent.count = 3;
+			_progressEvent.message = "Improving portals";
+			
 			setTimeout(cutSolidStep, 1);
 		}
 		
@@ -312,42 +348,275 @@ package away3d.core.graphs
 			do {
 				portal = _portals[_portalIndex];
 				newPortals = portal.cutSolids();
-				if (newPortals) {
-					_portals.splice(_portalIndex--, 1);
-					
-					// sigh... using a Vector in splice arguments doesn't actually work
-					for (var i : int = 0; i < newPortals.length; ++i) {
+				
+				_portals.splice(_portalIndex--, 1);
+				
+				// sigh... using a Vector in splice arguments doesn't actually work
+				for (var i : int = 0; i < newPortals.length; ++i) {
+					if (newPortals[i].nGon.vertices.length > 2)
 						_portals.splice(_portalIndex++, 0, newPortals[i]);
-					}
 				}
-			} while (++_portalIndex < _portals.length && getTimer() - startTime < _maxTimeout);
+			} while (++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
 			
 			if (_portalIndex >= _portals.length) {
-				linkPortals();
+				setTimeout(partitionPortals, 1);
 			}
 			else {
 				setTimeout(cutSolidStep, 1);
 			}
 		}
 		
-		private function linkPortals() : void
+		private function partitionPortals() : void
 		{
-			var i : int;
+			var len : int = _portals.length;
+			var i : int = len;
 			var portal : BSPPortal;
+			var newLen : int = len*2;
+			var newPortals : Vector.<BSPPortal> = new Vector.<BSPPortal>(newLen);
+			var parts : Vector.<BSPPortal>;
+			var j : int = -1;
 			
-			for (i = 0; i < _portals.length; ++i) {
+			trace ("Partitioning portals...");
+			
+			while (--i >= 0) {
 				portal = _portals[i];
-				portal.frontNode.assignPortal(portal);
-				portal.backNode.assignPortal(portal);
+				parts = portal.partition();
+				parts[0].createLists(newLen);
+				parts[1].createLists(newLen);
+				newPortals[++j] = parts[0];
+				newPortals[++j] = parts[1];
 			}
 			
-			for (i = 0; i < _leaves.length; ++i) {
-				if (_leaves[i]) {
-					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
-						addChild(_leaves[i]._tempMesh);
-						_leaves[i]._tempMesh.extra = {created: true};
-					}
-				}
+			_portals = newPortals;
+			
+			setTimeout(linkPortals, 1);
+		}
+		
+		private var _firstPortal : BSPPortal;
+		
+		private function portalsToLinkedList() : void
+		{
+			var i : int = _portals.length;
+			var portal : BSPPortal;
+			
+			_firstPortal = null;
+			
+			while (--i >= 0) {
+				portal = _portals[i];
+				portal.next = _firstPortal;
+				_firstPortal = portal;
+			}
+		}
+		
+		private function linkPortals() : void
+		{
+			var i : int = _portals.length;
+			var portal : BSPPortal;
+			
+			trace ("Linking portals...");
+			portalsToLinkedList();
+			
+			while (--i >= 0) {
+				portal = _portals[i];
+				portal.index = i;
+				portal.maxTimeout = maxTimeout;
+				portal.frontNode.assignPortal(portal);
+				portal.backNode.assignBackPortal(portal);
+				//portal.backNode.assignPortal(portal);
+			}
+			
+//			createMeshes();
+			
+			// end temp
+			_portalIndex = 0;
+			_currentPortal = _firstPortal;
+			//setTimeout(findPortalNeighbours, 1);
+			
+			_progressEvent.count = 4;
+			_progressEvent.message = "Building front lists";
+			setTimeout(buildInitialFrontList, 1);
+		}
+		
+//		private function createMeshes() : void
+//		{
+//			// temp
+//			var len : int = _leaves.length;
+//			for (var i : int = 0; i < len; ++i) {
+//				if (_leaves[i]) {
+//					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
+//						addChild(_leaves[i]._tempMesh);
+//						_leaves[i]._tempMesh.extra = {created: true};
+//					}
+//				}
+//			}
+//		}
+
+		private var _currentPortal : BSPPortal;
+		
+		private function buildInitialFrontList() : void
+		{
+			var startTime : int = getTimer();
+			//var len : int = _portals.length;
+			
+			//trace (_portalIndex + " of " + _portals.length +": " + Math.round(_portalIndex/_portals.length*100)+"%");
+			notifyProgress(_currentPortal.index, _portals.length);
+			
+			// find portals that are in front per portal
+			do {
+				_currentPortal.findInitialFrontList(_firstPortal);
+			} while ((_currentPortal = _currentPortal.next) && getTimer() - startTime < maxTimeout);
+			
+			if (!_currentPortal) {
+				_progressEvent.message = "Updating front lists";
+				_portalIndex = 0;
+				_progressEvent.count = 5;
+				setTimeout(cleanFrontList, 1);
+			}
+			else {
+				setTimeout(buildInitialFrontList, 1);
+			}
+		}
+		
+		private function cleanFrontList() : void
+		{
+			var startTime : int = getTimer();
+			var len : int = _portals.length;
+			
+//			trace (_portalIndex + " of " + _portals.length +": " + Math.round(_portalIndex/_portals.length*100)+"%");
+			notifyProgress(_portalIndex, _portals.length);
+			
+			// remove portals in vislist that are mutually visible
+			do {
+				_portals[_portalIndex].removeReciprocalVisibles(_portals);
+			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
+			
+			if (_portalIndex >= len) {
+				_portalIndex = 0;
+				//setTimeout(initVisibleNeighbours, 1);
+				_progressEvent.message = "Finding neighbours";
+				_progressEvent.count = 6;
+				setTimeout(findPortalNeighbours, 1);
+			}
+			else
+				setTimeout(cleanFrontList, 1);
+		}
+		
+		private function findPortalNeighbours() : void
+		{
+			var startTime : int = getTimer();
+			var len : int = _portals.length;
+			
+			//trace (_portalIndex + " of " + _portals.length +": " + Math.round(_portalIndex/_portals.length*100)+"%");
+			notifyProgress(_portalIndex, _portals.length);
+			
+			// find portals that are in front per portal
+			do {
+				notifyProgress(_portalIndex, _portals.length);
+				_portals[_portalIndex].findNeighbours();
+			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
+			
+			if (_portalIndex >= len) {
+				_portalIndex = 0;
+				_progressEvent.message = "Culling portals";
+				_progressEvent.count = 7;
+				
+				setTimeout(removeVisiblesFromNeighbours, 1);
+			}
+			else {
+				setTimeout(findPortalNeighbours, 1);
+			}
+		}
+		
+		private function removeVisiblesFromNeighbours() : void
+		{
+			var startTime : int = getTimer();
+			var len : int = _portals.length;
+			
+			notifyProgress(_portalIndex, _portals.length);
+			
+			// remove portals in vislist that are mutually visible
+			do {
+				_portals[_portalIndex].removePortalsFromNeighbours(_portals);
+			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
+			
+			if (_portalIndex >= len) {
+				_portalIndex = 0;
+				_progressEvent.message = "Finding visible portals";
+				_progressEvent.count = 8;
+				
+				_portals.sort(portalSort);
+				
+				setTimeout(findVisiblePortals, 1);
+			}
+			else
+				setTimeout(removeVisiblesFromNeighbours, 1);
+		}
+		
+		private function portalSort(a : BSPPortal, b : BSPPortal) : Number
+		{
+			var fa : int = a.frontOrder;
+			var fb : int = b.frontOrder;
+			
+			if (fa < fb) return -1;
+			else if (fa == fb) return 0;
+			else return 1;
+		}
+
+		private function findVisiblePortals(event : Event = null) : void
+		{
+			if (event) {
+				_portals[_portalIndex++].removeEventListener(Event.COMPLETE, findVisiblePortals);
+			}
+			
+			//trace (_portalIndex + " of " + _portals.length +": " + Math.round(_portalIndex/_portals.length*100)+"%");
+			notifyProgress(_portalIndex, _portals.length);
+			
+			if (_portalIndex >= _portals.length) {
+				_portalIndex = 0;
+				trace ("Building final vislist");
+				setTimeout(finalizeVisList, 1);
+			}
+			else {
+				_portals[_portalIndex].addEventListener(Event.COMPLETE, findVisiblePortals);
+				_portals[_portalIndex].findVisiblePortals();
+			}
+		}
+		
+		/**
+		 * Find visible neighbouring portals and generate anti-prenumbra for them
+		 */
+//		private function initVisibleNeighbours() : void
+//		{
+//			var startTime : int = getTimer();
+//			var len : int = _portals.length;
+//			
+//			// remove portals in vislist that are mutually visible
+//			do {
+//				_portals[_portalIndex].checkNeighbours();
+//			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
+//			
+//			if (_portalIndex >= len) {
+//				_portalIndex = 0;
+//				setTimeout(removeVisiblesFromNeighbours, 1);
+//			}
+//			else
+//				setTimeout(initVisibleNeighbours, 1);
+//		}
+		
+		private function finalizeVisList() : void
+		{
+			var startTime : int = getTimer();
+			var len : int = _leaves.length;
+			
+			do {
+				_leaves[_portalIndex].processVislist(_portals);
+			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
+			
+			if (_portalIndex < len)
+				setTimeout(finalizeVisList, 1);
+			else {
+				trace ("=== PVS Complete ===");
+				dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
 			}
 		}
 		
@@ -359,9 +628,8 @@ package away3d.core.graphs
 		 */
 		arcane function update(camera : Camera3D, frustum : Frustum) : void
 		{
-			if (!(camera.lens is PerspectiveLens)) {
+			if (!(camera.lens is PerspectiveLens))
 				throw new Error("Lens is of incorrect type! BSP needs a PerspectiveLens instance assigned to Camera3D.lens");
-			}
 			
 			if (!_complete) return;
 			
@@ -382,6 +650,10 @@ package away3d.core.graphs
 			orderNodes(_transformPt);
 		}
 		
+		/**
+		 * TO DO: do we actually need this part?
+		 * Can we set a renderedFrame property so we know when to recalculate the _lastIterationPositive var inside traverse? 
+		 */
 		private function orderNodes(point : Number3D) : void
 		{
 			var loopNode : BSPNode = _rootNode;
@@ -397,9 +669,9 @@ package away3d.core.graphs
 				if (_needBuild && !loopNode._isLeaf) {
 					partitionPlane = loopNode._partitionPlane;
 					loopNode._lastIterationPositive = (	partitionPlane.a*point.x +
-															partitionPlane.b*point.y +
-															partitionPlane.c*point.z +
-															partitionPlane.d ) > 0;
+														partitionPlane.b*point.y +
+														partitionPlane.c*point.z +
+														partitionPlane.d ) > 0;
 				}
 				
 				pos = loopNode._positiveNode;
@@ -454,7 +726,13 @@ package away3d.core.graphs
         			traverser.apply(this);
         			doTraverse(traverser);
        				//_rootNode.traverse(traverser);
-       				if (_activeLeaf && _activeLeaf._tempMesh) _activeLeaf._tempMesh.traverse(traverser);
+       				
+       				// temp
+//       				if (	_activeLeaf &&
+//       						_activeLeaf._tempMesh && 
+//       						_activeLeaf._tempMesh.extra && 
+//       						_activeLeaf._tempMesh.extra.created
+//       					) _activeLeaf._tempMesh.traverse(traverser);
         		}
         	}
         }
@@ -473,7 +751,7 @@ package away3d.core.graphs
         	
         	do {
         		if (changed) {
-        			isLeaf = loopNode._isLeaf
+        			isLeaf = loopNode._isLeaf;
 					if (isLeaf) {
 						mesh = loopNode._mesh;
 						if (mesh && traverser.match(mesh))
@@ -496,8 +774,7 @@ package away3d.core.graphs
 					}
         		}
         		
-				switch(_state) {
-					case TRAVERSE_PRE:
+				if (_state == TRAVERSE_PRE) {
 						if (first && !first._culled) {
 							loopNode = first;
 							changed = true;
@@ -506,25 +783,24 @@ package away3d.core.graphs
 							_state = TRAVERSE_IN;
 							changed = false;
 						}
-						break;
-					case TRAVERSE_IN:
-						if (second && !second._culled) {
-							loopNode = second;
-							_state = TRAVERSE_PRE;
-							changed = true;
-						}
-						else {
-							_state = TRAVERSE_POST;
-							changed = false;
-						}
-						break;
-					case TRAVERSE_POST:
-						if ((loopNode._parent._lastIterationPositive && loopNode == loopNode._parent._negativeNode) ||
-							(!loopNode._parent._lastIterationPositive && loopNode == loopNode._parent._positiveNode))
-							_state = TRAVERSE_IN;
-						loopNode = loopNode._parent;
+				}
+				else if(_state == TRAVERSE_IN) {
+					if (second && !second._culled) {
+						loopNode = second;
+						_state = TRAVERSE_PRE;
 						changed = true;
-						break;
+					}
+					else {
+						_state = TRAVERSE_POST;
+						changed = false;
+					}
+				}
+				else if (_state == TRAVERSE_POST) {
+					if ((loopNode._parent._lastIterationPositive && loopNode == loopNode._parent._negativeNode) ||
+						(!loopNode._parent._lastIterationPositive && loopNode == loopNode._parent._positiveNode))
+						_state = TRAVERSE_IN;
+					loopNode = loopNode._parent;
+					changed = true;
 				}
 			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
         }
@@ -549,31 +825,34 @@ package away3d.core.graphs
         private function doCulling(activeNode : BSPNode, frustum : Frustum) : void
         {
         	var len : int = _leaves.length;
-        	var comp : BSPNode;
         	var vislist : Vector.<int> = activeNode._visList;
         	var i : int, j : int;
+        	var leaf : BSPNode;
+        	var vislen : int = vislist? vislist.length : 0;
         	
         	_rootNode._culled = false;
         	
         	// process PVS
-        	if (!vislist || vislist.length == 0) {
+        	if (vislen == 0) {
         		for (i = 0; i < len; ++i) {
-        			if (_leaves[i]) {
-        				if (_leaves[i]._mesh) {
-        					_leaves[i]._culled = false;
-        					_leaves[i]._mesh._preCullClassification = Frustum.IN;
+        			leaf = _leaves[i];
+        			if (leaf) {
+        				if (leaf._mesh) {
+        					leaf._culled = false;
+        					leaf._mesh._preCullClassification = Frustum.IN;
         				}
         				else
-        					_leaves[i]._culled = true;
+        					leaf._culled = true;
         			}
         		}
         	}
         	else {
 	        	for (i = 0; i < len; ++i) {
 	        		if (!_leaves[i]) continue;
-	        		if (j < vislist.length && i == vislist[j]) {
-	        			_leaves[i]._culled = false;
-	        			_leaves[i]._mesh._preCullClassification = Frustum.IN;
+	        		if (j < vislen && i == vislist[j]) {
+	        			leaf = _leaves[i];
+	        			leaf._culled = false;
+	        			leaf._mesh._preCullClassification = Frustum.IN;
 	        			++j;
 	        		}
 	        		else {
@@ -602,31 +881,29 @@ package away3d.core.graphs
 				pos = loopNode._positiveNode;
 				neg = loopNode._negativeNode;
 				
-				switch(_state) {
-					case TRAVERSE_PRE:
-						if (pos && !pos._isLeaf) {
-							loopNode = pos;
-						}
-						else {
+				if (_state == TRAVERSE_PRE) {
+					if (pos && !pos._isLeaf) {
+						loopNode = pos;
+					}
+					else {
+						_state = TRAVERSE_IN;
+					}
+				}
+				else if (_state == TRAVERSE_IN) {
+					if (neg && !neg._isLeaf) {
+						loopNode = neg;
+						_state = TRAVERSE_PRE;
+					}
+					else {
+						_state = TRAVERSE_POST;
+					}
+				}
+				else if (_state == TRAVERSE_POST) {
+					if (loopNode._parent) {
+						if (loopNode == loopNode._parent._positiveNode)
 							_state = TRAVERSE_IN;
-						}
-						break;
-					case TRAVERSE_IN:
-						if (neg && !neg._isLeaf) {
-							loopNode = neg;
-							_state = TRAVERSE_PRE;
-						}
-						else {
-							_state = TRAVERSE_POST;
-						}
-						break;
-					case TRAVERSE_POST:
-						if (loopNode._parent) {
-							if (loopNode == loopNode._parent._positiveNode)
-								_state = TRAVERSE_IN;
-							loopNode = loopNode._parent;
-						}
-						break;
+						loopNode = loopNode._parent;
+					}
 				}
 
 				if (_state == TRAVERSE_POST && !loopNode._isLeaf) {
@@ -668,36 +945,34 @@ package away3d.core.graphs
 				pos = loopNode._positiveNode;
 				neg = loopNode._negativeNode;
 				
-				switch(_state) {
-					case TRAVERSE_PRE:
-						if (pos && !pos._culled) {
-							loopNode = pos;
-							needCheck = true;
-						}
-						else {
-							_state = TRAVERSE_IN;
-							needCheck = false;
-						}
-						break;
-					case TRAVERSE_IN:
-						if (neg && !neg._culled) {
-							loopNode = neg;
-							_state = TRAVERSE_PRE;
-							needCheck = true;
-						}
-						else {
-							_state = TRAVERSE_POST;
-							needCheck = false;
-						}
-						break;
-					case TRAVERSE_POST:
-						if (loopNode._parent) {
-							if (loopNode == loopNode._parent._positiveNode)
-								_state = TRAVERSE_IN;
-							loopNode = loopNode._parent;
-						}
+				if(_state == TRAVERSE_PRE) {
+					if (pos && !pos._culled) {
+						loopNode = pos;
+						needCheck = true;
+					}
+					else {
+						_state = TRAVERSE_IN;
 						needCheck = false;
-						break;
+					}
+				}
+				else if (_state == TRAVERSE_IN) {
+					if (neg && !neg._culled) {
+						loopNode = neg;
+						_state = TRAVERSE_PRE;
+						needCheck = true;
+					}
+					else {
+						_state = TRAVERSE_POST;
+						needCheck = false;
+					}
+				}
+				else if (_state == TRAVERSE_POST) {
+					if (loopNode._parent) {
+						if (loopNode == loopNode._parent._positiveNode)
+							_state = TRAVERSE_IN;
+						loopNode = loopNode._parent;
+					}
+					needCheck = false;
 				}
 			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
         }
@@ -718,5 +993,11 @@ package away3d.core.graphs
        		_rootNode.propagateBounds();
        		_complete = true;
        	}
+       	
+       	private function notifyProgress(steps : int, total : int) : void
+       	{
+			_progressEvent.percentPart = steps/total*100;
+			dispatchEvent(_progressEvent);
+		}
 	}
 }

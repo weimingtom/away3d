@@ -1,7 +1,5 @@
 package away3d.core.geom
 {
-	import __AS3__.vec.Vector;
-	
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.UV;
@@ -32,6 +30,24 @@ package away3d.core.geom
 			
 		}
 		
+		public function invert() : void
+		{
+			var len : int = vertices.length;
+			var newVertices : Vector.<Vertex> = new Vector.<Vertex>(len);
+			var j : int = len;
+			
+			plane.a = -plane.a;
+			plane.b = -plane.b;
+			plane.c = -plane.c;
+			plane.d = -plane.d;
+			
+			for (var i : int = 0; i < len; ++i) {
+				newVertices[--j] = vertices[i];
+			}
+			
+			vertices = newVertices;
+		}
+		
 		public function classifyToPlane(compPlane : Plane3D) : int
 		{
 			var numPos : int;
@@ -40,8 +56,9 @@ package away3d.core.geom
 			var len : int = vertices.length;
 			var dist : Number;
 			var v : Vertex;
-			
-			for (var i : int = 0; i < len; ++i) {
+			var i : int = len;
+		
+			while (--i >= 0) {
 				v = vertices[i];
 				dist = compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d;
 				if (dist > EPSILON)
@@ -61,6 +78,34 @@ package away3d.core.geom
 				return Plane3D.BACK;
 			
 			return Plane3D.INTERSECT;
+		}
+		
+		public function classifyForPortalFront(compPlane : Plane3D) : Boolean
+		{
+			var v : Vertex;
+			var i : int = vertices.length;
+			
+			while (--i >= 0) {
+				v = vertices[i];
+				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d > EPSILON)
+					return true;
+			}
+			
+			return false;
+		}
+		
+		public function classifyForPortalBack(compPlane : Plane3D) : Boolean
+		{
+			var v : Vertex;
+			var i : int = vertices.length;
+			
+			while (--i >= 0) {
+				v = vertices[i];
+				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d < -EPSILON)
+					return true;
+			}
+			
+			return false;
 		}
 		
 		public function clone() : NGon
@@ -193,7 +238,7 @@ package away3d.core.geom
 			var len : int = vertices.length;
 			var dists : Vector.<Number> = new Vector.<Number>(len);
 			var v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV;
-			var j : int, k : int;
+			var j : int;
 			var newVerts : Vector.<Vertex> = new Vector.<Vertex>();
 			var newUVs : Vector.<UV>;
 			

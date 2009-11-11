@@ -30,7 +30,8 @@ package away3d.loaders
             kmzFile = new ZipFile(kmz);
 			for(var i:int = 0; i < kmzFile.entries.length; ++i) {
 				var entry:ZipEntry = kmzFile.entries[i];
-				var data:ByteArray = kmzFile.getInput(entry);
+				//var data:ByteArray =
+				data = kmzFile.getInput(entry);
 				if(entry.name.indexOf(".dae")>-1 && entry.name.indexOf("models/")>-1) {
 					collada = new XML(data.toString());
 					container = Collada.parse(collada, ini);

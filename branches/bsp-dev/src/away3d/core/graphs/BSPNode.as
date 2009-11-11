@@ -1,7 +1,5 @@
 package away3d.core.graphs
 {
-	import __AS3__.vec.Vector;
-	
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
@@ -23,8 +21,6 @@ package away3d.core.graphs
 	 */
 	public final class BSPNode extends EventDispatcher
 	{
-		private static var EPSILON : Number = 1/128;
-		
 		public var id : int;
 		// indicates whether this node is a leaf or not
 		// leaves contain triangles
@@ -70,17 +66,53 @@ package away3d.core.graphs
 		private var _bestScore : Number;
 		private var _splitWeight : Number = 10;
 		private var _balanceWeight : Number = 1;
-		private var _maxTimeout : int = 1000;
-		private var _deferralTime : int = 1;
 		private var _positiveFaces : Vector.<NGon>;
 		private var _negativeFaces : Vector.<NGon>;
-		private var _completeCount : int;
 		
+		private var _planeCount : int;
+		
+		public var maxTimeOut : int = 500;
+		
+		arcane var _newFaces : int;
+		arcane var _assignedFaces : int;
 		arcane var _buildFaces : Vector.<NGon>;
 		
-		arcane var _tempMesh : Mesh;
+//		arcane var _tempMesh : Mesh;
 		
-		private var _portals : Vector.<BSPPortal>;
+		arcane var _portals : Vector.<BSPPortal>;
+		arcane var _backPortals : Vector.<BSPPortal>;
+		
+		public function processVislist(portals : Vector.<BSPPortal>) : void
+		{
+			if (!_backPortals || !portals) return;
+			
+			var backLen : int = _backPortals.length;
+			var backPortal : BSPPortal;
+			var portalsLen : int = portals.length;
+			var portal : BSPPortal;
+			
+			_visList = new Vector.<int>();
+			
+			for (var i : int = 0; i < backLen; ++i) {
+				backPortal = _backPortals[i];
+				// direct neighbours are always visible
+				if (_visList.indexOf(backPortal.frontNode.id) == -1)
+					_visList.push(backPortal.frontNode.id);
+					
+				for (var j : int = 0; j < portalsLen; ++j) {
+					portal = portals[j];
+					// if in vislist and not yet added
+					if (backPortal.isInList(backPortal.visList, portal.index) && (_visList.indexOf(portal.frontNode.id) == -1))
+						_visList.push(portals[j].frontNode.id);
+				}
+			}
+			_visList.sort(sortVisList);
+		}	
+		
+		private function sortVisList(a : int, b : int) : Number
+		{
+			return a < b? -1 : (a == b? 0 : 1);
+		}
 		
 		/**
 		 * Creates a new BSPNode object.
@@ -137,17 +169,26 @@ package away3d.core.graphs
 			var radZ : Number = radii.z*_partitionPlane.c;
 			var radius : Number = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
 			// movement is completely on one side of the node, recurse down that side
-			if (startDist >= radius && endDist >= radius)
-				face = _positiveNode.traceCollision(start, end, radii);
-			else if (startDist < -radius && endDist < -radius)
-				face = _negativeNode.traceCollision(start, end, radii);
-			else if (startDist < endDist)
-					face = 	_negativeNode.traceCollision(start, end, radii) || 
-							_positiveNode.traceCollision(start, end, radii);
-			else
-					face = 	_positiveNode.traceCollision(start, end, radii) || 
-							_negativeNode.traceCollision(start, end, radii);
-			
+			if (startDist >= radius && endDist >= radius) {
+				if (_positiveNode) face = _positiveNode.traceCollision(start, end, radii);
+				else return null;
+			}
+			else if (startDist < -radius && endDist < -radius) {
+				if (_negativeNode) face = _negativeNode.traceCollision(start, end, radii);
+				else return null;
+			}
+			else if (startDist < endDist) {
+				if (_negativeNode)
+					face = _negativeNode.traceCollision(start, end, radii);
+				if (!face && _positiveNode) 
+					face = _positiveNode.traceCollision(start, end, radii);
+			}
+			else {
+				if (_positiveNode)
+					face = _positiveNode.traceCollision(start, end, radii);
+				if (!face && _negativeNode) 
+					face = _negativeNode.traceCollision(start, end, radii);
+			}
 			return face;
 		}
 		
@@ -208,9 +249,9 @@ package away3d.core.graphs
 		arcane function propagateCulled() : void
 		{
 			if (_isLeaf) return;
-			if (!_positiveNode._isLeaf) _positiveNode.propagateCulled();
-			if (!_negativeNode._isLeaf) _negativeNode.propagateCulled();
-			_culled = _positiveNode._culled && _negativeNode._culled;
+			if (_positiveNode && !_positiveNode._isLeaf) _positiveNode.propagateCulled();
+			if (_negativeNode && !_negativeNode._isLeaf) _negativeNode.propagateCulled();
+			_culled = (!_positiveNode || _positiveNode._culled) && (!_negativeNode || _negativeNode._culled);
 		}
 		
 		/**
@@ -233,7 +274,7 @@ package away3d.core.graphs
 				// only check when child nodes haven't been culled by PVS
 				if (_positiveNode && !_positiveNode._culled) _positiveNode.cullToFrustum(frustum);
 				if (_negativeNode && !_negativeNode._culled) _negativeNode.cullToFrustum(frustum);
-				_culled = _positiveNode._culled && _negativeNode._culled;
+				_culled = (!_positiveNode || _positiveNode._culled) && (!_negativeNode || _negativeNode._culled);
 			}
 		}
 		
@@ -342,7 +383,12 @@ package away3d.core.graphs
 			_bounds.push(new Number3D(_maxX, _maxY, _maxZ));
 			_bounds.push(new Number3D(_minX, _maxY, _maxZ));
 		}
- 
+ 		
+ 		arcane function isEmpty() : Boolean
+ 		{
+ 			return _mesh.geometry.faces.length == 0;
+ 		}
+ 		
 		/**
 		 * Adds all leaves in the node's hierarchy to the vector
 		 * 
@@ -356,8 +402,15 @@ package away3d.core.graphs
 				leaves.push(this);
 			}
 			else {
-				_positiveNode.gatherLeaves(leaves);
-				_negativeNode.gatherLeaves(leaves);
+				if (_positiveNode._isLeaf && _positiveNode.isEmpty())
+					_positiveNode = null;
+				else
+					_positiveNode.gatherLeaves(leaves);
+				
+				if (_negativeNode._isLeaf && _negativeNode.isEmpty())
+					_negativeNode = null;
+				else
+					_negativeNode.gatherLeaves(leaves);
 			}
 		}
 		
@@ -375,9 +428,6 @@ package away3d.core.graphs
 		}
 		
 		
-		private var _planeCount : int;
-		private var _maxTimeOut : int = 500;
-		
 		private function getBestScore(faces : Vector.<NGon>) : void
 		{
 			var face : NGon;
@@ -388,7 +438,7 @@ package away3d.core.graphs
 				face = faces[_planeCount];
 				getPlaneScore(face.plane, faces);
 				if (_bestScore == 0) _planeCount = len;
-			} while (++_planeCount < len && getTimer()-startTime < _maxTimeOut);
+			} while (++_planeCount < len && getTimer()-startTime < maxTimeOut);
 			
 			if (_planeCount >= len) {
 				if (_bestPlane) {
@@ -400,6 +450,7 @@ package away3d.core.graphs
 					_isLeaf = true;
 					if (faces.length > 0)
 						addNGons(faces);
+					
 					completeNode();
 				}
 			}
@@ -410,11 +461,11 @@ package away3d.core.graphs
 		
 		private function addNGons(faces : Vector.<NGon>) : void
 		{
-			var tris : Vector.<Face>;
 			var len : int = faces.length;
 			for (var i : int = 0; i < len; ++i) {
 				addFaces(faces[i].triangulate());
 			}
+			_assignedFaces = faces.length;
 		}
 		
 		/**
@@ -454,7 +505,7 @@ package away3d.core.graphs
 			if ((posCount == 0 || negCount == 0) && splitCount == 0)
 				score = -1;
 			else
-				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight
+				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight;
 			
 			if (score >= 0 && score < _bestScore) {
 				_bestScore = score;
@@ -467,16 +518,15 @@ package away3d.core.graphs
 		 */
 		private function constructChildren(plane : Plane3D, faces : Vector.<NGon>) : void
 		{
+			var classification : int;
+			var face : NGon;
+			var len : int = faces.length;
+			var i : int = 0;
+			
 			_positiveFaces = new Vector.<NGon>();
 			_negativeFaces = new Vector.<NGon>();
 			
 			_partitionPlane = plane;
-			
-			var classification : int;
-			var face : NGon;
-			var len : int = faces.length;
-			var plane : Plane3D;
-			var i : int = 0;
 			
 			do {
 				face = faces[i];
@@ -497,12 +547,15 @@ package away3d.core.graphs
 					var splits : Vector.<NGon> = face.split(_partitionPlane);
 					_positiveFaces.push(splits[0]);
 					_negativeFaces.push(splits[1]);
+					++_newFaces;
 				}
 			} while (++i < len);
 			
 			_positiveNode = new BSPNode(this);
+			_positiveNode.maxTimeOut = maxTimeOut;
 			_positiveNode._name = _name+" -> +";
 			_negativeNode = new BSPNode(this);
+			_negativeNode.maxTimeOut = maxTimeOut;
 			_negativeNode._name = _name+" -> -";
 			_positiveNode._buildFaces = _positiveFaces;
 			_negativeNode._buildFaces = _negativeFaces;
@@ -543,7 +596,7 @@ package away3d.core.graphs
  			
  			if (posPortals) {
 	 			for (var i : int = 0; i < posPortals.length; ++i) {
-	 				splits = _negativeNode.splitPortalByChildren(posPortals[i], Plane3D.BACK)
+	 				splits = _negativeNode.splitPortalByChildren(posPortals[i], Plane3D.BACK);
 	 				if (splits) finalPortals = finalPortals.concat(splits);
 	 			}
 	 		}
@@ -597,21 +650,28 @@ package away3d.core.graphs
 
 		arcane function assignPortal(portal : BSPPortal) : void
  		{
- 			var faces : Vector.<Face>;
  			if (!_portals) _portals = new Vector.<BSPPortal>();
  			_portals.push(portal);
  			
- 			if(!_tempMesh) {
-				_tempMesh = new Mesh();
-				_tempMesh.bothsides = true;
-			}
-			faces = portal.nGon.triangulate();
-			for (var j : int = 0; j < faces.length; j++) {
-				_tempMesh.addFace(faces[j]);
-			}
+ 			// temp
+// 			var faces : Vector.<Face>;
+// 			if(!_tempMesh) {
+//				_tempMesh = new Mesh();
+//				//_tempMesh.bothsides = true;
+//			}
+//			faces = portal.nGon.triangulate();
+//			for (var j : int = 0; j < faces.length; j++) {
+//				_tempMesh.addFace(faces[j]);
+//			}
  		}
  		
-/*
+ 		arcane function assignBackPortal(portal : BSPPortal) : void
+		{
+			if (!_backPortals) _backPortals = new Vector.<BSPPortal>();
+			_backPortals.push(portal);
+		}
+
+		/*
  * Methods used for colision detection
  */
 		/**
