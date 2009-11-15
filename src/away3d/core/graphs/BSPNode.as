@@ -77,7 +77,7 @@ package away3d.core.graphs
 		arcane var _assignedFaces : int;
 		arcane var _buildFaces : Vector.<NGon>;
 		
-//		arcane var _tempMesh : Mesh;
+		arcane var _tempMesh : Mesh;
 		
 		arcane var _portals : Vector.<BSPPortal>;
 		arcane var _backPortals : Vector.<BSPPortal>;
@@ -476,13 +476,12 @@ package away3d.core.graphs
 		{
 			var score : Number;
 			var classification : int;
-			var len : int = faces.length;
 			var plane : Plane3D;
 			var face : NGon;
-			var i : int;
+			var i : int = faces.length;
 			var posCount : int, negCount : int, splitCount : int;
 			
-			do {
+			while (--i >= 0) {
 				face = faces[i];
 				classification = face.classifyToPlane(candidate);
 				if (classification == -2) { 
@@ -498,12 +497,11 @@ package away3d.core.graphs
 					++posCount;
 				else
 					++splitCount;
-					
-			} while (++i < len);
+			}
 			
 			// all polys are on one side
 			if ((posCount == 0 || negCount == 0) && splitCount == 0)
-				score = -1;
+				return;
 			else
 				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight;
 			
@@ -516,25 +514,26 @@ package away3d.core.graphs
 		/**
 		 * Builds the child nodes, based on the partition plane
 		 */
-		private function constructChildren(plane : Plane3D, faces : Vector.<NGon>) : void
+		private function constructChildren(bestPlane : Plane3D, faces : Vector.<NGon>) : void
 		{
 			var classification : int;
 			var face : NGon;
 			var len : int = faces.length;
 			var i : int = 0;
+			var plane : Plane3D;
 			
 			_positiveFaces = new Vector.<NGon>();
 			_negativeFaces = new Vector.<NGon>();
 			
-			_partitionPlane = plane;
+			_partitionPlane = bestPlane;
 			
 			do {
 				face = faces[i];
-				classification = face.classifyToPlane(_partitionPlane);
+				classification = face.classifyToPlane(bestPlane);
 				
 				if (classification == -2) { 
 					plane = face.plane;
-					if (_partitionPlane.a * plane.a + _partitionPlane.b * plane.b + _partitionPlane.c * plane.c > 0)
+					if (bestPlane.a * plane.a + bestPlane.b * plane.b + bestPlane.c * plane.c > 0)
 						_positiveFaces.push(face);
 					else
 						_negativeFaces.push(face);
@@ -554,10 +553,10 @@ package away3d.core.graphs
 			_positiveNode = new BSPNode(this);
 			_positiveNode.maxTimeOut = maxTimeOut;
 			_positiveNode._name = _name+" -> +";
+			_positiveNode._buildFaces = _positiveFaces;
 			_negativeNode = new BSPNode(this);
 			_negativeNode.maxTimeOut = maxTimeOut;
 			_negativeNode._name = _name+" -> -";
-			_positiveNode._buildFaces = _positiveFaces;
 			_negativeNode._buildFaces = _negativeFaces;
 			completeNode();
 		}
@@ -587,7 +586,7 @@ package away3d.core.graphs
  			var finalPortals : Vector.<BSPPortal>;
  			var splits : Vector.<BSPPortal>;
  			
- 			portal.fromNode(this, rootNode);
+ 			if (!portal.fromNode(this, rootNode)) return null;
  			portal.frontNode = _positiveNode;
  			portal.backNode = _negativeNode;
  			posPortals = _positiveNode.splitPortalByChildren(portal, Plane3D.FRONT);
@@ -654,15 +653,15 @@ package away3d.core.graphs
  			_portals.push(portal);
  			
  			// temp
-// 			var faces : Vector.<Face>;
-// 			if(!_tempMesh) {
-//				_tempMesh = new Mesh();
-//				//_tempMesh.bothsides = true;
-//			}
-//			faces = portal.nGon.triangulate();
-//			for (var j : int = 0; j < faces.length; j++) {
-//				_tempMesh.addFace(faces[j]);
-//			}
+ 			var faces : Vector.<Face>;
+ 			if(!_tempMesh) {
+				_tempMesh = new Mesh();
+				//_tempMesh.bothsides = true;
+			}
+			faces = portal.nGon.triangulate();
+			for (var j : int = 0; j < faces.length; j++) {
+				_tempMesh.addFace(faces[j]);
+			}
  		}
  		
  		arcane function assignBackPortal(portal : BSPPortal) : void

@@ -80,6 +80,9 @@ package away3d.core.geom
 			return Plane3D.INTERSECT;
 		}
 		
+		/**
+		 * Returns true if either in front of plane or intersecting
+		 */
 		public function classifyForPortalFront(compPlane : Plane3D) : Boolean
 		{
 			var v : Vertex;
@@ -94,6 +97,9 @@ package away3d.core.geom
 			return false;
 		}
 		
+		/**
+		 * Returns true if either behind plane or intersecting
+		 */
 		public function classifyForPortalBack(compPlane : Plane3D) : Boolean
 		{
 			var v : Vertex;
@@ -106,6 +112,20 @@ package away3d.core.geom
 			}
 			
 			return false;
+		}
+		
+		public function isOutAntiPenumbra(compPlane : Plane3D) : Boolean
+		{
+			var v : Vertex;
+			var i : int = vertices.length;
+			
+			while (--i >= 0) {
+				v = vertices[i];
+				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d > EPSILON)
+					return false;
+			}
+			
+			return true;
 		}
 		
 		public function clone() : NGon
@@ -141,6 +161,7 @@ package away3d.core.geom
 		
 		public function fromTriangle(face : Face) : void
 		{
+			var triPlane : Plane3D = face.plane;
 			vertices = new Vector.<Vertex>();
 			uvs = new Vector.<UV>();
 			vertices[0] = face.v0;
@@ -150,7 +171,7 @@ package away3d.core.geom
 			uvs[1] = face.uv1;
 			uvs[2] = face.uv2;
 			normal = face.normal;
-			plane = face.plane;
+			plane = new Plane3D(triPlane.a, triPlane.b, triPlane.c, triPlane.d);
 			material = face.material;
 		}
 		
@@ -233,7 +254,7 @@ package away3d.core.geom
 		
 		public function trim(plane : Plane3D) : void
 		{
-			if (vertices.length < 2) return;
+			if (vertices.length < 3) return;
 			
 			var len : int = vertices.length;
 			var dists : Vector.<Number> = new Vector.<Number>(len);
@@ -290,12 +311,12 @@ package away3d.core.geom
 			for (var i : int = 1; i < len; ++i) {
 				v2 = vertices[i];
 				v3 = vertices[i+1];
-				u.x = v2.x-v1.x;
-				u.y = v2.y-v1.y;
-				u.z = v2.z-v1.z;
-				v.x = v3.x-v1.x;
-				v.y = v3.y-v1.y;
-				v.z = v3.z-v1.z;
+				u.x = v2._x-v1._x;
+				u.y = v2._y-v1._y;
+				u.z = v2._z-v1._z;
+				v.x = v3._x-v1._x;
+				v.y = v3._y-v1._y;
+				v.z = v3._z-v1._z;
 				cross.cross(u, v);
 				area += cross.modulo;
 			}
