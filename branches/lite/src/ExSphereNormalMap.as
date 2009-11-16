@@ -1,5 +1,6 @@
 package
 {
+	import away3dlite.loaders.OBJ;
 	import away3dlite.lights.Light;
 	import away3dlite.materials.shaders.PBBitmapShader;
 	import away3dlite.primitives.Sphere;
@@ -30,7 +31,7 @@ package
 		[Embed(source="assets/MoonNormal.jpg")]
 		private var NormalMap2:Class;
 		
-		private var sphere:Sphere;
+		private var sphere: OBJ;
 		private var sphere2:Sphere;
 		
 		private var step:Number = 0;
@@ -61,7 +62,7 @@ package
 			
 			var mat2:PBBitmapShader = new PBBitmapShader(light, dfBm.bitmapData.clone(), normBm.bitmapData.clone());
 			
-			sphere = new Sphere(mat2, 100, segment, segment);
+			sphere = new OBJ ( "assets/25_SPHERE.obj",mat2,1);
 			scene.addChild(sphere);
 			var mat:PBBitmapShader = new PBBitmapShader(light, dfBm2.bitmapData.clone(), normBm2.bitmapData.clone());
 			mat.drawSprite.x = 400;
