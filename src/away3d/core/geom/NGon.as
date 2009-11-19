@@ -1,5 +1,6 @@
 package away3d.core.geom
 {
+	import away3d.core.graphs.BSPTree;
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.UV;
@@ -11,8 +12,6 @@ package away3d.core.geom
 	
 	public final class NGon
 	{
-		private static const EPSILON : Number = 1/128;
-		
 		public var vertices : Vector.<Vertex>;
 		public var uvs : Vector.<UV>;
 		
@@ -34,16 +33,16 @@ package away3d.core.geom
 		{
 			var len : int = vertices.length;
 			var newVertices : Vector.<Vertex> = new Vector.<Vertex>(len);
-			var j : int = len;
+			var i : int = len;
+			var j : int = 0;
 			
 			plane.a = -plane.a;
 			plane.b = -plane.b;
 			plane.c = -plane.c;
 			plane.d = -plane.d;
 			
-			for (var i : int = 0; i < len; ++i) {
-				newVertices[--j] = vertices[i];
-			}
+			while (--i >= 0)
+				newVertices[j++] = vertices[i];
 			
 			vertices = newVertices;
 		}
@@ -57,17 +56,60 @@ package away3d.core.geom
 			var dist : Number;
 			var v : Vertex;
 			var i : int = len;
-		
-			while (--i >= 0) {
-				v = vertices[i];
-				dist = compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d;
-				if (dist > EPSILON)
-					++numPos;
-				else if (dist < -EPSILON)
-					++numNeg;
-				else
-					++numDoubt;
-				if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
+			var align : int = compPlane._alignment;
+			var a : Number = compPlane.a,
+				b : Number = compPlane.b,
+				c : Number = compPlane.c,
+				d : Number = compPlane.d;
+			
+			if (align == Plane3D.X_AXIS) {
+				while (--i >= 0) {
+					dist = a*vertices[i].x + d;
+					if (dist > BSPTree.EPSILON)
+						++numPos;
+					else if (dist < -BSPTree.EPSILON)
+						++numNeg;
+					else
+						++numDoubt;
+					if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
+				}
+			}
+			else if (align == Plane3D.Y_AXIS) {
+				while (--i >= 0) {
+					dist = b*vertices[i].y + d;
+					if (dist > BSPTree.EPSILON)
+						++numPos;
+					else if (dist < -BSPTree.EPSILON)
+						++numNeg;
+					else
+						++numDoubt;
+					if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
+				}
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				while (--i >= 0) {
+					dist = c*vertices[i].z + d;
+					if (dist > BSPTree.EPSILON)
+						++numPos;
+					else if (dist < -BSPTree.EPSILON)
+						++numNeg;
+					else
+						++numDoubt;
+					if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
+				}
+			}
+			else {
+				while (--i >= 0) {
+					v = vertices[i];
+					dist = a*v.x + b*v.y + c*v.z + d;
+					if (dist > BSPTree.EPSILON)
+						++numPos;
+					else if (dist < -BSPTree.EPSILON)
+						++numNeg;
+					else
+						++numDoubt;
+					if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
+				}
 			}
 			
 			if (numDoubt == len)
@@ -83,15 +125,87 @@ package away3d.core.geom
 		/**
 		 * Returns true if either in front of plane or intersecting
 		 */
+		public function isCoinciding(compPlane : Plane3D) : Boolean
+		{
+			var v : Vertex;
+			var i : int = vertices.length;
+			var align : int = compPlane._alignment;
+			var a : Number = compPlane.a,
+				b : Number = compPlane.b,
+				c : Number = compPlane.c,
+				d : Number = compPlane.d;
+			var dist : Number;
+			
+			if (align == Plane3D.X_AXIS) {
+				while (--i >= 0) {
+					dist = a*vertices[i].x + d;
+					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
+						return false;
+				}
+			}
+			else if (align == Plane3D.Y_AXIS) {
+				while (--i >= 0) {
+					dist = b*vertices[i].y + d;
+					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
+						return false;
+				}
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				while (--i >= 0) {
+					dist = c*vertices[i].z + d;
+					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
+						return false;
+				}
+			}
+			else {
+				while (--i >= 0) {
+					v = vertices[i];
+					dist = a*v.x + b*v.y + c*v.z + d;
+					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
+						return false;
+				}
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * Returns true if either in front of plane or intersecting
+		 */
 		public function classifyForPortalFront(compPlane : Plane3D) : Boolean
 		{
 			var v : Vertex;
 			var i : int = vertices.length;
+			var align : int = compPlane._alignment;
+			var a : Number = compPlane.a,
+				b : Number = compPlane.b,
+				c : Number = compPlane.c,
+				d : Number = compPlane.d;
 			
-			while (--i >= 0) {
-				v = vertices[i];
-				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d > EPSILON)
-					return true;
+			if (align == Plane3D.X_AXIS) {
+				while (--i >= 0) {
+					if(a*vertices[i].x + d > BSPTree.EPSILON)
+						return true;
+				}
+			}
+			else if (align == Plane3D.Y_AXIS) {
+				while (--i >= 0) {
+					if(b*vertices[i].y + d > BSPTree.EPSILON)
+						return true;
+				}
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				while (--i >= 0) {
+					if(c*vertices[i].z + d > BSPTree.EPSILON)
+						return true;
+				}
+			}
+			else {
+				while (--i >= 0) {
+					v = vertices[i];
+					if (a*v.x + b*v.y + c*v.z + d > BSPTree.EPSILON)
+						return true;
+				}
 			}
 			
 			return false;
@@ -104,13 +218,37 @@ package away3d.core.geom
 		{
 			var v : Vertex;
 			var i : int = vertices.length;
-			
-			while (--i >= 0) {
-				v = vertices[i];
-				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d < -EPSILON)
-					return true;
+			var align : int = compPlane._alignment;
+			var a : Number = compPlane.a,
+				b : Number = compPlane.b,
+				c : Number = compPlane.c,
+				d : Number = compPlane.d;
+				
+			if (align == Plane3D.X_AXIS) {
+				while (--i >= 0) {
+					if(a*vertices[i].x + d < -BSPTree.EPSILON)
+						return true;
+				}
 			}
-			
+			else if (align == Plane3D.Y_AXIS) {
+				while (--i >= 0) {
+					if(b*vertices[i].y + d < -BSPTree.EPSILON)
+						return true;
+				}
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				while (--i >= 0) {
+					if(c*vertices[i].z + d < -BSPTree.EPSILON)
+						return true;
+				}
+			}
+			else {
+				while (--i >= 0) {
+					v = vertices[i];
+					if (a*v.x + b*v.y + c*v.z + d < -BSPTree.EPSILON)
+						return true;
+				}
+			}
 			return false;
 		}
 		
@@ -118,13 +256,37 @@ package away3d.core.geom
 		{
 			var v : Vertex;
 			var i : int = vertices.length;
-			
-			while (--i >= 0) {
-				v = vertices[i];
-				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d > EPSILON)
-					return false;
+			var align : int = compPlane._alignment;
+			var a : Number = compPlane.a,
+				b : Number = compPlane.b,
+				c : Number = compPlane.c,
+				d : Number = compPlane.d;
+				
+			if (align == Plane3D.X_AXIS) {
+				while (--i >= 0) {
+					if(a*vertices[i].x + d > BSPTree.EPSILON)
+						return false;
+				}
 			}
-			
+			else if (align == Plane3D.Y_AXIS) {
+				while (--i >= 0) {
+					if(b*vertices[i].y + d > BSPTree.EPSILON)
+						return false;
+				}
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				while (--i >= 0) {
+					if(c*vertices[i].z + d > BSPTree.EPSILON)
+						return false;
+				}
+			}
+			else {
+				while (--i >= 0) {
+					v = vertices[i];
+					if (a*v.x + b*v.y + c*v.z + d > BSPTree.EPSILON)
+						return false;
+				}
+			}
 			return true;
 		}
 		
@@ -135,6 +297,7 @@ package away3d.core.geom
 			if (uvs) c.uvs = uvs.concat();
 			c.material = material;
 			c.plane = new Plane3D(plane.a, plane.b, plane.c, plane.d);
+			c.plane._alignment = plane._alignment;
 			return c;
 		}
 		
@@ -172,6 +335,7 @@ package away3d.core.geom
 			uvs[2] = face.uv2;
 			normal = face.normal;
 			plane = new Plane3D(triPlane.a, triPlane.b, triPlane.c, triPlane.d);
+			plane._alignment = triPlane._alignment;
 			material = face.material;
 		}
 		
@@ -189,11 +353,10 @@ package away3d.core.geom
 		 * 
 		 * @return Two new polygons. The first is on the positive side of the split plane, the second on the negative.
 		 */
-		public function split(plane : Plane3D) : Vector.<NGon>
+		public function split(splitPlane : Plane3D) : Vector.<NGon>
 		{
 			var ngons : Vector.<NGon> = new Vector.<NGon>(2);
 			var len : int = vertices.length;
-			var dists : Vector.<Number> = new Vector.<Number>(len);
 			var v1 : Vertex, v2 : Vertex;
 			var posNGon : NGon = new NGon();
 			var negNGon : NGon = new NGon();
@@ -202,13 +365,16 @@ package away3d.core.geom
 			var posUV : Vector.<UV>;
 			var negUV : Vector.<UV>;
 			var j : int;
-			var d : Number;
+			var d0 : Number;
+			var d1 : Number;
+			var d2 : Number;
+			var i : int = len;
 			
 			ngons[0] = posNGon;
 			ngons[1] = negNGon;
-			negNGon.plane = posNGon.plane = this.plane;
-			negNGon.normal = posNGon.normal = this.normal;
-			negNGon.material = posNGon.material = this.material;
+			negNGon.plane = posNGon.plane = plane;
+			negNGon.normal = posNGon.normal = normal;
+			negNGon.material = posNGon.material = material;
 			posVerts = posNGon.vertices = new Vector.<Vertex>();
 			negVerts = negNGon.vertices = new Vector.<Vertex>();
 			
@@ -217,30 +383,52 @@ package away3d.core.geom
 				negUV = negNGon.uvs = new Vector.<UV>();
 			}
 			
-			for (var i : int = 0; i < len; ++i) {
-				v1 = vertices[i];
-				d = plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d;
-				if (d > -EPSILON && d < EPSILON) d = 0;
-				dists[i] = d;
-			}
+			v1 = vertices[0];
+			if (splitPlane._alignment == Plane3D.X_AXIS)
+				d0 = d2 = splitPlane.a*v1.x + splitPlane.d;
+			else if (splitPlane._alignment == Plane3D.Y_AXIS)
+				d0 = d2 = splitPlane.b*v1.y + splitPlane.d;
+			else if (splitPlane._alignment == Plane3D.Z_AXIS)
+				d0 = d2 = splitPlane.c*v1.z + splitPlane.d;
+			else
+				d0 = d2 = splitPlane.a*v1.x + splitPlane.b*v1.y + splitPlane.c*v1.z + splitPlane.d;
+			
+			if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
 			
 			j = 1;
 			for (i = 0; i < len; ++i) {
 				v1 = vertices[i];
 				v2 = vertices[j];
 				
-				if (dists[i] >= 0) {
-					posVerts.push(vertices[i]);
+				d1 = d2;
+				
+				if (j == 0)
+					d2 = d0;
+				else {
+					if (splitPlane._alignment == Plane3D.X_AXIS)
+						d2 = splitPlane.a*v2.x + splitPlane.d;
+					else if (splitPlane._alignment == Plane3D.Y_AXIS)
+						d2 = splitPlane.b*v2.y + splitPlane.d;
+					else if (splitPlane._alignment == Plane3D.Z_AXIS)
+						d2 = splitPlane.c*v2.z + splitPlane.d;
+					else
+						d2 = splitPlane.a*v2.x + splitPlane.b*v2.y + splitPlane.c*v2.z + splitPlane.d;
+				}
+				
+				if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
+				
+				if (d1 >= 0) {
+					posVerts.push(v1);
 					if (uvs) posUV.push(uvs[i]);
 				}
-				if (dists[i] <= 0) {
-					negVerts.push(vertices[i]);
+				if (d1 <= 0) {
+					negVerts.push(v1);
 					if (uvs) negUV.push(uvs[i]);
 				}
 				
-				if (dists[i]*dists[j] < 0) {
-					if (uvs) splitEdge(plane, v1, v2, uvs[i], uvs[j], posNGon, negNGon);
-					else splitEdge(plane, v1, v2, null, null, posNGon, negNGon);
+				if (d1*d2 < 0) {
+					if (uvs) splitEdge(splitPlane, v1, v2, uvs[i], uvs[j], posNGon, negNGon);
+					else splitEdge(splitPlane, v1, v2, null, null, posNGon, negNGon);
 				}
 				
 				if (++j == len) j = 0;
@@ -252,27 +440,39 @@ package away3d.core.geom
 			return ngons;
 		}
 		
-		public function trim(plane : Plane3D) : void
+		private static var _newVerts : Vector.<Vertex>;
+		private static var _newUVs : Vector.<UV>;
+		
+		public function trim(trimPlane : Plane3D) : void
 		{
-			if (vertices.length < 3) return;
+			//if (vertices.length < 3) return;
 			
 			var len : int = vertices.length;
-			var dists : Vector.<Number> = new Vector.<Number>(len);
 			var v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV;
 			var j : int;
-			var newVerts : Vector.<Vertex> = new Vector.<Vertex>();
-			var newUVs : Vector.<UV>;
+			var i : int;
+			var d0 : Number;
+			var d1 : Number;
+			var d2 : Number;
 			
-			for (var i : int = 0; i < len; ++i) {
-				v1 = vertices[i];
-				dists[i] = plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d;
-				if (dists[i] > -EPSILON && dists[i] < EPSILON) dists[i] = 0;
-			}
+			if (!_newVerts) _newVerts = new Vector.<Vertex>();
+			if (uvs && !_newUVs) _newUVs = new Vector.<UV>();
 			
-			if (uvs) newUVs = new Vector.<UV>();
+			v1 = vertices[0];
+			if (trimPlane._alignment == Plane3D.X_AXIS)
+				d0 = d2 = trimPlane.a*v1.x + trimPlane.d;
+			else if (trimPlane._alignment == Plane3D.Y_AXIS)
+				d0 = d2 = trimPlane.b*v1.y + trimPlane.d;
+			else if (trimPlane._alignment == Plane3D.Z_AXIS)
+				d0 = d2 = trimPlane.c*v1.z + trimPlane.d;
+			else
+				d0 = d2 = trimPlane.a*v1.x + trimPlane.b*v1.y + trimPlane.c*v1.z + trimPlane.d;
+			
+			if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d0 = d2 = 0;
 			
 			j = 1;
-			for (i = 0; i < len; ++i) {
+			i = 0;
+			do {
 				v1 = vertices[i];
 				v2 = vertices[j];
 				if (uvs) {
@@ -280,20 +480,129 @@ package away3d.core.geom
 					uv2 = uvs[j];
 				}
 				
-				if (dists[i] >= 0) {
-					newVerts.push(v1);
-					if (uvs) newUVs.push(uv1);
+				d1 = d2;
+				
+				if (j == 0)
+					d2 = d0;
+				else {
+					if (trimPlane._alignment == Plane3D.X_AXIS)
+						d2 = trimPlane.a*v2.x + trimPlane.d;
+					else if (trimPlane._alignment == Plane3D.Y_AXIS)
+						d2 = trimPlane.b*v2.y + trimPlane.d;
+					else if (trimPlane._alignment == Plane3D.Z_AXIS)
+						d2 = trimPlane.c*v2.z + trimPlane.d;
+					else
+						d2 = trimPlane.a*v2.x + trimPlane.b*v2.y + trimPlane.c*v2.z + trimPlane.d;
 				}
 				
-				if (dists[i]*dists[j] < 0) {
-					trimEdge(plane, v1, v2, uv1, uv2, newVerts, newUVs);
+				if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
+				
+				if (d1 >= 0) {
+					_newVerts.push(v1);
+					if (uvs) _newUVs.push(uv1);
 				}
+				
+				if (d1*d2 < 0)
+					trimEdge(trimPlane, v1, v2, uv1, uv2, _newVerts, _newUVs);
 				
 				if (++j == len) j = 0;
-			}
+			} while (++i < len);
 			
-			vertices = newVerts;
-			uvs = newUVs;
+			var vTemp : Vector.<Vertex>;
+			var uvTemp : Vector.<UV>;
+			
+			vTemp = vertices;
+			vertices = _newVerts;
+			_newVerts = vTemp;
+			_newVerts.length = 0;
+			
+			if (uvs) {
+				uvTemp = uvs;
+				uvs = _newUVs;
+				_newUVs = uvTemp;
+				_newUVs.length = 0;
+			}
+		}
+		
+		public function trimBack(trimPlane : Plane3D) : void
+		{
+//			if (vertices.length < 3) return;
+			
+			var len : int = vertices.length;
+			var v1 : Vertex, v2 : Vertex, uv1 : UV, uv2 : UV;
+			var j : int;
+			var i : int = len;
+			var d0 : Number;
+			var d1 : Number;
+			var d2 : Number;
+			
+			if (!_newVerts) _newVerts = new Vector.<Vertex>();
+			if (uvs && !_newUVs) _newUVs = new Vector.<UV>();
+			
+			v1 = vertices[0];
+			if (trimPlane._alignment == Plane3D.X_AXIS)
+				d0 = d2 = trimPlane.a*v1.x + trimPlane.d;
+			else if (trimPlane._alignment == Plane3D.Y_AXIS)
+				d0 = d2 = trimPlane.b*v1.y + trimPlane.d;
+			else if (trimPlane._alignment == Plane3D.Z_AXIS)
+				d0 = d2 = trimPlane.c*v1.z + trimPlane.d;
+			else
+				d0 = d2 = trimPlane.a*v1.x + trimPlane.b*v1.y + trimPlane.c*v1.z + trimPlane.d;
+			
+			if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d0 = d2 = 0;
+			
+			j = 1;
+			i = 0;
+			do {
+				v1 = vertices[i];
+				v2 = vertices[j];
+				if (uvs) {
+					uv1 = uvs[i];
+					uv2 = uvs[j];
+				}
+				
+				d1 = d2;
+				
+				if (j == 0)
+					d2 = d0;
+				else {
+					if (trimPlane._alignment == Plane3D.X_AXIS)
+						d2 = trimPlane.a*v2.x + trimPlane.d;
+					else if (trimPlane._alignment == Plane3D.Y_AXIS)
+						d2 = trimPlane.b*v2.y + trimPlane.d;
+					else if (trimPlane._alignment == Plane3D.Z_AXIS)
+						d2 = trimPlane.c*v2.z + trimPlane.d;
+					else
+						d2 = trimPlane.a*v2.x + trimPlane.b*v2.y + trimPlane.c*v2.z + trimPlane.d;
+				}
+				
+				if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
+				
+				if (d1 <= 0) {
+					_newVerts.push(v1);
+					if (uvs) _newUVs.push(uv1);
+				}
+				
+				if (d1*d2 < 0)
+					trimEdge(trimPlane, v1, v2, uv1, uv2, _newVerts, _newUVs);
+				
+				if (++j == len) j = 0;
+			} while (++i < len);
+			
+			var vTemp : Vector.<Vertex>;
+			var uvTemp : Vector.<UV>;
+			
+			vTemp = vertices;
+			vertices = _newVerts;
+			_newVerts = vTemp;
+			_newVerts.length = 0;
+			
+			if (uvs) {
+				uvTemp = uvs;
+				uvs = _newUVs;
+				_newUVs = uvTemp;
+				_newUVs.length = 0;
+			}
 		}
 		
 		public function get area() : Number
@@ -302,24 +611,27 @@ package away3d.core.geom
 			var v1 : Vertex = vertices[0];
 			var v2 : Vertex, v3 : Vertex;
 			var len : int = vertices.length-1;
-			var u : Number3D, v : Number3D, cross : Number3D;
+			var ux : Number, uy : Number, uz : Number,
+				vx : Number, vy : Number, vz : Number,
+				cx : Number, cy : Number, cz : Number;
+			var i : int, j : int;
 			
-			u = new Number3D();
-			v = new Number3D();
-			cross = new Number3D();
-			
-			for (var i : int = 1; i < len; ++i) {
+			do {
 				v2 = vertices[i];
-				v3 = vertices[i+1];
-				u.x = v2._x-v1._x;
-				u.y = v2._y-v1._y;
-				u.z = v2._z-v1._z;
-				v.x = v3._x-v1._x;
-				v.y = v3._y-v1._y;
-				v.z = v3._z-v1._z;
-				cross.cross(u, v);
-				area += cross.modulo;
-			}
+				v3 = vertices[++j];
+				ux = v2._x-v1._x;
+				uy = v2._y-v1._y;
+				uz = v2._z-v1._z;
+				vx = v3._x-v1._x;
+				vy = v3._y-v1._y;
+				vz = v3._z-v1._z;
+				
+				cx = vy * uz - vz * uy;
+        		cy = vz * ux - vx * uz;
+        		cz = vx * uy - vy * ux;
+				
+				area += Math.sqrt(cx*cx+cy*cy+cz*cz);
+			} while (++i < len);
 			
 			return area;
 		}
@@ -330,9 +642,22 @@ package away3d.core.geom
 			var v : Vertex;
 			var uv : UV;
 			
-			div = plane.a*(v2.x-v1.x)+plane.b*(v2.y-v1.y)+plane.c*(v2.z-v1.z);
-			
-			t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
+			if (plane._alignment == Plane3D.X_AXIS) {
+				div = plane.a*(v2.x-v1.x);
+				t = -(plane.a*v1.x + plane.d)/div;
+			}
+			else if (plane._alignment == Plane3D.Y_AXIS) {
+				div = plane.b*(v2.y-v1.y);
+				t = -(plane.b*v1.y + plane.d)/div;
+			}
+			else if (plane._alignment == Plane3D.Z_AXIS) {
+				div = plane.c*(v2.z-v1.z);
+				t = -(plane.c*v1.z + plane.d)/div;
+			}
+			else {
+				div = plane.a*(v2.x-v1.x)+plane.b*(v2.y-v1.y)+plane.c*(v2.z-v1.z);
+				t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
+			}
 					
 			v = new Vertex(v1.x+t*(v2.x-v1.x), v1.y+t*(v2.y-v1.y), v1.z+t*(v2.z-v1.z));
 			newVerts.push(v);
@@ -401,8 +726,8 @@ package away3d.core.geom
 			var len2 : int;
 			
 			// if normals not equal enough or planes not incident, quit early
-			if (Math.abs(plane.d - srcPlane.d) > EPSILON ||
-				Math.abs(plane.a*srcPlane.a + plane.b*srcPlane.b + plane.c*srcPlane.c - 1) > EPSILON)
+			if (Math.abs(plane.d - srcPlane.d) > BSPTree.EPSILON ||
+				Math.abs(plane.a*srcPlane.a + plane.b*srcPlane.b + plane.c*srcPlane.c - 1) > BSPTree.EPSILON)
 				return false;
 			
 			len1 = vertices.length;
@@ -428,8 +753,8 @@ package away3d.core.geom
 					du = Math.abs(uv1.u-uv2.u);
 					dv = Math.abs(uv1.v-uv2.v);
 					// if vertices coinciding with matching uv coords, collapse if close enough
-					if ((v1 == v2 || v1.position.distance(v2.position) < EPSILON) &&
-						(uv1 == uv2 || (du < EPSILON && dv < EPSILON))) {
+					if ((v1 == v2 || v1.position.distance(v2.position) < BSPTree.EPSILON) &&
+						(uv1 == uv2 || (du < BSPTree.EPSILON && dv < BSPTree.EPSILON))) {
 						sharedVerticesA[i] = true;
 						sharedVerticesB[j] = true;
 						if (lastSharedIndexA == -1) {
@@ -507,9 +832,9 @@ package away3d.core.geom
 				v.z = v2.z-v0.z;
 				cross.cross(u, v);
 				
-				if (cross.modulo < EPSILON) {
+				if (cross.modulo < BSPTree.EPSILON) {
 					vertices.splice(j, 1);
-					uvs.splice(j, 1);
+					if (uvs) uvs.splice(j, 1);
 					--i;
 				}
 				else {
@@ -577,7 +902,7 @@ package away3d.core.geom
 					
 					vB = srcVert[j];
 					// calculate side of point relative to edge
-					if (_edgePlane.a*vB.x + _edgePlane.b*vB.y + _edgePlane.c*vB.z + _edgePlane.d < -EPSILON)
+					if (_edgePlane.a*vB.x + _edgePlane.b*vB.y + _edgePlane.c*vB.z + _edgePlane.d < -BSPTree.EPSILON)
 						return false;
 				}
 				
