@@ -1,5 +1,6 @@
 package away3d.core.graphs
 {
+	import away3d.materials.WireColorMaterial;
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
@@ -64,8 +65,10 @@ package away3d.core.graphs
 		// used for building tree
 		private var _bestPlane : Plane3D;
 		private var _bestScore : Number;
-		private var _splitWeight : Number = 10;
-		private var _balanceWeight : Number = 1;
+		arcane var _splitWeight : Number = 10;
+		arcane var _balanceWeight : Number = 1;
+		arcane var _nonXZWeight : Number = 1.5;
+		arcane var _nonYWeight : Number = 1.2;
 		private var _positiveFaces : Vector.<NGon>;
 		private var _negativeFaces : Vector.<NGon>;
 		
@@ -81,7 +84,9 @@ package away3d.core.graphs
 		
 		arcane var _portals : Vector.<BSPPortal>;
 		arcane var _backPortals : Vector.<BSPPortal>;
-		
+		private var _convex : Boolean;
+		private var _solidPlanes : Vector.<Plane3D>;
+
 		public function processVislist(portals : Vector.<BSPPortal>) : void
 		{
 			if (!_backPortals || !portals) return;
@@ -402,15 +407,17 @@ package away3d.core.graphs
 				leaves.push(this);
 			}
 			else {
-				if (_positiveNode._isLeaf && _positiveNode.isEmpty())
-					_positiveNode = null;
-				else
-					_positiveNode.gatherLeaves(leaves);
+				if (_positiveNode != null)
+					if (_positiveNode._isLeaf && _positiveNode.isEmpty())
+						_positiveNode = null;
+					else
+						_positiveNode.gatherLeaves(leaves);
 				
-				if (_negativeNode._isLeaf && _negativeNode.isEmpty())
-					_negativeNode = null;
-				else
-					_negativeNode.gatherLeaves(leaves);
+				if (_negativeNode != null)
+					if (_negativeNode._isLeaf && _negativeNode.isEmpty())
+						_negativeNode = null;
+					else
+						_negativeNode.gatherLeaves(leaves);
 			}
 		}
 		
@@ -427,9 +434,13 @@ package away3d.core.graphs
 			// check if best score == 0, if so, best plane hands down
 		}
 		
-		
 		private function getBestScore(faces : Vector.<NGon>) : void
 		{
+			if (_convex) {
+				solidify(faces);
+				return;
+			}
+			
 			var face : NGon;
 			var len : int = faces.length;
 			var startTime : int = getTimer();
@@ -446,12 +457,9 @@ package away3d.core.graphs
 					setTimeout(constructChildren, 1, _bestPlane, faces);
 				}
 				else {
-					// no best plane, must be leaf
-					_isLeaf = true;
-					if (faces.length > 0)
-						addNGons(faces);
-					
-					completeNode();
+					_convex = true;
+					_solidPlanes = gatherConvexPlanes(faces);
+					setTimeout(solidify, 1, faces);
 				}
 			}
 			else {
@@ -459,6 +467,54 @@ package away3d.core.graphs
 			}
 		}
 		
+		private function gatherConvexPlanes(faces : Vector.<NGon>) : Vector.<Plane3D>
+		{
+			var planes : Vector.<Plane3D> = new Vector.<Plane3D>();
+			var i : int = faces.length;
+			var j : int;
+			var srcPlane : Plane3D;
+			var dstPlane : Plane3D;
+			var check : Boolean;
+			var face : NGon;
+			
+			while (--i >= 0) {
+				face = faces[i];
+				srcPlane = face.plane;
+				j = planes.length;
+				check = true;
+				while (--j >= 0) {
+					dstPlane = planes[j];
+					if (face.isCoinciding(dstPlane)) {
+						check = false;
+						j = 0;
+					}
+				}
+				if (check) planes.push(srcPlane);
+			}
+			
+			return planes;
+		}
+		
+		private function solidify(faces : Vector.<NGon>) : void
+		{
+			if (!_solidPlanes.length) {
+				// no planes left, is leaf
+				_isLeaf = true;
+				if (faces.length > 0)
+					addNGons(_buildFaces);
+			}
+			else {
+				_partitionPlane = _solidPlanes.pop();
+				_positiveNode = new BSPNode(this);
+				_positiveNode._convex = true;
+				_positiveNode.maxTimeOut = maxTimeOut;
+				_positiveNode._buildFaces = faces;
+				_positiveNode._solidPlanes = _solidPlanes;
+				_positiveNode._name = _name+" -> +";
+			}
+			completeNode();
+		}
+
 		private function addNGons(faces : Vector.<NGon>) : void
 		{
 			var len : int = faces.length;
@@ -502,8 +558,17 @@ package away3d.core.graphs
 			// all polys are on one side
 			if ((posCount == 0 || negCount == 0) && splitCount == 0)
 				return;
-			else
+			else {
 				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight;
+				if (candidate._alignment != Plane3D.X_AXIS || candidate._alignment != Plane3D.Z_AXIS) {
+					
+					if (candidate._alignment != Plane3D.Y_AXIS)
+						score *= _nonXZWeight;
+					else
+						score *= _nonYWeight;
+				}
+				
+			}
 			
 			if (score >= 0 && score < _bestScore) {
 				_bestScore = score;
@@ -571,6 +636,7 @@ package away3d.core.graphs
 			_negativeFaces = null;
 			_positiveFaces = null;
 			_buildFaces = null;
+			_solidPlanes = null;
 			dispatchEvent(COMPLETE_EVENT);
 		}
 		
@@ -579,26 +645,31 @@ package away3d.core.graphs
  */
  		arcane function generatePortals(rootNode : BSPNode) : Vector.<BSPPortal>
  		{
- 			if (_isLeaf) return null;
+ 			if (_isLeaf || _convex) return null;
  			
  			var portal : BSPPortal = new BSPPortal();
  			var posPortals : Vector.<BSPPortal>;
  			var finalPortals : Vector.<BSPPortal>;
  			var splits : Vector.<BSPPortal>;
+ 			var i : int;
  			
  			if (!portal.fromNode(this, rootNode)) return null;
  			portal.frontNode = _positiveNode;
  			portal.backNode = _negativeNode;
  			posPortals = _positiveNode.splitPortalByChildren(portal, Plane3D.FRONT);
  			
- 			finalPortals = new Vector.<BSPPortal>();
+			if (!_negativeNode) return posPortals;
  			
- 			if (posPortals) {
-	 			for (var i : int = 0; i < posPortals.length; ++i) {
-	 				splits = _negativeNode.splitPortalByChildren(posPortals[i], Plane3D.BACK);
-	 				if (splits) finalPortals = finalPortals.concat(splits);
-	 			}
-	 		}
+			i = posPortals.length;
+			if (posPortals) {
+ 				while (--i >= 0) {
+					splits = _negativeNode.splitPortalByChildren(posPortals[i], Plane3D.BACK);
+ 					if (splits) {
+ 						if (!finalPortals) finalPortals = new Vector.<BSPPortal>();
+ 						finalPortals = finalPortals.concat(splits);
+ 					}
+ 				}
+ 			}
  			
  			return finalPortals;
  		}
@@ -611,13 +682,25 @@ package away3d.core.graphs
  			
  			if (!portal) return new Vector.<BSPPortal>();
  			
+ 			if (side == Plane3D.FRONT)
+				portal.frontNode = this;
+			else
+				portal.backNode = this;
+ 			
 			if (_isLeaf) {
-				if (side == Plane3D.FRONT)
-					portal.frontNode = this;
-				else
-					portal.backNode = this;
 				portals = new Vector.<BSPPortal>();
 				portals.push(portal);
+				return portals;
+			}
+			else if (_convex) {
+				if (portal.nGon.classifyToPlane(_partitionPlane) != -2)
+					portal.nGon.trim(_partitionPlane);
+
+				// portal became too small
+				if (portal.nGon.vertices.length < 3 || portal.nGon.area < BSPTree.EPSILON)
+					return null;
+				
+				portals = _positiveNode.splitPortalByChildren(portal, side);
 				return portals;
 			}
  			
@@ -628,40 +711,42 @@ package away3d.core.graphs
  					portals = _positiveNode.splitPortalByChildren(portal, side);
  					break;
  				case Plane3D.BACK:
- 					portals = _negativeNode.splitPortalByChildren(portal, side);
+					if (_negativeNode) portals = _negativeNode.splitPortalByChildren(portal, side);
+					else portals = null;
  					break;
  				case Plane3D.INTERSECT:
  					splits = portal.split(_partitionPlane);
  					portals = _positiveNode.splitPortalByChildren(splits[0], side);
- 					splits = _negativeNode.splitPortalByChildren(splits[1], side);
- 					if (portals && splits)
- 						portals = portals.concat(splits);
- 					else if (!portals) portals = splits;
- 					break;
- 				default:
- 					// send down both sides?
- 					// or does this indicate something is horribly horribly wrong?
+					splits = _negativeNode.splitPortalByChildren(splits[1], side);
+ 					
+					if (portals && splits)
+						portals = portals.concat(splits);
+					else if (!portals) portals = splits;
+ 					
  					break;
  			}
  			
  			return portals;
  		}
 
+		//private static var _mat : WireColorMaterial = new WireColorMaterial({color: 0xffffff, alpha: .5});
 		arcane function assignPortal(portal : BSPPortal) : void
  		{
  			if (!_portals) _portals = new Vector.<BSPPortal>();
  			_portals.push(portal);
  			
  			// temp
- 			var faces : Vector.<Face>;
- 			if(!_tempMesh) {
-				_tempMesh = new Mesh();
-				//_tempMesh.bothsides = true;
-			}
-			faces = portal.nGon.triangulate();
-			for (var j : int = 0; j < faces.length; j++) {
-				_tempMesh.addFace(faces[j]);
-			}
+// 			var faces : Vector.<Face>;
+// 			if(!_tempMesh) {
+//				_tempMesh = new Mesh();
+//				_tempMesh.bothsides = true;
+//			}
+//			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
+//			faces = portal.nGon.triangulate();
+//			
+//			for (var j : int = 0; j < faces.length; j++) {
+//				_tempMesh.addFace(faces[j]);
+//			}
  		}
  		
  		arcane function assignBackPortal(portal : BSPPortal) : void

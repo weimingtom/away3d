@@ -1,7 +1,11 @@
 package away3d.core.geom
 {
+	import away3d.core.graphs.BSPTree;
+	import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.math.*;
+    
+    use namespace arcane;
     
     /** Plane in 3D space */
     public class Plane3D
@@ -11,8 +15,6 @@ package away3d.core.geom
     	public static const FRONT:int = 1;
     	public static const BACK:int = -1;
     	public static const INTERSECT:int = 0;
-    	public static const EPSILON:Number = 1/128;
-    	
     	
     	/**
     	 * The A coefficient of this plane. (Also the x dimension of the plane normal)
@@ -33,7 +35,15 @@ package away3d.core.geom
     	 * The D coefficient of this plane. (Also the inverse dot product between normal and point)
     	 */
         public var d:Number;
-	
+		
+		// used in BSP
+		arcane var _alignment : int;
+		
+		// indicates the alignment of the normal
+		arcane static const ANY : int = 0;
+		arcane static const X_AXIS : int = 1;
+		arcane static const Y_AXIS : int = 2;
+		arcane static const Z_AXIS : int = 3;
 	
 		//arbitrary point on this plane, only avail during closest computation
     	private var _point:Number3D = new Number3D();
@@ -130,7 +140,7 @@ package away3d.core.geom
         public function distance(p:Number3D):Number
         {	
         	_len = a*p.x + b*p.y + c*p.z + d;
-        	if ((_len > -EPSILON) && (_len < EPSILON))
+        	if ((_len > -BSPTree.EPSILON) && (_len < BSPTree.EPSILON))
                 _len = 0;
             
             return _len;
@@ -144,7 +154,7 @@ package away3d.core.geom
 		public function classifyPoint(p:Number3D):int
 		{
 			var len:Number = a*p.x + b*p.y + c*p.z + d;
-            if((len > -EPSILON) && (len < EPSILON)) 
+            if((len > -BSPTree.EPSILON) && (len < BSPTree.EPSILON)) 
             	return Plane3D.INTERSECT;
             else if(len < 0)
             	return Plane3D.BACK;

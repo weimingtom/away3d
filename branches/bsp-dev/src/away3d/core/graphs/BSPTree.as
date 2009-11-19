@@ -34,7 +34,7 @@ package away3d.core.graphs
 	// - use if instead of switch?
 	public class BSPTree extends ObjectContainer3D
 	{
-		private static const EPSILON : Number = 1/32;
+		public static var EPSILON : Number = 1/128;
 		
 		private var _transformPt : Number3D = new Number3D();
 		
@@ -71,9 +71,15 @@ package away3d.core.graphs
 		private var _totalFaces : int;
 		private var _assignedFaces : int;
 		
+		private var _splitWeight : Number = 10;
+		private var _balanceWeight : Number = 1;
+		private var _xzAxisWeight : Number = 10;
+		private var _yAxisWeight : Number = 5;
+		public var maxVisibilityPropagation : int = 10;
+		
 		// debug var
 		public var freezeCulling : Boolean;
-
+		
 		/**
 		 * Creates a new BSPTree object.
 		 */
@@ -103,11 +109,11 @@ package away3d.core.graphs
 			var dot : Number;
 			var plane : Plane3D;
 			
-			while (!node._isLeaf)
+			while (node && !node._isLeaf)
 			{
 				plane = node._partitionPlane;
-				dot = point.x*plane.a+point.y*plane.b+point.z*plane.c+plane.d;
-				node = dot > 0? node._positiveNode : node._negativeNode;
+				dot = point.x*plane.a+point.y*plane.b+point.z*plane.c;
+				node = dot > -plane.d? node._positiveNode : node._negativeNode;
 			} 
 			
 			return node;
@@ -232,10 +238,9 @@ package away3d.core.graphs
 			_leaves = new Vector.<BSPNode>();
 			_rootNode.gatherLeaves(_leaves);
 			init();
-			dispatchEvent(new Event(Event.COMPLETE));
 			
 			if (_buildPVS)
-				createPVS();
+				setTimeout(createPVS, 1);
 			else
 				dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
 		}
@@ -326,7 +331,6 @@ package away3d.core.graphs
 		{
 			var startTime : int = getTimer();
 			var portal : BSPPortal;
-			//var len : int = _portals.length;
 			
 			notifyProgress(_portalIndex, _portals.length);
 			
@@ -340,11 +344,10 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= _portals.length) {
 				_portalIndex = 0;
-				
-				_progressEvent.count = 4;
-				_progressEvent.message = "Processing portals";
-				
-				setTimeout(cutSolidStep, 1);
+				_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
+				_progressEvent.message = "Partitioning portals";
+				_progressEvent.count = 5;
+				setTimeout(partitionPortals, 1);
 			}
 			else {
 				setTimeout(removeOneSidedPortals, 1);	
@@ -352,9 +355,9 @@ package away3d.core.graphs
 		}
 		
 		// TO DO: locks up on high portal count?
-		private function cutSolidStep() : void
-		{
-			var startTime : int = getTimer();
+//		private function cutSolidStep() : void
+//		{
+			/*var startTime : int = getTimer();
 			var portal : BSPPortal;
 			var newPortals : Vector.<BSPPortal>;
 			
@@ -366,25 +369,27 @@ package away3d.core.graphs
 				
 				_portals.splice(_portalIndex--, 1);
 				
-				var i : int = newPortals.length;
-				while (--i >= 0) {
-					// sigh... using a Vector in splice arguments doesn't actually work
-					if (newPortals[i].nGon.vertices.length > 2)
-						_portals.splice(_portalIndex++, 0, newPortals[i]);
+				if (newPortals) {
+					var i : int = newPortals.length;
+					while (--i >= 0) {
+						// sigh... using a Vector in splice arguments doesn't actually work
+						if (newPortals[i].nGon.vertices.length > 2)
+							_portals.splice(_portalIndex++, 0, newPortals[i]);
+					}
 				}
 			} while (++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
 			
-			if (_portalIndex >= _portals.length) {
-				_portalIndex = 0;
-				_newPortals = new Vector.<BSPPortal>(_portals.length*2);
-				_progressEvent.message = "Partitioning portals";
-				_progressEvent.count = 5;
-				setTimeout(partitionPortals, 1);
-			}
+			if (_portalIndex >= _portals.length) {*/
+//				_portalIndex = 0;
+//				_newPortals = new Vector.<BSPPortal>(_portals.length*2);
+//				_progressEvent.message = "Partitioning portals";
+//				_progressEvent.count = 5;
+//				setTimeout(partitionPortals, 1);
+			/*}
 			else {
 				setTimeout(cutSolidStep, 1);
-			}
-		}
+			}*/
+//		}
 		
 		private var _newPortals : Vector.<BSPPortal>;
 		private var _newIndex : int = -1;
@@ -467,7 +472,7 @@ package away3d.core.graphs
 				setTimeout(linkPortals, 1);
 			}
 			//temp
-			//createMeshes();
+//			createMeshes();
 		}
 		
 		private function createMeshes() : void
@@ -575,17 +580,48 @@ package away3d.core.graphs
 			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
 			
 			if (_portalIndex >= len) {
-				//_portalIndex = 0;
-				_progressEvent.message = "Finding visible portals";
-				_progressEvent.count = 11;
+				_progressEvent.message = "Propagating visibility";
+				_progressEvent.count = 12;
 				_portals.sort(portalSort);
-				portalsToLinkedList();
-				_currentPortal = _firstPortal;
 				_portalIndex = 0;
-				setTimeout(findVisiblePortals, 1);
+				_visIterationStep = 0;
+				setTimeout(propagateVisibility, 1);
 			}
 			else
 				setTimeout(removeVisiblesFromNeighbours, 1);
+		}
+		
+		private var _visIterationStep : int;
+		private function propagateVisibility() : void
+		{
+			var startTime : int = getTimer();
+			var len : int = _portals.length;
+			
+			notifyProgress(_portalIndex + _visIterationStep * _portals.length, _portals.length * maxVisibilityPropagation);
+			
+			// remove portals in vislist that are mutually visible
+			do {
+				_portals[_portalIndex].propagateVisibility();
+			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
+			
+			if (_portalIndex >= len) {
+				_portalIndex = 0;
+				
+				_portals.sort(portalSort);
+				
+				if (++_visIterationStep < maxVisibilityPropagation) {
+					setTimeout(propagateVisibility, 1);
+				}
+				else {
+					_progressEvent.message = "Finding visible portals";
+					_progressEvent.count = 12;
+					portalsToLinkedList();
+					_currentPortal = _firstPortal;
+					setTimeout(findVisiblePortals, 1);
+				}
+			}
+			else
+				setTimeout(propagateVisibility, 1);
 		}
 		
 		private function portalSort(a : BSPPortal, b : BSPPortal) : Number
@@ -598,8 +634,6 @@ package away3d.core.graphs
 			else return 1;
 		}
 
-		private var _numPortalsVisd : int;
-		
 		private function findVisiblePortals(event : Event = null) : void
 		{
 			var startTime : int = getTimer();
@@ -642,9 +676,8 @@ package away3d.core.graphs
 			
 			if (_portalIndex < len)
 				setTimeout(finalizeVisList, 1);
-			else {
+			else
 				dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
-			}
 		}
 		
 		/**
@@ -696,10 +729,18 @@ package away3d.core.graphs
 			do {
 				if (_needBuild && !loopNode._isLeaf) {
 					partitionPlane = loopNode._partitionPlane;
-					loopNode._lastIterationPositive = (	partitionPlane.a*point.x +
-														partitionPlane.b*point.y +
-														partitionPlane.c*point.z +
-														partitionPlane.d ) > 0;
+					
+					if (partitionPlane._alignment == Plane3D.X_AXIS)
+						loopNode._lastIterationPositive = partitionPlane.a*point.x > -partitionPlane.d;
+					else if (partitionPlane._alignment == Plane3D.Y_AXIS)
+						loopNode._lastIterationPositive = partitionPlane.b*point.y > -partitionPlane.d;
+					else if (partitionPlane._alignment == Plane3D.Z_AXIS)
+						loopNode._lastIterationPositive = partitionPlane.c*point.z > -partitionPlane.d;
+					else
+						loopNode._lastIterationPositive = 	partitionPlane.a*point.x +
+															partitionPlane.b*point.y +
+															partitionPlane.c*point.z
+															 > -partitionPlane.d;
 				}
 				
 				pos = loopNode._positiveNode;
@@ -708,7 +749,7 @@ package away3d.core.graphs
 				switch(_state) {
 					case TRAVERSE_PRE:
 						if (pos && !pos._culled) {
-							loopNode = loopNode._positiveNode;
+							loopNode = pos;
 							_needBuild = true;
 							break;
 						}
@@ -718,7 +759,7 @@ package away3d.core.graphs
 						}
 					case TRAVERSE_IN:
 						if (neg && !neg._culled) {
-							loopNode = loopNode._negativeNode;
+							loopNode = neg;
 							_state = TRAVERSE_PRE;
 							_needBuild = true;
 							break;
@@ -766,6 +807,7 @@ package away3d.core.graphs
         	var isLeaf : Boolean;
         	var changed : Boolean = true;
         	var loopNode : BSPNode = _rootNode;
+
 			_state = TRAVERSE_PRE;
         	
         	if (loopNode._culled) return;
@@ -852,7 +894,7 @@ package away3d.core.graphs
         private function doCulling(activeNode : BSPNode, frustum : Frustum) : void
         {
         	var len : int = _leaves.length;
-        	var vislist : Vector.<int> = activeNode._visList;
+        	var vislist : Vector.<int> = activeNode? activeNode._visList : null;
         	var i : int, j : int;
         	var leaf : BSPNode;
         	var vislen : int = vislist? vislist.length : 0;
@@ -887,7 +929,7 @@ package away3d.core.graphs
 	        		}
 	        	}
 	        }
-			activeNode._culled = false;
+	        if (activeNode) activeNode._culled = false;
 			
 			// propagate culled state. Nodes don't need to be traversed if none of the leafs contained are visible
 			propagateCulled();
@@ -1023,6 +1065,46 @@ package away3d.core.graphs
        	{
 			_progressEvent.percentPart = steps/total*100;
 			dispatchEvent(_progressEvent);
+		}
+		
+		public function get xzAxisWeight() : Number
+		{
+			return _xzAxisWeight;
+		}
+		
+		public function set xzAxisWeight(xzAxisWeight : Number) : void
+		{
+			_rootNode._nonXZWeight = _xzAxisWeight = xzAxisWeight;
+		}
+
+		public function get balanceWeight() : Number
+		{
+			return _balanceWeight;
+		}
+		
+		public function set balanceWeight(balanceWeight : Number) : void
+		{
+			_rootNode._balanceWeight = _balanceWeight = balanceWeight;
+		}
+
+		public function get splitWeight() : Number
+		{
+			return _splitWeight;
+		}
+		
+		public function set splitWeight(splitWeight : Number) : void
+		{
+			_rootNode._splitWeight = _splitWeight = splitWeight;
+		}
+		
+		public function get yAxisWeight() : Number
+		{
+			return _yAxisWeight;
+		}
+		
+		public function set yAxisWeight(yAxisWeight : Number) : void
+		{
+			_rootNode._nonYWeight = _yAxisWeight = yAxisWeight;
 		}
 	}
 }
