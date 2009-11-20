@@ -660,8 +660,8 @@ package away3d.core.graphs
  			
 			if (!_negativeNode) return posPortals;
  			
-			i = posPortals.length;
 			if (posPortals) {
+				i = posPortals.length;
  				while (--i >= 0) {
 					splits = _negativeNode.splitPortalByChildren(posPortals[i], Plane3D.BACK);
  					if (splits) {
