@@ -574,7 +574,6 @@ package away3d.core.graphs
 			
 			notifyProgress(_portalIndex, _portals.length);
 			
-			// remove portals in vislist that are mutually visible
 			do {
 				_portals[_portalIndex].removePortalsFromNeighbours(_portals);
 			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);

@@ -1,12 +1,10 @@
 package away3d.core.graphs
 {
-	import flash.system.System;
 	import flash.utils.setTimeout;
 	import flash.utils.getTimer;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import away3d.arcane;
-	import away3d.core.base.Face;
 	import away3d.core.base.Vertex;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
@@ -25,13 +23,10 @@ package away3d.core.graphs
 		public var backNode : BSPNode;
 		public var listLen : int;
 		public var frontList : Vector.<uint>;
-		public var backList : Vector.<uint>;
 		public var visList : Vector.<uint>;
 		public var hasVisList : Boolean;
 		public var frontOrder : int;
 		public var maxTimeout : int = 0;
-		
-		public var isInSequence : Boolean;
 		
 		public var antiPenumbrae : Array = [];
 		
@@ -250,7 +245,6 @@ package away3d.core.graphs
 			// only using 1 byte per item, as to keep the size look up table small
 			listLen = (numPortals >> 3) + 1;
 			frontList = new Vector.<uint>(listLen);
-			backList = new Vector.<uint>(listLen);
 			visList = new Vector.<uint>(listLen);
 			_currentFrontList = new Vector.<uint>(listLen);
 		}
@@ -284,11 +278,11 @@ package away3d.core.graphs
 				compNGon = list.nGon;
 				// test if spanning or this portal is in front and other in back
 				if (compNGon.classifyForPortalFront(srcPlane) && nGon.classifyForPortalBack(compNGon.plane)) {
-					// two portals can see eachother
-					// isInList(list.frontList, index)
 					listIndex = index >> 3;
 					bitIndex = index & 0x7;
-					if (list.frontList[listIndex] & (1 << bitIndex)) {
+					// isInList(list.frontList, index)
+					if ((list.frontList[listIndex] & (1 << bitIndex)) != 0) {
+						// two portals can see eachother
 						// removeFromList(list.frontList, index);
 						list.frontList[listIndex] &= ~(1 << bitIndex);
 						--list.frontOrder;
@@ -356,8 +350,7 @@ package away3d.core.graphs
 			_currentPortal = this;
 			_needCheck = false;
 			_iterationIndex = 0;
-			isInSequence = true;
-			
+			_currentParent = null;
 			while (--i >= 0)
 				_currentFrontList[i] = frontList[i];
 				
@@ -374,6 +367,7 @@ package away3d.core.graphs
 			var next : BSPPortal;
 			var startTime : int = getTimer();
 			var neighbours : Vector.<BSPPortal>;
+			var i : int;
 			
 			/*if (event) {
 				dispatchEvent(_recurseCompleteEvent);
@@ -382,9 +376,14 @@ package away3d.core.graphs
 			}*/
 			
 			do {
+				var p : BSPPortal = _currentPortal;
+				while (p = p._currentParent) {
+					trace(p.index);
+					if (p == _currentPortal) throw Error ("CYCLE!");
+				}
+				
 				if (_needCheck) {
-					if (_currentPortal.isInSequence) throw new Error("Cycle occurs!");
-//					if (!(_currentPortal.hasVisList || _currentPortal.isInSequence) && System.totalMemory < 1572864) {
+					//					if (!(_currentPortal.hasVisList || _currentPortal.isInSequence) && System.totalMemory < 1572864) {
 //						_currentPortal.addEventListener(Event.COMPLETE, findVisiblePortalStep);
 //						_currentPortal.addEventListener(RECURSED_PORTAL_COMPLETE, onRecursedComplete);
 //						setTimeout(_currentPortal.findVisiblePortals, 1);
@@ -395,6 +394,11 @@ package away3d.core.graphs
 						var currIndex : int = _currentPortal.index;
 						//addToList(visList, _currentPortal.index);
 						visList[currIndex >> 3] |=  (1 << (currIndex & 0x7));
+						
+						// we will be recursing down this one, so need an updated frontlist for this sequence
+						i = listLen;
+						while (--i >= 0)
+							_currentPortal._currentFrontList[i] = _currentPortal._currentParent._currentFrontList[i] & _currentPortal.frontList[i];
 					}
 						
 					else
@@ -437,7 +441,6 @@ package away3d.core.graphs
 					if (_currentPortal._currentParent) {
 						// clear memory
 						_currentPortal._currentAntiPenumbra = null;
-						_currentPortal.isInSequence = false;
 						_currentPortal = _currentPortal._currentParent;
 						_state = TRAVERSE_IN;
 					}
@@ -448,13 +451,11 @@ package away3d.core.graphs
 			
 			if (_currentPortal == this && _state == TRAVERSE_POST) {
 				// update front list
-				var i : int = listLen;
-				
+				i = listLen;
 				while (--i >= 0)
 					frontList[i] = visList[i];
 				
 				hasVisList = true;
-				isInSequence = false;
 				setTimeout(notifyComplete, 1);
 			}
 			else {
@@ -470,16 +471,9 @@ package away3d.core.graphs
 			var parent : BSPPortal = currentPortal._currentParent;
 			var currentNGon : NGon;
 			var clone : NGon;
-			var currList : Vector.<uint> = currentPortal._currentFrontList;
-			var currParentList : Vector.<uint> = parent._currentFrontList;
-			var parentList : Vector.<uint> = parent.frontList;
+			var list : Vector.<uint> = parent._currentFrontList;
 			var currIndex : int = currentPortal.index;
 
-			while (--i >= 0)
-				// current front list is the front list of the parents combined, since we need to test
-				// this portal against the sequence of parents
-				currList[i] = currParentList[i] & parentList[i];
-			
 			if (parent == this) {
 				// direct neighbour
 				currentPortal._currentAntiPenumbra = antiPenumbrae[currIndex];
@@ -487,7 +481,7 @@ package away3d.core.graphs
 			}
 			
 			//if (!isInList(currList, currentPortal.index))
-			if ((currList[currIndex >> 3] & (1 << (currIndex & 0x7))) == 0)
+			if ((list[currIndex >> 3] & (1 << (currIndex & 0x7))) == 0)
 				return false;
 				
 			currentNGon = currentPortal.nGon;
@@ -636,7 +630,6 @@ package away3d.core.graphs
 		public function removePortalsFromNeighbours(portals : Vector.<BSPPortal>) : void
 		{
 			if (frontOrder <= 0) return;
-			return;
 			
 			var current : BSPPortal;
 			var i : int = portals.length;
@@ -724,7 +717,7 @@ package away3d.core.graphs
 			
 		}
 		
-		private static var _coincFront : Vector.<Boolean>;
+		/*private static var _coincFront : Vector.<Boolean>;
 		private static var _coincBack : Vector.<Boolean>;
 		private static var _subs : Vector.<NGon>;
 		private static var _newPortals : Vector.<BSPPortal>;
@@ -776,9 +769,7 @@ package away3d.core.graphs
 			if (!_subs) _subs = new Vector.<NGon>();
 			_subs.push(cloneNGon);
 			
-			/**
-			 * Cut out solid coinciding triangles from portal
-			 */
+			// Cut out solid coinciding triangles from portal
 			faces = frontNode._mesh.geometry.faces;
 			i = faces.length;
 			
@@ -882,6 +873,6 @@ package away3d.core.graphs
 			if (dot < -BSPTree.EPSILON || dot > BSPTree.EPSILON) return false;
 			
 			return true;
-		}
+		}*/
 	}
 }
