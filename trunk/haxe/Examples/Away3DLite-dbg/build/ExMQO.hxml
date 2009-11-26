@@ -2,7 +2,7 @@
 -swf-version 10
 -swf-header 800:600:30:000000
 -main ExMQO
-
+-debug
 -cp ../src
 -cp ../../../Away3DLite/debug/
 

@@ -51,7 +51,7 @@ import away3dlite.core.render.BasicRenderer;
 import away3dlite.core.utils.Cast;
 import away3dlite.core.utils.Debug;
 import away3dlite.events.MouseEvent3D;
-import away3dlite.core.base.MeshSortType;
+import away3dlite.core.base.SortType;
 import away3dlite.animators.BonesAnimator;
 import away3dlite.core.base.Mesh;
 import away3dlite.haxeutils.MathUtils;
@@ -216,7 +216,7 @@ class Advanced_MultiMario extends Sprite
 	 */
 	private function init():Void
 	{
-		//Debug.active = true;
+		Debug.active = true;
 		initEngine();
 		initMaterials();
 		initObjects();
@@ -339,8 +339,8 @@ class Advanced_MultiMario extends Sprite
 		scene.addChild(model9);
 		
 		position = new Plane();
-		position.width = 50;
-		position.height = 50;
+		position._width = 50;
+		position._height = 50;
 		position.material = positionMaterial;
 		position.mouseEnabled = false;
 		
@@ -348,7 +348,7 @@ class Advanced_MultiMario extends Sprite
 		
 		shade1 = new Plane();
 		shade1.material = shadeMaterial;
-		shade1.sortType = MeshSortType.BACK;
+		shade1.sortType = SortType.BACK;
 		shade1.mouseEnabled = false;
 		
 		scene.addChild(shade1);
@@ -398,15 +398,16 @@ class Advanced_MultiMario extends Sprite
 		scene.addChild(shade9);
 		
 		floor = new Plane();
-		floor.width = 600;
-		floor.height = 600;
+		floor._width = 600;
+		floor._height = 600;
 		floor.material = floorMaterial;
 		//floor.ownCanvas = true;
-		floor.sortType = MeshSortType.BACK;
+		floor.sortType = SortType.BACK;
 		scene.addChild(floor);
 		
 		//grabs an instance of the skin animation from the animationLibrary
 		skinAnimation = cast model1.animationLibrary.getAnimation("default").animation;
+		skinAnimation.loop = true;
 	}
 	
 	/**
