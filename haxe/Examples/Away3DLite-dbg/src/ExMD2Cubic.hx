@@ -53,6 +53,7 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.Lib;
 import flash.display.StageQuality;
+import away3dlite.haxeutils.ResourceLoader;
 import haxe.Resource;
 
 
@@ -65,13 +66,11 @@ class ExMD2Cubic extends FastTemplate
 {
 	//signature swf
 	//[Embed(source="assets/signature_lite_katopz.swf", symbol="Signature")]
-	private static var SignatureSwf:Loader;
+	private static var SignatureSwf:away3dlite.haxeutils.ResourceLoader<Sprite> = new away3dlite.haxeutils.ResourceLoader<Sprite>("Signature", Sprite);
 	
 	//signature variables
 	private var Signature:Sprite;
 	private var SignatureBitmap:Bitmap;
-	private static var filesToLoad:Int;
-	
 	private var loaded:Bool;
 	
 	public static function main()
@@ -79,62 +78,22 @@ class ExMD2Cubic extends FastTemplate
 		Debug.redirectTraces = true;
 		Debug.active = true;
 		
-		filesToLoad = 1;
-		SignatureSwf = new Loader();
-		loadResource(SignatureSwf, "signatureSwf");
-	}
-	
-	private static function onLoadComplete(e:Event):Void 
-	{
-		if (--filesToLoad == 0)
+		ResourceLoader.onComplete = function () {
 			Lib.current.addChild(new ExMD2Cubic());
-	}
-	
-	private static function loadResource(loader:Loader , resname:String)
-	{
-		loader.contentLoaderInfo.addEventListener("complete", onLoadComplete);
-		loader.loadBytes(Resource.getBytes(resname).getData());
-	}
-	
-	private function onSuccess(event:Loader3DEvent):Void
-	{
-		var model:MovieMesh = Lib.as(event.loader.handle, MovieMesh);
-		model.play("walk");
-		
-		if (!loaded)
-		{
-			loaded = true;
-			
-			var amount:UInt = 3;
-			var gap:Int = 240;
-			
-			var i = -1;
-			while (i < amount)
-			{
-				var j = -1;
-				while (++j < amount)
-				{
-					var k = -1;
-					while (k < amount)
-					{
-						var model2 = model.clone();
-						model2.x = gap*i - amount*gap/2 + 100;
-						model2.y = gap*j - amount*gap/2 + 200;
-						model2.z = gap * k - amount * gap / 2;
-						
-						//model2.play("walk");
-						
-						view.scene.addChild(model2);
-					}
-				}
-			}
 		}
+		ResourceLoader.init();
+	}
+	
+	private function onSuccess(event:Loader3DEvent)
+	{
+		var model:MovieMesh = cast event.loader.handle;
+		model.play("walk");
 	}
 	
 	/**
 	 * @inheritDoc
 	 */
-	override private function onInit():Void
+	override private function onInit()
 	{
 		title += " : MD2 Example.";
 		Debug.active = true;
@@ -143,19 +102,18 @@ class ExMD2Cubic extends FastTemplate
 		var material:BitmapFileMaterial = new BitmapFileMaterial("assets/pg.png");
 		material.smooth = true;
 		
-		var amount:UInt = 1;
+		var amount:UInt = 3;
 		var gap:Int = 240;
 
-		
 		var i = -1;
-		/*while (i < amount)
+		while (++i < amount)
 		{
 			var j = -1;
 			while (++j < amount)
 			{
 				var k = -1;
-				while (k < amount)
-				{*/
+				while (++k < amount)
+				{
 					var md2:MD2 = new MD2();
 					md2.material = material;
 					material.smooth = true;
@@ -165,20 +123,19 @@ class ExMD2Cubic extends FastTemplate
 					loader.loadGeometry("assets/pg.md2", md2);
 					loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
 					
-					/*
 					loader.x = gap*i - amount*gap/2 + 100;
 					loader.y = gap*j - amount*gap/2 + 200;
 					loader.z = gap*k - amount*gap/2;
-					*/
+					
 					view.scene.addChild(loader);
-				/*}
+				}
 			}
-		}*/
+		}
 		
 		scene.rotationX = 30;
 		
 		//add signature
-		Signature = Lib.as(SignatureSwf.content, Sprite);
+		Signature = SignatureSwf.content;
 		SignatureBitmap = new Bitmap(new BitmapData(Std.int(Signature.width), Std.int(Signature.height), true, 0));
 		SignatureBitmap.y = stage.stageHeight - Signature.height;
 		stage.quality = StageQuality.HIGH;

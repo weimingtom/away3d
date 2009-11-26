@@ -53,6 +53,7 @@ import flash.events.Event;
 import flash.Lib;
 import flash.display.StageQuality;
 import haxe.Resource;
+import away3dlite.haxeutils.ResourceLoader;
 
 
 //[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
@@ -64,7 +65,7 @@ class ExMQO extends BasicTemplate
 {
 	//signature swf
 	//[Embed(source="assets/signature_lite_katopz.swf", symbol="Signature")]
-	private static var SignatureSwf:Loader;
+	private static var SignatureSwf:away3dlite.haxeutils.ResourceLoader<Sprite> = new away3dlite.haxeutils.ResourceLoader<Sprite>("signatureSwf", Sprite);
 	
 	//signature variables
 	private var Signature:Sprite;
@@ -87,21 +88,8 @@ class ExMQO extends BasicTemplate
 		Debug.active = true;
 		Debug.redirectTraces = true;
 		
-		filesToLoad = 1;
-		SignatureSwf = new Loader();
-		loadResource(SignatureSwf, "signatureSwf");
-	}
-	
-	private static function onLoadComplete(e:Event):Void 
-	{
-		if (--filesToLoad == 0)
-			Lib.current.addChild(new ExMQO());
-	}
-	
-	private static function loadResource(loader:Loader , resname:String)
-	{
-		loader.contentLoaderInfo.addEventListener("complete", onLoadComplete);
-		loader.loadBytes(Resource.getBytes(resname).getData());
+		ResourceLoader.onComplete = function() { Lib.current.addChild(new ExMQO()); };
+		ResourceLoader.init();
 	}
 	
 	private function onSuccess(event:Loader3DEvent):Void
@@ -109,7 +97,7 @@ class ExMQO extends BasicTemplate
 		loaded = true;
 		model1 = loader.handle;
 		
-		/*model2 = model1.clone();
+		model2 = model1.clone();
 		model3 = model1.clone();
 		model4 = model1.clone();
 		model5 = model1.clone();
@@ -122,7 +110,7 @@ class ExMQO extends BasicTemplate
 		scene.addChild(model2);
 		scene.addChild(model3);
 		scene.addChild(model4);
-		scene.addChild(model5);*/
+		scene.addChild(model5);
 	}
 	
 	/**
@@ -160,7 +148,7 @@ class ExMQO extends BasicTemplate
 			model1.rotationY++;
 			model1.rotationZ++;
 			
-			/*model2.rotationX++;
+			model2.rotationX++;
 			model2.rotationY++;
 			model2.rotationZ++;
 			
@@ -174,7 +162,7 @@ class ExMQO extends BasicTemplate
 			
 			model5.rotationX++;
 			model5.rotationY++;
-			model5.rotationZ++;*/
+			model5.rotationZ++;
 		}
 	}
 }

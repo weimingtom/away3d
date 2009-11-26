@@ -40,7 +40,7 @@ import away3dlite.cameras.HoverCamera3D;
 import away3dlite.containers.Scene3D;
 import away3dlite.containers.View3D;
 import away3dlite.core.base.Mesh;
-import away3dlite.core.base.MeshSortType;
+import away3dlite.core.base.SortType;
 import away3dlite.core.render.BasicRenderer;
 //import away3dlite.core.render.FastRenderer;
 import away3dlite.core.render.Renderer;
@@ -155,7 +155,7 @@ class Basic_InteractiveObjects extends Sprite
 		plane.y = -20;
 		plane._width = 1000;
 		plane._height = 1000;
-		plane.sortType = MeshSortType.BACK;
+		plane.sortType = SortType.BACK;
 		plane.segmentsW = 20;
 		plane.segmentsH = 20;
 		scene.addChild(plane);

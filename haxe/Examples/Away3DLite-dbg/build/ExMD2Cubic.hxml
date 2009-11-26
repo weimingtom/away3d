@@ -2,8 +2,8 @@
 -swf-version 10
 -swf-header 800:600:60:000000
 -main ExMD2Cubic
--debug
+
 -cp ../src
 -cp ../../../Away3DLite/debug
 
--resource assets/signature_lite_katopz.swf@signatureSwf
+-resource assets/signature_lite_katopz.swf@Signature
