@@ -418,7 +418,7 @@ package away3d.core.graphs
 				_progressEvent.message = "Linking portals to leaves";
 				_progressEvent.count = 6;
 				_portals = _newPortals;
-				portalsToLinkedList();
+				
 				setTimeout(linkPortals, 1);
 			}
 			else {
@@ -457,11 +457,11 @@ package away3d.core.graphs
 				portal.maxTimeout = maxTimeout;
 				portal.frontNode.assignPortal(portal);
 				portal.backNode.assignBackPortal(portal);
-				//portal.backNode.assignPortal(portal);
 			} while (++_portalIndex < len && getTimer()-startTime < maxTimeout);
 			
 			if (_portalIndex >= len) {
 				_portalIndex = 0;
+				portalsToLinkedList();
 				_currentPortal = _firstPortal;
 				
 				_progressEvent.count = 7;
@@ -551,7 +551,6 @@ package away3d.core.graphs
 			
 			// find portals that are in front per portal
 			do {
-				notifyProgress(_portalIndex, _portals.length);
 				_portals[_portalIndex].findNeighbours();
 			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
 			
@@ -598,7 +597,6 @@ package away3d.core.graphs
 			
 			notifyProgress(_portalIndex + _visIterationStep * _portals.length, _portals.length * maxVisibilityPropagation);
 			
-			// remove portals in vislist that are mutually visible
 			do {
 				_portals[_portalIndex].propagateVisibility();
 			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
@@ -636,25 +634,26 @@ package away3d.core.graphs
 		private function findVisiblePortals(event : Event = null) : void
 		{
 			var startTime : int = getTimer();
-			/*if (event) {
-				++_numPortalsVisd;
-				_portals[_portalIndex++].removeEventListener(Event.COMPLETE, findVisiblePortals);
-				_portals[_portalIndex++].removeEventListener(BSPPortal.RECURSED_PORTAL_COMPLETE, onRecursedComplete);
-			}*/
+			
+			if (event) {
+				_currentPortal.removeEventListener(Event.COMPLETE, findVisiblePortals);
+				++_portalIndex;
+				_currentPortal = _currentPortal.next;
+			}
 			
 			notifyProgress(_portalIndex, _portals.length);
 			
-			do {
-				_currentPortal.findVisiblePortals();
-				_portalIndex++;
-			} while ((_currentPortal = _currentPortal.next) && getTimer() - startTime < maxTimeout);
+			// find next portal that has a potential vis list
+			while (_currentPortal && _currentPortal.frontOrder <= 0)
+				_currentPortal = _currentPortal.next;
 			
 			if (!_currentPortal) {
 				_portalIndex = 0;
 				setTimeout(finalizeVisList, 1);
 			}
 			else {
-				setTimeout(findVisiblePortals, 1);
+				_currentPortal.addEventListener(Event.COMPLETE, findVisiblePortals);
+				_currentPortal.findVisiblePortals();
 			}
 		}
 		

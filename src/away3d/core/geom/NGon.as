@@ -256,36 +256,12 @@ package away3d.core.geom
 		{
 			var v : Vertex;
 			var i : int = vertices.length;
-			var align : int = compPlane._alignment;
-			var a : Number = compPlane.a,
-				b : Number = compPlane.b,
-				c : Number = compPlane.c,
-				d : Number = compPlane.d;
 				
-			if (align == Plane3D.X_AXIS) {
-				while (--i >= 0) {
-					if(a*vertices[i].x + d > BSPTree.EPSILON)
-						return false;
-				}
-			}
-			else if (align == Plane3D.Y_AXIS) {
-				while (--i >= 0) {
-					if(b*vertices[i].y + d > BSPTree.EPSILON)
-						return false;
-				}
-			}
-			else if (align == Plane3D.Z_AXIS) {
-				while (--i >= 0) {
-					if(c*vertices[i].z + d > BSPTree.EPSILON)
-						return false;
-				}
-			}
-			else {
-				while (--i >= 0) {
-					v = vertices[i];
-					if (a*v.x + b*v.y + c*v.z + d > BSPTree.EPSILON)
-						return false;
-				}
+			// anti-penumbrae have no alignment info, skip tests
+			while (--i >= 0) {
+				v = vertices[i];
+				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d > BSPTree.EPSILON)
+					return false;
 			}
 			return true;
 		}
@@ -472,11 +448,15 @@ package away3d.core.geom
 			
 			j = 1;
 			i = 0;
+			
+			v2 = vertices[0];
+			if (uvs) uv2 = uvs[0];
+			
 			do {
-				v1 = vertices[i];
+				v1 = v2;
 				v2 = vertices[j];
 				if (uvs) {
-					uv1 = uvs[i];
+					uv1 = uv2;
 					uv2 = uvs[j];
 				}
 				
@@ -603,6 +583,36 @@ package away3d.core.geom
 				_newUVs = uvTemp;
 				_newUVs.length = 0;
 			}
+		}
+		
+		public function isNeglectable() : Boolean
+		{
+			var i : int = vertices.length;
+			var j : int = i-2;
+			var v1 : Vertex;
+			var v2 : Vertex;
+			var dx : Number, dy : Number, dz : Number;
+			var count : int;
+			
+			if (i < 3) return true;
+			
+			// check each edge of polygon, must have at least 3 edges long enough
+			while (--i >= 0) {
+				v1 = vertices[i];
+				v2 = vertices[j];
+				
+				dx = v1.x-v2.x;
+				dy = v1.y-v2.y;
+				dz = v1.z-v2.z;
+				
+				if (dx*dx+dy*dy+dz*dz > BSPTree.EPSILON)
+					if (++count >= 3) return false;
+				
+				
+				if (--j < 0) j = vertices.length-1;
+			}
+			
+			return true;
 		}
 		
 		public function get area() : Number

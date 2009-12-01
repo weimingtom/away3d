@@ -12,6 +12,9 @@ package away3d.core.graphs
 	
 	use namespace arcane;
 	
+	// TO DO (important):
+	// when partitioning, link to back portal
+	// when sth not in vislist, other won't be in vislist of backportal
 	internal final class BSPPortal extends EventDispatcher
 	{
 		public static const RECURSED_PORTAL_COMPLETE : String = "RecursedPortalComplete";
@@ -30,6 +33,8 @@ package away3d.core.graphs
 		
 		public var antiPenumbrae : Array = [];
 		
+		public var mark : int;
+		
 		// containing all visible neighbours, through which we can see adjacent leaves
 		public var neighbours : Vector.<BSPPortal>;
 		
@@ -42,7 +47,8 @@ package away3d.core.graphs
 		private var _state : int;
 		private var _currentPortal : BSPPortal;
 		private var _needCheck : Boolean;
-		private var _numPortals : int;		
+		private var _numPortals : int;
+		private var _backPortal : BSPPortal;		
 		
 		private static var _sizeLookUp : Vector.<int>;
 		
@@ -51,6 +57,8 @@ package away3d.core.graphs
 		arcane var _currentAntiPenumbra : Vector.<Plane3D>;
 		arcane var _currentParent : BSPPortal;
 		arcane var _currentFrontList : Vector.<uint>;
+		
+		private static var _planePool : Array = [];
 		
 		public function BSPPortal()
 		{
@@ -62,6 +70,7 @@ package away3d.core.graphs
 			nGon.vertices = new Vector.<Vertex>();
 		}
 		
+		// TO DO: change bits back to 32 for less mem usage and less iterations
 		// checks how many bits are set in a byte
 		// wait, I can actually combine this and 32 bit lists
 		private function generateSizeLookUp() : void
@@ -86,6 +95,16 @@ package away3d.core.graphs
 			_sizeLookUp[0xff] = 8;
 		}
 		
+		private function getPlaneFromPool() : Plane3D
+		{
+			return _planePool.length > 0? _planePool.pop() : new Plane3D();
+		}
+		
+		private function addPlaneToPool(plane : Plane3D) : void
+		{
+			_planePool.push(plane);
+		}
+		
 		public function fromNode(node : BSPNode, root : BSPNode) : Boolean
 		{
 			var bounds : Array = root._bounds;
@@ -97,6 +116,7 @@ package away3d.core.graphs
 													(root._minY+root._maxY)*.5,
 													(root._minZ+root._maxZ)*.5 );
 			var normal : Number3D = new Number3D(plane.a, plane.b, plane.c);
+			var vertLen : int = 0;
 			
 			sourceNode = node;
 			
@@ -119,23 +139,23 @@ package away3d.core.graphs
 			direction2.normalize();
 			
 			// form very course bounds of bound projection on plane
-			nGon.vertices.push(new Vertex( 	center.x + direction1.x*radius,
-											center.y + direction1.y*radius,
-											center.z + direction1.z*radius));
-			nGon.vertices.push(new Vertex( 	center.x + direction2.x*radius,
-											center.y + direction2.y*radius,
-											center.z + direction2.z*radius));
+			nGon.vertices[vertLen++] = new Vertex( 	center.x + direction1.x*radius,
+													center.y + direction1.y*radius,
+													center.z + direction1.z*radius);
+			nGon.vertices[vertLen++] = new Vertex( 	center.x + direction2.x*radius,
+													center.y + direction2.y*radius,
+													center.z + direction2.z*radius);
 			
 			// invert direction
 			direction1.normalize(-1);
 			direction2.normalize(-1);
 			
-			nGon.vertices.push(new Vertex( 	center.x + direction1.x*radius,
-											center.y + direction1.y*radius,
-											center.z + direction1.z*radius));
-			nGon.vertices.push(new Vertex( 	center.x + direction2.x*radius,
-											center.y + direction2.y*radius,
-											center.z + direction2.z*radius));
+			nGon.vertices[vertLen++] = new Vertex( 	center.x + direction1.x*radius,
+													center.y + direction1.y*radius,
+													center.z + direction1.z*radius);
+			nGon.vertices[vertLen++] = new Vertex( 	center.x + direction2.x*radius,
+													center.y + direction2.y*radius,
+													center.z + direction2.z*radius);
 			
 			// trim closely to world's bound planes
 			trimToAABB(root);
@@ -170,12 +190,18 @@ package away3d.core.graphs
 		
 		private function trimToAABB(node : BSPNode) : void
 		{
-			nGon.trim(new Plane3D(0, -1, 0, node._maxY));
-			nGon.trim(new Plane3D(0, 1, 0, -node._minY));
-			nGon.trim(new Plane3D(1, 0, 0, -node._minX));
-			nGon.trim(new Plane3D(-1, 0, 0, node._maxX));
-			nGon.trim(new Plane3D(0, 0, 1, -node._minZ));
-			nGon.trim(new Plane3D(0, 0, -1, node._maxZ));
+			var plane : Plane3D = new Plane3D(0, -1, 0, node._maxY);
+			nGon.trim(plane);
+			plane.b = 1; plane.d = -node._minY;
+			nGon.trim(plane);
+			plane.a = 1; plane.b = 0; plane.d = -node._minX;
+			nGon.trim(plane);
+			plane.a = -1; plane.d = node._maxX;
+			nGon.trim(plane);
+			plane.a = 0; plane.c = 1; plane.d = -node._minZ;
+			nGon.trim(plane);
+			plane.c = -1; plane.d = node._maxZ;
+			nGon.trim(plane);
 		}
 		
 		private function getPerpendicular(normal : Number3D) : Number3D
@@ -232,6 +258,8 @@ package away3d.core.graphs
 			inverted.frontNode = backNode;
 			inverted.backNode = frontNode;
 			inverted.nGon.invert();
+			inverted._backPortal = this;
+			_backPortal = inverted;
 			
 			parts[0] = this;
 			parts[1] = inverted;
@@ -243,7 +271,7 @@ package away3d.core.graphs
 		{
 			_numPortals = numPortals;
 			// only using 1 byte per item, as to keep the size look up table small
-			listLen = (numPortals >> 3) + 1;
+			listLen = (numPortals >> 5) + 1;
 			frontList = new Vector.<uint>(listLen);
 			visList = new Vector.<uint>(listLen);
 			_currentFrontList = new Vector.<uint>(listLen);
@@ -251,18 +279,18 @@ package away3d.core.graphs
 
 		public function addToList(list : Vector.<uint>, index : int) : void
 		{
-			list[index >> 3] |=  (1 << (index & 0x7));
+			list[index >> 5] |=  (1 << (index & 0x1f));
 		}
 		
 		public function removeFromList(list : Vector.<uint>, index : int) : void
 		{
-			list[index >> 3] &= ~(1 << (index & 0x7));
+			list[index >> 5] &= ~(1 << (index & 0x1f));
 		}
 		
 		public function isInList(list : Vector.<uint>, index : int) : Boolean
 		{
 			if (!list) return false;
-			return (list[index >> 3] & (1 << (index & 0x7))) != 0;
+			return (list[index >> 5] & (1 << (index & 0x1f))) != 0;
 		}
 		
 		public function findInitialFrontList(list : BSPPortal) : void
@@ -278,8 +306,8 @@ package away3d.core.graphs
 				compNGon = list.nGon;
 				// test if spanning or this portal is in front and other in back
 				if (compNGon.classifyForPortalFront(srcPlane) && nGon.classifyForPortalBack(compNGon.plane)) {
-					listIndex = index >> 3;
-					bitIndex = index & 0x7;
+					listIndex = index >> 5;
+					bitIndex = index & 0x1f;
 					// isInList(list.frontList, index)
 					if ((list.frontList[listIndex] & (1 << bitIndex)) != 0) {
 						// two portals can see eachother
@@ -288,7 +316,7 @@ package away3d.core.graphs
 						--list.frontOrder;
 					}
 					else {
-						frontList[i >> 3] |=  (1 << (i & 0x7));
+						frontList[i >> 5] |=  (1 << (i & 0x1f));
 						frontOrder++;
 					}
 				}
@@ -324,6 +352,8 @@ package away3d.core.graphs
 			
 			var current : BSPPortal;
 			var currIndex : int;
+			var neighLen : int = 0;
+			
 			neighbours = new Vector.<BSPPortal>();
 			
 			while (--i >= 0) {
@@ -331,13 +361,16 @@ package away3d.core.graphs
 				currIndex = current.index;
 				
 				//if (isInList(frontList, current.index)) {
-				if (frontList[currIndex >> 3] & (1 << (currIndex & 0x7))) {
-					neighbours.push(current);
+				if (frontList[currIndex >> 5] & (1 << (currIndex & 0x1f))) {
+					neighbours[neighLen++] = current;
 					antiPenumbrae[currIndex] = generateAntiPenumbra(current.nGon);
 				}
 			}
 			
-			if (neighbours.length == 0) {
+			if (neighLen == 0) {
+				i = listLen;
+				while (--i >= 0)
+					frontList[i] = 0;
 				neighbours = null;
 				frontOrder = 0;
 			}
@@ -351,6 +384,8 @@ package away3d.core.graphs
 			_needCheck = false;
 			_iterationIndex = 0;
 			_currentParent = null;
+			isInSequence = true;
+			
 			while (--i >= 0)
 				_currentFrontList[i] = frontList[i];
 				
@@ -362,88 +397,100 @@ package away3d.core.graphs
 			setTimeout(dispatchEvent, 1, _recurseCompleteEvent);
 		}*/
 		
+		public var isInSequence : Boolean;
+		
 		private function findVisiblePortalStep() : void
 		{
 			var next : BSPPortal;
 			var startTime : int = getTimer();
-			var neighbours : Vector.<BSPPortal>;
+			var currNeighbours : Vector.<BSPPortal>;
 			var i : int;
-			
-			/*if (event) {
-				dispatchEvent(_recurseCompleteEvent);
-				EventDispatcher(event.target).removeEventListener(Event.COMPLETE, findVisiblePortalStep);
-				EventDispatcher(event.target).removeEventListener(RECURSED_PORTAL_COMPLETE, onRecursedComplete);
-			}*/
+			var parent : BSPPortal;
+			var currFront : Vector.<uint>;
 			
 			do {
-				var p : BSPPortal = _currentPortal;
-				while (p = p._currentParent) {
-					trace(p.index);
-					if (p == _currentPortal) throw Error ("CYCLE!");
-				}
+				if (_currentPortal.frontOrder <= 0)
+					_state = TRAVERSE_POST;
 				
 				if (_needCheck) {
-					//					if (!(_currentPortal.hasVisList || _currentPortal.isInSequence) && System.totalMemory < 1572864) {
-//						_currentPortal.addEventListener(Event.COMPLETE, findVisiblePortalStep);
-//						_currentPortal.addEventListener(RECURSED_PORTAL_COMPLETE, onRecursedComplete);
-//						setTimeout(_currentPortal.findVisiblePortals, 1);
-//						return;
-//					}
-					
-					if (determineVisibility(_currentPortal)) {
-						var currIndex : int = _currentPortal.index;
+					// TO DO:
+					// insert front list check here already to avoid method call
+					//if (!isInList(currList, currentPortal.index))
+					var currIndex : int = _currentPortal.index;
+					parent = _currentPortal._currentParent;
+					currFront = parent._currentFrontList;
+					if (((currFront[currIndex >> 5] & (1 << (currIndex & 0x1f))) != 0) &&
+							determineVisibility(_currentPortal)) {
 						//addToList(visList, _currentPortal.index);
-						visList[currIndex >> 3] |=  (1 << (currIndex & 0x7));
+						visList[currIndex >> 5] |=  (1 << (currIndex & 0x1f));
 						
 						// we will be recursing down this one, so need an updated frontlist for this sequence
 						i = listLen;
 						while (--i >= 0)
-							_currentPortal._currentFrontList[i] = _currentPortal._currentParent._currentFrontList[i] & _currentPortal.frontList[i];
+							_currentPortal._currentFrontList[i] = currFront[i] & _currentPortal.frontList[i];
 					}
-						
 					else
 						_state = TRAVERSE_POST;
 				}
-				if (_currentPortal.frontOrder <= 0) _state = TRAVERSE_POST;
 				
 				if (_state == TRAVERSE_PRE) {
-					neighbours = _currentPortal.neighbours;
-					if (neighbours) {
-						next = neighbours[0];
+					currNeighbours = _currentPortal.neighbours;
+					if (currNeighbours) {
+						next = currNeighbours[0];
+						if (next.isInSequence)
+							throw Error("Cycle!");
 						next._iterationIndex = 0;
 						next._currentParent = _currentPortal;
 						_currentPortal = next;
+						_currentPortal.isInSequence = true;
 						_needCheck = true;
 					}
 					else {
 						_state = TRAVERSE_POST;
-						_currentPortal._currentAntiPenumbra = null;
+//						_currentPortal._currentAntiPenumbra = null;
 						_needCheck = false;
 					}
 				}
 				else if (_state == TRAVERSE_IN) {
-					neighbours = _currentPortal.neighbours;
-					if (++_currentPortal._iterationIndex < neighbours.length) {
-						next = neighbours[_currentPortal._iterationIndex];
+					currNeighbours = _currentPortal.neighbours;
+					if (++_currentPortal._iterationIndex < currNeighbours.length) {
+						next = currNeighbours[_currentPortal._iterationIndex];
+						if (next.isInSequence)
+							throw Error("Cycle!");
 						next._iterationIndex = 0;
 						next._currentParent = _currentPortal;
 						_currentPortal = next;
+						_currentPortal.isInSequence = true;
 						_needCheck = true;
 						_state = TRAVERSE_PRE;
 					}
 					else {
 						_state = TRAVERSE_POST;
-						_currentPortal._currentAntiPenumbra = null;
+//						_currentPortal._currentAntiPenumbra = null;
 						_needCheck = false;
 					}
 				}
 				else if (_state == TRAVERSE_POST) {
-					if (_currentPortal._currentParent) {
-						// clear memory
+					// clear memory
+					var anti : Vector.<Plane3D> = _currentPortal._currentAntiPenumbra;
+					// don't clean up neighbour penumbra, these are needed!
+					// TO DO: are they actually still needed?
+					if (anti && _currentPortal._currentParent != this) {
+						i = anti.length;
+				
+						while (--i >= 0) {
+							anti[i]._alignment = 0;
+							_planePool.push(anti[i]);
+						}
+							
 						_currentPortal._currentAntiPenumbra = null;
-						_currentPortal = _currentPortal._currentParent;
-						_state = TRAVERSE_IN;
 					}
+						
+					_currentPortal.isInSequence = false;
+					_currentPortal = _currentPortal._currentParent;
+					if (_currentPortal._iterationIndex < _currentPortal.neighbours.length-1)
+						_state = TRAVERSE_IN;
+						
 					_needCheck = false;
 				}
 			} while(	(_currentPortal != this || _state != TRAVERSE_POST) &&
@@ -455,6 +502,7 @@ package away3d.core.graphs
 				while (--i >= 0)
 					frontList[i] = visList[i];
 				
+				isInSequence = false;
 				hasVisList = true;
 				setTimeout(notifyComplete, 1);
 			}
@@ -471,21 +519,31 @@ package away3d.core.graphs
 			var parent : BSPPortal = currentPortal._currentParent;
 			var currentNGon : NGon;
 			var clone : NGon;
-			var list : Vector.<uint> = parent._currentFrontList;
 			var currIndex : int = currentPortal.index;
-
+			var vis : Vector.<uint>;
+			var back : BSPPortal; 
+			var thisBackIndex : int;
+			
 			if (parent == this) {
 				// direct neighbour
 				currentPortal._currentAntiPenumbra = antiPenumbrae[currIndex];
 				return true;
 			}
 			
-			//if (!isInList(currList, currentPortal.index))
-			if ((list[currIndex >> 3] & (1 << (currIndex & 0x7))) == 0)
-				return false;
-				
+			// if not visible from other side 
+			back = currentPortal._backPortal;
+			if (back.hasVisList) {
+				vis = back.visList;
+				thisBackIndex = _backPortal.index;
+				// not visible the other way around
+				if ((vis[thisBackIndex >> 5] & (1 << (thisBackIndex & 0x1f))) == 0)
+					return false;
+			}
+			
 			currentNGon = currentPortal.nGon;
 			currAntiPenumbra = parent._currentAntiPenumbra;
+			len = currAntiPenumbra.length;
+			
 			i = len = currAntiPenumbra.length;
 			
 			while (--i >= 0) {
@@ -501,8 +559,11 @@ package away3d.core.graphs
 			i = len;
 			while (--i >= 0) {
 				clone.trim(currAntiPenumbra[i]);
-				if (clone.vertices.length < 3 || clone.area < BSPTree.EPSILON) return false;
+				if (clone.vertices.length < 3) return false;
 			}
+			
+			if (clone.isNeglectable())
+				return false;
 			
 			// create new antiPenumbra for the trimmed portal
 			currentPortal._currentAntiPenumbra = generateAntiPenumbra(clone);
@@ -514,20 +575,30 @@ package away3d.core.graphs
 		{
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
-
+		
 		private function generateAntiPenumbra(targetNGon : NGon) : Vector.<Plane3D>
 		{
 			var anti : Vector.<Plane3D> = new Vector.<Plane3D>();
 			var vertices1 : Vector.<Vertex> = nGon.vertices;
-			var vertices2 : Vector.<Vertex> = targetNGon .vertices;
+			var vertices2 : Vector.<Vertex> = targetNGon.vertices;
 			var len1 : int = vertices1.length;
 			var len2 : int = vertices2.length;
-			var plane : Plane3D = new Plane3D();
+			var plane : Plane3D = _planePool.length > 0? _planePool.pop() : new Plane3D();
 			var i : int;
 			var j : int;
 			var k : int;
+			var p : int;
 			var v1 : Vertex;
 			var classification1 : int, classification2 : int;
+			var antiLen : int = 0;
+			var firstLen : int;
+			var d1x : Number, d1y : Number, d1z : Number,
+				d2x : Number, d2y : Number, d2z : Number;
+			var v2 : Vertex, v3 : Vertex;
+			var nx : Number, ny : Number, nz : Number, l : Number, d : Number;
+			var compPlane : Plane3D;
+			var check : Boolean;
+			var da : Number, db : Number, dc : Number, dd : Number;
 			
 			i = len1;
 			while (--i >= 0) {
@@ -535,8 +606,26 @@ package away3d.core.graphs
 				j = len2;
 				k = len2-2;
 				while (--j >= 0) {
-					plane.from3vertices(v1, vertices2[j], vertices2[k]);
-					plane.normalize();
+					v2 = vertices2[j];
+					v3 = vertices2[k];
+					//plane.from3vertices(v1, v2, v3);
+					//plane.normalize();
+					d1x = v2.x-v1.x;
+					d1y = v2.y-v1.y;
+					d1z = v2.z-v1.z;
+					d2x = v3.x-v1.x;
+					d2y = v3.y-v1.y;
+					d2z = v3.z-v1.z;
+					nx = d1y*d2z - d1z*d2y;
+            		ny = d1z*d2x - d1x*d2z;
+            		nz = d1x*d2y - d1y*d2x;
+            		l = 1/Math.sqrt(nx*nx+ny*ny+nz*nz);
+            		nx *= l; ny *= l; nz *= l;
+					plane.a = nx;
+            		plane.b = ny;
+            		plane.c = nz;
+					plane.d = d = -(nx*v1.x + ny*v1.y + nz*v1.z);
+					
 					classification1 = nGon.classifyToPlane(plane);
 					classification2 = targetNGon.classifyToPlane(plane);
 					
@@ -546,82 +635,107 @@ package away3d.core.graphs
 							(classification1 != classification2)) {*/
 						// planes coming out of the target portal should face inward
 						if (classification2 == Plane3D.BACK) {
-							plane.a = -plane.a;
-							plane.b = -plane.b;
-							plane.c = -plane.c;
-							plane.d = -plane.d;
+							plane.a = -nx;
+							plane.b = -ny;
+							plane.c = -nz;
+							plane.d = -d;
 						} 
 						
-						anti.push(plane);
-						plane = new Plane3D();
+						p = antiLen;
+	            		check = true;
+	            		while (--p >= 0) {
+	            			compPlane = anti[p];
+	            			da = compPlane.a - nx;
+	            			db = compPlane.b - ny;
+	            			dc = compPlane.c - nz;
+	            			dd = compPlane.d - d;
+	            			if (	da < BSPTree.EPSILON && da > -BSPTree.EPSILON &&
+	            					db < BSPTree.EPSILON && db > -BSPTree.EPSILON &&
+	            					dc < BSPTree.EPSILON && dc > -BSPTree.EPSILON &&
+	            					dd < BSPTree.EPSILON && dd > -BSPTree.EPSILON) {
+	            				p = 0;
+	            				check = false;
+	            			}
+	            		}
+	            		
+	            		if (check) {
+							anti[antiLen++] = plane;
+							plane = _planePool.length > 0? _planePool.pop() : new Plane3D();
+	            		}
 					}
 					
 					if (--k < 0) k = len2-1;
 				}
 			}
 			
-			/*i = len2;
+			firstLen = antiLen;
+			
+			i = len2;
 			while (--i >= 0) {
 				v1 = vertices2[i];
 				j = len1;
 				k = len1-2;
 				while (--j >= 0) {
-					plane.from3vertices(v1, vertices1[j], vertices1[k]);
-					plane.normalize();
+					v2 = vertices1[j];
+					v3 = vertices1[k];
+//					plane.from3vertices(v1, vertices1[j], vertices1[k]);
+//					plane.normalize();
+					d1x = v2.x-v1.x;
+					d1y = v2.y-v1.y;
+					d1z = v2.z-v1.z;
+					d2x = v3.x-v1.x;
+					d2y = v3.y-v1.y;
+					d2z = v3.z-v1.z;
+					nx = d1y*d2z - d1z*d2y;
+            		ny = d1z*d2x - d1x*d2z;
+            		nz = d1x*d2y - d1y*d2x;
+            		l = 1/Math.sqrt(nx*nx+ny*ny+nz*nz);
+            		nx *= l; ny *= l; nz *= l;
+            		d = -(nx*v1.x + ny*v1.y + nz*v1.z);
+            		
+            		plane.a = nx;
+	            	plane.b = ny;
+	            	plane.c = nz;
+	            	plane.d = d;
+	            		
 					classification1 = nGon.classifyToPlane(plane);
 					classification2 = targetNGon.classifyToPlane(plane);
-					
-//					if (	(classification1 == Plane3D.FRONT && classification2 == Plane3D.BACK) ||
-//							(classification1 == Plane3D.BACK && classification2 == Plane3D.FRONT)) {
-					if (	(classification1 != Plane3D.INTERSECT && classification2 != Plane3D.INTERSECT) &&
-							(classification1 != classification2)) {
-						// planes coming out of the target portal should face inward
-						if (classification2 == Plane3D.BACK || classification1 == Plane3D.FRONT) {
-							plane.a = -plane.a;
-							plane.b = -plane.b;
-							plane.c = -plane.c;
-							plane.d = -plane.d;
-						} 
 						
-						anti.push(plane);
-						plane = new Plane3D();
-					}
-					
-					if (--k < 0) k = len1-1;
-				}
-			}*/
-			
-			/*for (i = 0; i < len2; ++i) {
-				k = 1;
-				v1 = vertices2[i];
-				for (j = 0; j < len1; ++j) {
-					plane.from3vertices(v1, vertices1[j], vertices1[k]);
-					plane.normalize();
-					classification1 = nGon.classifyToPlane(plane);
-					classification2 = targetPortal.nGon.classifyToPlane(plane);
-					
 					if (	(classification1 == Plane3D.FRONT && classification2 == Plane3D.BACK) ||
 							(classification1 == Plane3D.BACK && classification2 == Plane3D.FRONT)) {
-						// planes coming out of the target portal should face inward
 						if (classification2 == Plane3D.BACK) {
-							plane.a = -plane.a;
-							plane.b = -plane.b;
-							plane.c = -plane.c;
-							plane.d = -plane.d;
-						}
+							plane.a = -nx;
+							plane.b = -ny;
+							plane.c = -nz;
+							plane.d = -d;
+						} 
 						
-						anti.push(plane);
-						plane = new Plane3D();
+						p = antiLen;
+	            		check = true;
+	            		while (--p >= 0) {
+	            			compPlane = anti[p];
+	            			da = compPlane.a - nx;
+	            			db = compPlane.b - ny;
+	            			dc = compPlane.c - nz;
+	            			dd = compPlane.d - d;
+	            			if (	da < BSPTree.EPSILON && da > -BSPTree.EPSILON &&
+	            					db < BSPTree.EPSILON && db > -BSPTree.EPSILON &&
+	            					dc < BSPTree.EPSILON && dc > -BSPTree.EPSILON &&
+	            					dd < BSPTree.EPSILON && dd > -BSPTree.EPSILON) {
+	            				p = 0;
+	            				check = false;
+	            			}
+	            		}
+	            		
+	            		if (check) {
+							anti[antiLen++] = plane;
+							plane = _planePool.length > 0? _planePool.pop() : new Plane3D();
+	            		}
 					}
-					
-					if (++k == len1) k = 0;
-				}
-			}*/
+            	}
+				if (--k < 0) k = len1-1;
+			}
 			
-//			if (!antiPenumbrae) antiPenumbrae = new Array();
-//			if (!targetPortal.antiPenumbrae) targetPortal.antiPenumbrae = new Array();
-//			antiPenumbrae[targetPortal.index] = anti;
-//			targetPortal.antiPenumbrae[index] = targetAnti;
 			return anti;
 		}
 		
@@ -636,16 +750,25 @@ package away3d.core.graphs
 			var len : int = neighbours.length;
 			var count : int;
 			var j : int;
+			var neigh : BSPPortal;
 			
 			while (--i >= 0) {
 				current = portals[i];
-				count = 0;
+				
 				// only check if not neighbour and already in front list
-				if (isInList(frontList, i) && neighbours.indexOf(current) != -1) {
+				if (isInList(frontList, i) && neighbours.indexOf(current) == -1) {
+					count = 0;
+					
 					j = len;
-					while (--j >= 0)
-						if (!current.checkAgainstAntiPenumbra(antiPenumbrae[neighbours[j].index]))
+					while (--j >= 0) {
+						neigh = neighbours[j];
+						
+						// is in front and in anti-pen, escape loop
+						if (isInList(neigh.frontList, i) && current.checkAgainstAntiPenumbra(antiPenumbrae[neigh.index]))
+							j = 0;
+						else
 							++count;
+					}
 					
 					// not visible from portal through any neighbour
 					if (count == len) {
@@ -678,7 +801,7 @@ package away3d.core.graphs
 				list[k] = neighList[k];
 
 			neighIndex = neighbour.index;
-			list[neighIndex >> 3] |=  (1 << (neighIndex & 0x7));
+			list[neighIndex >> 5] |=  (1 << (neighIndex & 0x1f));
 			
 			// add other neighbours' visible lists into the mix
 			while (--j >= 0) {
@@ -689,7 +812,7 @@ package away3d.core.graphs
 					list[k] |= neighList[k];
 
 				neighIndex = neighbour.index;
-				list[neighIndex >> 3] |=  (1 << (neighIndex & 0x7));
+				list[neighIndex >> 5] |=  (1 << (neighIndex & 0x1f));
 			}
 			
 			k = listLen;
@@ -699,180 +822,27 @@ package away3d.core.graphs
 			
 			frontOrder = 0;
 			k = listLen;
-			while (--k >= 0)
-				frontOrder += _sizeLookUp[frontList[k]];
+			var val : uint;
+			while (--k >= 0) {
+				val = frontList[k];
+				frontOrder += _sizeLookUp[val & 0xff];
+				frontOrder += _sizeLookUp[(val >> 8) & 0xff];
+				frontOrder += _sizeLookUp[(val >> 16) & 0xff];
+				frontOrder += _sizeLookUp[(val >> 24) & 0xff];
+			}
 		}
 
 		private function checkAgainstAntiPenumbra(antiPenumbra : Vector.<Plane3D>) : Boolean
 		{
 			var i : int = antiPenumbra.length;
 			
-			while (--i >= 0) {
-				if (!nGon.classifyForPortalFront(antiPenumbra[i])) return false;
+			while (--i >= 0)
+				if (nGon.isOutAntiPenumbra(antiPenumbra[i])) return false;
 				/*if (nGon.classifyToPlane(antiPenumbra[i]) == Plane3D.BACK ||
 					nGon.classifyToPlane(antiPenumbra[i]) == -2)
 					return false;*/
-			}
 			return true;
 			
 		}
-		
-		/*private static var _coincFront : Vector.<Boolean>;
-		private static var _coincBack : Vector.<Boolean>;
-		private static var _subs : Vector.<NGon>;
-		private static var _newPortals : Vector.<BSPPortal>;
-		
-		public function cutSolids() : Vector.<BSPPortal>
-		{
-			var i : int;
-			var faces : Array;
-			var face : Face;
-			var isCoinciding : Boolean;
-			var portal : BSPPortal;
-			
-			var cloneNGon : NGon = nGon.clone();
-			
-			// trim ngon by front leaf's triangles, if not coinciding with portal
-			faces = frontNode._mesh._geometry.faces;
-			i = faces.length;
-			
-			if (_coincFront)
-				_coincFront.length = i;
-			else
-				_coincFront = new Vector.<Boolean>(i, false);
-				
-			while (--i >= 0) {
-				face = faces[i];
-				_coincFront[i] = isCoinciding = isFaceCoinciding(face);
-				if (!isCoinciding) cloneNGon.trim(face.plane);
-				// will return empty
-				if (cloneNGon.vertices.length < 3) return null;
-			}
-			
-			// trim ngon by back leaf's triangles, if not coinciding with portal
-			faces = backNode._mesh._geometry.faces;
-			i = faces.length;
-			
-			if (_coincBack)
-				_coincBack.length = i;
-			else
-				_coincBack = new Vector.<Boolean>(i, false);
-			
-			while (--i >= 0) {
-				face = faces[i];
-				_coincBack[i] = isCoinciding = isFaceCoinciding(face);
-				if (!isCoinciding) cloneNGon.trim(face.plane);
-				// will return empty
-				if (cloneNGon.vertices.length < 3) return null;
-			}
-			
-			if (!_subs) _subs = new Vector.<NGon>();
-			_subs.push(cloneNGon);
-			
-			// Cut out solid coinciding triangles from portal
-			faces = frontNode._mesh.geometry.faces;
-			i = faces.length;
-			
-			while (--i >= 0)
-				if (_coincFront[i]) _subs = cutToFace(_subs, faces[i]);
-			
-			faces = backNode._mesh.geometry.faces;
-			i = faces.length;
-			while (--i >= 0)
-				if (_coincBack[i]) _subs = cutToFace(_subs, faces[i]);
-			
-			i = _subs.length;
-			if(!_newPortals)
-				_newPortals = new Vector.<BSPPortal>(i);
-			else
-				_newPortals.length = i;
-				
-			while (--i >= 0) {
-				portal = new BSPPortal();
-				portal.frontNode = frontNode;
-				portal.backNode = backNode;
-				portal.nGon = _subs[i];
-				_newPortals[i] = portal;
-			}
-			
-			_subs.length = 0;
-			return _newPortals;
-		}
-		
-		// TO DO: do not create newSubs
-		private function cutToFace(subs : Vector.<NGon>, face : Face) : Vector.<NGon>
-		{
-			var newSubs : Vector.<NGon> = new Vector.<NGon>();
-			var splits : Vector.<NGon>;
-			var i : int = subs.length;
-			var ngon : NGon;
-			
-//			face.generateEdgePlanes();
-			
-			while (--i >= 0) {
-				splits = subs[i].split(face._edgePlane01);
-				ngon = splits[1];
-				if (ngon && ngon.area > BSPTree.EPSILON) newSubs.push(ngon);
-				ngon = splits[0];
-				if (ngon && ngon.area > BSPTree.EPSILON) {
-					splits = ngon.split(face._edgePlane12);
-					ngon = splits[1];
-					if (ngon && ngon.area > BSPTree.EPSILON) newSubs.push(ngon);
-					ngon = splits[0];
-					if (ngon && ngon.area > BSPTree.EPSILON) {
-						splits = ngon.split(face._edgePlane20);
-						ngon = splits[1];
-						if (ngon && ngon.area > BSPTree.EPSILON) newSubs.push(ngon);
-					}
-				}
-			}
-			
-			return newSubs;
-		}
-		
-		private function isFaceCoinciding(face : Face) : Boolean
-		{
-			var plane : Plane3D = nGon.plane;
-			var dot : Number;
-			var v : Vertex;
-			
-			v = face._v0;
-			if (plane._alignment == Plane3D.X_AXIS)
-				dot = v._x*plane.a + plane.d;
-			else if (plane._alignment == Plane3D.Y_AXIS)
-				dot = v._y*plane.b + plane.d;
-			else if (plane._alignment == Plane3D.Z_AXIS)
-				dot = v._z*plane.c + plane.d;
-			else
-				dot = v._x*plane.a + v._y*plane.b + v._z*plane.c + plane.d;
-				
-			if (dot < -BSPTree.EPSILON || dot > BSPTree.EPSILON) return false;
-			
-			v = face._v1;
-			if (plane._alignment == Plane3D.X_AXIS)
-				dot = v._x*plane.a + plane.d;
-			else if (plane._alignment == Plane3D.Y_AXIS)
-				dot = v._y*plane.b + plane.d;
-			else if (plane._alignment == Plane3D.Z_AXIS)
-				dot = v._z*plane.c + plane.d;
-			else
-				dot = v._x*plane.a + v._y*plane.b + v._z*plane.c + plane.d;
-				
-			if (dot < -BSPTree.EPSILON || dot > BSPTree.EPSILON) return false;
-			
-			v = face._v2;
-			if (plane._alignment == Plane3D.X_AXIS)
-				dot = v._x*plane.a + plane.d;
-			else if (plane._alignment == Plane3D.Y_AXIS)
-				dot = v._y*plane.b + plane.d;
-			else if (plane._alignment == Plane3D.Z_AXIS)
-				dot = v._z*plane.c + plane.d;
-			else
-				dot = v._x*plane.a + v._y*plane.b + v._z*plane.c + plane.d;
-				
-			if (dot < -BSPTree.EPSILON || dot > BSPTree.EPSILON) return false;
-			
-			return true;
-		}*/
 	}
 }
