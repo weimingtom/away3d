@@ -74,6 +74,8 @@ package away3d.loaders
 		
 		private var _currentModel : QBSPModel;
 		
+		public static var _allFaces : Vector.<Face> = new Vector.<Face>();
+		
 		public function Bsp(init:Object=null)
 		{
 			super(init);
@@ -233,6 +235,7 @@ package away3d.loaders
 				triangle = new Face(v3, v2, v1, material, uv3, uv2, uv1);
 				triangle._plane = _planes[face.planeNum];
 				lookUp.push(triangle);
+				_allFaces.push(triangle);
 			}
 		}
         

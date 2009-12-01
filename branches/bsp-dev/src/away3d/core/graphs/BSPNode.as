@@ -95,6 +95,7 @@ package away3d.core.graphs
 			var backPortal : BSPPortal;
 			var portalsLen : int = portals.length;
 			var portal : BSPPortal;
+			var visLen : int = 0;
 			
 			_visList = new Vector.<int>();
 			
@@ -102,13 +103,13 @@ package away3d.core.graphs
 				backPortal = _backPortals[i];
 				// direct neighbours are always visible
 				if (_visList.indexOf(backPortal.frontNode.id) == -1)
-					_visList.push(backPortal.frontNode.id);
+					_visList[visLen++] = backPortal.frontNode.id;
 					
 				for (var j : int = 0; j < portalsLen; ++j) {
 					portal = portals[j];
 					// if in vislist and not yet added
 					if (backPortal.isInList(backPortal.visList, portal.index) && (_visList.indexOf(portal.frontNode.id) == -1))
-						_visList.push(portals[j].frontNode.id);
+						_visList[visLen++] = portals[j].frontNode.id;
 				}
 			}
 			_visList.sort(sortVisList);
@@ -697,7 +698,7 @@ package away3d.core.graphs
 					portal.nGon.trim(_partitionPlane);
 
 				// portal became too small
-				if (portal.nGon.vertices.length < 3 || portal.nGon.area < BSPTree.EPSILON)
+				if (portal.nGon.isNeglectable())
 					return null;
 				
 				portals = _positiveNode.splitPortalByChildren(portal, side);
