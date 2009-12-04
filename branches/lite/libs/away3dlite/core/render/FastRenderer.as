@@ -26,23 +26,67 @@ package away3dlite.core.render
 			_mouseEnabledArray.push(_mouseEnabled);
 			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 			
-			if (object is ObjectContainer3D) {
+			if (object is ObjectContainer3D) 
+			{
 				var children:Array = (object as ObjectContainer3D).children;
 				var child:Object3D;
 				
 				if (sortObjects)
 					children.sortOn("screenZ", 18);
-				
-				for each (child in children) {
+					
+				for each (child in children) 
+				{
+					if(cullObjects)
+						_culler.cull(child);
+						
+					if(child.canvas)
+					{
+						var _child_canvas:Sprite = child.canvas;
+						_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
+						_child_canvas.graphics.clear();
+					}
+					
 					if(child.layer)
 						child.layer.graphics.clear();
 					
 					collectFaces(child);
 				}
+					
 			}
 			
+			if(cullObjects && !object.visible)
+			{
+				numCulled++;
+				return;
+			}
+			
+			if (object is Particles) 
+			{
+				var _particles_lists:Array = (object as Particles).lists;
+				
+				if(_particles_lists.length>0)
+					_particles = _particles.concat(_particles_lists);
+			}
+		}
+		
+		private function drawFaces(object:Object3D):void
+		{
+			if(cullObjects && !object.visible)return;
+			
+			if (object is ObjectContainer3D) 
+			{
+				var children:Array = (object as ObjectContainer3D).children;
+				var child:Object3D;
+				
+				for each (child in children) 
+					drawFaces(child);
+			}
+			
+			if (object is Mesh) 
+			{
 			var mesh:Mesh = object as Mesh;
 			
+				
 			_faces = mesh._faces;
 			
 			if(!_faces.length)
@@ -83,9 +127,15 @@ package away3dlite.core.render
                 }
 			}
 			
+				drawParticles(object.screenZ);
+				
 			if(object.layer)
 			{
-				object.layer.graphics.drawGraphicsData(_mesh_material_graphicsData);
+					object.layer.graphics.drawGraphicsData(_mesh_material_graphicsData);
+				}
+				else if(object.canvas)
+				{
+					object.canvas.graphics.drawGraphicsData(_mesh_material_graphicsData);
 			}else{
 				_view_graphics_drawGraphicsData(_mesh_material_graphicsData);
 			}
@@ -93,6 +143,7 @@ package away3dlite.core.render
 			var _faces_length:int = _faces.length;
 			_view._totalFaces += _faces_length;
 			_view._renderedFaces += _faces_length;
+			}
 			
 			_mouseEnabled = _mouseEnabledArray.pop();
 			
@@ -163,11 +214,6 @@ package away3dlite.core.render
 		}
 		
 		/**
-		 * Determines whether 3d objects are sorted in the view. Defaults to true.
-		 */
-		public var sortObjects:Boolean = true;
-		
-		/**
 		 * Creates a new <code>FastRenderer</code> object.
 		 */
 		public function FastRenderer()
@@ -183,6 +229,14 @@ package away3dlite.core.render
 			super.render();
 			
 			collectFaces(_scene);
+			
+			// sort merged particles
+			_particles.sortOn("screenZ", 18);
+				
+			drawFaces(_scene);
+			
+			// draw front
+			drawParticles();
 		}
 	}
 }
