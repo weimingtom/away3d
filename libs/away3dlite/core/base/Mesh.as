@@ -5,7 +5,7 @@ package away3dlite.core.base
 	import away3dlite.containers.*;
 	import away3dlite.materials.*;
 	import away3dlite.materials.shaders.*;
-		
+	
 	import flash.display.*;
 	import flash.geom.*;
 	
@@ -64,22 +64,24 @@ package away3dlite.core.base
 			if (material is IShader)
 				_uvtData = IShader(material).getUVData(transform.matrix3D.clone());
 			
-			//DO NOT CHANGE vertices getter!!!!!!!
-			Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
-			
+			if (!_perspCulling) {
+				//DO NOT CHANGE vertices getter!!!!!!!
+				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
+				
 			projectPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
 			projectPosition = Utils3D.projectVector(_viewMatrix3D, projectPosition);
-			if (_materialsDirty)
-				buildMaterials();
-			
-			var i:int = _materialsCacheList.length;
-			var mat:Material;
-			while (i--) {
-				if ((mat = _materialsCacheList[i])) {
-					//update rendering faces in the scene
-					_scene._materialsNextList[i] = mat;
-					
-					//update material if material is a shader
+				if (_materialsDirty)
+					buildMaterials();
+				
+				var i:int = _materialsCacheList.length;
+				var mat:Material;
+				while (i--) {
+					if ((mat = _materialsCacheList[i])) {
+						//update rendering faces in the scene
+						_scene._materialsNextList[i] = mat;
+						
+						//update material if material is a shader
+					}
 				}
 			}
 		}
@@ -211,7 +213,7 @@ package away3dlite.core.base
 		 * @see away3dlite.core.render.FastRenderer
 		 */
 		public var sortFaces:Boolean = true;
-		
+        
 		/**
 		 * Returns the 3d vertices used in the mesh.
 		 */

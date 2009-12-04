@@ -51,6 +51,11 @@ package away3dlite.cameras
 		protected const toRADIANS:Number = Math.PI/180;
 		protected const toDEGREES:Number = 180/Math.PI;
 		
+		public function get projection():PerspectiveProjection
+		{
+			return root.transform.perspectiveProjection;
+		}
+		
 		/**
 		 * Defines the distance from the focal point of the camera to the viewing plane.
 		 */

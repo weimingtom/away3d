@@ -78,8 +78,6 @@ package away3dlite.containers {
         private var _lastmove_mouseY:Number;
 		private var _face:Face;
         
-		private var _autoSize:Boolean = true;
-        
 		private function onClippingUpdated(e:ClippingEvent):void
 		{
 			_screenClippingDirty = true;
@@ -170,18 +168,10 @@ package away3dlite.containers {
 			if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight)) {
         		_x = _viewZero.x;
         		_y = _viewZero.y;
-				_screenWidth = _stageWidth = stage.stageWidth;
-				_screenHeight = _stageHeight = stage.stageHeight;
+        		_stageWidth = stage.stageWidth;
+        		_stageHeight = stage.stageHeight;
         		_screenClippingDirty = true;
    			}
-			
-			if(!_autoSize)
-			{
-				_screenWidth = _customWidth;
-				_screenHeight = _customHeight;
-				
-				_screenClippingDirty = true;
-			}
 		}
 		
 		private function onStageResized(event:Event):void
@@ -407,7 +397,7 @@ package away3dlite.containers {
 			if (_camera == val)
 				return;
 				
-			if (_camera)
+			if (_camera) {
 				removeChild(_camera);
 			
 			_camera = val;

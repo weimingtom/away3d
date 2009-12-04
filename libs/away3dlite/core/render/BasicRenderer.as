@@ -29,6 +29,9 @@ package away3dlite.core.render
 		
 		private function collectFaces(object:Object3D):void
 		{
+			if (!object.visible || object._perspCulling)
+				return;
+			
 			_mouseEnabledArray.push(_mouseEnabled);
 			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
 			
@@ -57,7 +60,7 @@ package away3dlite.core.render
 					collectFaces(child);
 				}
 			}
-			
+				
 			if(cullObjects && !object.visible)
 			{
 				numCulled++;
@@ -76,7 +79,7 @@ package away3dlite.core.render
 			else if (object is Particles) 
 			{
 				var _particles_lists:Array = (object as Particles).lists;
-				
+			
 				if(_particles_lists.length>0)
 					_particles = _particles.concat(_particles_lists);
 			}
@@ -264,21 +267,21 @@ package away3dlite.core.render
 				
 				if(_mesh.visible)
 				{
-					_material_graphicsData = _material.graphicsData;
-					_material_graphicsData[_material.trianglesIndex] = _triangles;
+				_material_graphicsData = _material.graphicsData;
+				_material_graphicsData[_material.trianglesIndex] = _triangles;
 					
 					if(_mesh.layer)
-					{
+				{
 						_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-					}
+				}
 					else if(_mesh.canvas)
 					{
 						_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
 					}
 					else
 					{
-						_view_graphics_drawGraphicsData(_material_graphicsData);
-					}
+					_view_graphics_drawGraphicsData(_material_graphicsData);
+			}
 				}
 			}
 			
