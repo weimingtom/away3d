@@ -34,7 +34,7 @@ package away3d.core.graphs
 	// - use if instead of switch?
 	public class BSPTree extends ObjectContainer3D
 	{
-		public static var EPSILON : Number = 1/128;
+		public static var EPSILON : Number = 0.07;
 		
 		private var _transformPt : Number3D = new Number3D();
 		
@@ -77,8 +77,9 @@ package away3d.core.graphs
 		private var _yAxisWeight : Number = 5;
 		public var maxVisibilityPropagation : int = 10;
 		
-		// debug var
+		// debug vars
 		public var freezeCulling : Boolean;
+		public var showPortals : Boolean;
 		
 		/**
 		 * Creates a new BSPTree object.
@@ -129,6 +130,20 @@ package away3d.core.graphs
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 			_progressEvent.totalParts = buildPVS? 12 : 1;
 			_rootNode._buildFaces = convertFaces(faces);
+			_currentBuildNode = _rootNode;
+			_needBuild = true;
+			_progressEvent.count = 1;
+			_progressEvent.message = "Building BSP tree";
+			_totalFaces = faces.length;
+			_buildPVS = buildPVS;
+			buildStep();
+		}
+		
+		arcane function buildFromNGons(faces : Vector.<NGon>, buildPVS : Boolean = true) : void
+		{
+			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
+			_progressEvent.totalParts = buildPVS? 12 : 1;
+			_rootNode._buildFaces = faces;
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
 			_progressEvent.count = 1;
@@ -315,7 +330,7 @@ package away3d.core.graphs
 			
 			if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
 				_portalIndex = 0;
-				_progressEvent.message = "Cleaning up portals";
+				_progressEvent.message = "Cleaning up portals (#portals: "+_portals.length+")";
 				_progressEvent.count = 3;
 				setTimeout(removeOneSidedPortals, 1);
 			}
@@ -345,7 +360,7 @@ package away3d.core.graphs
 			if (_portalIndex >= _portals.length) {
 				_portalIndex = 0;
 				_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
-				_progressEvent.message = "Partitioning portals";
+				_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
 				_progressEvent.count = 5;
 				setTimeout(partitionPortals, 1);
 			}
@@ -353,43 +368,6 @@ package away3d.core.graphs
 				setTimeout(removeOneSidedPortals, 1);	
 			}
 		}
-		
-		// TO DO: locks up on high portal count?
-//		private function cutSolidStep() : void
-//		{
-			/*var startTime : int = getTimer();
-			var portal : BSPPortal;
-			var newPortals : Vector.<BSPPortal>;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			do {
-				portal = _portals[_portalIndex];
-				newPortals = portal.cutSolids();
-				
-				_portals.splice(_portalIndex--, 1);
-				
-				if (newPortals) {
-					var i : int = newPortals.length;
-					while (--i >= 0) {
-						// sigh... using a Vector in splice arguments doesn't actually work
-						if (newPortals[i].nGon.vertices.length > 2)
-							_portals.splice(_portalIndex++, 0, newPortals[i]);
-					}
-				}
-			} while (++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= _portals.length) {*/
-//				_portalIndex = 0;
-//				_newPortals = new Vector.<BSPPortal>(_portals.length*2);
-//				_progressEvent.message = "Partitioning portals";
-//				_progressEvent.count = 5;
-//				setTimeout(partitionPortals, 1);
-			/*}
-			else {
-				setTimeout(cutSolidStep, 1);
-			}*/
-//		}
 		
 		private var _newPortals : Vector.<BSPPortal>;
 		private var _newIndex : int = -1;
@@ -415,7 +393,7 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= len) {
 				_portalIndex = 0;
-				_progressEvent.message = "Linking portals to leaves";
+				_progressEvent.message = "Linking portals to leaves (#portals: "+_portals.length+")";
 				_progressEvent.count = 6;
 				_portals = _newPortals;
 				
@@ -465,14 +443,17 @@ package away3d.core.graphs
 				_currentPortal = _firstPortal;
 				
 				_progressEvent.count = 7;
-				_progressEvent.message = "Building front lists";
+				_progressEvent.message = "Building front lists (#portals: "+_portals.length+")";
+				
+				//temp
+				createMeshes();
+				//dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
+				
 				setTimeout(buildInitialFrontList, 1);
 			}
 			else {
 				setTimeout(linkPortals, 1);
 			}
-			//temp
-//			createMeshes();
 		}
 		
 		private function createMeshes() : void
@@ -510,7 +491,7 @@ package away3d.core.graphs
 //				setTimeout(cleanFrontList, 1);
 				_portalIndex = 0;
 				//setTimeout(initVisibleNeighbours, 1);
-				_progressEvent.message = "Finding neighbours";
+				_progressEvent.message = "Finding neighbours (#portals: "+_portals.length+")";
 				_progressEvent.count = 9;
 				setTimeout(findPortalNeighbours, 1);
 			}
@@ -556,7 +537,7 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= len) {
 				_portalIndex = 0;
-				_progressEvent.message = "Culling portals";
+				_progressEvent.message = "Culling portals (#portals: "+_portals.length+")";
 				_progressEvent.count = 10;
 				
 				setTimeout(removeVisiblesFromNeighbours, 1);
@@ -578,7 +559,7 @@ package away3d.core.graphs
 			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
 			
 			if (_portalIndex >= len) {
-				_progressEvent.message = "Propagating visibility";
+				_progressEvent.message = "Propagating visibility (#portals: "+_portals.length+")";
 				_progressEvent.count = 12;
 				_portals.sort(portalSort);
 				_portalIndex = 0;
@@ -610,7 +591,7 @@ package away3d.core.graphs
 					setTimeout(propagateVisibility, 1);
 				}
 				else {
-					_progressEvent.message = "Finding visible portals";
+					_progressEvent.message = "Finding visible portals (#portals: "+_portals.length+")";
 					_progressEvent.count = 12;
 					portalsToLinkedList();
 					_currentPortal = _firstPortal;
@@ -653,7 +634,7 @@ package away3d.core.graphs
 			}
 			else {
 				_currentPortal.addEventListener(Event.COMPLETE, findVisiblePortals);
-				_currentPortal.findVisiblePortals();
+				_currentPortal.findVisiblePortals(_firstPortal);
 			}
 		}
 		
@@ -822,7 +803,7 @@ package away3d.core.graphs
 		                	traverser.leave(mesh);
 		                	// temp
 	            		}
-	            		if (	loopNode &&
+						if (	showPortals && loopNode &&
 	       						loopNode._tempMesh && 
 	       						loopNode._tempMesh.extra && 
 	       						loopNode._tempMesh.extra.created
