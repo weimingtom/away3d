@@ -1,5 +1,6 @@
 package away3d.loaders
 {
+	import away3d.core.geom.NGon;
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.UV;
@@ -75,6 +76,7 @@ package away3d.loaders
 		private var _currentModel : QBSPModel;
 		
 		public static var _allFaces : Vector.<Face> = new Vector.<Face>();
+		public static var _allNGons : Vector.<NGon> = new Vector.<NGon>();
 		
 		public function Bsp(init:Object=null)
 		{
@@ -195,6 +197,9 @@ package away3d.loaders
 			return edge;
 		}
         
+        private var _faceLookUp2 : Dictionary = new Dictionary();
+        arcane static var _usedNGons : Vector.<NGon> = new Vector.<NGon>();
+        
 		private function triangulateFace(texinfo : QBSPTexInfo, face : QBSPFace, currentFaceVertices : Vector.<Vertex>) : void
 		{
 			var dot : Number;
@@ -207,14 +212,29 @@ package away3d.loaders
 			var material : BitmapMaterial = _materials[texinfo.miptex];
 			var len : int = currentFaceVertices.length-1;
 			var lookUp : Vector.<Face>;
+			var ngon : NGon = new NGon();
 			v1 = currentFaceVertices[0];
 			uv1 = parseUV(v1, texinfo, material);
 			
 			_faceIdLookUp[face] = lookUp = new Vector.<Face>();
+			_faceLookUp2[face] = ngon;
+			
+			ngon.vertices = new Vector.<Vertex>();
+			ngon.uvs = new Vector.<UV>();
+			
+			ngon.vertices.push(v1);
+			ngon.uvs.push(uv1);
+			
+			var pl : Plane3D = _planes[face.planeNum];
 			
 			for (var i : int = 1; i < len; i++) {
 				v2 = currentFaceVertices[i];
 				v3 = currentFaceVertices[i+1];
+				uv2 = parseUV(v2, texinfo, material);
+				uv3 = parseUV(v3, texinfo, material);
+				
+				ngon.vertices.push(v2);
+				ngon.uvs.push(uv2);
 				
 				// check if collinear (caused by t-junctions)
 				u.x = v2.x-v1.x;
@@ -229,17 +249,22 @@ package away3d.loaders
 				/*dot = u.dot(v)/(u.modulo*v.modulo);
 				if (dot > 1-COLINEAR_EPSILON) continue; */
 				
-				
-				uv2 = parseUV(v2, texinfo, material);
-				uv3 = parseUV(v3, texinfo, material);
 				triangle = new Face(v3, v2, v1, material, uv3, uv2, uv1);
-				triangle._plane = _planes[face.planeNum];
+				//triangle._plane = pl;
 				lookUp.push(triangle);
 				_allFaces.push(triangle);
 			}
+			
+			ngon.plane = triangle.plane;
+			ngon.vertices.push(v3);
+			ngon.uvs.push(uv3);
+			ngon.vertices.reverse();
+			ngon.uvs.reverse();
+			//ngon.material = material;
+			_allNGons.push(ngon);
 		}
-        
-        private function parseUV(vertex : Vertex, texinfo : QBSPTexInfo, material : BitmapMaterial) : UV
+
+		private function parseUV(vertex : Vertex, texinfo : QBSPTexInfo, material : BitmapMaterial) : UV
 		{
 			var uv : UV = new UV();
 			uv.u = (vertex.x*texinfo.vectorS0 + vertex.y*texinfo.vectorS1 + vertex.z*texinfo.vectorS2 + texinfo.offsetS)/material.width;
@@ -328,6 +353,7 @@ package away3d.loaders
 					face = _faces[faceId];
 					
 					triangles = _faceIdLookUp[face] as Vector.<Face>;
+					_usedNGons.push(_faceLookUp2[face]);
 					if (triangles) currentNode.addFaces(triangles);
 					else {
 							//throw(new Error("Triangles = null!"));
@@ -463,7 +489,6 @@ package away3d.loaders
 		
 		private function readPlanes(data : ByteArray) : void
 		{
-			var current : Plane3D;
 			var x : Number, y : Number, z : Number, d : Number;
 			
 			_planes = new Vector.<Plane3D>(_numPlanes);
@@ -477,6 +502,11 @@ package away3d.loaders
 				data.position += 4;
 				
 				_planes[i] = new Plane3D(x, y, z, -d);
+				
+				if (x == 1 || x == -1) _planes[i]._alignment = Plane3D.X_AXIS;
+				else if (y == 1 || y == -1) _planes[i]._alignment = Plane3D.Y_AXIS;
+				else if (z == 1 || z == -1) _planes[i]._alignment = Plane3D.Z_AXIS;
+				else _planes[i]._alignment = Plane3D.ANY;
 			}
 		}
 		

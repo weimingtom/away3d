@@ -431,17 +431,16 @@ package away3d.core.graphs
 		{
 			if (faces) _buildFaces = faces;
 			_bestScore = Number.POSITIVE_INFINITY;
-			getBestScore(_buildFaces);
+			if (_convex)
+				solidify(_buildFaces);
+			else
+				getBestScore(_buildFaces);
+				
 			// check if best score == 0, if so, best plane hands down
 		}
 		
 		private function getBestScore(faces : Vector.<NGon>) : void
 		{
-			if (_convex) {
-				solidify(faces);
-				return;
-			}
-			
 			var face : NGon;
 			var len : int = faces.length;
 			var startTime : int = getTimer();
@@ -453,10 +452,9 @@ package away3d.core.graphs
 			} while (++_planeCount < len && getTimer()-startTime < maxTimeOut);
 			
 			if (_planeCount >= len) {
-				if (_bestPlane) {
+				if (_bestPlane)
 					// best plane was found, subdivide
 					setTimeout(constructChildren, 1, _bestPlane, faces);
-				}
 				else {
 					_convex = true;
 					_solidPlanes = gatherConvexPlanes(faces);
@@ -474,7 +472,6 @@ package away3d.core.graphs
 			var i : int = faces.length;
 			var j : int;
 			var srcPlane : Plane3D;
-			var dstPlane : Plane3D;
 			var check : Boolean;
 			var face : NGon;
 			
@@ -483,12 +480,10 @@ package away3d.core.graphs
 				srcPlane = face.plane;
 				j = planes.length;
 				check = true;
-				while (--j >= 0) {
-					dstPlane = planes[j];
-					if (face.isCoinciding(dstPlane)) {
+				// see if plane is already used as (convex) partition plane
+				while (--j >= 0 && check) {
+					if (face.isCoinciding(planes[j]))
 						check = false;
-						j = 0;
-					}
 				}
 				if (check) planes.push(srcPlane);
 			}
@@ -737,17 +732,16 @@ package away3d.core.graphs
  			_portals.push(portal);
  			
  			// temp
-// 			var faces : Vector.<Face>;
-// 			if(!_tempMesh) {
-//				_tempMesh = new Mesh();
-//				_tempMesh.bothsides = true;
-//			}
-//			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
-//			faces = portal.nGon.triangulate();
-//			
-//			for (var j : int = 0; j < faces.length; j++) {
-//				_tempMesh.addFace(faces[j]);
-//			}
+ 			var faces : Vector.<Face>;
+ 			if(!_tempMesh) {
+				_tempMesh = new Mesh();
+			}
+			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
+			faces = portal.nGon.triangulate();
+			
+			for (var j : int = 0; j < faces.length; j++) {
+				_tempMesh.addFace(faces[j]);
+			}
  		}
  		
  		arcane function assignBackPortal(portal : BSPPortal) : void

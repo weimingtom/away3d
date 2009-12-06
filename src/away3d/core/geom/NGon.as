@@ -64,7 +64,7 @@ package away3d.core.geom
 			
 			if (align == Plane3D.X_AXIS) {
 				while (--i >= 0) {
-					dist = a*vertices[i].x + d;
+					dist = a*vertices[i]._x + d;
 					if (dist > BSPTree.EPSILON)
 						++numPos;
 					else if (dist < -BSPTree.EPSILON)
@@ -76,7 +76,7 @@ package away3d.core.geom
 			}
 			else if (align == Plane3D.Y_AXIS) {
 				while (--i >= 0) {
-					dist = b*vertices[i].y + d;
+					dist = b*vertices[i]._y + d;
 					if (dist > BSPTree.EPSILON)
 						++numPos;
 					else if (dist < -BSPTree.EPSILON)
@@ -88,7 +88,7 @@ package away3d.core.geom
 			}
 			else if (align == Plane3D.Z_AXIS) {
 				while (--i >= 0) {
-					dist = c*vertices[i].z + d;
+					dist = c*vertices[i]._z + d;
 					if (dist > BSPTree.EPSILON)
 						++numPos;
 					else if (dist < -BSPTree.EPSILON)
@@ -101,7 +101,7 @@ package away3d.core.geom
 			else {
 				while (--i >= 0) {
 					v = vertices[i];
-					dist = a*v.x + b*v.y + c*v.z + d;
+					dist = a*v._x + b*v._y + c*v._z + d;
 					if (dist > BSPTree.EPSILON)
 						++numPos;
 					else if (dist < -BSPTree.EPSILON)
@@ -138,21 +138,21 @@ package away3d.core.geom
 			
 			if (align == Plane3D.X_AXIS) {
 				while (--i >= 0) {
-					dist = a*vertices[i].x + d;
+					dist = a*vertices[i]._x + d;
 					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
 						return false;
 				}
 			}
 			else if (align == Plane3D.Y_AXIS) {
 				while (--i >= 0) {
-					dist = b*vertices[i].y + d;
+					dist = b*vertices[i]._y + d;
 					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
 						return false;
 				}
 			}
 			else if (align == Plane3D.Z_AXIS) {
 				while (--i >= 0) {
-					dist = c*vertices[i].z + d;
+					dist = c*vertices[i]._z + d;
 					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
 						return false;
 				}
@@ -160,7 +160,7 @@ package away3d.core.geom
 			else {
 				while (--i >= 0) {
 					v = vertices[i];
-					dist = a*v.x + b*v.y + c*v.z + d;
+					dist = a*v._x + b*v._y + c*v._z + d;
 					if(dist > BSPTree.EPSILON || dist < -BSPTree.EPSILON)
 						return false;
 				}
@@ -184,26 +184,26 @@ package away3d.core.geom
 			
 			if (align == Plane3D.X_AXIS) {
 				while (--i >= 0) {
-					if(a*vertices[i].x + d > BSPTree.EPSILON)
+					if(a*vertices[i]._x + d > BSPTree.EPSILON)
 						return true;
 				}
 			}
 			else if (align == Plane3D.Y_AXIS) {
 				while (--i >= 0) {
-					if(b*vertices[i].y + d > BSPTree.EPSILON)
+					if(b*vertices[i]._y + d > BSPTree.EPSILON)
 						return true;
 				}
 			}
 			else if (align == Plane3D.Z_AXIS) {
 				while (--i >= 0) {
-					if(c*vertices[i].z + d > BSPTree.EPSILON)
+					if(c*vertices[i]._z + d > BSPTree.EPSILON)
 						return true;
 				}
 			}
 			else {
 				while (--i >= 0) {
 					v = vertices[i];
-					if (a*v.x + b*v.y + c*v.z + d > BSPTree.EPSILON)
+					if (a*v._x + b*v._y + c*v._z + d > BSPTree.EPSILON)
 						return true;
 				}
 			}
@@ -226,26 +226,26 @@ package away3d.core.geom
 				
 			if (align == Plane3D.X_AXIS) {
 				while (--i >= 0) {
-					if(a*vertices[i].x + d < -BSPTree.EPSILON)
+					if(a*vertices[i]._x + d < -BSPTree.EPSILON)
 						return true;
 				}
 			}
 			else if (align == Plane3D.Y_AXIS) {
 				while (--i >= 0) {
-					if(b*vertices[i].y + d < -BSPTree.EPSILON)
+					if(b*vertices[i]._y + d < -BSPTree.EPSILON)
 						return true;
 				}
 			}
 			else if (align == Plane3D.Z_AXIS) {
 				while (--i >= 0) {
-					if(c*vertices[i].z + d < -BSPTree.EPSILON)
+					if(c*vertices[i]._z + d < -BSPTree.EPSILON)
 						return true;
 				}
 			}
 			else {
 				while (--i >= 0) {
 					v = vertices[i];
-					if (a*v.x + b*v.y + c*v.z + d < -BSPTree.EPSILON)
+					if (a*v._x + b*v._y + c*v._z + d < -BSPTree.EPSILON)
 						return true;
 				}
 			}
@@ -260,7 +260,7 @@ package away3d.core.geom
 			// anti-penumbrae have no alignment info, skip tests
 			while (--i >= 0) {
 				v = vertices[i];
-				if (compPlane.a*v.x + compPlane.b*v.y + compPlane.c*v.z + compPlane.d > BSPTree.EPSILON)
+				if (compPlane.a*v._x + compPlane.b*v._y + compPlane.c*v._z + compPlane.d > BSPTree.EPSILON)
 					return false;
 			}
 			return true;
@@ -281,9 +281,11 @@ package away3d.core.geom
 		{
 			var len : int = vertices.length - 1;
 			if (len < 1) return null;
-			var tris : Vector.<Face> = new Vector.<Face>(len-1);
+			var tris : Vector.<Face> = new Vector.<Face>();
 			var v0 : Vertex = vertices[0], v1 : Vertex, v2 : Vertex;
 			var uv0 : UV, uv1 : UV, uv2 : UV;
+			var j : int = -1;
+			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
 			
 			if (uvs) uv0 = uvs[0];
 			
@@ -292,7 +294,18 @@ package away3d.core.geom
 				v2 = vertices[i+1];
 				if (uvs) uv1 = uvs[i];
 				if (uvs) uv2 = uvs[i+1];
-				tris[i-1] = new Face(v0, v1, v2, material, uv0, uv1, uv2);
+				
+				// check if collinear (caused by t-junctions), would create empty triangle otherwise
+				_tempU.x = v1.x-v0.x;
+				_tempU.y = v1.y-v0.y;
+				_tempU.z = v1.z-v0.z;
+				_tempV.x = v2.x-v0.x;
+				_tempV.y = v2.y-v0.y;
+				_tempV.z = v2.z-v0.z;
+				_tempC.cross(_tempU, _tempV);
+				
+				if (_tempC.modulo2 > eps)
+					tris[++j] = new Face(v0, v1, v2, material, uv0, uv1, uv2);
 			}
 			
 			return tris;
@@ -361,13 +374,13 @@ package away3d.core.geom
 			
 			v1 = vertices[0];
 			if (splitPlane._alignment == Plane3D.X_AXIS)
-				d0 = d2 = splitPlane.a*v1.x + splitPlane.d;
+				d0 = d2 = splitPlane.a*v1._x + splitPlane.d;
 			else if (splitPlane._alignment == Plane3D.Y_AXIS)
-				d0 = d2 = splitPlane.b*v1.y + splitPlane.d;
+				d0 = d2 = splitPlane.b*v1._y + splitPlane.d;
 			else if (splitPlane._alignment == Plane3D.Z_AXIS)
-				d0 = d2 = splitPlane.c*v1.z + splitPlane.d;
+				d0 = d2 = splitPlane.c*v1._z + splitPlane.d;
 			else
-				d0 = d2 = splitPlane.a*v1.x + splitPlane.b*v1.y + splitPlane.c*v1.z + splitPlane.d;
+				d0 = d2 = splitPlane.a*v1._x + splitPlane.b*v1._y + splitPlane.c*v1._z + splitPlane.d;
 			
 			if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
 			
@@ -382,13 +395,13 @@ package away3d.core.geom
 					d2 = d0;
 				else {
 					if (splitPlane._alignment == Plane3D.X_AXIS)
-						d2 = splitPlane.a*v2.x + splitPlane.d;
+						d2 = splitPlane.a*v2._x + splitPlane.d;
 					else if (splitPlane._alignment == Plane3D.Y_AXIS)
-						d2 = splitPlane.b*v2.y + splitPlane.d;
+						d2 = splitPlane.b*v2._y + splitPlane.d;
 					else if (splitPlane._alignment == Plane3D.Z_AXIS)
-						d2 = splitPlane.c*v2.z + splitPlane.d;
+						d2 = splitPlane.c*v2._z + splitPlane.d;
 					else
-						d2 = splitPlane.a*v2.x + splitPlane.b*v2.y + splitPlane.c*v2.z + splitPlane.d;
+						d2 = splitPlane.a*v2._x + splitPlane.b*v2._y + splitPlane.c*v2._z + splitPlane.d;
 				}
 				
 				if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
@@ -436,13 +449,13 @@ package away3d.core.geom
 			
 			v1 = vertices[0];
 			if (trimPlane._alignment == Plane3D.X_AXIS)
-				d0 = d2 = trimPlane.a*v1.x + trimPlane.d;
+				d0 = d2 = trimPlane.a*v1._x + trimPlane.d;
 			else if (trimPlane._alignment == Plane3D.Y_AXIS)
-				d0 = d2 = trimPlane.b*v1.y + trimPlane.d;
+				d0 = d2 = trimPlane.b*v1._y + trimPlane.d;
 			else if (trimPlane._alignment == Plane3D.Z_AXIS)
-				d0 = d2 = trimPlane.c*v1.z + trimPlane.d;
+				d0 = d2 = trimPlane.c*v1._z + trimPlane.d;
 			else
-				d0 = d2 = trimPlane.a*v1.x + trimPlane.b*v1.y + trimPlane.c*v1.z + trimPlane.d;
+				d0 = d2 = trimPlane.a*v1._x + trimPlane.b*v1._y + trimPlane.c*v1._z + trimPlane.d;
 			
 			if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d0 = d2 = 0;
 			
@@ -466,13 +479,13 @@ package away3d.core.geom
 					d2 = d0;
 				else {
 					if (trimPlane._alignment == Plane3D.X_AXIS)
-						d2 = trimPlane.a*v2.x + trimPlane.d;
+						d2 = trimPlane.a*v2._x + trimPlane.d;
 					else if (trimPlane._alignment == Plane3D.Y_AXIS)
-						d2 = trimPlane.b*v2.y + trimPlane.d;
+						d2 = trimPlane.b*v2._y + trimPlane.d;
 					else if (trimPlane._alignment == Plane3D.Z_AXIS)
-						d2 = trimPlane.c*v2.z + trimPlane.d;
+						d2 = trimPlane.c*v2._z + trimPlane.d;
 					else
-						d2 = trimPlane.a*v2.x + trimPlane.b*v2.y + trimPlane.c*v2.z + trimPlane.d;
+						d2 = trimPlane.a*v2._x + trimPlane.b*v2._y + trimPlane.c*v2._z + trimPlane.d;
 				}
 				
 				if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
@@ -502,6 +515,9 @@ package away3d.core.geom
 				_newUVs = uvTemp;
 				_newUVs.length = 0;
 			}
+			
+//			if (vertices.length >= 3)
+//				removeColinears();
 		}
 		
 		public function trimBack(trimPlane : Plane3D) : void
@@ -521,23 +537,26 @@ package away3d.core.geom
 			
 			v1 = vertices[0];
 			if (trimPlane._alignment == Plane3D.X_AXIS)
-				d0 = d2 = trimPlane.a*v1.x + trimPlane.d;
+				d0 = d2 = trimPlane.a*v1._x + trimPlane.d;
 			else if (trimPlane._alignment == Plane3D.Y_AXIS)
-				d0 = d2 = trimPlane.b*v1.y + trimPlane.d;
+				d0 = d2 = trimPlane.b*v1._y + trimPlane.d;
 			else if (trimPlane._alignment == Plane3D.Z_AXIS)
-				d0 = d2 = trimPlane.c*v1.z + trimPlane.d;
+				d0 = d2 = trimPlane.c*v1._z + trimPlane.d;
 			else
-				d0 = d2 = trimPlane.a*v1.x + trimPlane.b*v1.y + trimPlane.c*v1.z + trimPlane.d;
+				d0 = d2 = trimPlane.a*v1._x + trimPlane.b*v1._y + trimPlane.c*v1._z + trimPlane.d;
 			
 			if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d0 = d2 = 0;
 			
 			j = 1;
 			i = 0;
+			v2 = vertices[0];
+			if (uvs) uv2 = uvs[0];
+			
 			do {
-				v1 = vertices[i];
+				v1 = v2;
 				v2 = vertices[j];
 				if (uvs) {
-					uv1 = uvs[i];
+					uv1 = uv2;
 					uv2 = uvs[j];
 				}
 				
@@ -547,13 +566,13 @@ package away3d.core.geom
 					d2 = d0;
 				else {
 					if (trimPlane._alignment == Plane3D.X_AXIS)
-						d2 = trimPlane.a*v2.x + trimPlane.d;
+						d2 = trimPlane.a*v2._x + trimPlane.d;
 					else if (trimPlane._alignment == Plane3D.Y_AXIS)
-						d2 = trimPlane.b*v2.y + trimPlane.d;
+						d2 = trimPlane.b*v2._y + trimPlane.d;
 					else if (trimPlane._alignment == Plane3D.Z_AXIS)
-						d2 = trimPlane.c*v2.z + trimPlane.d;
+						d2 = trimPlane.c*v2._z + trimPlane.d;
 					else
-						d2 = trimPlane.a*v2.x + trimPlane.b*v2.y + trimPlane.c*v2.z + trimPlane.d;
+						d2 = trimPlane.a*v2._x + trimPlane.b*v2._y + trimPlane.c*v2._z + trimPlane.d;
 				}
 				
 				if (d2 >= -BSPTree.EPSILON && d2 <= BSPTree.EPSILON) d2 = 0;
@@ -583,6 +602,9 @@ package away3d.core.geom
 				_newUVs = uvTemp;
 				_newUVs.length = 0;
 			}
+			
+//			if (vertices.length >= 3)
+//				removeColinears();
 		}
 		
 		public function isNeglectable() : Boolean
@@ -593,19 +615,22 @@ package away3d.core.geom
 			var v2 : Vertex;
 			var dx : Number, dy : Number, dz : Number;
 			var count : int;
+			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
 			
 			if (i < 3) return true;
 			
+			v2 = vertices[i-1];
+			
 			// check each edge of polygon, must have at least 3 edges long enough
 			while (--i >= 0) {
-				v1 = vertices[i];
+				v1 = v2;
 				v2 = vertices[j];
 				
-				dx = v1.x-v2.x;
-				dy = v1.y-v2.y;
-				dz = v1.z-v2.z;
+				dx = v1._x-v2._x;
+				dy = v1._y-v2._y;
+				dz = v1._z-v2._z;
 				
-				if (dx*dx+dy*dy+dz*dz > BSPTree.EPSILON)
+				if (dx*dx+dy*dy+dz*dz > eps)
 					if (++count >= 3) return false;
 				
 				
@@ -653,26 +678,26 @@ package away3d.core.geom
 			var uv : UV;
 			
 			if (plane._alignment == Plane3D.X_AXIS) {
-				div = plane.a*(v2.x-v1.x);
-				t = -(plane.a*v1.x + plane.d)/div;
+				div = plane.a*(v2._x-v1._x);
+				t = -(plane.a*v1._x + plane.d)/div;
 			}
 			else if (plane._alignment == Plane3D.Y_AXIS) {
-				div = plane.b*(v2.y-v1.y);
-				t = -(plane.b*v1.y + plane.d)/div;
+				div = plane.b*(v2._y-v1._y);
+				t = -(plane.b*v1._y + plane.d)/div;
 			}
 			else if (plane._alignment == Plane3D.Z_AXIS) {
-				div = plane.c*(v2.z-v1.z);
-				t = -(plane.c*v1.z + plane.d)/div;
+				div = plane.c*(v2._z-v1._z);
+				t = -(plane.c*v1._z + plane.d)/div;
 			}
 			else {
-				div = plane.a*(v2.x-v1.x)+plane.b*(v2.y-v1.y)+plane.c*(v2.z-v1.z);
-				t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
+				div = plane.a*(v2._x-v1._x)+plane.b*(v2._y-v1._y)+plane.c*(v2._z-v1._z);
+				t = -(plane.a*v1._x + plane.b*v1._y + plane.c*v1._z + plane.d)/div;
 			}
 					
-			v = new Vertex(v1.x+t*(v2.x-v1.x), v1.y+t*(v2.y-v1.y), v1.z+t*(v2.z-v1.z));
+			v = new Vertex(v1._x+t*(v2._x-v1._x), v1._y+t*(v2._y-v1._y), v1._z+t*(v2._z-v1._z));
 			newVerts.push(v);
 			if (uv1 && uv2) {
-				uv = new UV(uv1.u+t*(uv2.u-uv1.u), uv1.v+t*(uv2.v-uv1.v));
+				uv = new UV(uv1._u+t*(uv2._u-uv1._u), uv1._v+t*(uv2._v-uv1._v));
 				newUV.push(uv);
 			}
 		}
@@ -683,17 +708,17 @@ package away3d.core.geom
 			var v : Vertex;
 			var uv : UV;
 			
-			div = plane.a*(v2.x-v1.x)+plane.b*(v2.y-v1.y)+plane.c*(v2.z-v1.z);
+			div = plane.a*(v2._x-v1._x)+plane.b*(v2._y-v1._y)+plane.c*(v2._z-v1._z);
 			
-			t = -(plane.a*v1.x + plane.b*v1.y + plane.c*v1.z + plane.d)/div;
+			t = -(plane.a*v1._x + plane.b*v1._y + plane.c*v1._z + plane.d)/div;
 					
-			v = new Vertex(v1.x+t*(v2.x-v1.x), v1.y+t*(v2.y-v1.y), v1.z+t*(v2.z-v1.z));
+			v = new Vertex(v1._x+t*(v2._x-v1._x), v1._y+t*(v2._y-v1._y), v1._z+t*(v2._z-v1._z));
 			
 			if (pos) pos.vertices.push(v);
 			if (neg) neg.vertices.push(v);
 
 			if (uv1 && uv2) {
-				uv = new UV(uv1.u+t*(uv2.u-uv1.u), uv1.v+t*(uv2.v-uv1.v));
+				uv = new UV(uv1._u+t*(uv2._u-uv1._u), uv1._v+t*(uv2._v-uv1._v));
 				if (pos) pos.uvs.push(uv);
 				if (neg) neg.uvs.push(uv);
 			}
@@ -760,8 +785,8 @@ package away3d.core.geom
 				for (j = 0; j < len2; ++j) {
 					v2 = srcVert[j];
 					uv2 = srcUV[j];
-					du = Math.abs(uv1.u-uv2.u);
-					dv = Math.abs(uv1.v-uv2.v);
+					du = Math.abs(uv1._u-uv2._u);
+					dv = Math.abs(uv1._v-uv2._v);
 					// if vertices coinciding with matching uv coords, collapse if close enough
 					if ((v1 == v2 || v1.position.distance(v2.position) < BSPTree.EPSILON) &&
 						(uv1 == uv2 || (du < BSPTree.EPSILON && dv < BSPTree.EPSILON))) {
@@ -819,40 +844,44 @@ package away3d.core.geom
 			return false;
 		}
 		
-		private function removeColinears() : void
+		private static var _tempU : Number3D = new Number3D();
+		private static var _tempV : Number3D = new Number3D();
+		private static var _tempC : Number3D = new Number3D();
+		
+		arcane function removeColinears() : void
 		{
 			var j : int = 1;
 			var k : int = 2;
 			var v0 : Vertex, v1 : Vertex, v2 : Vertex;
-			var u : Number3D = new Number3D();
-			var v : Number3D = new Number3D();
-			var cross : Number3D = new Number3D();
+			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
+			var len : int = vertices.length;
 			
-			for (var i : int = 0; i < vertices.length; ++i) {
+			for (var i : int = 0; i < len; ++i) {
 				v0 = vertices[i];
 				v1 = vertices[j];
 				v2 = vertices[k];
 				
-				// check if collinear (caused by t-junctions)
-				u.x = v1.x-v0.x;
-				u.y = v1.y-v0.y;
-				u.z = v1.z-v0.z;
-				v.x = v2.x-v0.x;
-				v.y = v2.y-v0.y;
-				v.z = v2.z-v0.z;
-				cross.cross(u, v);
+				// check if collinear
+				_tempU.x = v1._x-v0._x;
+				_tempU.y = v1._y-v0._y;
+				_tempU.z = v1._z-v0._z;
+				_tempV.x = v2._x-v0._x;
+				_tempV.y = v2._y-v0._y;
+				_tempV.z = v2._z-v0._z;
+				_tempC.cross(_tempU, _tempV);
 				
-				if (cross.modulo < BSPTree.EPSILON) {
+				if (_tempC.modulo2 < eps) {
 					vertices.splice(j, 1);
 					if (uvs) uvs.splice(j, 1);
 					--i;
+					--len;
 				}
 				else {
 					++j;
 					++k;
 				}
-				if (j == vertices.length) j = 0;
-				if (k == vertices.length) k = 0;
+				if (j >= len) j = 0;
+				if (k >= len) k = 0;
 			}
 		}
 		
@@ -889,14 +918,14 @@ package away3d.core.geom
 					continue;
 				}
 				
-				_edge.x = v2A.x-v1A.x;
-				_edge.y = v2A.y-v1A.y;
-				_edge.z = v2A.z-v1A.z;
+				_edge.x = v2A._x-v1A._x;
+				_edge.y = v2A._y-v1A._y;
+				_edge.z = v2A._z-v1A._z;
 				_edge.normalize();
 				_edgeNormal.cross(normal, _edge);
 				compPoint = vertices[c];
 				
-				if (_edgeNormal.x*(compPoint.x-v1A.x) + _edgeNormal.y*(compPoint.y-v1A.y) + _edgeNormal.z*(compPoint.z-v1A.z) < 0) {
+				if (_edgeNormal.x*(compPoint._x-v1A._x) + _edgeNormal.y*(compPoint._y-v1A._y) + _edgeNormal.z*(compPoint._z-v1A._z) < 0) {
 					_edgeNormal.x = -_edgeNormal.x;
 					_edgeNormal.y = -_edgeNormal.y;
 					_edgeNormal.z = -_edgeNormal.z;
@@ -904,7 +933,7 @@ package away3d.core.geom
 				_edgePlane.a = _edgeNormal.x;
 				_edgePlane.b = _edgeNormal.y;
 				_edgePlane.c = _edgeNormal.z;
-				_edgePlane.d = -(v2A.x*_edgeNormal.x + v2A.y*_edgeNormal.y + v2A.z*_edgeNormal.z);
+				_edgePlane.d = -(v2A._x*_edgeNormal.x + v2A._y*_edgeNormal.y + v2A._z*_edgeNormal.z);
 				
 				for (var j : int = 0; j < len2; ++j) {
 					// can skip shared points
@@ -912,7 +941,7 @@ package away3d.core.geom
 					
 					vB = srcVert[j];
 					// calculate side of point relative to edge
-					if (_edgePlane.a*vB.x + _edgePlane.b*vB.y + _edgePlane.c*vB.z + _edgePlane.d < -BSPTree.EPSILON)
+					if (_edgePlane.a*vB._x + _edgePlane.b*vB._y + _edgePlane.c*vB._z + _edgePlane.d < -BSPTree.EPSILON)
 						return false;
 				}
 				

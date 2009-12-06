@@ -12,9 +12,10 @@ package away3d.core.graphs
 	
 	use namespace arcane;
 	
-	// TO DO (important):
-	// when partitioning, link to back portal
-	// when sth not in vislist, other won't be in vislist of backportal
+	/**
+	 * TO DO: When visible portal found, automatically add target portal's front leaf to back leaf's vislist
+	 * Eliminating final step
+	 */
 	internal final class BSPPortal extends EventDispatcher
 	{
 		public static const RECURSED_PORTAL_COMPLETE : String = "RecursedPortalComplete";
@@ -32,8 +33,6 @@ package away3d.core.graphs
 		public var maxTimeout : int = 0;
 		
 		public var antiPenumbrae : Array = [];
-		
-		public var mark : int;
 		
 		// containing all visible neighbours, through which we can see adjacent leaves
 		public var neighbours : Vector.<BSPPortal>;
@@ -53,6 +52,9 @@ package away3d.core.graphs
 		private static var _sizeLookUp : Vector.<int>;
 		
 		public var next : BSPPortal;
+		
+		public var maxRecursion : int = 10000000;
+		private var _recursionDepth : int = 0;
 		
 		arcane var _currentAntiPenumbra : Vector.<Plane3D>;
 		arcane var _currentParent : BSPPortal;
@@ -376,15 +378,17 @@ package away3d.core.graphs
 			}
 		}
 		
-		public function findVisiblePortals() : void
+		private var _portalList : BSPPortal;
+		public function findVisiblePortals(portals : BSPPortal) : void
 		{
 			var i : int = listLen;
+			_portalList = portals;
 			_state = TRAVERSE_PRE;
 			_currentPortal = this;
 			_needCheck = false;
 			_iterationIndex = 0;
 			_currentParent = null;
-			isInSequence = true;
+			_recursionDepth = 0;
 			
 			while (--i >= 0)
 				_currentFrontList[i] = frontList[i];
@@ -396,8 +400,6 @@ package away3d.core.graphs
 		{
 			setTimeout(dispatchEvent, 1, _recurseCompleteEvent);
 		}*/
-		
-		public var isInSequence : Boolean;
 		
 		private function findVisiblePortalStep() : void
 		{
@@ -413,8 +415,6 @@ package away3d.core.graphs
 					_state = TRAVERSE_POST;
 				
 				if (_needCheck) {
-					// TO DO:
-					// insert front list check here already to avoid method call
 					//if (!isInList(currList, currentPortal.index))
 					var currIndex : int = _currentPortal.index;
 					parent = _currentPortal._currentParent;
@@ -435,14 +435,12 @@ package away3d.core.graphs
 				
 				if (_state == TRAVERSE_PRE) {
 					currNeighbours = _currentPortal.neighbours;
-					if (currNeighbours) {
+					if (currNeighbours && _recursionDepth < maxRecursion) {
+						++_recursionDepth;
 						next = currNeighbours[0];
-						if (next.isInSequence)
-							throw Error("Cycle!");
 						next._iterationIndex = 0;
 						next._currentParent = _currentPortal;
 						_currentPortal = next;
-						_currentPortal.isInSequence = true;
 						_needCheck = true;
 					}
 					else {
@@ -453,14 +451,12 @@ package away3d.core.graphs
 				}
 				else if (_state == TRAVERSE_IN) {
 					currNeighbours = _currentPortal.neighbours;
-					if (++_currentPortal._iterationIndex < currNeighbours.length) {
+					if (++_currentPortal._iterationIndex < currNeighbours.length && _recursionDepth < maxRecursion) {
+						++_recursionDepth;
 						next = currNeighbours[_currentPortal._iterationIndex];
-						if (next.isInSequence)
-							throw Error("Cycle!");
 						next._iterationIndex = 0;
 						next._currentParent = _currentPortal;
 						_currentPortal = next;
-						_currentPortal.isInSequence = true;
 						_needCheck = true;
 						_state = TRAVERSE_PRE;
 					}
@@ -472,21 +468,25 @@ package away3d.core.graphs
 				}
 				else if (_state == TRAVERSE_POST) {
 					// clear memory
+					var pl : Plane3D;
 					var anti : Vector.<Plane3D> = _currentPortal._currentAntiPenumbra;
 					// don't clean up neighbour penumbra, these are needed!
 					// TO DO: are they actually still needed?
 					if (anti && _currentPortal._currentParent != this) {
 						i = anti.length;
-				
 						while (--i >= 0) {
-							anti[i]._alignment = 0;
-							_planePool.push(anti[i]);
+							(pl = anti[i])._alignment = 0;
+							_planePool.push(pl);
 						}
-							
 						_currentPortal._currentAntiPenumbra = null;
 					}
-						
-					_currentPortal.isInSequence = false;
+					
+					if (_recursionDepth == maxRecursion && _currentPortal.neighbours) {
+						resolveNeighboursVis(_currentPortal);
+					}
+					
+					--_recursionDepth;
+					
 					_currentPortal = _currentPortal._currentParent;
 					if (_currentPortal._iterationIndex < _currentPortal.neighbours.length-1)
 						_state = TRAVERSE_IN;
@@ -502,20 +502,52 @@ package away3d.core.graphs
 				while (--i >= 0)
 					frontList[i] = visList[i];
 				
-				isInSequence = false;
 				hasVisList = true;
-				setTimeout(notifyComplete, 1);
+				setTimeout(updateBackPortals, 1);
 			}
 			else {
 				setTimeout(findVisiblePortalStep, 1);
 			}
 		}
 		
+		private function resolveNeighboursVis(currentPortal : BSPPortal) : void
+		{
+			var neighbours : Vector.<BSPPortal> = currentPortal.neighbours;
+			var i : int = neighbours.length;
+			var j : int;
+			var neigh : BSPPortal;
+			
+			while (--i >= 0) {
+				neigh = neighbours[i];
+				j = 0;
+				do {
+					visList[j] |= neigh._currentFrontList[j];
+				} while (++j < listLen);
+			}
+		}
+
+		private function updateBackPortals() : void
+		{
+			var currIndex : int;
+			var backIndex : int = _backPortal.index >> 5;
+			var backBit : uint = ~(1 << (_backPortal.index & 0x1f));
+			
+			do {
+				currIndex = _portalList.index;
+				
+				// if portal not visible, the other way around (via backportals) is invisible too
+				if ((visList[currIndex >> 5] & (1 << (currIndex & 0x1f))) == 0)
+					_portalList._backPortal.frontList[backIndex] &= backBit;
+			} while (_portalList = _portalList.next);
+			setTimeout(notifyComplete, 1);
+		}
+
 		private function determineVisibility(currentPortal : BSPPortal) : Boolean
 		{
 			var currAntiPenumbra : Vector.<Plane3D>;
 			var len : int;
 			var i : int = listLen;
+			var j : int;
 			var parent : BSPPortal = currentPortal._currentParent;
 			var currentNGon : NGon;
 			var clone : NGon;
@@ -523,6 +555,10 @@ package away3d.core.graphs
 			var vis : Vector.<uint>;
 			var back : BSPPortal; 
 			var thisBackIndex : int;
+			var verts : Vector.<Vertex>;
+			var plane : Plane3D;
+			var v : Vertex;
+			var isOut : Boolean;
 			
 			if (parent == this) {
 				// direct neighbour
@@ -545,12 +581,23 @@ package away3d.core.graphs
 			len = currAntiPenumbra.length;
 			
 			i = len = currAntiPenumbra.length;
-			
+	
+ 			verts = currentNGon.vertices;
 			while (--i >= 0) {
-				//var classification : int = currentNGon.classifyToPlane(antiPenumbra[i]);
 				// portal falls out of current antipenumbra	
-				if (currentNGon.isOutAntiPenumbra(currAntiPenumbra[i]))
-					return false;
+				//if (currentNGon.isOutAntiPenumbra(currAntiPenumbra[i]))
+				//	return false;
+				plane = currAntiPenumbra[i];
+				j = verts.length;
+				while (--j >= 0) {
+					isOut = true;
+					v = verts[j];
+					if (plane.a*v._x + plane.b*v._y + plane.c*v._z + plane.d > BSPTree.EPSILON) {
+						isOut = false;
+						j = 0;
+					}
+				}
+				if (isOut) return false;
 			}
 			
 			// clone and trim current portal to visible antiPenumbra
@@ -599,23 +646,27 @@ package away3d.core.graphs
 			var compPlane : Plane3D;
 			var check : Boolean;
 			var da : Number, db : Number, dc : Number, dd : Number;
+			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
 			
-			i = len1;
+			i = len2;
+			k = i-2;
+			v2 = vertices2[i-1];
 			while (--i >= 0) {
-				v1 = vertices1[i];
-				j = len2;
-				k = len2-2;
+				v1 = v2;
+				v2 = vertices2[k];
+				j = len1;
 				while (--j >= 0) {
-					v2 = vertices2[j];
-					v3 = vertices2[k];
+					v3 = vertices1[j];
 					//plane.from3vertices(v1, v2, v3);
 					//plane.normalize();
-					d1x = v2.x-v1.x;
-					d1y = v2.y-v1.y;
-					d1z = v2.z-v1.z;
-					d2x = v3.x-v1.x;
-					d2y = v3.y-v1.y;
-					d2z = v3.z-v1.z;
+					
+					// create plane from points
+					d1x = v2._x - v1._x;
+					d1y = v2._y - v1._y;
+					d1z = v2._z - v1._z;
+					d2x = v3._x - v1._x;
+					d2y = v3._y - v1._y;
+					d2z = v3._z - v1._z;
 					nx = d1y*d2z - d1z*d2y;
             		ny = d1z*d2x - d1x*d2z;
             		nz = d1x*d2y - d1y*d2x;
@@ -624,15 +675,13 @@ package away3d.core.graphs
 					plane.a = nx;
             		plane.b = ny;
             		plane.c = nz;
-					plane.d = d = -(nx*v1.x + ny*v1.y + nz*v1.z);
+					plane.d = d = -(nx*v1._x + ny*v1._y + nz*v1._z);
 					
 					classification1 = nGon.classifyToPlane(plane);
 					classification2 = targetNGon.classifyToPlane(plane);
 					
 					if (	(classification1 == Plane3D.FRONT && classification2 == Plane3D.BACK) ||
 							(classification1 == Plane3D.BACK && classification2 == Plane3D.FRONT)) {
-/*					if (	(classification1 != Plane3D.INTERSECT && classification2 != Plane3D.INTERSECT) &&
-							(classification1 != classification2)) {*/
 						// planes coming out of the target portal should face inward
 						if (classification2 == Plane3D.BACK) {
 							plane.a = -nx;
@@ -641,57 +690,60 @@ package away3d.core.graphs
 							plane.d = -d;
 						} 
 						
-						p = antiLen;
+						// check if plane already exists
+						/*p = antiLen;
 	            		check = true;
-	            		while (--p >= 0) {
+	            		while (--p >= 0 && check) {
 	            			compPlane = anti[p];
 	            			da = compPlane.a - nx;
 	            			db = compPlane.b - ny;
 	            			dc = compPlane.c - nz;
 	            			dd = compPlane.d - d;
-	            			if (	da < BSPTree.EPSILON && da > -BSPTree.EPSILON &&
-	            					db < BSPTree.EPSILON && db > -BSPTree.EPSILON &&
-	            					dc < BSPTree.EPSILON && dc > -BSPTree.EPSILON &&
+	            			
+	            			if (	da*da+db*db+dc*dc < eps && 
 	            					dd < BSPTree.EPSILON && dd > -BSPTree.EPSILON) {
-	            				p = 0;
 	            				check = false;
 	            			}
-	            		}
+	            		}*/
 	            		
-	            		if (check) {
+	            		//if (check) {
 							anti[antiLen++] = plane;
 							plane = _planePool.length > 0? _planePool.pop() : new Plane3D();
-	            		}
+	            		//}
+	            		
+	            		// plane has been found, move on to next edge
+	            		j = 0;
 					}
-					
-					if (--k < 0) k = len2-1;
 				}
+				
+				if (--k < 0) k = len2-1;
 			}
 			
 			firstLen = antiLen;
 			
-			i = len2;
+			i = len1;
+			k = i-2;
+			v2 = vertices1[i-1];
 			while (--i >= 0) {
-				v1 = vertices2[i];
-				j = len1;
-				k = len1-2;
+				v1 = v2;
+				v2 = vertices1[k];
+				j = len2;
 				while (--j >= 0) {
-					v2 = vertices1[j];
-					v3 = vertices1[k];
+					v3 = vertices2[j];
 //					plane.from3vertices(v1, vertices1[j], vertices1[k]);
 //					plane.normalize();
-					d1x = v2.x-v1.x;
-					d1y = v2.y-v1.y;
-					d1z = v2.z-v1.z;
-					d2x = v3.x-v1.x;
-					d2y = v3.y-v1.y;
-					d2z = v3.z-v1.z;
+					d1x = v2._x-v1._x;
+					d1y = v2._y-v1._y;
+					d1z = v2._z-v1._z;
+					d2x = v3._x-v1._x;
+					d2y = v3._y-v1._y;
+					d2z = v3._z-v1._z;
 					nx = d1y*d2z - d1z*d2y;
             		ny = d1z*d2x - d1x*d2z;
             		nz = d1x*d2y - d1y*d2x;
             		l = 1/Math.sqrt(nx*nx+ny*ny+nz*nz);
             		nx *= l; ny *= l; nz *= l;
-            		d = -(nx*v1.x + ny*v1.y + nz*v1.z);
+            		d = -(nx*v1._x + ny*v1._y + nz*v1._z);
             		
             		plane.a = nx;
 	            	plane.b = ny;
@@ -710,19 +762,17 @@ package away3d.core.graphs
 							plane.d = -d;
 						} 
 						
-						p = antiLen;
+						// check if plane already exists
+						p = firstLen;
 	            		check = true;
-	            		while (--p >= 0) {
+	            		while (--p >= 0 && check) {
 	            			compPlane = anti[p];
 	            			da = compPlane.a - nx;
 	            			db = compPlane.b - ny;
 	            			dc = compPlane.c - nz;
 	            			dd = compPlane.d - d;
-	            			if (	da < BSPTree.EPSILON && da > -BSPTree.EPSILON &&
-	            					db < BSPTree.EPSILON && db > -BSPTree.EPSILON &&
-	            					dc < BSPTree.EPSILON && dc > -BSPTree.EPSILON &&
+	            			if (	da*da+db*db+dc*dc < eps &&
 	            					dd < BSPTree.EPSILON && dd > -BSPTree.EPSILON) {
-	            				p = 0;
 	            				check = false;
 	            			}
 	            		}
@@ -731,11 +781,17 @@ package away3d.core.graphs
 							anti[antiLen++] = plane;
 							plane = _planePool.length > 0? _planePool.pop() : new Plane3D();
 	            		}
+	            		
+	            		// plane has been found, move on to next edge
+	            		j = 0;
 					}
             	}
 				if (--k < 0) k = len1-1;
 			}
 			
+			// last plane is unused, push back on pool
+			_planePool.push(plane);
+			if (anti.length < 3) trace(anti.length, nGon.vertices, targetNGon.vertices);
 			return anti;
 		}
 		
