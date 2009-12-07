@@ -1,5 +1,6 @@
 package away3d.core.graphs
 {
+	import away3d.core.project.ProjectorType;
 	import away3d.materials.WireColorMaterial;
 	import away3d.arcane;
 	import away3d.core.base.Face;
@@ -25,8 +26,8 @@ package away3d.core.graphs
 		public var leafId : int = -1;
 		public var nodeId : int;
 		
-		// indicates whether this node is a leaf or not
-		// leaves contain triangles
+		
+		// indicates whether this node is a leaf or not, leaves contain triangles
 		arcane var _isLeaf : Boolean;
 		
 		// flag used when processing vislist
@@ -34,8 +35,6 @@ package away3d.core.graphs
 		
 		// a reference to the parent node
 		arcane var _parent : BSPNode;
-		
-		arcane var _name : String = "_root";
 		
 		// non-leaf only
 		arcane var _partitionPlane : Plane3D;		// the plane that divides the node in half
@@ -46,14 +45,14 @@ package away3d.core.graphs
 		arcane var _mesh : Mesh;					// contains the model for this face
 		arcane var _visList : Vector.<int>;		// indices of leafs visible from this leaf
 		
+		// used for correct z-order traversing
 		arcane var _lastIterationPositive : Boolean;
-		
-		//arcane var _session : AbstractRenderSession;
 		
 		arcane var _bounds : Array;
 		
 		public var extra : Object = new Object();
 		
+		// bounds
 		arcane var _minX : Number;
 		arcane var _minY : Number;
 		arcane var _minZ : Number;
@@ -64,19 +63,26 @@ package away3d.core.graphs
 		// used for collision detection
 		private var _middle : Number3D = new Number3D();
 		
-		// used for building tree
-		private var _bestPlane : Plane3D;
-		private var _bestScore : Number;
+	// used for building tree
+		// scores dictating the importance of triangle splits, tree balance and axis aligned splitting planes
 		arcane var _splitWeight : Number = 10;
 		arcane var _balanceWeight : Number = 1;
 		arcane var _nonXZWeight : Number = 1.5;
 		arcane var _nonYWeight : Number = 1.2;
+		
+		private var _bestPlane : Plane3D;
+		private var _bestScore : Number;
 		private var _positiveFaces : Vector.<NGon>;
 		private var _negativeFaces : Vector.<NGon>;
 		
+		// indicates whether contents is convex or not when creating solid leaf tree
+		private var _convex : Boolean;
+		// triangle planes used to create solid leaf tree
+		private var _solidPlanes : Vector.<Plane3D>;
+		
 		private var _planeCount : int;
 		
-		public var maxTimeOut : int = 500;
+		arcane var _maxTimeOut : int = 500;
 		
 		arcane var _newFaces : int;
 		arcane var _assignedFaces : int;
@@ -86,8 +92,6 @@ package away3d.core.graphs
 		
 		arcane var _portals : Vector.<BSPPortal>;
 		arcane var _backPortals : Vector.<BSPPortal>;
-		private var _convex : Boolean;
-		private var _solidPlanes : Vector.<Plane3D>;
 
 		public function processVislist(portals : Vector.<BSPPortal>) : void
 		{
@@ -115,6 +119,9 @@ package away3d.core.graphs
 				}
 			}
 			_visList.sort(sortVisList);
+			
+			_portals = null;
+			_backPortals = null;
 		}	
 		
 		private function sortVisList(a : int, b : int) : Number
@@ -317,6 +324,7 @@ package away3d.core.graphs
 				face.generateEdgePlanes();
 				_mesh.addFace(face);
 			} while (++i < len);
+			
 		}
 		
 		/**
@@ -453,7 +461,7 @@ package away3d.core.graphs
 				face = faces[_planeCount];
 				getPlaneScore(face.plane, faces);
 				if (_bestScore == 0) _planeCount = len;
-			} while (++_planeCount < len && getTimer()-startTime < maxTimeOut);
+			} while (++_planeCount < len && getTimer()-startTime < _maxTimeOut);
 			
 			if (_planeCount >= len) {
 				if (_bestPlane)
@@ -507,10 +515,9 @@ package away3d.core.graphs
 				_partitionPlane = _solidPlanes.pop();
 				_positiveNode = new BSPNode(this);
 				_positiveNode._convex = true;
-				_positiveNode.maxTimeOut = maxTimeOut;
+				_positiveNode._maxTimeOut = _maxTimeOut;
 				_positiveNode._buildFaces = faces;
 				_positiveNode._solidPlanes = _solidPlanes;
-				_positiveNode._name = _name+" -> +";
 			}
 			completeNode();
 		}
@@ -616,12 +623,10 @@ package away3d.core.graphs
 			} while (++i < len);
 			
 			_positiveNode = new BSPNode(this);
-			_positiveNode.maxTimeOut = maxTimeOut;
-			_positiveNode._name = _name+" -> +";
+			_positiveNode._maxTimeOut = _maxTimeOut;
 			_positiveNode._buildFaces = _positiveFaces;
 			_negativeNode = new BSPNode(this);
-			_negativeNode.maxTimeOut = maxTimeOut;
-			_negativeNode._name = _name+" -> -";
+			_negativeNode._maxTimeOut = _maxTimeOut;
 			_negativeNode._buildFaces = _negativeFaces;
 			completeNode();
 		}
@@ -743,9 +748,8 @@ package away3d.core.graphs
 			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
 			faces = portal.nGon.triangulate();
 			
-			for (var j : int = 0; j < faces.length; j++) {
+			for (var j : int = 0; j < faces.length; j++)
 				_tempMesh.addFace(faces[j]);
-			}
  		}
  		
  		arcane function assignBackPortal(portal : BSPPortal) : void

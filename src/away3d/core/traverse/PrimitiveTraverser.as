@@ -73,8 +73,12 @@ package away3d.core.traverse
         {
         	_clipping = _view.clipping;
         	
-            if (!node.visible || (_clipping.objectCulling && !_cameraVarsStore.nodeClassificationDictionary[node]))
+        	if (node._preCulled)
+        		return true;
+        	
+        	if (!node.visible || (_clipping.objectCulling && !_cameraVarsStore.nodeClassificationDictionary[node]))
                 return false;
+            
             if (node is ILODObject)
                 return (node as ILODObject).matchLOD(_view.camera);
             return true;
@@ -94,10 +98,10 @@ package away3d.core.traverse
 		 */
         public override function apply(node:Object3D):void
         {
-        	if (node.session.updated) {
-        		// Check if object is BSPTree, if so, call update
+			if (node.session.updated) {
 	        	_viewTransform = _cameraVarsStore.viewTransformDictionary[node];
 	        	_consumer = node.session.getConsumer(_view);
+	        	
 	        	if (node.projectorType)
 	        		(_projectorDictionary[node.projectorType] as IPrimitiveProvider).primitives(node, _viewTransform, _consumer);
 	            

@@ -70,8 +70,8 @@ package away3d.core.traverse
             _viewTransform.multiply(_cameraViewMatrix, node.sceneTransform);
             
             if (node is BSPTree) {
-            	BSPTree(node).update(_view.camera, _lens.getFrustum(node, _viewTransform));
-            }
+            	BSPTree(node).update(_view.camera, _lens.getFrustum(node, _viewTransform), _cameraVarsStore);
+			}
             // only check culling if not pre-culled by a scene graph
             else if (_clipping.objectCulling) {
             	if (node._preCulled) {
@@ -94,11 +94,11 @@ package away3d.core.traverse
 		            	return false;
 		            }
             	}
+            	
+            	//check which LODObject is visible
+	            if (node is ILODObject)
+	                return (node as ILODObject).matchLOD(_camera);
             }
-            
-            //check which LODObject is visible
-            if (node is ILODObject)
-                return (node as ILODObject).matchLOD(_camera);
             
             return true;
         }

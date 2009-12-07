@@ -1,5 +1,9 @@
 package away3d.core.graphs
 {
+	import flash.utils.Dictionary;
+	import away3d.core.utils.CameraVarsStore;
+	import away3d.core.traverse.ProjectionTraverser;
+	import away3d.core.traverse.PrimitiveTraverser;
 	import away3d.events.TraceEvent;
 	import away3d.arcane;
 	import away3d.cameras.Camera3D;
@@ -30,8 +34,6 @@ package away3d.core.graphs
 	// TO DO:
 	// - looping can probably be optimized with a check if leaf,
 	//   --> state can automatically be set to POST in that case
-	//
-	// - use if instead of switch?
 	public class BSPTree extends ObjectContainer3D
 	{
 		public static var EPSILON : Number = 0.07;
@@ -82,14 +84,17 @@ package away3d.core.graphs
 		public var freezeCulling : Boolean;
 		public var showPortals : Boolean;
 		
+		private var _cameraVarsStore : CameraVarsStore;
+
 		/**
 		 * Creates a new BSPTree object.
 		 */
 		public function BSPTree()
 		{
 			super();
+			_preCulled = true;
 			_rootNode = new BSPNode(null);
-			_rootNode.maxTimeOut = maxTimeout;
+			_rootNode._maxTimeOut = maxTimeout;
 		}
 
 		/**
@@ -668,7 +673,7 @@ package away3d.core.graphs
 		 * 
 		 * @private
 		 */
-		arcane function update(camera : Camera3D, frustum : Frustum) : void
+		arcane function update(camera : Camera3D, frustum : Frustum, cameraVarsStore : CameraVarsStore) : void
 		{
 			if (!(camera.lens is PerspectiveLens))
 				throw new Error("Lens is of incorrect type! BSP needs a PerspectiveLens instance assigned to Camera3D.lens");
@@ -691,6 +696,8 @@ package away3d.core.graphs
 			
 			// order nodes for primitive traversal
 			orderNodes(_transformPt);
+			
+			_cameraVarsStore = cameraVarsStore;
 		}
 		
 		/**
@@ -768,17 +775,24 @@ package away3d.core.graphs
 		 */
 		public override function traverse(traverser:Traverser):void
         {
+        	// act normal
+        	if (!(traverser is ProjectionTraverser || traverser is PrimitiveTraverser)) {
+        		super.traverse(traverser);
+        		return;
+        	}
+        	
         	// matching PrimitiveTraverser on a BSPTree
         	// will cause update(_camera) to be called
-        	if (traverser.match(this)) {
+        	if (_complete && traverser.match(this)) {
         		// after apply, visList will be processed
         		// and most nodes won't need to be traversed
-        		if (_complete && !_rootNode._culled) {
-        			traverser.apply(this);
-        			doTraverse(traverser);
-       				//_rootNode.traverse(traverser);
-        		}
+       			traverser.enter(this);
+       			traverser.apply(this);
+       			// send down for geom
+       			doTraverse(traverser);
+       			traverser.leave(this);
         	}
+	        
         }
         
         private function doTraverse(traverser:Traverser) : void
@@ -789,7 +803,9 @@ package away3d.core.graphs
         	var isLeaf : Boolean;
         	var changed : Boolean = true;
         	var loopNode : BSPNode = _rootNode;
-
+			var dictionary : Dictionary = _cameraVarsStore.frustumDictionary;
+			var frustum : Frustum = dictionary[this];
+			
 			_state = TRAVERSE_PRE;
         	
         	if (loopNode._culled) return;
@@ -799,13 +815,14 @@ package away3d.core.graphs
         			isLeaf = loopNode._isLeaf;
 					if (isLeaf) {
 						mesh = loopNode._mesh;
-						if (mesh && traverser.match(mesh))
+						dictionary[mesh] = frustum;
+						if (traverser.match(mesh))
 	            		{
 		                	traverser.enter(mesh);
 		                	traverser.apply(mesh);
 		                	traverser.leave(mesh);
-		                	// temp
 	            		}
+	            		// temp
 						if (	showPortals && loopNode &&
 	       						loopNode._tempMesh && 
 	       						loopNode._tempMesh.extra && 
@@ -885,21 +902,11 @@ package away3d.core.graphs
         	
         	// process PVS
         	if (vislen == 0) {
-        		for (i = 0; i < len; ++i) {
-        			leaf = _leaves[i];
-        			if (leaf) {
-        				if (leaf._mesh) {
-        					leaf._culled = false;
-        					leaf._mesh._preCullClassification = Frustum.IN;
-        				}
-        				else
-        					leaf._culled = true;
-        			}
-        		}
+        		for (i = 0; i < len; ++i)
+   					_leaves[i]._culled = false;
         	}
         	else {
 	        	for (i = 0; i < len; ++i) {
-	        		if (!_leaves[i]) continue;
 	        		if (j < vislen && i == vislist[j]) {
 	        			leaf = _leaves[i];
 	        			leaf._culled = false;
@@ -907,7 +914,9 @@ package away3d.core.graphs
 	        			++j;
 	        		}
 	        		else {
-	        			_leaves[i]._culled = true;
+	        			leaf = _leaves[i];
+	        			leaf._culled = true;
+//	        			leaf._mesh.updateObject();
 	        		}
 	        	}
 	        }
@@ -983,7 +992,8 @@ package away3d.core.graphs
 					loopNode._culled = (classification == Frustum.OUT);
 					
 					if (loopNode._isLeaf) {
-						if (loopNode._mesh) loopNode._mesh._preCullClassification = classification;
+						loopNode._mesh._preCullClassification = classification;
+//						if (!classification) loopNode._mesh.updateObject();
 						_state = TRAVERSE_POST;
 					}
 					// no further descension is needed if whole bounding box completely inside or outside frustum
@@ -1024,7 +1034,9 @@ package away3d.core.graphs
 					needCheck = false;
 				}
 			} while (loopNode != _rootNode || _state != TRAVERSE_POST);
-        }
+			
+			_preCullClassification = Frustum.INTERSECT;
+		}
         
 		/**
 		 * Finalizes the tree. Must be called by build() or by custom parser
@@ -1040,7 +1052,14 @@ package away3d.core.graphs
        				addChild(_leaves[i].mesh);
        		}
        		_rootNode.propagateBounds();
-       		_complete = true;
+			_maxX = _rootNode._maxX;
+			_maxY = _rootNode._maxY;
+			_maxZ = _rootNode._maxZ;
+			_minX = _rootNode._minX;
+			_minY = _rootNode._minY;
+			_minZ = _rootNode._minZ;
+			_dimensionsDirty = true;
+			_complete = true;
        	}
        	
        	private function notifyProgress(steps : int, total : int) : void
