@@ -333,8 +333,8 @@ package away3d.loaders
 				//back = ~back;
 				parseBSPLeaf(tree, _leaves[back], backNode, back);
 			}
-			frontNode.id = front;
-			backNode.id = back;
+			frontNode.leafId = front;
+			backNode.leafId = back;
 		}
 		
 		private function parseBSPLeaf(tree : BSPTree, sourceNode : QBSPLeaf, currentNode : BSPNode, index : int) : void

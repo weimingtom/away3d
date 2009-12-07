@@ -52,6 +52,7 @@ package away3d.core.graphs
 		private var _complete : Boolean;
 		
 		// building
+		arcane static var nodeCount : int;
 		private var _progressEvent : TraceEvent;
 		private var _currentBuildNode : BSPNode;
 		private var _numNodes : int = 0;
@@ -127,6 +128,7 @@ package away3d.core.graphs
 		 */
 		public function build(faces : Vector.<Face>, buildPVS : Boolean = true) : void
 		{
+			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 			_progressEvent.totalParts = buildPVS? 12 : 1;
 			_rootNode._buildFaces = convertFaces(faces);
@@ -141,6 +143,7 @@ package away3d.core.graphs
 		
 		arcane function buildFromNGons(faces : Vector.<NGon>, buildPVS : Boolean = true) : void
 		{
+			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 			_progressEvent.totalParts = buildPVS? 12 : 1;
 			_rootNode._buildFaces = faces;

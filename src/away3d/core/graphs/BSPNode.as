@@ -22,7 +22,9 @@ package away3d.core.graphs
 	 */
 	public final class BSPNode extends EventDispatcher
 	{
-		public var id : int;
+		public var leafId : int = -1;
+		public var nodeId : int;
+		
 		// indicates whether this node is a leaf or not
 		// leaves contain triangles
 		arcane var _isLeaf : Boolean;
@@ -102,14 +104,14 @@ package away3d.core.graphs
 			for (var i : int = 0; i < backLen; ++i) {
 				backPortal = _backPortals[i];
 				// direct neighbours are always visible
-				if (_visList.indexOf(backPortal.frontNode.id) == -1)
-					_visList[visLen++] = backPortal.frontNode.id;
+				if (_visList.indexOf(backPortal.frontNode.leafId) == -1)
+					_visList[visLen++] = backPortal.frontNode.leafId;
 					
 				for (var j : int = 0; j < portalsLen; ++j) {
 					portal = portals[j];
 					// if in vislist and not yet added
-					if (backPortal.isInList(backPortal.visList, portal.index) && (_visList.indexOf(portal.frontNode.id) == -1))
-						_visList[visLen++] = portals[j].frontNode.id;
+					if (backPortal.isInList(backPortal.visList, portal.index) && (_visList.indexOf(portal.frontNode.leafId) == -1))
+						_visList[visLen++] = portals[j].frontNode.leafId;
 				}
 			}
 			_visList.sort(sortVisList);
@@ -127,6 +129,8 @@ package away3d.core.graphs
 		 */
 		public function BSPNode(parent : BSPNode)
 		{
+			nodeId = BSPTree.nodeCount;
+			BSPTree.nodeCount++;
 			_parent = parent;
 		}
 		
@@ -404,7 +408,7 @@ package away3d.core.graphs
 		{
 			// TO DO: do this during build phase
 			if (_isLeaf) {
-				id = leaves.length;
+				leafId = leaves.length;
 				leaves.push(this);
 			}
 			else {
