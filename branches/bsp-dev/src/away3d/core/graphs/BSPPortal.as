@@ -791,7 +791,6 @@ package away3d.core.graphs
 			
 			// last plane is unused, push back on pool
 			_planePool.push(plane);
-			if (anti.length < 3) trace(anti.length, nGon.vertices, targetNGon.vertices);
 			return anti;
 		}
 		

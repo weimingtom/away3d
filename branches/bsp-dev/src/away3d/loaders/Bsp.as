@@ -260,7 +260,7 @@ package away3d.loaders
 			ngon.uvs.push(uv3);
 			ngon.vertices.reverse();
 			ngon.uvs.reverse();
-			//ngon.material = material;
+			ngon.material = material;
 			_allNGons.push(ngon);
 		}
 
