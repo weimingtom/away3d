@@ -56,10 +56,15 @@ package away3dlite.core.base
 			if (_scene)
 				buildMaterials();
 		}
+		
 		/** @private */
 		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{
 			super.project(camera, parentSceneMatrix3D);
+			
+			if(material.dirty)
+				_scene.transfromDirty = true;
+				
 			// project the normals
 			if (material is IShader)
 				_uvtData = IShader(material).getUVData(transform.matrix3D.clone());
@@ -68,8 +73,9 @@ package away3dlite.core.base
 				//DO NOT CHANGE vertices getter!!!!!!!
 				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
 				
-			projectPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
-			projectPosition = Utils3D.projectVector(_viewMatrix3D, projectPosition);
+				projectPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
+				projectPosition = Utils3D.projectVector(_viewMatrix3D, projectPosition);
+				
 				if (_materialsDirty)
 					buildMaterials();
 				
@@ -84,7 +90,14 @@ package away3dlite.core.base
 					}
 				}
 			}
+			
+			transfromDirty = false;
+			material.dirty = false;
+			
+			if(this==_scene)
+				transfromDirty = transfromDirty || _scene.transfromDirty;
 		}
+		
 		/** @private */	
 		arcane function buildFaces():void
 		{

@@ -296,10 +296,10 @@ package away3dlite.core.render
 			
 			// culling
 			numCulled = 0;
-			if(_view.camera.dirty)
+			if(_view.camera.transfromDirty)
 			{
 				_culler.update();
-				_view.camera.dirty = false;
+				_view.camera.transfromDirty = false;
 			}
 		}
 	}

@@ -100,6 +100,53 @@ package away3dlite.core.base
 				_perspCulling = true;
 			else
 				_perspCulling = false;
+				
+			// dirty
+			updateDirty(_viewMatrix3D);
+		}
+		
+		private function checkDirty(a:Vector.<Number>, b:Vector.<Number>):Boolean
+		{
+			var i:int = 16;
+			while(--i>-1 && a[int(i)]==b[int(i)]){}
+			if(i>=0)
+				return true;
+			else
+				return false;
+		}
+		
+		private var _cachedViewMatrix3D:Matrix3D;
+		
+		protected function updateDirty(matrix3D:Matrix3D):void
+		{
+			if(!_cachedViewMatrix3D)
+			{
+				_cachedViewMatrix3D = matrix3D.clone();
+				
+				//mark as dirty
+				transfromDirty = true;
+				
+				//mark parent is dirty
+				if(_scene)
+					_scene.transfromDirty = true;
+			}
+				
+			//transform dirty
+			if(checkDirty(matrix3D.rawData, _cachedViewMatrix3D.rawData))
+			{
+				//mark as dirty
+				transfromDirty = true;
+				
+				//mark parent is dirty
+				if(_scene)
+					_scene.transfromDirty = true;
+					
+				//store
+				_cachedViewMatrix3D = matrix3D.clone();
+			}else{
+				//clean
+				transfromDirty = false;
+			}
 		}
 		
 		protected function copyMatrix3D(m1:Matrix3D, m2:Matrix3D):void
@@ -119,14 +166,9 @@ package away3dlite.core.base
 		public var projectPosition:Vector3D;
 		
 		/**
-		 * Cull status, use for Frustum object culler 
+		 * Transfrom status
 		 */	
-		//public var culled:Boolean = false;
-		
-		/**
-		 * Dirty status, use old matrix3D if not
-		 */	
-		public var dirty:Boolean = false;
+		public var transfromDirty:Boolean = true;
 		
 		/**
 		 * An optional layer sprite used to draw into inseatd of the default view.

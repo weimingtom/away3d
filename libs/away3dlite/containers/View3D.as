@@ -572,11 +572,14 @@ package away3dlite.containers {
 			
 			_camera.update();
 			
-			_scene.project(camera);
+			_scene.project(_camera);
 			
-			graphics.clear();
-			
-			renderer.render();
+			if(_camera.transfromDirty || _scene.transfromDirty)
+			{
+				graphics.clear();
+				renderer.render();
+				_scene.transfromDirty = false;
+			}
 			
 			if (mouseEnabled3D)
 				fireMouseMoveEvent();

@@ -60,6 +60,10 @@ package away3dlite.materials
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
 			
+			_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onError);
+            _loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
+			_loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
+			
             dispatchEvent(_materialloadsuccess);
 		}
     	
