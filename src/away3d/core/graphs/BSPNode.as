@@ -1,5 +1,7 @@
 package away3d.core.graphs
 {
+	import flash.utils.Dictionary;
+	import away3d.core.base.Object3D;
 	import away3d.core.project.ProjectorType;
 	import away3d.materials.WireColorMaterial;
 	import away3d.arcane;
@@ -92,6 +94,37 @@ package away3d.core.graphs
 		
 		arcane var _portals : Vector.<BSPPortal>;
 		arcane var _backPortals : Vector.<BSPPortal>;
+		
+		arcane var _children : Array;
+		
+		public function traverseChildren(traverser : Traverser) : void
+		{
+			var i : int = _children.length;
+			var child : Object3D;
+			
+			while (--i >= 0) {
+				child = Object3D(_children[i]);
+				if (traverser.match(child)) {
+					traverser.enter(child);
+					traverser.apply(child);
+					traverser.leave(child);
+				}
+			}
+		}
+
+		public function addChild(child : Object3D) : void
+		{
+			if (!_children) _children = [];
+			
+			child._sceneGraphMark = leafId;
+			_children.push(child);
+		}
+
+		public function removeChild(child : Object3D) : void
+		{
+			var index : int = _children.indexOf(child);
+			if (index != -1) _children.splice(index, 1);
+		}
 
 		public function processVislist(portals : Vector.<BSPPortal>) : void
 		{
