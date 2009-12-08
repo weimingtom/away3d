@@ -26,66 +26,68 @@ package away3dlite.core.render
 		private var _k:int;
 		
 		private var _material_graphicsData:Vector.<IGraphicsData>;
-		
+
 		private function collectFaces(object:Object3D):void
 		{
 			if (!object.visible || object._perspCulling)
 				return;
-			
+
 			_mouseEnabledArray.push(_mouseEnabled);
 			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
-			
-			if (object is ObjectContainer3D) {
+
+			if (object is ObjectContainer3D)
+			{
 				var children:Array = (object as ObjectContainer3D).children;
 				var child:Object3D;
-				
+
 				if (sortObjects)
 					children.sortOn("screenZ", 18);
-					
+
 				for each (child in children)
 				{
-					if(cullObjects)
+					if (cullObjects)
 						_culler.cull(child);
-						
-					if(child.canvas)
+
+					if (child.canvas)
 					{
 						var _child_canvas:Sprite = child.canvas;
 						_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
 						_child_canvas.graphics.clear();
 					}
-					
-					if(child.layer)
+
+					if (child.layer)
 						child.layer.graphics.clear();
-					
+
 					collectFaces(child);
 				}
 			}
-				
-			if(cullObjects && !object.visible)
+
+			if (cullObjects && !object.visible)
 			{
 				numCulled++;
 				return;
 			}
-			
-			if (object is Mesh) {
+
+			if (object is Mesh)
+			{
 				var mesh:Mesh = object as Mesh;
 				_clipping.collectFaces(mesh, _faces);
-				
+
 				if (_view.mouseEnabled && _mouseEnabled)
 					collectScreenVertices(mesh);
-				
+
 				_view._totalFaces += mesh._faces.length;
 			}
-			else if (object is Particles) 
+			else if (object is Particles)
 			{
 				var _particles_lists:Array = (object as Particles).lists;
-			
-				if(_particles_lists.length>0)
+
+				if (_particles_lists.length > 0)
 					_particles = _particles.concat(_particles_lists);
 			}
-			
+
 			_mouseEnabled = _mouseEnabledArray.pop();
-			
+
 			++_view._totalObjects;
 			++_view._renderedObjects;
 		}
@@ -233,58 +235,58 @@ package away3dlite.core.render
 			
 			return _pointFace;
 		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public override function render():void
 		{
 			super.render();
-			
+
 			_faces = new Vector.<Face>();
-			
+
 			collectFaces(_scene);
-			
+
 			// sort merged particles
 			_particles.sortOn("screenZ", 18);
-			
+
 			_faces.fixed = true;
-			
+
 			_view._renderedFaces = _faces.length;
-			
+
 			if (_faces.length)
 			{
-			_sort.fixed = false;
-			_sort.length = _faces.length;
-			_sort.fixed = true;
-			
-			sortFaces();
+				_sort.fixed = false;
+				_sort.length = _faces.length;
+				_sort.fixed = true;
+
+				sortFaces();
 			}
-			
+
 			if (_material)
 			{
 				drawParticles(_mesh.screenZ);
-				
-				if(_mesh.visible)
+
+				if (_mesh.visible)
 				{
-				_material_graphicsData = _material.graphicsData;
-				_material_graphicsData[_material.trianglesIndex] = _triangles;
-					
-					if(_mesh.layer)
-				{
+					_material_graphicsData = _material.graphicsData;
+					_material_graphicsData[_material.trianglesIndex] = _triangles;
+
+					if (_mesh.layer)
+					{
 						_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-				}
-					else if(_mesh.canvas)
+					}
+					else if (_mesh.canvas)
 					{
 						_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
 					}
 					else
 					{
-					_view_graphics_drawGraphicsData(_material_graphicsData);
-			}
+						_view_graphics_drawGraphicsData(_material_graphicsData);
+					}
 				}
 			}
-			
+
 			// draw remain particles
 			drawParticles();
 		}

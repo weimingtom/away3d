@@ -55,6 +55,8 @@ package away3dlite.materials
             dispatchEvent(_materialdeactivated);
 		}
 		
+		public var dirty:Boolean = false;
+		
 		private const DEBUG_STROKE:GraphicsStroke = new GraphicsStroke(1, false, "normal", "none", "round", 0, new GraphicsSolidFill(0xFF00FF));
 		private var _debug:Boolean = false;
 		private var _materialactivated:MaterialEvent;
@@ -98,6 +100,8 @@ package away3dlite.materials
 			}
 			
 			graphicsData.fixed = true;
+			
+			dirty = true;
 		}
         
 		/**

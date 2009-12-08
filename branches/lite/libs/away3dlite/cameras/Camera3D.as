@@ -26,6 +26,7 @@ package away3dlite.cameras
 				_fieldOfViewDirty = false;
 				//_projection.fieldOfView = 360*Math.atan2(loaderInfo.width, 2*_zoom*_focus)/Math.PI;
 				_projection.focalLength = _zoom*_focus;
+				transfromDirty = true;
 			}
 			
 			_projectionMatrix3D = _projection.toMatrix3D();
@@ -36,8 +37,6 @@ package away3dlite.cameras
 			
 			_screenMatrix3D.rawData = _invSceneMatrix3D.rawData;
 			_screenMatrix3D.append(_projectionMatrix3D);
-			
-			dirty = true;
 		}
 		
 		private var _focus:Number = 100;
