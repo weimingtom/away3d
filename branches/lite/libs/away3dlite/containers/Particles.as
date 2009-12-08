@@ -42,11 +42,10 @@ package away3dlite.containers
 				particle.position = Utils3D_projectVector(_viewMatrix3D, _position);
 				
 				// layer dirty
-				if(_layer!=layer)
-					particle.layer = layer;
+				if(particle.layer!=_layer)
+					particle.layer = _layer;
+					
 			}while(particle = particle.next);
-			
-			_layer = layer;
 		}
 
 		public function addParticle(particle:Particle):Particle
