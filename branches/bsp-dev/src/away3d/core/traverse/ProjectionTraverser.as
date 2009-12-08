@@ -71,6 +71,7 @@ package away3d.core.traverse
             
             if (node is BSPTree) {
             	BSPTree(node).update(_view.camera, _lens.getFrustum(node, _viewTransform), _cameraVarsStore);
+            	_cameraVarsStore.nodeClassificationDictionary[node] = Frustum.INTERSECT;
 			}
             // only check culling if not pre-culled by a scene graph
             else if (_clipping.objectCulling) {

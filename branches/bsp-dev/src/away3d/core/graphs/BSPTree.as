@@ -1,5 +1,7 @@
 package away3d.core.graphs
 {
+	import away3d.core.render.BasicRenderer;
+	import away3d.core.base.Object3D;
 	import flash.utils.Dictionary;
 	import away3d.core.utils.CameraVarsStore;
 	import away3d.core.traverse.ProjectionTraverser;
@@ -85,6 +87,7 @@ package away3d.core.graphs
 		public var showPortals : Boolean;
 		
 		private var _cameraVarsStore : CameraVarsStore;
+		private var _dynamics : Vector.<Object3D>;
 
 		/**
 		 * Creates a new BSPTree object.
@@ -92,6 +95,7 @@ package away3d.core.graphs
 		public function BSPTree()
 		{
 			super();
+			_dynamics = new Vector.<Object3D>();
 			_preCulled = true;
 			_rootNode = new BSPNode(null);
 			_rootNode._maxTimeOut = maxTimeout;
@@ -471,7 +475,7 @@ package away3d.core.graphs
 			for (var i : int = 0; i < len; ++i) {
 				if (_leaves[i]) {
 					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
-						addChild(_leaves[i]._tempMesh);
+						super.addChild(_leaves[i]._tempMesh);
 						_leaves[i]._tempMesh.extra = {created: true};
 					}
 				}
@@ -696,10 +700,51 @@ package away3d.core.graphs
 			
 			// order nodes for primitive traversal
 			orderNodes(_transformPt);
+			assignDynamics();
 			
 			_cameraVarsStore = cameraVarsStore;
 		}
 		
+		private function assignDynamics() : void
+		{
+			var i : int = _dynamics.length;
+			var child : Object3D;
+			var pos : Number3D = new Number3D();
+			var leaf : BSPNode;
+			var mark : int;
+			
+			while (--i >= 0) {
+				child = _dynamics[i];
+				
+				// center position of child object
+				pos.transform(child.scenePosition, inverseSceneTransform);
+				leaf = getLeafContaining(pos);
+				
+				mark = child._sceneGraphMark;
+				if (leaf && mark != leaf.leafId) {
+					if (mark >= 0) _leaves[mark].removeChild(child);
+					leaf.addChild(child);
+				}
+				else if (!leaf) {
+					child._sceneGraphMark = -1;
+				}
+			}
+		}
+		
+		override public function addChild(child : Object3D) : void
+		{
+			super.addChild(child);
+			_dynamics.push(child);
+			child._sceneGraphMark = -1;
+		}
+		
+		override public function removeChild(child : Object3D)  :void
+		{
+			var index : int = _dynamics.indexOf(child);
+			if (index >= 0) _dynamics.splice(index, 1);
+			child._sceneGraphMark = -1;
+		}
+
 		/**
 		 * TO DO: do we actually need this part?
 		 * Can we set a renderedFrame property so we know when to recalculate the _lastIterationPositive var inside traverse? 
@@ -710,13 +755,13 @@ package away3d.core.graphs
 			var partitionPlane : Plane3D;
 			var pos : BSPNode;
 			var neg : BSPNode;
-			_needBuild = true;
+			var changed : Boolean = true;
 			_state = TRAVERSE_PRE;
 			
 			if (loopNode._culled) return;
 			
 			do {
-				if (_needBuild && !loopNode._isLeaf) {
+				if (changed && !loopNode._isLeaf) {
 					partitionPlane = loopNode._partitionPlane;
 					
 					if (partitionPlane._alignment == Plane3D.X_AXIS)
@@ -739,23 +784,23 @@ package away3d.core.graphs
 					case TRAVERSE_PRE:
 						if (pos && !pos._culled) {
 							loopNode = pos;
-							_needBuild = true;
+							changed = true;
 							break;
 						}
 						else {
 							_state = TRAVERSE_IN;
-							//_needBuild = false;
+							//changed = false;
 						}
 					case TRAVERSE_IN:
 						if (neg && !neg._culled) {
 							loopNode = neg;
 							_state = TRAVERSE_PRE;
-							_needBuild = true;
+							changed = true;
 							break;
 						}
 						else {
 							_state = TRAVERSE_POST;
-							//_needBuild = false;
+							//changed = false;
 						}
 						//break;
 					case TRAVERSE_POST:
@@ -763,7 +808,7 @@ package away3d.core.graphs
 							if (loopNode == loopNode._parent._positiveNode)
 								_state = TRAVERSE_IN;
 							loopNode = loopNode._parent;
-							_needBuild = false;
+							changed = false;
 						}
 						break;
 				}
@@ -805,6 +850,9 @@ package away3d.core.graphs
         	var loopNode : BSPNode = _rootNode;
 			var dictionary : Dictionary = _cameraVarsStore.frustumDictionary;
 			var frustum : Frustum = dictionary[this];
+			var dynamics : Array;
+			var hasDynamics : Boolean;
+			var render : BSPRenderer = BSPRenderer(renderer);
 			
 			_state = TRAVERSE_PRE;
         	
@@ -816,12 +864,21 @@ package away3d.core.graphs
 					if (isLeaf) {
 						mesh = loopNode._mesh;
 						dictionary[mesh] = frustum;
+						
+						dynamics = loopNode._children;
+						hasDynamics = (dynamics != null) && dynamics.length > 0;
+	            		
 						if (traverser.match(mesh))
 	            		{
 		                	traverser.enter(mesh);
 		                	traverser.apply(mesh);
 		                	traverser.leave(mesh);
 	            		}
+	            		
+						if (hasDynamics) {
+	            			loopNode.traverseChildren(traverser);
+						}
+	            		
 	            		// temp
 						if (	showPortals && loopNode &&
 	       						loopNode._tempMesh && 
@@ -1049,7 +1106,7 @@ package away3d.core.graphs
        		for (var i : int = 0; i < l; ++i)
        		{
        			if (_leaves[i] && _leaves[i].mesh)
-       				addChild(_leaves[i].mesh);
+       				super.addChild(_leaves[i].mesh);
        		}
        		_rootNode.propagateBounds();
 			_maxX = _rootNode._maxX;

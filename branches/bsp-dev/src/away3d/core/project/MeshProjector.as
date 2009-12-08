@@ -1,5 +1,6 @@
 package away3d.core.project
 {
+	import away3d.arcane;
 	import away3d.cameras.*;
 	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
@@ -12,6 +13,8 @@ package away3d.core.project
 	import away3d.materials.*;
 	
 	import flash.utils.Dictionary;
+	
+	use namespace arcane;
 	
 	public class MeshProjector implements IPrimitiveProvider
 	{
@@ -100,10 +103,11 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
+			var preculled : Boolean = source._preCulled;
+			
 			_cameraVarsStore.createVertexClassificationDictionary(source);
 			
 			_mesh = source as Mesh;
-			
 			_camera = _view.camera;
 			_clipping = _view.screenClipping;
 			_lens = _camera.lens;
@@ -177,7 +181,7 @@ package away3d.core.project
             	_face = _faceVO.face;
             	
             	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
-            	
+				_tri.ignoreSort = preculled;
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.backface = _tri.area < 0;
 				
