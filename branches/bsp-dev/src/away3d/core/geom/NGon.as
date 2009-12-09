@@ -10,6 +10,9 @@ package away3d.core.geom
 	
 	use namespace arcane;
 	
+	/**
+	 * NGon is an object describing a shape in 3D of any number of points
+	 */
 	public final class NGon
 	{
 		public var vertices : Vector.<Vertex>;
@@ -24,11 +27,20 @@ package away3d.core.geom
 		private var _edge : Number3D = new Number3D();
 		private var _edgeNormal : Number3D = new Number3D();
 		
+		private static var _newVerts : Vector.<Vertex>;
+		private static var _newUVs : Vector.<UV>;
+		
+		/**
+		 * Creates an NGon object
+		 */
 		public function NGon()
 		{
 			
 		}
 		
+		/**
+		 * Inverts the NGon
+		 */
 		public function invert() : void
 		{
 			var len : int = vertices.length;
@@ -47,6 +59,9 @@ package away3d.core.geom
 			vertices = newVertices;
 		}
 		
+		/**
+		 * Classifies on which side of a plane this NGon falls
+		 */
 		public function classifyToPlane(compPlane : Plane3D) : int
 		{
 			var numPos : int;
@@ -123,7 +138,9 @@ package away3d.core.geom
 		}
 		
 		/**
-		 * Returns true if either in front of plane or intersecting
+		 * Returns true if the NGon lies on the given plane
+		 * 
+		 * @private
 		 */
 		public function isCoinciding(compPlane : Plane3D) : Boolean
 		{
@@ -171,6 +188,8 @@ package away3d.core.geom
 		
 		/**
 		 * Returns true if either in front of plane or intersecting
+		 * 
+		 * @private
 		 */
 		public function classifyForPortalFront(compPlane : Plane3D) : Boolean
 		{
@@ -213,6 +232,8 @@ package away3d.core.geom
 		
 		/**
 		 * Returns true if either behind plane or intersecting
+		 * 
+		 * @private
 		 */
 		public function classifyForPortalBack(compPlane : Plane3D) : Boolean
 		{
@@ -252,6 +273,11 @@ package away3d.core.geom
 			return false;
 		}
 		
+		/**
+		 * Returns true if either in front of plane or intersecting
+		 * 
+		 * @private
+		 */
 		public function isOutAntiPenumbra(compPlane : Plane3D) : Boolean
 		{
 			var v : Vertex;
@@ -266,6 +292,9 @@ package away3d.core.geom
 			return true;
 		}
 		
+		/**
+		 * Creates a duplicate of this NGon
+		 */
 		public function clone() : NGon
 		{
 			var c : NGon = new NGon();
@@ -277,6 +306,9 @@ package away3d.core.geom
 			return c;
 		}
 		
+		/**
+		 * Triangulates the NGon
+		 */
 		public function triangulate() : Vector.<Face>
 		{
 			var len : int = vertices.length - 1;
@@ -311,6 +343,9 @@ package away3d.core.geom
 			return tris;
 		}
 		
+		/**
+		 * Converts a Face object to an NGon
+		 */
 		public function fromTriangle(face : Face) : void
 		{
 			var triPlane : Plane3D = face.plane;
@@ -326,15 +361,6 @@ package away3d.core.geom
 			plane = new Plane3D(triPlane.a, triPlane.b, triPlane.c, triPlane.d);
 			plane._alignment = triPlane._alignment;
 			material = face.material;
-		}
-		
-		/**
-		 * @return Whether collapse was succesful or not
-		 */
-		public function collapse(nGon : NGon) : Boolean
-		{
-			if (nGon.material != material) return false;
-			return collapseVertices(nGon.vertices, nGon.uvs, nGon.plane);
 		}
 		
 		/**
@@ -429,9 +455,9 @@ package away3d.core.geom
 			return ngons;
 		}
 		
-		private static var _newVerts : Vector.<Vertex>;
-		private static var _newUVs : Vector.<UV>;
-		
+		/**
+		 * Trims the NGon to the front side of a plane
+		 */
 		public function trim(trimPlane : Plane3D) : void
 		{
 			//if (vertices.length < 3) return;
@@ -520,6 +546,9 @@ package away3d.core.geom
 //				removeColinears();
 		}
 		
+		/**
+		 * Trims the NGon to the back side of a plane
+		 */
 		public function trimBack(trimPlane : Plane3D) : void
 		{
 //			if (vertices.length < 3) return;
@@ -607,6 +636,9 @@ package away3d.core.geom
 //				removeColinears();
 		}
 		
+		/**
+		 * Determines if an NGon is too small to be of any use
+		 */
 		public function isNeglectable() : Boolean
 		{
 			var i : int = vertices.length;
@@ -640,6 +672,9 @@ package away3d.core.geom
 			return true;
 		}
 		
+		/**
+		 * Calculates the area of an NGon
+		 */
 		public function get area() : Number
 		{
 			var area : Number = 0;
@@ -725,125 +760,6 @@ package away3d.core.geom
 						
 		}
 		
-		/**
-		 * @return Whether collapse was succesful or not
-		 */
-		public function collapseTriangle(face : Face) : Boolean
-		{
-			if (face.material != material) return false;
-			var srcVert : Vector.<Vertex> = new Vector.<Vertex>(3);
-			var srcUV : Vector.<UV> = new Vector.<UV>(3);
-			srcVert[0] = face.v0;
-			srcVert[1] = face.v1;
-			srcVert[2] = face.v2;
-			srcUV[0] = face.uv0;
-			srcUV[1] = face.uv1;
-			srcUV[2] = face.uv2;
-			material = face.material;
-			return collapseVertices(srcVert, srcUV, face.plane);
-		}
-		
-		/**
-		 * Edge collapsing between 2 adjacent coplanar convex polygons.
-		 * Assuming polygons are optimized, only 1 edge can be shared (ie: 2 adjacent vertices)
-		 */
-		private function collapseVertices(srcVert : Vector.<Vertex>, srcUV : Vector.<UV>, srcPlane : Plane3D) : Boolean
-		{
-			var sharedVerticesA : Vector.<Boolean>;
-			var sharedVerticesB : Vector.<Boolean>;
-			var v1 : Vertex, v2 : Vertex;
-			var uv1 : UV, uv2 : UV;
-			var du : Number, dv : Number;
-			var lastSharedIndexA : int = -1;
-			var lastSharedIndexB : int = -1;
-			var count : int;
-			var len1 : int;
-			var len2 : int;
-			
-			// if normals not equal enough or planes not incident, quit early
-			if (Math.abs(plane.d - srcPlane.d) > BSPTree.EPSILON ||
-				Math.abs(plane.a*srcPlane.a + plane.b*srcPlane.b + plane.c*srcPlane.c - 1) > BSPTree.EPSILON)
-				return false;
-			
-			len1 = vertices.length;
-			len2 = srcVert.length;
-			sharedVerticesA = new Vector.<Boolean>(len1);
-			sharedVerticesB = new Vector.<Boolean>(len2);
-			
-			for (var i : int = 0; i < len1; ++i) {
-				sharedVerticesA[i] = false;
-			}
-			for (var j : int = 0; j < len2; ++j) {
-				sharedVerticesB[j] = false;
-			}
-
-			// keep track of shared vertices
-			for (i = 0; i < len1; ++i) {
-				v1 = vertices[i];
-				uv1 = uvs[i];
-				
-				for (j = 0; j < len2; ++j) {
-					v2 = srcVert[j];
-					uv2 = srcUV[j];
-					du = Math.abs(uv1._u-uv2._u);
-					dv = Math.abs(uv1._v-uv2._v);
-					// if vertices coinciding with matching uv coords, collapse if close enough
-					if ((v1 == v2 || v1.position.distance(v2.position) < BSPTree.EPSILON) &&
-						(uv1 == uv2 || (du < BSPTree.EPSILON && dv < BSPTree.EPSILON))) {
-						sharedVerticesA[i] = true;
-						sharedVerticesB[j] = true;
-						if (lastSharedIndexA == -1) {
-							lastSharedIndexA = i;
-							lastSharedIndexB = j;
-						}
-						else {
-							// considering preconditions: two shared vertices need to be adjacent
-							if (!(	(i - lastSharedIndexA == 1) ||
-									(lastSharedIndexA == 0 && i == len1-1)
-								)) return false;
-							if (!(	(Math.abs(j - lastSharedIndexB) == 1) ||
-									(j == 0 && lastSharedIndexB == len2-1) ||
-									(lastSharedIndexB == 0 && j == len2-1)
-								)) return false;
-						}
-						// more than 2 vertices shared. Considering preconditions, we can assume no merge is possible
-						if (++count > 2) return false;
-						
-						// once match for i has been found, skip all other in second tri
-						j = len2;
-					}
-				}
-			}
-			
-			// no edge shared
-			if (count < 2) return false;
-			
-			if (isCollapseConvex(srcVert, sharedVerticesA, sharedVerticesB)) {
-				// safe to merge
-				i = sharedVerticesA.indexOf(true);
-				// check if 0 is not the second vertex of the edge
-				// otherwise increment index as insertion point (after last vertex) 
-				if (!(i == 0 && !sharedVerticesA[1]))
-					i++;
-				
-				j = lastSharedIndexB = sharedVerticesB.indexOf(true);
-				
-				// loop through input set and add unshared vertices
-				do {
-					if (!sharedVerticesB[j]) {
-						vertices.splice(i, 0, srcVert[j]);
-						uvs.splice(i, 0, srcUV[j]);
-						++i;
-					}
-					if (++j == len2) j = 0;
-				} while (j != lastSharedIndexB);
-				removeColinears();
-				return true;
-				
-			}
-			return false;
-		}
-		
 		private static var _tempU : Number3D = new Number3D();
 		private static var _tempV : Number3D = new Number3D();
 		private static var _tempC : Number3D = new Number3D();
@@ -883,75 +799,6 @@ package away3d.core.geom
 				if (j >= len) j = 0;
 				if (k >= len) k = 0;
 			}
-		}
-		
-		private function isCollapseConvex(srcVert : Vector.<Vertex>, sharedA : Vector.<Boolean>, sharedB : Vector.<Boolean>) : Boolean
-		{
-			var v1A : Vertex, v2A : Vertex, vB : Vertex;
-			var len1 : int = vertices.length;
-			var len2 : int = srcVert.length;
-			var v1AShared : Boolean, v2AShared : Boolean;
-			var i : int;
-			var complete : Boolean;
-			var c : int;
-			var compPoint : Vertex;
-			
-			// vertices && srcVect are already convex on their own
-			// need to check if same goes for vertices -> srcVect (symmetrical case, one direction is enough)
-			v1A = vertices[0];
-			v1AShared = sharedA[0];
-			
-			i = 1;
-			c = 2;
-			
-			do {
-				if (i == 0) complete = true;
-				v2A = vertices[i];
-				v2AShared = sharedA[i];
-				
-				// can skip shared edge
-				if (v1AShared && v2AShared) {
-					v1AShared = v2AShared;
-					v1A = v2A;
-					if (++i == len1) i = 0;
-					if (++c == len1) c = 0;
-					continue;
-				}
-				
-				_edge.x = v2A._x-v1A._x;
-				_edge.y = v2A._y-v1A._y;
-				_edge.z = v2A._z-v1A._z;
-				_edge.normalize();
-				_edgeNormal.cross(normal, _edge);
-				compPoint = vertices[c];
-				
-				if (_edgeNormal.x*(compPoint._x-v1A._x) + _edgeNormal.y*(compPoint._y-v1A._y) + _edgeNormal.z*(compPoint._z-v1A._z) < 0) {
-					_edgeNormal.x = -_edgeNormal.x;
-					_edgeNormal.y = -_edgeNormal.y;
-					_edgeNormal.z = -_edgeNormal.z;
-				}
-				_edgePlane.a = _edgeNormal.x;
-				_edgePlane.b = _edgeNormal.y;
-				_edgePlane.c = _edgeNormal.z;
-				_edgePlane.d = -(v2A._x*_edgeNormal.x + v2A._y*_edgeNormal.y + v2A._z*_edgeNormal.z);
-				
-				for (var j : int = 0; j < len2; ++j) {
-					// can skip shared points
-					if (sharedB[j]) continue;
-					
-					vB = srcVert[j];
-					// calculate side of point relative to edge
-					if (_edgePlane.a*vB._x + _edgePlane.b*vB._y + _edgePlane.c*vB._z + _edgePlane.d < -BSPTree.EPSILON)
-						return false;
-				}
-				
-				v1AShared = v2AShared;
-				v1A = v2A;
-				if (++i == len1) i = 0;
-				if (++c == len1) c = 0;
-			} while(!complete);
-			
-			return true;
 		}
 	}
 }
