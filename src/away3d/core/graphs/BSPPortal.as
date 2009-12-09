@@ -12,16 +12,12 @@ package away3d.core.graphs
 	
 	use namespace arcane;
 	
-	/**
-	 * TO DO: When visible portal found, automatically add target portal's front leaf to back leaf's vislist
-	 * Eliminating final step
-	 */
 	internal final class BSPPortal extends EventDispatcher
 	{
 		public static const RECURSED_PORTAL_COMPLETE : String = "RecursedPortalComplete";
 		public var index : int;
 		public var nGon : NGon;
-		//public var leaves : Vector.<BSPNode>;
+		
 		public var sourceNode : BSPNode;
 		public var frontNode : BSPNode;
 		public var backNode : BSPNode;
@@ -47,14 +43,12 @@ package away3d.core.graphs
 		private var _currentPortal : BSPPortal;
 		private var _needCheck : Boolean;
 		private var _numPortals : int;
-		private var _backPortal : BSPPortal;		
+		private var _backPortal : BSPPortal;
+		private var _portals : Vector.<BSPPortal>;	
 		
 		private static var _sizeLookUp : Vector.<int>;
 		
 		public var next : BSPPortal;
-		
-		public var maxRecursion : int = 10000000;
-		private var _recursionDepth : int = 0;
 		
 		arcane var _currentAntiPenumbra : Vector.<Plane3D>;
 		arcane var _currentParent : BSPPortal;
@@ -72,9 +66,9 @@ package away3d.core.graphs
 			nGon.vertices = new Vector.<Vertex>();
 		}
 		
-		// TO DO: change bits back to 32 for less mem usage and less iterations
-		// checks how many bits are set in a byte
-		// wait, I can actually combine this and 32 bit lists
+		/**
+		 * Generates a look-up table that tells how many visible portals are set in an 8-bit bit mask
+		 */
 		private function generateSizeLookUp() : void
 		{
 			var size : int = 255;
@@ -97,7 +91,7 @@ package away3d.core.graphs
 			_sizeLookUp[0xff] = 8;
 		}
 		
-		private function getPlaneFromPool() : Plane3D
+		/*private function getPlaneFromPool() : Plane3D
 		{
 			return _planePool.length > 0? _planePool.pop() : new Plane3D();
 		}
@@ -105,8 +99,11 @@ package away3d.core.graphs
 		private function addPlaneToPool(plane : Plane3D) : void
 		{
 			_planePool.push(plane);
-		}
+		}*/
 		
+		/**
+		 * Creates an initial portal from a node's partitionplane, encompassing the entire tree
+		 */
 		public function fromNode(node : BSPNode, root : BSPNode) : Boolean
 		{
 			var bounds : Array = root._bounds;
@@ -176,6 +173,9 @@ package away3d.core.graphs
 			return true;
 		}
 		
+		/**
+		 * Clones the portal
+		 */
 		public function clone() : BSPPortal
 		{
 			var c : BSPPortal = new BSPPortal();
@@ -190,6 +190,9 @@ package away3d.core.graphs
 			return c;
 		}
 		
+		/**
+		 * Trims the portal to the tree's bounds
+		 */
 		private function trimToAABB(node : BSPNode) : void
 		{
 			var plane : Plane3D = new Plane3D(0, -1, 0, node._maxY);
@@ -206,6 +209,9 @@ package away3d.core.graphs
 			nGon.trim(plane);
 		}
 		
+		/**
+		 * Generates a perpendicular vector for the initial portal
+		 */
 		private function getPerpendicular(normal : Number3D) : Number3D
 		{
 			var p : Number3D = new Number3D();
@@ -216,6 +222,9 @@ package away3d.core.graphs
 			return p;
 		}
 		
+		/**
+		 * Splits a portal along a plane
+		 */
 		public function split(plane : Plane3D) : Vector.<BSPPortal>
 		{
 			var posPortal : BSPPortal;
@@ -268,7 +277,9 @@ package away3d.core.graphs
 			return parts;
 		}
 		
-		// this times out, or BSPTree:partitionPortals() ?
+		/**
+		 * Creates the bit mask lists needed to store visible portals
+		 */
 		public function createLists(numPortals : int) : void
 		{
 			_numPortals = numPortals;
@@ -278,75 +289,71 @@ package away3d.core.graphs
 			visList = new Vector.<uint>(listLen);
 			_currentFrontList = new Vector.<uint>(listLen);
 		}
-
+		
+		/**
+		 * Adds a portal to a bit mask list
+		 */
 		public function addToList(list : Vector.<uint>, index : int) : void
 		{
 			list[index >> 5] |=  (1 << (index & 0x1f));
 		}
 		
+		/**
+		 * Removes a portal to a bit mask list
+		 */
 		public function removeFromList(list : Vector.<uint>, index : int) : void
 		{
 			list[index >> 5] &= ~(1 << (index & 0x1f));
 		}
 		
+		/**
+		 * Checks if a portal is within a bit mask list
+		 */
 		public function isInList(list : Vector.<uint>, index : int) : Boolean
 		{
 			if (!list) return false;
 			return (list[index >> 5] & (1 << (index & 0x1f))) != 0;
 		}
 		
-		public function findInitialFrontList(list : BSPPortal) : void
+		/**
+		 * Builds the initial front list. Only allow portals in front and facing away.
+		 */
+		public function findInitialFrontList(portals : Vector.<BSPPortal>) : void
 		{
+			var len : int = portals.length;
 			var srcPlane : Plane3D = nGon.plane;
 			var i : int;
 			var compNGon : NGon;
 			var listIndex : int;
 			var bitIndex : int;
+			var p : BSPPortal;
 			
 			do {
-				i = list.index;
-				compNGon = list.nGon;
+				p = portals[i];
+				compNGon = p.nGon;
+				
 				// test if spanning or this portal is in front and other in back
 				if (compNGon.classifyForPortalFront(srcPlane) && nGon.classifyForPortalBack(compNGon.plane)) {
 					listIndex = index >> 5;
 					bitIndex = index & 0x1f;
 					// isInList(list.frontList, index)
-					if ((list.frontList[listIndex] & (1 << bitIndex)) != 0) {
+					if ((p.frontList[listIndex] & (1 << bitIndex)) != 0) {
 						// two portals can see eachother
 						// removeFromList(list.frontList, index);
-						list.frontList[listIndex] &= ~(1 << bitIndex);
-						--list.frontOrder;
+						p.frontList[listIndex] &= ~(1 << bitIndex);
+						--p.frontOrder;
 					}
 					else {
 						frontList[i >> 5] |=  (1 << (i & 0x1f));
 						frontOrder++;
 					}
 				}
-			} while (list = list.next);
+			} while (++i < len);
 		}
 		
-//		public function removeReciprocalVisibles(portals : Vector.<BSPPortal>) : void
-//		{
-//			var current : BSPPortal;
-//			var len : int = portals.length;
-//			var i : int = len;
-//			
-//			// no longer need this
-//			backList = null;
-//			
-//			if (frontOrder <= 0) return;
-//		
-//			while (--i >= 0) {
-//				current = portals[i];
-//				if (isInList(frontList, i) && isInList(current.frontList, index)) {
-//					removeFromList(frontList, i);
-//					removeFromList(current.frontList, index);
-//					frontOrder--;
-//					current.frontOrder--;
-//				}
-//			}
-//		}
-		
+		/**
+		 * Finds the current portal's neighbours
+		 */
 		public function findNeighbours() : void
 		{
 			var backPortals : Vector.<BSPPortal> = frontNode._backPortals;
@@ -378,28 +385,24 @@ package away3d.core.graphs
 			}
 		}
 		
-		private var _portalList : BSPPortal;
-		public function findVisiblePortals(portals : BSPPortal) : void
+		/**
+		 * Performs exact testing to find portals visible from this portal.
+		 */
+		public function findVisiblePortals(portals : Vector.<BSPPortal>) : void
 		{
 			var i : int = listLen;
-			_portalList = portals;
+			_portals = portals;
 			_state = TRAVERSE_PRE;
 			_currentPortal = this;
 			_needCheck = false;
 			_iterationIndex = 0;
 			_currentParent = null;
-			_recursionDepth = 0;
 			
 			while (--i >= 0)
 				_currentFrontList[i] = frontList[i];
 				
 			findVisiblePortalStep();
 		}
-		
-		/*private function onRecursedComplete(event : Event) : void
-		{
-			setTimeout(dispatchEvent, 1, _recurseCompleteEvent);
-		}*/
 		
 		private function findVisiblePortalStep() : void
 		{
@@ -435,8 +438,7 @@ package away3d.core.graphs
 				
 				if (_state == TRAVERSE_PRE) {
 					currNeighbours = _currentPortal.neighbours;
-					if (currNeighbours && _recursionDepth < maxRecursion) {
-						++_recursionDepth;
+					if (currNeighbours) {
 						next = currNeighbours[0];
 						next._iterationIndex = 0;
 						next._currentParent = _currentPortal;
@@ -445,14 +447,12 @@ package away3d.core.graphs
 					}
 					else {
 						_state = TRAVERSE_POST;
-//						_currentPortal._currentAntiPenumbra = null;
 						_needCheck = false;
 					}
 				}
 				else if (_state == TRAVERSE_IN) {
 					currNeighbours = _currentPortal.neighbours;
-					if (++_currentPortal._iterationIndex < currNeighbours.length && _recursionDepth < maxRecursion) {
-						++_recursionDepth;
+					if (++_currentPortal._iterationIndex < currNeighbours.length) {
 						next = currNeighbours[_currentPortal._iterationIndex];
 						next._iterationIndex = 0;
 						next._currentParent = _currentPortal;
@@ -462,7 +462,6 @@ package away3d.core.graphs
 					}
 					else {
 						_state = TRAVERSE_POST;
-//						_currentPortal._currentAntiPenumbra = null;
 						_needCheck = false;
 					}
 				}
@@ -480,12 +479,6 @@ package away3d.core.graphs
 						}
 						_currentPortal._currentAntiPenumbra = null;
 					}
-					
-					if (_recursionDepth == maxRecursion && _currentPortal.neighbours) {
-						resolveNeighboursVis(_currentPortal);
-					}
-					
-					--_recursionDepth;
 					
 					_currentPortal = _currentPortal._currentParent;
 					if (_currentPortal._iterationIndex < _currentPortal.neighbours.length-1)
@@ -510,38 +503,32 @@ package away3d.core.graphs
 			}
 		}
 		
-		private function resolveNeighboursVis(currentPortal : BSPPortal) : void
-		{
-			var neighbours : Vector.<BSPPortal> = currentPortal.neighbours;
-			var i : int = neighbours.length;
-			var j : int;
-			var neigh : BSPPortal;
-			
-			while (--i >= 0) {
-				neigh = neighbours[i];
-				j = 0;
-				do {
-					visList[j] |= neigh._currentFrontList[j];
-				} while (++j < listLen);
-			}
-		}
-
+		/**
+		 * Updates the opposing portals visibility data based on what is calculated on this side
+		 */
 		private function updateBackPortals() : void
 		{
 			var currIndex : int;
 			var backIndex : int = _backPortal.index >> 5;
 			var backBit : uint = ~(1 << (_backPortal.index & 0x1f));
+			var i : int;
+			var portal : BSPPortal;
 			
 			do {
-				currIndex = _portalList.index;
+				portal = _portals[i];
+				currIndex = portal.index;
 				
 				// if portal not visible, the other way around (via backportals) is invisible too
 				if ((visList[currIndex >> 5] & (1 << (currIndex & 0x1f))) == 0)
-					_portalList._backPortal.frontList[backIndex] &= backBit;
-			} while (_portalList = _portalList.next);
+					portal._backPortal.frontList[backIndex] &= backBit;
+			} while (++i < _numPortals);
+			
 			setTimeout(notifyComplete, 1);
 		}
-
+		
+		/**
+		 * Tests precisely if a target portal is potentially visible from this portal.
+		 */
 		private function determineVisibility(currentPortal : BSPPortal) : Boolean
 		{
 			var currAntiPenumbra : Vector.<Plane3D>;
@@ -618,11 +605,17 @@ package away3d.core.graphs
 			return true;
 		}
 		
+		/**
+		 * Lets the build tree know the current step is complete
+		 */
 		private function notifyComplete() : void
 		{
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
+		/**
+		 * Creates the anti-penumbra between this and a target portal. An anti-penumbra is a set of planes encompassing the entire potential visible area through the two portals.
+		 */
 		private function generateAntiPenumbra(targetNGon : NGon) : Vector.<Plane3D>
 		{
 			var anti : Vector.<Plane3D> = new Vector.<Plane3D>();
@@ -795,7 +788,9 @@ package away3d.core.graphs
 		}
 		
 		
-		
+		/**
+		 * Checks all the portals in the front list and tests if they fall within any of the neighbours' antipenumbra.
+		 */
 		public function removePortalsFromNeighbours(portals : Vector.<BSPPortal>) : void
 		{
 			if (frontOrder <= 0) return;
@@ -834,6 +829,9 @@ package away3d.core.graphs
 			}
 		}
 		
+		/**
+		 * Updates the portal's visibility information based on the neighbour information (if not visible from neighbours, not visible at all)
+		 */
 		public function propagateVisibility() : void
 		{
 			var j : int;
@@ -886,18 +884,18 @@ package away3d.core.graphs
 				frontOrder += _sizeLookUp[(val >> 24) & 0xff];
 			}
 		}
-
+		
+		/**
+		 * Checks if this node is visible in a given antiPenumbra
+		 */
 		private function checkAgainstAntiPenumbra(antiPenumbra : Vector.<Plane3D>) : Boolean
 		{
 			var i : int = antiPenumbra.length;
 			
 			while (--i >= 0)
 				if (nGon.isOutAntiPenumbra(antiPenumbra[i])) return false;
-				/*if (nGon.classifyToPlane(antiPenumbra[i]) == Plane3D.BACK ||
-					nGon.classifyToPlane(antiPenumbra[i]) == -2)
-					return false;*/
+
 			return true;
-			
 		}
 	}
 }

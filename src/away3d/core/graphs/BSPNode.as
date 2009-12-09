@@ -27,7 +27,7 @@ package away3d.core.graphs
 	{
 		public var leafId : int = -1;
 		public var nodeId : int;
-		
+		public var renderMark : int = -1;
 		
 		// indicates whether this node is a leaf or not, leaves contain triangles
 		arcane var _isLeaf : Boolean;
@@ -52,8 +52,6 @@ package away3d.core.graphs
 		
 		arcane var _bounds : Array;
 		
-		public var extra : Object = new Object();
-		
 		// bounds
 		arcane var _minX : Number;
 		arcane var _minY : Number;
@@ -65,103 +63,8 @@ package away3d.core.graphs
 		// used for collision detection
 		private var _middle : Number3D = new Number3D();
 		
-	// used for building tree
-		// scores dictating the importance of triangle splits, tree balance and axis aligned splitting planes
-		arcane var _splitWeight : Number = 10;
-		arcane var _balanceWeight : Number = 1;
-		arcane var _nonXZWeight : Number = 1.5;
-		arcane var _nonYWeight : Number = 1.2;
-		
-		private var _bestPlane : Plane3D;
-		private var _bestScore : Number;
-		private var _positiveFaces : Vector.<NGon>;
-		private var _negativeFaces : Vector.<NGon>;
-		
-		// indicates whether contents is convex or not when creating solid leaf tree
-		private var _convex : Boolean;
-		// triangle planes used to create solid leaf tree
-		private var _solidPlanes : Vector.<Plane3D>;
-		
-		private var _planeCount : int;
-		
-		arcane var _maxTimeOut : int = 500;
-		
-		arcane var _newFaces : int;
-		arcane var _assignedFaces : int;
-		arcane var _buildFaces : Vector.<NGon>;
-		
-		arcane var _tempMesh : Mesh;
-		
-		arcane var _portals : Vector.<BSPPortal>;
-		arcane var _backPortals : Vector.<BSPPortal>;
-		
 		arcane var _children : Array;
-		
-		public function traverseChildren(traverser : Traverser) : void
-		{
-			var i : int = _children.length;
-			var child : Object3D;
-			
-			while (--i >= 0) {
-				child = Object3D(_children[i]);
-				if (traverser.match(child)) {
-					traverser.enter(child);
-					traverser.apply(child);
-					traverser.leave(child);
-				}
-			}
-		}
 
-		public function addChild(child : Object3D) : void
-		{
-			if (!_children) _children = [];
-			
-			child._sceneGraphMark = leafId;
-			_children.push(child);
-		}
-
-		public function removeChild(child : Object3D) : void
-		{
-			var index : int = _children.indexOf(child);
-			if (index != -1) _children.splice(index, 1);
-		}
-
-		public function processVislist(portals : Vector.<BSPPortal>) : void
-		{
-			if (!_backPortals || !portals) return;
-			
-			var backLen : int = _backPortals.length;
-			var backPortal : BSPPortal;
-			var portalsLen : int = portals.length;
-			var portal : BSPPortal;
-			var visLen : int = 0;
-			
-			_visList = new Vector.<int>();
-			
-			for (var i : int = 0; i < backLen; ++i) {
-				backPortal = _backPortals[i];
-				// direct neighbours are always visible
-				if (_visList.indexOf(backPortal.frontNode.leafId) == -1)
-					_visList[visLen++] = backPortal.frontNode.leafId;
-					
-				for (var j : int = 0; j < portalsLen; ++j) {
-					portal = portals[j];
-					// if in vislist and not yet added
-					if (backPortal.isInList(backPortal.visList, portal.index) && (_visList.indexOf(portal.frontNode.leafId) == -1))
-						_visList[visLen++] = portals[j].frontNode.leafId;
-				}
-			}
-			_visList.sort(sortVisList);
-			
-			_portals = null;
-			_backPortals = null;
-		}	
-		
-		private function sortVisList(a : int, b : int) : Number
-		{
-			return a < b? -1 : (a == b? 0 : 1);
-		}
-		
 		/**
 		 * Creates a new BSPNode object.
 		 * 
@@ -172,6 +75,50 @@ package away3d.core.graphs
 			nodeId = BSPTree.nodeCount;
 			BSPTree.nodeCount++;
 			_parent = parent;
+		}
+		
+		/**
+		 * Sends a traverser down the dynamic children
+		 * 
+		 * @private
+		 */
+		public function traverseChildren(traverser : Traverser) : void
+		{
+			var i : int = _children.length;
+			var child : Object3D;
+			
+			while (--i >= 0) {
+				child = Object3D(_children[i]);
+				if (child._sceneGraphMark != -1 && traverser.match(child)) {
+					traverser.enter(child);
+					traverser.apply(child);
+					traverser.leave(child);
+				}
+			}
+		}
+		
+		/**
+		 * Adds a dynamic child to this leaf
+		 * 
+		 * @private
+		 */
+		public function addChild(child : Object3D) : void
+		{
+			if (!_children) _children = [];
+			
+			child._sceneGraphMark = leafId;
+			_children.push(child);
+		}
+
+		/**
+		 * Removes a dynamic child from this leaf
+		 * 
+		 * @private
+		 */
+		public function removeChild(child : Object3D) : void
+		{
+			var index : int = _children.indexOf(child);
+			if (index != -1) _children.splice(index, 1);
 		}
 		
 		/**
@@ -190,145 +137,6 @@ package away3d.core.graphs
 			return _bounds;
 		}
 		
-		/**
-		 * Finds the closest colliding Face between start and end position
-		 * 
-		 * @param start The starting position of the object (ie the object's current position)
-		 * @param end The position the object is trying to reach
-		 * @param radii The radii of the object's bounding eclipse
-		 * 
-		 * @return The closest Face colliding with the object. Null if no collision was found.
-		 */
-		public function traceCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
-		{
-			var face : Face;
-			
-			if (_isLeaf)
-				return _mesh? findCollision(start, end, radii) : null;
-			
-			var startDist : Number = 	_partitionPlane.a*start.x +
-										_partitionPlane.b*start.y +
-										_partitionPlane.c*start.z +
-										_partitionPlane.d;	
-			var endDist : Number = 	_partitionPlane.a*end.x +
-									_partitionPlane.b*end.y +
-									_partitionPlane.c*end.z +
-									_partitionPlane.d;
-			var radX : Number = radii.x*_partitionPlane.a;
-			var radY : Number = radii.y*_partitionPlane.b;
-			var radZ : Number = radii.z*_partitionPlane.c;
-			var radius : Number = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
-			// movement is completely on one side of the node, recurse down that side
-			if (startDist >= radius && endDist >= radius) {
-				if (_positiveNode) face = _positiveNode.traceCollision(start, end, radii);
-				else return null;
-			}
-			else if (startDist < -radius && endDist < -radius) {
-				if (_negativeNode) face = _negativeNode.traceCollision(start, end, radii);
-				else return null;
-			}
-			else if (startDist < endDist) {
-				if (_negativeNode)
-					face = _negativeNode.traceCollision(start, end, radii);
-				if (!face && _positiveNode) 
-					face = _positiveNode.traceCollision(start, end, radii);
-			}
-			else {
-				if (_positiveNode)
-					face = _positiveNode.traceCollision(start, end, radii);
-				if (!face && _negativeNode) 
-					face = _negativeNode.traceCollision(start, end, radii);
-			}
-			return face;
-		}
-		
-/*
- * METHODS USED DURING RENDERING STEP
- */
-		/**
-		 * Moves a traverser through the nodes in the correct bsp order. orderNodes must be called before traversal
-		 * 
-		 * @private
-		 */
-		arcane function traverse(traverser:Traverser):void
-        {
-			if (_isLeaf) {
-				if (_mesh && traverser.match(_mesh))
-            	{
-	                traverser.enter(_mesh);
-	                traverser.apply(_mesh);
-	                traverser.leave(_mesh);
-            	}
-	        }
-	        else {
-	        	// depending on last camera check, traverse the tree correctly
-	        	if (_lastIterationPositive) {
-					if (_negativeNode && !_negativeNode._culled) _negativeNode.traverse(traverser);
-					if (_positiveNode && !_positiveNode._culled) _positiveNode.traverse(traverser);
-	        	}
-				else {
-					if (_positiveNode && !_positiveNode._culled) _positiveNode.traverse(traverser);
-					if (_negativeNode && !_negativeNode._culled) _negativeNode.traverse(traverser);
-				}
-	        }
-        }
-		
-		/**
-		 * Determines the traversal order of the nodes based on a position in the tree
-		 * 
-		 * @private
-		 */
-		arcane function orderNodes(point : Number3D) : void
-		{
-			if (_isLeaf) return;
-			_lastIterationPositive = (	_partitionPlane.a*point.x +
-										_partitionPlane.b*point.y +
-										_partitionPlane.c*point.z +
-										_partitionPlane.d ) > 0;
-								
-			if (_positiveNode && !(_positiveNode._culled || _positiveNode._isLeaf)) _positiveNode.orderNodes(point);
-			if (_negativeNode && !(_negativeNode._culled || _negativeNode._isLeaf)) _negativeNode.orderNodes(point);
-		}
-		
-		/**
-		 * Recursively checks if node's culled. If all are culled, so is the current node. Used to avoid future recursion.
-		 * TO DO: remove recursion, use bifurcate iteration algo
-		 * 
-		 * @private
-		 */ 
-		arcane function propagateCulled() : void
-		{
-			if (_isLeaf) return;
-			if (_positiveNode && !_positiveNode._isLeaf) _positiveNode.propagateCulled();
-			if (_negativeNode && !_negativeNode._isLeaf) _negativeNode.propagateCulled();
-			_culled = (!_positiveNode || _positiveNode._culled) && (!_negativeNode || _negativeNode._culled);
-		}
-		
-		/**
-		 * Checks the current node's bounding box against a camera frustum and culls it if necessary
-		 * 
-		 * @private
-		 */
-		arcane function cullToFrustum(frustum : Frustum) : void
-		{
-			var classification : int = frustum.classifyAABB(_bounds);
-			_culled = (classification == Frustum.OUT);
-			
-			if (_isLeaf) {
-				if (_mesh) _mesh._preCullClassification = classification;
-				return;
-			}
-			// nothing needs to be checked if whole bounding box completely inside
-			// or outside frustum
-			if (classification == Frustum.INTERSECT) {
-				// only check when child nodes haven't been culled by PVS
-				if (_positiveNode && !_positiveNode._culled) _positiveNode.cullToFrustum(frustum);
-				if (_negativeNode && !_negativeNode._culled) _negativeNode.cullToFrustum(frustum);
-				_culled = (!_positiveNode || _positiveNode._culled) && (!_negativeNode || _negativeNode._culled);
-			}
-		}
-		
- 
  /*
   * Methods used in construction or parsing
   */
@@ -435,6 +243,9 @@ package away3d.core.graphs
 			_bounds.push(new Number3D(_minX, _maxY, _maxZ));
 		}
  		
+ 		/**
+ 		 * Checks if a leaf is empty
+ 		 */
  		arcane function isEmpty() : Boolean
  		{
  			return _mesh.geometry.faces.length == 0;
@@ -467,6 +278,179 @@ package away3d.core.graphs
 			}
 		}
 		
+		
+//
+// COLLISION DETECTION
+//
+		/**
+		 * Finds the closest colliding Face between start and end position
+		 * 
+		 * @param start The starting position of the object (ie the object's current position)
+		 * @param end The position the object is trying to reach
+		 * @param radii The radii of the object's bounding eclipse
+		 * 
+		 * @return The closest Face colliding with the object. Null if no collision was found.
+		 */
+		public function traceCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
+		{
+			var face : Face;
+			
+			if (_isLeaf)
+				return _mesh? findCollision(start, end, radii) : null;
+			
+			var startDist : Number = 	_partitionPlane.a*start.x +
+										_partitionPlane.b*start.y +
+										_partitionPlane.c*start.z +
+										_partitionPlane.d;	
+			var endDist : Number = 	_partitionPlane.a*end.x +
+									_partitionPlane.b*end.y +
+									_partitionPlane.c*end.z +
+									_partitionPlane.d;
+			var radX : Number = radii.x*_partitionPlane.a;
+			var radY : Number = radii.y*_partitionPlane.b;
+			var radZ : Number = radii.z*_partitionPlane.c;
+			var radius : Number = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
+			// movement is completely on one side of the node, recurse down that side
+			if (startDist >= radius && endDist >= radius) {
+				if (_positiveNode) face = _positiveNode.traceCollision(start, end, radii);
+				else return null;
+			}
+			else if (startDist < -radius && endDist < -radius) {
+				if (_negativeNode) face = _negativeNode.traceCollision(start, end, radii);
+				else return null;
+			}
+			else if (startDist < endDist) {
+				if (_negativeNode)
+					face = _negativeNode.traceCollision(start, end, radii);
+				if (!face && _positiveNode) 
+					face = _positiveNode.traceCollision(start, end, radii);
+			}
+			else {
+				if (_positiveNode)
+					face = _positiveNode.traceCollision(start, end, radii);
+				if (!face && _negativeNode) 
+					face = _negativeNode.traceCollision(start, end, radii);
+			}
+			return face;
+		}
+		
+		/**
+		 * Finds a colliding face in a leaf.
+		 */
+		private function findCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
+		{
+			var faces : Array = _mesh.faces;
+			var face : Face;
+			var i : int = faces.length;
+			var startDist : Number, endDist : Number;
+			var plane : Plane3D;
+			var fraction : Number;
+			var radX : Number, radY : Number, radZ : Number;
+			var radius : Number;
+			// when nodes are convex, we could return first intersecting poly
+			// since we're supposed to be inside the leaf
+			while (face = Face(faces[--i])) {
+				plane = face.plane;
+				radX = radii.x*plane.a;
+				radY = radii.y*plane.b;
+				radZ = radii.z*plane.c;
+				radius = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
+				startDist = plane.a*start.x +
+							plane.b*start.y +
+							plane.c*start.z +
+							plane.d;
+				endDist = 	plane.a*end.x +
+							plane.b*end.y +
+							plane.c*end.z +
+							plane.d;
+							
+				// both points are far enough on the same side of the tri's plane
+				// so no intersection
+				if ((startDist >= radius && endDist >= radius) ||
+					(startDist < -radius && endDist < -radius))
+						continue;
+				
+				// calculate the fraction [0, 1] on the movement line
+				fraction = startDist/(startDist-endDist);
+				
+				// no need to check beyond the end position
+				if (fraction > 1) fraction = 1;
+				else if (fraction < 0) fraction = 0;
+				// the bounding sphere intersects with the plane
+				
+				_middle.x = start.x + fraction*(end.x-start.x);
+				_middle.y = start.y + fraction*(end.y-start.y);
+				_middle.z = start.z + fraction*(end.z-start.z);
+				
+				// check all edge planes of the triangle
+				// if sphere completely on negative side, no intersection and escape asap
+				// no inlining, so a lot of dry violations
+				plane = face._edgePlane01;
+				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
+					< -radius) continue;
+				
+				plane = face._edgePlane12;
+				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
+					< -radius) continue;
+				
+				plane = face._edgePlane20;
+				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
+					< -radius) continue;
+				
+				plane = face._edgePlaneN0;
+				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
+					< -radius) continue;
+				
+				plane = face._edgePlaneN1;
+				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
+					< -radius) continue;
+				
+				plane = face._edgePlaneN2;
+				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
+					< -radius) continue;
+				
+				return face;
+			}
+			
+			return null;
+		}
+
+
+//
+// BUILDING
+//
+		// used for building tree
+		// scores dictating the importance of triangle splits, tree balance and axis aligned splitting planes
+		arcane var _splitWeight : Number = 10;
+		arcane var _balanceWeight : Number = 1;
+		arcane var _nonXZWeight : Number = 1.5;
+		arcane var _nonYWeight : Number = 1.2;
+		
+		private var _bestPlane : Plane3D;
+		private var _bestScore : Number;
+		private var _positiveFaces : Vector.<NGon>;
+		private var _negativeFaces : Vector.<NGon>;
+		
+		// indicates whether contents is convex or not when creating solid leaf tree
+		private var _convex : Boolean;
+		// triangle planes used to create solid leaf tree
+		private var _solidPlanes : Vector.<Plane3D>;
+		
+		private var _planeCount : int;
+		
+		arcane var _maxTimeOut : int = 500;
+		
+		arcane var _newFaces : int;
+		arcane var _assignedFaces : int;
+		arcane var _buildFaces : Vector.<NGon>;
+		
+		arcane var _tempMesh : Mesh;
+		
+		arcane var _portals : Vector.<BSPPortal>;
+		arcane var _backPortals : Vector.<BSPPortal>;
+		
+		private static var _completeEvent : Event;
+		
 		/**
 		 * Builds the node hierarchy from the given faces
 		 * 
@@ -474,17 +458,19 @@ package away3d.core.graphs
 		 */
 		arcane function build(faces : Vector.<NGon> = null) : void
 		{
+			if (!_completeEvent) _completeEvent = new Event(Event.COMPLETE);
 			if (faces) _buildFaces = faces;
 			_bestScore = Number.POSITIVE_INFINITY;
 			if (_convex)
 				solidify(_buildFaces);
 			else
-				getBestScore(_buildFaces);
-				
-			// check if best score == 0, if so, best plane hands down
+				getBestPlane(_buildFaces);
 		}
 		
-		private function getBestScore(faces : Vector.<NGon>) : void
+		/**
+		 * Finds the best picking plane.
+		 */
+		private function getBestPlane(faces : Vector.<NGon>) : void
 		{
 			var face : NGon;
 			var len : int = faces.length;
@@ -507,10 +493,13 @@ package away3d.core.graphs
 				}
 			}
 			else {
-				setTimeout(getBestScore, 1, faces);
+				setTimeout(getBestPlane, 1, faces);
 			}
 		}
 		
+		/**
+		 * Finds all unique planes in a convex set of faces, used to turn the tree into a solid leaf tree (allows us to have empty or "solid" space)
+		 */
 		private function gatherConvexPlanes(faces : Vector.<NGon>) : Vector.<Plane3D>
 		{
 			var planes : Vector.<Plane3D> = new Vector.<Plane3D>();
@@ -536,6 +525,9 @@ package away3d.core.graphs
 			return planes;
 		}
 		
+		/**
+		 * Takes a set of convex faces and creates the solid leaf node
+		 */
 		private function solidify(faces : Vector.<NGon>) : void
 		{
 			if (!_solidPlanes.length) {
@@ -554,7 +546,10 @@ package away3d.core.graphs
 			}
 			completeNode();
 		}
-
+		
+		/**
+		 * Adds faces to the leaf mesh based on NGons
+		 */
 		private function addNGons(faces : Vector.<NGon>) : void
 		{
 			var len : int = faces.length;
@@ -664,8 +659,6 @@ package away3d.core.graphs
 			completeNode();
 		}
 		
-		private static const COMPLETE_EVENT : Event = new Event(Event.COMPLETE);
-		
 		/**
 		 * Cleans up temporary data and notifies parent of completion
 		 */
@@ -675,12 +668,15 @@ package away3d.core.graphs
 			_positiveFaces = null;
 			_buildFaces = null;
 			_solidPlanes = null;
-			dispatchEvent(COMPLETE_EVENT);
+			dispatchEvent(_completeEvent);
 		}
 		
-/*
- * Methods used to generate the PVS
- */
+	/*
+	 * Methods used to generate the PVS
+	 */
+	 	/**
+	 	 * Creates portals on this node's partition plane, connecting linking leaves on either side.
+	 	 */
  		arcane function generatePortals(rootNode : BSPNode) : Vector.<BSPPortal>
  		{
  			if (_isLeaf || _convex) return null;
@@ -712,6 +708,9 @@ package away3d.core.graphs
  			return finalPortals;
  		}
  		
+ 		/**
+	 	 * Splits a portal by this node's children, creating portals between leaves.
+	 	 */
  		arcane function splitPortalByChildren(portal : BSPPortal, side : int) : Vector.<BSPPortal>
  		{
  			var portals : Vector.<BSPPortal>;
@@ -766,8 +765,10 @@ package away3d.core.graphs
  			
  			return portals;
  		}
-
-		//private static var _mat : WireColorMaterial = new WireColorMaterial({color: 0xffffff, alpha: .5});
+		
+		/**
+	 	 * Assigns a portal to this leaf, looking in.
+	 	 */
 		arcane function assignPortal(portal : BSPPortal) : void
  		{
  			if (!_portals) _portals = new Vector.<BSPPortal>();
@@ -785,94 +786,56 @@ package away3d.core.graphs
 				_tempMesh.addFace(faces[j]);
  		}
  		
+ 		/**
+ 		 * Assigns a portal to this leaf, looking out.
+ 		 */
  		arcane function assignBackPortal(portal : BSPPortal) : void
 		{
 			if (!_backPortals) _backPortals = new Vector.<BSPPortal>();
 			_backPortals.push(portal);
 		}
-
-		/*
- * Methods used for colision detection
- */
+		
 		/**
-		 * Finds a colliding face in a leaf.
+		 * Takes a set of portals and applies the visibility information
 		 */
-		private function findCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
+		arcane function processVislist(portals : Vector.<BSPPortal>) : void
 		{
-			var faces : Array = _mesh.faces;
-			var face : Face;
-			var i : int = faces.length;
-			var startDist : Number, endDist : Number;
-			var plane : Plane3D;
-			var fraction : Number;
-			var radX : Number, radY : Number, radZ : Number;
-			var radius : Number;
-			// when nodes are convex, we could return first intersecting poly
-			// since we're supposed to be inside the leaf
-			while (face = Face(faces[--i])) {
-				plane = face.plane;
-				radX = radii.x*plane.a;
-				radY = radii.y*plane.b;
-				radZ = radii.z*plane.c;
-				radius = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
-				startDist = plane.a*start.x +
-							plane.b*start.y +
-							plane.c*start.z +
-							plane.d;
-				endDist = 	plane.a*end.x +
-							plane.b*end.y +
-							plane.c*end.z +
-							plane.d;
-							
-				// both points are far enough on the same side of the tri's plane
-				// so no intersection
-				if ((startDist >= radius && endDist >= radius) ||
-					(startDist < -radius && endDist < -radius))
-						continue;
-				
-				// calculate the fraction [0, 1] on the movement line
-				fraction = startDist/(startDist-endDist);
-				
-				// no need to check beyond the end position
-				if (fraction > 1) fraction = 1;
-				else if (fraction < 0) fraction = 0;
-				// the bounding sphere intersects with the plane
-				
-				_middle.x = start.x + fraction*(end.x-start.x);
-				_middle.y = start.y + fraction*(end.y-start.y);
-				_middle.z = start.z + fraction*(end.z-start.z);
-				
-				// check all edge planes of the triangle
-				// if sphere completely on negative side, no intersection and escape asap
-				// no inlining, so a lot of dry violations
-				plane = face._edgePlane01;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlane12;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlane20;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlaneN0;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlaneN1;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlaneN2;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				return face;
-			}
+			if (!_backPortals || !portals) return;
 			
-			return null;
+			var backLen : int = _backPortals.length;
+			var backPortal : BSPPortal;
+			var portalsLen : int = portals.length;
+			var portal : BSPPortal;
+			var visLen : int = 0;
+			
+			_visList = new Vector.<int>();
+			
+			for (var i : int = 0; i < backLen; ++i) {
+				backPortal = _backPortals[i];
+				// direct neighbours are always visible
+				if (_visList.indexOf(backPortal.frontNode.leafId) == -1)
+					_visList[visLen++] = backPortal.frontNode.leafId;
+					
+				for (var j : int = 0; j < portalsLen; ++j) {
+					portal = portals[j];
+					// if in vislist and not yet added
+					if (backPortal.isInList(backPortal.visList, portal.index) && (_visList.indexOf(portal.frontNode.leafId) == -1))
+						_visList[visLen++] = portals[j].frontNode.leafId;
+				}
+			}
+			_visList.sort(sortVisList);
+			
+			_portals = null;
+			_backPortals = null;
+		}	
+		
+		/**
+		 * Sort the vislist so it can be culled fast
+		 */
+		private function sortVisList(a : int, b : int) : Number
+		{
+			return a < b? -1 : (a == b? 0 : 1);
 		}
+		
 	}
 }
