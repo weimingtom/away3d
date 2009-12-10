@@ -30,7 +30,11 @@ package away3dlite.core.render
 		private function collectFaces(object:Object3D):void
 		{
 			if (!object.visible || object._perspCulling)
+			{
+				if (cullObjects)
+					numCulled++;
 				return;
+			}
 
 			_mouseEnabledArray.push(_mouseEnabled);
 			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
@@ -61,13 +65,7 @@ package away3dlite.core.render
 					collectFaces(child);
 				}
 			}
-
-			if (cullObjects && !object.visible)
-			{
-				numCulled++;
-				return;
-			}
-
+			
 			if (object is Mesh)
 			{
 				var mesh:Mesh = object as Mesh;

@@ -163,7 +163,7 @@ package away3dlite.core.base
 		/**
 		 * Global position in space, use for Frustum object culler 
 		 */		
-		public var projectPosition:Vector3D;
+		public var projectedPosition:Vector3D;
 		
 		/**
 		 * Transfrom status

@@ -50,13 +50,13 @@ package away3dlite.core.culler
 		{
 			if(object3D is Mesh)
 			{
-				var _position:Vector3D = object3D.projectPosition.clone();
+				var _position:Vector3D = object3D.projectedPosition.clone();
 				//_position.z = _position.z+object3D.screenZ;
 	
 				object3D.visible = (sphereInFrustum(_position, object3D.maxRadius) != 0);
 				
-				if(!object3D.visible)
-					trace(_position + " + " + object3D.maxRadius)
+				//if(!object3D.visible)
+				//	trace(_position + " + " + object3D.maxRadius)
 			}
 		}
 
@@ -67,7 +67,7 @@ package away3dlite.core.culler
 			// compute the Z axis of the camera referential
 			// this axis points in the same direction from 
 			// the looking direction
-			vZ = left.subtract(position);
+			vZ = left.subtract(cameraPosition);
 			vZ.normalize();
 
 			// X axis of camera with given "up" vector and Z axis
@@ -97,7 +97,8 @@ package away3dlite.core.culler
 
 		public function update():void
 		{
-			setCamInternals(_camera.angle, _camera.ratio, 0, 5000);
+			setCamInternals(_camera.angle, _camera.ratio, 0, 10000);
+			// TODO:replace left and up Vector3D
 			setCamDef(_camera.transform.matrix3D.position, new Vector3D(0, 0, 1), new Vector3D(0, 1, 0));
 		}
 
