@@ -89,7 +89,7 @@ package away3dlite.cameras
 		 */		
 		public function get ratio():Number
 		{
-			return _view.screenWidth/_view.screenHeight;
+			return 2*_view.screenWidth/_view.screenHeight;
 		}
 		
 		/**
@@ -97,7 +97,7 @@ package away3dlite.cameras
 		 */	
 		public function get angle():Number
 		{
-			return Math.atan2(_view.screenWidth/2, Math.abs(z));
+			return Math.atan2(_view.screenWidth, Math.abs(z));
 		}
 		
 		/**

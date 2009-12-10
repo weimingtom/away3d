@@ -73,8 +73,8 @@ package away3dlite.core.base
 				//DO NOT CHANGE vertices getter!!!!!!!
 				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
 				
-				projectPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
-				projectPosition = Utils3D.projectVector(_viewMatrix3D, projectPosition);
+				projectedPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
+				projectedPosition = Utils3D.projectVector(_viewMatrix3D, projectedPosition);
 				
 				if (_materialsDirty)
 					buildMaterials();
