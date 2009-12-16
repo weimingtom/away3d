@@ -75,8 +75,8 @@ package away3dlite.templates
 			onInit();
 		}
 		
-		private var stats:AwayStats;
-		private var debugText:TextField;
+		protected var stats:AwayStats;
+		protected var debugText:TextField;
 		private var _title:String;
 		private var _debug:Boolean;
 		
