@@ -30,6 +30,8 @@ package away3d.core.geom
 		private static var _newVerts : Vector.<Vertex>;
 		private static var _newUVs : Vector.<UV>;
 		
+		arcane var _isSplitter : Boolean;
+		
 		/**
 		 * Creates an NGon object
 		 */
@@ -303,6 +305,7 @@ package away3d.core.geom
 			c.material = material;
 			c.plane = new Plane3D(plane.a, plane.b, plane.c, plane.d);
 			c.plane._alignment = plane._alignment;
+			c._isSplitter = _isSplitter;
 			return c;
 		}
 		
@@ -336,8 +339,10 @@ package away3d.core.geom
 				_tempV.z = v2.z-v0.z;
 				_tempC.cross(_tempU, _tempV);
 				
-				if (_tempC.modulo2 > eps)
+				if (_tempC.modulo2 > eps) {
 					tris[++j] = new Face(v0, v1, v2, material, uv0, uv1, uv2);
+//					tris[j]._isSplitter = _isSplitter;
+				}
 			}
 			
 			return tris;
@@ -392,6 +397,9 @@ package away3d.core.geom
 			negNGon.material = posNGon.material = material;
 			posVerts = posNGon.vertices = new Vector.<Vertex>();
 			negVerts = negNGon.vertices = new Vector.<Vertex>();
+			
+			posNGon._isSplitter = _isSplitter;
+			negNGon._isSplitter = _isSplitter;
 			
 			if (uvs) {
 				posUV = posNGon.uvs = new Vector.<UV>();
