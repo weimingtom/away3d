@@ -187,19 +187,22 @@ package away3d.physics
 					diffY += 1;
 					_startPos.y += _maxClimbHeight;
 					_targetPos.y += _maxClimbHeight;
-					
+					_targetPos.x += _velocity.x*3;
+					_targetPos.z += _velocity.z*3;
 					if (_bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents)) {
 						_startPos.y -= _maxClimbHeight;
 						_targetPos.y -= _maxClimbHeight;
 					}
 					else {
 						//projectTargetDown();
-						_targetPos.x = _startPos.x;
-						_targetPos.z = _startPos.z;
+//						_targetPos.x = _startPos.x;
+//						_targetPos.z = _startPos.z;
 						climbed = true;
-						_onSolidGround = true;
+//						_onSolidGround = true;
 						collPlane = null;
 					}
+					_targetPos.x -= _velocity.x*3;
+					_targetPos.z -= _velocity.z*3;
 				}
 			}
 			
