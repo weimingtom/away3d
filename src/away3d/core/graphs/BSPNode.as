@@ -1,13 +1,11 @@
 package away3d.core.graphs
 {
-	import flash.utils.Dictionary;
+	import away3d.core.base.Vertex;
 	import away3d.core.base.Object3D;
-	import away3d.core.project.ProjectorType;
 	import away3d.materials.WireColorMaterial;
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
-	import away3d.core.geom.Frustum;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
 	import away3d.core.math.Number3D;
@@ -43,6 +41,8 @@ package away3d.core.graphs
 		arcane var _positiveNode : BSPNode;		// node on the positive side of the division plane
 		arcane var _negativeNode : BSPNode;		// node on the negative side of the division plane
 		
+//		arcane var _bevelPlanes : Vector.<Plane3D>;
+		
 		// leaf only
 		arcane var _mesh : Mesh;					// contains the model for this face
 		arcane var _visList : Vector.<int>;		// indices of leafs visible from this leaf
@@ -59,9 +59,6 @@ package away3d.core.graphs
 		arcane var _maxX: Number;
 		arcane var _maxY: Number;
 		arcane var _maxZ: Number;
-		
-		// used for collision detection
-		private var _middle : Number3D = new Number3D();
 		
 		arcane var _children : Array;
 
@@ -162,7 +159,6 @@ package away3d.core.graphs
 			
 			do {
 				face = faces[i];
-				face.generateEdgePlanes();
 				_mesh.addFace(face);
 			} while (++i < len);
 			
@@ -277,145 +273,173 @@ package away3d.core.graphs
 						_negativeNode.gatherLeaves(leaves);
 			}
 		}
-		
-		
+
 //
 // COLLISION DETECTION
 //
-		/**
-		 * Finds the closest colliding Face between start and end position
-		 * 
-		 * @param start The starting position of the object (ie the object's current position)
-		 * @param end The position the object is trying to reach
-		 * @param radii The radii of the object's bounding eclipse
-		 * 
-		 * @return The closest Face colliding with the object. Null if no collision was found.
-		 */
-		public function traceCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
-		{
-			var face : Face;
-			
-			if (_isLeaf)
-				return _mesh? findCollision(start, end, radii) : null;
-			
-			var startDist : Number = 	_partitionPlane.a*start.x +
-										_partitionPlane.b*start.y +
-										_partitionPlane.c*start.z +
-										_partitionPlane.d;	
-			var endDist : Number = 	_partitionPlane.a*end.x +
-									_partitionPlane.b*end.y +
-									_partitionPlane.c*end.z +
-									_partitionPlane.d;
-			var radX : Number = radii.x*_partitionPlane.a;
-			var radY : Number = radii.y*_partitionPlane.b;
-			var radZ : Number = radii.z*_partitionPlane.c;
-			var radius : Number = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
-			// movement is completely on one side of the node, recurse down that side
-			if (startDist >= radius && endDist >= radius) {
-				if (_positiveNode) face = _positiveNode.traceCollision(start, end, radii);
-				else return null;
-			}
-			else if (startDist < -radius && endDist < -radius) {
-				if (_negativeNode) face = _negativeNode.traceCollision(start, end, radii);
-				else return null;
-			}
-			else if (startDist < endDist) {
-				if (_negativeNode)
-					face = _negativeNode.traceCollision(start, end, radii);
-				if (!face && _positiveNode) 
-					face = _positiveNode.traceCollision(start, end, radii);
-			}
-			else {
-				if (_positiveNode)
-					face = _positiveNode.traceCollision(start, end, radii);
-				if (!face && _negativeNode) 
-					face = _negativeNode.traceCollision(start, end, radii);
-			}
-			return face;
-		}
+//		arcane static var _impact : Number3D;
+//		arcane static var _collisionPlane : Plane3D;
+//		
+//		public function traceCollision(startPos : Number3D, targetPos : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D, plane : Plane3D = null) : Boolean
+//		{
+//			var hit : Boolean;
+//			var startDist : Number;
+//			var endDist : Number;
+//			var align : int;
+//			var a : Number, b : Number, c : Number, d : Number; 
+//			var offset : Number = 0;
+//			var t : Number;
+//			var dirDot : Number;
+//			var dx : Number = targetPos.x - startPos.x;
+//			var dy : Number = targetPos.y - startPos.y;
+//			var dz : Number = targetPos.z - startPos.z;
+//			
+//			if (_isLeaf) return false;
+//			
+//			d = _partitionPlane.d;
+//			align = _partitionPlane._alignment;
+//			switch (align) {
+//				case Plane3D.X_AXIS:
+//					a = _partitionPlane.a;
+//					startDist = a*startPos.x + d;
+//					endDist = a*targetPos.x + d;
+//					dirDot = a*dx;
+//					if (testMethod == BSPTree.TEST_METHOD_AABB)
+//						offset = a > 0? a*halfExtents.x : -a*halfExtents.x;
+//					break;
+//				case Plane3D.Y_AXIS:
+//					b = _partitionPlane.a;
+//					startDist = b*startPos.y + d;
+//					endDist = b*targetPos.y + d;
+//					dirDot = b*dy;
+//					if (testMethod == BSPTree.TEST_METHOD_AABB)
+//						offset = b > 0? b*halfExtents.y : -b*halfExtents.y;
+//					break;
+//				case Plane3D.X_AXIS:
+//					c = _partitionPlane.c;
+//					startDist = c*startPos.z + d;
+//					endDist = c*targetPos.z + d;
+//					dirDot = c*dz;
+//					if (testMethod == BSPTree.TEST_METHOD_AABB)
+//						offset = c > 0? c*halfExtents.z : -c*halfExtents.z;
+//					break;
+//				default:
+//					a = _partitionPlane.a;
+//					b = _partitionPlane.b;
+//					c = _partitionPlane.c;
+//					startDist = a*startPos.x + b*startPos.y + c*startPos.z + d;
+//					endDist = a*targetPos.x + b*targetPos.y + c*targetPos.z + d;
+//					dirDot = a*dx + b*dy + c*dz;
+//					if (testMethod == BSPTree.TEST_METHOD_AABB)
+//						offset = 	(a > 0? a*halfExtents.x : -a*halfExtents.x) +
+//									(b > 0? b*halfExtents.y : -b*halfExtents.y) +
+//									(c > 0? c*halfExtents.z : -c*halfExtents.z);
+//					break;
+//			}
+//			
+//			if (startDist > offset && endDist > offset)
+//				return _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//			
+//			if (startDist < -offset && endDist < -offset)
+//				return _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//			
+//			if (dirDot == 0) {
+//				return startDist < 0 	? _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane)
+//										: _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//			}
+//			
+//			if (dirDot > 0) {
+//				// shift plane up, if segment is at least partly on negative side
+//				if (startDist < offset) {
+//					t = (offset-startDist)/dirDot;
+//									
+//					// is solid
+//					if (!_negativeNode) {
+//						// going out from solid node, should be allowed for easy fall-in
+//						_impact = startPos;
+//						_collisionPlane = plane;
+//						hit = true;
+//					}
+//					else {
+//						if (t < 1) {
+//							_middle.x = startPos.x + t*dx;
+//							_middle.y = startPos.y + t*dy;
+//							_middle.z = startPos.z + t*dz;
+//							hit = _negativeNode.traceCollision(startPos, _middle, dir, testMethod, halfExtents, _partitionPlane);
+//						}
+//						else
+//							hit = _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//					}
+//					
+//					if (hit) {
+//						targetPos = _impact;
+//						endDist = a*targetPos.x + b*targetPos.y + c*targetPos.z + d;
+//					}
+//				}
+//				
+//				// shift plane down
+//				if (endDist > -offset) {
+//					t = -(startDist+offset)/dirDot;
+//					
+//					if (t > 0) {
+//						_middle.x = startPos.x + t*dx;
+//						_middle.y = startPos.y + t*dy;
+//						_middle.z = startPos.z + t*dz;
+//					
+//						hit ||= _positiveNode.traceCollision(_middle, targetPos, dir, testMethod, halfExtents, _partitionPlane);
+//					}
+//					else
+//						hit ||= _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//				}
+//				
+//				return hit;
+//			}
+//			else {
+//				if (startDist > -offset) {
+//					t = -(startDist+offset)/dirDot;
+//									
+//					// is solid
+//					if (!_negativeNode) {
+//						_collisionPlane = plane;
+//						_impact = startPos;
+//						hit = true;
+//					}
+//					else {
+//						if (t < 1) {
+//							_middle.x = startPos.x + t*dx;
+//							_middle.y = startPos.y + t*dy;
+//							_middle.z = startPos.z + t*dz;
+//							hit = _negativeNode.traceCollision(startPos, _middle, dir, testMethod, halfExtents, _partitionPlane);
+//						}
+//						else
+//							hit = _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//					}
+//					
+//					if (hit) {
+//						targetPos = _impact;
+//						endDist = a*targetPos.x + b*targetPos.y + c*targetPos.z + d;
+//					}
+//				}
+//				
+//				// shift plane down
+//				if (endDist < offset) {
+//					t = (offset-startDist)/dirDot;
+//					if (t > 0) {
+//						_middle.x = startPos.x + t*dx;
+//						_middle.y = startPos.y + t*dy;
+//						_middle.z = startPos.z + t*dz;
+//						
+//						hit ||= _positiveNode.traceCollision(_middle, targetPos, dir, testMethod, halfExtents, _partitionPlane);
+//					}
+//					else
+//						hit ||= _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
+//				}
+//				
+//				return hit;
+//			}
+//		}
+
 		
-		/**
-		 * Finds a colliding face in a leaf.
-		 */
-		private function findCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
-		{
-			var faces : Array = _mesh.faces;
-			var face : Face;
-			var i : int = faces.length;
-			var startDist : Number, endDist : Number;
-			var plane : Plane3D;
-			var fraction : Number;
-			var radX : Number, radY : Number, radZ : Number;
-			var radius : Number;
-			// when nodes are convex, we could return first intersecting poly
-			// since we're supposed to be inside the leaf
-			while (face = Face(faces[--i])) {
-				plane = face.plane;
-				radX = radii.x*plane.a;
-				radY = radii.y*plane.b;
-				radZ = radii.z*plane.c;
-				radius = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
-				startDist = plane.a*start.x +
-							plane.b*start.y +
-							plane.c*start.z +
-							plane.d;
-				endDist = 	plane.a*end.x +
-							plane.b*end.y +
-							plane.c*end.z +
-							plane.d;
-							
-				// both points are far enough on the same side of the tri's plane
-				// so no intersection
-				if ((startDist >= radius && endDist >= radius) ||
-					(startDist < -radius && endDist < -radius))
-						continue;
-				
-				// calculate the fraction [0, 1] on the movement line
-				fraction = startDist/(startDist-endDist);
-				
-				// no need to check beyond the end position
-				if (fraction > 1) fraction = 1;
-				else if (fraction < 0) fraction = 0;
-				// the bounding sphere intersects with the plane
-				
-				_middle.x = start.x + fraction*(end.x-start.x);
-				_middle.y = start.y + fraction*(end.y-start.y);
-				_middle.z = start.z + fraction*(end.z-start.z);
-				
-				// check all edge planes of the triangle
-				// if sphere completely on negative side, no intersection and escape asap
-				// no inlining, so a lot of dry violations
-				plane = face._edgePlane01;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlane12;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlane20;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlaneN0;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlaneN1;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				plane = face._edgePlaneN2;
-				if (plane.a*_middle.x + plane.b*_middle.y + plane.c*_middle.z + plane.d
-					< -radius) continue;
-				
-				return face;
-			}
-			
-			return null;
-		}
-
-
 //
 // BUILDING
 //
@@ -478,6 +502,7 @@ package away3d.core.graphs
 			
 			do {
 				face = faces[_planeCount];
+				if (face._isSplitter) continue;
 				getPlaneScore(face.plane, faces);
 				if (_bestScore == 0) _planeCount = len;
 			} while (++_planeCount < len && getTimer()-startTime < _maxTimeOut);
@@ -511,17 +536,18 @@ package away3d.core.graphs
 			
 			while (--i >= 0) {
 				face = faces[i];
-				srcPlane = face.plane;
-				j = planes.length;
-				check = true;
-				// see if plane is already used as (convex) partition plane
-				while (--j >= 0 && check) {
-					if (face.isCoinciding(planes[j]))
-						check = false;
+				if (!face._isSplitter) {
+					srcPlane = face.plane;
+					j = planes.length;
+					check = true;
+					// see if plane is already used as (convex) partition plane
+					while (--j >= 0 && check) {
+						if (face.isCoinciding(planes[j]))
+							check = false;
+					}
+					if (check) planes.push(srcPlane);
 				}
-				if (check) planes.push(srcPlane);
 			}
-			
 			return planes;
 		}
 		
@@ -547,6 +573,110 @@ package away3d.core.graphs
 			completeNode();
 		}
 		
+		/*private function findBevelPlanes(partitionPlane : Plane3D) : void
+		{
+			var cx : Number, cy : Number, cz : Number;
+			var p1 : Number3D = new Number3D();
+			var nx : Number, ny : Number, nz : Number;
+			var i : int = _solidPlanes.length;
+			var plane : Plane3D;
+			var bevel : Plane3D = new Plane3D();
+			var normal : Number3D = new Number3D();
+			var a1 : Number, b1 : Number, c1 : Number, d1 : Number;
+			var a2 : Number, b2 : Number, c2 : Number, d2 : Number;
+			var ha : Number, hb : Number, hc : Number;
+			var bevelLen : int = -1;
+			
+			a1 = partitionPlane.a;
+			b1 = partitionPlane.b;
+			c1 = partitionPlane.c;
+			d1 = partitionPlane.d;
+			
+			while (--i >= 0) {
+				plane = _solidPlanes[i];
+				a2 = plane.a;
+				b2 = plane.b;
+				c2 = plane.c;
+				d2 = plane.d;
+				if (a1*a2 + b1*b2 + c1*c2 < 0) {
+					cx = b1 * c2 - c1 * b2;
+        			cy = c1 * a2 - a1 * c2;
+        			cz = a1 * b2 - b1 * a2;
+        			
+        			if (cz != 0) {
+        				p1.y = (a2*d1-a1*d2)/cz;
+        				p1.x = -(b1*p1.y + d1)/a1;
+        				p1.z = 0;
+        			}
+        			else if (cx != 0) {
+        				p1.x = 0;
+        				p1.z = (b2*d1-b1*d2)/cx;
+        				p1.y = -(c1*p1.z+c1)/b1;
+        			}
+        			else if (cy != 0) {
+        				 p1.z = -(a2*d1-a1*d2)/cy;
+        				 p1.x = -(c1*p1.z)/a1;
+        				 p1.y = 0;
+        			}
+        			
+        			nx = cx;
+        			ny = cy;
+        			nz = cz;
+        			
+        			// half vector between two plane normals
+        			ha = a1+a2;
+        			hb = b1+b2;
+        			hc = c1+c2;
+        			
+        			// perpendicular to half vector and direction line
+        			normal.x = ny * hc - nz * hb;
+        			normal.y = nz * ha - nx * hc;
+        			normal.z = nx * hb - ny * ha;
+        			normal.normalize();
+        			
+        			bevel.fromNormalAndPoint(normal, p1);
+        			// need to check if plane is pointing in the correct direction
+        			var dist : Number;
+        			var j : int = _buildFaces.length;
+        			var k : int;
+        			var face : NGon;
+        			var vert : Vertex;
+        			var found : Boolean;
+        			var conflict : Boolean;
+        			
+					do {
+						face = _buildFaces[--j];
+						k = face.vertices.length;
+						while (--k >= 0 && !found) {
+							vert = face.vertices[k];
+							dist = bevel.a*vert._x + bevel.b*vert._y + bevel.c*vert._z + bevel.d;
+							if (dist > BSPTree.EPSILON)
+								found = true;
+							else if (dist < -BSPTree.EPSILON) {
+								// point found on front side, now one on back side
+								if (found) {
+									conflict = true;
+									found = false;
+								}
+								else {
+									bevel.a = -bevel.a;
+									bevel.b = -bevel.b;
+									bevel.c = -bevel.c;
+									bevel.d = -bevel.d;
+									found = true;
+								}
+							}
+						}
+        			} while (!conflict && j > 0);
+        			
+        			if (found) {
+						if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>;
+						_bevelPlanes[++bevelLen] = bevel;
+					}
+				}
+			}
+		}*/
+
 		/**
 		 * Adds faces to the leaf mesh based on NGons
 		 */
@@ -633,10 +763,14 @@ package away3d.core.graphs
 				
 				if (classification == -2) { 
 					plane = face.plane;
-					if (bestPlane.a * plane.a + bestPlane.b * plane.b + bestPlane.c * plane.c > 0)
+					
+					if (bestPlane.a * plane.a + bestPlane.b * plane.b + bestPlane.c * plane.c > 0) {
 						_positiveFaces.push(face);
-					else
+						face._isSplitter = true;
+					}
+					else {
 						_negativeFaces.push(face);
+					}
 				}
 				else if (classification == Plane3D.FRONT)
 					_positiveFaces.push(face);

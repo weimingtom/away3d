@@ -34,7 +34,11 @@ package away3d.core.graphs
 	 */
 	public class BSPTree extends ObjectContainer3D
 	{
-		public static var EPSILON : Number = 0.07;
+		public static const TEST_METHOD_POINT : int = 0;
+		public static const TEST_METHOD_AABB : int = 1;
+		public static const TEST_METHOD_ELLIPSOID : int = 2;
+		public static const EPSILON : Number = 0.07;
+		public static const COLLISION_EPSILON : Number = 0.1;
 		
 		// the root node in the tree
 		arcane var _rootNode : BSPNode;
@@ -68,6 +72,14 @@ package away3d.core.graphs
 			_preCulled = true;
 			_rootNode = new BSPNode(null);
 			_rootNode._maxTimeOut = maxTimeout;
+		}
+		
+		/**
+		 * The leaf containing the camera. Returns null if the camera is in "solid" space.
+		 */
+		public function get activeLeaf() : BSPNode
+		{
+			return _activeLeaf;
 		}
 
 		/**
@@ -239,7 +251,8 @@ package away3d.core.graphs
         	do {
         		if (changed) {
         			isLeaf = loopNode._isLeaf;
-					if (isLeaf) {
+        			
+        			if (isLeaf) {
 						mesh = loopNode._mesh;
 						dictionary[mesh] = frustum;
 						
@@ -431,7 +444,7 @@ package away3d.core.graphs
 					classification = frustum.classifyAABB(loopNode._bounds);
 					loopNode._culled = (classification == Frustum.OUT);
 					
-					if (loopNode._isLeaf) {
+        			if (loopNode._isLeaf) {
 						loopNode._mesh._preCullClassification = classification;
 //						if (!classification) loopNode._mesh.updateObject();
 						_state = TRAVERSE_POST;
@@ -502,6 +515,8 @@ package away3d.core.graphs
 			_complete = true;
        	}
        	
+       	private var _collisionDir : Number3D = new Number3D();
+       	
        	/**
 		 * Finds the closest colliding Face between start and end position
 		 * 
@@ -511,12 +526,170 @@ package away3d.core.graphs
 		 * 
 		 * @return The closest Face colliding with the object. Null if no collision was found.
 		 */
-        public function traceCollision(start : Number3D, end : Number3D, radii : Number3D) : Face
+        public function traceCollision(start : Number3D, end : Number3D, testMethod : int = TEST_METHOD_POINT, halfExtents : Number3D = null) : Plane3D
         {
-        	return _rootNode.traceCollision(start, end, radii);
+        	_collisionDir.x = end.x-start.x;
+			_collisionDir.y = end.y-start.y;
+			_collisionDir.z = end.z-start.z;
+        	
+        	if (testMethod == TEST_METHOD_POINT) {
+        		return findCollision(start, _collisionDir, testMethod);
+        	}
+        	else {
+	       		return findCollision(start, _collisionDir, testMethod, halfExtents);
+        	}
         }
         
-       	
+        private var _planeStack : Vector.<Plane3D> = new Vector.<Plane3D>();
+        private var _tMaxStack : Vector.<Number> = new Vector.<Number>();
+        private var _tMinStack : Vector.<Number> = new Vector.<Number>();
+        private var _nodeStack : Vector.<BSPNode> = new Vector.<BSPNode>();
+        
+ 		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null) : Plane3D
+        {
+        	var plane : Plane3D;
+        	var node : BSPNode = _rootNode;
+        	var dirDot : Number;
+        	var dist : Number;
+        	var t : Number;
+        	var align : int;
+        	var a : Number, b : Number, c : Number, d : Number;
+        	var first : BSPNode, second : BSPNode;
+        	var tMax : Number = 1, tMin : Number = 0;
+        	var stackLen : int;
+        	var splitPlane : Plane3D;
+        	var offset : Number = 0;
+        	var ox : Number, oy : Number, oz : Number;
+        	var queue : Boolean;
+        	var oldMax : Number;
+        	
+        	_planeStack.length = 0;
+			_tMaxStack.length = 0;
+			_nodeStack.length = 0;
+        	
+        	while (true) {
+        		// in a solid leaf, collision
+				if (!node)
+					return splitPlane;
+				
+        		// "empty" leaf
+        		if (!node || node._isLeaf) {
+        			if (stackLen == 0) return null;
+					--stackLen;
+					node = _nodeStack[stackLen];
+					tMin = _tMinStack[stackLen];
+					tMax = _tMaxStack[stackLen];
+					splitPlane = _planeStack[stackLen];
+				}
+				else {
+					plane = node._partitionPlane;
+	        		align = plane._alignment;
+					d = plane.d;
+	        		if (align == Plane3D.X_AXIS) {
+						a = plane.a;
+						dirDot = a*dir.x;
+						dist = a*start.x + d;
+						if (testMethod != TEST_METHOD_POINT)
+							offset = halfExtents.x;
+					}
+					else if (align == Plane3D.Y_AXIS) {
+						b = plane.b;
+						dirDot = b*dir.y;
+						dist = b*start.y + d;
+						if (testMethod != TEST_METHOD_POINT)
+							offset = halfExtents.y;
+					}
+					else if (align == Plane3D.Z_AXIS) {
+						c = plane.c;
+						dirDot = c*dir.z;
+						dist = c*start.z + d;
+						if (testMethod != TEST_METHOD_POINT)
+							offset = halfExtents.z;
+					}
+					else {
+						a = plane.a;
+						b = plane.b;
+						c = plane.c;
+						dirDot = a*dir.x + b*dir.y + c*dir.z;
+						dist = a*start.x + b*start.y + c*start.z + d;
+						if (testMethod == TEST_METHOD_AABB)
+							offset = 	(a > 0? a*halfExtents.x : -a*halfExtents.x) +
+										(b > 0? b*halfExtents.y : -b*halfExtents.y) +
+										(c > 0? c*halfExtents.z : -c*halfExtents.z);
+						else if (testMethod == TEST_METHOD_ELLIPSOID) {
+							ox = a*halfExtents.x;
+							oy = b*halfExtents.y;
+							oz = c*halfExtents.z;
+							offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
+						}
+					}
+					dist -= offset;
+					// there has to be a way to use offset/dirDot to use bounds
+					if (dirDot != 0) {
+						if (dirDot < 0) {
+							first = node._positiveNode;
+							second = node._negativeNode;
+						}
+						else {
+							first = node._negativeNode;
+							second= node._positiveNode;
+						}
+						// plane is between start point and segment end
+						t = -dist/dirDot;
+						
+						if (testMethod != BSPTree.TEST_METHOD_POINT)
+							offset /= dirDot > 0 ? dirDot : -dirDot;
+						
+						oldMax = tMax;
+						
+						// shift plane up
+						if (t >= tMin) {
+							if (t < tMax) tMax = t;
+							queue = true;
+						}
+						else queue = false;
+						
+						// shift plane down
+						if (t <= oldMax) {
+							if (queue) {
+								// splitting segment
+								_nodeStack[stackLen] = second;
+								_tMinStack[stackLen] = t > tMin ? t : tMin;
+								_tMaxStack[stackLen] = oldMax;
+								_planeStack[stackLen] = plane;
+								++stackLen;
+							}
+							else {
+								first = second;
+							}
+						}
+						node = first;
+					}
+					else {
+						if (dist > offset) node = node._positiveNode;
+						else if (dist < -offset) node = node._negativeNode;
+						else if (dist < 0){
+							_nodeStack[stackLen] = node._positiveNode;
+							_tMinStack[stackLen] = tMin;
+							_tMaxStack[stackLen] = tMax;
+							_planeStack[stackLen] = plane;
+							node = node._negativeNode;
+						}
+						else {
+							_nodeStack[stackLen] = node._negativeNode;
+							_tMinStack[stackLen] = tMin;
+							_tMaxStack[stackLen] = tMax;
+							_planeStack[stackLen] = plane;
+							node = node._positiveNode;
+						}
+					}
+					
+				}
+			}
+        	
+        	return plane;
+		}
+
 /**
  * BUILDING
  */

@@ -153,12 +153,14 @@ package away3d.core.geom
 		 */
 		public function classifyPoint(p:Number3D):int
 		{
+			// check NaN
+			if (!(d <= 0 || d > 0)) return Plane3D.FRONT;
+			
 			var len:Number = a*p.x + b*p.y + c*p.z + d;
-            if((len > -BSPTree.EPSILON) && (len < BSPTree.EPSILON)) 
-            	return Plane3D.INTERSECT;
-            else if(len < 0)
+            
+            if(len < -BSPTree.EPSILON)
             	return Plane3D.BACK;
-            else if(len > 0)
+            else if(len > BSPTree.EPSILON)
             	return Plane3D.FRONT;
             else 
             	return Plane3D.INTERSECT;

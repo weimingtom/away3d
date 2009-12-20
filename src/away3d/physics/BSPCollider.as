@@ -1,5 +1,7 @@
 package away3d.physics
 {
+	import away3d.core.math.MatrixAway3D;
+	import away3d.cameras.Camera3D;
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
@@ -18,12 +20,9 @@ package away3d.physics
 	 */
 	public class BSPCollider
 	{
-		private static const MAX_ITERATIONS : int = 5;
-		private static const EPSILON : Number = 1/32;
-		
-		private var _radii : Number3D;
-		private var _boundOffset : Number3D;
-		private var _maxClimbHeight : Number = 5;
+		private var _minBounds : Number3D;
+		private var _maxBounds : Number3D;
+		private var _maxClimbHeight : Number = 10;
 		
 		private var _object : Object3D;
 		private var _bspTree : BSPTree;
@@ -31,17 +30,13 @@ package away3d.physics
 		private var _velocity : Number3D = new Number3D();
 		
 		private var _startPos : Number3D = new Number3D();
-		private var _targetPosition : Number3D = new Number3D();
+		private var _targetPos : Number3D = new Number3D();
+		private var _flyMode : Boolean = true;
+		private var _maxIterations : Number = 5;
+		private var _onSolidGround : Boolean;
 		
-		private var _gravity : Number = 6;
-		private var _friction : Number = 0.5;
-		
-		private var _time : Number = -1;
-		
-		private var _force : Number3D = new Number3D();
-		
-		private var _maxVelocity : Number = 30;
-		
+		private var _method : int = BSPTree.TEST_METHOD_AABB;
+
 		/**
 		 * Creates a BSPCollider object.
 		 * 
@@ -50,199 +45,304 @@ package away3d.physics
 		 */
 		public function BSPCollider(object : Object3D, bspTree : BSPTree)
 		{
-			_radii = new Number3D();
-			_boundOffset = new Number3D();
 			if (object is Mesh) {
-				_radii.x = Math.abs(object.maxX-object.minX)*.5;
-				_radii.y = Math.abs(object.maxY-object.minY)*.5;
-				_radii.z = Math.abs(object.maxZ-object.minZ)*.5;
-				// dunno if correct, needs check
-				_boundOffset.x = _radii.x+object.minX;
-				_boundOffset.y = _radii.y+object.minY;
-				_boundOffset.z = _radii.z+object.minZ;
+				_minBounds = new Number3D(object.minX, object.minY, object.minZ);
+				_maxBounds = new Number3D(object.maxX, object.maxY, object.maxZ);
 			}
 			else {
-				_radii.x = 5;
-				_radii.y = 40;
-				_radii.z = 5;
-				_boundOffset.x = 0;
-				_boundOffset.y = 35;
-				_boundOffset.z = 0;
+				_minBounds = new Number3D(-100, -100, -100);
+				_maxBounds = new Number3D(100, 100, 100);
 			}
 			_object = object;
 			_bspTree = bspTree;
 		}
 		
 		/**
-		 * The maximum velocity the object can have
+		 * The maximum height difference allowed to bridge when a collision is found, used for steps etc. Only used when calling move with flyMode set to true.
 		 */
-		public function get maxVelocity() : Number
+		public function get maxClimbHeight() : Number
 		{
-			return _maxVelocity;
+			return _maxClimbHeight;
 		}
 		
-		public function set maxVelocity(value : Number) : void
+		public function set maxClimbHeight(maxClimbHeight : Number) : void
 		{
-			_maxVelocity = value;
+			_maxClimbHeight = maxClimbHeight;
 		}
 		
-		/**
-		 * The amount of gravity which will pull down the target object.
-		 */
-		public function get gravity() : Number
+		public function get flyMode() : Boolean
 		{
-			return _gravity;
+			return _flyMode;
 		}
 		
-		public function set gravity(value : Number) : void
+		public function set flyMode(flyMode : Boolean) : void
 		{
-			_gravity = value;
+			_flyMode = flyMode;
+			_onSolidGround &&= !flyMode;
 		}
 		
-		/**
-		 * The amount of friction acting upon the object. This will decelerate the
-		 * object. A value between 0 and 1.
-		 */
-		public function get friction() : Number
+		public function get maxIterations() : Number
 		{
-			return _friction;
+			return _maxIterations;
 		}
 		
-		public function set friction(value : Number) : void
+		public function set maxIterations(maxIterations : Number) : void
 		{
-			if (value > 1) value = 1;
-			else if (value < 0) value = 0;
-			_friction = value;
+			_maxIterations = maxIterations;
 		}
 		
-		/**
-		 * The offset of the bounding ellipse.
-		 */
-		public function get boundOffset() : Number3D
+		public function move(x : Number, y : Number, z : Number) : Number3D
 		{
-			return _boundOffset;
-		}
-		
-		public function set boundOffset(value : Number3D) : void
-		{
-			_boundOffset = value;
-		}
-		
-		/**
-		 * The radii of the bounding ellipse of the object
-		 */
-		public function get boundRadii() : Number3D
-		{
-			return _radii;
-		}
-		
-		public function set boundRadii(value : Number3D) : void
-		{
-			_radii = value;
-		}
-		
-		/**
-		 * Accelerates the object along an axis. The y-coordinate is in world space, the x and z coordinates are local to the object.
-		 */
-		public function move(x : Number, y : Number, z : Number) : void
-		{
-			_force.x += x;
-			_force.y += y;
-			_force.z += z;
-		}
-		
-		/**
-		 * Updates the object's position based on the velocity and found collisions.
-		 */
-		public function update() : void
-		{
-			var it : int;
-			var frameTime : Number = 1;
-			var fy : Number = _force.y;
-			_object.transform.multiplyVector3x3(_force);
-			
-			_velocity.x += _force.x;
-			_velocity.y += fy-_gravity;
-			_velocity.z += _force.z;
-			
-			// maximum velocity in xz-plane
-			var len : Number = Math.sqrt(_velocity.x*_velocity.x+_velocity.z*_velocity.z);
-			if (len > _maxVelocity) {
-				len = _maxVelocity/len;
-				_velocity.x *= len;
-				_velocity.z *= len;
-			}
-			
-			// TO DO: convert to bsp local coords
-			_startPos.x = _object.position.x - _boundOffset.x;
-			_startPos.y = _object.position.y - _boundOffset.y;
-			_startPos.z = _object.position.z - _boundOffset.z;
-			
-			_velocity.x *= _friction;
-			_velocity.z *= _friction;
-			
-			_targetPosition.x = _startPos.x + _velocity.x*frameTime;
-			_targetPosition.y = _startPos.y + _velocity.y*frameTime;
-			_targetPosition.z = _startPos.z + _velocity.z*frameTime;
-			
-			var collFace : Face;
-			
-			// until we find a position that is valid, keep checking where to "slide" the object
-			do {
-				collFace = _bspTree.traceCollision(_startPos, _targetPosition, _radii);
-				
-				if (collFace) {
-					var plane : Plane3D = collFace._plane;
-					var radX : Number = _radii.x*plane.a;
-					var radY : Number = _radii.y*plane.b;
-					var radZ : Number = _radii.z*plane.c;
-					var radius : Number = Math.sqrt(radX*radX + radY*radY + radZ*radZ);
-					// distance between collision plane and bounding ellipsoid
-					// including some epsilon padding
-					var dist : Number = EPSILON + radius -
-										(	_targetPosition.x*plane.a + 
-											_targetPosition.y*plane.b +
-											_targetPosition.z*plane.c +
-											plane.d);
-					
-					_targetPosition.x += plane.a*dist;
-					_targetPosition.y += plane.b*dist;
-					_targetPosition.z += plane.c*dist;
-					
-					++it;
-				}
-			} while (collFace && it < MAX_ITERATIONS);
-			
-			// update velocity due to collision
-			if (it > 0) {
-				_velocity.x = (_targetPosition.x-_startPos.x)/frameTime;
-				// this shouldn't be set to 0 or will stop falling?
-				_velocity.y = 0;
-				_velocity.z = (_targetPosition.z-_startPos.z)/frameTime;
-			}
-			
-			// check if we need to climb up a bit
-			if (collFace && it == MAX_ITERATIONS) {
-				_targetPosition.y += _maxClimbHeight;
-				collFace = _bspTree.traceCollision(_startPos, _targetPosition, _radii);
-			}
-			
-			// if still not allowed to move
-			if (collFace && it == MAX_ITERATIONS) {
-				// still colliding after maximum iterations
-				// illegal move & stop
-				_velocity.x = 0;
-				_velocity.y = 0;
-				_velocity.z = 0;
+			var newVelocity : Number3D;
+			if (flyMode || _maxClimbHeight == 0 || y >= 0) {
+				newVelocity = moveBy(x, y, z);
 			}
 			else {
-				// object allowed to move
-				_object.x = _targetPosition.x + _boundOffset.x;
-				_object.y = _targetPosition.y + _boundOffset.y;
-				_object.z = _targetPosition.z + _boundOffset.z;
+				// in two steps to allow climbing stairs
+				newVelocity = moveBy(x, 0, z);
+				
+				// do not apply downward force if we're already on solid ground
+//				if (!_onSolidGround) {
+					newVelocity.y = moveBy(0, y, 0).y;
+					if (_onSolidGround) newVelocity.y = 0;
+//				}
+//				else
+//					newVelocity.y = 0;
 			}
+				
+			return newVelocity;
+		}
+		
+		private var _halfExtents : Number3D = new Number3D();
+		private var _collisionStart : Number3D = new Number3D();
+		
+		/**
+		 * Moves the object to a target point. If a collision is found, the trajectory is adapted.
+		 * 
+		 * @return Whether or not a collision occured.
+		 */		
+		private function moveBy(x : Number, y : Number, z : Number) : Number3D
+		{
+			var directChild : Boolean;
+			var it : int;
+			var collPlane : Plane3D;
+			var BSPTransform : MatrixAway3D = _bspTree.sceneTransform;
+			var inverseBSPTransform : MatrixAway3D = _bspTree.inverseSceneTransform;
+			var diffY : Number;
+			var newForce : Number3D = new Number3D();
+			var climbed : Boolean;
+			
+			if (x == 0 && y == 0 && z == 0) return newForce;
+			
+			directChild = _object.parent == _object.scene || _object is Camera3D;
+			
+			if (directChild) {
+				_startPos.x = _object.x;
+				_startPos.y = _object.y;
+				_startPos.z = _object.z;
+			}
+			else
+				_startPos.clone(_object.scenePosition);
+			
+			// convert positions to bsp space
+			if (_flyMode) {
+				// work in local space
+				_targetPos.x = x;
+				_targetPos.y = y;
+				_targetPos.z = z;
+				
+				// transform to world space
+				_targetPos.transform(_targetPos, _object.sceneTransform);
+			}
+			else {
+				// work in world space
+				_velocity.x = x;
+				_velocity.y = 0;
+				_velocity.z = z;
+				_object.sceneTransform.multiplyVector3x3(_velocity);
+				
+				_targetPos.x = _startPos.x + _velocity.x;
+				_targetPos.y = _startPos.y + y;
+				_targetPos.z = _startPos.z + _velocity.z;
+			}
+			
+			// transform to bsp local space
+			_startPos.transform(_startPos, inverseBSPTransform);
+			_targetPos.transform(_targetPos, inverseBSPTransform);
+			
+			updateBounds();
+			
+			// local velocity information
+			_velocity.x = _targetPos.x - _startPos.x;
+			_velocity.y = _targetPos.y - _startPos.y;
+			_velocity.z = _targetPos.z - _startPos.z;
+			
+			collPlane = _bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents);
+			
+			if (_onSolidGround && collPlane && !_flyMode && y == 0 && _maxClimbHeight > 0) {
+				var ny : Number = collPlane.b;
+				if (ny < 0) ny = -ny;
+				
+				if (ny < .2) {
+					diffY += 1;
+					_startPos.y += _maxClimbHeight;
+					_targetPos.y += _maxClimbHeight;
 					
-			_force.x = _force.y = _force.z = 0;
+					if (_bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents)) {
+						_startPos.y -= _maxClimbHeight;
+						_targetPos.y -= _maxClimbHeight;
+					}
+					else {
+						//projectTargetDown();
+						_targetPos.x = _startPos.x;
+						_targetPos.z = _startPos.z;
+						climbed = true;
+						_onSolidGround = true;
+						collPlane = null;
+					}
+				}
+			}
+			
+			// until we find a position that is valid, keep checking where to "slide" the object
+			while (collPlane && it < _maxIterations) {
+				// check if x or z are changed, if so, see if we can climb up
+				slideTarget(collPlane);
+				
+				++it;
+				if (collPlane) collPlane = _bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents);
+			}
+			
+			if (!_flyMode && !climbed) {
+				diffY = _targetPos.y - _startPos.y - _velocity.y;
+				// if no vertical difference between intended movement and blocked movement, it means we're free-falling and cannot climb up
+				diffY = _targetPos.y - _startPos.y - y;
+				if (diffY < 0) diffY = -diffY;
+				_onSolidGround = diffY > 0.1;
+			}
+			
+			// object allowed to move
+			if (!collPlane) {
+				resetBounds();
+				// transform to world space
+				_targetPos.transform(_targetPos, BSPTransform);
+				
+				if (!directChild)
+					_targetPos.transform(_targetPos, _object.parent.inverseSceneTransform);
+				
+				newForce.x = _targetPos.x-_object.x;
+				newForce.y = _targetPos.y-_object.y;
+//				if (newForce.y - y > 0) newForce.y = 0;
+				newForce.z = _targetPos.z-_object.z;
+				_object.x = _targetPos.x;
+				_object.y = _targetPos.y;
+				_object.z = _targetPos.z;
+			}
+			else {
+				newForce.x = 0;
+				newForce.y = 0;
+				newForce.z = 0;
+			}
+			
+			return newForce;
+		}
+		
+		private var _offsetX : Number = 0;
+		private var _offsetY : Number = 0;
+		private var _offsetZ : Number = 0;
+		
+		private function updateBounds() : void
+		{
+			if (_method == BSPTree.TEST_METHOD_POINT) {
+				_halfExtents.x = 0;
+				_halfExtents.y = 0;
+				_halfExtents.z = 0;
+				return;
+			}
+			
+			_halfExtents.x = (_maxBounds.x - _minBounds.x)*.5;
+			_halfExtents.y = (_maxBounds.y - _minBounds.y)*.5;
+			_halfExtents.z = (_maxBounds.z - _minBounds.z)*.5;
+			_offsetX = _maxBounds.x - _halfExtents.x;
+			_offsetY = _maxBounds.y - _halfExtents.y;
+			_offsetZ = _maxBounds.z - _halfExtents.z;
+			_startPos.x += _offsetX;
+			_startPos.y += _offsetY;
+			_startPos.z += _offsetZ;
+			_targetPos.x += _offsetX;
+			_targetPos.y += _offsetY;
+			_targetPos.z += _offsetZ;
+		}
+		
+		private function resetBounds() : void
+		{
+			if (_method == BSPTree.TEST_METHOD_POINT) return;
+			_targetPos.x -= _offsetX;
+			_targetPos.y -= _offsetY;
+			_targetPos.z -= _offsetZ;
+		}
+
+		private function slideTarget(plane : Plane3D) : void
+		{
+			var dist : Number;
+			var a : Number = plane.a,
+				b : Number = plane.b,
+				c : Number = plane.c,
+				d : Number = plane.d;
+			var offset : Number = 0;
+			var ox : Number, oy : Number, oz : Number;
+			
+			if (testMethod == BSPTree.TEST_METHOD_AABB)
+							offset = 	(a > 0? a*_halfExtents.x : -a*_halfExtents.x) +
+										(b > 0? b*_halfExtents.y : -b*_halfExtents.y) +
+										(c > 0? c*_halfExtents.z : -c*_halfExtents.z);
+			else if (testMethod == BSPTree.TEST_METHOD_ELLIPSOID) {
+				ox = a*_halfExtents.x;
+				oy = b*_halfExtents.y;
+				oz = c*_halfExtents.z;
+				offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
+			}
+			
+			// is this correct? it should be :| It projects targetPos onto the plane causing the slide and offsets it with the bound
+			dist = offset + 0.5 - a * _targetPos.x - b*_targetPos.y - c*_targetPos.z - d;
+			
+			_targetPos.x += a*dist;
+			_targetPos.y += b*dist;
+			_targetPos.z += c*dist;
+		}
+
+		public function get minBounds() : Number3D
+		{
+			return _minBounds;
+		}
+		
+		public function set minBounds(minBounds : Number3D) : void
+		{
+			_minBounds = minBounds;
+		}
+		
+		public function get maxBounds() : Number3D
+		{
+			return _maxBounds;
+		}
+		
+		public function set maxBounds(maxBounds : Number3D) : void
+		{
+			_maxBounds = maxBounds;
+		}
+		
+		public function get onSolidGround() : Boolean
+		{
+			return _onSolidGround;
+		}
+		
+		public function get testMethod() : int
+		{
+			return _method;
+		}
+		
+		public function set testMethod(method : int) : void
+		{
+			_method = method;
 		}
 	}
 }
