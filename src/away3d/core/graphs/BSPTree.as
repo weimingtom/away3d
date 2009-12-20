@@ -54,7 +54,7 @@ package away3d.core.graphs
 		
 		// debug vars, temporary
 		public var freezeCulling : Boolean;
-		public var showPortals : Boolean;
+//		public var showPortals : Boolean;
 		
 		// used for correct rendering and pre-culling
 		private var _cameraVarsStore : CameraVarsStore;
@@ -271,11 +271,11 @@ package away3d.core.graphs
 						}
 	            		
 	            		// temp
-						if (	showPortals && loopNode &&
-	       						loopNode._tempMesh && 
-	       						loopNode._tempMesh.extra && 
-	       						loopNode._tempMesh.extra.created
-	       					) loopNode._tempMesh.traverse(traverser);
+//						if (	showPortals && loopNode &&
+//	       						loopNode._tempMesh && 
+//	       						loopNode._tempMesh.extra && 
+//	       						loopNode._tempMesh.extra.created
+//	       					) loopNode._tempMesh.traverse(traverser);
 	            		_state = TRAVERSE_POST;
 					}
 					else {
@@ -562,15 +562,21 @@ package away3d.core.graphs
         	var ox : Number, oy : Number, oz : Number;
         	var queue : Boolean;
         	var oldMax : Number;
-        	
+        	var bevels : Vector.<Plane3D>;
+        	var i : int;
         	_planeStack.length = 0;
 			_tMaxStack.length = 0;
 			_nodeStack.length = 0;
         	
         	while (true) {
         		// in a solid leaf, collision
-				if (!node)
-					return splitPlane;
+				if (!node) {
+					if (!bevels) return splitPlane;
+					i = bevels.length;
+					while (--i >= 0)
+						if (!testBeveled(start, dir, tMin, tMax, halfExtents, bevels[i], testMethod))
+							return splitPlane;
+				}
 				
         		// "empty" leaf
         		if (!node || node._isLeaf) {
@@ -582,6 +588,7 @@ package away3d.core.graphs
 					splitPlane = _planeStack[stackLen];
 				}
 				else {
+					bevels = node._bevelPlanes;
 					plane = node._partitionPlane;
 	        		align = plane._alignment;
 					d = plane.d;
@@ -689,8 +696,69 @@ package away3d.core.graphs
         	
         	return plane;
 		}
+		
+		private function testBeveled(start : Number3D, dir : Number3D, tMin : Number, tMax : Number, halfExtents : Number3D, plane : Plane3D, testMethod : int) : Boolean
+		{
+			var align : int = plane._alignment;
+			var dist : Number, dirDot : Number;
+			var a : Number, b : Number, c : Number, d : Number;
+			var offset : Number, ox : Number, oy : Number, oz : Number;
+			var t : Number;
+			
+			d = plane.d; 
+			if (align == Plane3D.X_AXIS) {
+				a = plane.a;
+				dist = a*start.x + d;
+				dirDot = a*dir.x + d;
+				if (testMethod != TEST_METHOD_POINT)
+					offset = halfExtents.x;
+			}
+			else if (align == Plane3D.Y_AXIS) {
+				b = plane.b;
+				dist = b*start.y + d;
+				dirDot = b*dir.y + d;
+				if (testMethod != TEST_METHOD_POINT)
+					offset = halfExtents.y;
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				c = plane.c;
+				dist = c*start.z + d;
+				dirDot = c*dir.z + d;
+				if (testMethod != TEST_METHOD_POINT)
+					offset = halfExtents.z;
+			}
+			else {
+				a = plane.a;
+				b = plane.b;
+				c = plane.c;
+				dist = a*start.x + b*start.y + c*start.z + d;
+				dirDot = a*dir.x + b*dir.y + c*dir.z + d;
+				if (testMethod == TEST_METHOD_AABB)
+					offset = 	(a > 0? a*halfExtents.x : -a*halfExtents.x) +
+								(b > 0? b*halfExtents.y : -b*halfExtents.y) +
+								(c > 0? c*halfExtents.z : -c*halfExtents.z);
+				else if (testMethod == TEST_METHOD_ELLIPSOID) {
+					ox = a*halfExtents.x;
+					oy = b*halfExtents.y;
+					oz = c*halfExtents.z;
+					offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
+				}
+			}
+			dist -= offset;
+			
+			if (dirDot == 0) {
+				if (dist > 0) return true;
+				else return false; 
+			}
+			
+			t = -dist/dirDot;
+			if (t >= tMax || t < tMin)
+				return true;
+				
+			return false;
+		}
 
-/**
+/*
  * BUILDING
  */
  		// bsp build
@@ -934,7 +1002,7 @@ package away3d.core.graphs
 			_currentBuildNode = _rootNode;
 			_state = TRAVERSE_PRE;
 			
-			_progressEvent.count = 2;
+			++_progressEvent.count;
 			_progressEvent.message = "Creating portals";
 			_portalIndex = 0;
 			
@@ -1001,7 +1069,7 @@ package away3d.core.graphs
 			if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
 				_portalIndex = 0;
 				_progressEvent.message = "Cleaning up portals (#portals: "+_portals.length+")";
-				_progressEvent.count = 3;
+				++_progressEvent.count;
 				setTimeout(removeOneSidedPortals, 1);
 			}
 			else {
@@ -1031,7 +1099,7 @@ package away3d.core.graphs
 				_portalIndex = 0;
 				_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
 				_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
-				_progressEvent.count = 5;
+				++_progressEvent.count;
 				setTimeout(partitionPortals, 1);
 			}
 			else {
@@ -1064,7 +1132,7 @@ package away3d.core.graphs
 			if (_portalIndex >= len) {
 				_portalIndex = 0;
 				_progressEvent.message = "Linking portals to leaves (#portals: "+_portals.length+")";
-				_progressEvent.count = 6;
+				++_progressEvent.count;
 				_portals = _newPortals;
 				
 				setTimeout(linkPortals, 1);
@@ -1095,11 +1163,11 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= len) {
 				_portalIndex = 0;
-				_progressEvent.count = 7;
+				++_progressEvent.count;
 				_progressEvent.message = "Building front lists (#portals: "+_portals.length+")";
 				
 				//temp
-				createMeshes();
+//				createMeshes();
 				//dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
 				
 				setTimeout(buildInitialFrontList, 1);
@@ -1110,19 +1178,19 @@ package away3d.core.graphs
 		}
 		
 		// TEMP
-		private function createMeshes() : void
-		{
-			// temp
-			var len : int = _leaves.length;
-			for (var i : int = 0; i < len; ++i) {
-				if (_leaves[i]) {
-					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
-						super.addChild(_leaves[i]._tempMesh);
-						_leaves[i]._tempMesh.extra = {created: true};
-					}
-				}
-			}
-		}
+//		private function createMeshes() : void
+//		{
+//			// temp
+//			var len : int = _leaves.length;
+//			for (var i : int = 0; i < len; ++i) {
+//				if (_leaves[i]) {
+//					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
+//						super.addChild(_leaves[i]._tempMesh);
+//						_leaves[i]._tempMesh.extra = {created: true};
+//					}
+//				}
+//			}
+//		}
 		
 		/**
 		 * Finds which portals are in front of any given portal. Portals behind a portal (through which we're looking OUT of), can never be seen.
@@ -1142,7 +1210,7 @@ package away3d.core.graphs
 			if (_portalIndex == len) {
 				_portalIndex = 0;
 				_progressEvent.message = "Finding neighbours (#portals: "+_portals.length+")";
-				_progressEvent.count = 9;
+				++_progressEvent.count;
 				setTimeout(findPortalNeighbours, 1);
 			}
 			else {
@@ -1168,7 +1236,7 @@ package away3d.core.graphs
 			if (_portalIndex >= len) {
 				_portalIndex = 0;
 				_progressEvent.message = "Culling portals (#portals: "+_portals.length+")";
-				_progressEvent.count = 10;
+				++_progressEvent.count;
 				
 				setTimeout(removeVisiblesFromNeighbours, 1);
 			}
@@ -1193,7 +1261,7 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= len) {
 				_progressEvent.message = "Propagating visibility (#portals: "+_portals.length+")";
-				_progressEvent.count = 12;
+				++_progressEvent.count;
 				_portals.sort(portalSort);
 				_portalIndex = 0;
 				_visIterationStep = 0;
@@ -1228,7 +1296,7 @@ package away3d.core.graphs
 				else {
 					_portalIndex = 0;
 					_progressEvent.message = "Finding visible portals (#portals: "+_portals.length+")";
-					_progressEvent.count = 12;
+					++_progressEvent.count;
 					setTimeout(findVisiblePortals, 1);
 				}
 			}

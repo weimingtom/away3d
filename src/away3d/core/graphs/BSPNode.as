@@ -2,7 +2,6 @@ package away3d.core.graphs
 {
 	import away3d.core.base.Vertex;
 	import away3d.core.base.Object3D;
-	import away3d.materials.WireColorMaterial;
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
@@ -41,7 +40,7 @@ package away3d.core.graphs
 		arcane var _positiveNode : BSPNode;		// node on the positive side of the division plane
 		arcane var _negativeNode : BSPNode;		// node on the negative side of the division plane
 		
-//		arcane var _bevelPlanes : Vector.<Plane3D>;
+		arcane var _bevelPlanes : Vector.<Plane3D>;
 		
 		// leaf only
 		arcane var _mesh : Mesh;					// contains the model for this face
@@ -74,6 +73,116 @@ package away3d.core.graphs
 			_parent = parent;
 		}
 		
+		public function generateBevelPlanes(portal : BSPPortal) : void
+		{
+			var node : BSPNode = _parent;
+			
+			while (node && node._convex) {
+				if (node.sharesEdge(portal)) {
+					node.generateBevelPlane(portal.nGon.plane);
+				}
+				node = node._parent;
+			}
+		}
+		
+		private function generateBevelPlane(plane : Plane3D) : void
+		{
+			var cx : Number, cy : Number, cz : Number;
+			var p1 : Number3D = new Number3D();
+			var nx : Number, ny : Number, nz : Number;
+			var bevel : Plane3D = new Plane3D();
+			var normal : Number3D = new Number3D();
+			var a1 : Number, b1 : Number, c1 : Number, d1 : Number;
+			var a2 : Number, b2 : Number, c2 : Number, d2 : Number;
+			var ha : Number, hb : Number, hc : Number;
+			
+			a1 = _partitionPlane.a;
+			b1 = _partitionPlane.b;
+			c1 = _partitionPlane.c;
+			d1 = _partitionPlane.d;
+			
+			a2 = plane.a;
+			b2 = plane.b;
+			c2 = plane.c;
+			d2 = plane.d;
+			
+			if (a1*a2 + b1*b2 + c1*c2 < 0) {
+				// cross product of normals = direction of intersection line
+				cx = b1 * c2 - c1 * b2;
+    			cy = c1 * a2 - a1 * c2;
+    			cz = a1 * b2 - b1 * a2;
+    			
+    			// find a point on intersection line, depending on direction, at least one of the components will at some point be 0
+    			if (cz != 0) {
+    				p1.y = (a2*d1-a1*d2)/cz;
+    				p1.x = -(b1*p1.y + d1)/a1;
+    				p1.z = 0;
+    			}
+    			else if (cx != 0) {
+    				p1.x = 0;
+    				p1.z = (b2*d1-b1*d2)/cx;
+    				p1.y = -(c1*p1.z+c1)/b1;
+    			}
+    			else if (cy != 0) {
+    				 p1.z = -(a2*d1-a1*d2)/cy;
+    				 p1.x = -(c1*p1.z)/a1;
+    				 p1.y = 0;
+    			}
+    			
+    			// half vector between two plane normals
+    			ha = a1+a2;
+    			hb = b1+b2;
+    			hc = c1+c2;
+    			
+    			// perpendicular to half vector and direction line, gives second coplanar vector
+    			nx = cy * hc - cz * hb;
+    			ny = cz * ha - cx * hc;
+    			nz = cx * hb - cy * ha;
+    			
+    			// perpendicular to both coplanar vectors = normal of plane
+    			normal.x = nx * cz - nz * cy;
+    			normal.y = nz * cx - nx * cz;
+    			normal.z = nx * cy - ny * cx;
+    			normal.normalize();
+    			
+    			bevel.fromNormalAndPoint(normal, p1);
+    			if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
+    			_bevelPlanes.push(bevel);
+			}
+		}
+
+		private function sharesEdge(portal : BSPPortal) : Boolean
+		{
+			var v1 : Vertex;
+			var v2 : Vertex;
+			var vertices : Vector.<Vertex> = portal.nGon.vertices;
+			var i : int = vertices.length;
+			var j : int = i - 2;
+			var a : Number = _partitionPlane.a;
+			var b : Number = _partitionPlane.b;
+			var c : Number = _partitionPlane.c;
+			var d : Number = _partitionPlane.d;
+			var dist1 : Number;
+			var dist2 : Number;
+			
+			v2 = vertices[j];
+			dist2 = a*v2.x + b*v2.y + c*v2.z + d;
+			
+			while (--i >= 0) {
+				v1 = v2;
+				v2 = vertices[j];
+				dist1 = dist2;
+				dist2 = a*v2.x + b*v2.y + c*v2.z + d;
+				
+				if (dist1 < BSPTree.EPSILON && dist1 > -BSPTree.EPSILON && dist2 < BSPTree.EPSILON && dist2 > -BSPTree.EPSILON)
+					return true;
+				
+				if (--j < 0) j = vertices.length - 1;
+			}
+			return false;
+		}
+			
+
 		/**
 		 * Sends a traverser down the dynamic children
 		 * 
@@ -468,7 +577,7 @@ package away3d.core.graphs
 		arcane var _assignedFaces : int;
 		arcane var _buildFaces : Vector.<NGon>;
 		
-		arcane var _tempMesh : Mesh;
+//		arcane var _tempMesh : Mesh;
 		
 		arcane var _portals : Vector.<BSPPortal>;
 		arcane var _backPortals : Vector.<BSPPortal>;
@@ -573,110 +682,6 @@ package away3d.core.graphs
 			completeNode();
 		}
 		
-		/*private function findBevelPlanes(partitionPlane : Plane3D) : void
-		{
-			var cx : Number, cy : Number, cz : Number;
-			var p1 : Number3D = new Number3D();
-			var nx : Number, ny : Number, nz : Number;
-			var i : int = _solidPlanes.length;
-			var plane : Plane3D;
-			var bevel : Plane3D = new Plane3D();
-			var normal : Number3D = new Number3D();
-			var a1 : Number, b1 : Number, c1 : Number, d1 : Number;
-			var a2 : Number, b2 : Number, c2 : Number, d2 : Number;
-			var ha : Number, hb : Number, hc : Number;
-			var bevelLen : int = -1;
-			
-			a1 = partitionPlane.a;
-			b1 = partitionPlane.b;
-			c1 = partitionPlane.c;
-			d1 = partitionPlane.d;
-			
-			while (--i >= 0) {
-				plane = _solidPlanes[i];
-				a2 = plane.a;
-				b2 = plane.b;
-				c2 = plane.c;
-				d2 = plane.d;
-				if (a1*a2 + b1*b2 + c1*c2 < 0) {
-					cx = b1 * c2 - c1 * b2;
-        			cy = c1 * a2 - a1 * c2;
-        			cz = a1 * b2 - b1 * a2;
-        			
-        			if (cz != 0) {
-        				p1.y = (a2*d1-a1*d2)/cz;
-        				p1.x = -(b1*p1.y + d1)/a1;
-        				p1.z = 0;
-        			}
-        			else if (cx != 0) {
-        				p1.x = 0;
-        				p1.z = (b2*d1-b1*d2)/cx;
-        				p1.y = -(c1*p1.z+c1)/b1;
-        			}
-        			else if (cy != 0) {
-        				 p1.z = -(a2*d1-a1*d2)/cy;
-        				 p1.x = -(c1*p1.z)/a1;
-        				 p1.y = 0;
-        			}
-        			
-        			nx = cx;
-        			ny = cy;
-        			nz = cz;
-        			
-        			// half vector between two plane normals
-        			ha = a1+a2;
-        			hb = b1+b2;
-        			hc = c1+c2;
-        			
-        			// perpendicular to half vector and direction line
-        			normal.x = ny * hc - nz * hb;
-        			normal.y = nz * ha - nx * hc;
-        			normal.z = nx * hb - ny * ha;
-        			normal.normalize();
-        			
-        			bevel.fromNormalAndPoint(normal, p1);
-        			// need to check if plane is pointing in the correct direction
-        			var dist : Number;
-        			var j : int = _buildFaces.length;
-        			var k : int;
-        			var face : NGon;
-        			var vert : Vertex;
-        			var found : Boolean;
-        			var conflict : Boolean;
-        			
-					do {
-						face = _buildFaces[--j];
-						k = face.vertices.length;
-						while (--k >= 0 && !found) {
-							vert = face.vertices[k];
-							dist = bevel.a*vert._x + bevel.b*vert._y + bevel.c*vert._z + bevel.d;
-							if (dist > BSPTree.EPSILON)
-								found = true;
-							else if (dist < -BSPTree.EPSILON) {
-								// point found on front side, now one on back side
-								if (found) {
-									conflict = true;
-									found = false;
-								}
-								else {
-									bevel.a = -bevel.a;
-									bevel.b = -bevel.b;
-									bevel.c = -bevel.c;
-									bevel.d = -bevel.d;
-									found = true;
-								}
-							}
-						}
-        			} while (!conflict && j > 0);
-        			
-        			if (found) {
-						if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>;
-						_bevelPlanes[++bevelLen] = bevel;
-					}
-				}
-			}
-		}*/
-
 		/**
 		 * Adds faces to the leaf mesh based on NGons
 		 */
@@ -909,15 +914,15 @@ package away3d.core.graphs
  			_portals.push(portal);
  			
  			// temp
- 			var faces : Vector.<Face>;
- 			if(!_tempMesh) {
-				_tempMesh = new Mesh();
-			}
-			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
-			faces = portal.nGon.triangulate();
-			
-			for (var j : int = 0; j < faces.length; j++)
-				_tempMesh.addFace(faces[j]);
+// 			var faces : Vector.<Face>;
+// 			if(!_tempMesh) {
+//				_tempMesh = new Mesh();
+//			}
+//			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
+//			faces = portal.nGon.triangulate();
+//			
+//			for (var j : int = 0; j < faces.length; j++)
+//				_tempMesh.addFace(faces[j]);
  		}
  		
  		/**
