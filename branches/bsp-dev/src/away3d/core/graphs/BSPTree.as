@@ -546,7 +546,9 @@ package away3d.core.graphs
         private var _nodeStack : Vector.<BSPNode> = new Vector.<BSPNode>();
         private var _bevelNode : BSPNode = new BSPNode(null);
         private var _posNode : BSPNode = new BSPNode(_bevelNode);
+        private var _bevelStack : Vector.<Vector.<Plane3D>> = new Vector.<Vector.<Plane3D>>();
         
+        // TO Do: need initial check to see if bounding box is not already colliding with geometry in start pos
  		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null) : Plane3D
         {
         	var plane : Plane3D;
@@ -579,14 +581,12 @@ package away3d.core.graphs
         		check = false;
         		// in a solid leaf, collision if colliding with bevel planes
 				if (!node) {
-					if (testMethod == BSPTree.TEST_METHOD_POINT || !bevels)
+					// dynamically insert bevel nodes if there are any, otherwise, reached a solid node
+					if (testMethod == BSPTree.TEST_METHOD_POINT || !bevels || bevelIndex == bevels.length)
 						return splitPlane;
 					
-					// dynamically insert bevel nodes
-					if (bevelIndex < bevels.length) {
-						_bevelNode._partitionPlane = bevels[bevelIndex++];
-						node = _bevelNode;
-					}
+					_bevelNode._partitionPlane = bevels[bevelIndex++];
+					node = _bevelNode;
 				}
 				// after all bevel checks, still in solid node
 				if (!node) return splitPlane;
@@ -599,6 +599,7 @@ package away3d.core.graphs
 					tMin = _tMinStack[stackLen];
 					tMax = _tMaxStack[stackLen];
 					splitPlane = _planeStack[stackLen];
+					bevels = _bevelStack[stackLen];
 				}
 				else {
 					if (node != _bevelNode) {
@@ -680,6 +681,7 @@ package away3d.core.graphs
 								_tMinStack[stackLen] = t > tMin ? t : tMin;
 								_tMaxStack[stackLen] = oldMax;
 								_planeStack[stackLen] = plane;
+								_bevelStack[stackLen] = bevels;
 								++stackLen;
 							}
 							else {
@@ -1130,13 +1132,13 @@ package away3d.core.graphs
 			var startTime : int = getTimer();
 			var portal : BSPPortal;
 			
+			notifyProgress(_portalIndex, _portals.length);
+			
 			do {
 				portal = _portals[_portalIndex];
-				portal.backNode.generateBevelPlanes(portal, portal.frontNode);
-				portal.frontNode.generateBevelPlanes(portal, portal.backNode);
+				portal.backNode.generateBevelPlanes(portal.frontNode);
+				portal.frontNode.generateBevelPlanes(portal.backNode);
 			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
-			
-			notifyProgress(_portalIndex, _portals.length);
 			
 			if (_portalIndex >= _portals.length) {
 				_portalIndex = 0;

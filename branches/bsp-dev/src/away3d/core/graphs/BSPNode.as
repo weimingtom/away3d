@@ -75,69 +75,26 @@ package away3d.core.graphs
 			_parent = parent;
 		}
 		
-		public function generateBevelPlanes(portal : BSPPortal, targetNode : BSPNode) : void
+		/**
+		 * Generates bevel planes used for collision detection (prevents offsets causing false collisions at angles > 180°)
+		 */
+		public function generateBevelPlanes(targetNode : BSPNode) : void
 		{
 			var node : BSPNode = _parent;
-			var sourceNGons : Vector.<NGon> = getEdgePlanes(portal);
-			var targetNGons : Vector.<NGon> = targetNode.getEdgePlanes(portal);
 			
 			while (node && node._convex) {
-				node.createBevelPlanes(sourceNGons, targetNGons);
+				node.createBevelPlanes(_faces, targetNode._faces);
 				node = node._parent;
 			}
 		}
 		
+		// to do: there are no bevel planes if partition planes form concave shape
 		private function createBevelPlanes(sourceNGons : Vector.<NGon>, targetNGons : Vector.<NGon>) : void
 		{
 			var i : int = sourceNGons.length, j : int;
-			var pl1 : Plane3D;
-			var dx : Number, dy : Number, dz : Number;
-			var eps : Number = BSPTree.EPSILON * BSPTree.EPSILON;
-			var a : Number = _partitionPlane.a;
-			var b : Number = _partitionPlane.b;
-			var c : Number = _partitionPlane.c;
-			var bevel : Plane3D;
-
-			while (--i >= 0) {
-				pl1 = sourceNGons[i].plane;
-				dx = a - pl1.a;
-				dy = b - pl1.b;
-				dz = c - pl1.c;
-				// nGon is coinciding with partition plane, we need to check it
-				if (dx*dx+dy*dy+dz*dz < eps) {
-					j = targetNGons.length;
-					while (--j) {
-						if (targetNGons[j].adjacent(sourceNGons[i])) {
-							bevel = generateBevelPlane(targetNGons[j].plane);
-							if (bevel) {
-								if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
-    							_bevelPlanes.push(bevel);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		private function getEdgePlanes(portal : BSPPortal) : Vector.<NGon>
-		{
-			var i : int = _faces.length;
-			var edgeFaces : Vector.<NGon>;
-			var face : NGon;
-			
-			while (--i >= 0) {
-				face = _faces[i];
-				if (sharesEdge(face, portal)) {
-					// if new edge plane, add
-					if (!edgeFaces) edgeFaces = new Vector.<NGon>();
-					edgeFaces.push(face);
-				}
-			}
-			return edgeFaces;
-		}
-
-		private function generateBevelPlane(plane : Plane3D) : Plane3D
-		{
+			var srcNGon : NGon, tgtNGon : NGon;
+			var tgtPlane : Plane3D;
+			var tgtLen : int = targetNGons.length;
 			var bevel : Plane3D;
 			var a1 : Number, b1 : Number, c1 : Number;
 			var a2 : Number, b2 : Number, c2 : Number;
@@ -146,69 +103,31 @@ package away3d.core.graphs
 			b1 = _partitionPlane.b;
 			c1 = _partitionPlane.c;
 			
-			a2 = plane.a;
-			b2 = plane.b;
-			c2 = plane.c;
-			
-			// planes at angle > 180°, should be beveled
-			// bevel is simply an average plane (will contain line between the two)
-			if (a1*a2 + b1*b2 + c1*c2 < -BSPTree.EPSILON) {
-				bevel = new Plane3D();
-    			bevel.a = a1+a2;
-    			bevel.b = b1+b2;
-    			bevel.c = c1+c2;
-    			bevel.d = _partitionPlane.d+plane.d;
-    			
-    			bevel.normalize();
-				return bevel;
-			}
-			return null;
-		}
-
-		private function sharesEdge(face : NGon, portal : BSPPortal) : Boolean
-		{
-			var v : Vertex;
-			var vertices : Vector.<Vertex> = face.vertices;
-			var i : int = vertices.length;
-			var plane : Plane3D = portal.nGon.plane;
-			var a : Number = plane.a;
-			var b : Number = plane.b;
-			var c : Number = plane.c;
-			var d : Number = plane.d;
-			var dist : Number;
-			var count : int;
-			
-			// check if min 2 face vertices are on the portal plane
 			while (--i >= 0) {
-				v = vertices[i];
-				dist = a*v.x + b*v.y + c*v.z + d;
-				if (dist > -BSPTree.EPSILON && dist < BSPTree.EPSILON) {
-					if (++count > 1) i = 0;
+				srcNGon = sourceNGons[i];
+				
+				// nGon is coinciding with partition plane, we need to check it
+				if (srcNGon.classifyToPlane(_partitionPlane) == -2) {
+					j = tgtLen;
+					while (--j >= 0) {
+						tgtNGon = targetNGons[j];
+						tgtPlane = tgtNGon.plane;
+						a2 = tgtPlane.a;
+						b2 = tgtPlane.b;
+						c2 = tgtPlane.c;
+						
+						// if angle between planes < 0 and adjacent, create bevel plane
+						if (a1*a2+b1*b2+c1*c2 < -BSPTree.EPSILON &&
+							srcNGon.adjacent(tgtNGon)) {
+							bevel = new Plane3D(a1+a2, b1+b2, c1+c2, _partitionPlane.d+tgtPlane.d);
+							bevel.normalize();
+							if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
+   							_bevelPlanes.push(bevel);
+						}
+					}
 				}
 			}
-			if (count < 2) return false;
-			
-			vertices = portal.nGon.vertices;
-			i = vertices.length;
-			plane = face.plane;
-			a = plane.a;
-			b = plane.b;
-			c = plane.c;
-			d = plane.d;
-			
-			count = 0;
-			// check if min 2 portal vertices are on the face plane
-			while (--i >= 0) {
-				v = vertices[i];
-				dist = a*v.x + b*v.y + c*v.z + d;
-				if (dist > -BSPTree.EPSILON && dist < BSPTree.EPSILON) {
-					if (++count > 1) return true;
-				}
-			}
-			
-			return false;
 		}
-			
 
 		/**
 		 * Sends a traverser down the dynamic children
