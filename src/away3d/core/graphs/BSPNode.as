@@ -1,5 +1,6 @@
 package away3d.core.graphs
 {
+	import away3d.materials.WireColorMaterial;
 	import away3d.core.base.Vertex;
 	import away3d.core.base.Object3D;
 	import away3d.arcane;
@@ -43,7 +44,8 @@ package away3d.core.graphs
 		arcane var _bevelPlanes : Vector.<Plane3D>;
 		
 		// leaf only
-		arcane var _mesh : Mesh;					// contains the model for this face
+		arcane var _faces : Vector.<NGon>;
+		arcane var _mesh : Mesh;				// contains the model for this face
 		arcane var _visList : Vector.<int>;		// indices of leafs visible from this leaf
 		
 		// used for correct z-order traversing
@@ -73,112 +75,137 @@ package away3d.core.graphs
 			_parent = parent;
 		}
 		
-		public function generateBevelPlanes(portal : BSPPortal) : void
+		public function generateBevelPlanes(portal : BSPPortal, targetNode : BSPNode) : void
 		{
 			var node : BSPNode = _parent;
+			var sourceNGons : Vector.<NGon> = getEdgePlanes(portal);
+			var targetNGons : Vector.<NGon> = targetNode.getEdgePlanes(portal);
 			
 			while (node && node._convex) {
-				if (node.sharesEdge(portal)) {
-					node.generateBevelPlane(portal.nGon.plane);
-				}
+				node.createBevelPlanes(sourceNGons, targetNGons);
 				node = node._parent;
 			}
 		}
 		
-		private function generateBevelPlane(plane : Plane3D) : void
+		private function createBevelPlanes(sourceNGons : Vector.<NGon>, targetNGons : Vector.<NGon>) : void
 		{
-			var cx : Number, cy : Number, cz : Number;
-			var p1 : Number3D = new Number3D();
-			var nx : Number, ny : Number, nz : Number;
-			var bevel : Plane3D = new Plane3D();
-			var normal : Number3D = new Number3D();
-			var a1 : Number, b1 : Number, c1 : Number, d1 : Number;
-			var a2 : Number, b2 : Number, c2 : Number, d2 : Number;
-			var ha : Number, hb : Number, hc : Number;
+			var i : int = sourceNGons.length, j : int;
+			var pl1 : Plane3D;
+			var dx : Number, dy : Number, dz : Number;
+			var eps : Number = BSPTree.EPSILON * BSPTree.EPSILON;
+			var a : Number = _partitionPlane.a;
+			var b : Number = _partitionPlane.b;
+			var c : Number = _partitionPlane.c;
+			var bevel : Plane3D;
+
+			while (--i >= 0) {
+				pl1 = sourceNGons[i].plane;
+				dx = a - pl1.a;
+				dy = b - pl1.b;
+				dz = c - pl1.c;
+				// nGon is coinciding with partition plane, we need to check it
+				if (dx*dx+dy*dy+dz*dz < eps) {
+					j = targetNGons.length;
+					while (--j) {
+						if (targetNGons[j].adjacent(sourceNGons[i])) {
+							bevel = generateBevelPlane(targetNGons[j].plane);
+							if (bevel) {
+								if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
+    							_bevelPlanes.push(bevel);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private function getEdgePlanes(portal : BSPPortal) : Vector.<NGon>
+		{
+			var i : int = _faces.length;
+			var edgeFaces : Vector.<NGon>;
+			var face : NGon;
+			
+			while (--i >= 0) {
+				face = _faces[i];
+				if (sharesEdge(face, portal)) {
+					// if new edge plane, add
+					if (!edgeFaces) edgeFaces = new Vector.<NGon>();
+					edgeFaces.push(face);
+				}
+			}
+			return edgeFaces;
+		}
+
+		private function generateBevelPlane(plane : Plane3D) : Plane3D
+		{
+			var bevel : Plane3D;
+			var a1 : Number, b1 : Number, c1 : Number;
+			var a2 : Number, b2 : Number, c2 : Number;
 			
 			a1 = _partitionPlane.a;
 			b1 = _partitionPlane.b;
 			c1 = _partitionPlane.c;
-			d1 = _partitionPlane.d;
 			
 			a2 = plane.a;
 			b2 = plane.b;
 			c2 = plane.c;
-			d2 = plane.d;
 			
-			if (a1*a2 + b1*b2 + c1*c2 < 0) {
-				// cross product of normals = direction of intersection line
-				cx = b1 * c2 - c1 * b2;
-    			cy = c1 * a2 - a1 * c2;
-    			cz = a1 * b2 - b1 * a2;
+			// planes at angle > 180°, should be beveled
+			// bevel is simply an average plane (will contain line between the two)
+			if (a1*a2 + b1*b2 + c1*c2 < -BSPTree.EPSILON) {
+				bevel = new Plane3D();
+    			bevel.a = a1+a2;
+    			bevel.b = b1+b2;
+    			bevel.c = c1+c2;
+    			bevel.d = _partitionPlane.d+plane.d;
     			
-    			// find a point on intersection line, depending on direction, at least one of the components will at some point be 0
-    			if (cz != 0) {
-    				p1.y = (a2*d1-a1*d2)/cz;
-    				p1.x = -(b1*p1.y + d1)/a1;
-    				p1.z = 0;
-    			}
-    			else if (cx != 0) {
-    				p1.x = 0;
-    				p1.z = (b2*d1-b1*d2)/cx;
-    				p1.y = -(c1*p1.z+c1)/b1;
-    			}
-    			else if (cy != 0) {
-    				 p1.z = -(a2*d1-a1*d2)/cy;
-    				 p1.x = -(c1*p1.z)/a1;
-    				 p1.y = 0;
-    			}
-    			
-    			// half vector between two plane normals
-    			ha = a1+a2;
-    			hb = b1+b2;
-    			hc = c1+c2;
-    			
-    			// perpendicular to half vector and direction line, gives second coplanar vector
-    			nx = cy * hc - cz * hb;
-    			ny = cz * ha - cx * hc;
-    			nz = cx * hb - cy * ha;
-    			
-    			// perpendicular to both coplanar vectors = normal of plane
-    			normal.x = nx * cz - nz * cy;
-    			normal.y = nz * cx - nx * cz;
-    			normal.z = nx * cy - ny * cx;
-    			normal.normalize();
-    			
-    			bevel.fromNormalAndPoint(normal, p1);
-    			if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
-    			_bevelPlanes.push(bevel);
+    			bevel.normalize();
+				return bevel;
 			}
+			return null;
 		}
 
-		private function sharesEdge(portal : BSPPortal) : Boolean
+		private function sharesEdge(face : NGon, portal : BSPPortal) : Boolean
 		{
-			var v1 : Vertex;
-			var v2 : Vertex;
-			var vertices : Vector.<Vertex> = portal.nGon.vertices;
+			var v : Vertex;
+			var vertices : Vector.<Vertex> = face.vertices;
 			var i : int = vertices.length;
-			var j : int = i - 2;
-			var a : Number = _partitionPlane.a;
-			var b : Number = _partitionPlane.b;
-			var c : Number = _partitionPlane.c;
-			var d : Number = _partitionPlane.d;
-			var dist1 : Number;
-			var dist2 : Number;
+			var plane : Plane3D = portal.nGon.plane;
+			var a : Number = plane.a;
+			var b : Number = plane.b;
+			var c : Number = plane.c;
+			var d : Number = plane.d;
+			var dist : Number;
+			var count : int;
 			
-			v2 = vertices[j];
-			dist2 = a*v2.x + b*v2.y + c*v2.z + d;
-			
+			// check if min 2 face vertices are on the portal plane
 			while (--i >= 0) {
-				v1 = v2;
-				v2 = vertices[j];
-				dist1 = dist2;
-				dist2 = a*v2.x + b*v2.y + c*v2.z + d;
-				
-				if (dist1 < BSPTree.EPSILON && dist1 > -BSPTree.EPSILON && dist2 < BSPTree.EPSILON && dist2 > -BSPTree.EPSILON)
-					return true;
-				
-				if (--j < 0) j = vertices.length - 1;
+				v = vertices[i];
+				dist = a*v.x + b*v.y + c*v.z + d;
+				if (dist > -BSPTree.EPSILON && dist < BSPTree.EPSILON) {
+					if (++count > 1) i = 0;
+				}
 			}
+			if (count < 2) return false;
+			
+			vertices = portal.nGon.vertices;
+			i = vertices.length;
+			plane = face.plane;
+			a = plane.a;
+			b = plane.b;
+			c = plane.c;
+			d = plane.d;
+			
+			count = 0;
+			// check if min 2 portal vertices are on the face plane
+			while (--i >= 0) {
+				v = vertices[i];
+				dist = a*v.x + b*v.y + c*v.z + d;
+				if (dist > -BSPTree.EPSILON && dist < BSPTree.EPSILON) {
+					if (++count > 1) return true;
+				}
+			}
+			
 			return false;
 		}
 			
@@ -668,6 +695,7 @@ package away3d.core.graphs
 			if (!_solidPlanes.length) {
 				// no planes left, is leaf
 				_isLeaf = true;
+				_faces = _buildFaces;
 				if (faces.length > 0)
 					addNGons(_buildFaces);
 			}

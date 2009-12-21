@@ -22,11 +22,6 @@ package away3d.core.geom
 		public var plane : Plane3D;
 		public var material : ITriangleMaterial;
 		
-		// used during splitting etc
-		private var _edgePlane : Plane3D = new Plane3D();
-		private var _edge : Number3D = new Number3D();
-		private var _edgeNormal : Number3D = new Number3D();
-		
 		private static var _newVerts : Vector.<Vertex>;
 		private static var _newUVs : Vector.<UV>;
 		
@@ -37,8 +32,95 @@ package away3d.core.geom
 		 */
 		public function NGon()
 		{
-			
 		}
+		
+		public function adjacent(nGon : NGon) : Boolean
+		{
+			var i : int = vertices.length;
+			var j : int = i - 1;
+			var k : int, l : int;
+			var v0 : Vertex, v1 : Vertex, v2 : Vertex, v3 : Vertex;
+			var count : int;
+			
+			v1 = vertices[j--];
+			
+			while (--i >= 0) {
+				v0 = v1;
+				v1 = vertices[j];
+				k = nGon.vertices.length;
+				l = k-2;
+				count = 0;
+				v3 = nGon.vertices[k-1];
+				while (--k >= 0) {
+					v2 = v3;
+					v3 = nGon.vertices[l];
+					
+					if (isEdgeOverlapping(v0, v1, v2, v3)) return true;
+					if (--l < 0) l = nGon.vertices.length-1;
+				}
+				
+				if (--j < 0) j = vertices.length-1;
+			}
+			return false;
+		}
+		
+		private function isEdgeOverlapping(v0 : Vertex, v1 : Vertex, v2 : Vertex, v3 : Vertex) : Boolean
+		{
+			var dx1 : Number, dy1 : Number, dz1 : Number;
+			var dx2 : Number, dy2 : Number, dz2 : Number;
+			var dx3 : Number, dy3 : Number, dz3 : Number;
+			var cx1 : Number, cy1 : Number, cz1 : Number;
+			var cx2 : Number, cy2 : Number, cz2 : Number;
+			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
+			var t1 : Number, t2 : Number;
+			
+			// check if collinear
+			dx1 = v1._x-v0._x;
+			dy1 = v1._y-v0._y;
+			dz1 = v1._z-v0._z;
+			
+			dx2 = v3._x-v2._x;
+			dy2 = v3._y-v2._y;
+			dz2 = v3._z-v2._z;
+			
+			dx3 = v2._x-v0._x;
+			dy3 = v2._y-v0._y;
+			dz3 = v2._z-v0._z;
+			
+			// |cross product| = 0 if [v2, v3] is parallel to [v0, v1]
+			cx1 = dy1 * dz2 - dz1 * dy2;
+        	cy1 = dz1 * dx2 - dx1 * dz2;
+        	cz1 = dx1 * dy2 - dy1 * dx2;
+			
+			// |cross product| = 0 if v2 is colinear with [v0, v1]
+			cx2 = dy1 * dz3 - dz1 * dy3;
+        	cy2 = dz1 * dx3 - dx1 * dz3;
+        	cz2 = dx1 * dy3 - dy1 * dx3;
+			
+			// if lines are colinear
+			if (cx1*cx1 +cy1*cy1 + cz1*cz1 < eps &&
+				cx2*cx2 +cy2*cy2 + cz2*cz2 < eps) {
+				if (_tempU.x != 0) {
+					t1 = (v2.x-v0.x)/dx1;
+					t2 = (v3.x-v0.x)/dx1;
+				}
+				else if (_tempU.y != 0) {
+					t1 = (v2.y-v0.y)/dy1;
+					t2 = (v3.y-v0.y)/dy1;
+				}
+				else if (_tempU.z != 0) {
+					t1 = (v2.z-v0.z)/dz1;
+					t2 = (v3.z-v0.z)/dz1;
+				}
+				
+				// no overlap if both points on same side of segment
+				return !(t1 <= 0 && t2 <= 0 || t1 >= 1 && t2 >= 1);
+			}
+			
+			return false;
+		}
+
+		
 		
 		/**
 		 * Inverts the NGon

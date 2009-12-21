@@ -544,6 +544,8 @@ package away3d.core.graphs
         private var _tMaxStack : Vector.<Number> = new Vector.<Number>();
         private var _tMinStack : Vector.<Number> = new Vector.<Number>();
         private var _nodeStack : Vector.<BSPNode> = new Vector.<BSPNode>();
+        private var _bevelNode : BSPNode = new BSPNode(null);
+        private var _posNode : BSPNode = new BSPNode(_bevelNode);
         
  		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null) : Plane3D
         {
@@ -563,23 +565,34 @@ package away3d.core.graphs
         	var queue : Boolean;
         	var oldMax : Number;
         	var bevels : Vector.<Plane3D>;
-        	var i : int;
+        	var bevelIndex : int;
+        	var check : Boolean;
+        	
+        	_bevelNode._positiveNode = _posNode;
+        	_posNode._isLeaf = true;
+        	
         	_planeStack.length = 0;
 			_tMaxStack.length = 0;
 			_nodeStack.length = 0;
         	
         	while (true) {
-        		// in a solid leaf, collision
+        		check = false;
+        		// in a solid leaf, collision if colliding with bevel planes
 				if (!node) {
-					if (!bevels) return splitPlane;
-					i = bevels.length;
-					while (--i >= 0)
-						if (!testBeveled(start, dir, tMin, tMax, halfExtents, bevels[i], testMethod))
-							return splitPlane;
+					if (testMethod == BSPTree.TEST_METHOD_POINT || !bevels)
+						return splitPlane;
+					
+					// dynamically insert bevel nodes
+					if (bevelIndex < bevels.length) {
+						_bevelNode._partitionPlane = bevels[bevelIndex++];
+						node = _bevelNode;
+					}
 				}
+				// after all bevel checks, still in solid node
+				if (!node) return splitPlane;
 				
         		// "empty" leaf
-        		if (!node || node._isLeaf) {
+        		if (node._isLeaf) {
         			if (stackLen == 0) return null;
 					--stackLen;
 					node = _nodeStack[stackLen];
@@ -588,7 +601,10 @@ package away3d.core.graphs
 					splitPlane = _planeStack[stackLen];
 				}
 				else {
-					bevels = node._bevelPlanes;
+					if (node != _bevelNode) {
+						bevels = node._bevelPlanes;
+						bevelIndex = 0;
+					}
 					plane = node._partitionPlane;
 	        		align = plane._alignment;
 					d = plane.d;
@@ -697,6 +713,9 @@ package away3d.core.graphs
         	return plane;
 		}
 		
+		/**
+		 * Return false if (at least) part of the path is on the negative side of the bevel plane
+		 */
 		private function testBeveled(start : Number3D, dir : Number3D, tMin : Number, tMax : Number, halfExtents : Number3D, plane : Plane3D, testMethod : int) : Boolean
 		{
 			var align : int = plane._alignment;
@@ -746,13 +765,13 @@ package away3d.core.graphs
 			}
 			dist -= offset;
 			
-			if (dirDot == 0) {
-				if (dist > 0) return true;
-				else return false; 
-			}
+			// start pos behind plane
+			if (dist < 0) return false;
+			
+			if (dirDot == 0) return true;
 			
 			t = -dist/dirDot;
-			if (t >= tMax || t < tMin)
+			if (t > 1 || t < 0)
 				return true;
 				
 			return false;
@@ -1097,15 +1116,39 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= _portals.length) {
 				_portalIndex = 0;
+				_progressEvent.message = "Creating bevel planes";
+				++_progressEvent.count;
+				setTimeout(createBevelPlanes, 1);
+			}
+			else {
+				setTimeout(removeOneSidedPortals, 1);	
+			}
+		}
+		
+		private function createBevelPlanes() : void
+		{
+			var startTime : int = getTimer();
+			var portal : BSPPortal;
+			
+			do {
+				portal = _portals[_portalIndex];
+				portal.backNode.generateBevelPlanes(portal, portal.frontNode);
+				portal.frontNode.generateBevelPlanes(portal, portal.backNode);
+			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
+			
+			notifyProgress(_portalIndex, _portals.length);
+			
+			if (_portalIndex >= _portals.length) {
+				_portalIndex = 0;
 				_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
 				_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
 				++_progressEvent.count;
 				setTimeout(partitionPortals, 1);
 			}
 			else {
-				setTimeout(removeOneSidedPortals, 1);	
+				setTimeout(createBevelPlanes, 1);	
 			}
-		}
+		}	
 		
 		/**
 		 * Create one-sided portals, ie. Portals through which we can see INTO a leaf.
