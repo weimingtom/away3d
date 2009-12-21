@@ -1,5 +1,6 @@
 package away3d.core.geom
 {
+	import away3d.materials.WireColorMaterial;
 	import away3d.core.graphs.BSPTree;
 	import away3d.arcane;
 	import away3d.core.base.Face;
@@ -34,32 +35,40 @@ package away3d.core.geom
 		{
 		}
 		
+		/**
+		 * Tests if two NGons (partially) share an edge.
+		 * 
+		 * @param nGon The NGon to test against.
+		 * @return Whether or the target NGon shares an edge with the current NGon.
+		 */
 		public function adjacent(nGon : NGon) : Boolean
 		{
-			var i : int = vertices.length;
-			var j : int = i - 1;
+			var len : int = vertices.length;
+			var i : int, j : int;
 			var k : int, l : int;
 			var v0 : Vertex, v1 : Vertex, v2 : Vertex, v3 : Vertex;
-			var count : int;
+			var targetVerts : Vector.<Vertex> = nGon.vertices;
+			var targetLen : int = targetVerts.length;
 			
+			i = len;
+			j = len-1;
 			v1 = vertices[j--];
 			
 			while (--i >= 0) {
 				v0 = v1;
 				v1 = vertices[j];
-				k = nGon.vertices.length;
-				l = k-2;
-				count = 0;
-				v3 = nGon.vertices[k-1];
+				k = targetLen;
+				l = targetLen-1;
+				v3 = targetVerts[l--];
 				while (--k >= 0) {
 					v2 = v3;
-					v3 = nGon.vertices[l];
+					v3 = targetVerts[l];
 					
 					if (isEdgeOverlapping(v0, v1, v2, v3)) return true;
-					if (--l < 0) l = nGon.vertices.length-1;
+					if (--l < 0) l = targetLen-1;
 				}
 				
-				if (--j < 0) j = vertices.length-1;
+				if (--j < 0) j = len-1;
 			}
 			return false;
 		}
@@ -71,7 +80,7 @@ package away3d.core.geom
 			var dx3 : Number, dy3 : Number, dz3 : Number;
 			var cx1 : Number, cy1 : Number, cz1 : Number;
 			var cx2 : Number, cy2 : Number, cz2 : Number;
-			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
+			var minT : Number, maxT : Number;
 			var t1 : Number, t2 : Number;
 			
 			// check if collinear
@@ -79,42 +88,52 @@ package away3d.core.geom
 			dy1 = v1._y-v0._y;
 			dz1 = v1._z-v0._z;
 			
-			dx2 = v3._x-v2._x;
-			dy2 = v3._y-v2._y;
-			dz2 = v3._z-v2._z;
+			dx2 = v2._x-v0._x;
+			dy2 = v2._y-v0._y;
+			dz2 = v2._z-v0._z;
 			
-			dx3 = v2._x-v0._x;
-			dy3 = v2._y-v0._y;
-			dz3 = v2._z-v0._z;
+			dx3 = v3._x-v0._x;
+			dy3 = v3._y-v0._y;
+			dz3 = v3._z-v0._z;
 			
-			// |cross product| = 0 if [v2, v3] is parallel to [v0, v1]
+			// |cross product| = 0 if v2 is colinear with [v0, v1]
 			cx1 = dy1 * dz2 - dz1 * dy2;
         	cy1 = dz1 * dx2 - dx1 * dz2;
         	cz1 = dx1 * dy2 - dy1 * dx2;
 			
-			// |cross product| = 0 if v2 is colinear with [v0, v1]
+			// |cross product| = 0 if v3 is colinear with [v0, v1]
 			cx2 = dy1 * dz3 - dz1 * dy3;
         	cy2 = dz1 * dx3 - dx1 * dz3;
         	cz2 = dx1 * dy3 - dy1 * dx3;
 			
-			// if lines are colinear
-			if (cx1*cx1 +cy1*cy1 + cz1*cz1 < eps &&
-				cx2*cx2 +cy2*cy2 + cz2*cz2 < eps) {
-				if (_tempU.x != 0) {
-					t1 = (v2.x-v0.x)/dx1;
-					t2 = (v3.x-v0.x)/dx1;
+			// if lines are colinear (lengths of crossproduct ~ 0)
+			if (cx1*cx1 + cy1*cy1 + cz1*cz1 < BSPTree.EPSILON &&
+				cx2*cx2 + cy2*cy2 + cz2*cz2 < BSPTree.EPSILON) {
+				// use the highest absolute value to minimize rounding errors, and ensuring the divisor != 0 
+				if ((dx1 > 0 && dx1 >= dy1 && dx1 >= dz1) ||
+					(dx1 < 0 && dx1 <= dy1 && dx1 <= dz1)) {
+					dx1 = 1/dx1;
+					t1 = dx2*dx1;
+					t2 = dx3*dx1;
 				}
-				else if (_tempU.y != 0) {
-					t1 = (v2.y-v0.y)/dy1;
-					t2 = (v3.y-v0.y)/dy1;
+				else if ((dy1 > 0 && dy1 >= dx1 && dy1 >= dz1) ||
+					(dy1 < 0 && dy1 <= dx1 && dy1 <= dz1)) {
+					dy1 = 1/dy1;
+					t1 = dy2*dy1;
+					t2 = dy3*dy1;
 				}
-				else if (_tempU.z != 0) {
-					t1 = (v2.z-v0.z)/dz1;
-					t2 = (v3.z-v0.z)/dz1;
+				else if ((dz1 > 0 && dz1 >= dx1 && dz1 >= dy1) ||
+					(dz1 < 0 && dz1 <= dx1 && dz1 <= dy1)) {
+					dz1 = 1/dz1;
+					t1 = dz2*dz1;
+					t2 = dz3*dz1;
 				}
 				
+				minT = -BSPTree.EPSILON;
+				maxT = 1+BSPTree.EPSILON;
+				
 				// no overlap if both points on same side of segment
-				return !(t1 <= 0 && t2 <= 0 || t1 >= 1 && t2 >= 1);
+				return !((t1 <= minT && t2 <= minT) || (t1 >= maxT && t2 >= maxT));
 			}
 			
 			return false;
@@ -405,6 +424,8 @@ package away3d.core.geom
 			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
 			
 			if (uvs) uv0 = uvs[0];
+			
+//			if (_isSplitter) material = new WireColorMaterial(0xffffff);
 			
 			for (var i : int = 1; i < len; ++i) {
 				v1 = vertices[i];
