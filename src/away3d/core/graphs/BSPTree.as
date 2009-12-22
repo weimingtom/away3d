@@ -40,6 +40,9 @@ package away3d.core.graphs
 		public static const EPSILON : Number = 0.07;
 		public static const COLLISION_EPSILON : Number = 0.1;
 		
+		// indicates whether or not to use the potentially visible set for culling
+		public var usePVS : Boolean = true;
+		
 		// the root node in the tree
 		arcane var _rootNode : BSPNode;
 		
@@ -52,16 +55,12 @@ package away3d.core.graphs
 		private var _transformPt : Number3D = new Number3D();
 		private var _viewToLocal : MatrixAway3D = new MatrixAway3D();
 		
-		// debug vars, temporary
-		public var freezeCulling : Boolean;
-//		public var showPortals : Boolean;
-		
 		// used for correct rendering and pre-culling
 		private var _cameraVarsStore : CameraVarsStore;
 		private var _dynamics : Vector.<Object3D>;
 		
 		private var _renderMark : int;
-		
+
 		/**
 		 * Creates a new BSPTree object.
 		 */
@@ -141,8 +140,8 @@ package away3d.core.graphs
 			// figure out leaf containing the point
 			_activeLeaf = getLeafContaining(_transformPt);
 			
-			if (!freezeCulling)
-				doCulling(_activeLeaf, frustum);
+//			if (!freezeCulling)
+			doCulling(_activeLeaf, frustum);
 			
 			++_renderMark;
 			
@@ -350,7 +349,7 @@ package away3d.core.graphs
         	_rootNode._culled = false;
         	
         	// process PVS
-        	if (vislen == 0) {
+			if (!usePVS || vislen == 0) {
         		for (i = 0; i < len; ++i)
    					_leaves[i]._culled = false;
         	}
@@ -516,7 +515,16 @@ package away3d.core.graphs
        	}
        	
        	private var _collisionDir : Number3D = new Number3D();
-       	
+       	arcane var _collisionPlane : Plane3D;
+       	arcane var _collisionRatio : Number;
+        private var _planeStack : Vector.<Plane3D> = new Vector.<Plane3D>();
+        private var _tMaxStack : Vector.<Number> = new Vector.<Number>();
+        private var _tMinStack : Vector.<Number> = new Vector.<Number>();
+        private var _nodeStack : Vector.<BSPNode> = new Vector.<BSPNode>();
+        private var _bevelStack : Vector.<Vector.<Plane3D>> = new Vector.<Vector.<Plane3D>>();
+        private var _bevelNode : BSPNode = new BSPNode(null);
+        private var _posNode : BSPNode = new BSPNode(_bevelNode);
+        
        	/**
 		 * Finds the closest colliding Face between start and end position
 		 * 
@@ -526,7 +534,7 @@ package away3d.core.graphs
 		 * 
 		 * @return The closest Face colliding with the object. Null if no collision was found.
 		 */
-        public function traceCollision(start : Number3D, end : Number3D, testMethod : int = TEST_METHOD_POINT, halfExtents : Number3D = null) : Plane3D
+        public function traceCollision(start : Number3D, end : Number3D, testMethod : int = TEST_METHOD_POINT, halfExtents : Number3D = null) : Boolean
         {
         	_collisionDir.x = end.x-start.x;
 			_collisionDir.y = end.y-start.y;
@@ -540,16 +548,24 @@ package away3d.core.graphs
         	}
         }
         
-        private var _planeStack : Vector.<Plane3D> = new Vector.<Plane3D>();
-        private var _tMaxStack : Vector.<Number> = new Vector.<Number>();
-        private var _tMinStack : Vector.<Number> = new Vector.<Number>();
-        private var _nodeStack : Vector.<BSPNode> = new Vector.<BSPNode>();
-        private var _bevelNode : BSPNode = new BSPNode(null);
-        private var _posNode : BSPNode = new BSPNode(_bevelNode);
-        private var _bevelStack : Vector.<Vector.<Plane3D>> = new Vector.<Vector.<Plane3D>>();
+        /**
+         * The ratio [0, 1] on the movement line where the previous collision occurred
+         */
+        public function get collisionRatio() : Number
+        {
+			return _collisionRatio;
+		}
+        
+        /**
+         * The plane against which was collided during the last call to traceCollision
+         */
+        public function get collisionPlane() : Plane3D
+        {
+			return _collisionPlane;
+		}
         
         // TO Do: need initial check to see if bounding box is not already colliding with geometry in start pos
- 		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null) : Plane3D
+ 		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null) : Boolean
         {
         	var plane : Plane3D;
         	var node : BSPNode = _rootNode;
@@ -568,32 +584,43 @@ package away3d.core.graphs
         	var oldMax : Number;
         	var bevels : Vector.<Plane3D>;
         	var bevelIndex : int;
-        	var check : Boolean;
         	
         	_bevelNode._positiveNode = _posNode;
         	_posNode._isLeaf = true;
         	
         	_planeStack.length = 0;
+        	_tMinStack.length = 0;
 			_tMaxStack.length = 0;
 			_nodeStack.length = 0;
+			_bevelStack.length = 0;
         	
         	while (true) {
-        		check = false;
         		// in a solid leaf, collision if colliding with bevel planes
 				if (!node) {
 					// dynamically insert bevel nodes if there are any, otherwise, reached a solid node
-					if (testMethod == BSPTree.TEST_METHOD_POINT || !bevels || bevelIndex == bevels.length)
-						return splitPlane;
+					if (testMethod == BSPTree.TEST_METHOD_POINT || !bevels || bevelIndex == bevels.length) {
+						_collisionPlane = splitPlane;
+						_collisionRatio = tMin;
+						return true;
+					}
 					
 					_bevelNode._partitionPlane = bevels[bevelIndex++];
 					node = _bevelNode;
 				}
 				// after all bevel checks, still in solid node
-				if (!node) return splitPlane;
+				if (!node) {
+					_collisionPlane = splitPlane;
+					_collisionRatio = tMin;
+					return true;
+				}
 				
         		// "empty" leaf
         		if (node._isLeaf) {
-        			if (stackLen == 0) return null;
+        			if (stackLen == 0) {
+						_collisionPlane = null;
+						_collisionRatio = 1;
+						return false;
+        			}
 					--stackLen;
 					node = _nodeStack[stackLen];
 					tMin = _tMinStack[stackLen];
@@ -647,6 +674,7 @@ package away3d.core.graphs
 							offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
 						}
 					}
+
 					dist -= offset;
 					// there has to be a way to use offset/dirDot to use bounds
 					if (dirDot != 0) {
@@ -660,9 +688,6 @@ package away3d.core.graphs
 						}
 						// plane is between start point and segment end
 						t = -dist/dirDot;
-						
-						if (testMethod != BSPTree.TEST_METHOD_POINT)
-							offset /= dirDot > 0 ? dirDot : -dirDot;
 						
 						oldMax = tMax;
 						
@@ -691,100 +716,24 @@ package away3d.core.graphs
 						node = first;
 					}
 					else {
-						if (dist > offset) node = node._positiveNode;
-						else if (dist < -offset) node = node._negativeNode;
-						else if (dist < 0){
-							_nodeStack[stackLen] = node._positiveNode;
-							_tMinStack[stackLen] = tMin;
-							_tMaxStack[stackLen] = tMax;
-							_planeStack[stackLen] = plane;
-							node = node._negativeNode;
-						}
-						else {
-							_nodeStack[stackLen] = node._negativeNode;
-							_tMinStack[stackLen] = tMin;
-							_tMaxStack[stackLen] = tMax;
-							_planeStack[stackLen] = plane;
-							node = node._positiveNode;
-						}
+						if (dist >= 0) node = node._positiveNode;
+						else node = node._negativeNode;
 					}
-					
 				}
 			}
         	
-        	return plane;
-		}
-		
-		/**
-		 * Return false if (at least) part of the path is on the negative side of the bevel plane
-		 */
-		private function testBeveled(start : Number3D, dir : Number3D, tMin : Number, tMax : Number, halfExtents : Number3D, plane : Plane3D, testMethod : int) : Boolean
-		{
-			var align : int = plane._alignment;
-			var dist : Number, dirDot : Number;
-			var a : Number, b : Number, c : Number, d : Number;
-			var offset : Number, ox : Number, oy : Number, oz : Number;
-			var t : Number;
-			
-			d = plane.d; 
-			if (align == Plane3D.X_AXIS) {
-				a = plane.a;
-				dist = a*start.x + d;
-				dirDot = a*dir.x + d;
-				if (testMethod != TEST_METHOD_POINT)
-					offset = halfExtents.x;
-			}
-			else if (align == Plane3D.Y_AXIS) {
-				b = plane.b;
-				dist = b*start.y + d;
-				dirDot = b*dir.y + d;
-				if (testMethod != TEST_METHOD_POINT)
-					offset = halfExtents.y;
-			}
-			else if (align == Plane3D.Z_AXIS) {
-				c = plane.c;
-				dist = c*start.z + d;
-				dirDot = c*dir.z + d;
-				if (testMethod != TEST_METHOD_POINT)
-					offset = halfExtents.z;
-			}
-			else {
-				a = plane.a;
-				b = plane.b;
-				c = plane.c;
-				dist = a*start.x + b*start.y + c*start.z + d;
-				dirDot = a*dir.x + b*dir.y + c*dir.z + d;
-				if (testMethod == TEST_METHOD_AABB)
-					offset = 	(a > 0? a*halfExtents.x : -a*halfExtents.x) +
-								(b > 0? b*halfExtents.y : -b*halfExtents.y) +
-								(c > 0? c*halfExtents.z : -c*halfExtents.z);
-				else if (testMethod == TEST_METHOD_ELLIPSOID) {
-					ox = a*halfExtents.x;
-					oy = b*halfExtents.y;
-					oz = c*halfExtents.z;
-					offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
-				}
-			}
-			dist -= offset;
-			
-			// start pos behind plane
-			if (dist < 0) return false;
-			
-			if (dirDot == 0) return true;
-			
-			t = -dist/dirDot;
-			if (t > 1 || t < 0)
-				return true;
-				
+        	// this is never reached, but prevents compile error
+			_collisionPlane = null;
 			return false;
 		}
-
+		
 /*
  * BUILDING
  */
  		// bsp build
 		arcane static var nodeCount : int;
 		private var _buildPVS : Boolean;
+		private var _buildCollisionPlanes : Boolean;
 		private var _complete : Boolean;
 		private var _progressEvent : TraceEvent;
 		private var _currentBuildNode : BSPNode;
@@ -872,12 +821,16 @@ package away3d.core.graphs
 		 * 
 		 * @param faces A list of Face objects from which to build the tree.
 		 * @param buildPVS Whether or not to build the potential visible set. Building a PVS allows a large set of the geometry to be culled early on. It's a slow process and definitely not recommended for real-time use.
+		 * @param buildCollisionPlanes Whether or not to generate additional bevel planes used in collision detection.
 		 */
-		public function build(faces : Vector.<Face>, buildPVS : Boolean = false) : void
+		public function build(faces : Vector.<Face>, buildPVS : Boolean = false, buildCollisionPlanes : Boolean = true) : void
 		{
 			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
-			_progressEvent.totalParts = buildPVS? 12 : 1;
+			if (buildPVS)
+				_progressEvent.totalParts += buildCollisionPlanes? 10 : 9;
+			else if (buildCollisionPlanes)
+				_progressEvent.totalParts += 3;
 			_rootNode._buildFaces = convertFaces(faces);
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
@@ -885,17 +838,23 @@ package away3d.core.graphs
 			_progressEvent.message = "Building BSP tree";
 			_totalFaces = faces.length;
 			_buildPVS = buildPVS;
+			_buildCollisionPlanes = buildCollisionPlanes;
 			buildStep();
 		}
 		
 		/**
 		 * @private
 		 */
-		arcane function buildFromNGons(faces : Vector.<NGon>, buildPVS : Boolean = true) : void
+		arcane function buildFromNGons(faces : Vector.<NGon>, buildPVS : Boolean = true, buildCollisionPlanes : Boolean = true) : void
 		{
 			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
-			_progressEvent.totalParts = buildPVS? 12 : 1;
+			_progressEvent.totalParts = 1;
+			if (buildPVS)
+				_progressEvent.totalParts += buildCollisionPlanes? 12 : 11;
+			else if (buildCollisionPlanes)
+				_progressEvent.totalParts += 3;
+				
 			_rootNode._buildFaces = faces;
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
@@ -903,6 +862,7 @@ package away3d.core.graphs
 			_progressEvent.message = "Building BSP tree";
 			_totalFaces = faces.length;
 			_buildPVS = buildPVS;
+			_buildCollisionPlanes = buildCollisionPlanes;
 			buildStep();
 		}
 		
@@ -1007,7 +967,7 @@ package away3d.core.graphs
 			_rootNode.gatherLeaves(_leaves);
 			init();
 			
-			if (_buildPVS)
+			if (_buildPVS || _buildCollisionPlanes)
 				setTimeout(createPVS, 1);
 			else
 				dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
@@ -1118,9 +1078,16 @@ package away3d.core.graphs
 			
 			if (_portalIndex >= _portals.length) {
 				_portalIndex = 0;
-				_progressEvent.message = "Creating bevel planes";
 				++_progressEvent.count;
-				setTimeout(createBevelPlanes, 1);
+				if (_buildCollisionPlanes) {
+					_progressEvent.message = "Creating bevel planes";
+					setTimeout(createBevelPlanes, 1);
+				}
+				else {
+					_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
+					_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
+					setTimeout(partitionPortals, 1);
+				}
 			}
 			else {
 				setTimeout(removeOneSidedPortals, 1);	
@@ -1141,11 +1108,15 @@ package away3d.core.graphs
 			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
 			
 			if (_portalIndex >= _portals.length) {
-				_portalIndex = 0;
-				_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
-				_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
-				++_progressEvent.count;
-				setTimeout(partitionPortals, 1);
+				if (_buildPVS) {
+					_portalIndex = 0;
+					_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
+					_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
+					++_progressEvent.count;
+					setTimeout(partitionPortals, 1);
+				}
+				else
+					dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
 			}
 			else {
 				setTimeout(createBevelPlanes, 1);	

@@ -31,6 +31,7 @@ package away3d.physics
 		
 		private var _startPos : Number3D = new Number3D();
 		private var _targetPos : Number3D = new Number3D();
+		private var _tempPos : Number3D = new Number3D();
 		private var _flyMode : Boolean = true;
 		private var _maxIterations : Number = 5;
 		private var _onSolidGround : Boolean;
@@ -94,21 +95,21 @@ package away3d.physics
 		public function move(x : Number, y : Number, z : Number) : Number3D
 		{
 			var newVelocity : Number3D;
-			if (flyMode || _maxClimbHeight == 0 || y >= 0) {
+//			if (flyMode || _maxClimbHeight == 0 || y >= 0) {
 				newVelocity = moveBy(x, y, z);
-			}
-			else {
+//			}
+//			else {
 				// in two steps to allow climbing stairs
-				newVelocity = moveBy(x, 0, z);
+//				newVelocity = moveBy(x, 0, z);
 				
 				// do not apply downward force if we're already on solid ground
 //				if (!_onSolidGround) {
-					newVelocity.y = moveBy(0, y, 0).y;
+//					newVelocity.y = moveBy(0, y, 0).y;
 					if (_onSolidGround) newVelocity.y = 0;
 //				}
 //				else
 //					newVelocity.y = 0;
-			}
+//			}
 				
 			return newVelocity;
 		}
@@ -131,6 +132,7 @@ package away3d.physics
 			var diffY : Number;
 			var newForce : Number3D = new Number3D();
 			var climbed : Boolean;
+			var hit : Boolean;
 			
 			if (x == 0 && y == 0 && z == 0) return newForce;
 			
@@ -177,54 +179,56 @@ package away3d.physics
 			_velocity.y = _targetPos.y - _startPos.y;
 			_velocity.z = _targetPos.z - _startPos.z;
 			
-			collPlane = _bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents);
+			hit = _bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents);
+			collPlane = hit? _bspTree._collisionPlane : null;
 			
-			if (_onSolidGround && collPlane && !_flyMode && y == 0 && _maxClimbHeight > 0) {
+			if (_onSolidGround && collPlane && !_flyMode && _maxClimbHeight > 0) {
 				var ny : Number = collPlane.b;
 				if (ny < 0) ny = -ny;
 				
-				if (ny < .2) {
-					diffY += 1;
+				// check if we're not dealing with a slope
+				if (ny < .05) {
 					_startPos.y += _maxClimbHeight;
 					_targetPos.y += _maxClimbHeight;
-					_targetPos.x += _velocity.x*3;
-					_targetPos.z += _velocity.z*3;
+//					_targetPos.x += _velocity.x*2;
+//					_targetPos.z += _velocity.z*2;
+					
 					if (_bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents)) {
 						_startPos.y -= _maxClimbHeight;
 						_targetPos.y -= _maxClimbHeight;
 					}
 					else {
-						//projectTargetDown();
-//						_targetPos.x = _startPos.x;
-//						_targetPos.z = _startPos.z;
+						// to do: PROJECT BACK DOWN
+						projectDown(_targetPos);
 						climbed = true;
-//						_onSolidGround = true;
 						collPlane = null;
+						hit = false;
+//						_onSolidGround = false;
 					}
-					_targetPos.x -= _velocity.x*3;
-					_targetPos.z -= _velocity.z*3;
+//					_targetPos.x -= _velocity.x*2;
+//					_targetPos.z -= _velocity.z*2;
 				}
 			}
 			
 			// until we find a position that is valid, keep checking where to "slide" the object
-			while (collPlane && it < _maxIterations) {
+			while (collPlane && it++ < _maxIterations) {
 				// check if x or z are changed, if so, see if we can climb up
 				slideTarget(collPlane);
-				
-				++it;
-				if (collPlane) collPlane = _bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents);
+				hit = _bspTree.traceCollision(_startPos, _targetPos, _method, _halfExtents);
+				collPlane = hit? _bspTree._collisionPlane : null;
 			}
 			
+			// if no vertical difference between intended movement and blocked movement,
+			// it means we're free-falling and cannot climb up
 			if (!_flyMode && !climbed) {
 				diffY = _targetPos.y - _startPos.y - _velocity.y;
-				// if no vertical difference between intended movement and blocked movement, it means we're free-falling and cannot climb up
 				diffY = _targetPos.y - _startPos.y - y;
 				if (diffY < 0) diffY = -diffY;
 				_onSolidGround = diffY > 0.1;
 			}
 			
 			// object allowed to move
-			if (!collPlane) {
+			if (!hit) {
 				resetBounds();
 				// transform to world space
 				_targetPos.transform(_targetPos, BSPTransform);
@@ -249,6 +253,16 @@ package away3d.physics
 			return newForce;
 		}
 		
+		private function projectDown(targetPos : Number3D) : void
+		{
+			_tempPos.x = targetPos.x;
+			_tempPos.y = targetPos.y - _maxClimbHeight*2;
+			_tempPos.z = targetPos.z;
+			
+			if (_bspTree.traceCollision(targetPos, _tempPos, _method, _halfExtents))
+				targetPos.y = targetPos.y+(_bspTree.collisionRatio-BSPTree.EPSILON)*(_tempPos.y-targetPos.y);
+		}
+
 		private var _offsetX : Number = 0;
 		private var _offsetY : Number = 0;
 		private var _offsetZ : Number = 0;
@@ -305,8 +319,7 @@ package away3d.physics
 				offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
 			}
 			
-			// is this correct? it should be :| It projects targetPos onto the plane causing the slide and offsets it with the bound
-			dist = offset + 0.5 - a * _targetPos.x - b*_targetPos.y - c*_targetPos.z - d;
+			dist = offset + BSPTree.EPSILON - a * _targetPos.x - b*_targetPos.y - c*_targetPos.z - d;
 			
 			_targetPos.x += a*dist;
 			_targetPos.y += b*dist;

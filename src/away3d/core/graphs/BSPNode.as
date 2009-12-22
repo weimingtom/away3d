@@ -511,7 +511,7 @@ package away3d.core.graphs
 		private var _negativeFaces : Vector.<NGon>;
 		
 		// indicates whether contents is convex or not when creating solid leaf tree
-		private var _convex : Boolean;
+		arcane var _convex : Boolean;
 		// triangle planes used to create solid leaf tree
 		private var _solidPlanes : Vector.<Plane3D>;
 		
