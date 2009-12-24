@@ -1,5 +1,6 @@
 package away3d.core.graphs
 {
+	import away3d.events.Object3DEvent;
 	import away3d.core.base.Object3D;
 	import flash.utils.Dictionary;
 	import away3d.core.utils.CameraVarsStore;
@@ -60,19 +61,40 @@ package away3d.core.graphs
 		private var _dynamics : Vector.<Object3D>;
 		
 		private var _renderMark : int;
-
+		
+		private var _obbCollisionTree : BSPTree;
+		
 		/**
 		 * Creates a new BSPTree object.
 		 */
-		public function BSPTree()
+		public function BSPTree(buildDynamicCollisionTree : Boolean = true)
 		{
 			super();
 			_dynamics = new Vector.<Object3D>();
 			_preCulled = true;
 			_rootNode = new BSPNode(null);
 			_rootNode._maxTimeOut = maxTimeout;
+			if (buildDynamicCollisionTree) buildCollisionTree();
 		}
 		
+		private function buildCollisionTree() : void
+		{
+			var i : int;
+			var node : BSPNode;
+			_obbCollisionTree = new BSPTree(false);
+			node = _obbCollisionTree._rootNode;
+			
+			do {
+				node._partitionPlane = new Plane3D();
+				node._positiveNode = new BSPNode(node);
+				node._positiveNode._isLeaf = true;
+				if (i < 5) {
+					node._negativeNode = new BSPNode(node);
+					node = node._negativeNode;
+				}
+			} while (++i < 6);
+		}
+
 		/**
 		 * The leaf containing the camera. Returns null if the camera is in "solid" space.
 		 */
@@ -143,42 +165,87 @@ package away3d.core.graphs
 //			if (!freezeCulling)
 			doCulling(_activeLeaf, frustum);
 			
-			++_renderMark;
+			updateNewColliders();
 			
-			// order nodes for primitive traversal
-			//orderNodes(_transformPt);
-			assignDynamics();
+			++_renderMark;
 			
 			_cameraVarsStore = cameraVarsStore;
 		}
-		
-		/**
-		 * Places dynamic objects (those not part of the bsp structure) into their respective leaves
-		 */
-		private function assignDynamics() : void
+
+		private function updateNewColliders() : void 
 		{
-			var i : int = _dynamics.length;
+			var j : int = _dynamics.length;
 			var child : Object3D;
-			var pos : Number3D = new Number3D();
-			var leaf : BSPNode;
-			var mark : int;
 			
-			while (--i >= 0) {
-				child = _dynamics[i];
-				
-				// center position of child object
-				pos.transform(child.scenePosition, inverseSceneTransform);
-				leaf = getLeafContaining(pos, true);
-				
-				mark = child._sceneGraphMark;
-				if (leaf && mark != leaf.leafId) {
-					if (mark >= 0) _leaves[mark].removeChild(child);
-					leaf.addChild(child);
-				}
-				else if (!leaf) {
-					child._sceneGraphMark = -1;
+			while (--j >= 0) {
+				child = _dynamics[j];
+				if (child._collider && !child._sceneGraphCollisionMarks) {
+					child._sceneGraphCollisionMarks = [];
+					assignCollider(child);
 				}
 			}
+		}
+
+		private function assignDynamic(child : Object3D) : void
+		{
+			var mark : int = child._sceneGraphMark;
+			var bx : Number = (child.maxX-child._minX)*.5;
+			var by : Number = (child._maxY-child._minY)*.5;
+			var bz : Number = (child._maxZ-child._minZ)*.5;
+			var pos : Number3D = new Number3D(bx, by, bz);
+			var leaf : BSPNode;
+			
+			pos.transform(pos, child.sceneTransform);
+			pos.transform(pos, inverseSceneTransform);
+			
+			leaf = getLeafContaining(pos);
+			
+			// still in same leaf, no need to check anything
+			if (leaf && leaf.leafId == mark) return;
+			
+			if (mark != -1) {
+				_leaves[mark].removeChild(child);
+			}
+			
+			if (leaf)
+				leaf.addChild(child);
+			
+			if (child._collider)
+				assignCollider(child, pos, bx, by, bz);
+		}
+		
+		private function assignCollider(child : Object3D, pos : Number3D = null, bx : Number = 0, by : Number = 0, bz : Number = 0) : void
+		{
+			var bound : Number3D;
+			var radius : Number;
+			var marks : Array = child._sceneGraphCollisionMarks;
+			var i : int;
+			var mark : int;
+			var childSceneTransform : MatrixAway3D;
+			
+			i = marks.length;
+			while (--i >= 0) {
+				mark = int(child._sceneGraphCollisionMarks[i]);
+				_leaves[mark].removeCollider(child);
+			}
+			
+			if (child._sceneGraphMark == -1) return;
+			
+			if (!pos) {
+				bx = (child.maxX-child._minX)*.5;
+				by = (child._maxY-child._minY)*.5;
+				bz = (child._maxZ-child._minZ)*.5;
+				pos = new Number3D(bx, by, bz);
+				pos.transform(pos, childSceneTransform);
+				pos.transform(pos, inverseSceneTransform);
+			}
+			bound = new Number3D(bx, by, bz);
+			
+			childSceneTransform = child.sceneTransform;
+			childSceneTransform.multiplyVector3x3(bound);
+			inverseSceneTransform.multiplyVector3x3(bound);
+			radius = bound.modulo;
+			_rootNode.assignCollider(child, pos, radius);
 		}
 		
 		/**
@@ -189,8 +256,11 @@ package away3d.core.graphs
 			super.addChild(child);
 			_dynamics.push(child);
 			child._sceneGraphMark = -1;
+			if (child._collider) child._sceneGraphCollisionMarks = [];
+			assignDynamic(child);
+			child.addEventListener(Object3DEvent.SCENETRANSFORM_CHANGED, onDynamicUpdate);
 		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
@@ -198,7 +268,15 @@ package away3d.core.graphs
 		{
 			var index : int = _dynamics.indexOf(child);
 			if (index >= 0) _dynamics.splice(index, 1);
+			super.removeChild(child);
 			child._sceneGraphMark = -1;
+			child._sceneGraphCollisionMarks = null;
+			child.removeEventListener(Object3DEvent.SCENETRANSFORM_CHANGED, onDynamicUpdate);
+		}
+		
+		private function onDynamicUpdate(event : Object3DEvent) : void 
+		{
+			assignDynamic(Object3D(event.target));
 		}
 
 		/**
@@ -517,6 +595,7 @@ package away3d.core.graphs
        	private var _collisionDir : Number3D = new Number3D();
        	arcane var _collisionPlane : Plane3D;
        	arcane var _collisionRatio : Number;
+       	arcane var _collidedObject : Object3D;
         private var _planeStack : Vector.<Plane3D> = new Vector.<Plane3D>();
         private var _tMaxStack : Vector.<Number> = new Vector.<Number>();
         private var _tMinStack : Vector.<Number> = new Vector.<Number>();
@@ -563,9 +642,17 @@ package away3d.core.graphs
         {
 			return _collisionPlane;
 		}
+		
+		/**
+		 * 
+		 */
+        public function get collidedObject() : Object3D
+        {
+        	return _collidedObject;
+        }
         
         // TO Do: need initial check to see if bounding box is not already colliding with geometry in start pos
- 		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null) : Boolean
+ 		private function findCollision(start : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D = null, tMin : Number = 0, tMax : Number = 1) : Boolean
         {
         	var plane : Plane3D;
         	var node : BSPNode = _rootNode;
@@ -575,7 +662,6 @@ package away3d.core.graphs
         	var align : int;
         	var a : Number, b : Number, c : Number, d : Number;
         	var first : BSPNode, second : BSPNode;
-        	var tMax : Number = 1, tMin : Number = 0;
         	var stackLen : int;
         	var splitPlane : Plane3D;
         	var offset : Number = 0;
@@ -584,6 +670,7 @@ package away3d.core.graphs
         	var oldMax : Number;
         	var bevels : Vector.<Plane3D>;
         	var bevelIndex : int;
+        	var colliders : Array;
         	
         	_bevelNode._positiveNode = _posNode;
         	_posNode._isLeaf = true;
@@ -593,6 +680,7 @@ package away3d.core.graphs
 			_tMaxStack.length = 0;
 			_nodeStack.length = 0;
 			_bevelStack.length = 0;
+        	_collidedObject = null;
         	
         	while (true) {
         		// in a solid leaf, collision if colliding with bevel planes
@@ -616,11 +704,16 @@ package away3d.core.graphs
 				
         		// "empty" leaf
         		if (node._isLeaf) {
+        			colliders = node._colliders;
+        			if (colliders && colliders.length > 0 &&
+        				traceColliders(start, dir, tMin, tMax, testMethod, halfExtents, colliders))
+							return true;
+        			
         			if (stackLen == 0) {
 						_collisionPlane = null;
 						_collisionRatio = 1;
 						return false;
-        			}
+					}
 					--stackLen;
 					node = _nodeStack[stackLen];
 					tMin = _tMinStack[stackLen];
@@ -726,8 +819,88 @@ package away3d.core.graphs
 			_collisionPlane = null;
 			return false;
 		}
+
+		private function traceColliders(start : Number3D, dir : Number3D, tMin : Number, tMax : Number, testMethod : int, halfExtents : Number3D, colliders : Array) : Boolean 
+		{
+			var i : int = colliders.length;
+			var collider : Object3D;
+			
+			while (--i >= 0) {
+				collider = colliders[i];
+				updateCollisionTree(collider);
+				if (_obbCollisionTree.findCollision(start, dir, testMethod, halfExtents, tMin, tMax)) {
+					_collisionPlane = _obbCollisionTree._collisionPlane;
+					_collisionRatio = _obbCollisionTree._collisionRatio;
+					_collidedObject = collider;
+					return true;
+				}
+			}
+			return false;
+		}
 		
-/*
+		// transform all bounding box planes to bsp coordinate system
+		// this can be improved by providing a transformation matrix in findCollision and do transforms at that point
+		// we just need to reset things here to object space
+		// or even better, assign a collisionTree instance to the collider (in dictionary)
+		// and only update on transformChange
+		private function updateCollisionTree(collider : Object3D) : void
+		{
+			var plane : Plane3D;
+			var node : BSPNode = _obbCollisionTree._rootNode;
+			var tr : MatrixAway3D = new MatrixAway3D();
+			tr.inverse4x4(collider.transform);
+			
+			// front plane
+			plane = node._partitionPlane;
+			plane.a = plane.b = 0;
+			plane.c = -1;
+			plane.d = collider._minZ;
+			plane.transform(tr);
+			node = node._negativeNode;
+			trace (plane);
+			// back plane
+			plane = node._partitionPlane;
+			plane.a = plane.b = 0;
+			plane.c = 1;
+			plane.d = -collider._maxZ;
+			plane.transform(tr);
+			node = node._negativeNode;
+			trace (plane);
+			// left plane
+			plane = node._partitionPlane;
+			plane.a = -1;
+			plane.b = plane.c = 0;
+			plane.d = collider._minX;
+			plane.transform(tr);
+			node = node._negativeNode;
+			trace (plane);
+			// right plane
+			plane = node._partitionPlane;
+			plane.a = 1;
+			plane.b = plane.c = 0;
+			plane.d = -collider._maxX;
+			plane.transform(tr);
+			node = node._negativeNode;
+			trace (plane);
+			// top plane
+			plane = node._partitionPlane;
+			plane.a = plane.c = 0;
+			plane.b = 1;
+			plane.d = -collider._maxY;
+			plane.transform(tr);
+			node = node._negativeNode;
+			trace (plane);
+			// bottom plane
+			plane = node._partitionPlane;
+			plane.a = plane.c = 0;
+			plane.b = -1;
+			plane.d = collider._minY;
+			plane.transform(tr);
+			trace (plane);
+			trace ("-----");
+		}
+
+		/*
  * BUILDING
  */
  		// bsp build

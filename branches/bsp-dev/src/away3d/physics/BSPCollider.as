@@ -35,8 +35,9 @@ package away3d.physics
 		private var _flyMode : Boolean = true;
 		private var _maxIterations : Number = 5;
 		private var _onSolidGround : Boolean;
+		private var _stuck : Boolean;
 		
-		private var _method : int = BSPTree.TEST_METHOD_AABB;
+		private var _method : int = BSPTree.TEST_METHOD_ELLIPSOID;
 
 		/**
 		 * Creates a BSPCollider object.
@@ -238,16 +239,21 @@ package away3d.physics
 				
 				newForce.x = _targetPos.x-_object.x;
 				newForce.y = _targetPos.y-_object.y;
-//				if (newForce.y - y > 0) newForce.y = 0;
+				if (newForce.y > y) newForce.y = y;
 				newForce.z = _targetPos.z-_object.z;
 				_object.x = _targetPos.x;
 				_object.y = _targetPos.y;
 				_object.z = _targetPos.z;
+				
+				_stuck = false;
 			}
 			else {
 				newForce.x = 0;
 				newForce.y = 0;
 				newForce.z = 0;
+				
+				// stuck in solid node if hit detected without a collision plane
+				_stuck = (collPlane == null);
 			}
 			
 			return newForce;
@@ -359,6 +365,16 @@ package away3d.physics
 		public function set testMethod(method : int) : void
 		{
 			_method = method;
+		}
+		
+		public function get stuck() : Boolean
+		{
+			return _stuck;
+		}
+		
+		public function set stuck(stuck : Boolean) : void
+		{
+			_stuck = stuck;
 		}
 	}
 }

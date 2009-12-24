@@ -62,6 +62,7 @@ package away3d.core.graphs
 		arcane var _maxZ: Number;
 		
 		arcane var _children : Array;
+		arcane var _colliders : Array;
 
 		/**
 		 * Creates a new BSPNode object.
@@ -149,6 +150,54 @@ package away3d.core.graphs
 			}
 		}
 		
+		/*public function assignDynamic(child : Object3D, center : Number3D, radius : Number) : void
+		{
+			var dist : Number;
+			var align : int;
+		}*/
+		
+		public function assignCollider(child : Object3D, center : Number3D, radius : Number) : void 
+		{
+			var dist : Number;
+			var align : int;
+			
+			if (_isLeaf) {
+				addCollider(child);
+				return;
+			}
+			
+			align = _partitionPlane._alignment;
+			if (align == Plane3D.X_AXIS)
+				dist = center.x*_partitionPlane.a + _partitionPlane.d;
+			else if (align == Plane3D.Y_AXIS)
+				dist = center.y*_partitionPlane.b + _partitionPlane.d;
+			else if (align == Plane3D.Z_AXIS)
+				dist = center.z*_partitionPlane.c + _partitionPlane.d;
+			else
+				dist = center.x*_partitionPlane.a + center.y*_partitionPlane.b + center.z*_partitionPlane.c + _partitionPlane.d;
+			
+			if (dist < radius && _negativeNode) _negativeNode.assignCollider(child, center, radius);
+			if (dist > -radius && _positiveNode) _positiveNode.assignCollider(child, center, radius);
+		}
+
+		public function addCollider(child : Object3D) : void 
+		{
+			if (!_colliders) _colliders = [];
+			_colliders.push(child);
+			child._sceneGraphCollisionMarks.push(leafId);
+		}
+
+		public function removeCollider(child : Object3D) : void 
+		{
+			var index : int = _colliders.indexOf(child);
+			var marks : Array = child._sceneGraphCollisionMarks;
+			if (index != -1) {
+				_colliders.splice(index, 1);
+				index = marks.indexOf(leafId);
+				if (index != -1) marks.splice(index, 1);
+			}
+		}
+		
 		/**
 		 * Adds a dynamic child to this leaf
 		 * 
@@ -157,11 +206,10 @@ package away3d.core.graphs
 		public function addChild(child : Object3D) : void
 		{
 			if (!_children) _children = [];
-			
-			child._sceneGraphMark = leafId;
 			_children.push(child);
+			child._sceneGraphMark = leafId;
 		}
-
+		
 		/**
 		 * Removes a dynamic child from this leaf
 		 * 
@@ -170,7 +218,10 @@ package away3d.core.graphs
 		public function removeChild(child : Object3D) : void
 		{
 			var index : int = _children.indexOf(child);
-			if (index != -1) _children.splice(index, 1);
+			if (index != -1) {
+				_children.splice(index, 1);
+				child._sceneGraphMark = -1;
+			}
 		}
 		
 		/**
@@ -922,6 +973,5 @@ package away3d.core.graphs
 		{
 			return a < b? -1 : (a == b? 0 : 1);
 		}
-		
 	}
 }
