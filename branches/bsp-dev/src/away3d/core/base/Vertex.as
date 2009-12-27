@@ -13,6 +13,11 @@ package away3d.core.base
     */
     public class Vertex extends ValueObject
     {
+    	/** 
+    	 * Used for caching distance information
+    	 * @private
+    	 */
+        arcane var _distance:Number;
     	/** @private */
         arcane var _index:int;
 		/** @private */

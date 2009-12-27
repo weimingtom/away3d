@@ -103,7 +103,7 @@ package away3d.core.project
         
 		public function primitives(source:Object3D, viewTransform:MatrixAway3D, consumer:IPrimitiveConsumer):void
 		{
-			var preculled : Boolean = source._preCulled;
+			var presorted : Boolean = source._preSorted;
 			
 			_cameraVarsStore.createVertexClassificationDictionary(source);
 			
@@ -181,7 +181,7 @@ package away3d.core.project
             	_face = _faceVO.face;
             	
             	_tri = _drawPrimitiveStore.createDrawTriangle(source, _faceVO, null, _screenVertices, _screenIndices, _screenCommands, _startIndex, _endIndex, _faceVO.uv0, _faceVO.uv1, _faceVO.uv2, _faceVO.generated);
-				_tri.ignoreSort = preculled;
+				_tri.ignoreSort = presorted;
 				//determine if _triangle is facing towards or away from camera
                 _backface = _tri.backface = _tri.area < 0;
 				
