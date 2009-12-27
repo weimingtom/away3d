@@ -1,5 +1,6 @@
 package away3d.core.graphs
 {
+	import away3d.core.traverse.PrimitiveTraverser;
 	import away3d.materials.WireColorMaterial;
 	import away3d.core.base.Vertex;
 	import away3d.core.base.Object3D;
@@ -62,7 +63,9 @@ package away3d.core.graphs
 		arcane var _maxZ: Number;
 		
 		arcane var _children : Array;
+		arcane var _meshes : Array;
 		arcane var _colliders : Array;
+		arcane var _hasChildren : Boolean;
 
 		/**
 		 * Creates a new BSPNode object.
@@ -137,15 +140,33 @@ package away3d.core.graphs
 		 */
 		public function traverseChildren(traverser : Traverser) : void
 		{
-			var i : int = _children.length;
+			var i : int;
 			var child : Object3D;
+			var mng : BSPMeshManager;
 			
-			while (--i >= 0) {
-				child = Object3D(_children[i]);
-				if (child._sceneGraphMark != -1 && traverser.match(child)) {
-					traverser.enter(child);
-					traverser.apply(child);
-					traverser.leave(child);
+			if (_children) {
+				i = _children.length;
+			
+				while (--i >= 0) {
+					child = Object3D(_children[i]);
+					if (traverser.match(child)) {
+						traverser.enter(child);
+						traverser.apply(child);
+						traverser.leave(child);
+					}
+				}
+			}
+			if (_meshes) {
+				i = _meshes.length;
+				while (--i >= 0) {
+					mng = BSPMeshManager(_meshes[i]);
+					mng.setLeaf(leafId);
+					child = mng.mesh;
+					if (traverser.match(child)) {
+						traverser.enter(child);
+						traverser.apply(child);
+						traverser.leave(child);
+					}
 				}
 			}
 		}
@@ -162,7 +183,7 @@ package away3d.core.graphs
 			var align : int;
 			
 			if (_isLeaf) {
-				addCollider(child);
+//				addCollider(child);
 				return;
 			}
 			
@@ -180,7 +201,7 @@ package away3d.core.graphs
 			if (dist > -radius && _positiveNode) _positiveNode.assignCollider(child, center, radius);
 		}
 
-		public function addCollider(child : Object3D) : void 
+		/*public function addCollider(child : Object3D) : void 
 		{
 			if (!_colliders) _colliders = [];
 			_colliders.push(child);
@@ -196,6 +217,33 @@ package away3d.core.graphs
 				index = marks.indexOf(leafId);
 				if (index != -1) marks.splice(index, 1);
 			}
+		}*/
+		
+		public function addMesh(mesh : BSPMeshManager) : void 
+		{
+			if (!_meshes) _meshes = [];
+			_meshes.push(mesh);
+			if (mesh.sourceMesh._collider) {
+				if (!_colliders) _colliders = [];
+				_colliders.push(mesh.sourceMesh);
+			}
+			_hasChildren = true;
+		}
+		
+		public function removeMesh(mesh : BSPMeshManager) : void 
+		{
+			var index : int = _meshes.indexOf(mesh);
+
+			if (index != -1) {
+				_meshes.splice(index, 1);
+			}
+			if (mesh.mesh._collider) {
+				index = _colliders.indexOf(mesh.sourceMesh);
+				if (index != -1) {
+					_colliders.splice(index, 1);
+				}
+			}
+			_hasChildren = (_meshes.length > 0 || (_children && _children.length > 0));
 		}
 		
 		/**
@@ -208,7 +256,9 @@ package away3d.core.graphs
 			if (!_children) _children = [];
 			_children.push(child);
 			child._sceneGraphMark = leafId;
+			_hasChildren = true;
 		}
+		
 		
 		/**
 		 * Removes a dynamic child from this leaf
@@ -222,6 +272,7 @@ package away3d.core.graphs
 				_children.splice(index, 1);
 				child._sceneGraphMark = -1;
 			}
+			_hasChildren = (_children.length > 0 || (_meshes && _meshes.length > 0));
 		}
 		
 		/**
@@ -257,8 +308,9 @@ package away3d.core.graphs
 			if (!_mesh) {
 				_mesh = new Mesh();
 				_mesh._preCulled = true;
-				// faster screenZ calc
-				_mesh.pushfront = true;
+				_mesh._preSorted = true;
+				// faster screenZ calc if needed
+				_mesh.pushback = true;
 			}
 			
 			if (len == 0) return;

@@ -64,6 +64,8 @@ package away3d.core.graphs
 		
 		private var _obbCollisionTree : BSPTree;
 		
+		private var _meshManagers : Dictionary;
+		
 		/**
 		 * Creates a new BSPTree object.
 		 */
@@ -151,6 +153,12 @@ package away3d.core.graphs
 			
 			if (!_complete) return;
 			
+			// force transform updates
+			var i : int = _dynamics.length;
+			while (--i >= 0) {
+				_dynamics[i].sceneTransform;
+			}
+			
 			var invSceneTransform : MatrixAway3D = inverseSceneTransform;
 			
 			// get frustum for local coordinate system
@@ -165,56 +173,33 @@ package away3d.core.graphs
 //			if (!freezeCulling)
 			doCulling(_activeLeaf, frustum);
 			
-			updateNewColliders();
-			
 			++_renderMark;
 			
 			_cameraVarsStore = cameraVarsStore;
 		}
 
-		private function updateNewColliders() : void 
-		{
-			var j : int = _dynamics.length;
-			var child : Object3D;
-			
-			while (--j >= 0) {
-				child = _dynamics[j];
-				if (child._collider && !child._sceneGraphCollisionMarks) {
-					child._sceneGraphCollisionMarks = [];
-					assignCollider(child);
-				}
-			}
-		}
-
 		private function assignDynamic(child : Object3D) : void
 		{
-			var mark : int = child._sceneGraphMark;
-			var bx : Number = (child.maxX-child._minX)*.5;
-			var by : Number = (child._maxY-child._minY)*.5;
-			var bz : Number = (child._maxZ-child._minZ)*.5;
-			var pos : Number3D = new Number3D(bx, by, bz);
 			var leaf : BSPNode;
+			var mark : int;
 			
-			pos.transform(pos, child.sceneTransform);
-			pos.transform(pos, inverseSceneTransform);
-			
-			leaf = getLeafContaining(pos);
-			
+			mark = child._sceneGraphMark;
+			leaf = getLeafContaining(child.position);
+		
 			// still in same leaf, no need to check anything
 			if (leaf && leaf.leafId == mark) return;
 			
-			if (mark != -1) {
+			if (mark != -1)
 				_leaves[mark].removeChild(child);
-			}
-			
+
 			if (leaf)
 				leaf.addChild(child);
 			
-			if (child._collider)
-				assignCollider(child, pos, bx, by, bz);
+//				if (child._collider)
+//					assignCollider(child, pos, bx, by, bz);
 		}
 		
-		private function assignCollider(child : Object3D, pos : Number3D = null, bx : Number = 0, by : Number = 0, bz : Number = 0) : void
+		/*private function assignCollider(child : Object3D, pos : Number3D = null, bx : Number = 0, by : Number = 0, bz : Number = 0) : void
 		{
 			var bound : Number3D;
 			var radius : Number;
@@ -246,7 +231,7 @@ package away3d.core.graphs
 			inverseSceneTransform.multiplyVector3x3(bound);
 			radius = bound.modulo;
 			_rootNode.assignCollider(child, pos, radius);
-		}
+		}*/
 		
 		/**
 		 * @inheritDoc
@@ -255,10 +240,17 @@ package away3d.core.graphs
 		{
 			super.addChild(child);
 			_dynamics.push(child);
-			child._sceneGraphMark = -1;
-			if (child._collider) child._sceneGraphCollisionMarks = [];
-			assignDynamic(child);
-			child.addEventListener(Object3DEvent.SCENETRANSFORM_CHANGED, onDynamicUpdate);
+			
+			if (child is Mesh) {
+				if (!_meshManagers) _meshManagers = new Dictionary(true);
+				_meshManagers[child] = new BSPMeshManager(Mesh(child), this);
+			}
+			else {
+				child._sceneGraphMark = -1;
+	//			if (child._collider) child._sceneGraphCollisionMarks = [];
+				assignDynamic(child);
+				child.addEventListener(Object3DEvent.TRANSFORM_CHANGED, onDynamicUpdate);
+			}
 		}
 
 		/**
@@ -270,8 +262,14 @@ package away3d.core.graphs
 			if (index >= 0) _dynamics.splice(index, 1);
 			super.removeChild(child);
 			child._sceneGraphMark = -1;
-			child._sceneGraphCollisionMarks = null;
-			child.removeEventListener(Object3DEvent.SCENETRANSFORM_CHANGED, onDynamicUpdate);
+//			child._sceneGraphCollisionMarks = null;
+			if (child is Mesh) {
+				_meshManagers[child].destroy();
+				_meshManagers[child] = null;
+			}
+			else {
+				child.removeEventListener(Object3DEvent.TRANSFORM_CHANGED, onDynamicUpdate);
+			}
 		}
 		
 		private function onDynamicUpdate(event : Object3DEvent) : void 
@@ -317,8 +315,6 @@ package away3d.core.graphs
         	var loopNode : BSPNode = _rootNode;
 			var dictionary : Dictionary = _cameraVarsStore.frustumDictionary;
 			var frustum : Frustum = dictionary[this];
-			var dynamics : Array;
-			var hasDynamics : Boolean;
 			var partitionPlane : Plane3D;
 			
 			_state = TRAVERSE_PRE;
@@ -333,9 +329,6 @@ package away3d.core.graphs
 						mesh = loopNode._mesh;
 						dictionary[mesh] = frustum;
 						
-						dynamics = loopNode._children;
-						hasDynamics = (dynamics != null) && dynamics.length > 0;
-	            		
 						if (traverser.match(mesh))
 	            		{
 		                	traverser.enter(mesh);
@@ -343,7 +336,7 @@ package away3d.core.graphs
 		                	traverser.leave(mesh);
 	            		}
 	            		
-						if (hasDynamics) {
+						if (loopNode._hasChildren) {
 	            			loopNode.traverseChildren(traverser);
 						}
 	            		
@@ -1561,6 +1554,16 @@ package away3d.core.graphs
        	{
 			_progressEvent.percentPart = steps/total*100;
 			dispatchEvent(_progressEvent);
+		}
+
+		arcane function addTemporaryChild(mesh : Mesh) : void 
+		{
+			super.addChild(mesh);
+		}
+		
+		arcane function removeTemporaryChild(mesh : Mesh) : void 
+		{
+			super.removeChild(mesh);
 		}
 	}
 }
