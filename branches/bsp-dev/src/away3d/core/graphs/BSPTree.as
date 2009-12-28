@@ -65,7 +65,7 @@ package away3d.core.graphs
 		private var _obbCollisionTree : BSPTree;
 		
 		private var _meshManagers : Dictionary;
-		
+
 		/**
 		 * Creates a new BSPTree object.
 		 */
@@ -900,6 +900,7 @@ package away3d.core.graphs
 		arcane static var nodeCount : int;
 		private var _buildPVS : Boolean;
 		private var _buildCollisionPlanes : Boolean;
+		private var _removeTJunctions : Boolean;
 		private var _complete : Boolean;
 		private var _progressEvent : TraceEvent;
 		private var _currentBuildNode : BSPNode;
@@ -986,10 +987,11 @@ package away3d.core.graphs
 		 * Build a BSP tree from the current faces.
 		 * 
 		 * @param faces A list of Face objects from which to build the tree.
-		 * @param buildPVS Whether or not to build the potential visible set. Building a PVS allows a large set of the geometry to be culled early on. It's a slow process and definitely not recommended for real-time use.
+		 * @param removeTJunctions Whether or not to fix T-Junctions. Not removing these will reduce the total amount of polygons, but can result in seams when rendering.
 		 * @param buildCollisionPlanes Whether or not to generate additional bevel planes used in collision detection.
+		 * @param buildPVS Whether or not to build the potential visible set. Building a PVS allows a large set of the geometry to be culled early on. It's a slow process and definitely not recommended for real-time use.
 		 */
-		public function build(faces : Vector.<Face>, buildPVS : Boolean = false, buildCollisionPlanes : Boolean = true) : void
+		public function build(faces : Vector.<Face>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
 		{
 			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
@@ -997,6 +999,12 @@ package away3d.core.graphs
 				_progressEvent.totalParts += buildCollisionPlanes? 10 : 9;
 			else if (buildCollisionPlanes)
 				_progressEvent.totalParts += 3;
+			if (removeTJunctions) {
+				if (buildPVS || buildCollisionPlanes)
+					++_progressEvent.totalParts;
+				else
+					_progressEvent.totalParts += 3;
+			}
 			_rootNode._buildFaces = convertFaces(faces);
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
@@ -1005,13 +1013,14 @@ package away3d.core.graphs
 			_totalFaces = faces.length;
 			_buildPVS = buildPVS;
 			_buildCollisionPlanes = buildCollisionPlanes;
+			_removeTJunctions = removeTJunctions;
 			buildStep();
 		}
 		
 		/**
 		 * @private
 		 */
-		arcane function buildFromNGons(faces : Vector.<NGon>, buildPVS : Boolean = true, buildCollisionPlanes : Boolean = true) : void
+		arcane function buildFromNGons(faces : Vector.<NGon>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
 		{
 			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
@@ -1029,6 +1038,7 @@ package away3d.core.graphs
 			_totalFaces = faces.length;
 			_buildPVS = buildPVS;
 			_buildCollisionPlanes = buildCollisionPlanes;
+			_removeTJunctions = removeTJunctions;
 			buildStep();
 		}
 		
@@ -1245,7 +1255,12 @@ package away3d.core.graphs
 			if (_portalIndex >= _portals.length) {
 				_portalIndex = 0;
 				++_progressEvent.count;
-				if (_buildCollisionPlanes) {
+				
+				if (_removeTJunctions) {
+					_progressEvent.message = "Removing T-Junctions";
+					setTimeout(removeTJunctions, 1);
+				}
+				else if (_buildCollisionPlanes) {
 					_progressEvent.message = "Creating bevel planes";
 					setTimeout(createBevelPlanes, 1);
 				}
@@ -1257,6 +1272,39 @@ package away3d.core.graphs
 			}
 			else {
 				setTimeout(removeOneSidedPortals, 1);	
+			}
+		}
+		
+		private function removeTJunctions() : void
+		{
+			var startTime : int = getTimer();
+			var portal : BSPPortal;
+			
+			notifyProgress(_portalIndex, _portals.length);
+			
+			do {
+				portal = _portals[_portalIndex];
+				portal.backNode.removeTJunctions(portal.frontNode, portal);
+				portal.frontNode.removeTJunctions(portal.backNode, portal);
+			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
+			
+			if (_portalIndex >= _portals.length) {
+				_portalIndex = 0;
+				++_progressEvent.count;
+				if (_buildCollisionPlanes) {
+					_progressEvent.message = "Creating bevel planes";
+					setTimeout(createBevelPlanes, 1);
+				}
+				else if (_buildPVS) {
+					_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
+					_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
+					setTimeout(partitionPortals, 1);
+				}
+				else
+					dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
+			}
+			else {
+				setTimeout(createBevelPlanes, 1);	
 			}
 		}
 		
