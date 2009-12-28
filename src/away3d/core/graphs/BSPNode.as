@@ -1,5 +1,7 @@
 package away3d.core.graphs
 {
+	import away3d.materials.ITriangleMaterial;
+	import away3d.core.base.UV;
 	import away3d.core.traverse.PrimitiveTraverser;
 	import away3d.materials.WireColorMaterial;
 	import away3d.core.base.Vertex;
@@ -1024,6 +1026,189 @@ package away3d.core.graphs
 		private function sortVisList(a : int, b : int) : Number
 		{
 			return a < b? -1 : (a == b? 0 : 1);
+		}
+
+		public function removeTJunctions(targetNode : BSPNode, portal : BSPPortal) : void 
+		{
+			var faces : Array = _mesh.faces;
+			var face : Face;
+			var i : int = -1;
+			var len : int = faces.length;
+			var plane : Plane3D = portal.nGon.plane;
+			
+			while (++i < len) {
+				face = Face(faces[i]);
+				if (faceHasEdgeOnPlane(face, plane) && testTJunctions(face, targetNode._mesh.faces, plane)) {
+					// one face removed, two created and placed at the end of the list
+					--i;
+					++len;
+				}
+			}
+		}
+
+		private function faceHasEdgeOnPlane(face : Face, plane : Plane3D) : Boolean 
+		{
+			var v0 : Vertex = face._v0;
+			var v1 : Vertex = face._v1;
+			var v2 : Vertex = face._v2;
+			var numEdge : int;
+			var d0 : Number, d1 : Number, d2 : Number;
+			var align : int = plane._alignment;
+			var a : Number = plane.a,
+				b : Number = plane.b,
+				c : Number = plane.c,
+				d : Number = plane.d;
+			
+			if (align == Plane3D.X_AXIS) {
+				d0 = a*v0._x + d;
+				d1 = a*v1._x + d;
+				d2 = a*v2._x + d;
+			}
+			else if (align == Plane3D.Y_AXIS) {
+				d0 = b*v0._y + d;
+				d1 = b*v1._y + d;
+				d2 = b*v2._y + d;
+			}
+			else if (align == Plane3D.Z_AXIS) {
+				d0 = c*v0._z + d;
+				d1 = c*v1._z + d;
+				d2 = c*v2._z + d;
+			}
+			else {
+				d0 = a*v0._x + b*v0._y + c*v0._z + d;
+				d1 = a*v1._x + b*v1._y + c*v1._z + d;
+				d2 = a*v2._x + b*v2._y + c*v2._z + d;
+			}
+			if (d0 < BSPTree.EPSILON && d0 > -BSPTree.EPSILON) ++numEdge;
+			if (d1 < BSPTree.EPSILON && d1 > -BSPTree.EPSILON) ++numEdge;
+			if (d2 < BSPTree.EPSILON && d2 > -BSPTree.EPSILON) ++numEdge;
+			
+			return numEdge > 1;
+		}
+
+		private function testTJunctions(face : Face, targetFaces : Array, plane : Plane3D) : Boolean 
+		{
+			var targetFace : Face;
+			var i : int = targetFaces.length;
+			
+			while (--i >= 0) {
+				targetFace = Face(targetFaces[i]);
+				if (faceHasEdgeOnPlane(face, plane) && fixTJunctions(face, targetFace))
+					return true;
+			}
+			return false;
+		}
+
+		private function fixTJunctions(face : Face, targetFace : Face) : Boolean 
+		{
+			var i : int = 3;
+			var v0 : Vertex = face._v0,
+				v1 : Vertex = face._v1,
+				v2 : Vertex = face._v2;
+			var v : Vertex;
+			var t : Number;
+			
+			while (--i >= 0) {
+				v = Vertex(targetFace.vertices[i]);
+				t = getTFraction(v0, v1, v);
+				if (t > 0) {
+					splitFace(face, 0, v, t);
+					return true;
+				}
+				else {
+					t = getTFraction(v1, v2, v);
+					if (t > 0) {
+						splitFace(face, 1, v, t);
+						return true;
+					}
+					else {
+						t = getTFraction(v2, v0, v);
+						if (t > 0) {
+							splitFace(face, 2, v, t);
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
+
+		private function splitFace(face : Face, index : int, tPoint : Vertex, t : Number) : void 
+		{
+			var face1 : Face;
+			var face2 : Face;
+			var v0 : Vertex = face._v0;
+			var v1 : Vertex = face._v1;
+			var v2 : Vertex = face._v2;
+			var uv0 : UV = face._uv0;
+			var uv1 : UV = face._uv1;
+			var uv2 : UV = face._uv2;
+			var uv : UV;
+			var material : ITriangleMaterial = face.material;
+			
+			_mesh.removeFace(face);
+			
+			if (index == 0) {
+				uv = new UV(uv0._u + t*(uv1._u-uv0._u), uv0._v + t*(uv1._v-uv0._v));
+				face1 = new Face(v0, tPoint, v2, material, uv0, uv, uv2);
+				face2 = new Face(tPoint, v1, v2, material, uv, uv1, uv2);
+			}
+			else if (index == 1) {
+				uv = new UV(uv1._u + t*(uv2._u-uv1._u), uv1._v + t*(uv2._v-uv1._v));
+				face1 = new Face(v0, v1, tPoint, material, uv0, uv1, uv);
+				face2 = new Face(tPoint, v2, v0, material, uv, uv2, uv0);
+			}
+			else if (index == 2) {
+				uv = new UV(uv2._u + t*(uv0._u-uv2._u), uv2._v + t*(uv0._v-uv2._v));
+				face1 = new Face(v0, v1, tPoint, material, uv0, uv1, uv);
+				face2 = new Face(tPoint, v1, v2, material, uv, uv1, uv2);
+			}
+			
+			_mesh.addFace(face1);
+			_mesh.addFace(face2);
+		}
+
+		private function getTFraction(v0 : Vertex, v1 : Vertex, tgt : Vertex) : Number
+		{
+			// test colinearity
+			var dx1 : Number = v1._x - v0._x;
+			var dy1 : Number = v1._y - v0._y;
+			var dz1 : Number = v1._z - v0._z;
+			var dx2 : Number = tgt._x - v0._x;
+			var dy2 : Number = tgt._y - v0._y;
+			var dz2 : Number = tgt._z - v0._z;
+			var cx : Number = dy2 * dz1 - dz2 * dy1;
+        	var cy : Number = dz2 * dx1 - dx2 * dz1;
+        	var cz : Number = dx2 * dy1 - dy2 * dx1;
+        	var t : Number;
+        	var minT : Number;
+        	var maxT : Number;
+        	
+        	// tgt is not on edge
+        	if (cx*cx+cy*cy+cz*cz > BSPTree.EPSILON) return -1;
+        	
+        	// pick the divisor with highest absolute value to minimize rounding errors
+        	if ((dx1 > 0 && dx1 >= dy1 && dx1 >= dz1) ||
+				(dx1 < 0 && dx1 <= dy1 && dx1 <= dz1)) {
+				dx1 = 1/dx1;
+				t = dx2*dx1;
+			}
+			else if ((dy1 > 0 && dy1 >= dx1 && dy1 >= dz1) ||
+					(dy1 < 0 && dy1 <= dx1 && dy1 <= dz1)) {
+				dy1 = 1/dy1;
+				t = dy2*dy1;
+			}
+			else if ((dz1 > 0 && dz1 >= dx1 && dz1 >= dy1) ||
+					(dz1 < 0 && dz1 <= dx1 && dz1 <= dy1)) {
+				dz1 = 1/dz1;
+				t = dz2*dz1;
+			}
+        	
+        	maxT = 1-minT;
+        	
+        	if (t > 0.002 && t < 0.998) return t;
+        	
+			return -1;
 		}
 	}
 }
