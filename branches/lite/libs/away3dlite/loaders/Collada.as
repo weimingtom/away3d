@@ -470,7 +470,14 @@
         /** @private */
         arcane override function prepareData(data:*):void
         {
-        	collada = Cast.xml(data);
+			// void junk byte, flash player bug
+			try{
+            	collada = Cast.xml(data);
+   			}catch(e:*){
+   				trace("[ERROR] : Junk byte!?");
+   				var _pos:int = String(data).indexOf("</COLLADA>"); 
+  				collada = new XML(String(data).substring(0, _pos+String("</COLLADA>").length));
+   			}
         	
 			default xml namespace = collada.namespace();
 			Debug.trace(" ! ------------- Begin Parse Collada -------------");
