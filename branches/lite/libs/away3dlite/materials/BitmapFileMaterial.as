@@ -1,5 +1,6 @@
 package away3dlite.materials
 {
+	import away3dlite.core.utils.Debug;
 	import away3dlite.events.*;
 	
 	import flash.display.*;
@@ -43,6 +44,7 @@ package away3dlite.materials
 				_materialloaderror = new MaterialEvent(MaterialEvent.LOAD_ERROR, this);
 			
             dispatchEvent(_materialloaderror);
+            Debug.warning(e);
 		}
 		
 		private function onProgress(e:ProgressEvent):void
