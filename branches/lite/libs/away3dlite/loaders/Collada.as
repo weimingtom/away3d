@@ -35,6 +35,8 @@
 		private var _containers:Dictionary = new Dictionary(true);
 		private var _skinControllers:Vector.<SkinController> = new Vector.<SkinController>();
 		private var _skinController:SkinController;
+
+		public var bothsides:Boolean = true;
 		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
@@ -474,7 +476,7 @@
 			try{
             	collada = Cast.xml(data);
    			}catch(e:*){
-   				trace("[ERROR] : Junk byte!?");
+   				Debug.error("Junk byte!?");
    				var _pos:int = String(data).indexOf("</COLLADA>"); 
   				collada = new XML(String(data).substring(0, _pos+String("</COLLADA>").length));
    			}
@@ -843,6 +845,9 @@
             else
             	geometryData.bothsides = false;
 			
+			// force bothsides by script
+			geometryData.bothsides = geometryData.bothsides && bothsides;
+			
 			//parse controller
 			if (!geometryData.ctrlXML)
 				return;
@@ -1029,8 +1034,6 @@
 			var j:int;
 			
 			_defaultAnimationClip.channels[channelData.name] = channelData;
-			
-			Debug.trace(" ! channelType : " + type);
 			
             for each (var input:XML in sampler["input"])
             {
