@@ -20,8 +20,8 @@ package away3dlite.templates
 		/** @private */
 		arcane function init():void
 		{
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.quality = StageQuality.MEDIUM;
+			// init stage
+			setupStage();
 			
 			//init scene
 			scene = new Scene3D();
@@ -80,7 +80,13 @@ package away3dlite.templates
 		private var _title:String;
 		private var _debug:Boolean;
 		
-		private function onAddedToStage(event:Event):void
+		protected function setupStage():void
+		{
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.quality = StageQuality.MEDIUM;
+		}
+		
+		protected function onAddedToStage(event:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			init();
