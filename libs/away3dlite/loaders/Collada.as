@@ -476,7 +476,7 @@
 			try{
             	collada = Cast.xml(data);
    			}catch(e:*){
-   				Debug.error("Junk byte!?");
+   				Debug.warning("Junk byte!?");
    				var _pos:int = String(data).indexOf("</COLLADA>"); 
   				collada = new XML(String(data).substring(0, _pos+String("</COLLADA>").length));
    			}
