@@ -130,7 +130,7 @@ package away3dlite.core.base
 				if(_scene)
 					_scene.transfromDirty = true;
 			}
-				
+			
 			//transform dirty
 			if(checkDirty(matrix3D.rawData, _cachedViewMatrix3D.rawData))
 			{
@@ -145,7 +145,7 @@ package away3dlite.core.base
 				_cachedViewMatrix3D = matrix3D.clone();
 			}else{
 				//clean
-				transfromDirty = false;
+				transfromDirty = false || _scene?_scene.transfromDirty:false;
 			}
 		}
 		

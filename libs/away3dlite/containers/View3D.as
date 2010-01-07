@@ -579,6 +579,7 @@ package away3dlite.containers {
 				graphics.clear();
 				renderer.render();
 				_scene.transfromDirty = false;
+				_camera.transfromDirty = false;
 			}
 			
 			if (mouseEnabled3D)

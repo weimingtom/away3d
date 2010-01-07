@@ -91,11 +91,11 @@ package away3dlite.core.base
 				}
 			}
 			
-			transfromDirty = false;
-			material.dirty = false;
-			
-			if(this==_scene)
-				transfromDirty = transfromDirty || _scene.transfromDirty;
+			if(this!=_scene)
+			{
+				transfromDirty = false;
+				material.dirty = false;
+			}
 		}
 		
 		/** @private */	

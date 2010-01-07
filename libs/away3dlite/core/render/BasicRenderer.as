@@ -261,7 +261,7 @@ package away3dlite.core.render
 				sortFaces();
 			}
 
-			if (_material)
+			if (_mesh && _material)
 			{
 				drawParticles(_mesh.screenZ);
 
@@ -283,6 +283,8 @@ package away3dlite.core.render
 						_view_graphics_drawGraphicsData(_material_graphicsData);
 					}
 				}
+				
+				_mesh = null;
 			}
 
 			// draw remain particles
