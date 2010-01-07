@@ -176,6 +176,9 @@ package away3dlite.containers
 		 */
 		public override function addChild(child:DisplayObject):DisplayObject
 		{
+			if(_scene)
+				_scene.transfromDirty = true;
+				
 			child = super.addChild(child);
 			
 			_children[_children.length] = child as Object3D;
@@ -192,6 +195,9 @@ package away3dlite.containers
 		 */
 		public override function removeChild(child:DisplayObject):DisplayObject
 		{
+			if(_scene)
+				_scene.transfromDirty = true;
+			
 			child = super.removeChild(child);
 			
 			_index = _children.indexOf(child);
