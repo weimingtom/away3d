@@ -6,7 +6,6 @@ package away3dlite.core.render
 	import away3dlite.materials.*;
 	
 	import flash.display.*;
-	import flash.utils.Dictionary;
 	
 	use namespace arcane;
 	
@@ -110,24 +109,7 @@ package away3dlite.core.render
 						if (_material) 
 						{
 							_material_graphicsData[_material.trianglesIndex] = _triangles;
-							
-							drawParticles(_mesh.screenZ);
-							
-							if(_mesh.visible)
-							{
-								if(_mesh.layer)
-								{
-									_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-								}
-								else if(_mesh.canvas)
-								{
-									_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
-								}
-								else
-								{
-									_view_graphics_drawGraphicsData(_material_graphicsData);
-								}
-							}
+							draw(_mesh);
 						}
 						
 						//clear vectors by overwriting with a new instance (length = 0 leaves garbage)
@@ -263,32 +245,35 @@ package away3dlite.core.render
 
 			if (_mesh && _material)
 			{
-				drawParticles(_mesh.screenZ);
-
-				if (_mesh.visible)
-				{
-					_material_graphicsData = _material.graphicsData;
-					_material_graphicsData[_material.trianglesIndex] = _triangles;
-
-					if (_mesh.layer)
-					{
-						_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
-					}
-					else if (_mesh.canvas)
-					{
-						_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
-					}
-					else
-					{
-						_view_graphics_drawGraphicsData(_material_graphicsData);
-					}
-				}
-				
+				_material_graphicsData = _material.graphicsData;
+				_material_graphicsData[_material.trianglesIndex] = _triangles;
+				draw(_mesh);
 				_mesh = null;
 			}
 
 			// draw remain particles
 			drawParticles();
 		}
+		
+		private function draw(_mesh:Mesh):void
+		{
+			drawParticles(_mesh.screenZ);
+							
+			if(_mesh.visible)
+			{
+				if(_mesh.layer)
+				{
+					_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
+				}
+				else if(_mesh.canvas)
+				{
+					_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
+				}
+				else
+				{
+					_view_graphics_drawGraphicsData(_material_graphicsData);
+				}
+			}
+		} 
 	}
 }
