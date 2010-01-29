@@ -5,8 +5,8 @@ package away3dlite.containers
 	import away3dlite.core.base.*;
 	import away3dlite.materials.*;
 	
-	import flash.geom.*;
 	import flash.display.*;
+	import flash.geom.*;
 	
 	use namespace arcane;
 	
@@ -15,6 +15,8 @@ package away3dlite.containers
     */
 	public class Scene3D extends ObjectContainer3D
 	{
+		public var bitmap:Bitmap;
+		
 		arcane var _id:uint;
 		/** @private */
 		arcane var _broadcaster:Sprite = new Sprite();

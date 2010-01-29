@@ -12,7 +12,7 @@ package
 	
 	import net.hires.debug.Stats;
 	
-	[SWF(backgroundColor="#000000", frameRate="60", quality="MEDIUM", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
 	
 	public class ExClipping extends Sprite
 	{

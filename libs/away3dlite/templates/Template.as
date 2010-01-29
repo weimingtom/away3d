@@ -9,6 +9,8 @@ package away3dlite.templates
 	import flash.events.*;
 	import flash.filters.*;
 	import flash.text.*;
+	
+	import net.hires.debug.Stats;
 
 	use namespace arcane;
 	
@@ -43,7 +45,7 @@ package away3dlite.templates
 			addChild(view);
 			
 			//init stats panel
-			stats = new AwayStats(view);
+			stats = new Stats;
 			
 			//add stats to the displaylist
 			addChild(stats);
@@ -75,7 +77,7 @@ package away3dlite.templates
 			onInit();
 		}
 		
-		protected var stats:AwayStats;
+		protected var stats:*;
 		protected var debugText:TextField;
 		private var _title:String;
 		private var _debug:Boolean;
