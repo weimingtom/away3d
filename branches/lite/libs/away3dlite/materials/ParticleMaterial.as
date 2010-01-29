@@ -2,7 +2,7 @@ package away3dlite.materials
 {
 	import flash.display.*;
 	import flash.events.*;
-	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
 	/**
@@ -11,100 +11,62 @@ package away3dlite.materials
 	public class ParticleMaterial
 	{
 		private var _bitmapData:BitmapData;
+		public var bitmapData:BitmapData;
 		
-		private const DEFAULT_BITMAPDATA:BitmapData = new BitmapData(1, 1);
+		private var _currentFrame:int = 1;
+		private var _totalFrames:int = 1;
+		private var _rect:Rectangle;
+		private var _point:Point = new Point();
 		
-		private var _currentFrame:int = 0;
-		private var _totalFrames:int = 0;
-		
-		public var frames:Vector.<BitmapData>;
-		public var dirty:Boolean;
-		
-		//cacheScaleBitmap
-		public var scales:Vector.<BitmapData>;
-		public var matrixs:Vector.<Matrix>;
-		
-		public var cacheScaleBitmap:Boolean;
-		public var maxScale:int;
-		public var quality:int;
-		
-		public function set bitmapData(value:BitmapData):void
+		public function get width():Number
 		{
-			_bitmapData = value;
-			dirty = true;
+			return _rect.width;
 		}
 		
-		public function get bitmapData():BitmapData
+		public function get height():Number
 		{
-			return _bitmapData;
+			return _rect.width;
 		}
 
 		/**
 		 * Creates a new <code>ParticleMaterial</code> object.
 		 */
-		public function ParticleMaterial(bitmapData:BitmapData = null, cacheScaleBitmap:Boolean = false)
+		public function ParticleMaterial(__bitmapData:BitmapData, width:Number = NaN, height:Number = NaN, totalFrames:int=1)
 		{
-			this.cacheScaleBitmap = cacheScaleBitmap;
-			this.bitmapData = bitmapData?bitmapData:DEFAULT_BITMAPDATA;
+			_bitmapData = __bitmapData;
+			_rect = new Rectangle(0, 0, width || _bitmapData.width, height || _bitmapData.height);
+			_totalFrames = totalFrames;
 			
-			addFrame(_bitmapData);
+			this.bitmapData = new BitmapData(width, height, true, 0x00000000);
 		}
 		
-		// TODO add MovieClip
-		public function addFrame(frameBitmapData:BitmapData, maxScale:int = 2, quality:int = 10, smooth:Boolean = false):void
+		public function nextFrame():void
 		{
-			this.maxScale = maxScale = (maxScale < 1)?1:maxScale;
-			this.quality = quality = (quality < 1)?1:quality;
-			
-			if (!frames || _bitmapData==DEFAULT_BITMAPDATA)
-				frames = new Vector.<BitmapData>();
-			
-			frames.fixed = false;
-			frames.push(frameBitmapData);
-			frames.fixed = true;
-			
-			_totalFrames = frames.length;
-			
-			bitmapData = frames[0];
-			
-			// scale buffer
-			if (cacheScaleBitmap)
+			if (_currentFrame+1 >= _totalFrames)
 			{
-				if(!scales)
-				{
-					scales = new Vector.<BitmapData>();
-					matrixs = new Vector.<Matrix>();
-				}else{
-					scales.fixed = false;
-					matrixs.fixed = false;
-				}
-
-				//bufferring
-				var _scaleBitmapData:BitmapData;
-				var _matrix:Matrix = new Matrix();
-				var _scale:Number;
-				
-				var j:int=0;
-				for (var i:int = 0; i < maxScale*quality; i++)
-				{
-					_scale = i/quality;
-					_matrix.a = _matrix.d = _scale = (_scale<=0)?(i+1)/quality:_scale;
-					
-					var _w:int = int(frameBitmapData.width * _scale);
-					var _h:int = int(frameBitmapData.height * _scale);
-					 
-					_scaleBitmapData = new BitmapData((_w<1)?1:_w, (_h<1)?1:_h, true, 0x000000);
-					_scaleBitmapData.draw(frameBitmapData, _matrix, null, null, new Rectangle(0, 0, _scaleBitmapData.width, _scaleBitmapData.height), smooth);
-					
-					scales.push(_scaleBitmapData.clone());
-					matrixs.push(_matrix.clone());
-					
-					j++;
-				}
-				
-				scales.fixed = true;
-				matrixs.fixed = true;
+				_currentFrame = 1;
+			}else{
+				_currentFrame++;
 			}
+			
+			update();
+		}
+		
+		public function set currentFrame(value:int):void
+		{
+			_currentFrame = value;
+			update();
+		}
+		
+		public function update():void
+		{
+			// seek
+			_rect.x = _currentFrame * _rect.width;
+			
+			bitmapData.lock();
+			bitmapData.fillRect(bitmapData.rect, 0x00000000);
+			bitmapData.copyPixels(_bitmapData, _rect, _point, null, null, true);
+			bitmapData.unlock();
 		}
 	}
 }

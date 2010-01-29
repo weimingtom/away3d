@@ -27,10 +27,17 @@ package away3dlite.containers
 		// still need array for sortOn
 		public var lists:Array;
 		
+		arcane override function updateScene(val:Scene3D):void
+		{
+			_scene = val;
+		}
+		
 		/** @private */
 		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{
 			super.project(camera, parentSceneMatrix3D);
+			
+			_scene.bitmap.bitmapData.fillRect(_scene.bitmap.bitmapData.rect, 0x00000000);
 			
 			// by pass
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
@@ -46,6 +53,13 @@ package away3dlite.containers
 					particle.layer = _layer;
 					
 			}while(particle = particle.next);
+			
+			if(_animated)
+			{
+				transfromDirty = true;
+				if(_scene)
+					_scene.transfromDirty = true;
+			}
 		}
 
 		public function addParticle(particle:Particle):Particle

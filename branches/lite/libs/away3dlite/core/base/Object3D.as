@@ -100,7 +100,7 @@ package away3dlite.core.base
 				_perspCulling = true;
 			else
 				_perspCulling = false;
-				
+			
 			// dirty
 			updateDirty(_viewMatrix3D);
 		}
@@ -119,7 +119,7 @@ package away3dlite.core.base
 		
 		protected function updateDirty(matrix3D:Matrix3D):void
 		{
-			if(!_cachedViewMatrix3D)
+			if(!_cachedViewMatrix3D || transfromDirty)
 			{
 				_cachedViewMatrix3D = matrix3D.clone();
 				
