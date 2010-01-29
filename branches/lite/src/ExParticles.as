@@ -21,7 +21,7 @@ package
 		private var particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 200;
-		private const max:int = 2000;
+		private const max:int = 1000;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
@@ -125,7 +125,7 @@ package
 
 		private function onClick(event:MouseEvent):void
 		{
-			if (scene.bitmap.blendMode != BlendMode.ADD)
+			if (scene.bitmap.blendMode != BlendMode.INVERT)
 			{
 				/*
 				particles.layer = new Sprite();
