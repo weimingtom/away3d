@@ -1,9 +1,9 @@
 package away3dlite.core.base
 {
 	import away3dlite.arcane;
+	import away3dlite.containers.View3D;
 	import away3dlite.materials.ParticleMaterial;
 	
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
@@ -73,8 +73,6 @@ package away3dlite.core.base
 			// draw to view or layer
 			if (layer && target != layer)
 				target = layer;
-				
-			var _graphics:Graphics = target.graphics;
 
 			// animated?
 			if (animated)
@@ -95,11 +93,15 @@ package away3dlite.core.base
 			_matrix.ty = position.y - _center.y;
 
 			// draw
-			//_graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
-			//_graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
-			
-			var _bitmap:Bitmap = target["scene"]["bitmap"] as Bitmap;
-			_bitmap.bitmapData.copyPixels(material.bitmapData, material.bitmapData.rect, new Point(_matrix.tx+target.x, _matrix.ty+target.y), null, null, true);
+			if(target is View3D && View3D(target).scene.bitmap)
+			{
+				View3D(target).scene.bitmap.bitmapData.copyPixels(material.bitmapData, material.bitmapData.rect, 
+				new Point(_matrix.tx+target.x, _matrix.ty+target.y), null, null, true);
+			}else{
+				var _graphics:Graphics = Sprite(target).graphics;
+				_graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
+				_graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
+			}
 		}
 	}
 }
