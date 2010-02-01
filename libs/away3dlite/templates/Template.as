@@ -19,12 +19,15 @@ package away3dlite.templates
 	 */
 	public class Template extends Sprite
 	{
+		protected var _stageWidth:Number = stage?stage.stageWidth:NaN;
+		protected var _stageHeight:Number = stage?stage.stageHeight:NaN;
+		
+		protected var _customWidth:uint;
+		protected var _customHeight:uint;
+		
 		/** @private */
 		arcane function init():void
 		{
-			// init stage
-			setupStage();
-			
 			//init scene
 			scene = new Scene3D();
 			
@@ -37,9 +40,15 @@ package away3dlite.templates
 			view.scene = scene;
 			view.camera = camera;
 			
-			//center view to stage
-			view.x = stage.stageWidth/2;
-			view.y = stage.stageHeight/2;
+			if(_customWidth && _customHeight)
+			{
+				//init size
+				view.setSize(_customWidth, _customHeight);
+				
+				//center view to stage
+				view.x = _customWidth/2;
+				view.y = _customHeight/2;
+			}
 			
 			//add view to the displaylist
 			addChild(view);
@@ -86,11 +95,22 @@ package away3dlite.templates
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.quality = StageQuality.MEDIUM;
+			
+			_stageWidth = _stageWidth?_stageWidth:stage.stageWidth;
+			_stageHeight = _stageWidth?_stageWidth:stage.stageHeight;
+			
+			_customWidth = _customWidth?_customWidth:_stageWidth;
+			_customHeight = _customWidth?_customWidth:_stageHeight;
 		}
 		
 		protected function onAddedToStage(event:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			
+			// setup stage
+			setupStage();
+			
+			// init 3D
 			init();
 		}
 		
