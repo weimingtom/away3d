@@ -22,8 +22,8 @@ package away3dlite.templates
 		protected var _stageWidth:Number = stage?stage.stageWidth:NaN;
 		protected var _stageHeight:Number = stage?stage.stageHeight:NaN;
 		
-		protected var _customWidth:uint;
-		protected var _customHeight:uint;
+		protected var _customWidth:Number;
+		protected var _customHeight:Number;
 		
 		/** @private */
 		arcane function init():void
@@ -97,10 +97,10 @@ package away3dlite.templates
 			stage.quality = StageQuality.MEDIUM;
 			
 			_stageWidth = _stageWidth?_stageWidth:stage.stageWidth;
-			_stageHeight = _stageWidth?_stageWidth:stage.stageHeight;
+			_stageHeight = _stageHeight?_stageHeight:stage.stageHeight;
 			
 			_customWidth = _customWidth?_customWidth:_stageWidth;
-			_customHeight = _customWidth?_customWidth:_stageHeight;
+			_customHeight = _customHeight?_customHeight:_stageHeight;
 		}
 		
 		protected function onAddedToStage(event:Event):void
