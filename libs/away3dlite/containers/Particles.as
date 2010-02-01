@@ -37,7 +37,8 @@ package away3dlite.containers
 		{
 			super.project(camera, parentSceneMatrix3D);
 			
-			_scene.bitmap.bitmapData.fillRect(_scene.bitmap.bitmapData.rect, 0x00000000);
+			if(_scene.bitmap)
+				_scene.bitmap.bitmapData.fillRect(_scene.bitmap.bitmapData.rect, 0x00000000);
 			
 			// by pass
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
