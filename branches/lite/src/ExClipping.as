@@ -6,22 +6,14 @@ package
 	import away3dlite.core.utils.*;
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
+	import away3dlite.templates.BasicTemplate;
 	
 	import flash.display.*;
 	import flash.events.*;
 	
-	import net.hires.debug.Stats;
-	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
-	
-	public class ExClipping extends Sprite
+	public class ExClipping extends BasicTemplate
 	{
-    	//engine variables
-    	private var scene:Scene3D;
-		private var camera:HoverCamera3D;
-		private var clipping:RectangleClipping;
-		private var view:View3D;
-		
 		//material objects
 		private var material:BitmapMaterial;
 		
@@ -35,18 +27,16 @@ package
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
 		
-		/**
-		 * Constructor
-		 */
-		public function ExClipping()
+		override protected function setupStage():void
 		{
-			addEventListener(Event.ADDED_TO_STAGE, init);
+			super.setupStage();
+			
+			// fixed size to 800x600
+			_customWidth = 800;
+			_customHeight = 600;
 		}
 		
-		/**
-		 * Global initialise function
-		 */
-		private function init(e:*):void
+		override protected function onInit():void
 		{
 			initEngine();
 			initMaterials();
@@ -59,31 +49,21 @@ package
 		 */
 		private function initEngine():void
 		{
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-				
-			scene = new Scene3D();
+			var _camera:HoverCamera3D = new HoverCamera3D();
+			_camera.focus = 50;
+			_camera.minTiltAngle = -90;
+			_camera.maxTiltAngle = 90;
+			_camera.panAngle = 0;
+			_camera.tiltAngle = 0;
+			_camera.hover(true);
 			
-			camera = new HoverCamera3D();
-			camera.focus = 50;
-			camera.minTiltAngle = -90;
-			camera.maxTiltAngle = 90;
-			camera.panAngle = 0;
-			camera.tiltAngle = 0;
-			camera.hover(true);
+			view.camera = camera = _camera;
 			
 			clipping = new RectangleClipping();
 			clipping.minX = -300;
 			clipping.minY = -200;
 			clipping.maxX = 300;
 			clipping.maxY = 200;
-			
-			view = new View3D();
-			view.scene = scene;
-			view.camera = camera;
-			view.x = 800/2;
-			view.y = 600/2;
-			//view.addSourceURL("srcview/index.html");
-			addChild(view);
 			
 			view.clipping = clipping;
 			
@@ -92,11 +72,9 @@ package
 			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
 			debugRect.graphics.endFill();
 			
-			debugRect.x = stage.stageWidth/2;
-			debugRect.y = stage.stageHeight/2;
+			debugRect.x = _customWidth/2;
+			debugRect.y = _customHeight/2;
 			addChild(debugRect);
-			
-            addChild(new Stats);
 		}
 		
 		/**
@@ -122,7 +100,6 @@ package
 		 */
 		private function initListeners():void
 		{
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		}
@@ -130,15 +107,14 @@ package
 		/**
 		 * Navigation and render loop
 		 */
-		private function onEnterFrame(event:Event):void
+		override protected function onPreRender():void
 		{
 			if (move) {
-				camera.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+				HoverCamera3D(view.camera).panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+				HoverCamera3D(view.camera).tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
-			camera.hover();
-			view.render();
+			HoverCamera3D(view.camera).hover();
 		}
 		
 		/**
@@ -146,8 +122,8 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
         {
-            lastPanAngle = camera.panAngle;
-            lastTiltAngle = camera.tiltAngle;
+            lastPanAngle = HoverCamera3D(view.camera).panAngle;
+            lastTiltAngle = HoverCamera3D(view.camera).tiltAngle;
             lastMouseX = stage.mouseX;
             lastMouseY = stage.mouseY;
         	move = true;
