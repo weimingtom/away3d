@@ -1,16 +1,17 @@
 package away3dlite.core.base
 {
 	import away3dlite.arcane;
-	import away3dlite.containers.View3D;
 	import away3dlite.materials.ParticleMaterial;
-	
+
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
-	
+
 	use namespace arcane;
 
 	/**
@@ -34,10 +35,13 @@ package away3dlite.core.base
 		private var _center:Point;
 
 		private var _bitmapData:BitmapData;
-		private var _bitmapData_width:Number;
-		private var _bitmapData_height:Number;
+		private var _material_width:Number;
+		private var _material_height:Number;
 
 		private var _scale:Number = 1;
+		private var _point:Point = new Point();
+		private var _point0:Point = new Point();
+		private var _rect:Rectangle = new Rectangle();
 
 		public var material:ParticleMaterial;
 
@@ -49,11 +53,12 @@ package away3dlite.core.base
 			this.smooth = smooth;
 
 			_bitmapData = material.bitmapData;
-			_bitmapData_width = material.width;
-			_bitmapData_height = material.height;
+			_material_width = material.width;
+			_material_height = material.height;
+			_rect = material.rect;
 
 			_matrix = new Matrix();
-			_center = new Point(_bitmapData.width * _scale * .5, _bitmapData.height * _scale * .5);
+			_center = new Point(_material_width * _scale * .5, _material_height * _scale * .5);
 		}
 
 		public function get position():Vector3D
@@ -61,47 +66,58 @@ package away3dlite.core.base
 			return _position;
 		}
 
-		public function set position(position:Vector3D):void
+		public function set position(value:Vector3D):void
 		{
 			// position
-			screenZ = position.w;
-			_position = position.clone();
+			screenZ = value.w;
+			_position = value.clone();
 		}
 
-		public function drawBitmapdata(target:Sprite, zoom:Number, focus:Number):void
+		public function drawBitmapdata(x:Number, y:Number, bitmapData:BitmapData, zoom:Number, focus:Number):void
+		{
+			// animated?
+			if (animated)
+				material.nextFrame();
+
+			_scale = zoom / (1 + screenZ / focus);
+
+			// align center, TODO : scale rect
+			//_center.x = _material_width * _scale * .5;
+			//_center.y = _material_height * _scale * .5;
+			
+			_point.x = position.x - _center.x + x;
+			_point.y = position.y - _center.y + y;
+
+			// draw
+			bitmapData.copyPixels(_bitmapData, _rect, _point, null, null, true);
+		}
+
+		public function drawGraphics(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 		{
 			// draw to view or layer
-			if (layer && target != layer)
-				target = layer;
+			if (layer)
+				graphics = layer.graphics;
 
 			// animated?
 			if (animated)
 			{
 				material.nextFrame();
-				_bitmapData = material.bitmapData;
-				_bitmapData_width = material.width;
-				_bitmapData_height = material.height;
+				_bitmapData.copyPixels(material.bitmapData, material.rect, _point0, null, null, true);
 			}
 
 			_scale = zoom / (1 + screenZ / focus);
 
 			// align center
-			_center.x = _bitmapData_width * _scale * .5;
-			_center.y = _bitmapData_height * _scale * .5;
+			_center.x = _material_width * _scale * .5;
+			_center.y = _material_height * _scale * .5;
+			
 			_matrix.a = _matrix.d = _scale;
-			_matrix.tx = position.x - _center.x;
-			_matrix.ty = position.y - _center.y;
+			_matrix.tx = position.x - _material_width * _scale * .5;
+			_matrix.ty = position.y - _material_height * _scale * .5;
 
 			// draw
-			if(target is View3D && View3D(target).scene.bitmap)
-			{
-				View3D(target).scene.bitmap.bitmapData.copyPixels(material.bitmapData, material.bitmapData.rect, 
-				new Point(_matrix.tx+target.x, _matrix.ty+target.y), null, null, true);
-			}else{
-				var _graphics:Graphics = Sprite(target).graphics;
-				_graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
-				_graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
-			}
+			graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
+			graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
 		}
 	}
 }

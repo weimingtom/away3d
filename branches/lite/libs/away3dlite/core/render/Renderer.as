@@ -250,25 +250,48 @@ package away3dlite.core.render
 		/** @private */
 		protected function drawParticles(screenZ:Number=NaN):void
 		{
-			if(_particles.length==0)return;
-			
-			_view_graphics.lineStyle();
+			if(_particles.length==0)
+				return;
 			
 			var _particle:Particle;
+			var _particleIndex:int = 0;
+			var _view_x:Number = _view.x;
+			var _view_y:Number = _view.y;
 			
-			if(!screenZ)
+			if(_view.scene.bitmap)
 			{
-				// just draw
-				for each (_particle in _particles)
-					_particle.drawBitmapdata(_view, _zoom, _focus);
-			}else{
-				// draw particle that behind screenZ
-				var _particleIndex:int = 0;
-				while((_particle = _particles[_particleIndex++]) && _particle.screenZ > screenZ)
-					_particle.drawBitmapdata(_view, _zoom, _focus);
+				var _view_scene_bitmapData:BitmapData = _view.scene.bitmap.bitmapData;
 				
-				if(_particleIndex>=2)
-					_particles = _particles.slice(_particleIndex-1, _particles.length); 
+				if(!screenZ)
+				{
+					// just draw
+					for each (_particle in _particles)
+						_particle.drawBitmapdata(_view_x, _view_y, _view_scene_bitmapData, _zoom, _focus);
+				}else{
+					// draw particle that behind screenZ
+					while((_particle = _particles[_particleIndex++]) && _particle.screenZ > screenZ)
+						_particle.drawBitmapdata(_view_x, _view_y, _view_scene_bitmapData, _zoom, _focus);
+					
+					if(_particleIndex>=2)
+						_particles = _particles.slice(_particleIndex-1, _particles.length); 
+				}
+			}else{
+				
+				_view_graphics.lineStyle();
+				
+				if(!screenZ)
+				{
+					// just draw
+					for each (_particle in _particles)
+						_particle.drawGraphics(_view_x, _view_y, _view_graphics, _zoom, _focus);
+				}else{
+					// draw particle that behind screenZ
+					while((_particle = _particles[_particleIndex++]) && _particle.screenZ > screenZ)
+						_particle.drawGraphics(_view_x, _view_y, _view_graphics, _zoom, _focus);
+					
+					if(_particleIndex>=2)
+						_particles = _particles.slice(_particleIndex-1, _particles.length); 
+				}
 			}
 		}
 		
