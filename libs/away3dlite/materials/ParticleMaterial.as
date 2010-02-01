@@ -13,8 +13,8 @@ package away3dlite.materials
 		private var _bitmapData:BitmapData;
 		public var bitmapData:BitmapData;
 		
-		private var _currentFrame:int = 1;
-		private var _totalFrames:int = 1;
+		private var _currentFrame:int;
+		private var _totalFrames:int;
 		private var _rect:Rectangle;
 		private var _point:Point = new Point();
 		
@@ -31,13 +31,15 @@ package away3dlite.materials
 		/**
 		 * Creates a new <code>ParticleMaterial</code> object.
 		 */
-		public function ParticleMaterial(__bitmapData:BitmapData, width:Number = NaN, height:Number = NaN, totalFrames:int=1)
+		public function ParticleMaterial(bitmapData:BitmapData, width:Number = NaN, height:Number = NaN, totalFrames:int=1)
 		{
-			_bitmapData = __bitmapData;
+			_bitmapData = bitmapData;
 			_rect = new Rectangle(0, 0, width || _bitmapData.width, height || _bitmapData.height);
 			_totalFrames = totalFrames;
 			
 			this.bitmapData = new BitmapData(width, height, true, 0x00000000);
+			
+			currentFrame = 0;
 		}
 		
 		public function nextFrame():void
@@ -54,6 +56,9 @@ package away3dlite.materials
 		
 		public function set currentFrame(value:int):void
 		{
+			if(_currentFrame == value)
+				return;
+			
 			_currentFrame = value;
 			update();
 		}
