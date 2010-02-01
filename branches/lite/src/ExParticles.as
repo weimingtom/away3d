@@ -22,7 +22,7 @@ package
 		private var particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
-		private const max:int = 3000;
+		private const max:int = 500;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
@@ -125,6 +125,7 @@ package
 		override protected function onPreRender():void
 		{
 			scene.rotationY += .5;
+			/*
 			scene.rotationZ += .5;
 
 			camera.x = 1000 * Math.cos(step);
@@ -133,6 +134,7 @@ package
 			camera.lookAt(new Vector3D());
 
 			step += .01;
+			*/
 		}
 	}
 }
