@@ -22,7 +22,7 @@ package
 		private var particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
-		private const max:int = 500;
+		private const max:int = 3000;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
@@ -32,7 +32,7 @@ package
 
 		override protected function onInit():void
 		{
-			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode | sprite/bitmap";
+			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode (sprite/bitmap)";
 
 			// speed up
 			view.mouseEnabled = false;
@@ -125,16 +125,16 @@ package
 		override protected function onPreRender():void
 		{
 			scene.rotationY += .5;
-			/*
 			scene.rotationZ += .5;
 
+			/*
 			camera.x = 1000 * Math.cos(step);
 			camera.y = 10 * (300 - mouseY);
 			camera.z = 1000 * Math.sin(step);
 			camera.lookAt(new Vector3D());
+			*/
 
 			step += .01;
-			*/
 		}
 	}
 }
