@@ -10,8 +10,8 @@ package away3dlite.materials
 	 */
 	public class ParticleMaterial
 	{
-		private var _bitmapData:BitmapData;
 		public var bitmapData:BitmapData;
+		//public var subBitmapData:BitmapData;
 		
 		private var _currentFrame:int;
 		private var _totalFrames:int;
@@ -33,11 +33,13 @@ package away3dlite.materials
 		 */
 		public function ParticleMaterial(bitmapData:BitmapData, width:Number = NaN, height:Number = NaN, totalFrames:int=1)
 		{
-			_bitmapData = bitmapData;
-			rect = new Rectangle(0, 0, width || _bitmapData.width, height || _bitmapData.height);
+			rect = new Rectangle(0, 0, width || bitmapData.width, height || bitmapData.height);
 			_totalFrames = totalFrames;
 			
 			this.bitmapData = bitmapData;//new BitmapData(width, height, true, 0x00000000);
+			
+			//subBitmapData = new BitmapData(width, height, true, 0x00000000);
+			//subBitmapData.copyPixels(bitmapData, rect, new Point, null, null, true);
 			
 			currentFrame = 0;
 		}
@@ -52,6 +54,11 @@ package away3dlite.materials
 			}
 			
 			update();
+		}
+		
+		public function get currentFrame():int
+		{
+			return _currentFrame;
 		}
 		
 		public function set currentFrame(value:int):void
@@ -74,6 +81,11 @@ package away3dlite.materials
 			bitmapData.copyPixels(_bitmapData, rect, _point, null, null, true);
 			bitmapData.unlock();
 			*/
+		}
+		
+		public function clone():ParticleMaterial
+		{
+			return new ParticleMaterial(bitmapData, width, height, _totalFrames);
 		}
 	}
 }

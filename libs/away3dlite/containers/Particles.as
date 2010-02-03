@@ -5,7 +5,6 @@ package away3dlite.containers
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
 	
-	import flash.display.Sprite;
 	import flash.geom.Matrix3D;
 	import flash.geom.Utils3D;
 	import flash.geom.Vector3D;

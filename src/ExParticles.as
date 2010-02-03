@@ -8,8 +8,9 @@ package
 
 	import flash.display.*;
 	import flash.events.*;
+	import flash.filters.BlurFilter;
+	import flash.filters.GlowFilter;
 	import flash.geom.Matrix;
-	import flash.geom.Vector3D;
 
 	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
 	/**
@@ -22,13 +23,15 @@ package
 		private var particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
-		private const max:int = 3000;
+		private const max:int = 2000;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
 
 		private var step:Number = 0;
 		private var segment:Number;
+
+		private var container:Sprite;
 
 		override protected function onInit():void
 		{
@@ -48,11 +51,18 @@ package
 			var i:Number = (stage.stageHeight - 100) / max;
 			for (var j:int = 0; j < max; j++)
 			{
-				particles.addParticle(new Particle(
+				var _particle:Particle = new Particle
+				(
 					radius * Math.cos(segment * j),
 					i * (j - max / 2),
 					radius * Math.sin(segment * j),
-					particleMaterial));
+					particleMaterial.clone()
+				)
+				particles.addParticle(_particle);
+
+				// each particle effect (slow warning!)
+				//_particle.blendMode = BlendMode.OVERLAY;
+				//_particle.filters = [new GlowFilter(0xFF00FF, .5, 6, 6, 1, 1, true)];
 			}
 
 			scene.addChild(particles);
@@ -114,6 +124,10 @@ package
 			{
 				scene.bitmap = new Bitmap(new BitmapData(stage.stageWidth, stage.stageHeight, true, 0x00000000));
 				addChild(scene.bitmap);
+
+				// bitmap effect
+				scene.bitmap.filters = [new BlurFilter(6, 6)];
+				scene.bitmap.blendMode = BlendMode.ADD;
 			}
 			else
 			{
@@ -128,11 +142,11 @@ package
 			scene.rotationZ += .5;
 
 			/*
-			camera.x = 1000 * Math.cos(step);
-			camera.y = 10 * (300 - mouseY);
-			camera.z = 1000 * Math.sin(step);
-			camera.lookAt(new Vector3D());
-			*/
+			   camera.x = 1000 * Math.cos(step);
+			   camera.y = 10 * (300 - mouseY);
+			   camera.z = 1000 * Math.sin(step);
+			   camera.lookAt(new Vector3D());
+			 */
 
 			step += .01;
 		}
