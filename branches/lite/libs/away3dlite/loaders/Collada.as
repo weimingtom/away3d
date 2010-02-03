@@ -37,7 +37,7 @@
 		private var _skinController:SkinController;
 
 		public var bothsides:Boolean = true;
-		public var useIDAsName:Boolean = false;
+		public var useIDAsName:Boolean = true;
 		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
 		{
@@ -592,7 +592,7 @@
    			}else{
    				//#case 3 : Maya8.5 | ColladaMaya v3.02
 				//@example <node id="skeleton" type="NODE">
-   				_objectData.name = _objectData.id;
+   				_objectData.name = String(node.@id);
    			}
    			
             _transform = _objectData.transform;
