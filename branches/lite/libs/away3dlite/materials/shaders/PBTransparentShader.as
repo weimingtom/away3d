@@ -14,13 +14,13 @@ package away3dlite.materials.shaders
 	public class PBTransparentShader extends BitmapMaterial implements IShader
 	{
 
-		[Embed("../../pixelbender/LocalGlobalNormalBlend.pbj", mimeType="application/octet-stream")]
+		[Embed("../../pbks/LocalGlobalNormalBlend.pbj", mimeType="application/octet-stream")]
 		private var BlendShader : Class;
 
-		/*[Embed("../../pixelbender/NormalMapAbstractShader.pbj", mimeType="application/octet-stream")]
+		/*[Embed("../../pbks/NormalMapAbstractShader.pbj", mimeType="application/octet-stream")]
 		private var NormalShader : Class;*/
 
-		[Embed("../../pixelbender/NormalMapSHader.pbj", mimeType="application/octet-stream")]
+		[Embed("../../pbks/NormalMapSHader.pbj", mimeType="application/octet-stream")]
 		private var NormalShader : Class;
 
 
