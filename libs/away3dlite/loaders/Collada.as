@@ -948,32 +948,67 @@
             
             var _channel_id:uint = 0;
             
-            //loop through all animation channels
+            //loop through all animations and for each through all its channels
+			var _channelName:String;
+			var _channels:XMLList;
+			var channelIndex:int;
+			var id:String;
+			var type:String;
             if(anims["animation"]["animation"].length()==0)
-			for each (var channel:XML in anims["animation"])
-			{
-				if(String(channel.@id).length>0)
+            {
+				for each (var animation:XML in anims["animation"])
 				{
-					channelLibrary.addChannel(channel.@id, channel);
-				}else{
-					// COLLADAMax NextGen;  Version: 1.1.0;  Platform: Win32;  Configuration: Release Max2009
-					// issue#1 : missing channel.@id -> use automatic id instead
-					Debug.trace(" ! COLLADAMax2009 id : _"+_channel_id);
-					channelLibrary.addChannel("_"+String(_channel_id++), channel);
+					if(String(animation.@id).length>0)
+					{
+						_channelName = animation.@id;
+					}else{
+						// COLLADAMax NextGen;  Version: 1.1.0;  Platform: Win32;  Configuration: Release Max2009
+						// issue#1 : missing channel.@id -> use automatic id instead
+						Debug.trace(" ! COLLADAMax2009 id : _"+_channel_id);
+						_channelName = "_"+String(_channel_id++);
+					}
+
+					_channels = animation["channel"];
+					if (_channels.length() == 1)
+						channelLibrary.addChannel(_channelName, animation, 0);
+					else
+					{
+						for (channelIndex = 0 ; channelIndex < _channels.length() ; channelIndex++)
+						{
+							id = _channels[channelIndex].@target;
+				            type = id.split("/")[1];
+							
+							channelLibrary.addChannel(_channelName + "_subAnim_" + type, animation, channelIndex);
+						}
+					}
 				}
-			}
+            }
 
 			// C4D 
 			// issue#1 : animation -> animation.animation
 			// issue#2 : missing channel.@id -> use automatic id instead
-			for each (channel in anims["animation"]["animation"])
+			for each (animation in anims["animation"]["animation"])
 			{
-				if(String(channel.@id).length > 0)
+				if(String(animation.@id).length > 0)
 				{
-					channelLibrary.addChannel(channel.@id, channel);
+					_channelName = animation.@id;
 				}else{
 					Debug.trace(" ! C4D id : _"+_channel_id);
-					channelLibrary.addChannel("_"+String(_channel_id++), channel);
+					_channelName = "_"+String(_channel_id++);
+				}
+				
+				_channels = animation["channel"];
+				if (_channels.length() == 1)
+					channelLibrary.addChannel(_channelName, animation, 0);
+				else
+				{
+					for (channelIndex = 0 ; channelIndex < _channels.length() ; channelIndex++)
+					{
+						id = _channels[channelIndex].@target;
+			            type = id.split("/")[1];
+						
+						channelLibrary.addChannel(_channelName + "_subAnim_" + type, animation, channelIndex);
+					}
 				}
 			}
 					
@@ -999,6 +1034,8 @@
         {
 			var animationClip:AnimationData = animationLibrary.addAnimation(clip.@id);
 			
+			//TODO: Is there a need to handle case where there is multiple channels inside an animation channel (_subAnim_) ?
+			
 			for each (var channel:XML in clip["instance_animation"])
 				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
         }
@@ -1006,10 +1043,11 @@
 		private function parseChannel(channelData:ChannelData) : void
         {
         	var node:XML = channelData.xml;
-			var id:String = node["channel"].@target;
+        	var channels:XMLList = node["channel"];
+        	var channelChunk:XML = channels[channelData.channelIndex];
+			var id:String = channelChunk.@target;
 			var name:String = id.split("/")[0];
             var type:String = id.split("/")[1];
-			var sampler:XML = node["sampler"][0];
 			
             if (!type) {
             	Debug.trace(" ! No animation type detected");
@@ -1030,14 +1068,14 @@
             	type = type.split(".").join("");
             }
             
-			
-
-            
             var channel:Channel = channelData.channel = new Channel(name);
 			var i:int;
 			var j:int;
 			
 			_defaultAnimationClip.channels[channelData.name] = channelData;
+			
+			var sourceName:String = getId(channelChunk.@source);
+			var sampler:XML = node["sampler"].(@id == sourceName)[0];
 			
             for each (var input:XML in sampler["input"])
             {
