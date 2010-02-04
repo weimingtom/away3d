@@ -201,20 +201,25 @@ package away3dlite.core.base
 		
 		private function updateSortType():void
 		{
-			
 			var face:Face;
 			switch (_sortType) {
 				case SortType.CENTER:
-					for each (face in _faces)
-						face.calculateScreenZ = face.calculateAverageZ;
+					for each (face in _faces) {
+						face.calculateScreenZInt = face.calculateAverageZInt;
+						face.calculateScreenZ    = face.calculateAverageZ;
+					}
 					break;
 				case SortType.FRONT:
-					for each (face in _faces)
-						face.calculateScreenZ = face.calculateNearestZ;
+					for each (face in _faces) {
+						face.calculateScreenZInt = face.calculateNearestZInt;
+						face.calculateScreenZ    = face.calculateNearestZ;
+					}
 					break;
 				case SortType.BACK:
-					for each (face in _faces)
-						face.calculateScreenZ = face.calculateFurthestZ;
+					for each (face in _faces) {
+						face.calculateScreenZInt = face.calculateFurthestZInt;
+						face.calculateScreenZ    = face.calculateFurthestZ;
+					}
 					break;
 				default:
 			}
