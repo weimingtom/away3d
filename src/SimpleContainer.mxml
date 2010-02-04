@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+	<mx:Grid x="0" y="0" width="100%" height="100%">
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem width="100%" height="100%">
+				<mx:SWFLoader width="100%" height="100%" source="../bin/ExCanvas.swf"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<mx:SWFLoader width="100%" height="100%" source="../bin/ExClipping.swf"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem width="100%" height="100%">
+				<mx:SWFLoader width="100%" height="100%" source="../bin/ExLayer.swf"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<mx:SWFLoader width="100%" height="100%" source="../bin/ExParticles.swf"/>
+			</mx:GridItem>
+		</mx:GridRow>
+	</mx:Grid>
+</mx:Application>
