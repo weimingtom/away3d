@@ -224,6 +224,8 @@
 				skinController.skinVertices.push(skinVertex);
 		}
 		
+		private static const epsilonScale:Number = 0.000001;
+		
 		private function buildAnimations():void
 		{
 			var bone:Bone;
@@ -356,6 +358,11 @@
 								case "scaleX":
 								case "transform(0)(0)":
 									channel.type = [sX];
+									
+									for each (param in channel.param) {
+										if (param[0] < epsilonScale)
+											param[0] = epsilonScale;
+									}
 				            		break;
 								case "scaleY":
 								case "transform(1)(1)":
@@ -363,6 +370,11 @@
 										channel.type = [sY];
 									else
 										channel.type = [sZ];
+									
+									for each (param in channel.param) {
+										if (param[0] < epsilonScale)
+											param[0] = epsilonScale;
+									}
 				     				break;
 								case "scaleZ":
 								case "transform(2)(2)":
@@ -370,6 +382,11 @@
 										channel.type = [sZ];
 									else
 										channel.type = [sY];
+									
+									for each (param in channel.param) {
+										if (param[0] < epsilonScale)
+											param[0] = epsilonScale;
+									}
 				     				break;
 								case "translate":
 								case "translation":
@@ -394,6 +411,15 @@
 										channel.type = [sX, sY, sZ];
 									else
 										channel.type = [sX, sZ, sY];
+									
+									for each (param in channel.param) {
+										if (param[0] < epsilonScale)
+											param[0] = epsilonScale;
+										if (param[1] < epsilonScale)
+											param[1] = epsilonScale;
+										if (param[2] < epsilonScale)
+											param[2] = epsilonScale;
+									}
 				     				break;
 								case "rotate":
 									if (yUp)
@@ -406,6 +432,13 @@
 									break;
 								case "transform":
 									channel.type = ["transform"];
+									
+									for each (param in channel.param) {
+										if (Math.abs((param[0] as Matrix3D).determinant) < epsilonScale) {
+											(param[0] as Matrix3D).identity();
+											(param[0] as Matrix3D).appendScale(epsilonScale, epsilonScale, epsilonScale);
+										}
+									}
 									break;
 								
 								case "visibility":
@@ -656,6 +689,13 @@
                         break;
 						
                     case "scale":
+                    	if (arrayChild[0] < epsilonScale)
+                    		arrayChild[0] = epsilonScale;
+                    	if (arrayChild[1] < epsilonScale)
+                    		arrayChild[1] = epsilonScale;
+                    	if (arrayChild[2] < epsilonScale)
+                    		arrayChild[2] = epsilonScale;
+                    	
                         if (_objectData is BoneData) {
                         	if (yUp)
 				                boneData.jointTransform.prependScale(arrayChild[0], arrayChild[1], arrayChild[2]);
@@ -674,6 +714,10 @@
                     case "matrix":
                     	var m:Matrix3D = new Matrix3D();
                     	m.rawData = array2matrix(arrayChild, yUp, scaling);
+                    	if (Math.abs(m.determinant) < epsilonScale) {
+                    		m.identity();
+                    		m.appendScale(epsilonScale, epsilonScale, epsilonScale);
+                    	}
                         _transform.prepend(m);
 						break;
 						
