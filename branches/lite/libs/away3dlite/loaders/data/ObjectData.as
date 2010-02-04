@@ -21,5 +21,15 @@ package away3dlite.loaders.data
 		 */
 		public var id:String;
 		public var scale:Number;
-	}
+
+		/**
+		 * Copy the object data into another <code>ObjectData</code> object.
+		 */
+		public function copyTo(dst:ObjectData):void
+		{
+			dst.name = name;
+			dst.transform = transform;
+			dst.id = id;
+			dst.scale = scale;
+		}	}
 }
