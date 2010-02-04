@@ -2,6 +2,8 @@ package away3dlite.animators.bones
 {
     import away3dlite.containers.*;
     import away3dlite.core.base.*;
+
+    import flash.geom.*;
 	
 	/**
 	 * Stores the varying transformations of a single <code>Bone</code> or <code>Object3D</code> object over the dureation of a bones animation
@@ -14,6 +16,11 @@ package away3dlite.animators.bones
     	private var _index:int;
     	private var _length:int;
     	private var _oldlength:int;
+    	
+		/**
+		 * 	@private
+		 */
+		private static const NO_SCALE:Vector3D = new Vector3D(1,1,1);
     	
     	public var name:String;
         public var target:Object3D;
@@ -90,10 +97,46 @@ package away3dlite.animators.bones
 				
 				_index--;
 				
+				//NOTE: currently the interpolation is only CONSTANT or LINEAR. There's no BEZIER support currently
 				while (i--) {
 					if (type[i] == "transform") {
-						target.transform.matrix3D = param[_index][i];
+						if (interpolate) {
+							// Note: Matrix3D.interpolate should interpolate full pose (including position, orientation and scales)
+							//       but it seems that Matrix3D.interpolate doesn't take into account scales!
+							//       Moreover Matrix3D.interpolate is only performing LINEAR interpolation not BEZIER.
+							//       So we should do the full computation by ourself:
+							//          - We need to extract scale, translation and rotation-as-a-whole
+							//          - Then we can interpolate each separatly and finally recombine them into a Matrix3D
+							//       But because we currently only support LINEAR interpolation, we can still use Matrix3D.interpolate
+							//       by just removing scales from src and dst matrices, then interpolate scales, separatly apply matrix
+							//       interpolation (that contains only rotation and translation), and finally blend interpolated scale
+							//       into interpolated matrix.
+							
+							var factor:Number = (time - times[_index]) / (times[int(_index + 1)] - times[_index]);
+							
+							var v3A:Vector.<Vector3D> = (param[    _index     ][i] as Matrix3D).decompose(Orientation3D.QUATERNION);
+							var v3B:Vector.<Vector3D> = (param[int(_index + 1)][i] as Matrix3D).decompose(Orientation3D.QUATERNION);
+							
+							var scalesA:Vector3D = v3A[2];
+							var scalesB:Vector3D = v3B[2];
+							scalesA.scaleBy(1-factor);
+							scalesB.scaleBy(  factor);
+							var scale:Vector3D = scalesA.add(scalesB);
+
+							v3A[2] = NO_SCALE;
+							v3B[2] = NO_SCALE;
+							var matA:Matrix3D = new Matrix3D();
+							matA.recompose(v3A, Orientation3D.QUATERNION);
+							var matB:Matrix3D = new Matrix3D();
+							matB.recompose(v3B, Orientation3D.QUATERNION);
+							
+							target.transform.matrix3D = Matrix3D.interpolate(matA, matB, factor);
+							target.transform.matrix3D.prependScale(scale.x, scale.y, scale.z);
+						} else {
+							target.transform.matrix3D = param[_index][i];
+						}
 					} else if (type[i] == "visibility") {
+						// NOTE: There's no need to take into account 'interpolate' here because visibility is not an interpolable concept : it's a boolean value.
 						target.visible = param[_index][i] > 0;
 					} else {
 						if (interpolate)
