@@ -27,10 +27,20 @@ package away3dlite.core.render
 			_culler = new FrustumCuller(_view.camera);
 		}
 		
+		public var useFloatZSort:Boolean = false;
+
+		//---------------------------------------------------
+		// Members not required if we use only Float ZSorting
+		
 		private var ql:Vector.<int> = new Vector.<int>(256, true);
 		private var k:int;
 		private var q0:Vector.<int>;
 		private var np0:Vector.<int>;
+		/** @private */
+		protected var q1:Vector.<int>;
+		
+		//---------------------------------------------------
+
 		private var _screenVertexArrays:Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>();
         private var _screenVertices:Vector.<Number>;
         private var _screenPointVertexArrays:Vector.<Vector.<int>> = new Vector.<Vector.<int>>();
@@ -42,8 +52,6 @@ package away3dlite.core.render
 		protected var i:int;
 		/** @private */
 		protected var j:int;
-		/** @private */
-		protected var q1:Vector.<int>;
 		/** @private */
 		protected var np1:Vector.<int>;
 		/** @private */
@@ -107,28 +115,55 @@ package away3dlite.core.render
 		/** @private */
 		protected function sortFaces():void
 		{
-	        // by pass
-	        var _faces_length_1:int = int(_faces.length + 1);
-	        
-	        q0 = new Vector.<int>(256, true);
-	        q1 = new Vector.<int>(256, true);
-	        np0 = new Vector.<int>(_faces_length_1, true);
-	        np1 = new Vector.<int>(_faces_length_1, true);
-	        
-            i = 0;
-        	j = 0;
-        	
-            for each (_face in _faces) {
-				np0[int(i+1)] = q0[k = (255 & (_sort[i] = _face.calculateScreenZ()))];
-				q0[k] = int(++i);
-            }
-			
-			i = 256;
-			while (i--) {
-				j = q0[i];
-				while (j) {
-					np1[j] = q1[k = (65280 & _sort[int(j-1)]) >> 8];
-					j = np0[q1[k] = j];
+			var _faces_length_1:int = int(_faces.length + 1);
+			if (useFloatZSort) {
+				np1 = new Vector.<int>(_faces_length_1, true);
+ 				var triangles:Array = [];
+				
+				//z-axis, for sort-based production
+				i = 1;
+				for each (_face in _faces) {
+					var z:Number = _face.calculateScreenZ();
+					_sort[i-1] = Face.calculateZIntFromZ(z);
+					if (z > 0) 
+						triangles.push({i:i, z:z}); 
+					i++;
+				}
+				
+				//z-axis sort
+				triangles = triangles.sortOn("z", Array.NUMERIC);
+				
+				//Put the sorted indices inside a Vector
+				j = 0;
+				for each (var triangle:Object in triangles) 
+					np1[j++] = triangle.i;
+				np1[j++] = 0;
+					
+				triangles = null;
+			}
+			else {
+				// by pass
+		        
+				q0 = new Vector.<int>(256, true);
+				q1 = new Vector.<int>(256, true);
+				np0 = new Vector.<int>(_faces_length_1, true);
+				np1 = new Vector.<int>(_faces_length_1, true);
+		        
+				i = 0;
+        		j = 0;
+	        	
+				for each (_face in _faces) {
+					np0[int(i+1)] = q0[k = (255 & (_sort[i] = _face.calculateScreenZInt()))];
+					q0[k] = int(++i);
+				}
+				
+				i = 256;
+				while (i--) {
+					j = q0[i];
+					while (j) {
+						np1[j] = q1[k = (65280 & _sort[int(j-1)]) >> 8];
+						j = np0[q1[k] = j];
+					}
 				}
 			}
 		}

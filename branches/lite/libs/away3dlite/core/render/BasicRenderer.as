@@ -98,96 +98,112 @@ package away3dlite.core.render
 			_material = null;
 			_mesh = null;
 			
-			i = -1;
-            while (i++ < 255) {
-            	j = q1[i];
-                while (j) {
-                    _face = _faces[j-1];
-					
-					if (_material != _face.material) 
-					{
-						if (_material) 
-						{
-							_material_graphicsData[_material.trianglesIndex] = _triangles;
-							draw(_mesh);
-						}
-						
-						//clear vectors by overwriting with a new instance (length = 0 leaves garbage)
-						_ind = _triangles.indices = new Vector.<int>();
-						_vert = _triangles.vertices = new Vector.<Number>();
-						_uvt = _triangles.uvtData = new Vector.<Number>();
-						_i = -1;
-						_j = -1;
-						_k = -1;
-						
-						_mesh = _face.mesh;
-						_material = _face.material;
-						_material_graphicsData = _material.graphicsData;
-						_screenVertices = _mesh._screenVertices;
-						_uvtData = _mesh._uvtData;
-						_faceStore = new Vector.<int>(_mesh._vertices.length/3, true);
-					} else if (_mesh != _face.mesh) {
-						_mesh = _face.mesh;
-						_screenVertices = _mesh._screenVertices;
-						_uvtData = _mesh._uvtData;
-						_faceStore = new Vector.<int>(_mesh._vertices.length/3, true);
+			if (useFloatZSort) {
+				i = 0;
+				j = np1[i];
+				while (j) {
+					sortFacesCommon();
+					i++;
+					j = np1[i];
+				}
+			}
+			else {
+				i = -1;
+				while (i++ < 255) {
+            		j = q1[i];
+					while (j) {
+						sortFacesCommon();
+						j = np1[j];
 					}
+				}
+			}
+		}
+		
+		/** @private */
+		private function sortFacesCommon():void
+		{
+            _face = _faces[j-1];
+			
+			if (_material != _face.material) 
+			{
+				if (_material) 
+				{
+					_material_graphicsData[_material.trianglesIndex] = _triangles;
+					draw(_mesh);
+				}
+				
+				//clear vectors by overwriting with a new instance (length = 0 leaves garbage)
+				_ind = _triangles.indices = new Vector.<int>();
+				_vert = _triangles.vertices = new Vector.<Number>();
+				_uvt = _triangles.uvtData = new Vector.<Number>();
+				_i = -1;
+				_j = -1;
+				_k = -1;
+				
+				_mesh = _face.mesh;
+				_material = _face.material;
+				_material_graphicsData = _material.graphicsData;
+				_screenVertices = _mesh._screenVertices;
+				_uvtData = _mesh._uvtData;
+				_faceStore = new Vector.<int>(_mesh._vertices.length/3, true);
+			} else if (_mesh != _face.mesh) {
+				_mesh = _face.mesh;
+				_screenVertices = _mesh._screenVertices;
+				_uvtData = _mesh._uvtData;
+				_faceStore = new Vector.<int>(_mesh._vertices.length/3, true);
+			}
+			
+			if (_faceStore[_face.i0]) {
+				_ind[++_i] = _faceStore[_face.i0] - 1;
+			} else {
+				_vert[++_j] = _screenVertices[_face.x0];
+				_faceStore[_face.i0] = (_ind[++_i] = _j*.5) + 1;
+				_vert[++_j] = _screenVertices[_face.y0];
+				
+				_uvt[++_k] = _uvtData[_face.u0];
+				_uvt[++_k] = _uvtData[_face.v0];
+				_uvt[++_k] = _uvtData[_face.t0];
+			}
+			
+			if (_faceStore[_face.i1]) {
+				_ind[++_i] = _faceStore[_face.i1] - 1;
+			} else {
+				_vert[++_j] = _screenVertices[_face.x1];
+				_faceStore[_face.i1] = (_ind[++_i] = _j*.5) + 1;
+				_vert[++_j] = _screenVertices[_face.y1];
+				
+				_uvt[++_k] = _uvtData[_face.u1];
+				_uvt[++_k] = _uvtData[_face.v1];
+				_uvt[++_k] = _uvtData[_face.t1];
+			}
+			
+			if (_faceStore[_face.i2]) {
+				_ind[++_i] = _faceStore[_face.i2] - 1;
+			} else {
+				_vert[++_j] = _screenVertices[_face.x2];
+				_faceStore[_face.i2] = (_ind[++_i] = _j*.5) + 1;
+				_vert[++_j] = _screenVertices[_face.y2];
+				
+				_uvt[++_k] = _uvtData[_face.u2];
+				_uvt[++_k] = _uvtData[_face.v2];
+				_uvt[++_k] = _uvtData[_face.t2];
+			}
+			
+			if (_face.i3) {
+				_ind[++_i] = _faceStore[_face.i0] - 1;
+				_ind[++_i] = _faceStore[_face.i2] - 1;
+				
+				if (_faceStore[_face.i3]) {
+					_ind[++_i] = _faceStore[_face.i3] - 1;
+				} else {
+					_vert[++_j] = _screenVertices[_face.x3];
+					_faceStore[_face.i3] = (_ind[++_i] = _j*.5) + 1;
+					_vert[++_j] = _screenVertices[_face.y3];
 					
-					if (_faceStore[_face.i0]) {
-						_ind[++_i] = _faceStore[_face.i0] - 1;
-					} else {
-						_vert[++_j] = _screenVertices[_face.x0];
-						_faceStore[_face.i0] = (_ind[++_i] = _j*.5) + 1;
-						_vert[++_j] = _screenVertices[_face.y0];
-						
-						_uvt[++_k] = _uvtData[_face.u0];
-						_uvt[++_k] = _uvtData[_face.v0];
-						_uvt[++_k] = _uvtData[_face.t0];
-					}
-					
-					if (_faceStore[_face.i1]) {
-						_ind[++_i] = _faceStore[_face.i1] - 1;
-					} else {
-						_vert[++_j] = _screenVertices[_face.x1];
-						_faceStore[_face.i1] = (_ind[++_i] = _j*.5) + 1;
-						_vert[++_j] = _screenVertices[_face.y1];
-						
-						_uvt[++_k] = _uvtData[_face.u1];
-						_uvt[++_k] = _uvtData[_face.v1];
-						_uvt[++_k] = _uvtData[_face.t1];
-					}
-					
-					if (_faceStore[_face.i2]) {
-						_ind[++_i] = _faceStore[_face.i2] - 1;
-					} else {
-						_vert[++_j] = _screenVertices[_face.x2];
-						_faceStore[_face.i2] = (_ind[++_i] = _j*.5) + 1;
-						_vert[++_j] = _screenVertices[_face.y2];
-						
-						_uvt[++_k] = _uvtData[_face.u2];
-						_uvt[++_k] = _uvtData[_face.v2];
-						_uvt[++_k] = _uvtData[_face.t2];
-					}
-					
-					if (_face.i3) {
-						_ind[++_i] = _faceStore[_face.i0] - 1;
-						_ind[++_i] = _faceStore[_face.i2] - 1;
-						
-						if (_faceStore[_face.i3]) {
-							_ind[++_i] = _faceStore[_face.i3] - 1;
-						} else {
-							_vert[++_j] = _screenVertices[_face.x3];
-							_faceStore[_face.i3] = (_ind[++_i] = _j*.5) + 1;
-							_vert[++_j] = _screenVertices[_face.y3];
-							
-							_uvt[++_k] = _uvtData[_face.u3];
-							_uvt[++_k] = _uvtData[_face.v3];
-							_uvt[++_k] = _uvtData[_face.t3];
-						}
-					}
-					
-					j = np1[j];
-                }
+					_uvt[++_k] = _uvtData[_face.u3];
+					_uvt[++_k] = _uvtData[_face.v3];
+					_uvt[++_k] = _uvtData[_face.t3];
+				}
 			}
 		}
 		

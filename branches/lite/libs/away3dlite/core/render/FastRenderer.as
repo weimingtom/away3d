@@ -175,26 +175,43 @@ package away3dlite.core.render
 		{
 			super.sortFaces();
 			
-			i = -1;
-			_i = -1;
-            while (i++ < 255) {
-            	j = q1[i];
-                while (j) {
-                    _face = _faces[j-1];
-                    _ind[int(++_i)] = _face.i0;
-					_ind[int(++_i)] = _face.i1;
-					_ind[int(++_i)] = _face.i2;
+			if (useFloatZSort) {
+				i = 0;
+				j = np1[i];
+				while (j) {
+					sortFacesCommon();
 					
-					if (_face.i3) {
-						_ind[int(++_i)] = _face.i0;
-						_ind[int(++_i)] = _face.i2;
-						_ind[int(++_i)] = _face.i3;
+					i++;
+					j = np1[i];
+				}
+			}
+			else {
+				i = -1;
+				_i = -1;
+				while (i++ < 255) {
+            		j = q1[i];
+					while (j) {
+						sortFacesCommon();
+						j = np1[j];
 					}
-					
-					j = np1[j];
-                }
-            }
+				}
+			}
 		}
+		
+		/** @private */
+		private function sortFacesCommon():void
+		{
+            _face = _faces[j-1];
+            _ind[int(++_i)] = _face.i0;
+			_ind[int(++_i)] = _face.i1;
+			_ind[int(++_i)] = _face.i2;
+			
+			if (_face.i3) {
+				_ind[int(++_i)] = _face.i0;
+				_ind[int(++_i)] = _face.i2;
+				_ind[int(++_i)] = _face.i3;
+			}
+		}		
 		
 		/**
 		 * @inheritDoc
