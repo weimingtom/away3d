@@ -156,6 +156,46 @@ package away3dlite.core.base
 			_materialsCacheList[i] = mat;
 		}
 		
+		public function updateMaterials():void
+		{
+			_materialsDirty = false;
+			
+			if (_scene) {
+				var oldMaterial:Material;
+				
+				//update face materials
+				_faceMaterials.fixed = false;
+				_faceMaterials.length = _faceLengths.length;
+				
+				var i:int = _faces.length;
+				while (i--) {
+					oldMaterial = _faces[i].material;
+					
+					//reset face materials
+					if (oldMaterial != _material) {
+						//remove old material from lists
+						if (oldMaterial) {
+							_scene.removeSceneMaterial(oldMaterial);
+							removeMaterial(oldMaterial);
+						}
+						
+						//add new material to lists
+						if (_material) {
+							_scene.addSceneMaterial(_material);
+							addMaterial(_material);
+						}
+						
+						//set face material
+						_faces[i].material = _material;
+						_faceMaterials[i]  = _material;
+					}
+					
+				}
+			}
+			
+			_faceMaterials.fixed = true;
+		}
+
 		private function buildMaterials(clear:Boolean = false):void
 		{
 			_materialsDirty = false;
