@@ -4,7 +4,7 @@ package away3dlite.loaders.data
 	/**
 	 * Data class for 3d object containers.
 	 */
-	public class ContainerData extends ObjectData
+	public class ContainerData extends MeshData
 	{
 		/**
 		 * An array containing the child 3d objects of the container.

@@ -15,5 +15,17 @@ package away3dlite.loaders.data
 		 *
 		 */
 		public var skeleton:String;
+
+		/**
+		 * Copy the mesh data into another <code>MeshData</code> object.
+		 */
+		public override function copyTo(dst:ObjectData):void
+		{
+			super.copyTo(dst as ObjectData);
+			
+			(dst as MeshData).material = material;
+			(dst as MeshData).geometry = geometry;
+			(dst as MeshData).skeleton = skeleton;
+		}
 	}
 }
