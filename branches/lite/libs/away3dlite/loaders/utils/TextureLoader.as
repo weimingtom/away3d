@@ -21,6 +21,11 @@ package away3dlite.loaders.utils
 			return _filename;
 		}
 		
+		public function set filename(filename:String):void
+		{
+			_filename = filename;
+		}
+		
 		override public function load(request:URLRequest, context:LoaderContext=null):void
 		{
 			_filename = request.url;
