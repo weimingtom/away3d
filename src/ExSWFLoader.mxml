@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				frameRate="30"
+				backgroundColor="0x000000"
+				xmlns:local="*" width="800" height="600" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	<mx:Grid x="0" y="0" width="100%" height="100%">
 		<mx:GridRow width="100%" height="100%">
 			<mx:GridItem width="100%" height="100%">
