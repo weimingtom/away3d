@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				frameRate="30"
+				backgroundColor="0x000000"
+				xmlns:local="*" width="800" height="600" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<local:ExUIComponentCanvas width="800" height="600"/>
+</mx:Application>
