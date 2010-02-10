@@ -8,6 +8,7 @@ package away3dlite.templates
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
+	import flash.geom.Rectangle;
 	import flash.text.*;
 	
 	import net.hires.debug.Stats;
@@ -101,6 +102,8 @@ package away3dlite.templates
 			
 			_customWidth = _customWidth?_customWidth:_stageWidth;
 			_customHeight = _customHeight?_customHeight:_stageHeight;
+			
+			scrollRect = new Rectangle(0, 0, _customWidth, _customHeight);
 		}
 		
 		protected function onAddedToStage(event:Event):void

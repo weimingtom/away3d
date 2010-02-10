@@ -2,15 +2,16 @@ package
 {
 	import away3dlite.containers.Particles;
 	import away3dlite.core.base.Particle;
+	import away3dlite.core.clip.RectangleClipping;
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.*;
-
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.BlurFilter;
-	import flash.filters.GlowFilter;
 	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 
 	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
 	/**
@@ -23,7 +24,7 @@ package
 		private var particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
-		private const max:int = 2000;
+		private const max:int = 3000;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
@@ -31,21 +32,36 @@ package
 		private var step:Number = 0;
 		private var segment:Number;
 
-		private var container:Sprite;
-
 		override protected function onInit():void
 		{
+			scrollRect = new Rectangle(0, 0, _customWidth, _customHeight);
+			
 			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode (sprite/bitmap)";
 
 			// speed up
 			view.mouseEnabled = false;
+			
+			// clipping
+			clipping = new RectangleClipping();
+			clipping.minX = -300;
+			clipping.minY = -200;
+			clipping.maxX = 300;
+			clipping.maxY = 200;
 
 			// create materials
 			particleMaterial = createParticleMaterial(size, size);
 
 			// create particles
 			particles = new Particles(true);
-
+			
+			/* layer test
+			particles.layer = new Sprite();
+			addChild(particles.layer);
+			particles.layer.filters = [new BlurFilter(4,4)]
+			particles.layer.x = _customWidth/2;
+			particles.layer.y = _customHeight/2;
+			*/
+			
 			segment = size + 2 * Math.PI / (size * 1.25);
 
 			var i:Number = (stage.stageHeight - 100) / max;
@@ -82,6 +98,16 @@ package
 
 			// toggle
 			stage.addEventListener(MouseEvent.CLICK, onClick);
+			
+			// debug
+			var debugRect:Shape = new Shape();
+			debugRect.graphics.lineStyle(1, 0xFF0000);
+			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
+			debugRect.graphics.endFill();
+			
+			debugRect.x = _customWidth/2;
+			debugRect.y = _customHeight/2;
+			addChild(debugRect);
 		}
 
 		private function createParticleMaterial(_width:Number, _height:Number):ParticleMaterial
@@ -97,7 +123,7 @@ package
 				bitmapData.draw(shape, new Matrix(1, 0, 0, 1, (i * _width) + _width, _height));
 			}
 
-			addChild(bitmap = new Bitmap(bitmapData)).y = 100;
+			addChild(bitmap = new Bitmap(bitmapData)).y = 80;
 
 			return _material;
 		}
