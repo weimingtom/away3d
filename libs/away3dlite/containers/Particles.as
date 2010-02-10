@@ -5,6 +5,7 @@ package away3dlite.containers
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
 	
+	import flash.display.Sprite;
 	import flash.geom.Matrix3D;
 	import flash.geom.Utils3D;
 	import flash.geom.Vector3D;
@@ -25,6 +26,21 @@ package away3dlite.containers
 		
 		// still need array for sortOn
 		public var lists:Array;
+		
+		override public function set layer(value:Sprite):void
+		{
+			super.layer = value;
+			
+			if(!_firstParticle)
+				return;
+			
+			var particle:Particle = _firstParticle;
+			do{
+				// layer dirty
+				if(particle.layer != value)
+					particle.layer = value;
+			}while(particle = particle.next);
+		}
 		
 		arcane override function updateScene(val:Scene3D):void
 		{
@@ -47,11 +63,6 @@ package away3dlite.containers
 			do{
 				_position = Utils3D_projectVector(_transform_matrix3D, particle);
 				particle.position = Utils3D_projectVector(_viewMatrix3D, _position);
-				
-				// layer dirty
-				if(particle.layer!=_layer)
-					particle.layer = _layer;
-					
 			}while(particle = particle.next);
 			
 			if(_animated)
@@ -80,6 +91,8 @@ package away3dlite.containers
 			_lastParticle = particle;
 			
 			particle.animated = _animated;
+			
+			particle.layer = _layer;
 			
 			return particle;
 		}

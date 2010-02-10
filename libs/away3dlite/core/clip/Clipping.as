@@ -50,6 +50,21 @@ package away3dlite.core.clip
 			_view = view;
 		}
     	/** @private */
+		arcane function collectParticles(particles:Array):Array
+		{
+			var _particles:Array = [];
+			var i:int = 0;
+			for each(var _particle:Particle in particles)
+			{ 
+				var _position:Vector3D = _particle.position;
+				if(int(_position.x) > int(_minX) && int(_position.x) < int(_maxX) &&
+				   int(_position.y) > int(_minY) && int(_position.y) < int(_maxY) &&
+				   int(_position.z) > int(_minZ) && int(_position.z) < int(_maxZ))
+					_particles[int(i++)] = _particle;
+			}
+			return _particles;
+		}
+    	/** @private */
 		arcane function collectFaces(mesh:Mesh, faces:Vector.<Face>):void
         {
         	_faces = mesh._faces;

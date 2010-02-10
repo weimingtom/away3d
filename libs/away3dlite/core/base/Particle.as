@@ -1,6 +1,7 @@
 package away3dlite.core.base
 {
 	import away3dlite.arcane;
+	import away3dlite.core.clip.Clipping;
 	import away3dlite.materials.ParticleMaterial;
 	
 	import flash.display.BitmapData;
@@ -24,10 +25,12 @@ package away3dlite.core.base
 		public var animated:Boolean = false;
 		public var smooth:Boolean = false;
 		
-		//effect
+		// effect
 		public var colorTransform:ColorTransform;
 		public var blendMode:String;
 		public var filters:Array;
+		
+		public var visible:Boolean = true;
 
 		public var screenZ:Number;
 		public var next:Particle;
@@ -85,6 +88,9 @@ package away3dlite.core.base
 
 		public function drawBitmapdata(x:Number, y:Number, bitmapData:BitmapData, zoom:Number, focus:Number):void
 		{
+			if(!visible)
+				return;
+			
 			// animated?
 			if (animated)
 				material.nextFrame();
@@ -121,6 +127,9 @@ package away3dlite.core.base
 		
 		public function drawGraphics(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 		{
+			if(!visible)
+				return;
+				
 			// draw to view or layer
 			if (layer)
 				graphics = layer.graphics;
