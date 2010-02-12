@@ -138,6 +138,7 @@ package away3dlite.core.base
 			if (animated)
 			{
 				material.nextFrame();
+				_bitmapData.fillRect(_bitmapData.rect, 0x00000000);
 				_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 			}
 

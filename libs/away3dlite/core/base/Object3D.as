@@ -187,7 +187,16 @@ package away3dlite.core.base
 		/**
 		 * An optional canvas sprite used to draw into inseatd of the default view.
 		 */
-		public var canvas:Sprite;
+		public var _canvas:Sprite;
+		public function set canvas(value:Sprite):void
+		{
+			_canvas = value;
+		}
+		
+		public function get canvas():Sprite
+		{
+			return _canvas;
+		}
 		
 		/**
 		 * Used in loaders to store all parsed materials contained in the model.

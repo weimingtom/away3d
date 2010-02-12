@@ -92,6 +92,15 @@ package away3dlite.containers
             	if (object3D is Mesh)
             		object3D.layer = value
 		}
+		
+		override public function set canvas(value:Sprite):void
+		{
+			super.canvas = value;
+			
+            for each(var object3D:Object3D in children) 
+            	if (object3D is Mesh)
+            		object3D.canvas = value
+		}
 
 		/**
 		 * @inheritDoc
