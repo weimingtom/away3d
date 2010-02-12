@@ -13,6 +13,7 @@ package
 	
 	import flash.display.*;
 	import flash.events.*;
+	import flash.filters.BlurFilter;
 	import flash.geom.Vector3D;
 	import flash.utils.*;
 	
@@ -33,15 +34,15 @@ package
 		{
 			loaded = true;
 			model = loader.handle;
-			model.layer = new Sprite();
-			view.addChild(model.layer);
+			model.canvas = new Sprite();
+			view.addChild(model.canvas);
+			model.canvas.filters = [new BlurFilter(4,4)];
 			
 			var sphere:Sphere = new Sphere();
 			scene.addChild(sphere);
 			sphere.layer = model.layer;
 			
 			skinAnimation = model.animationLibrary.getAnimation("default").animation as BonesAnimator;
-			
 		}
 		
 		/**
