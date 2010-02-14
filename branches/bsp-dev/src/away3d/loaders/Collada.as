@@ -20,16 +20,12 @@
     */
     public class Collada extends AbstractParser
     {
+    	
         private var collada:XML;
-        private var materialLibrary:MaterialLibrary;
         private var animationLibrary:AnimationLibrary;
-        private var geometryLibrary:GeometryLibrary;
         private var channelLibrary:ChannelLibrary;
-        private var symbolLibrary:Dictionary;
         private var yUp:Boolean;
         private var toRADIANS:Number = Math.PI / 180;
-    	private var _faceMaterial:ITriangleMaterial;
-    	private var _face:Face;
     	private var _moveVector:Number3D = new Number3D();
 		private var rotationMatrix:MatrixAway3D = new MatrixAway3D();
     	private var scalingMatrix:MatrixAway3D = new MatrixAway3D();
@@ -45,162 +41,7 @@
 		private var _channelArrayLength:int;
 		private var _defaultAnimationClip:AnimationData;
 		private var _haveClips:Boolean = false;
-		private var _containers:Dictionary = new Dictionary(true);
 		private var _materials:Object;
-		
-		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D):void
-		{
-			for each (var _objectData:ObjectData in containerData.children) {
-				if (_objectData is MeshData) {
-					var mesh:Mesh = buildMesh(_objectData as MeshData, parent);
-					_containers[_objectData.name] = mesh;
-				} else if (_objectData is BoneData) {
-					var _boneData:BoneData = _objectData as BoneData;
-					var bone:Bone = new Bone({name:_boneData.name});
-					_boneData.container = bone as ObjectContainer3D;
-					
-					_containers[bone.name] = bone;
-					
-					//ColladaMaya 3.05B
-					bone.boneId = _boneData.id;
-					
-					bone.transform = _boneData.transform;
-					
-					bone.joint.transform = _boneData.jointTransform;
-					
-					buildContainers(_boneData, bone.joint);
-					
-					parent.addChild(bone);
-					
-				} else if (_objectData is ContainerData) {
-					var _containerData:ContainerData = _objectData as ContainerData;
-					var objectContainer:ObjectContainer3D = _containerData.container = new ObjectContainer3D({name:_containerData.name});
-					
-					_containers[objectContainer.name] = objectContainer;
-					
-					objectContainer.transform = _objectData.transform;
-					
-					buildContainers(_containerData, objectContainer);
-					
-					if (centerMeshes && objectContainer.children.length) {
-						//center children in container for better bounding radius calulations
-						objectContainer.movePivot(_moveVector.x = (objectContainer.maxX + objectContainer.minX)/2, _moveVector.y = (objectContainer.maxY + objectContainer.minY)/2, _moveVector.z = (objectContainer.maxZ + objectContainer.minZ)/2);
-						_moveVector.transform(_moveVector, _objectData.transform);
-						objectContainer.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
-					}
-					
-					parent.addChild(objectContainer);
-					
-				}
-			}
-		}
-		
-		private function buildMesh(_meshData:MeshData, parent:ObjectContainer3D):Mesh
-		{
-			Debug.trace(" + Build Mesh : "+_meshData.name);
-			
-			var mesh:Mesh = new Mesh({name:_meshData.name});
-			mesh.transform = _meshData.transform;
-			mesh.bothsides = _meshData.geometry.bothsides;
-			
-			var _geometryData:GeometryData = _meshData.geometry;
-			var geometry:Geometry = _geometryData.geometry;
-			
-			if (!geometry) {
-				geometry = _geometryData.geometry = new Geometry();
-				
-				mesh.geometry = geometry;
-				
-				//set materialdata for each face
-				var _faceData:FaceData;
-				for each (var _meshMaterialData:MeshMaterialData in _geometryData.materials) {
-					for each (var _faceListIndex:int in _meshMaterialData.faceList) {
-						_faceData = _geometryData.faces[_faceListIndex] as FaceData;
-						_faceData.materialData = symbolLibrary[_meshMaterialData.symbol];
-					}
-				}
-				
-				
-				if (_geometryData.skinVertices.length) {
-					var rootBone:Bone = (container as ObjectContainer3D).getBoneByName(_meshData.skeleton);
-					
-					geometry.skinVertices = _geometryData.skinVertices;
-					geometry.skinControllers = _geometryData.skinControllers;
-					//mesh.bone = container.getChildByName(_meshData.bone) as Bone;
-					
-		   			geometry.rootBone = rootBone;
-		   			
-		   			for each (var _skinController:SkinController in geometry.skinControllers)
-		                _skinController.inverseTransform = parent.inverseSceneTransform;
-				}
-				
-				//create faces from face and mesh data
-				for each(_faceData in _geometryData.faces) {
-					if (_faceData.materialData)
-						_faceMaterial = _faceData.materialData.material as ITriangleMaterial;
-					else
-						_faceMaterial = null;
-					
-					_face = new Face(_geometryData.vertices[_faceData.v0],
-												_geometryData.vertices[_faceData.v1],
-												_geometryData.vertices[_faceData.v2],
-												_faceMaterial,
-												_geometryData.uvs[_faceData.uv0],
-												_geometryData.uvs[_faceData.uv1],
-												_geometryData.uvs[_faceData.uv2]);
-					geometry.addFace(_face);
-					
-					if (_faceData.materialData)
-						_faceData.materialData.elements.push(_face);
-				}
-			} else {
-				mesh.geometry = geometry;
-			}
-			
-			if (centerMeshes) {
-				mesh.movePivot(_moveVector.x = (_geometryData.maxX + _geometryData.minX)/2, _moveVector.y = (_geometryData.maxY + _geometryData.minY)/2, _moveVector.z = (_geometryData.maxZ + _geometryData.minZ)/2);
-				_moveVector.transform(_moveVector, _meshData.transform);
-				mesh.moveTo(_moveVector.x, _moveVector.y, _moveVector.z);
-			}
-			
-			mesh.type = ".Collada";
-			parent.addChild(mesh);
-			return mesh;
-		}
-		
-        private function buildMaterials():void
-		{
-			for each (var _materialData:MaterialData in materialLibrary)
-			{
-				Debug.trace(" + Build Material : "+_materialData.name);
-				
-				//overridden by the material property in constructor
-				if (material)
-					_materialData.material = material;
-				
-				//overridden by materials passed in contructor
-				if (_materialData.material)
-					continue;
-				
-				Debug.trace(" + Material Type : "+_materialData.materialType);
-				
-				switch (_materialData.materialType)
-				{
-					case MaterialData.TEXTURE_MATERIAL:
-						materialLibrary.loadRequired = true;
-						break;
-					case MaterialData.SHADING_MATERIAL:
-						_materialData.material = new ShadingColorMaterial(null, {ambient:_materialData.ambientColor, diffuse:_materialData.diffuseColor, specular:_materialData.specularColor, shininess:_materialData.shininess});
-						break;
-					case MaterialData.COLOR_MATERIAL:
-						_materialData.material = new ColorMaterial(_materialData.diffuseColor);
-						break;
-					case MaterialData.WIREFRAME_MATERIAL:
-						_materialData.material = new WireColorMaterial();
-						break;
-				}
-			}
-		}
 		
 		private function buildAnimations():void
 		{
@@ -208,7 +49,7 @@
 			
 			for each (var _geometryData:GeometryData in geometryLibrary) {
 				for each (var _skinController:SkinController in _geometryData.geometry.skinControllers) {
-					bone = (container as ObjectContainer3D).getBoneByName(_skinController.name);
+					bone = (_container as ObjectContainer3D).getBoneByName(_skinController.name);
 	                if (bone)
 	                    _skinController.joint = bone.joint;
 	                else
@@ -469,6 +310,12 @@
             return url.split("#")[1];
         }
         
+        /** @private */
+        protected override function getFileType():String
+        {
+        	return "Collada";
+        }
+        
     	/**
     	 * A scaling factor for all geometry in the model. Defaults to 1.
     	 */
@@ -478,49 +325,6 @@
     	 * Controls the use of shading materials when color textures are encountered. Defaults to false.
     	 */
         public var shading:Boolean;
-        
-    	/**
-    	 * Overrides all materials in the model.
-    	 */
-        public var material:ITriangleMaterial;
-        
-    	/**
-    	 * Controls the automatic centering of geometry data in the model, improving culling and the accuracy of bounding dimension values. Defaults to false.
-    	 */
-        public var centerMeshes:Boolean;
-        
-    	/**
-    	 * Container data object used for storing the parsed collada data structure.
-    	 */
-        public var containerData:ContainerData;
-        
-    	/**
-    	 * Overides materials in the model using name:value pairs.
-    	 */
-        public function get materials():Object
-        {
-        	return _materials;
-        }
-		
-		public function set materials(val:Object):void
-		{
-			_materials = val;
-			
-			//organise the materials
-			var _materialData:MaterialData;
-            for (var name:String in _materials) {
-                _materialData = materialLibrary.addMaterial(name);
-                _materialData.material = Cast.material(_materials[name]);
-
-                //determine material type
-                if (_materialData.material is BitmapMaterial)
-                	_materialData.materialType = MaterialData.TEXTURE_MATERIAL;
-                else if (_materialData.material is ShadingColorMaterial)
-                	_materialData.materialType = MaterialData.SHADING_MATERIAL;
-                else if (_materialData.material is WireframeMaterial)
-                	_materialData.materialType = MaterialData.WIREFRAME_MATERIAL;
-   			}
-		}
 		
 		/**
 		 * Creates a new <code>Collada</code> object.
@@ -536,20 +340,17 @@
             
             scaling = ini.getNumber("scaling", 1);
             shading = ini.getBoolean("shading", false);
-            material = ini.getMaterial("material") as ITriangleMaterial;
             centerMeshes = ini.getBoolean("centerMeshes", false);
 			
 			//create the container
-            container = new ObjectContainer3D(ini);
-			container.name = "collada";
+            _container = new ObjectContainer3D(ini);
+			_container.name = "collada";
 			
-			materialLibrary = container.materialLibrary = new MaterialLibrary();
-			animationLibrary = container.animationLibrary = new AnimationLibrary();
-			geometryLibrary = container.geometryLibrary = new GeometryLibrary();
+			_container.materialLibrary = _materialLibrary;
+			_container.geometryLibrary = _geometryLibrary;
+			
+			animationLibrary = _container.animationLibrary = new AnimationLibrary();
 			channelLibrary = new ChannelLibrary();
-			symbolLibrary = new Dictionary(true);
-			
-			materials = ini.getObject("materials") || {};
 			
 			binary = false;
         }
@@ -565,7 +366,7 @@
 		 */
         public static function parse(data:*, init:Object = null):ObjectContainer3D
         {
-            return Loader3D.parseGeometry(data, Collada, init).handle as ObjectContainer3D;
+            return Loader3D.parse(data, Collada, init).handle as ObjectContainer3D;
         }
 		
     	/**
@@ -578,7 +379,7 @@
     	 */
         public static function load(url:String, init:Object = null):Loader3D
         {
-			return Loader3D.loadGeometry(url, Collada, init);
+			return Loader3D.load(url, Collada, init);
         }
         
         /** @private */
@@ -610,9 +411,9 @@
         arcane override function parseNext():void
         {
         	if (_parsedChunks < _geometryArrayLength)
-        		parseGeometry(_geometryArray[_parsedChunks]);
+        		parseGeometryData(_geometryArray[_parsedChunks]);
         	else
-        		parseChannel(_channelArray[-_geometryArrayLength + _parsedChunks]);
+        		parseChannelData(_channelArray[-_geometryArrayLength + _parsedChunks]);
         	
         	_parsedChunks++;
         	
@@ -621,10 +422,7 @@
 				buildMaterials();
 				
 				//build the containers
-				buildContainers(containerData, container as ObjectContainer3D);
-				
-				//build the meshes
-				//buildMeshes(containerData, container as ObjectContainer3D);
+				buildContainers(_containerData, _container as ObjectContainer3D);
 				
 				//build animations
 				buildAnimations();
@@ -649,10 +447,10 @@
         	
 			Debug.trace(" ! ------------- Begin Parse Scene -------------");
 			
-			containerData = new ContainerData();
+			_containerData = new ContainerData();
 			
             for each (var node:XML in scene["node"])
-				parseNode(node, containerData);
+				parseNode(node, _containerData);
 			
 			Debug.trace(" ! ------------- End Parse Scene -------------");
 			_geometryArray = geometryLibrary.getGeometryArray();
@@ -803,7 +601,7 @@
         private function parseMaterial(symbol:String, materialName:String):void
         {
            	var _materialData:MaterialData = materialLibrary.addMaterial(materialName);
-        	symbolLibrary[symbol] = _materialData;
+        	_symbolLibrary[symbol] = _materialData;
             if(symbol == "FrontColorNoCulling") {
             	_materialData.materialType = MaterialData.SHADING_MATERIAL;
             } else {
@@ -827,7 +625,7 @@
 		 * 
 		 * @see away3d.loaders.data.GeometryData
 		 */
-		private function parseGeometry(geometryData:GeometryData):void
+		private function parseGeometryData(geometryData:GeometryData):void
 		{
 			Debug.trace(" + Parse Geometry : "+ geometryData.name);
 			var verticesDictionary:Dictionary = new Dictionary(true);
@@ -1088,7 +886,7 @@
 				animationClip.channels[getId(channel.@url)] = channelLibrary[getId(channel.@url)];
         }
 		
-		private function parseChannel(channelData:ChannelData) : void
+		private function parseChannelData(channelData:ChannelData) : void
         {
         	var node:XML = channelData.xml;
 			var id:String = node["channel"].@target;
@@ -1114,6 +912,9 @@
             } else {
             	type = type.split(".").join("");
             }
+            
+			
+
             
             var channel:Channel = channelData.channel = new Channel(name);
 			var i:int;
@@ -1240,7 +1041,11 @@
 	
 				var image:XML = collada["library_images"].image.(@id == imageId)[0];
 	
-				filename = image["init_from"];
+				//3dsMax 11 - Feeling ColladaMax v3.05B.
+				if(!image)
+					filename = collada["library_images"].image.init_from.text();
+				else
+					filename = image["init_from"];
 	
 				if (filename.substr(0, 2) == "./")
 				{

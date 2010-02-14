@@ -7,7 +7,7 @@ package away3d.physics
 	import away3d.core.base.Mesh;
 	import away3d.core.base.Object3D;
 	import away3d.core.geom.Plane3D;
-	import away3d.core.graphs.BSPTree;
+	import away3d.core.graphs.bsp.BSPTree;
 	import away3d.core.math.Number3D;
 
 	use namespace arcane;
