@@ -1,6 +1,6 @@
 package away3d.core.geom
 {
-	import away3d.core.graphs.BSPTree;
+	import away3d.core.graphs.bsp.BSPTree;
 	import away3d.arcane;
     import away3d.core.base.*;
     import away3d.core.math.*;

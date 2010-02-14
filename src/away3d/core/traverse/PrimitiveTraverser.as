@@ -6,7 +6,7 @@ package away3d.core.traverse
 	import away3d.core.clip.*;
 	import away3d.core.draw.*;
 	import away3d.core.geom.Frustum;
-	import away3d.core.graphs.BSPTree;
+	import away3d.core.graphs.bsp.BSPTree;
 	import away3d.core.light.*;
 	import away3d.core.math.*;
 	import away3d.core.project.*;

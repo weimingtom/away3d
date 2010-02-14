@@ -1,5 +1,6 @@
-package away3d.core.graphs
+package away3d.core.graphs.bsp
 {
+	import away3d.core.graphs.*;
 	import flash.utils.setTimeout;
 	import flash.utils.getTimer;
 	import flash.events.Event;

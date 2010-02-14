@@ -7,7 +7,7 @@ package away3d.core.traverse
 	import away3d.core.base.*;
 	import away3d.core.clip.*;
 	import away3d.core.geom.*;
-	import away3d.core.graphs.BSPTree;
+	import away3d.core.graphs.bsp.BSPTree;
 	import away3d.core.math.*;
 	import away3d.core.project.*;
 	import away3d.core.utils.*;

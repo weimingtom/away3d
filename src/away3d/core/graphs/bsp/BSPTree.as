@@ -1,4 +1,4 @@
-package away3d.core.graphs
+package away3d.core.graphs.bsp
 {
 	import away3d.events.Object3DEvent;
 	import away3d.core.base.Object3D;
@@ -33,11 +33,14 @@ package away3d.core.graphs
 	 * and performs early culling to remove big parts of the geometry that don't need to be rendered. It also speeds up various tasks such as
 	 * collision detection.
 	 */
+
+	// TO DO: Move all build functionality to a wrapper!
 	public class BSPTree extends ObjectContainer3D
 	{
 		public static const TEST_METHOD_POINT : int = 0;
 		public static const TEST_METHOD_AABB : int = 1;
 		public static const TEST_METHOD_ELLIPSOID : int = 2;
+
 		public static const EPSILON : Number = 0.07;
 		public static const COLLISION_EPSILON : Number = 0.1;
 		
@@ -65,6 +68,10 @@ package away3d.core.graphs
 		private var _obbCollisionTree : BSPTree;
 		
 		private var _meshManagers : Dictionary;
+
+
+		private var _traverseNode : BSPNode;
+		private var _traverseState : int;
 
 		/**
 		 * Creates a new BSPTree object.
@@ -195,43 +202,7 @@ package away3d.core.graphs
 			if (leaf)
 				leaf.addChild(child);
 			
-//				if (child._collider)
-//					assignCollider(child, pos, bx, by, bz);
 		}
-		
-		/*private function assignCollider(child : Object3D, pos : Number3D = null, bx : Number = 0, by : Number = 0, bz : Number = 0) : void
-		{
-			var bound : Number3D;
-			var radius : Number;
-			var marks : Array = child._sceneGraphCollisionMarks;
-			var i : int;
-			var mark : int;
-			var childSceneTransform : MatrixAway3D;
-			
-			i = marks.length;
-			while (--i >= 0) {
-				mark = int(child._sceneGraphCollisionMarks[i]);
-				_leaves[mark].removeCollider(child);
-			}
-			
-			if (child._sceneGraphMark == -1) return;
-			
-			if (!pos) {
-				bx = (child.maxX-child._minX)*.5;
-				by = (child._maxY-child._minY)*.5;
-				bz = (child._maxZ-child._minZ)*.5;
-				pos = new Number3D(bx, by, bz);
-				pos.transform(pos, childSceneTransform);
-				pos.transform(pos, inverseSceneTransform);
-			}
-			bound = new Number3D(bx, by, bz);
-			
-			childSceneTransform = child.sceneTransform;
-			childSceneTransform.multiplyVector3x3(bound);
-			inverseSceneTransform.multiplyVector3x3(bound);
-			radius = bound.modulo;
-			_rootNode.assignCollider(child, pos, radius);
-		}*/
 		
 		/**
 		 * @inheritDoc
@@ -299,9 +270,8 @@ package away3d.core.graphs
        			doTraverse(traverser);
        			traverser.leave(this);
         	}
-	        
         }
-        
+		        
         /**
          * Moves a Traverser object through the tree in the correct order to preserve z-sorting
          */
@@ -995,6 +965,7 @@ package away3d.core.graphs
 		{
 			nodeCount = 0;
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
+
 			if (buildPVS)
 				_progressEvent.totalParts += buildCollisionPlanes? 10 : 9;
 			else if (buildCollisionPlanes)
@@ -1117,6 +1088,7 @@ package away3d.core.graphs
 			
 			do {
 				face = faces[i];
+
 				v1 = face._v0;
 				v2 = face._v1;
 				v3 = face._v2;
@@ -1130,7 +1102,7 @@ package away3d.core.graphs
 				cross.cross(u, v);
 				if (cross.modulo > EPSILON) {
 					ngon = new NGon();
-					ngon.fromTriangle(faces[i]);
+					ngon.fromTriangle(face);
 					polys[c++] = ngon;
 				}
 			} while (++i < len);

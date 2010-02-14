@@ -1,5 +1,6 @@
-package away3d.core.graphs
+package away3d.core.graphs.bsp
 {
+	import away3d.core.graphs.*;
 	import away3d.materials.ITriangleMaterial;
 	import away3d.core.base.UV;
 	import away3d.core.traverse.PrimitiveTraverser;
@@ -24,7 +25,7 @@ package away3d.core.graphs
 	/**
 	 * BSPNode is a single node in a BSPTree
 	 */
-	public final class BSPNode extends EventDispatcher
+	public final class BSPNode extends EventDispatcher implements ITreeNode
 	{
 		public var leafId : int = -1;
 		public var nodeId : int;
@@ -79,60 +80,21 @@ package away3d.core.graphs
 			nodeId = BSPTree.nodeCount;
 			BSPTree.nodeCount++;
 			_parent = parent;
-		}
-		
-		/**
-		 * Generates bevel planes used for collision detection (prevents offsets causing false collisions at angles > 180°)
-		 */
-		public function generateBevelPlanes(targetNode : BSPNode) : void
+		}        
+
+		public function get leftChild() : ITreeNode
 		{
-			var node : BSPNode = _parent;
-			
-			while (node && node._convex) {
-				node.createBevelPlanes(_faces, targetNode._faces);
-				node = node._parent;
-			}
+			return _positiveNode;
 		}
-		
-		// to do: there are no bevel planes if partition planes form concave shape
-		private function createBevelPlanes(sourceNGons : Vector.<NGon>, targetNGons : Vector.<NGon>) : void
+
+		public function get rightChild() : ITreeNode
 		{
-			var i : int = sourceNGons.length, j : int;
-			var srcNGon : NGon, tgtNGon : NGon;
-			var tgtPlane : Plane3D;
-			var tgtLen : int = targetNGons.length;
-			var bevel : Plane3D;
-			var a1 : Number, b1 : Number, c1 : Number;
-			var a2 : Number, b2 : Number, c2 : Number;
-			
-			a1 = _partitionPlane.a;
-			b1 = _partitionPlane.b;
-			c1 = _partitionPlane.c;
-			
-			while (--i >= 0) {
-				srcNGon = sourceNGons[i];
-				
-				// nGon is coinciding with partition plane, we need to check it
-				if (srcNGon.classifyToPlane(_partitionPlane) == -2) {
-					j = tgtLen;
-					while (--j >= 0) {
-						tgtNGon = targetNGons[j];
-						tgtPlane = tgtNGon.plane;
-						a2 = tgtPlane.a;
-						b2 = tgtPlane.b;
-						c2 = tgtPlane.c;
-						
-						// if angle between planes < 0 and adjacent, create bevel plane
-						if (a1*a2+b1*b2+c1*c2 < -BSPTree.EPSILON &&
-							srcNGon.adjacent(tgtNGon)) {
-							bevel = new Plane3D(a1+a2, b1+b2, c1+c2, _partitionPlane.d+tgtPlane.d);
-							bevel.normalize();
-							if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
-   							_bevelPlanes.push(bevel);
-						}
-					}
-				}
-			}
+			return _negativeNode;
+		}
+
+		public function get parent() : ITreeNode
+		{
+			return _parent;
 		}
 
 		/**
@@ -422,6 +384,7 @@ package away3d.core.graphs
 			else {
 				if (_positiveNode != null)
 					if (_positiveNode._isLeaf && _positiveNode.isEmpty())
+						// TO DO: throw error
 						_positiveNode = null;
 					else
 						_positiveNode.gatherLeaves(leaves);
@@ -719,9 +682,11 @@ package away3d.core.graphs
 			if (!_solidPlanes.length) {
 				// no planes left, is leaf
 				_isLeaf = true;
-				_faces = _buildFaces;
+
+				_faces = faces;
 				if (faces.length > 0)
-					addNGons(_buildFaces);
+					addNGons(faces);
+				
 			}
 			else {
 				_partitionPlane = _solidPlanes.pop();
@@ -740,8 +705,11 @@ package away3d.core.graphs
 		private function addNGons(faces : Vector.<NGon>) : void
 		{
 			var len : int = faces.length;
+			var tris : Vector.<Face>;
+
 			for (var i : int = 0; i < len; ++i) {
 				addFaces(faces[i].triangulate());
+
 			}
 			_assignedFaces = faces.length;
 		}
@@ -840,7 +808,7 @@ package away3d.core.graphs
 					++_newFaces;
 				}
 			} while (++i < len);
-			
+
 			_positiveNode = new BSPNode(this);
 			_positiveNode._maxTimeOut = _maxTimeOut;
 			_positiveNode._buildFaces = _positiveFaces;
@@ -944,6 +912,7 @@ package away3d.core.graphs
  					break;
  				case Plane3D.INTERSECT:
  					splits = portal.split(_partitionPlane);
+					// how can positiveNode be null?
  					portals = _positiveNode.splitPortalByChildren(splits[0], side);
 					splits = _negativeNode.splitPortalByChildren(splits[1], side);
  					
@@ -1209,6 +1178,60 @@ package away3d.core.graphs
         	if (t > 0.002 && t < 0.998) return t;
         	
 			return -1;
+		}
+
+		/**
+		 * Generates bevel planes used for collision detection (prevents offsets causing false collisions at angles > 180°)
+		 */
+		public function generateBevelPlanes(targetNode : BSPNode) : void
+		{
+			var node : BSPNode = _parent;
+
+			while (node && node._convex) {
+				node.createBevelPlanes(_faces, targetNode._faces);
+				node = node._parent;
+			}
+		}
+
+		// to do: there are no bevel planes if partition planes form concave shape
+		private function createBevelPlanes(sourceNGons : Vector.<NGon>, targetNGons : Vector.<NGon>) : void
+		{
+			var i : int = sourceNGons.length, j : int;
+			var srcNGon : NGon, tgtNGon : NGon;
+			var tgtPlane : Plane3D;
+			var tgtLen : int = targetNGons.length;
+			var bevel : Plane3D;
+			var a1 : Number, b1 : Number, c1 : Number;
+			var a2 : Number, b2 : Number, c2 : Number;
+
+			a1 = _partitionPlane.a;
+			b1 = _partitionPlane.b;
+			c1 = _partitionPlane.c;
+
+			while (--i >= 0) {
+				srcNGon = sourceNGons[i];
+
+				// nGon is coinciding with partition plane, we need to check it
+				if (srcNGon.classifyToPlane(_partitionPlane) == -2) {
+					j = tgtLen;
+					while (--j >= 0) {
+						tgtNGon = targetNGons[j];
+						tgtPlane = tgtNGon.plane;
+						a2 = tgtPlane.a;
+						b2 = tgtPlane.b;
+						c2 = tgtPlane.c;
+
+						// if angle between planes < 0 and adjacent, create bevel plane
+						if (a1*a2+b1*b2+c1*c2 < -BSPTree.EPSILON &&
+							srcNGon.adjacent(tgtNGon)) {
+							bevel = new Plane3D(a1+a2, b1+b2, c1+c2, _partitionPlane.d+tgtPlane.d);
+							bevel.normalize();
+							if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
+   							_bevelPlanes.push(bevel);
+						}
+					}
+				}
+			}
 		}
 	}
 }
