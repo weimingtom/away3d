@@ -24,7 +24,7 @@ package
 		private var particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
-		private const max:int = 3000;
+		private const max:int = 1000;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
@@ -45,14 +45,17 @@ package
 			clipping = new RectangleClipping();
 			clipping.minX = -300;
 			clipping.minY = -200;
+			clipping.minZ = -500;
 			clipping.maxX = 300;
 			clipping.maxY = 200;
+			clipping.maxZ = 2000;
 
 			// create materials
 			particleMaterial = createParticleMaterial(size, size);
 
 			// create particles
-			particles = new Particles(true);
+			particles = new Particles();
+			particles.animate = true;
 			
 			/* layer test
 			particles.layer = new Sprite();
@@ -123,7 +126,7 @@ package
 				bitmapData.draw(shape, new Matrix(1, 0, 0, 1, (i * _width) + _width, _height));
 			}
 
-			addChild(bitmap = new Bitmap(bitmapData)).y = 80;
+			//addChild(bitmap = new Bitmap(bitmapData)).y = 80;
 
 			return _material;
 		}
@@ -172,7 +175,7 @@ package
 			   camera.y = 10 * (300 - mouseY);
 			   camera.z = 1000 * Math.sin(step);
 			   camera.lookAt(new Vector3D());
-			 */
+			*/
 
 			step += .01;
 		}
