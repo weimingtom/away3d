@@ -59,7 +59,7 @@ package away3dlite.core.clip
 				var _position:Vector3D = _particle.position;
 				if(int(_position.x) > int(_minX) && int(_position.x) < int(_maxX) &&
 				   int(_position.y) > int(_minY) && int(_position.y) < int(_maxY) &&
-				   int(_position.z) > int(_minZ) && int(_position.z) < int(_maxZ))
+				   int(_particle.screenZ) > int(_minZ) && int(_particle.screenZ) < int(_maxZ))
 					_particles[int(i++)] = _particle;
 			}
 			return _particles;

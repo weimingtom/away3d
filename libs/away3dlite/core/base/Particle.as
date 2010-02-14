@@ -1,7 +1,7 @@
 package away3dlite.core.base
 {
 	import away3dlite.arcane;
-	import away3dlite.core.clip.Clipping;
+	import away3dlite.containers.Particles;
 	import away3dlite.materials.ParticleMaterial;
 	
 	import flash.display.BitmapData;
@@ -22,20 +22,26 @@ package away3dlite.core.base
 	 */
 	public final class Particle extends Vector3D
 	{
-		public var animated:Boolean = false;
-		public var smooth:Boolean = false;
+		public var visible:Boolean = true;
+		public var animate:Boolean = false;
+		public var interactive:Boolean = false;
+		public var smooth:Boolean = true;
+		
+		public var isHit:Boolean;
+		
+		public var screenZ:Number;
+		
+		// link list
+		public var next:Particle;
+		public var prev:Particle;
+		
+		public var parent:Particles;
+		public var layer:Sprite;
 		
 		// effect
 		public var colorTransform:ColorTransform;
 		public var blendMode:String;
 		public var filters:Array;
-		
-		public var visible:Boolean = true;
-
-		public var screenZ:Number;
-		public var next:Particle;
-
-		public var layer:Sprite;
 
 		// projected position
 		private var _position:Vector3D;
@@ -91,10 +97,6 @@ package away3dlite.core.base
 			if(!visible)
 				return;
 			
-			// animated?
-			if (animated)
-				material.nextFrame();
-
 			_scale = zoom / (1 + screenZ / focus);
 
 			// align center, TODO : scale rect
@@ -107,7 +109,7 @@ package away3dlite.core.base
 			// effect
 			if(colorTransform || blendMode || filters)
 			{
-				if (animated)
+				if (animate)
 					_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 				
 				_matrix.a = _matrix.d = _scale;
@@ -134,10 +136,9 @@ package away3dlite.core.base
 			if (layer)
 				graphics = layer.graphics;
 
-			// animated?
-			if (animated)
+			// animate?
+			if (animate)
 			{
-				material.nextFrame();
 				_bitmapData.fillRect(_bitmapData.rect, 0x00000000);
 				_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 			}
@@ -155,6 +156,10 @@ package away3dlite.core.base
 			// draw
 			graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
 			graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
+			
+			// interactive
+			if(interactive)
+				isHit = new Rectangle(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2).contains(parent.mouseX, parent.mouseY);
 		}
 	}
 }
