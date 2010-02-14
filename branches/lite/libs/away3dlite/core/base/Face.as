@@ -248,7 +248,7 @@ package away3dlite.core.base
 		}
 		public function calculateAverageZ():Number
 		{
-			return ((_uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3])/3.0);
+			return i3? _uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3] : _uvtData[t0] + _uvtData[t1] + _uvtData[t2];
 		}
 		
 		/**

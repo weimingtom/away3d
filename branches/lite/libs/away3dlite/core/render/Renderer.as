@@ -1,5 +1,7 @@
 package away3dlite.core.render
 {
+	import __AS3__.vec.Vector;
+	
 	import away3dlite.arcane;
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
@@ -116,17 +118,18 @@ package away3dlite.core.render
 		protected function sortFaces():void
 		{
 			var _faces_length_1:int = int(_faces.length + 1);
+			var _Face_calculateZIntFromZ:Function = Face.calculateZIntFromZ;
 			if (useFloatZSort) {
 				np1 = new Vector.<int>(_faces_length_1, true);
  				var triangles:Array = [];
-				
+ 				
 				//z-axis, for sort-based production
 				i = 1;
 				for each (_face in _faces) {
 					var z:Number = _face.calculateScreenZ();
-					_sort[i-1] = Face.calculateZIntFromZ(z);
+					_sort[int(i-1)] = _Face_calculateZIntFromZ(z);
 					if (z > 0) 
-						triangles.push({i:i, z:z}); 
+						triangles[int(j++)] = {i:i, z:z};
 					i++;
 				}
 				
@@ -136,8 +139,8 @@ package away3dlite.core.render
 				//Put the sorted indices inside a Vector
 				j = 0;
 				for each (var triangle:Object in triangles) 
-					np1[j++] = triangle.i;
-				np1[j++] = 0;
+					np1[int(j++)] = triangle.i;
+				np1[int(j++)] = 0;
 					
 				triangles = null;
 			}
