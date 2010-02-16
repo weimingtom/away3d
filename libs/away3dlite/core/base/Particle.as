@@ -3,7 +3,7 @@ package away3dlite.core.base
 	import away3dlite.arcane;
 	import away3dlite.containers.Particles;
 	import away3dlite.materials.ParticleMaterial;
-	
+
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
@@ -26,18 +26,18 @@ package away3dlite.core.base
 		public var animate:Boolean = false;
 		public var interactive:Boolean = false;
 		public var smooth:Boolean = true;
-		
+
 		public var isHit:Boolean;
-		
+
 		public var screenZ:Number;
-		
+
 		// link list
 		public var next:Particle;
 		public var prev:Particle;
-		
+
 		public var parent:Particles;
 		public var layer:Sprite;
-		
+
 		// effect
 		public var colorTransform:ColorTransform;
 		public var blendMode:String;
@@ -72,7 +72,7 @@ package away3dlite.core.base
 			_material_width = material.width;
 			_material_height = material.height;
 			_rect = material.rect;
-			
+
 			_bitmapData = new BitmapData(_material_width, _material_height, true, 0x00000000);
 			_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 
@@ -94,44 +94,46 @@ package away3dlite.core.base
 
 		public function drawBitmapdata(x:Number, y:Number, bitmapData:BitmapData, zoom:Number, focus:Number):void
 		{
-			if(!visible)
+			if (!visible)
 				return;
-			
+
 			_scale = zoom / (1 + screenZ / focus);
 
 			// align center, TODO : scale rect
 			_center.x = _material_width * _scale * .5;
 			_center.y = _material_height * _scale * .5;
-			
+
 			_point.x = position.x - _center.x + x;
 			_point.y = position.y - _center.y + y;
 
 			// effect
-			if(colorTransform || blendMode || filters)
+			if (colorTransform || blendMode || filters)
 			{
 				if (animate)
 					_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
-				
+
 				_matrix.a = _matrix.d = _scale;
 				_matrix.tx = _point.x;
 				_matrix.ty = _point.y;
-				
-				if(filters && filters.length>0)
-					for each(var filter:BitmapFilter in filters)
+
+				if (filters && filters.length > 0)
+					for each (var filter:BitmapFilter in filters)
 						_bitmapData.applyFilter(_bitmapData, _bitmapData.rect, _point0, filter);
-								
-				if(colorTransform || blendMode)
+
+				if (colorTransform || blendMode)
 					bitmapData.draw(_bitmapData, _matrix, colorTransform, blendMode);
-			}else{
+			}
+			else
+			{
 				bitmapData.copyPixels(_material_bitmapData, _rect, _point, null, null, true);
 			}
 		}
-		
+
 		public function drawGraphics(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 		{
-			if(!visible)
+			if (!visible)
 				return;
-				
+
 			// draw to view or layer
 			if (layer)
 				graphics = layer.graphics;
@@ -142,13 +144,17 @@ package away3dlite.core.base
 				_bitmapData.fillRect(_bitmapData.rect, 0x00000000);
 				_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 			}
+			else if (_bitmapData != _material_bitmapData)
+			{
+				_bitmapData = _material_bitmapData;
+			}
 
 			_scale = zoom / (1 + screenZ / focus);
 
 			// align center
 			_center.x = _material_width * _scale * .5;
 			_center.y = _material_height * _scale * .5;
-			
+
 			_matrix.a = _matrix.d = _scale;
 			_matrix.tx = position.x - _center.x;
 			_matrix.ty = position.y - _center.y;
@@ -156,9 +162,9 @@ package away3dlite.core.base
 			// draw
 			graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
 			graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
-			
+
 			// interactive
-			if(interactive)
+			if (interactive)
 				isHit = new Rectangle(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2).contains(parent.mouseX, parent.mouseY);
 		}
 	}

@@ -66,8 +66,8 @@ package
 			particleMaterial = new ParticleMaterial(bitmapData,size, size);
 
 			// create particles
-			particles = new Particles(true);
-			
+			particles = new Particles();
+			//particles.animate = true;
 			/* layer test
 			particles.layer = new Sprite();
 			addChild(particles.layer);
@@ -184,6 +184,12 @@ package
 				scene.bitmap = null;
 			}
 		}
+		
+		private function updateBitmapdata():void
+		{
+			bitmapData.fillRect(bitmapData.rect, 0x00000000);
+			bitmapData.draw(model.canvas, new Matrix(1, 0, 0, 1, model.canvas.width/2, model.canvas.height/2));
+		}
 
 		override protected function onPreRender():void
 		{
@@ -192,10 +198,7 @@ package
 			scene.rotationZ += .5;
 			
 			if(model && model.canvas)
-			{
-				bitmapData.fillRect(bitmapData.rect, 0x00000000);
-				bitmapData.draw(model.canvas, new Matrix(1, 0, 0, 1, model.canvas.width/2, model.canvas.height/2));
-			}
+				updateBitmapdata();
 
 			step += .01;
 			
