@@ -23,7 +23,6 @@ package away3d.core.graphs
 		private var _asyncInProgress : Boolean;
 		private var _maxTimeOut : Number;
 		private var _asyncMethod : Function;
-		private var _callBack : Function;
 		private var _canceled : Boolean;
 
 		public function TreeIterator(rootNode : ITreeNode)
@@ -47,7 +46,7 @@ package away3d.core.graphs
 		}
 
 		/**
-		 * Traverses through the tree and returns the first newly encountered node. The order does not depend on camera position etc.
+		 * Traverses through the tree externally and returns the first newly encountered node. The order does not depend on camera position etc.
 		 *
 		 * @return The next unvisited node in the tree.
 		 */
@@ -60,7 +59,7 @@ package away3d.core.graphs
 		}
 
 		/**
-		 * Traverses through the tree and applies the supplied function to each node
+		 * Traverses through the tree internally and applies the supplied function to each node
 		 * @param function The function to be applied to each node. It must have the following signature: function someFunction(node : ITreeNode) : void.
 		 */
 		public function performMethod(method : Function) : void
@@ -74,7 +73,7 @@ package away3d.core.graphs
 
 			do {
 				method(node);
-			} while (node = traverseStep())
+			} while ((node = traverseStep()));
 		}
 
 		/**
@@ -106,11 +105,16 @@ package away3d.core.graphs
 
 		private function traverseStep() : ITreeNode
 		{
-			var left : ITreeNode = _traverseNode.leftChild;
-			var right : ITreeNode = _traverseNode.rightChild;
+			var left : ITreeNode;
+			var right : ITreeNode;
+			var parent : ITreeNode;
 			var newVisited : Boolean;
 
 			do {
+				left = _traverseNode.leftChild;
+				right = _traverseNode.rightChild;
+				parent = _traverseNode.parent;
+
 				switch (_traverseState) {
 					case TRAVERSE_PRE:
 						if (left) {
@@ -130,16 +134,19 @@ package away3d.core.graphs
 						else
 							_traverseState = TRAVERSE_POST;
 						break;
+				
 					case TRAVERSE_POST:
-						if (_traverseNode == _traverseNode.parent.leftChild)
+						if (_traverseNode == parent.leftChild)
 							_traverseState = TRAVERSE_IN;
-						_traverseNode = _traverseNode.parent;
+
+						_traverseNode = parent;
 						break;
 				}
 
 				// end of the line
-				if (_traverseNode == _rootNode && _traverseState == TRAVERSE_POST)
+				if (_traverseNode == _rootNode && _traverseState == TRAVERSE_POST) {
 					return null;
+				}
 
 			} while (!newVisited);
 
@@ -158,7 +165,7 @@ package away3d.core.graphs
 
 			do {
 				_asyncMethod(node);
-			} while (node = traverseStep() && getTimer() - startTime < _maxTimeOut);
+			} while ((node = traverseStep()) && getTimer() - startTime < _maxTimeOut);
 
 			if (node)
 				setTimeout(performMethodStep, 1);
