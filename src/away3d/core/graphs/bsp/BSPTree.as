@@ -70,9 +70,6 @@ package away3d.core.graphs.bsp
 		private var _meshManagers : Dictionary;
 
 
-		private var _traverseNode : BSPNode;
-		private var _traverseState : int;
-
 		/**
 		 * Creates a new BSPTree object.
 		 */
