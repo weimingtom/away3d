@@ -54,7 +54,8 @@ package away3dlite.core.render
 					if (child.canvas)
 					{
 						var _child_canvas:Sprite = child.canvas;
-						_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
+						if (_child_canvas != object.canvas)
+							_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
 						_child_canvas.graphics.clear();
 					}
 
