@@ -165,6 +165,9 @@ package away3dlite.cameras
 			
 			//set default z position
 			z = -1000;
+			
+			//speed up
+			mouseEnabled = mouseChildren = false;
 		}
 	}
 }
