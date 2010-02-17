@@ -1,8 +1,10 @@
 package away3dlite.animators.bones
 {
-	import away3dlite.containers.*;
 	import away3dlite.arcane;
+	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
+	
+	import flash.display.Sprite;
 	
 	use namespace arcane;
 	
@@ -99,6 +101,11 @@ package away3dlite.animators.bones
         public function set jointScaleZ(scale:Number):void
         {
 			joint.scaleZ = scale;
+        }
+        
+        override public function set canvas(value:Sprite):void
+        {
+        	// no canvas for bone
         }
         
 		/**
