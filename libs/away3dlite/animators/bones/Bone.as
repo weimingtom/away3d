@@ -108,6 +108,10 @@ package away3dlite.animators.bones
         {
 			super();
 			
+			// speed up
+			mouseEnabled = false;
+			mouseChildren = false;
+			
 			//create the joint for the bone
 			addChild(joint = new ObjectContainer3D());
         }
