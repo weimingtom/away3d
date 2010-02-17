@@ -35,7 +35,7 @@
 		private var _containers:Dictionary = new Dictionary(true);
 		private var _skinControllers:Vector.<SkinController> = new Vector.<SkinController>();
 		private var _skinController:SkinController;
-		
+
 		public var bothsides:Boolean = true;
 		public var useIDAsName:Boolean = true;
 		
@@ -714,7 +714,7 @@
                     case "matrix":
                     	var m:Matrix3D = new Matrix3D();
                     	m.rawData = array2matrix(arrayChild, yUp, scaling);
-                    	if (Math.abs(m.determinant) < epsilonScale) {
+                    	if (node is MeshData && Math.abs(m.determinant) < epsilonScale) {
                     		m.identity();
                     		m.appendScale(epsilonScale, epsilonScale, epsilonScale);
                     	}
@@ -1263,7 +1263,7 @@
 				}
 	
 				var image:XML = collada["library_images"].image.(@id == imageId)[0];
-				
+	
 				//3dsMax 11 - Feeling ColladaMax v3.05B.
 				if(!image)
 					filename = collada["library_images"].image.init_from.text();
