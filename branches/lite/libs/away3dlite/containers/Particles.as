@@ -76,7 +76,7 @@ package away3dlite.containers
 				do
 				{
 					_position = Utils3D_projectVector(_transform_matrix3D, particle);
-					_position = particle.position = Utils3D_projectVector(_viewMatrix3D, _position);
+					particle.position = Utils3D_projectVector(_viewMatrix3D, _position);
 
 					// animate?
 					if(particle.animate)
