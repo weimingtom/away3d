@@ -30,7 +30,9 @@ package away3d.core.graphs.bsp
 		public var leafId : int = -1;
 		public var nodeId : int;
 		public var renderMark : int = -1;
-		
+
+		public var name : String;
+
 		// indicates whether this node is a leaf or not, leaves contain triangles
 		arcane var _isLeaf : Boolean;
 		
@@ -691,6 +693,7 @@ package away3d.core.graphs.bsp
 			else {
 				_partitionPlane = _solidPlanes.pop();
 				_positiveNode = new BSPNode(this);
+				_positiveNode.name = name + " -> +";
 				_positiveNode._convex = true;
 				_positiveNode._maxTimeOut = _maxTimeOut;
 				_positiveNode._buildFaces = faces;
@@ -810,9 +813,11 @@ package away3d.core.graphs.bsp
 			} while (++i < len);
 
 			_positiveNode = new BSPNode(this);
+			_positiveNode.name = name + " -> +";
 			_positiveNode._maxTimeOut = _maxTimeOut;
 			_positiveNode._buildFaces = _positiveFaces;
 			_negativeNode = new BSPNode(this);
+			_negativeNode.name = name + " -> -";
 			_negativeNode._maxTimeOut = _maxTimeOut;
 			_negativeNode._buildFaces = _negativeFaces;
 			completeNode();
@@ -1226,8 +1231,12 @@ package away3d.core.graphs.bsp
 							srcNGon.adjacent(tgtNGon)) {
 							bevel = new Plane3D(a1+a2, b1+b2, c1+c2, _partitionPlane.d+tgtPlane.d);
 							bevel.normalize();
-							if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
-   							_bevelPlanes.push(bevel);
+							if (isNaN(bevel.a) || isNaN(bevel.b) || isNaN(bevel.c) || isNaN(bevel.d))
+								trace ("Warning: invalid bevel plane, this could indicate an integrity error in the source model.");
+							else {
+								if (!_bevelPlanes) _bevelPlanes = new Vector.<Plane3D>();
+   								_bevelPlanes.push(bevel);
+							}
 						}
 					}
 				}
