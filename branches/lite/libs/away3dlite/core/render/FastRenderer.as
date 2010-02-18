@@ -189,6 +189,7 @@ package away3dlite.core.render
 			if (useFloatZSort)
 			{
 				i = 0;
+				_i = -1;
 				j = np1[i];
 				while (j)
 				{
