@@ -17,7 +17,7 @@ package away3dlite.templates
 			super.init();
 			
 			view.renderer = renderer;
-			view.clipping = clipping;
+			view.clipping = clipping || new RectangleClipping();
 		}
 		
 		/**
@@ -28,6 +28,6 @@ package away3dlite.templates
 		/**
 		 * The clipping object used in the template.
 		 */
-		public var clipping:RectangleClipping = new RectangleClipping();
+		public var clipping:Clipping;
 	}
 }
