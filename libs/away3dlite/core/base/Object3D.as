@@ -65,6 +65,8 @@ package away3dlite.core.base
 	public class Object3D extends Sprite
 	{
 		/** @private */
+		arcane var _frustumCulling:Boolean;
+		/** @private */
 		arcane var _perspCulling:Boolean;
 		/** @private */
 		arcane var _screenZ:Number = 0;

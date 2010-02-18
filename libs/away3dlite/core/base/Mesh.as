@@ -69,7 +69,7 @@ package away3dlite.core.base
 			if (material is IShader)
 				_uvtData = IShader(material).getUVData(transform.matrix3D.clone());
 			
-			if (!_perspCulling) {
+			if (vertices && !_perspCulling) {
 				//DO NOT CHANGE vertices getter!!!!!!!
 				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
 				
@@ -208,7 +208,7 @@ package away3dlite.core.base
 				_faceMaterials.fixed = false;
 				_faceMaterials.length = _faceLengths.length;
 				
-				var i:int = _faces.length;
+				var i:int = _faces?_faces.length:0;
 				while (i--) {
 					oldMaterial = _faces[i].material;
 					
@@ -369,6 +369,8 @@ package away3dlite.core.base
 			this.material = material;
 			this.bothsides = false;
 			this.sortType = SortType.CENTER;
+			
+			visible = true;
 		}
 		
 		/**
