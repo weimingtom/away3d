@@ -119,7 +119,12 @@ package away3dlite.animators.bones
 			addChild(joint = new ObjectContainer3D());
 			
 			// speed up
-			mouseEnabled = mouseChildren = joint.mouseEnabled = joint.mouseChildren = false;
+			visible = mouseEnabled = mouseChildren = joint.visible = joint.mouseEnabled = joint.mouseChildren = false;
+			_faces = null;
+			_vertices = null;
+			material =  null;
+			materialLibrary =  null;
+			geometryLibrary =  null;
         }
 		
 		/**
