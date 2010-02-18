@@ -79,6 +79,7 @@ package away3d.core.graphs.bsp
 			_dynamics = new Vector.<Object3D>();
 			_preCulled = true;
 			_rootNode = new BSPNode(null);
+			_rootNode.name = "root";
 			_rootNode._maxTimeOut = maxTimeout;
 			if (buildDynamicCollisionTree) buildCollisionTree();
 		}
