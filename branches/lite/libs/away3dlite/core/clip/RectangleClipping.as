@@ -42,18 +42,25 @@ package away3dlite.core.clip
         	}
         	
         	for each(_face in _faces) {
-        		if (mesh.bothsides || _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0) {
-        			
-        			if (_face.i3) {
-        				_cullTotal = 4;
-        				_cullCount = _screenVerticesCull[_face.i0] + _screenVerticesCull[_face.i1] + _screenVerticesCull[_face.i2] + _screenVerticesCull[_face.i3];
-        			} else {
-        				_cullTotal = 3;
+        		if (_face.i3) {
+        			if (mesh.bothsides 
+        			||_screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2])	+ _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0
+	        		||_screenVertices[_face.x0]*(_screenVertices[_face.y3] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y0] - _screenVertices[_face.y3]) + _screenVertices[_face.x3]*(_screenVertices[_face.y2] - _screenVertices[_face.y0]) > 0
+	        		) {
+	        			_cullTotal = 4;
+	        			_cullCount = _screenVerticesCull[_face.i0] + _screenVerticesCull[_face.i1] + _screenVerticesCull[_face.i2] + _screenVerticesCull[_face.i3];
+						
+						if (!(_cullCount >> 16) && (_cullCount >> 12 & 15) < _cullTotal && (_cullCount >> 8 & 15) < _cullTotal && (_cullCount >> 4 & 15) < _cullTotal && (_cullCount & 15) < _cullTotal)
+							faces[faces.length] = _face;
+	        		}
+        		}else{
+        			if (mesh.bothsides || _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0) {
+	    				_cullTotal = 3;
 	        			_cullCount = _screenVerticesCull[_face.i0] + _screenVerticesCull[_face.i1] + _screenVerticesCull[_face.i2];
-        			}
-	        		
-        			if (!(_cullCount >> 16) && (_cullCount >> 12 & 15) < _cullTotal && (_cullCount >> 8 & 15) < _cullTotal && (_cullCount >> 4 & 15) < _cullTotal && (_cullCount & 15) < _cullTotal)
-						faces[faces.length] = _face;
+	        			
+	        			if (!(_cullCount >> 16) && (_cullCount >> 12 & 15) < _cullTotal && (_cullCount >> 8 & 15) < _cullTotal && (_cullCount >> 4 & 15) < _cullTotal && (_cullCount & 15) < _cullTotal)
+							faces[faces.length] = _face;
+		        	}
         		}
         	}
         }

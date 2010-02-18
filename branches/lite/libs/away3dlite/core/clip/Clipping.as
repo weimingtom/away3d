@@ -71,8 +71,16 @@ package away3dlite.core.clip
         	_screenVertices = mesh._screenVertices;
         	
         	for each(_face in _faces)
-        	    if (mesh.bothsides || _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0)
-        			faces[faces.length] = _face;
+	        	if (_face.i3) 
+	        	{
+	    			if (mesh.bothsides 
+	    			|| _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0
+	        		|| _screenVertices[_face.x0]*(_screenVertices[_face.y3] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y0] - _screenVertices[_face.y3]) + _screenVertices[_face.x3]*(_screenVertices[_face.y2] - _screenVertices[_face.y0])> 0)
+	        		faces[faces.length] = _face;
+        		}else{
+        			if (mesh.bothsides || _screenVertices[_face.x0]*(_screenVertices[_face.y2] - _screenVertices[_face.y1]) + _screenVertices[_face.x1]*(_screenVertices[_face.y0] - _screenVertices[_face.y2]) + _screenVertices[_face.x2]*(_screenVertices[_face.y1] - _screenVertices[_face.y0]) > 0)
+	        		faces[faces.length] = _face;
+        		}
         }
     	/** @private */
         arcane function screen(container:Sprite, _loaderWidth:Number, _loaderHeight:Number):Clipping
