@@ -160,8 +160,7 @@ package
 			collada.scaling = 1.5;
 
 			loader = new Loader3D();
-			loader.loadGeometryFromByteArray(colladaData, collada, filepath);
-			//loader.loadXML(Cast.xml(colladaData), collada, filepath);
+			loader.loadXML(Cast.xml(colladaData), collada, filepath);
 			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
 			scene.addChild(loader);
 		}
