@@ -98,6 +98,21 @@ package away3d.core.graphs.bsp
 			return _parent;
 		}
 
+		public function get isLeaf() : Boolean
+		{
+			return _isLeaf;
+		}
+
+		public function get visList() : Vector.<int>
+		{
+			return _visList;
+		}
+
+		public function get partitionPlane() : Plane3D
+		{
+			return _partitionPlane;
+		}
+
 		/**
 		 * Sends a traverser down the dynamic children
 		 * 
