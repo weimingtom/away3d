@@ -538,12 +538,7 @@ package away3d.core.graphs.bsp
 		 */
         arcane function init() : void
        	{
-       		var l : int;
-
-			_leaves = new Vector.<BSPNode>();
-			_rootNode.gatherLeaves(_leaves);
-			l = _leaves.length;
-
+       		var l : int = _leaves.length;
        		for (var i : int = 0; i < l; ++i)
        		{
        			if (_leaves[i] && _leaves[i].mesh)
@@ -1123,6 +1118,8 @@ package away3d.core.graphs.bsp
 		
 		private function onBuildComplete() : void
 		{
+			_leaves = new Vector.<BSPNode>();
+			_rootNode.gatherLeaves(_leaves);
 			init();
 			
 			if (_buildPVS || _buildCollisionPlanes)
