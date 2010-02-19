@@ -2,6 +2,8 @@ package away3d.core.graphs
 {
 	import away3d.arcane;
 
+	import away3d.core.graphs.bsp.BSPNode;
+
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.getTimer;

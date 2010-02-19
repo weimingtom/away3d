@@ -78,19 +78,21 @@ package away3d.core.graphs.bsp
 			super();
 			_dynamics = new Vector.<Object3D>();
 			_preCulled = true;
-			_rootNode = new BSPNode(null);
-			_rootNode.name = "root";
-			_rootNode._maxTimeOut = maxTimeout;
 			if (buildDynamicCollisionTree) buildCollisionTree();
 		}
-		
+
+		public function get rootNode() : BSPNode
+		{
+			return _rootNode;
+		}
+
 		private function buildCollisionTree() : void
 		{
 			var i : int;
 			var node : BSPNode;
 			_obbCollisionTree = new BSPTree(false);
-			node = _obbCollisionTree._rootNode;
-			
+			node = _obbCollisionTree._rootNode = new BSPNode(null);
+
 			do {
 				node._partitionPlane = new Plane3D();
 				node._positiveNode = new BSPNode(node);
@@ -536,7 +538,12 @@ package away3d.core.graphs.bsp
 		 */
         arcane function init() : void
        	{
-       		var l : int = _leaves.length;
+       		var l : int;
+
+			_leaves = new Vector.<BSPNode>();
+			_rootNode.gatherLeaves(_leaves);
+			l = _leaves.length;
+
        		for (var i : int = 0; i < l; ++i)
        		{
        			if (_leaves[i] && _leaves[i].mesh)
@@ -818,7 +825,6 @@ package away3d.core.graphs.bsp
 			plane.d = collider._minZ;
 			plane.transform(tr);
 			node = node._negativeNode;
-			trace (plane);
 			// back plane
 			plane = node._partitionPlane;
 			plane.a = plane.b = 0;
@@ -826,7 +832,6 @@ package away3d.core.graphs.bsp
 			plane.d = -collider._maxZ;
 			plane.transform(tr);
 			node = node._negativeNode;
-			trace (plane);
 			// left plane
 			plane = node._partitionPlane;
 			plane.a = -1;
@@ -834,7 +839,6 @@ package away3d.core.graphs.bsp
 			plane.d = collider._minX;
 			plane.transform(tr);
 			node = node._negativeNode;
-			trace (plane);
 			// right plane
 			plane = node._partitionPlane;
 			plane.a = 1;
@@ -842,7 +846,6 @@ package away3d.core.graphs.bsp
 			plane.d = -collider._maxX;
 			plane.transform(tr);
 			node = node._negativeNode;
-			trace (plane);
 			// top plane
 			plane = node._partitionPlane;
 			plane.a = plane.c = 0;
@@ -850,15 +853,12 @@ package away3d.core.graphs.bsp
 			plane.d = -collider._maxY;
 			plane.transform(tr);
 			node = node._negativeNode;
-			trace (plane);
 			// bottom plane
 			plane = node._partitionPlane;
 			plane.a = plane.c = 0;
 			plane.b = -1;
 			plane.d = collider._minY;
 			plane.transform(tr);
-			trace (plane);
-			trace ("-----");
 		}
 
 		/*
@@ -909,7 +909,7 @@ package away3d.core.graphs.bsp
 		
 		public function set xzAxisWeight(xzAxisWeight : Number) : void
 		{
-			_rootNode._nonXZWeight = _xzAxisWeight = xzAxisWeight;
+			_xzAxisWeight = xzAxisWeight;
 		}
 		
 		/**
@@ -922,7 +922,7 @@ package away3d.core.graphs.bsp
 		
 		public function set yAxisWeight(yAxisWeight : Number) : void
 		{
-			_rootNode._nonYWeight = _yAxisWeight = yAxisWeight;
+			_yAxisWeight = yAxisWeight;
 		}
 
 		/**
@@ -935,7 +935,7 @@ package away3d.core.graphs.bsp
 		
 		public function set balanceWeight(balanceWeight : Number) : void
 		{
-			_rootNode._balanceWeight = _balanceWeight = balanceWeight;
+			_balanceWeight = balanceWeight;
 		}
 		
 		/**
@@ -948,9 +948,21 @@ package away3d.core.graphs.bsp
 		
 		public function set splitWeight(splitWeight : Number) : void
 		{
-			_rootNode._splitWeight = _splitWeight = splitWeight;
+			_splitWeight = splitWeight;
 		}
-		
+
+		private function createRootNode() : void
+		{
+			_rootNode = new BSPNode(null);
+			_rootNode.name = "root";
+			_rootNode._maxTimeOut = maxTimeout;
+			_rootNode._splitWeight = _splitWeight;
+			_rootNode._balanceWeight = _balanceWeight;
+			_rootNode._splitWeight = _splitWeight;
+			_rootNode._nonXZWeight = _xzAxisWeight;
+			_rootNode._nonYWeight = _yAxisWeight;
+		}
+
 		/**
 		 * Build a BSP tree from the current faces.
 		 * 
@@ -962,6 +974,7 @@ package away3d.core.graphs.bsp
 		public function build(faces : Vector.<Face>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
 		{
 			nodeCount = 0;
+			createRootNode();
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 
 			if (buildPVS)
@@ -992,6 +1005,7 @@ package away3d.core.graphs.bsp
 		arcane function buildFromNGons(faces : Vector.<NGon>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
 		{
 			nodeCount = 0;
+			createRootNode();
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 			_progressEvent.totalParts = 1;
 			if (buildPVS)
@@ -1109,8 +1123,6 @@ package away3d.core.graphs.bsp
 		
 		private function onBuildComplete() : void
 		{
-			_leaves = new Vector.<BSPNode>();
-			_rootNode.gatherLeaves(_leaves);
 			init();
 			
 			if (_buildPVS || _buildCollisionPlanes)
