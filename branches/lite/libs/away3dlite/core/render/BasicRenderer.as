@@ -28,7 +28,7 @@ package away3dlite.core.render
 
 		private function collectFaces(object:Object3D):void
 		{
-			if (object._frustumCulling || object._perspCulling)
+			if (!object.visible ||object._frustumCulling || object._perspCulling)
 			{
 				if (cullObjects)
 					numCulled++;
@@ -277,7 +277,7 @@ package away3dlite.core.render
 		{
 			drawParticles(_mesh.screenZ);
 			
-			if(_mesh.visible && !_mesh._frustumCulling && !_mesh._perspCulling)
+			if(_mesh.visible)// && !_mesh._frustumCulling && !_mesh._perspCulling)
 			{
 				if(_mesh.layer)
 				{
