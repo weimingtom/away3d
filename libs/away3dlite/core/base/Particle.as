@@ -20,7 +20,7 @@ package away3dlite.core.base
 	 * Particle
 	 * @author katopz
 	 */
-	public final class Particle extends Vector3D
+	public class Particle extends Vector3D
 	{
 		public var visible:Boolean = true;
 		public var animate:Boolean = false;

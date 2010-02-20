@@ -369,8 +369,6 @@ package away3dlite.core.base
 			this.material = material;
 			this.bothsides = false;
 			this.sortType = SortType.CENTER;
-			
-			visible = true;
 		}
 		
 		/**

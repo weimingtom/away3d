@@ -81,6 +81,7 @@ package away3dlite.primitives
 			_end = end || new Vector3D(100, 100, 100);
 			
 			this.bothsides = true;
+			mouseEnabled = mouseChildren = false;
 		}
 	}
 }
