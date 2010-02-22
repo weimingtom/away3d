@@ -277,7 +277,7 @@ package away3dlite.core.render
 		{
 			drawParticles(_mesh.screenZ);
 			
-			if(_mesh.visible)// && !_mesh._frustumCulling && !_mesh._perspCulling)
+			if(_mesh.visible && !_mesh._frustumCulling && !_mesh._perspCulling)
 			{
 				if(_mesh.layer)
 				{
