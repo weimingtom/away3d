@@ -69,7 +69,7 @@ package away3dlite.core.base
 			if (material is IShader)
 				_uvtData = IShader(material).getUVData(transform.matrix3D.clone());
 			
-			if (vertices && !_perspCulling) {
+			if (_vertices && !_perspCulling) {
 				//DO NOT CHANGE vertices getter!!!!!!!
 				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
 				
