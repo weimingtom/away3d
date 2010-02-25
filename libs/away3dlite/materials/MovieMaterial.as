@@ -127,7 +127,7 @@ package away3dlite.materials
 		
 		override public function set smooth(val:Boolean):void
 		{
-			_smooth = val;
+			super.smooth = _smooth = val; 
 			
 			_bitmapDirty = true;
         	
