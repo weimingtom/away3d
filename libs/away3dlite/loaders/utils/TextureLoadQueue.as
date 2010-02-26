@@ -52,6 +52,7 @@ package away3dlite.loaders.utils
 					// re-dispatch the event, the loaders have already processed their data and are ready for use
 					currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete, false, int.MIN_VALUE, true);
 					
+					currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false, 0, true);
 					currentLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false, 0, true);
 					currentLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, redispatchEvent, false, 0, true);
 					currentLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false, 0, true);
@@ -101,12 +102,10 @@ package away3dlite.loaders.utils
 		{
 			item;//TODO : FDT Warning
 			currentLoader.removeEventListener(Event.COMPLETE, onItemComplete, false);
+			currentLoader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false);
 			currentLoader.removeEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false);
 			currentLoader.removeEventListener(ProgressEvent.PROGRESS, redispatchEvent, false);
-			currentLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false);
-			
-			if (currentByteArrayProviderFunction == null)
-				currentLoader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false);	
+			currentLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false);	
 		}
 		
 		/**

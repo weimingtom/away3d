@@ -17,19 +17,24 @@ package away3dlite.loaders.data
 		public var transform:Matrix3D = new Matrix3D();
 		
 		/**
-		 * Colada animation
+		 * Collada animation id
 		 */
 		public var id:String;
-		public var scale:Number;
-
+		
+		//public var scale:Number;
+		
 		/**
-		 * Copy the object data into another <code>ObjectData</code> object.
+		 * Duplicates the object data's properties to another <code>ObjectData</code> object
+		 * 
+		 * @param	object	The new object instance into which all properties are copied
+		 * @return			The new object instance with duplicated properties applied
 		 */
-		public function copyTo(dst:ObjectData):void
+		public function clone(object:ObjectData):void
 		{
-			dst.name = name;
-			dst.transform = transform;
-			dst.id = id;
-			dst.scale = scale;
-		}	}
+			object.name = name;
+			object.transform = transform;
+			object.id = id;
+			//dst.scale = scale;
+		}
+	}
 }

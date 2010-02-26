@@ -156,7 +156,7 @@ package away3dlite.loaders
 							{
 								if (isNeg)
 								{
-									addFace
+									_addFace
 									(
 										verticeDatas[verticeDatas.length - parseInt(face1[0])], 
 										verticeDatas[verticeDatas.length - parseInt(face0[0])], 
@@ -166,7 +166,7 @@ package away3dlite.loaders
 										checkUV(3, uvs[uvs.length - parseInt(face3[1])])
 									);
 
-									addFace
+									_addFace
 									(
 										verticeDatas[verticeDatas.length - parseInt(face2[0])], verticeDatas[verticeDatas.length - parseInt(face1[0])], verticeDatas[verticeDatas.length - parseInt(face3[0])],
 										checkUV(1, uvs[uvs.length - parseInt(face2[1])]), 
@@ -176,7 +176,7 @@ package away3dlite.loaders
 								}
 								else
 								{
-									addFace
+									_addFace
 									(
 										verticeDatas[parseInt(face1[0])], verticeDatas[parseInt(face0[0])], verticeDatas[parseInt(face3[0])],
 										checkUV(1, uvs[parseInt(face1[1])]), 
@@ -184,7 +184,7 @@ package away3dlite.loaders
 										checkUV(3, uvs[parseInt(face3[1])])
 									);
 
-									addFace
+									_addFace
 									(
 										verticeDatas[parseInt(face2[0])], verticeDatas[parseInt(face1[0])], verticeDatas[parseInt(face3[0])],
 										checkUV(1, uvs[parseInt(face2[1])]), 
@@ -199,7 +199,7 @@ package away3dlite.loaders
 
 								if (isNeg)
 								{
-									addFace
+									_addFace
 									(
 										verticeDatas[verticeDatas.length - parseInt(face2[0])], verticeDatas[verticeDatas.length - parseInt(face1[0])], verticeDatas[verticeDatas.length - parseInt(face0[0])],
 										checkUV(1, uvs[uvs.length - parseInt(face2[1])]), 
@@ -209,7 +209,7 @@ package away3dlite.loaders
 								}
 								else
 								{
-									addFace
+									_addFace
 									(
 										verticeDatas[parseInt(face2[0])], verticeDatas[parseInt(face1[0])], verticeDatas[parseInt(face0[0])],
 										checkUV(1, uvs[parseInt(face2[1])]), 
@@ -289,7 +289,7 @@ package away3dlite.loaders
         //private var scaling:Number;
 		private var useMaterial:Boolean;
       	
-		private function addFace(v0:Vector3D, v1:Vector3D, v2:Vector3D, uv0:Vector3D, uv1:Vector3D, uv2:Vector3D):void
+		private function _addFace(v0:Vector3D, v1:Vector3D, v2:Vector3D, uv0:Vector3D, uv1:Vector3D, uv2:Vector3D):void
 		{
 			_vertices.push(v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 			_uvtData.push(uv0.x, uv0.y, 1, uv1.x, uv1.y, 1, uv2.x, uv2.y, 1);

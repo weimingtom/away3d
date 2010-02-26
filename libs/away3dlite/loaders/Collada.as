@@ -735,7 +735,7 @@
 							// ContainerData doesn't derive from MeshData.
 							// So I have added this missing derivative to ContainerData class.
 							var fooContainer:ContainerData = new ContainerData();
-							_objectData.copyTo(fooContainer as MeshData);
+							_objectData.clone(fooContainer as MeshData);
 							_objectData = fooContainer;
                     	}
                     	parseNode(childNode, _objectData as ContainerData);

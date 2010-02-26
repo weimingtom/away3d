@@ -15,17 +15,22 @@ package away3dlite.loaders.data
 		 *
 		 */
 		public var skeleton:String;
-
+		
 		/**
-		 * Copy the mesh data into another <code>MeshData</code> object.
+		 * Duplicates the mesh data's properties to another <code>MeshData</code> object
+		 * 
+		 * @param	object	The new object instance into which all properties are copied
+		 * @return			The new object instance with duplicated properties applied
 		 */
-		public override function copyTo(dst:ObjectData):void
+		public override function clone(object:ObjectData):void
 		{
-			super.copyTo(dst as ObjectData);
+			super.clone(object);
 			
-			(dst as MeshData).material = material;
-			(dst as MeshData).geometry = geometry;
-			(dst as MeshData).skeleton = skeleton;
+			var mesh:MeshData = (object as MeshData);
+			
+			mesh.material = material;
+			mesh.geometry = geometry;
+			mesh.skeleton = skeleton;
 		}
 	}
 }
