@@ -27,6 +27,6 @@ package away3dlite.loaders.data
 		/**
 		 * The index of the channel inside the XML structure (in case there's more than 1 channel)
 		 */
-		public var channelIndex:int;		
+		public var channelIndex:int;
 	}
 }

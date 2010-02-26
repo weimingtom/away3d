@@ -159,7 +159,7 @@ package away3dlite.core.base
 		 * @param index			The start index of the indices.
 		 * @param length		The number of indices.
 		 */
-		public function Face(mesh:Mesh, faceIndex:int, index:int, faceLength:int)
+		public function Face(mesh:Mesh, faceIndex:int, index:int, length:int)
 		{
 			this.mesh = mesh;
 			
@@ -196,7 +196,7 @@ package away3dlite.core.base
 			v2 = 3*i2 + 1;
 			t2 = 3*i2 + 2;
 			
-			if (faceLength > 3) {
+			if (length > 3) {
 				i3 = mesh._indices[int(index + 3)];
 				x3 = 2*i3;
 				y3 = 2*i3 + 1;

@@ -15,7 +15,7 @@ package away3dlite.loaders.data
 		 * Reference to the 3d container object of the resulting container.
 		 */
 		public var container:ObjectContainer3D;
-				
+		
     	/**
     	 * Returns the maximum x value of the container data
     	 */
