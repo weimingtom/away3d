@@ -37,7 +37,7 @@
 		private var _skinController:SkinController;
 
 		public var bothsides:Boolean = true;
-		public var useIDAsName:Boolean = true;
+		public var useIDAsName:Boolean = false;
 		
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D, depth:int):void
 		{
@@ -630,7 +630,7 @@
 			else
 				_objectData.id = node.@id;
 			
-			if(String(node.@name) != "" && !useIDAsName)
+			if(String(node.@name) != "")
 			{
 				//#case 1 : 3dsMax 8 - Feeling ColladaMax v3.05B.
 				//@example <node id="WheelFL-node_PIVOT" name="WheelFL_PIVOT" type="NODE">
@@ -644,6 +644,10 @@
    				_objectData.name = String(node.@id);
    			}
    			
+   			// force to use id as name
+   			if(useIDAsName)
+   				_objectData.name = String(node.@id);
+   				
             _transform = _objectData.transform;
 			
 			Debug.trace(" + Parse Node : " + _objectData.id + " : " + _objectData.name);
