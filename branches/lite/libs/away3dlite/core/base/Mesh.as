@@ -413,5 +413,23 @@ package away3dlite.core.base
 			
 			return mesh;
         }
+        
+		override public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+				
+			_materialsCacheList = null;
+			_screenVertices = null;
+			_uvtData = null;
+			_indices = null;
+			_faces = null;
+			_faceLengths = null;
+			_sort = null;
+			_vertices = null;
+			_faceMaterials = null;
+			
+			super.destroy();
+		}
 	}
 }
