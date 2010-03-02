@@ -1,11 +1,16 @@
 package away3dlite.loaders.data
-{	import away3dlite.animators.bones.SkinVertex;
+{	
+	import away3dlite.core.*;
+	import away3dlite.animators.bones.SkinVertex;
 	
 	/**
 	 * Data class for the geometry data used in a mesh object
 	 */
-	public class GeometryData
+	public class GeometryData implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
+		
 		/**
 		 * The name of the geometry used as a unique reference.
 		 */
@@ -99,5 +104,27 @@ package away3dlite.loaders.data
     	 * Returns the minimum z value of the geometry data
     	 */
 		public var minZ:Number;
+		
+        public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+				
+			_isDestroyed = true;
+			
+			vertices = new null;
+			skinVertices = null;
+			uvtData = null;
+			indices = null;
+			faceLengths = null;
+			faces = null;
+			materials = null;
+	        skinControllers = null;
+		}
 	}
 }

@@ -3,6 +3,7 @@ package away3dlite.core.base
 	import away3dlite.arcane;
 	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
+	import away3dlite.core.*;
 	import away3dlite.loaders.utils.*;
 	
 	import flash.display.*;
@@ -62,8 +63,10 @@ package away3dlite.core.base
 	/**
 	 * The base class for all 3d objects.
 	 */
-	public class Object3D extends Sprite
+	public class Object3D extends Sprite implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
 		/** @private */
 		arcane var _frustumCulling:Boolean;
 		/** @private */
@@ -203,17 +206,17 @@ package away3dlite.core.base
 		/**
 		 * Used in loaders to store all parsed materials contained in the model.
 		 */
-		public var materialLibrary:MaterialLibrary = new MaterialLibrary();
+		public var materialLibrary:MaterialLibrary;
 		
 		/**
 		 * Used in loaders to store all parsed geometry data contained in the model.
 		 */
-		public var geometryLibrary:GeometryLibrary = new GeometryLibrary();
+		public var geometryLibrary:GeometryLibrary;
 		
 		/**
 		 * Used in the loaders to store all parsed animation data contained in the model.
 		 */
-		public var animationLibrary:AnimationLibrary = new AnimationLibrary();
+		public var animationLibrary:AnimationLibrary;
 		
 		/**
 		 * Returns the type of 3d object.
@@ -346,5 +349,26 @@ package away3dlite.core.base
             
             return object3D;
         }
+        
+        public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			_isDestroyed = true;
+			
+			materialLibrary.destroy();
+			geometryLibrary.destroy();
+			animationLibrary.destroy();
+
+			materialLibrary = null;
+			geometryLibrary = null;
+			animationLibrary = null;
+
+			if(parent != null)
+				parent.removeChild(this);
+		}
 	}
 }
