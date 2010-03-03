@@ -1,4 +1,4 @@
-package away3d.core.graphs.bsp
+package away3d.graphs.bsp
 {
 	public class BSPBuilder
 	{

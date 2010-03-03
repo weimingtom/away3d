@@ -1,10 +1,10 @@
-package away3d.core.graphs.bsp
+package away3d.graphs.bsp
 {
 	import away3d.arcane;
 	import away3d.core.base.Face;
 	import away3d.core.base.Vertex;
 	import away3d.core.geom.NGon;
-	import away3d.core.graphs.TreeIterator;
+	import away3d.graphs.TreeIterator;
 	import away3d.core.math.Number3D;
 	import away3d.events.BSPBuildEvent;
 

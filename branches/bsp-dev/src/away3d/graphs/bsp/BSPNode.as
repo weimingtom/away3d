@@ -1,6 +1,6 @@
-package away3d.core.graphs.bsp
+package away3d.graphs.bsp
 {
-	import away3d.core.graphs.*;
+	import away3d.graphs.*;
 	import away3d.materials.ITriangleMaterial;
 	import away3d.core.base.UV;
 	import away3d.core.traverse.PrimitiveTraverser;

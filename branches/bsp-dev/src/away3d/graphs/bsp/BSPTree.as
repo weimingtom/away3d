@@ -1,4 +1,4 @@
-package away3d.core.graphs.bsp
+package away3d.graphs.bsp
 {
 	import away3d.events.Object3DEvent;
 	import away3d.core.base.Object3D;
