@@ -1,10 +1,15 @@
 package away3dlite.loaders.data
 {
+	import away3dlite.core.*;
+	
 	/**
 	 * Data class for the mesh data of a 3d object
 	 */
-	public class MeshData extends ObjectData
+	public class MeshData extends ObjectData implements IDestroyable
 	{
+		 /** @private */
+		protected var _isDestroyed:Boolean;
+		
 		public var material:MaterialData;
 		/**
 		 * Defines the geometry used by the mesh instance
@@ -31,6 +36,22 @@ package away3dlite.loaders.data
 			mesh.material = material;
 			mesh.geometry = geometry;
 			mesh.skeleton = skeleton;
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+				
+			_isDestroyed = true;
+			
+			material.destroy();
+			geometry.destroy();
 		}
 	}
 }
