@@ -13,7 +13,7 @@ package away3d.graphs.bsp
 
 	use namespace arcane;
 	
-	internal final class BSPPortal extends EventDispatcher
+	public final class BSPPortal extends EventDispatcher
 	{
 		public static const RECURSED_PORTAL_COMPLETE : String = "RecursedPortalComplete";
 		public var index : int;

@@ -1,10 +1,16 @@
-package away3d.graphs.bsp
+package away3d.graphs.bsp.builder
 {
+	import away3d.graphs.bsp.*;
 	import away3d.arcane;
 	import away3d.graphs.TreeIterator;
 	import away3d.graphs.VectorIterator;
 	import away3d.events.BSPBuildEvent;
 	import away3d.events.IteratorEvent;
+
+	import away3d.graphs.bsp.builder.AbstractBuilderDecorator;
+
+	import away3d.graphs.bsp.builder.IBSPBuilder;
+	import away3d.graphs.bsp.builder.IBSPPortalProvider;
 
 	import flash.utils.setTimeout;
 

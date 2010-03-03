@@ -1,5 +1,7 @@
-package away3d.graphs.bsp
+package away3d.graphs.bsp.builder
 {
+	import away3d.graphs.bsp.BSPPortal;
+
 	/**
 	 * Used for BSP Builder classes through which BSPPortals can be retrieved (be it portal generators or wrappers)
 	 */
