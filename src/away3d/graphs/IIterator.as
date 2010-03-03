@@ -1,4 +1,4 @@
-package away3d.core.graphs
+package away3d.graphs
 {
 	public interface IIterator
 	{
