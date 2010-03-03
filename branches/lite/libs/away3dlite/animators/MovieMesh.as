@@ -1,6 +1,7 @@
 package away3dlite.animators
 {
 	import away3dlite.arcane;
+	import away3dlite.core.*;
 	import away3dlite.core.base.*;
 	import away3dlite.animators.frames.Frame;
 	
@@ -12,7 +13,7 @@ package away3dlite.animators
 	/**
 	 * Animates a series of <code>Frame</code> objects in sequence in a mesh.
 	 */
-	public class MovieMesh extends Mesh
+	public class MovieMesh extends Mesh implements IDestroyable
 	{
 		/*
 		 * Three kinds of animation sequences:
@@ -35,7 +36,7 @@ package away3dlite.animators
 		private var _ctime:Number = 0;
 		private var _otime:Number = 0;
 
-		private var labels:Dictionary = new Dictionary(true);
+		private var _labels:Dictionary = new Dictionary(true);
 		private var _currentLabel:String;
 		
 		private function onEnterFrame(event:Event = null):void
@@ -98,10 +99,10 @@ package away3dlite.animators
 		{
 			var _name:String = frame.name.slice(0, frame.name.length - 3);
 			
-			if (!labels[_name])
-				labels[_name] = {begin:framesLength, end:framesLength};
+			if (!_labels[_name])
+				_labels[_name] = {begin:framesLength, end:framesLength};
 			else
-				++labels[_name].end;
+				++_labels[_name].end;
 
 			frames.push(frame);
 			
@@ -135,12 +136,12 @@ package away3dlite.animators
 		 */
 		public function play(label:String = ""):void
 		{
-			if (!labels)
+			if (!_labels)
 				return;
 
 			if (_currentLabel != label) {
 				_currentLabel = label;
-				loop(labels[label].begin, labels[label].end);
+				loop(_labels[label].begin, _labels[label].end);
 			}
 
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -167,6 +168,22 @@ package away3dlite.animators
 		public function set keyframe(i:int):void
 		{
 			_currentFrame = i % framesLength;
+		}
+		
+        override public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		override public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+				
+			_isDestroyed = true;
+			
+			_labels = null;
+			frames = null;
 		}
 	}
 }

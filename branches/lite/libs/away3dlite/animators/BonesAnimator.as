@@ -3,6 +3,7 @@ package away3dlite.animators
 	import flash.utils.*;
 	import away3dlite.animators.bones.*;
 	import away3dlite.containers.*;
+	import away3dlite.core.*;
 	import away3dlite.core.utils.*;
 	
 	/**
@@ -10,8 +11,11 @@ package away3dlite.animators
 	 * 
 	 * @see away3dlite.loaders.Collada
 	 */
-	public class BonesAnimator
+	public class BonesAnimator implements IDestroyable
     {
+        /** @private */
+		protected var _isDestroyed:Boolean;
+		
         private var _channels:Vector.<Channel>;
         private var _skinControllers:Vector.<SkinController>;
         private var _skinController:SkinController;
@@ -135,5 +139,23 @@ package away3dlite.animators
 			for each (_skinVertex in skinController.skinVertices)
                 _uniqueSkinVertices[_skinVertex] = 1;
         }
+        
+        public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+				
+			_isDestroyed = true;
+			
+			_channels = null;
+			_skinControllers = null;
+			_skinVertices = null;
+			_uniqueSkinVertices = null;
+		}
     }
 }
