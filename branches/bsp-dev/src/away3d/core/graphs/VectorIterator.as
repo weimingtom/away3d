@@ -9,25 +9,20 @@ package away3d.core.graphs
 
 	use namespace arcane;
 
-	public class TreeIterator extends EventDispatcher implements IIterator
+	public class VectorIterator extends EventDispatcher implements IIterator
 	{
-		private var _traverseNode : ITreeNode;
-		private var _traverseState : int;
-
-		private static const TRAVERSE_PRE : int = 0;
-		private static const TRAVERSE_IN : int = 1;
-		private static const TRAVERSE_POST : int = 2;
-
-		private var _rootNode : ITreeNode;
+		private var _traverseIndex : int;
+		private var _vector : Vector.<Object>;
 
 		private var _asyncInProgress : Boolean;
 		private var _maxTimeOut : Number;
 		private var _asyncMethod : Function;
 		private var _canceled : Boolean;
+		private var _vectorLen : int;
 
-		public function TreeIterator(rootNode : ITreeNode)
+		public function VectorIterator(vector : Vector.<Object>)
 		{
-			_rootNode = rootNode;
+			_vector = vector;
 		}
 
 		/**
@@ -39,10 +34,8 @@ package away3d.core.graphs
 		{
 			if (_asyncInProgress)
 				throw new Error("Cannot reset traversal while an asynchronous iteration is in progress!");
-			
-			_traverseState = TRAVERSE_PRE;
-			_traverseNode = _rootNode;
-			return _traverseNode;
+			_traverseIndex = 0;
+			return _vector[0];
 		}
 
 		/**
@@ -55,7 +48,7 @@ package away3d.core.graphs
 			if (_asyncInProgress)
 				throw new Error("Cannot traverse through a tree while an asynchronous iteration is in progress!");
 			
-			return traverseStep();
+			return ++_traverseIndex < _vector.length? _vector[_traverseIndex] : null;
 		}
 
 		/**
@@ -64,16 +57,15 @@ package away3d.core.graphs
 		 */
 		public function performMethod(method : Function) : void
 		{
-			var node : ITreeNode;
+			var len : int = _vector.length;
+			var i : int = -1;
 
 			if (_asyncInProgress)
 				throw new Error("An asynchronous iteration is already in progress!");
 
-			node = ITreeNode(reset());
-
-			do {
-				method(node);
-			} while ((node = traverseStep()));
+			while (++i < len) {
+				method(_vector[i]);
+			}
 		}
 
 		/**
@@ -87,7 +79,13 @@ package away3d.core.graphs
 			if (_asyncInProgress)
 				throw new Error("An asynchronous iteration is already in progress!");
 
-			reset();
+			_traverseIndex = 0;
+			_vectorLen = _vector.length;
+
+			if (_vectorLen == 0) {
+				dispatchEvent(new IteratorEvent(IteratorEvent.ASYNC_ITERATION_COMPLETE));
+				return;
+			}
 
 			_canceled = false;
 			_maxTimeOut = maxTimeOut;
@@ -100,69 +98,17 @@ package away3d.core.graphs
 		public function cancelAsyncTraversal() : void
 		{
 			if (!_asyncInProgress)
-				throw new Error("No asynchronous iteration is in progress!");	
-
+				throw new Error("No asynchronous iteration is in progress!");
 			_canceled = true;
-		}
-
-		private function traverseStep() : ITreeNode
-		{
-			var left : ITreeNode;
-			var right : ITreeNode;
-			var parent : ITreeNode;
-			var newVisited : Boolean;
-
-			do {
-				left = _traverseNode.leftChild;
-				right = _traverseNode.rightChild;
-				parent = _traverseNode.parent;
-
-				switch (_traverseState) {
-					case TRAVERSE_PRE:
-						if (left) {
-							_traverseNode = left;
-							newVisited = true;
-						}
-						else
-							_traverseState = TRAVERSE_IN;
-						break;
-
-					case TRAVERSE_IN:
-						if (right) {
-							_traverseNode = right;
-							_traverseState = TRAVERSE_PRE;
-							newVisited = true;
-						}
-						else
-							_traverseState = TRAVERSE_POST;
-						break;
-				
-					case TRAVERSE_POST:
-						if (_traverseNode == parent.leftChild)
-							_traverseState = TRAVERSE_IN;
-
-						_traverseNode = parent;
-						break;
-				}
-
-				// end of the line
-				if (_traverseNode == _rootNode && _traverseState == TRAVERSE_POST) {
-					return null;
-				}
-
-			} while (!newVisited);
-
-			return _traverseNode;
 		}
 
 		private function performMethodStep() : void
 		{
-			var node : ITreeNode = _traverseNode;
 			var startTime : int = getTimer();
 
 			if (_canceled) {
-				dispatchEvent(new IteratorEvent(IteratorEvent.ASYNC_ITERATION_CANCELED));
 				_asyncInProgress = false;
+				dispatchEvent(new IteratorEvent(IteratorEvent.ASYNC_ITERATION_CANCELED));
 				return;
 			}
 			else {
@@ -170,16 +116,39 @@ package away3d.core.graphs
 			}
 
 			do {
-				_asyncMethod(node);
-			} while ((node = traverseStep()) && getTimer() - startTime < _maxTimeOut);
+				_asyncMethod(_vector[_traverseIndex]);
+			} while (++_traverseIndex < _vectorLen && getTimer() - startTime < _maxTimeOut);
 
-			if (node)
+			if (_traverseIndex < _vectorLen)
 				setTimeout(performMethodStep, 1);
 			else {
 				_asyncInProgress = false;
 				_asyncMethod = null;
 				dispatchEvent(new IteratorEvent(IteratorEvent.ASYNC_ITERATION_COMPLETE));
 			}
+		}
+
+		public function nextWith(predicate : Function) : Object
+		{
+			var obj : Object;
+
+			while (obj = next())
+				if (predicate(obj)) return obj;
+			
+			return obj;
+		}
+
+		public function resetWith(predicate : Function) : Object
+		{
+			var obj : Object;
+			if (_asyncInProgress)
+				throw new Error("Cannot reset traversal while an asynchronous iteration is in progress!");
+			_traverseIndex = 0;
+
+			if (predicate(_vector[0]))
+				return _vector[0];
+			else
+				return nextWith(predicate);
 		}
 	}
 }

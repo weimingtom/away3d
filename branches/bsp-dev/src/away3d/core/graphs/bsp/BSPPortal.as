@@ -1,16 +1,16 @@
 package away3d.core.graphs.bsp
 {
-	import away3d.core.graphs.*;
-	import flash.utils.setTimeout;
-	import flash.utils.getTimer;
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import away3d.arcane;
 	import away3d.core.base.Vertex;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
 	import away3d.core.math.Number3D;
-	
+
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
+	import flash.utils.getTimer;
+	import flash.utils.setTimeout;
+
 	use namespace arcane;
 	
 	internal final class BSPPortal extends EventDispatcher

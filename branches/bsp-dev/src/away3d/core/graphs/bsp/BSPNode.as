@@ -948,27 +948,16 @@ package away3d.core.graphs.bsp
 		/**
 	 	 * Assigns a portal to this leaf, looking in.
 	 	 */
-		arcane function assignPortal(portal : BSPPortal) : void
+		public function assignPortal(portal : BSPPortal) : void
  		{
  			if (!_portals) _portals = new Vector.<BSPPortal>();
  			_portals.push(portal);
- 			
- 			// temp
-// 			var faces : Vector.<Face>;
-// 			if(!_tempMesh) {
-//				_tempMesh = new Mesh();
-//			}
-//			portal.nGon.material = new WireColorMaterial(null, {alpha: .5});
-//			faces = portal.nGon.triangulate();
-//			
-//			for (var j : int = 0; j < faces.length; j++)
-//				_tempMesh.addFace(faces[j]);
  		}
  		
  		/**
  		 * Assigns a portal to this leaf, looking out.
  		 */
- 		arcane function assignBackPortal(portal : BSPPortal) : void
+ 		public function assignBackPortal(portal : BSPPortal) : void
 		{
 			if (!_backPortals) _backPortals = new Vector.<BSPPortal>();
 			_backPortals.push(portal);
@@ -977,7 +966,7 @@ package away3d.core.graphs.bsp
 		/**
 		 * Takes a set of portals and applies the visibility information
 		 */
-		arcane function processVislist(portals : Vector.<BSPPortal>) : void
+		public function processVislist(portals : Vector.<BSPPortal>) : void
 		{
 			if (!_backPortals || !portals) return;
 			
