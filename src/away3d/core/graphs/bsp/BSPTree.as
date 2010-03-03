@@ -11,9 +11,7 @@ package away3d.core.graphs.bsp
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
-	import away3d.core.base.Face;
 	import away3d.core.base.Mesh;
-	import away3d.core.base.Vertex;
 	import away3d.core.geom.Frustum;
 	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
@@ -61,12 +59,9 @@ package away3d.core.graphs.bsp
 		
 		// used for correct rendering and pre-culling
 		private var _cameraVarsStore : CameraVarsStore;
-		private var _dynamics : Vector.<Object3D>;
-		
-		private var _renderMark : int;
-		
+		private var _dynamics : Vector.<Object3D>;		
+		private var _renderMark : int;		
 		private var _obbCollisionTree : BSPTree;
-		
 		private var _meshManagers : Dictionary;
 
 
@@ -76,8 +71,11 @@ package away3d.core.graphs.bsp
 		public function BSPTree(buildDynamicCollisionTree : Boolean = true)
 		{
 			super();
+			_leaves = new Vector.<BSPNode>();
 			_dynamics = new Vector.<Object3D>();
 			_preCulled = true;
+			_rootNode = new BSPNode(null);
+			_rootNode.name = "root";
 			if (buildDynamicCollisionTree) buildCollisionTree();
 		}
 
@@ -110,6 +108,14 @@ package away3d.core.graphs.bsp
 		public function get activeLeaf() : BSPNode
 		{
 			return _activeLeaf;
+		}
+
+		/**
+		 * All the leaves in the current tree
+		 */
+		arcane function get leaves() : Vector.<BSPNode>
+		{
+			return _leaves;
 		}
 
 		/**
@@ -856,18 +862,15 @@ package away3d.core.graphs.bsp
 			plane.transform(tr);
 		}
 
-		/*
+/*
  * BUILDING
  */
  		// bsp build
 		arcane static var nodeCount : int;
 		private var _buildPVS : Boolean;
-		private var _buildCollisionPlanes : Boolean;
-		private var _removeTJunctions : Boolean;
 		private var _complete : Boolean;
 		private var _progressEvent : TraceEvent;
 		private var _currentBuildNode : BSPNode;
-		private var _numNodes : int = 0;
 		private var _state : int;
 		private static const TRAVERSE_PRE : int = 0;
 		private static const TRAVERSE_IN : int = 1;
@@ -883,131 +886,36 @@ package away3d.core.graphs.bsp
 		private var _newPortals : Vector.<BSPPortal>;
 		
 		private var _totalFaces : int;
-		private var _assignedFaces : int;
-		
-		private var _splitWeight : Number = 10;
-		private var _balanceWeight : Number = 1;
-		private var _xzAxisWeight : Number = 10;
-		private var _yAxisWeight : Number = 5;
+
 		public var maxVisibilityPropagation : int = 10;
 		
 		private var _newIndex : int = -1;
 		private var _visIterationStep : int;
 		
-		/**
-		 * The importance of using axial planes during BSP building with vectors aligned to the X or Z axes (ie: axis-aligned walls). Axis-aligned planes are typically less prone to rounding errors and faster to test against.
-		 */
-		public function get xzAxisWeight() : Number
+		arcane function addTemporaryChild(mesh : Mesh) : void
 		{
-			return _xzAxisWeight;
-		}
-		
-		public function set xzAxisWeight(xzAxisWeight : Number) : void
-		{
-			_xzAxisWeight = xzAxisWeight;
-		}
-		
-		/**
-		 * The importance of using axial planes during BSP building with vectors aligned to the Y axis (ie: axis-aligned floors and ceilings). Axis-aligned planes are typically less prone to rounding errors and faster to test against.
-		 */
-		public function get yAxisWeight() : Number
-		{
-			return _yAxisWeight;
-		}
-		
-		public function set yAxisWeight(yAxisWeight : Number) : void
-		{
-			_yAxisWeight = yAxisWeight;
+			super.addChild(mesh);
 		}
 
-		/**
-		 * The importance of the tree balance during BSP building. Well-balanced trees are typically less deep and need less iterating.
-		 */
-		public function get balanceWeight() : Number
+		arcane function removeTemporaryChild(mesh : Mesh) : void
 		{
-			return _balanceWeight;
-		}
-		
-		public function set balanceWeight(balanceWeight : Number) : void
-		{
-			_balanceWeight = balanceWeight;
-		}
-		
-		/**
-		 * The importance of avoiding triangle splits during BSP building. Less triangle splits typically results in an overall lower triangle count.
-		 */
-		public function get splitWeight() : Number
-		{
-			return _splitWeight;
-		}
-		
-		public function set splitWeight(splitWeight : Number) : void
-		{
-			_splitWeight = splitWeight;
+			super.removeChild(mesh);
 		}
 
-		private function createRootNode() : void
-		{
-			_rootNode = new BSPNode(null);
-			_rootNode.name = "root";
-			_rootNode._maxTimeOut = maxTimeout;
-			_rootNode._splitWeight = _splitWeight;
-			_rootNode._balanceWeight = _balanceWeight;
-			_rootNode._splitWeight = _splitWeight;
-			_rootNode._nonXZWeight = _xzAxisWeight;
-			_rootNode._nonYWeight = _yAxisWeight;
-		}
-
-		/**
-		 * Build a BSP tree from the current faces.
-		 * 
-		 * @param faces A list of Face objects from which to build the tree.
-		 * @param removeTJunctions Whether or not to fix T-Junctions. Not removing these will reduce the total amount of polygons, but can result in seams when rendering.
-		 * @param buildCollisionPlanes Whether or not to generate additional bevel planes used in collision detection.
-		 * @param buildPVS Whether or not to build the potential visible set. Building a PVS allows a large set of the geometry to be culled early on. It's a slow process and definitely not recommended for real-time use.
-		 */
-		public function build(faces : Vector.<Face>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
-		{
-			nodeCount = 0;
-			createRootNode();
-			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
-
-			if (buildPVS)
-				_progressEvent.totalParts += buildCollisionPlanes? 10 : 9;
-			else if (buildCollisionPlanes)
-				_progressEvent.totalParts += 3;
-			if (removeTJunctions) {
-				if (buildPVS || buildCollisionPlanes)
-					++_progressEvent.totalParts;
-				else
-					_progressEvent.totalParts += 3;
-			}
-			_rootNode._buildFaces = convertFaces(faces);
-			_currentBuildNode = _rootNode;
-			_needBuild = true;
-			_progressEvent.count = 1;
-			_progressEvent.message = "Building BSP tree";
-			_totalFaces = faces.length;
-			_buildPVS = buildPVS;
-			_buildCollisionPlanes = buildCollisionPlanes;
-			_removeTJunctions = removeTJunctions;
-			buildStep();
-		}
-		
 		/**
 		 * @private
 		 */
 		arcane function buildFromNGons(faces : Vector.<NGon>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
 		{
 			nodeCount = 0;
-			createRootNode();
+			//createRootNode();
 			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
 			_progressEvent.totalParts = 1;
 			if (buildPVS)
 				_progressEvent.totalParts += buildCollisionPlanes? 12 : 11;
 			else if (buildCollisionPlanes)
 				_progressEvent.totalParts += 3;
-				
+
 			_rootNode._buildFaces = faces;
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
@@ -1015,582 +923,7 @@ package away3d.core.graphs.bsp
 			_progressEvent.message = "Building BSP tree";
 			_totalFaces = faces.length;
 			_buildPVS = buildPVS;
-			_buildCollisionPlanes = buildCollisionPlanes;
-			_removeTJunctions = removeTJunctions;
-			buildStep();
-		}
-		
-		private function buildStep(event : Event = null) : void
-		{
-			if (event) {
-				if (_needBuild) {
-					_assignedFaces += _currentBuildNode._assignedFaces;
-					_totalFaces += _currentBuildNode._newFaces;
-				}
-				
-				if (_currentBuildNode.hasEventListener(Event.COMPLETE))
-					_currentBuildNode.removeEventListener(Event.COMPLETE, buildStep);
-				switch(_state) {
-					case TRAVERSE_PRE:
-						if (_currentBuildNode._positiveNode) {
-							_currentBuildNode = _currentBuildNode._positiveNode;
-							_needBuild = true;
-						}
-						else {
-							_state = TRAVERSE_IN;
-							_needBuild = false;
-						}
-						break;
-					case TRAVERSE_IN:
-						if (_currentBuildNode._negativeNode) {
-							_currentBuildNode = _currentBuildNode._negativeNode;
-							_state = TRAVERSE_PRE;
-							_needBuild = true;
-						}
-						else {
-							_state = TRAVERSE_POST;
-							_needBuild = false;
-						}
-						break;
-					case TRAVERSE_POST:
-						if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
-							_state = TRAVERSE_IN;
-						_currentBuildNode = _currentBuildNode._parent;
-						_needBuild = false;
-						break;
-				}
-				if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
-					onBuildComplete();
-					return;
-				}
-			}
-			
-			notifyProgress(_assignedFaces, _totalFaces);
-			
-			if (_needBuild) {
-				++_numNodes;
-				_currentBuildNode.addEventListener(Event.COMPLETE, buildStep);
-				_currentBuildNode.build();
-			} else {
-				buildStep(event);
-			}
-		}
-		
-		/**
-		 * converts faces to N-Gons
-		 */
-		private function convertFaces(faces : Vector.<Face>) : Vector.<NGon>
-		{
-			var polys : Vector.<NGon> = new Vector.<NGon>();
-			var ngon : NGon;
-			var len : int = faces.length;
-			var i : int, c : int;
-			var u : Number3D, v : Number3D, cross : Number3D;
-			var v1 : Vertex, v2 : Vertex, v3 : Vertex;
-			var face : Face;
-			
-			u = new Number3D();
-			v = new Number3D();
-			cross = new Number3D();
-			
-			do {
-				face = faces[i];
-
-				v1 = face._v0;
-				v2 = face._v1;
-				v3 = face._v2;
-				// check if collinear (caused by t-junctions)
-				u.x = v2.x-v1.x;
-				u.y = v2.y-v1.y;
-				u.z = v2.z-v1.z;
-				v.x = v1.x-v3.x;
-				v.y = v1.y-v3.y;
-				v.z = v1.z-v3.z;
-				cross.cross(u, v);
-				if (cross.modulo > EPSILON) {
-					ngon = new NGon();
-					ngon.fromTriangle(face);
-					polys[c++] = ngon;
-				}
-			} while (++i < len);
-			return polys;
-		}
-		
-		private function onBuildComplete() : void
-		{
-			_leaves = new Vector.<BSPNode>();
-			_rootNode.gatherLeaves(_leaves);
-			init();
-			
-			if (_buildPVS || _buildCollisionPlanes)
-				setTimeout(createPVS, 1);
-			else
-				dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
-		}
-		
-		/**
-		 * Builds the potentially visible set.
-		 */
-		private function createPVS() : void
-		{
-			_portals = new Vector.<BSPPortal>();
-			_needBuild = true;
-			_currentBuildNode = _rootNode;
-			_state = TRAVERSE_PRE;
-			
-			++_progressEvent.count;
-			_progressEvent.message = "Creating portals";
-			_portalIndex = 0;
-			
-			createPortals();
-		}
-		
-		/**
-		 * Generate portals from the BSP tree.
-		 */
-		private function createPortals() : void
-		{
-			var startTime : int = getTimer();
-			var pos : BSPNode;
-			var neg : BSPNode;
-			var portals : Vector.<BSPPortal>;
-			
-			notifyProgress(_portalIndex, _numNodes-_leaves.length);
-			
-			do {
-				if (_needBuild && !_currentBuildNode._isLeaf) {
-					portals = _currentBuildNode.generatePortals(_rootNode);
-					if (portals)
-						_portals = _portals.concat(portals);
-					++_portalIndex;
-				}
-				
-				pos = _currentBuildNode._positiveNode;
-				neg = _currentBuildNode._negativeNode;
-				
-				switch(_state) {
-					case TRAVERSE_PRE:
-						if (pos) {
-							_currentBuildNode = pos;
-							_needBuild = true;
-						}
-						else {
-							_state = TRAVERSE_IN;
-							_needBuild = false;
-						}
-						break;
-					case TRAVERSE_IN:
-						if (neg) {
-							_currentBuildNode = neg;
-							_state = TRAVERSE_PRE;
-							_needBuild = true;
-						}
-						else {
-							_state = TRAVERSE_POST;
-							_needBuild = false;
-						}
-						break;
-					case TRAVERSE_POST:
-						if (_currentBuildNode._parent) {
-							if (_currentBuildNode == _currentBuildNode._parent._positiveNode)
-								_state = TRAVERSE_IN;
-							_currentBuildNode = _currentBuildNode._parent;
-						}
-						_needBuild = false;
-						break;
-				}
-			} while (	(_currentBuildNode != _rootNode || _state != TRAVERSE_POST) &&
-						getTimer()-startTime < maxTimeout);
-			
-			if (_currentBuildNode == _rootNode && _state == TRAVERSE_POST) {
-				_portalIndex = 0;
-				_progressEvent.message = "Cleaning up portals (#portals: "+_portals.length+")";
-				++_progressEvent.count;
-				setTimeout(removeOneSidedPortals, 1);
-			}
-			else {
-				setTimeout(createPortals, 1);
-			}
-		}
-		
-		/**
-		 * Throw away portals not linking 2 leaves together (provide no visibility info)
-		 */
-		private function removeOneSidedPortals() : void
-		{
-			var startTime : int = getTimer();
-			var portal : BSPPortal;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			do {
-				portal = _portals[_portalIndex];
-				
-				if (portal.frontNode == null || portal.backNode == null ||
-					!portal.frontNode._isLeaf || !portal.backNode._isLeaf)
-					_portals.splice(_portalIndex--, 1);
-			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= _portals.length) {
-				_portalIndex = 0;
-				++_progressEvent.count;
-				
-				if (_removeTJunctions) {
-					_progressEvent.message = "Removing T-Junctions";
-					setTimeout(removeTJunctions, 1);
-				}
-				else if (_buildCollisionPlanes) {
-					_progressEvent.message = "Creating bevel planes";
-					setTimeout(createBevelPlanes, 1);
-				}
-				else {
-					_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
-					_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
-					setTimeout(partitionPortals, 1);
-				}
-			}
-			else {
-				setTimeout(removeOneSidedPortals, 1);	
-			}
-		}
-		
-		private function removeTJunctions() : void
-		{
-			var startTime : int = getTimer();
-			var portal : BSPPortal;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			do {
-				portal = _portals[_portalIndex];
-				portal.backNode.removeTJunctions(portal.frontNode, portal);
-				portal.frontNode.removeTJunctions(portal.backNode, portal);
-			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= _portals.length) {
-				_portalIndex = 0;
-				++_progressEvent.count;
-				if (_buildCollisionPlanes) {
-					_progressEvent.message = "Creating bevel planes";
-					setTimeout(createBevelPlanes, 1);
-				}
-				else if (_buildPVS) {
-					_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
-					_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
-					setTimeout(partitionPortals, 1);
-				}
-				else
-					dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
-			}
-			else {
-				setTimeout(createBevelPlanes, 1);	
-			}
-		}
-		
-		private function createBevelPlanes() : void
-		{
-			var startTime : int = getTimer();
-			var portal : BSPPortal;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			do {
-				portal = _portals[_portalIndex];
-				portal.backNode.generateBevelPlanes(portal.frontNode);
-				portal.frontNode.generateBevelPlanes(portal.backNode);
-			} while(++_portalIndex < _portals.length && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= _portals.length) {
-				if (_buildPVS) {
-					_portalIndex = 0;
-					_newPortals = new Vector.<BSPPortal>(_portals.length*2, true);
-					_progressEvent.message = "Partitioning portals (#portals: "+_portals.length+")";
-					++_progressEvent.count;
-					setTimeout(partitionPortals, 1);
-				}
-				else
-					dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
-			}
-			else {
-				setTimeout(createBevelPlanes, 1);	
-			}
-		}	
-		
-		/**
-		 * Create one-sided portals, ie. Portals through which we can see INTO a leaf.
-		 */
-		private function partitionPortals() : void
-		{
-			var len : int = _portals.length;
-			var portal : BSPPortal;
-			var newLen : int = len*2;
-			var parts : Vector.<BSPPortal>;
-			var startTime : int = getTimer();
-			
-			notifyProgress(_portalIndex, len);
-			
-			do {
-				portal = _portals[_portalIndex];
-				parts = portal.partition();
-				parts[0].createLists(newLen);
-				parts[1].createLists(newLen);
-				_newPortals[++_newIndex] = parts[0];
-				_newPortals[++_newIndex] = parts[1];
-			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= len) {
-				_portalIndex = 0;
-				_progressEvent.message = "Linking portals to leaves (#portals: "+_portals.length+")";
-				++_progressEvent.count;
-				_portals = _newPortals;
-				
-				setTimeout(linkPortals, 1);
-			}
-			else {
-				setTimeout(partitionPortals, 1);
-			}
-		}
-		
-		/**
-		 * Assign portals to leaves
-		 */
-		private function linkPortals() : void
-		{
-			var len : int = _portals.length;
-			var portal : BSPPortal;
-			var startTime : int = getTimer();
-			
-			notifyProgress(_portalIndex, len);
-			
-			do {
-				portal = _portals[_portalIndex];
-				portal.index = _portalIndex;
-				portal.maxTimeout = maxTimeout;
-				portal.frontNode.assignPortal(portal);
-				portal.backNode.assignBackPortal(portal);
-			} while (++_portalIndex < len && getTimer()-startTime < maxTimeout);
-			
-			if (_portalIndex >= len) {
-				_portalIndex = 0;
-				++_progressEvent.count;
-				_progressEvent.message = "Building front lists (#portals: "+_portals.length+")";
-				
-				//temp
-//				createMeshes();
-				//dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
-				
-				setTimeout(buildInitialFrontList, 1);
-			}
-			else {
-				setTimeout(linkPortals, 1);
-			}
-		}
-		
-		// TEMP
-//		private function createMeshes() : void
-//		{
-//			// temp
-//			var len : int = _leaves.length;
-//			for (var i : int = 0; i < len; ++i) {
-//				if (_leaves[i]) {
-//					if (_leaves[i]._tempMesh && !_leaves[i]._tempMesh.extra) {
-//						super.addChild(_leaves[i]._tempMesh);
-//						_leaves[i]._tempMesh.extra = {created: true};
-//					}
-//				}
-//			}
-//		}
-		
-		/**
-		 * Finds which portals are in front of any given portal. Portals behind a portal (through which we're looking OUT of), can never be seen.
-		 */
-		private function buildInitialFrontList() : void
-		{
-			var startTime : int = getTimer();
-			var len : int = _portals.length;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			// find portals that are in front per portal
-			do {
-				_portals[_portalIndex].findInitialFrontList(_portals);
-			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex == len) {
-				_portalIndex = 0;
-				_progressEvent.message = "Finding neighbours (#portals: "+_portals.length+")";
-				++_progressEvent.count;
-				setTimeout(findPortalNeighbours, 1);
-			}
-			else {
-				setTimeout(buildInitialFrontList, 1);
-			}
-		}
-		
-		/**
-		 * Finds neighbours of every portal.
-		 */
-		private function findPortalNeighbours() : void
-		{
-			var startTime : int = getTimer();
-			var len : int = _portals.length;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			// find portals that are in front per portal
-			do {
-				_portals[_portalIndex].findNeighbours();
-			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= len) {
-				_portalIndex = 0;
-				_progressEvent.message = "Culling portals (#portals: "+_portals.length+")";
-				++_progressEvent.count;
-				
-				setTimeout(removeVisiblesFromNeighbours, 1);
-			}
-			else {
-				setTimeout(findPortalNeighbours, 1);
-			}
-		}
-		
-		/**
-		 * Do initial culling step. If not visible from a neighbouring portal, it cannot be seen.
-		 */
-		private function removeVisiblesFromNeighbours() : void
-		{
-			var startTime : int = getTimer();
-			var len : int = _portals.length;
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			do {
-				_portals[_portalIndex].removePortalsFromNeighbours(_portals);
-			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= len) {
-				_progressEvent.message = "Propagating visibility (#portals: "+_portals.length+")";
-				++_progressEvent.count;
-				_portals.sort(portalSort);
-				_portalIndex = 0;
-				_visIterationStep = 0;
-				setTimeout(propagateVisibility, 1);
-			}
-			else
-				setTimeout(removeVisiblesFromNeighbours, 1);
-		}
-		
-		/**
-		 * Propagate visibility data through the portal list, updating portal data for easier early testing during deep test.
-		 */
-		private function propagateVisibility() : void
-		{
-			var startTime : int = getTimer();
-			var len : int = _portals.length;
-			
-			notifyProgress(_portalIndex + _visIterationStep * _portals.length, _portals.length * maxVisibilityPropagation);
-			
-			do {
-				_portals[_portalIndex].propagateVisibility();
-			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex >= len) {
-				_portalIndex = 0;
-				
-				_portals.sort(portalSort);
-				
-				if (++_visIterationStep < maxVisibilityPropagation) {
-					setTimeout(propagateVisibility, 1);
-				}
-				else {
-					_portalIndex = 0;
-					_progressEvent.message = "Finding visible portals (#portals: "+_portals.length+")";
-					++_progressEvent.count;
-					setTimeout(findVisiblePortals, 1);
-				}
-			}
-			else
-				setTimeout(propagateVisibility, 1);
-		}
-		
-		/**
-		 * Sort method for portal list. This is used to place portals with less potential visibility in front so it can impact the speed of those with more.
-		 */
-		private function portalSort(a : BSPPortal, b : BSPPortal) : Number
-		{
-			var fa : int = a.frontOrder;
-			var fb : int = b.frontOrder;
-			
-			if (fa < fb) return -1;
-			else if (fa == fb) return 0;
-			else return 1;
-		}
-
-		/**
-		 * Performs deep anti-penumbra testing to find out exactly which leaves could possibly be seen from any given leaf. 
-		 */
-		private function findVisiblePortals(event : Event = null) : void
-		{
-			var len : int = _portals.length;
-			var portal : BSPPortal;
-			
-			if (event) {
-				event.target.removeEventListener(Event.COMPLETE, findVisiblePortals);
-				++_portalIndex;
-			}
-			
-			notifyProgress(_portalIndex, _portals.length);
-			
-			// find next portal that has a potential vis list
-			while (_portalIndex < len && _portals[_portalIndex].frontOrder <= 0)
-				++_portalIndex;
-			
-			if (_portalIndex == len) {
-				_portalIndex = 0;
-				setTimeout(finalizeVisList, 1);
-			}
-			else {
-				portal = _portals[_portalIndex];
-				portal.addEventListener(Event.COMPLETE, findVisiblePortals);
-				portal.findVisiblePortals(_portals);
-			}
-		}
-		
-		/**
-		 * Applies portal visibility data to the leaves.
-		 */
-		private function finalizeVisList() : void
-		{
-			var startTime : int = getTimer();
-			var len : int = _leaves.length;
-			
-			do {
-				_leaves[_portalIndex].processVislist(_portals);
-			} while (++_portalIndex < len && getTimer() - startTime < maxTimeout);
-			
-			if (_portalIndex < len)
-				setTimeout(finalizeVisList, 1);
-			else
-				dispatchEvent(new TraceEvent(TraceEvent.TRACE_COMPLETE));
-		}
-		
-		/**
-		 * Send out a progress event during building.
-		 */
-		private function notifyProgress(steps : int, total : int) : void
-       	{
-			_progressEvent.percentPart = steps/total*100;
-			dispatchEvent(_progressEvent);
-		}
-
-		arcane function addTemporaryChild(mesh : Mesh) : void 
-		{
-			super.addChild(mesh);
-		}
-		
-		arcane function removeTemporaryChild(mesh : Mesh) : void 
-		{
-			super.removeChild(mesh);
+			//buildStep();
 		}
 	}
 }
