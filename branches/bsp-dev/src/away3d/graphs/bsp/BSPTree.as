@@ -64,6 +64,9 @@ package away3d.graphs.bsp
 		private var _obbCollisionTree : BSPTree;
 		private var _meshManagers : Dictionary;
 
+		private static const TRAVERSE_PRE : int = 0;
+		private static const TRAVERSE_IN : int = 1;
+		private static const TRAVERSE_POST : int = 2;
 
 		/**
 		 * Creates a new BSPTree object.
@@ -862,36 +865,11 @@ package away3d.graphs.bsp
 			plane.transform(tr);
 		}
 
-/*
- * BUILDING
- */
  		// bsp build
 		arcane static var nodeCount : int;
-		private var _buildPVS : Boolean;
 		private var _complete : Boolean;
-		private var _progressEvent : TraceEvent;
-		private var _currentBuildNode : BSPNode;
 		private var _state : int;
-		private static const TRAVERSE_PRE : int = 0;
-		private static const TRAVERSE_IN : int = 1;
-		private static const TRAVERSE_POST : int = 2;
-		
-		public var maxTimeout : int = 500;
-		
-		private var _needBuild : Boolean;
-		
-		// pvs build
-		private var _portalIndex : int;
-		private var _portals : Vector.<BSPPortal>;
-		private var _newPortals : Vector.<BSPPortal>;
-		
-		private var _totalFaces : int;
 
-		public var maxVisibilityPropagation : int = 10;
-		
-		private var _newIndex : int = -1;
-		private var _visIterationStep : int;
-		
 		arcane function addTemporaryChild(mesh : Mesh) : void
 		{
 			super.addChild(mesh);
@@ -905,25 +883,17 @@ package away3d.graphs.bsp
 		/**
 		 * @private
 		 */
-		arcane function buildFromNGons(faces : Vector.<NGon>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
+		/*arcane function buildFromNGons(faces : Vector.<NGon>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
 		{
 			nodeCount = 0;
 			//createRootNode();
-			_progressEvent = new TraceEvent(TraceEvent.TRACE_PROGRESS);
-			_progressEvent.totalParts = 1;
-			if (buildPVS)
-				_progressEvent.totalParts += buildCollisionPlanes? 12 : 11;
-			else if (buildCollisionPlanes)
-				_progressEvent.totalParts += 3;
-
+			
 			_rootNode._buildFaces = faces;
 			_currentBuildNode = _rootNode;
 			_needBuild = true;
-			_progressEvent.count = 1;
-			_progressEvent.message = "Building BSP tree";
 			_totalFaces = faces.length;
 			_buildPVS = buildPVS;
 			//buildStep();
-		}
+		}         */
 	}
 }
