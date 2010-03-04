@@ -59,7 +59,16 @@ package away3d.graphs.bsp.builder
 
 		private function createPortalStep(node : BSPNode) : void
 		{
-			var portals : Vector.<BSPPortal> = node.generatePortals(rootNode);
+			var portals : Vector.<BSPPortal>;
+
+			try {
+				portals = node.generatePortals(rootNode);
+			}
+			catch (error : Error) {
+				var errorEvent : BSPBuildEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_ERROR);
+				errorEvent.message = "An empty leaf was encountered. This could indicate the model wasn't aligned to a grid, or was too small.";
+				dispatchEvent(errorEvent);
+			}
 			
 			++_index;
 
