@@ -32,6 +32,7 @@ package away3d.graphs.bsp.builder
 
 		public function BSPGeometryBuilder()
 		{
+			_tree = new BSPTree();
 			_progressEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_PROGRESS);
 			_progressEvent.message = "Building BSP tree";
 			_progressEvent.totalParts = numSteps;
@@ -115,7 +116,6 @@ package away3d.graphs.bsp.builder
 
 		public function build(source : Array) : void
 		{
-			_tree = new BSPTree();
 			nodeCount = 0;
 			_numNodes = 0;
 			_totalFaces = source.length;
