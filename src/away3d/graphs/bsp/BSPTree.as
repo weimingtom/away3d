@@ -64,9 +64,14 @@ package away3d.graphs.bsp
 		private var _obbCollisionTree : BSPTree;
 		private var _meshManagers : Dictionary;
 
+		private var _complete : Boolean;
+
+		// traversal 
 		private static const TRAVERSE_PRE : int = 0;
 		private static const TRAVERSE_IN : int = 1;
 		private static const TRAVERSE_POST : int = 2;
+		private var _state : int;
+
 
 		/**
 		 * Creates a new BSPTree object.
@@ -542,9 +547,11 @@ package away3d.graphs.bsp
         
 		/**
 		 * Finalizes the tree. Must be called by build() or by custom parser
-		 * 
+		 *
 		 * @private
 		 */
+
+		// Not liking the fact this this HAS to be called... Is an invalidation routine possible? - David
         arcane function init() : void
        	{
        		var l : int = _leaves.length;
@@ -867,8 +874,6 @@ package away3d.graphs.bsp
 
  		// bsp build
 		arcane static var nodeCount : int;
-		private var _complete : Boolean;
-		private var _state : int;
 
 		arcane function addTemporaryChild(mesh : Mesh) : void
 		{
