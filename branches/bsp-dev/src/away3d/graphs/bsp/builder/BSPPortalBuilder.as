@@ -117,6 +117,11 @@ package away3d.graphs.bsp.builder
 			_portalIterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_TICK, onRemoveOneSidedTick);
 			_portals = _portalsSwitch;
 			_portalsSwitch = null;
+			if (_portals.length > wrapped.numNodes) {
+				var warning : BSPBuildEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_WARNING);
+				warning.message = "There are more portals than nodes. This might indicate an unsuitable model or errors in the geometry.";
+				dispatchEvent(warning);
+			}
 			notifyComplete();
 		}
 	}

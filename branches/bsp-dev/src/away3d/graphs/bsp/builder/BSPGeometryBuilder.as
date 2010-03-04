@@ -1,5 +1,6 @@
 package away3d.graphs.bsp.builder
 {
+	import away3d.events.BSPBuildEvent;
 	import away3d.graphs.bsp.*;
 	import away3d.arcane;
 	import away3d.core.base.Face;
@@ -128,7 +129,15 @@ package away3d.graphs.bsp.builder
 
 		private function onBuildComplete() : void
 		{
-			rootNode.gatherLeaves(tree.leaves);
+			try {
+				rootNode.gatherLeaves(tree.leaves);
+			}
+			catch (error : Error) {
+				var errorEvent : BSPBuildEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_ERROR);
+				errorEvent.message = error.message;
+				dispatchEvent(errorEvent);
+			}
+			
 			_tree.init();
 			dispatchEvent(new BSPBuildEvent(BSPBuildEvent.BUILD_COMPLETE));
 		}
@@ -187,6 +196,8 @@ package away3d.graphs.bsp.builder
 				_assignedFaces += _buildNode._assignedFaces;
 				_totalFaces += _buildNode._newFaces;
 				_buildNode.removeEventListener(Event.COMPLETE, buildStep);
+				_buildNode.removeEventListener(BSPBuildEvent.BUILD_WARNING, propagateBuildEvent);
+				_buildNode.removeEventListener(BSPBuildEvent.BUILD_ERROR, propagateBuildEvent);
 				_buildNode = BSPNode(_iterator.next());
 			}
 
@@ -194,7 +205,9 @@ package away3d.graphs.bsp.builder
 
 			if (_buildNode) {
 				++_numNodes;
-				_buildNode.addEventListener(Event.COMPLETE, buildStep);
+				_buildNode.addEventListener(Event.COMPLETE, buildStep, false, 0, true);
+				_buildNode.addEventListener(BSPBuildEvent.BUILD_WARNING, propagateBuildEvent, false, 0, true);
+				_buildNode.addEventListener(BSPBuildEvent.BUILD_ERROR, propagateBuildEvent, false, 0, true);
 				_buildNode.build();
 			}
 			else
@@ -205,6 +218,11 @@ package away3d.graphs.bsp.builder
        	{
 			_progressEvent.percentPart = steps/total;
 			dispatchEvent(_progressEvent);
+		}
+
+		private function propagateBuildEvent(event : BSPBuildEvent) : void
+		{
+			dispatchEvent(event);
 		}
 
 		public function get leaves() : Vector.<BSPNode>
