@@ -1,19 +1,13 @@
 package away3d.graphs.bsp.builder
 {
-	import away3d.graphs.bsp.*;
-	import away3d.graphs.VectorIterator;
 	import away3d.events.IteratorEvent;
-
-	import away3d.graphs.bsp.builder.AbstractBuilderDecorator;
-
-	import away3d.graphs.bsp.builder.IBSPPortalProvider;
+	import away3d.graphs.VectorIterator;
+	import away3d.graphs.bsp.*;
 
 	import flash.events.Event;
 	import flash.utils.setTimeout;
 
-	public class
-
-	BSPPVSBuilder extends AbstractBuilderDecorator implements IBSPPortalProvider
+	public class BSPPVSBuilder extends AbstractBuilderDecorator implements IBSPPortalProvider
 	{
 		private var _index : int;
 		private var _pushIndex : int = 0;
