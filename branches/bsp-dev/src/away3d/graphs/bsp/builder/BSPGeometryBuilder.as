@@ -18,8 +18,6 @@ package away3d.graphs.bsp.builder
 
 	internal class BSPGeometryBuilder extends EventDispatcher implements IBSPBuilder
 	{
-		arcane static var nodeCount : int;
-
 		private var _tree : BSPTree;
 		private var _progressEvent : BSPBuildEvent;
 
@@ -131,7 +129,7 @@ package away3d.graphs.bsp.builder
 
 		public function build(source : Array) : void
 		{
-			nodeCount = 0;
+			BSPTree.nodeCount = 0;
 			_numNodes = 0;
 			_totalFaces = source.length;
 			_iterator = new TreeIterator(rootNode);
