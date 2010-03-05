@@ -35,7 +35,7 @@ package away3d.graphs
 			if (_asyncInProgress)
 				throw new Error("Cannot reset traversal while an asynchronous iteration is in progress!");
 			_traverseIndex = 0;
-			return _vector[0];
+			return _vector.length > 0? _vector[0] : null;
 		}
 
 		/**
@@ -141,9 +141,12 @@ package away3d.graphs
 		public function resetWith(predicate : Function) : Object
 		{
 			var obj : Object;
+
 			if (_asyncInProgress)
 				throw new Error("Cannot reset traversal while an asynchronous iteration is in progress!");
 			_traverseIndex = 0;
+
+			if (_vector.length == 0) return null;
 
 			if (predicate(_vector[0]))
 				return _vector[0];

@@ -191,24 +191,6 @@ package away3d.graphs.bsp
 			if (dist < radius && _negativeNode) _negativeNode.assignCollider(child, center, radius);
 			if (dist > -radius && _positiveNode) _positiveNode.assignCollider(child, center, radius);
 		}
-
-		/*public function addCollider(child : Object3D) : void 
-		{
-			if (!_colliders) _colliders = [];
-			_colliders.push(child);
-			child._sceneGraphCollisionMarks.push(leafId);
-		}
-
-		public function removeCollider(child : Object3D) : void 
-		{
-			var index : int = _colliders.indexOf(child);
-			var marks : Array = child._sceneGraphCollisionMarks;
-			if (index != -1) {
-				_colliders.splice(index, 1);
-				index = marks.indexOf(leafId);
-				if (index != -1) marks.splice(index, 1);
-			}
-		}*/
 		
 		public function addMesh(mesh : BSPMeshManager) : void 
 		{
@@ -436,172 +418,9 @@ package away3d.graphs.bsp
 			}
 		}
 
-//
-// COLLISION DETECTION
-//
-//		arcane static var _impact : Number3D;
-//		arcane static var _collisionPlane : Plane3D;
-//		
-//		public function traceCollision(startPos : Number3D, targetPos : Number3D, dir : Number3D, testMethod : int, halfExtents : Number3D, plane : Plane3D = null) : Boolean
-//		{
-//			var hit : Boolean;
-//			var startDist : Number;
-//			var endDist : Number;
-//			var align : int;
-//			var a : Number, b : Number, c : Number, d : Number; 
-//			var offset : Number = 0;
-//			var t : Number;
-//			var dirDot : Number;
-//			var dx : Number = targetPos.x - startPos.x;
-//			var dy : Number = targetPos.y - startPos.y;
-//			var dz : Number = targetPos.z - startPos.z;
-//			
-//			if (_isLeaf) return false;
-//			
-//			d = _partitionPlane.d;
-//			align = _partitionPlane._alignment;
-//			switch (align) {
-//				case Plane3D.X_AXIS:
-//					a = _partitionPlane.a;
-//					startDist = a*startPos.x + d;
-//					endDist = a*targetPos.x + d;
-//					dirDot = a*dx;
-//					if (testMethod == BSPTree.TEST_METHOD_AABB)
-//						offset = a > 0? a*halfExtents.x : -a*halfExtents.x;
-//					break;
-//				case Plane3D.Y_AXIS:
-//					b = _partitionPlane.a;
-//					startDist = b*startPos.y + d;
-//					endDist = b*targetPos.y + d;
-//					dirDot = b*dy;
-//					if (testMethod == BSPTree.TEST_METHOD_AABB)
-//						offset = b > 0? b*halfExtents.y : -b*halfExtents.y;
-//					break;
-//				case Plane3D.X_AXIS:
-//					c = _partitionPlane.c;
-//					startDist = c*startPos.z + d;
-//					endDist = c*targetPos.z + d;
-//					dirDot = c*dz;
-//					if (testMethod == BSPTree.TEST_METHOD_AABB)
-//						offset = c > 0? c*halfExtents.z : -c*halfExtents.z;
-//					break;
-//				default:
-//					a = _partitionPlane.a;
-//					b = _partitionPlane.b;
-//					c = _partitionPlane.c;
-//					startDist = a*startPos.x + b*startPos.y + c*startPos.z + d;
-//					endDist = a*targetPos.x + b*targetPos.y + c*targetPos.z + d;
-//					dirDot = a*dx + b*dy + c*dz;
-//					if (testMethod == BSPTree.TEST_METHOD_AABB)
-//						offset = 	(a > 0? a*halfExtents.x : -a*halfExtents.x) +
-//									(b > 0? b*halfExtents.y : -b*halfExtents.y) +
-//									(c > 0? c*halfExtents.z : -c*halfExtents.z);
-//					break;
-//			}
-//			
-//			if (startDist > offset && endDist > offset)
-//				return _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//			
-//			if (startDist < -offset && endDist < -offset)
-//				return _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//			
-//			if (dirDot == 0) {
-//				return startDist < 0 	? _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane)
-//										: _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//			}
-//			
-//			if (dirDot > 0) {
-//				// shift plane up, if segment is at least partly on negative side
-//				if (startDist < offset) {
-//					t = (offset-startDist)/dirDot;
-//									
-//					// is solid
-//					if (!_negativeNode) {
-//						// going out from solid node, should be allowed for easy fall-in
-//						_impact = startPos;
-//						_collisionPlane = plane;
-//						hit = true;
-//					}
-//					else {
-//						if (t < 1) {
-//							_middle.x = startPos.x + t*dx;
-//							_middle.y = startPos.y + t*dy;
-//							_middle.z = startPos.z + t*dz;
-//							hit = _negativeNode.traceCollision(startPos, _middle, dir, testMethod, halfExtents, _partitionPlane);
-//						}
-//						else
-//							hit = _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//					}
-//					
-//					if (hit) {
-//						targetPos = _impact;
-//						endDist = a*targetPos.x + b*targetPos.y + c*targetPos.z + d;
-//					}
-//				}
-//				
-//				// shift plane down
-//				if (endDist > -offset) {
-//					t = -(startDist+offset)/dirDot;
-//					
-//					if (t > 0) {
-//						_middle.x = startPos.x + t*dx;
-//						_middle.y = startPos.y + t*dy;
-//						_middle.z = startPos.z + t*dz;
-//					
-//						hit ||= _positiveNode.traceCollision(_middle, targetPos, dir, testMethod, halfExtents, _partitionPlane);
-//					}
-//					else
-//						hit ||= _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//				}
-//				
-//				return hit;
-//			}
-//			else {
-//				if (startDist > -offset) {
-//					t = -(startDist+offset)/dirDot;
-//									
-//					// is solid
-//					if (!_negativeNode) {
-//						_collisionPlane = plane;
-//						_impact = startPos;
-//						hit = true;
-//					}
-//					else {
-//						if (t < 1) {
-//							_middle.x = startPos.x + t*dx;
-//							_middle.y = startPos.y + t*dy;
-//							_middle.z = startPos.z + t*dz;
-//							hit = _negativeNode.traceCollision(startPos, _middle, dir, testMethod, halfExtents, _partitionPlane);
-//						}
-//						else
-//							hit = _negativeNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//					}
-//					
-//					if (hit) {
-//						targetPos = _impact;
-//						endDist = a*targetPos.x + b*targetPos.y + c*targetPos.z + d;
-//					}
-//				}
-//				
-//				// shift plane down
-//				if (endDist < offset) {
-//					t = (offset-startDist)/dirDot;
-//					if (t > 0) {
-//						_middle.x = startPos.x + t*dx;
-//						_middle.y = startPos.y + t*dy;
-//						_middle.z = startPos.z + t*dz;
-//						
-//						hit ||= _positiveNode.traceCollision(_middle, targetPos, dir, testMethod, halfExtents, _partitionPlane);
-//					}
-//					else
-//						hit ||= _positiveNode.traceCollision(startPos, targetPos, dir, testMethod, halfExtents, plane);
-//				}
-//				
-//				return hit;
-//			}
-//		}
 
-		
+
+
 //
 // BUILDING
 //
@@ -636,10 +455,10 @@ package away3d.graphs.bsp
 		arcane var _backPortals : Vector.<BSPPortal>;
 		
 		private static var _completeEvent : Event;
-		
+
 		/**
 		 * Builds the node hierarchy from the given faces
-		 * 
+		 *
 		 * @private
 		 */
 		arcane function build(faces : Vector.<NGon> = null) : void
@@ -652,7 +471,7 @@ package away3d.graphs.bsp
 			else
 				getBestPlane(_buildFaces);
 		}
-		
+
 		/**
 		 * Finds the best picking plane.
 		 */

@@ -11,7 +11,9 @@ package away3d.graphs.bsp.builder
 	import flash.events.Event;
 	import flash.utils.setTimeout;
 
-	public class BSPPVSBuilder extends AbstractBuilderDecorator implements IBSPPortalProvider
+	public class
+
+	BSPPVSBuilder extends AbstractBuilderDecorator implements IBSPPortalProvider
 	{
 		private var _index : int;
 		private var _pushIndex : int = 0;
