@@ -551,7 +551,7 @@ package away3d.graphs.bsp
 		 * @private
 		 */
 
-		// Not liking the fact this this HAS to be called... Is an invalidation routine possible? - David
+		// Not liking the fact this this HAS to be called... Is an invalidation routine possible? - D
         arcane function init() : void
        	{
        		var l : int = _leaves.length;

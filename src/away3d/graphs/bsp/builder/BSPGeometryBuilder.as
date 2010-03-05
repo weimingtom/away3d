@@ -12,6 +12,7 @@ package away3d.graphs.bsp.builder
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.utils.getTimer;
 
 	use namespace arcane;
 
@@ -31,13 +32,16 @@ package away3d.graphs.bsp.builder
 		private var _numNodes : int = 0;
 		private var _canceled : Boolean;
 
-		public function BSPGeometryBuilder()
+		private var _planePicker : IBSPPlanePicker;
+
+		public function BSPGeometryBuilder(planePicker : IBSPPlanePicker = null)
 		{
 			_tree = new BSPTree();
 			_progressEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_PROGRESS);
 			_progressEvent.message = "Building BSP tree";
 			_progressEvent.totalParts = numSteps;
 			_progressEvent.count = 1;
+			_planePicker = planePicker || new SimplePlanePicker();
 		}
 
 		public function destroy() : void
@@ -66,53 +70,63 @@ package away3d.graphs.bsp.builder
 
 		public function get maxTimeOut() : int
 		{
-			return rootNode._maxTimeOut;
+			return _planePicker.maxTimeOut;
 		}
 
 		public function set maxTimeOut(value : int) : void
 		{
-			rootNode._maxTimeOut = value;
+			_planePicker.maxTimeOut = value;
 		}
 
 		public function get splitWeight() : Number
 		{
-			return rootNode._splitWeight;
+			return _planePicker.splitWeight;
 		}
 
 
 		public function set splitWeight(value : Number) : void
 		{
-			rootNode._splitWeight = value;
+			_planePicker.splitWeight = value;
 		}
 
 		public function get balanceWeight() : Number
 		{
-			return rootNode._balanceWeight;
+			return _planePicker.balanceWeight;
 		}
 
 		public function set balanceWeight(value : Number) : void
 		{
-			rootNode._balanceWeight = value;
+			_planePicker.balanceWeight = value;
 		}
 
 		public function get xzAxisWeight() : Number
 		{
-			return rootNode._nonXZWeight;
+			return _planePicker.xzAxisWeight;
 		}
 
 		public function set xzAxisWeight(value : Number) : void
 		{
-			rootNode._nonXZWeight = value;
+			_planePicker.xzAxisWeight = value;
 		}
 
 		public function get yAxisWeight() : Number
 		{
-			return rootNode._nonYWeight;
+			return _planePicker.yAxisWeight;
 		}
 
 		public function set yAxisWeight(value : Number) : void
 		{
-			rootNode._nonYWeight = value;
+			_planePicker.yAxisWeight = value;
+		}
+
+		public function get leaves() : Vector.<BSPNode>
+		{
+			return tree.leaves;
+		}
+
+		public function cancel() : void
+		{
+			_canceled = true;
 		}
 
 		public function build(source : Array) : void
@@ -127,6 +141,7 @@ package away3d.graphs.bsp.builder
 			buildStep(null);
 		}
 
+
 		private function onBuildComplete() : void
 		{
 			try {
@@ -137,11 +152,10 @@ package away3d.graphs.bsp.builder
 				errorEvent.message = error.message;
 				dispatchEvent(errorEvent);
 			}
-			
+
 			_tree.init();
 			dispatchEvent(new BSPBuildEvent(BSPBuildEvent.BUILD_COMPLETE));
 		}
-
 
 		/**
 		 * converts faces to N-Gons
@@ -182,8 +196,8 @@ package away3d.graphs.bsp.builder
 			} while (++i < len);
 			return polys;
 		}
-
 		// even tho iterator only knows about ITreeNode, we know it will be BSPNode, so type strictly
+
 		private function buildStep(event : Event) : void
 		{
 			if (_canceled) {
@@ -223,16 +237,6 @@ package away3d.graphs.bsp.builder
 		private function propagateBuildEvent(event : BSPBuildEvent) : void
 		{
 			dispatchEvent(event);
-		}
-
-		public function get leaves() : Vector.<BSPNode>
-		{
-			return tree.leaves;
-		}
-
-		public function cancel() : void
-		{
-			_canceled = true;
 		}
 	}
 }
