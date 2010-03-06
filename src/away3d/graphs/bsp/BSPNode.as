@@ -80,7 +80,6 @@ package away3d.graphs.bsp
 		 */
 		public function BSPNode(parent : BSPNode)
 		{
-			nodeId = BSPTree.nodeCount++;
 			_parent = parent;
 		}        
 

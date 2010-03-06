@@ -1,28 +1,23 @@
 package away3d.graphs.bsp
 {
-	import away3d.events.Object3DEvent;
-	import away3d.core.base.Object3D;
-	import flash.utils.Dictionary;
-	import away3d.core.utils.CameraVarsStore;
-	import away3d.core.traverse.ProjectionTraverser;
-	import away3d.core.traverse.PrimitiveTraverser;
-	import away3d.events.TraceEvent;
 	import away3d.arcane;
 	import away3d.cameras.Camera3D;
 	import away3d.cameras.lenses.PerspectiveLens;
 	import away3d.containers.ObjectContainer3D;
 	import away3d.core.base.Mesh;
+	import away3d.core.base.Object3D;
 	import away3d.core.geom.Frustum;
-	import away3d.core.geom.NGon;
 	import away3d.core.geom.Plane3D;
 	import away3d.core.math.MatrixAway3D;
 	import away3d.core.math.Number3D;
 	import away3d.core.render.BSPRenderer;
+	import away3d.core.traverse.PrimitiveTraverser;
+	import away3d.core.traverse.ProjectionTraverser;
 	import away3d.core.traverse.Traverser;
-	
-	import flash.events.Event;
-	import flash.utils.getTimer;
-	import flash.utils.setTimeout;
+	import away3d.core.utils.CameraVarsStore;
+	import away3d.events.Object3DEvent;
+
+	import flash.utils.Dictionary;
 
 	use namespace arcane;
 	
@@ -873,7 +868,6 @@ package away3d.graphs.bsp
 		}
 
  		// bsp build
-		arcane static var nodeCount : int;
 
 		arcane function addTemporaryChild(mesh : Mesh) : void
 		{
@@ -884,21 +878,5 @@ package away3d.graphs.bsp
 		{
 			super.removeChild(mesh);
 		}
-
-		/**
-		 * @private
-		 */
-		/*arcane function buildFromNGons(faces : Vector.<NGon>, removeTJunctions : Boolean = false, buildCollisionPlanes : Boolean = true, buildPVS : Boolean = false) : void
-		{
-			nodeCount = 0;
-			//createRootNode();
-			
-			_rootNode._buildFaces = faces;
-			_currentBuildNode = _rootNode;
-			_needBuild = true;
-			_totalFaces = faces.length;
-			_buildPVS = buildPVS;
-			//buildStep();
-		}         */
 	}
 }

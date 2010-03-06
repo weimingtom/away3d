@@ -28,6 +28,7 @@ package away3d.graphs.bsp.builder
 
 		private var _buildNode : BSPNode;
 		private var _numNodes : int = 0;
+		private var _nodeCount : int;
 		private var _canceled : Boolean;
 
 		private var _planePicker : IBSPPlanePicker;
@@ -129,7 +130,6 @@ package away3d.graphs.bsp.builder
 
 		public function build(source : Array) : void
 		{
-			BSPTree.nodeCount = 0;
 			_numNodes = 0;
 			_totalFaces = source.length;
 			_iterator = new TreeIterator(rootNode);
@@ -151,7 +151,9 @@ package away3d.graphs.bsp.builder
 				dispatchEvent(errorEvent);
 			}
 
+			_nodeCount = 0;
 			_tree.init();
+
 			dispatchEvent(new BSPBuildEvent(BSPBuildEvent.BUILD_COMPLETE));
 		}
 
@@ -171,7 +173,7 @@ package away3d.graphs.bsp.builder
 			u = new Number3D();
 			v = new Number3D();
 			cross = new Number3D();
-
+			                                                           
 			do {
 				face = faces[i];
 
@@ -216,7 +218,7 @@ package away3d.graphs.bsp.builder
 			notifyProgress(_assignedFaces, _totalFaces);
 
 			if (_buildNode) {
-				++_numNodes;
+				_buildNode.nodeId = _numNodes++;
 				_buildNode.addEventListener(Event.COMPLETE, buildStep, false, 0, true);
 				_buildNode.addEventListener(BSPBuildEvent.BUILD_WARNING, propagateBuildEvent, false, 0, true);
 				_buildNode.addEventListener(BSPBuildEvent.BUILD_ERROR, propagateBuildEvent, false, 0, true);
