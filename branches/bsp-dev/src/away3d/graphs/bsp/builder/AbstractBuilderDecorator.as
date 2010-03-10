@@ -21,10 +21,12 @@ package away3d.graphs.bsp.builder
 			_numSteps = numSteps;
 			_progressEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_PROGRESS);
 			_progressEvent.totalParts = this.numSteps;
-			_wrapped.addEventListener(BSPBuildEvent.BUILD_CANCELED, onBuildCanceled);
+			_wrapped.addEventListener(BSPBuildEvent.BUILD_CANCELED, propagateEvent);
+			_wrapped.addEventListener(BSPBuildEvent.BUILD_WARNING, propagateEvent);
+			_wrapped.addEventListener(BSPBuildEvent.BUILD_ERROR, propagateEvent);
 		}
 
-		private function onBuildCanceled(event : BSPBuildEvent) : void
+		private function propagateEvent(event : BSPBuildEvent) : void
 		{
 			dispatchEvent(event);
 		}
