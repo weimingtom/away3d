@@ -92,6 +92,17 @@ package away3dlite.templates
 		private var _title:String;
 		private var _debug:Boolean;
 		
+		protected function onAddedToStage(event:Event):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			
+			// setup stage
+			setupStage();
+			
+			// init 3D
+			init();
+		}
+		
 		protected function setupStage():void
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -104,17 +115,13 @@ package away3dlite.templates
 			_customHeight = _customHeight?_customHeight:_stageHeight;
 			
 			scrollRect = new Rectangle(0, 0, _customWidth, _customHeight);
+			
+			onStage();
 		}
 		
-		protected function onAddedToStage(event:Event):void
+		protected function onStage():void
 		{
-			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			
-			// setup stage
-			setupStage();
-			
-			// init 3D
-			init();
+			// override me
 		}
 		
 		private function onEnterFrame(event:Event):void
