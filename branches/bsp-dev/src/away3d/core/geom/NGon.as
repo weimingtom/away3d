@@ -897,7 +897,7 @@ package away3d.core.geom
 				_tempV.z = v2._z-v0._z;
 				_tempC.cross(_tempU, _tempV);
 				
-				if (_tempC.modulo2 < eps) {
+				if (_tempC.modulo2 <= eps) {
 					vertices.splice(j, 1);
 					if (uvs) uvs.splice(j, 1);
 					--i;

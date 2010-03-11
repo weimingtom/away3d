@@ -217,7 +217,7 @@ package away3d.graphs.bsp
 		{
 			var p : Number3D = new Number3D();
 			p.cross(new Number3D(1, 1, 0), normal);
-			if (p.modulo < BSPTree.EPSILON) {
+			if (p.modulo <= BSPTree.EPSILON) {
 				p.cross(new Number3D(0, 1, 1), normal);
 			}
 			return p;
@@ -766,7 +766,7 @@ package away3d.graphs.bsp
 	            			dc = compPlane.c - nz;
 	            			dd = compPlane.d - d;
 	            			if (	da*da+db*db+dc*dc < eps &&
-	            					dd < BSPTree.EPSILON && dd > -BSPTree.EPSILON) {
+	            					dd <= BSPTree.EPSILON && dd >= -BSPTree.EPSILON) {
 	            				check = false;
 	            			}
 	            		}
