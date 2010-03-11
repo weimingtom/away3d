@@ -575,7 +575,7 @@ package away3d.graphs.bsp
 					errorEvent.message = "Empty faces were created. This could indicate the source geometry wasn't aligned properly to a grid.";
 					errorEvent.data = faces[i];
 					dispatchEvent(errorEvent);
-					return;
+					//return;
 				}
 				addFaces(tris);
 			}
