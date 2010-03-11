@@ -565,11 +565,19 @@ package away3d.graphs.bsp
 			var len : int = faces.length;
 			var tris : Vector.<Face>;
 
+
 			// TO DO: throw error if triangulation yields 0 tris (would indicate not aligned to grid)
 
 			for (var i : int = 0; i < len; ++i) {
-				addFaces(faces[i].triangulate());
-
+				tris = faces[i].triangulate();
+				if (!tris || tris.length == 0) {
+					var errorEvent : BSPBuildEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_ERROR);
+					errorEvent.message = "Empty faces were created. This could indicate the source geometry wasn't aligned properly to a grid.";
+					errorEvent.data = faces[i];
+					dispatchEvent(errorEvent);
+					return;
+				}
+				addFaces(tris);
 			}
 			_assignedFaces = faces.length;
 		}
