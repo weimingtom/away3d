@@ -122,7 +122,7 @@ package away3d.graphs.bsp.builder
 				getPlaneScore(face.plane, _faces);
 				if (_bestScore == 0) {
 					_iterator.cancelAsyncTraversal();
-					setTimeout(onIterationComplete, 1);
+					setTimeout(onIterationComplete, 40);
 				}
 			}
 		}

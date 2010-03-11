@@ -497,10 +497,10 @@ package away3d.graphs.bsp
 					frontList[i] = visList[i];
 				
 				hasVisList = true;
-				setTimeout(updateBackPortals, 1);
+				setTimeout(updateBackPortals, 40);
 			}
 			else {
-				setTimeout(findVisiblePortalStep, 1);
+				setTimeout(findVisiblePortalStep, 40);
 			}
 		}
 		
@@ -524,7 +524,7 @@ package away3d.graphs.bsp
 					portal._backPortal.frontList[backIndex] &= backBit;
 			} while (++i < _numPortals);
 			
-			setTimeout(notifyComplete, 1);
+			setTimeout(notifyComplete, 40);
 		}
 		
 		/**

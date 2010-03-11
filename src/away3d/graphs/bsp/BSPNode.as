@@ -490,15 +490,15 @@ package away3d.graphs.bsp
 			if (_planeCount >= len) {
 				if (_bestPlane)
 					// best plane was found, subdivide
-					setTimeout(constructChildren, 1, _bestPlane, faces);
+					setTimeout(constructChildren, 40, _bestPlane, faces);
 				else {
 					_convex = true;
 					_solidPlanes = gatherConvexPlanes(faces);
-					setTimeout(solidify, 1, faces);
+					setTimeout(solidify, 40, faces);
 				}
 			}
 			else {
-				setTimeout(getBestPlane, 1, faces);
+				setTimeout(getBestPlane, 40, faces);
 			}
 		}
 		
