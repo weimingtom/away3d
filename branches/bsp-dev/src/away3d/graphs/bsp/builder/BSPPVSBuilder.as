@@ -178,7 +178,7 @@ package away3d.graphs.bsp.builder
 				_vectorIterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_TICK, onOneSidedPortalIterationTick);
 				_loopPortal = BSPPortal(_vectorIterator.resetWith(hasFrontList));
 
-				setTimeout(deepTraceVisListStep, 1);
+				setTimeout(deepTraceVisListStep, 40);
 			}
 		}
 

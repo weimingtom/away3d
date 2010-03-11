@@ -179,7 +179,7 @@ package away3d.graphs.bsp.builder
 			_wrapped.removeEventListener(BSPBuildEvent.BUILD_PROGRESS, onBuildProgress);
 			_wrapped.removeEventListener(BSPBuildEvent.BUILD_COMPLETE, onBuildComplete);
 			_progressEvent.count = wrapped.numSteps + 1;
-			setTimeout(buildPart, 1);
+			setTimeout(buildPart, 40);
 		}
 	}
 }

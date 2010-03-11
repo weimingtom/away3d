@@ -120,7 +120,7 @@ package away3d.graphs
 			} while (++_traverseIndex < _vectorLen && getTimer() - startTime < _maxTimeOut);
 
 			if (_traverseIndex < _vectorLen)
-				setTimeout(performMethodStep, 1);
+				setTimeout(performMethodStep, 40);
 			else {
 				_asyncInProgress = false;
 				_asyncMethod = null;

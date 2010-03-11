@@ -174,7 +174,7 @@ package away3d.graphs
 			} while ((node = traverseStep()) && getTimer() - startTime < _maxTimeOut);
 
 			if (node)
-				setTimeout(performMethodStep, 1);
+				setTimeout(performMethodStep, 40);
 			else {
 				_asyncInProgress = false;
 				_asyncMethod = null;

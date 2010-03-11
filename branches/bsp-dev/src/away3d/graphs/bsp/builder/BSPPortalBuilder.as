@@ -86,7 +86,7 @@ package away3d.graphs.bsp.builder
 			_treeIterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_COMPLETE, onBuildPortalsComplete);
 			_treeIterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_TICK, onBuildPortalsTick);
 
-			setTimeout(removeOneSided, 1);
+			setTimeout(removeOneSided, 40);
 		}
 
 		private function removeOneSided() : void
