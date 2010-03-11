@@ -68,6 +68,15 @@ package away3dlite.materials
 			
             dispatchEvent(_materialloadsuccess);
 		}
+		
+    	public function load(url:String):void
+    	{
+    		_loader = new Loader();
+			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
+            _loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
+			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
+			_loader.load(new URLRequest(url));
+    	}
     	
 		/**
 		 * Creates a new <code>BitmapFileMaterial</code> object.
@@ -78,11 +87,8 @@ package away3dlite.materials
         {
             super(new BitmapData(100,100));
 			
-			_loader = new Loader();
-			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
-            _loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
-			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
-			_loader.load(new URLRequest(url));
+			if(url!="")
+				load(url);
         }
     }
 }
