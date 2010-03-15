@@ -645,7 +645,7 @@
    			}
    			
    			// force to use id as name
-   			if(useIDAsName)
+   			if(useIDAsName || String(node.@type) == "JOINT")
    				_objectData.name = String(node.@id);
    				
             _transform = _objectData.transform;
