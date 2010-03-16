@@ -13,6 +13,7 @@ package away3d.graphs.bsp.builder
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.getTimer;
+	import flash.utils.setTimeout;
 
 	use namespace arcane;
 
@@ -188,7 +189,7 @@ package away3d.graphs.bsp.builder
 				v.y = v1.y-v3.y;
 				v.z = v1.z-v3.z;
 				cross.cross(u, v);
-				if (cross.modulo > BSPTree.EPSILON) {
+				if (cross.modulo > BSPTree.DIV_EPSILON) {
 					ngon = new NGon();
 					ngon.fromTriangle(face);
 					polys[c++] = ngon;
@@ -222,7 +223,7 @@ package away3d.graphs.bsp.builder
 				_buildNode.addEventListener(Event.COMPLETE, buildStep, false, 0, true);
 				_buildNode.addEventListener(BSPBuildEvent.BUILD_WARNING, propagateBuildEvent, false, 0, true);
 				_buildNode.addEventListener(BSPBuildEvent.BUILD_ERROR, propagateBuildEvent, false, 0, true);
-				_buildNode.build();
+				_buildNode.build(_planePicker);
 			}
 			else
 				onBuildComplete();

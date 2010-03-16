@@ -29,14 +29,15 @@ package away3d.graphs.bsp
 
 	// TO DO: Move all build functionality to a wrapper!
 	public class BSPTree extends ObjectContainer3D
-	{
+	{                                        
 		public static const TEST_METHOD_POINT : int = 0;
 		public static const TEST_METHOD_AABB : int = 1;
 		public static const TEST_METHOD_ELLIPSOID : int = 2;
 
-		public static const EPSILON : Number = 0.07;
+		public static const DIV_EPSILON : Number = 0.05;
+		public static const EQUAL_EPSILON : Number = 0.01;
 		public static const COLLISION_EPSILON : Number = 0.1;
-		
+
 		// indicates whether or not to use the potentially visible set for culling
 		public var usePVS : Boolean = true;
 		

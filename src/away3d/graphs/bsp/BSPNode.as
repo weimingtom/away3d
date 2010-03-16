@@ -2,11 +2,7 @@ package away3d.graphs.bsp
 {
 	import away3d.events.BSPBuildEvent;
 	import away3d.graphs.*;
-	import away3d.materials.ITriangleMaterial;
-	import away3d.core.base.UV;
-	import away3d.core.traverse.PrimitiveTraverser;
-	import away3d.materials.WireColorMaterial;
-	import away3d.core.base.Vertex;
+	import away3d.graphs.bsp.builder.IBSPPlanePicker;
 	import away3d.core.base.Object3D;
 	import away3d.arcane;
 	import away3d.core.base.Face;
@@ -384,7 +380,7 @@ package away3d.graphs.bsp
  		 */
  		arcane function isEmpty() : Boolean
  		{
- 			return _mesh.geometry.faces.length == 0;
+ 			return !_mesh ||_mesh.geometry.faces.length == 0;
  		}
  		
 		/**
@@ -429,7 +425,7 @@ package away3d.graphs.bsp
 		arcane var _balanceWeight : Number = 1;
 		arcane var _nonXZWeight : Number = 1.5;
 		arcane var _nonYWeight : Number = 1.2;
-		
+
 		private var _bestPlane : Plane3D;
 		private var _bestScore : Number;
 		private var _positiveFaces : Vector.<NGon>;
@@ -441,7 +437,7 @@ package away3d.graphs.bsp
 		private var _solidPlanes : Vector.<Plane3D>;
 		
 		private var _planeCount : int;
-		
+
 		arcane var _maxTimeOut : int = 500;
 		
 		arcane var _newFaces : int;
@@ -454,53 +450,42 @@ package away3d.graphs.bsp
 		arcane var _backPortals : Vector.<BSPPortal>;
 		
 		private static var _completeEvent : Event;
+		private var _planePicker:IBSPPlanePicker;
 
 		/**
 		 * Builds the node hierarchy from the given faces
 		 *
 		 * @private
 		 */
-		arcane function build(faces : Vector.<NGon> = null) : void
+		arcane function build(planePicker : IBSPPlanePicker) : void
 		{
 			if (!_completeEvent) _completeEvent = new Event(Event.COMPLETE);
-			if (faces) _buildFaces = faces;
+
 			_bestScore = Number.POSITIVE_INFINITY;
+			_planePicker = planePicker;
 			if (_convex)
 				solidify(_buildFaces);
-			else
-				getBestPlane(_buildFaces);
+			else {
+				_planePicker.addEventListener(Event.COMPLETE, onPlanePickComplete);
+				_planePicker.pickPlane(_buildFaces);
+			}
 		}
 
-		/**
-		 * Finds the best picking plane.
-		 */
-		private function getBestPlane(faces : Vector.<NGon>) : void
+		private function onPlanePickComplete(event:Event):void
 		{
-			var face : NGon;
-			var len : int = faces.length;
-			var startTime : int = getTimer();
-			
-			do {
-				face = faces[_planeCount];
-				if (face._isSplitter) continue;
-				getPlaneScore(face.plane, faces);
-				if (_bestScore == 0) _planeCount = len;
-			} while (++_planeCount < len && getTimer()-startTime < _maxTimeOut);
-			
-			if (_planeCount >= len) {
-				if (_bestPlane)
-					// best plane was found, subdivide
-					setTimeout(constructChildren, 40, _bestPlane, faces);
-				else {
-					_convex = true;
-					_solidPlanes = gatherConvexPlanes(faces);
-					setTimeout(solidify, 40, faces);
-				}
+			_planePicker.removeEventListener(Event.COMPLETE, onPlanePickComplete);
+			if (_planePicker.pickedPlane) {
+				_bestPlane = _planePicker.pickedPlane;
+				// best plane was found, subdivide
+				setTimeout(constructChildren, 40, _bestPlane, _buildFaces);
 			}
 			else {
-				setTimeout(getBestPlane, 40, faces);
+				_convex = true;
+				_solidPlanes = gatherConvexPlanes(_buildFaces);
+				setTimeout(solidify, 40, _buildFaces);
 			}
 		}
+
 		
 		/**
 		 * Finds all unique planes in a convex set of faces, used to turn the tree into a solid leaf tree (allows us to have empty or "solid" space)
@@ -522,7 +507,7 @@ package away3d.graphs.bsp
 					check = true;
 					// see if plane is already used as (convex) partition plane
 					while (--j >= 0 && check) {
-						if (face.isCoinciding(planes[j]))
+						if (face.isCoinciding(planes[j], BSPTree.DIV_EPSILON))
 							check = false;
 					}
 					if (check) planes.push(srcPlane);
@@ -554,7 +539,7 @@ package away3d.graphs.bsp
 				_positiveNode._buildFaces = faces;
 				_positiveNode._solidPlanes = _solidPlanes;
 			}
-			completeNode();
+			setTimeout(completeNode, 40);
 		}
 		
 		/**
@@ -562,6 +547,7 @@ package away3d.graphs.bsp
 		 */
 		private function addNGons(faces : Vector.<NGon>) : void
 		{
+			var errorEvent : BSPBuildEvent;
 			var len : int = faces.length;
 			var tris : Vector.<Face>;
 
@@ -569,70 +555,21 @@ package away3d.graphs.bsp
 			// TO DO: throw error if triangulation yields 0 tris (would indicate not aligned to grid)
 
 			for (var i : int = 0; i < len; ++i) {
-				tris = faces[i].triangulate();
-				if (!tris || tris.length == 0) {
-					var errorEvent : BSPBuildEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_ERROR);
+				tris = faces[i].triangulate(BSPTree.EQUAL_EPSILON);
+
+				if (tris && tris.length > 0)
+					addFaces(tris);
+				else {
+					errorEvent = new BSPBuildEvent(BSPBuildEvent.BUILD_ERROR);
 					errorEvent.message = "Empty faces were created. This could indicate the source geometry wasn't aligned properly to a grid.";
 					errorEvent.data = faces[i];
 					dispatchEvent(errorEvent);
 					//return;
 				}
-				addFaces(tris);
 			}
 			_assignedFaces = faces.length;
 		}
-		
-		/**
-		 * Calculates the score for a given plane. The lower the score, the better a partition plane it is.
-		 * Score is -1 if the plane is completely unsuited.
-		 */
-		private function getPlaneScore(candidate : Plane3D, faces : Vector.<NGon>) : void
-		{
-			var score : Number;
-			var classification : int;
-			var plane : Plane3D;
-			var face : NGon;
-			var i : int = faces.length;
-			var posCount : int, negCount : int, splitCount : int;
-			
-			while (--i >= 0) {
-				face = faces[i];
-				classification = face.classifyToPlane(candidate);
-				if (classification == -2) { 
-					plane = face.plane;
-					if (candidate.a * plane.a + candidate.b * plane.b + candidate.c * plane.c > 0)
-						++posCount;
-					else
-						++negCount;
-				}
-				else if (classification == Plane3D.BACK)
-					++negCount;
-				else if (classification == Plane3D.FRONT)
-					++posCount;
-				else
-					++splitCount;
-			}
-			
-			// all polys are on one side
-			if ((posCount == 0 || negCount == 0) && splitCount == 0)
-				return;
-			else {
-				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight;
-				if (candidate._alignment != Plane3D.X_AXIS || candidate._alignment != Plane3D.Z_AXIS) {
-					
-					if (candidate._alignment != Plane3D.Y_AXIS)
-						score *= _nonXZWeight;
-					else
-						score *= _nonYWeight;
-				}
-				
-			}
-			
-			if (score >= 0 && score < _bestScore) {
-				_bestScore = score;
-				_bestPlane = candidate;
-			}
-		}
+
 		
 		/**
 		 * Builds the child nodes, based on the partition plane
@@ -652,7 +589,7 @@ package away3d.graphs.bsp
 			
 			do {
 				face = faces[i];
-				classification = face.classifyToPlane(bestPlane);
+				classification = face.classifyToPlane(bestPlane, BSPTree.DIV_EPSILON);
 				
 				if (classification == -2) { 
 					plane = face.plane;
@@ -759,7 +696,7 @@ package away3d.graphs.bsp
 				return portals;
 			}
 			else if (_convex) {
-				if (portal.nGon.classifyToPlane(_partitionPlane) != -2)
+				if (portal.nGon.classifyToPlane(_partitionPlane, BSPTree.DIV_EPSILON) != -2)
 					portal.nGon.trim(_partitionPlane);
 
 				// portal became too small
@@ -770,7 +707,7 @@ package away3d.graphs.bsp
 				return portals;
 			}
  			
- 			classification = portal.nGon.classifyToPlane(_partitionPlane);
+ 			classification = portal.nGon.classifyToPlane(_partitionPlane, BSPTree.DIV_EPSILON);
  			
  			switch (classification) {
  				case Plane3D.FRONT:

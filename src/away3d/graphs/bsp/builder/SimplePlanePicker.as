@@ -7,6 +7,8 @@ package away3d.graphs.bsp.builder
 	import away3d.events.IteratorEvent;
 	import away3d.graphs.VectorIterator;
 
+	import away3d.graphs.bsp.BSPTree;
+
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.getTimer;
@@ -18,8 +20,8 @@ package away3d.graphs.bsp.builder
 	{
 		private var _splitWeight : Number = 10;
 		private var _balanceWeight : Number = 1;
-		private var _xzAxisWeight : Number = 1.5;
-		private var _yAxisWeight : Number = 1.2;
+		private var _xzAxisWeight : Number = 10;
+		private var _yAxisWeight : Number = 5;
 		private var _maxTimeOut : Number = 500;
 		private var _completeEvent : Event;
 
@@ -33,26 +35,6 @@ package away3d.graphs.bsp.builder
 		{
 			super();
 			_completeEvent = new Event(Event.COMPLETE);
-		}
-
-		// to do: rename to ngons
-		public function pickPlane(faces : Vector.<NGon>) : void
-		{
-			_faces = faces;
-			_bestPlane = null;
-			_canceled = false;
-			_iterator = new VectorIterator(Vector.<Object>(faces));
-			_iterator.addEventListener(IteratorEvent.ASYNC_ITERATION_COMPLETE, onIterationComplete, false, 0, true);
-			_iterator.performMethodAsync(pickPlaneStep);
-		}
-
-		public function cancel() : void
-		{
-			_canceled = true;
-			if (_iterator) {
-				_iterator.cancelAsyncTraversal();
-				_iterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_COMPLETE, onIterationComplete);
-			}
 		}
 
 		public function get pickedPlane() : Plane3D
@@ -110,6 +92,26 @@ package away3d.graphs.bsp.builder
 			_maxTimeOut = value;
 		}
 
+		// to do: rename to ngons
+		public function pickPlane(faces : Vector.<NGon>) : void
+		{
+			_faces = faces;
+			_bestPlane = null;
+			_bestScore = Number.POSITIVE_INFINITY;
+			_canceled = false;
+			_iterator = new VectorIterator(Vector.<Object>(faces));
+			_iterator.addEventListener(IteratorEvent.ASYNC_ITERATION_COMPLETE, onIterationComplete, false, 0, true);
+			_iterator.performMethodAsync(pickPlaneStep);
+		}
+
+		public function cancel() : void
+		{
+			_canceled = true;
+			if (_iterator) {
+				_iterator.cancelAsyncTraversal();
+				_iterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_COMPLETE, onIterationComplete);
+			}
+		}
 
 		private function pickPlaneStep(face : NGon) : void
 		{
@@ -142,7 +144,7 @@ package away3d.graphs.bsp.builder
 
 			while (--i >= 0) {
 				face = faces[i];
-				classification = face.classifyToPlane(candidate);
+				classification = face.classifyToPlane(candidate, BSPTree.DIV_EPSILON);
 				if (classification == -2) {
 					plane = face.plane;
 					if (candidate.a * plane.a + candidate.b * plane.b + candidate.c * plane.c > 0)
@@ -164,13 +166,11 @@ package away3d.graphs.bsp.builder
 			else {
 				score = Math.abs(negCount-posCount)*_balanceWeight + splitCount*_splitWeight;
 				if (candidate._alignment != Plane3D.X_AXIS || candidate._alignment != Plane3D.Z_AXIS) {
-
 					if (candidate._alignment != Plane3D.Y_AXIS)
 						score *= _xzAxisWeight;
 					else
 						score *= _yAxisWeight;
 				}
-
 			}
 
 			if (score >= 0 && score < _bestScore) {
@@ -181,7 +181,8 @@ package away3d.graphs.bsp.builder
 
 		private function onIterationComplete(event : IteratorEvent = null) : void
 		{
-			dispatchEvent(_completeEvent);
+			_iterator.removeEventListener(IteratorEvent.ASYNC_ITERATION_COMPLETE, onIterationComplete);
+			dispatchEvent(_completeEvent);			
 		}
 	}
 }

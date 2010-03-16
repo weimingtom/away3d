@@ -80,7 +80,7 @@ package away3d.graphs.bsp.builder
 
 			while (++i < len) {
 				face = Face(faces[i]);
-				if (face.hasEdgeOnPlane(plane, BSPTree.EPSILON) && testTJunctions(sourceNode, face, targetNode.faces, plane)) {
+				if (face.hasEdgeOnPlane(plane, BSPTree.DIV_EPSILON) && testTJunctions(sourceNode, face, targetNode.faces, plane)) {
 					// one face removed, two created and placed at the end of the list
 					--i;
 					++len;
@@ -95,7 +95,7 @@ package away3d.graphs.bsp.builder
 
 			while (--i >= 0) {
 				targetFace = Face(targetFaces[i]);
-				if (face.hasEdgeOnPlane(plane, BSPTree.EPSILON) && fixTJunctions(sourceNode, face, targetFace))
+				if (face.hasEdgeOnPlane(plane, BSPTree.DIV_EPSILON) && fixTJunctions(sourceNode, face, targetFace))
 					return true;
 			}
 			return false;
@@ -152,7 +152,7 @@ package away3d.graphs.bsp.builder
         	var maxT : Number;
 
         	// tgt is not on edge
-        	if (cx*cx+cy*cy+cz*cz > BSPTree.EPSILON) return -1;
+        	if (cx*cx+cy*cy+cz*cz > BSPTree.DIV_EPSILON) return -1;
 
         	// pick the divisor with highest absolute value to minimize rounding errors
         	if ((dx1 > 0 && dx1 >= dy1 && dx1 >= dz1) ||

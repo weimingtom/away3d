@@ -104,7 +104,7 @@ package away3d.graphs.bsp.builder
 				srcNGon = sourceNGons[i];
 
 				// nGon is coinciding with partition plane, we need to check it
-				if (srcNGon.classifyToPlane(partitionPlane) == -2) {
+				if (srcNGon.classifyToPlane(partitionPlane, BSPTree.DIV_EPSILON) == -2) {
 					j = tgtLen;
 					while (--j >= 0) {
 						tgtNGon = targetNGons[j];
@@ -114,7 +114,7 @@ package away3d.graphs.bsp.builder
 						c2 = tgtPlane.c;
 
 						// if angle between planes < 0 and adjacent, create bevel plane
-						if (a1*a2+b1*b2+c1*c2 < -BSPTree.EPSILON &&
+						if (a1*a2+b1*b2+c1*c2 < -BSPTree.DIV_EPSILON &&
 							srcNGon.adjacent(tgtNGon)) {
 							bevel = new Plane3D(a1+a2, b1+b2, c1+c2, partitionPlane.d+tgtPlane.d);
 							bevel.normalize();

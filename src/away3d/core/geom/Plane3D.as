@@ -137,10 +137,10 @@ package away3d.core.geom
 		 * @param p Number3D
 		 * @returns Number
 		 */
-        public function distance(p:Number3D):Number
+        public function distance(p:Number3D, epsilon : Number = 0.001):Number
         {	
         	_len = a*p.x + b*p.y + c*p.z + d;
-        	if ((_len > -BSPTree.EPSILON) && (_len < BSPTree.EPSILON))
+        	if ((_len > -epsilon) && (_len < epsilon))
                 _len = 0;
             
             return _len;
@@ -151,16 +151,16 @@ package away3d.core.geom
 		 * @param p Number3D
 		 * @return int Plane3.FRONT or Plane3D.BACK or Plane3D.INTERSECT
 		 */
-		public function classifyPoint(p:Number3D):int
+		public function classifyPoint(p:Number3D, epsilon : Number = 0.001):int
 		{
 			// check NaN
 			if (!(d <= 0 || d > 0)) return Plane3D.FRONT;
 			
 			var len:Number = a*p.x + b*p.y + c*p.z + d;
             
-            if(len < -BSPTree.EPSILON)
+            if(len < -epsilon)
             	return Plane3D.BACK;
-            else if(len > BSPTree.EPSILON)
+            else if(len > epsilon)
             	return Plane3D.FRONT;
             else 
             	return Plane3D.INTERSECT;
