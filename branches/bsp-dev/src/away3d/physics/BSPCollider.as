@@ -266,7 +266,7 @@ package away3d.physics
 			_tempPos.z = targetPos.z;
 			
 			if (_bspTree.traceCollision(targetPos, _tempPos, _method, _halfExtents))
-				targetPos.y = targetPos.y+(_bspTree.collisionRatio-BSPTree.EPSILON)*(_tempPos.y-targetPos.y);
+				targetPos.y = targetPos.y+(_bspTree.collisionRatio-BSPTree.DIV_EPSILON)*(_tempPos.y-targetPos.y);
 		}
 
 		private var _offsetX : Number = 0;
@@ -325,7 +325,7 @@ package away3d.physics
 				offset = Math.sqrt(ox*ox + oy*oy + oz*oz);
 			}
 			
-			dist = offset + BSPTree.EPSILON - a * _targetPos.x - b*_targetPos.y - c*_targetPos.z - d;
+			dist = offset + BSPTree.DIV_EPSILON - a * _targetPos.x - b*_targetPos.y - c*_targetPos.z - d;
 			
 			_targetPos.x += a*dist;
 			_targetPos.y += b*dist;

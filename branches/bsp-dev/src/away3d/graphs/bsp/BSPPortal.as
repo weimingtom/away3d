@@ -217,7 +217,7 @@ package away3d.graphs.bsp
 		{
 			var p : Number3D = new Number3D();
 			p.cross(new Number3D(1, 1, 0), normal);
-			if (p.modulo <= BSPTree.EPSILON) {
+			if (p.modulo <= BSPTree.DIV_EPSILON) {
 				p.cross(new Number3D(0, 1, 1), normal);
 			}
 			return p;
@@ -580,7 +580,7 @@ package away3d.graphs.bsp
 				while (--j >= 0) {
 					isOut = true;
 					v = verts[j];
-					if (plane.a*v._x + plane.b*v._y + plane.c*v._z + plane.d > BSPTree.EPSILON) {
+					if (plane.a*v._x + plane.b*v._y + plane.c*v._z + plane.d > BSPTree.DIV_EPSILON) {
 						isOut = false;
 						j = 0;
 					}
@@ -640,7 +640,7 @@ package away3d.graphs.bsp
 			var compPlane : Plane3D;
 			var check : Boolean;
 			var da : Number, db : Number, dc : Number, dd : Number;
-			var eps : Number = BSPTree.EPSILON*BSPTree.EPSILON;
+			var eps : Number = BSPTree.DIV_EPSILON*BSPTree.DIV_EPSILON;
 			
 			i = len2;
 			k = i-2;
@@ -671,8 +671,8 @@ package away3d.graphs.bsp
             		plane.c = nz;
 					plane.d = d = -(nx*v1._x + ny*v1._y + nz*v1._z);
 					
-					classification1 = nGon.classifyToPlane(plane);
-					classification2 = targetNGon.classifyToPlane(plane);
+					classification1 = nGon.classifyToPlane(plane, BSPTree.DIV_EPSILON);
+					classification2 = targetNGon.classifyToPlane(plane, BSPTree.DIV_EPSILON);
 					
 					if (	(classification1 == Plane3D.FRONT && classification2 == Plane3D.BACK) ||
 							(classification1 == Plane3D.BACK && classification2 == Plane3D.FRONT)) {
@@ -744,8 +744,8 @@ package away3d.graphs.bsp
 	            	plane.c = nz;
 	            	plane.d = d;
 	            		
-					classification1 = nGon.classifyToPlane(plane);
-					classification2 = targetNGon.classifyToPlane(plane);
+					classification1 = nGon.classifyToPlane(plane, BSPTree.DIV_EPSILON);
+					classification2 = targetNGon.classifyToPlane(plane, BSPTree.DIV_EPSILON);
 						
 					if (	(classification1 == Plane3D.FRONT && classification2 == Plane3D.BACK) ||
 							(classification1 == Plane3D.BACK && classification2 == Plane3D.FRONT)) {
@@ -766,7 +766,7 @@ package away3d.graphs.bsp
 	            			dc = compPlane.c - nz;
 	            			dd = compPlane.d - d;
 	            			if (	da*da+db*db+dc*dc < eps &&
-	            					dd <= BSPTree.EPSILON && dd >= -BSPTree.EPSILON) {
+	            					dd <= BSPTree.DIV_EPSILON && dd >= -BSPTree.DIV_EPSILON) {
 	            				check = false;
 	            			}
 	            		}
