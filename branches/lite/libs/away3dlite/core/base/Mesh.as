@@ -274,6 +274,14 @@ package away3dlite.core.base
 		public var sortFaces:Boolean = true;
         
 		/**
+		 * Returns the screen vertices in the mesh.
+		 */
+		public function get screenVertices():Vector.<Number>
+		{
+			return _screenVertices;
+		}
+		
+		/**
 		 * Returns the 3d vertices used in the mesh.
 		 */
 		public function get vertices():Vector.<Number>
