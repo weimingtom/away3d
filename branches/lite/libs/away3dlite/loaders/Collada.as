@@ -164,11 +164,11 @@
 				i1 = _faceData.v1*3;
 				i2 = _faceData.v2*3;
 				mesh._vertices.push(vertices[i0], vertices[i0+1], vertices[i0+2]);
-				buildSkinVertices(_geometryData, _faceData.v0, mesh._vertices);
+				buildSkinVertices(_geometryData, _faceData.v0, mesh._vertices, mesh);
 				mesh._vertices.push(vertices[i1], vertices[i1+1], vertices[i1+2]);
-				buildSkinVertices(_geometryData, _faceData.v1, mesh._vertices);
+				buildSkinVertices(_geometryData, _faceData.v1, mesh._vertices, mesh);
 				mesh._vertices.push(vertices[i2], vertices[i2+1], vertices[i2+2]);
-				buildSkinVertices(_geometryData, _faceData.v2, mesh._vertices);
+				buildSkinVertices(_geometryData, _faceData.v2, mesh._vertices, mesh);
 				
 				//set uvData
 				i0 = _faceData.uv0*3;
@@ -210,7 +210,7 @@
 			mesh.type = ".Collada";
 		}
 		
-		private function buildSkinVertices(geometryData:GeometryData, i:int, vertices:Vector.<Number>):void
+		private function buildSkinVertices(geometryData:GeometryData, i:int, vertices:Vector.<Number>, mesh:Mesh):void
 		{
 			if (!geometryData.skinVertices.length)
 				return;
@@ -218,10 +218,9 @@
 			var skinController:SkinController;
 			var skinVertex:SkinVertex = geometryData.skinVertices[i].clone();
 			
-			skinVertex.updateVertices(vertices.length - 3, vertices);
-			
-			for each (skinController in geometryData.skinControllers)
-				skinController.skinVertices.push(skinVertex);
+			if (skinVertex.updateVertices(vertices.length - 3, vertices, mesh))
+				for each (skinController in geometryData.skinControllers)
+					skinController.skinVertices.push(skinVertex);
 		}
 		
 		private static const epsilonScale:Number = 0.000001;
