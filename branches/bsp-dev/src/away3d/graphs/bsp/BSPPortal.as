@@ -230,7 +230,7 @@ package away3d.graphs.bsp
 		{
 			var posPortal : BSPPortal;
 			var negPortal : BSPPortal;
-			var splits : Vector.<NGon> = nGon.split(plane);
+			var splits : Vector.<NGon> = nGon.split(plane, BSPTree.DIV_EPSILON);
 			var ngon : NGon;
 			var newPortals : Vector.<BSPPortal> = new Vector.<BSPPortal>(2);
 			
