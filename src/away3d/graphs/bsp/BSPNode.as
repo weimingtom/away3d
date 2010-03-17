@@ -607,7 +607,7 @@ package away3d.graphs.bsp
 				else if (classification == Plane3D.BACK)
 					_negativeFaces.push(face);
 				else {
-					var splits : Vector.<NGon> = face.split(_partitionPlane);
+					var splits : Vector.<NGon> = face.split(_partitionPlane, BSPTree.DIV_EPSILON);
 					_positiveFaces.push(splits[0]);
 					_negativeFaces.push(splits[1]);
 					++_newFaces;

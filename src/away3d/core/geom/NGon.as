@@ -204,7 +204,7 @@ package away3d.core.geom
 					else if (dist < -epsilon)
 						++numNeg;
 					else
-						++numDoubt;
+					++numDoubt;
 					if (numNeg > 0 && numPos > 0) return Plane3D.INTERSECT;
 				}
 			}
@@ -508,7 +508,7 @@ package away3d.core.geom
 		 * 
 		 * @return Two new polygons. The first is on the positive side of the split plane, the second on the negative.
 		 */
-		public function split(splitPlane : Plane3D) : Vector.<NGon>
+		public function split(splitPlane : Plane3D, epsilon : Number = 0.01) : Vector.<NGon>
 		{
 			var ngons : Vector.<NGon> = new Vector.<NGon>(2);
 			var len : int = vertices.length;
@@ -551,7 +551,7 @@ package away3d.core.geom
 			else
 				d0 = d2 = splitPlane.a*v1._x + splitPlane.b*v1._y + splitPlane.c*v1._z + splitPlane.d;
 			
-			if (d2 >= -BSPTree.DIV_EPSILON && d2 <= BSPTree.DIV_EPSILON) d2 = 0;
+			if (d2 >= -epsilon && d2 <= epsilon) d2 = 0;
 			
 			j = 1;
 			for (i = 0; i < len; ++i) {
@@ -573,7 +573,7 @@ package away3d.core.geom
 						d2 = splitPlane.a*v2._x + splitPlane.b*v2._y + splitPlane.c*v2._z + splitPlane.d;
 				}
 				
-				if (d2 >= -BSPTree.DIV_EPSILON && d2 <= BSPTree.DIV_EPSILON) d2 = 0;
+				if (d2 >= -epsilon && d2 <= epsilon) d2 = 0;
 				
 				if (d1 >= 0) {
 					posVerts.push(v1);
