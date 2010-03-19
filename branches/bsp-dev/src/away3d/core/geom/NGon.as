@@ -8,7 +8,9 @@ package away3d.core.geom
 	import away3d.core.base.Vertex;
 	import away3d.core.math.Number3D;
 	import away3d.materials.ITriangleMaterial;
-	
+
+	import flash.sampler.startSampling;
+
 	use namespace arcane;
 	
 	/**
@@ -251,6 +253,7 @@ package away3d.core.geom
 		 */
 		public function isCoinciding(compPlane : Plane3D, epsilon : Number) : Boolean
 		{
+			// this could be done faster by checking the normals and d
 			var v : Vertex;
 			var i : int = vertices.length;
 			var align : int = compPlane._alignment;
@@ -428,13 +431,13 @@ package away3d.core.geom
 		/**
 		 * Creates a duplicate of this NGon
 		 */
-		public function clone() : NGon
+		public function clone(keepPlane : Boolean = false) : NGon
 		{
 			var c : NGon = new NGon();
 			c.vertices = vertices.concat();
 			if (uvs) c.uvs = uvs.concat();
 			c.material = material;
-			c.plane = new Plane3D(plane.a, plane.b, plane.c, plane.d);
+			c.plane = keepPlane? plane : new Plane3D(plane.a, plane.b, plane.c, plane.d);
 			c.plane._alignment = plane._alignment;
 			c._isSplitter = _isSplitter;
 			c.normal = normal;
@@ -903,7 +906,7 @@ package away3d.core.geom
 						
 		}
 		
-		arcane function removeColinears(epsilon : Number) : void
+		public function removeColinears(epsilon : Number) : void
 		{
 			var j : int = 1;
 			var k : int = 2;
@@ -920,11 +923,17 @@ package away3d.core.geom
 				_tempU.x = v1._x-v0._x;
 				_tempU.y = v1._y-v0._y;
 				_tempU.z = v1._z-v0._z;
-				_tempV.x = v2._x-v0._x;
-				_tempV.y = v2._y-v0._y;
-				_tempV.z = v2._z-v0._z;
-				_tempC.cross(_tempU, _tempV);
+				_tempV.x = v2._x-v1._x;
+				_tempV.y = v2._y-v1._y;
+				_tempV.z = v2._z-v1._z;
+				_tempU.normalize();
+				_tempV.normalize();
+				//_tempC.cross(_tempU, _tempV);
 				
+				//if (_tempC.modulo2 <= epsilon) {*/
+				_tempC.x = _tempV.x-_tempU.x;
+				_tempC.y = _tempV.y-_tempU.y;
+				_tempC.z = _tempV.z-_tempU.z;
 				if (_tempC.modulo2 <= epsilon) {
 					vertices.splice(j, 1);
 					if (uvs) uvs.splice(j, 1);
@@ -938,6 +947,145 @@ package away3d.core.geom
 				if (j >= len) j = 0;
 				if (k >= len) k = 0;
 			}
+		}
+
+		public function merge(target : NGon, epsilon : Number = 0.01) : NGon
+		{
+			if (!isCoinciding(target.plane, epsilon)) return null;
+			if (material != target.material) return null;
+
+			var tgtVertices : Vector.<Vertex> = target.vertices;
+			var len : int = vertices.length;
+			var uv0 : UV;
+			var uv1 : UV;
+			var v0 : Vertex = vertices[0];
+			var v1 : Vertex;
+			var j : int = 1;
+			var sharedStart : int;
+			var tgtSharedStart : int;
+			var tgtSharedEnd : int;
+
+			if (uvs) uv0 = uvs[0];
+
+			for (var i : int = 0; i < len; ++i) {
+				v1 = vertices[j];
+				if (uvs) uv1 = uvs[j];
+				tgtSharedStart = target.getCoincidingIndex(v0, v1, uv0, uv1, epsilon);
+
+				if (tgtSharedStart >= 0) {
+					sharedStart = i;
+					tgtSharedEnd = tgtSharedStart+1;
+					if (tgtSharedEnd == tgtVertices.length) tgtSharedEnd = 0; 
+					i = len;	// will cause end of loop
+				}
+				v0 = v1;
+				uv0 = uv1;
+				if (++j >= len) j = 0;
+			}
+
+			// no shared found
+			if (tgtSharedStart < 0) return null;
+
+			var merged : NGon = clone(true);
+			var newV : Vector.<Vertex> = new Vector.<Vertex>();
+			var newUV : Vector.<UV> = new Vector.<UV>();
+			var tgtUVs : Vector.<UV> = target.uvs;
+
+			i = -1;
+			j = tgtSharedEnd;
+			len = tgtVertices.length;
+
+			// it crashes here sometimes
+
+			while (true) {
+				if (++j == len) j = 0;
+				if (j == tgtSharedStart) break;
+				newV[++i] = tgtVertices[j];
+				if (tgtUVs) newUV[i] = tgtUVs[j];
+			}
+
+			i = newV.length;
+			while (--i >= 0) {
+				merged.vertices.splice(sharedStart, 0, newV[i]);
+				if (uvs && target.uvs) merged.uvs.splice(sharedStart, 0, newUV[i]);
+			}
+
+			merged.removeColinears(epsilon);
+
+			return merged.isConvex()? merged : null;
+		}
+
+		public function getCoincidingIndex(startVertex : Vertex, endVertex : Vertex, startUV : UV, endUV : UV, epsilon : Number) : int
+		{
+			var len : int = vertices.length;
+			var uv0 : UV;
+			var uv1 : UV;
+			var v0 : Vertex = vertices[0];
+			var v1 : Vertex;
+			var j : int = 1;
+
+			if (uvs) uv0 = uvs[0];
+
+			for (var i : int = 0; i < len; ++i) {
+				v1 = vertices[j];
+				if (uvs) uv1 = uvs[j];
+				if (isSharedPoint(v1, startVertex, uv1, startUV, epsilon, 0.0001) && isSharedPoint(v0, endVertex, uv0, endUV, epsilon, 0.0001))
+					return i;
+				v0 = v1;
+				uv0 = uv1;
+				if (++j >= len) j = 0;
+			}
+
+			return -1;
+		}
+
+
+		public function isConvex() : Boolean
+		{
+			var k : int = 2;
+			var len : int = vertices.length;
+			var v0 : Vertex = vertices[0];
+			var v1 : Vertex  = vertices[1];
+			var v2 : Vertex;
+			var p : Number3D = new Number3D();
+			var plane : Plane3D = new Plane3D();
+
+			trace ("isConvex?");
+
+			for (var i : int = 0; i < len; ++i) {
+				v2 = vertices[k];
+				p.x = v0.x + normal.x;
+				p.y = v0.y + normal.y;
+				p.z = v0.z + normal.z;
+
+				plane.from3points(v0.position, v1.position, p);
+
+				if (classifyToPlane(plane) == Plane3D.INTERSECT) return false;
+
+				if (++k >= len) k = 0;
+				v0 = v1;
+				v1 = v2;
+			}
+
+			return true;
+		}
+
+		private function isSharedPoint(v0 : Vertex, v1 : Vertex, uv0 : UV, uv1 : UV, epsilon : Number, uvEpsilon : Number) : Boolean
+		{
+			var dist : Number;
+			var dx : Number, dy : Number, dz : Number;
+
+			if (v0 != v1) {
+				dx = v0.x-v1.x;
+				dy = v0.y-v1.y;
+				dz = v0.z-v1.z;
+				if (dx*dx + dy*dy + dz*dz > epsilon) return false;
+			}
+
+			if (!(uv0 || uv1)) return true;
+			dx = uv0.u-uv1.u;
+			dy = uv0.v-uv1.v;
+			return dx*dx+dy*dy <= uvEpsilon;
 		}
 	}
 }

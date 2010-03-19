@@ -490,7 +490,7 @@ package away3d.graphs.bsp
 			var mesh : Mesh = _meshPoolLen == -1? new Mesh() : _meshPool[_meshPoolLen--];
 			mesh.transform = _sourceMesh.transform;
 			mesh.type = _sourceMesh.type;
-            mesh.material = _sourceMesh.material;
+			mesh.material = _sourceMesh.material;
             mesh.outline = _sourceMesh.outline;
             mesh.back = _sourceMesh.back;
             mesh.bothsides = _sourceMesh.bothsides;
