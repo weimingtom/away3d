@@ -138,7 +138,6 @@ package away3d.containers
         
         private function checkSession(session:AbstractRenderSession):void
         {
-        	
         	if (session.getContainer(this).hitTestPoint(_hitPointX, _hitPointY)) {
 	        	if (session is BitmapRenderSession) {
 	        		_container = (session as BitmapRenderSession).getBitmapContainer(this);
