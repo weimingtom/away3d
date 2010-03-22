@@ -1,5 +1,6 @@
 package away3d.graphs.bsp
 {
+	import away3d.events.MouseEvent3D;
 	import away3d.graphs.*;
 	import away3d.core.math.MatrixAway3D;
 	import away3d.events.Object3DEvent;
@@ -12,7 +13,9 @@ package away3d.graphs.bsp
 	import away3d.core.base.Geometry;
 	import away3d.core.base.Mesh;
 
-	
+	import flash.events.Event;
+
+
 	use namespace arcane;
 	
 	/**
@@ -135,6 +138,7 @@ package away3d.graphs.bsp
 			do {
 				if (node._isLeaf) {
 					mesh = getNewMesh();
+					addListeners(mesh);
 					buildMesh(mesh, _faces[node.nodeId]);
 					_tree.addTemporaryChild(mesh);
 					_splitMeshes[node.leafId] = mesh;
@@ -200,6 +204,7 @@ package away3d.graphs.bsp
 			// move everything back on pool-stacks
 			while (_usedMeshLen >= 0) {
 				_meshPool[++_meshPoolLen] = mesh = _usedMeshes[_usedMeshLen--];
+				clearListeners(mesh);
 				_tree.removeTemporaryChild(mesh);
 			}
 			while (_usedFaceLen >= 0) {
@@ -212,6 +217,32 @@ package away3d.graphs.bsp
 			while (_usedUVLen >= 0) {
 				_uvPool[++_uvPoolLen] = _usedUV[_usedUVLen--];
 			}
+		}
+
+		private function addListeners(mesh : Mesh) : void
+		{
+			mesh.addEventListener(MouseEvent3D.MOUSE_DOWN, forwardEvent);
+			mesh.addEventListener(MouseEvent3D.MOUSE_MOVE, forwardEvent);
+			mesh.addEventListener(MouseEvent3D.MOUSE_UP, forwardEvent);
+			mesh.addEventListener(MouseEvent3D.MOUSE_OUT, forwardEvent);
+			mesh.addEventListener(MouseEvent3D.MOUSE_OVER, forwardEvent);
+			mesh.addEventListener(MouseEvent3D.ROLL_OUT, forwardEvent);
+			mesh.addEventListener(MouseEvent3D.ROLL_OVER, forwardEvent);
+		}
+
+		private function clearListeners(mesh : Mesh) : void
+		{
+			mesh.removeEventListener(MouseEvent3D.MOUSE_DOWN, forwardEvent);
+			mesh.removeEventListener(MouseEvent3D.MOUSE_MOVE, forwardEvent);
+			mesh.removeEventListener(MouseEvent3D.MOUSE_UP, forwardEvent);
+			mesh.removeEventListener(MouseEvent3D.MOUSE_OUT, forwardEvent);
+			mesh.removeEventListener(MouseEvent3D.MOUSE_OVER, forwardEvent);
+			mesh.removeEventListener(MouseEvent3D.ROLL_OUT, forwardEvent);
+			mesh.removeEventListener(MouseEvent3D.ROLL_OVER, forwardEvent);
+		}
+
+		private function forwardEvent(event : Event) : void
+		{
 		}
 		
 		/**

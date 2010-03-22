@@ -106,25 +106,30 @@ package away3d.core.render
         
         public function render(view:View3D):void
         {
-        	var i : int = -1;
-        	var len : int = _primitives.length;
+        	var i : int;
+        	var len : int;
         	
-    		// render all primitives
-            while (++i < len)
-                DrawPrimitive(_primitives[i]).render();
-               
             if (_sorting) {
 				for each(_filter in _filters)
 					_newPrimitives = _filter.filter(_newPrimitives, _scene, _camera, _screenClipping);
 				
-				i = -1;
-				len = _newPrimitives.length;
-				while (++i < len)
-					DrawPrimitive(_newPrimitives[i]).render();
-					
+//				i = -1;
+//				len = _newPrimitives.length;
+//				while (++i < len)
+//					DrawPrimitive(_newPrimitives[i]).render();
+
+				_primitives = _primitives.concat(_newPrimitives);
+
 				_newPrimitives.length = 0;
 			}
 			_sorting = false;
+
+			i = -1;
+			len = _primitives.length;
+
+			// render all primitives
+            while (++i < len)
+                DrawPrimitive(_primitives[i]).render();
         }
         
 		/**
