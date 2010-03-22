@@ -243,6 +243,7 @@ package away3d.graphs.bsp
 
 		private function forwardEvent(event : Event) : void
 		{
+			_sourceMesh.dispatchEvent(event);
 		}
 		
 		/**
