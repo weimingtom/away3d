@@ -498,6 +498,14 @@ package away3d.graphs.bsp
 	    		}
     		}
 		}
+
+		public function updateState() : void
+		{
+			var mesh : Mesh;
+			for each(mesh in _splitMeshes) {
+	        	mesh.visible = _sourceMesh.visible;
+			}
+		}
 		
 		public function setLeaf(id : int) : void
 		{
