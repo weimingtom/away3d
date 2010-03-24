@@ -171,10 +171,7 @@ package away3d.graphs.bsp
 			if (!_complete) return;
 			
 			// force transform updates
-			var i : int = _dynamics.length;
-			while (--i >= 0) {
-				_dynamics[i].sceneTransform;
-			}
+			updateDynamics();
 			
 			var invSceneTransform : MatrixAway3D = inverseSceneTransform;
 			
@@ -193,6 +190,20 @@ package away3d.graphs.bsp
 			++_renderMark;
 			
 			_cameraVarsStore = cameraVarsStore;
+		}
+
+		private function updateDynamics() : void
+		{
+			var i : int = _dynamics.length;
+			while (--i >= 0) {
+				_dynamics[i].sceneTransform;
+			}
+
+			if (_meshManagers) {
+				for each (var manager : BSPMeshManager in _meshManagers) {
+					manager.updateState();
+				}
+			}
 		}
 
 		private function assignDynamic(child : Object3D) : void

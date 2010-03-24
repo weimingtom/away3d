@@ -10,7 +10,7 @@ package away3d.graphs.bsp.builder
 
 	public class BSPBuilder
 	{
-		public static function generateBuilder(fixTJunctions : Boolean = false, buildCollisionPlanes : Boolean = false, buildPVS : Boolean = false) : IBSPBuilder
+		public static function generateBuilder(fixTJunctions : Boolean = false, buildCollisionPlanes : Boolean = false, buildPVS : Boolean = false, ngonSource : Boolean = false) : IBSPBuilder
 		{
 			var builder : IBSPBuilder = new BSPGeometryBuilder();
 

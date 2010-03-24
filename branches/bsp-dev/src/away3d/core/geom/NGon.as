@@ -20,7 +20,7 @@ package away3d.core.geom
 	{
 		public var vertices : Vector.<Vertex>;
 		public var uvs : Vector.<UV>;
-		
+
 		public var normal : Number3D;
 		public var plane : Plane3D;
 		public var material : ITriangleMaterial;
@@ -31,6 +31,8 @@ package away3d.core.geom
 		private static var _tempU : Number3D = new Number3D();
 		private static var _tempV : Number3D = new Number3D();
 		private static var _tempC : Number3D = new Number3D();
+
+		public var extra : Object;
 
 		arcane var _isSplitter : Boolean;
 		
@@ -441,6 +443,7 @@ package away3d.core.geom
 			c.plane._alignment = plane._alignment;
 			c._isSplitter = _isSplitter;
 			c.normal = normal;
+			c.extra = extra;
 			return c;
 		}
 		
@@ -535,7 +538,9 @@ package away3d.core.geom
 			negNGon.material = posNGon.material = material;
 			posVerts = posNGon.vertices = new Vector.<Vertex>();
 			negVerts = negNGon.vertices = new Vector.<Vertex>();
-			
+
+			posNGon.extra = extra;
+			negNGon.extra = extra;
 			posNGon._isSplitter = _isSplitter;
 			negNGon._isSplitter = _isSplitter;
 			
@@ -975,7 +980,7 @@ package away3d.core.geom
 				if (tgtSharedStart >= 0) {
 					sharedStart = i;
 					tgtSharedEnd = tgtSharedStart+1;
-					if (tgtSharedEnd == tgtVertices.length) tgtSharedEnd = 0; 
+					if (tgtSharedEnd == tgtVertices.length) tgtSharedEnd = 0;
 					i = len;	// will cause end of loop
 				}
 				v0 = v1;
@@ -1004,7 +1009,9 @@ package away3d.core.geom
 				if (tgtUVs) newUV[i] = tgtUVs[j];
 			}
 
+			// count down because we're splicing
 			i = newV.length;
+			if (++sharedStart >= vertices.length) sharedStart = 0;
 			while (--i >= 0) {
 				merged.vertices.splice(sharedStart, 0, newV[i]);
 				if (uvs && target.uvs) merged.uvs.splice(sharedStart, 0, newUV[i]);
@@ -1029,7 +1036,8 @@ package away3d.core.geom
 			for (var i : int = 0; i < len; ++i) {
 				v1 = vertices[j];
 				if (uvs) uv1 = uvs[j];
-				if (isSharedPoint(v1, startVertex, uv1, startUV, epsilon, 0.0001) && isSharedPoint(v0, endVertex, uv0, endUV, epsilon, 0.0001))
+				if (isSharedPoint(v1, startVertex, uv1, startUV, epsilon, 0.0001) &&
+					isSharedPoint(v0, endVertex, uv0, endUV, epsilon, 0.0001))
 					return i;
 				v0 = v1;
 				uv0 = uv1;
@@ -1042,21 +1050,19 @@ package away3d.core.geom
 
 		public function isConvex() : Boolean
 		{
-			var k : int = 2;
+			var k : int = 1;
 			var len : int = vertices.length;
 			var v0 : Vertex = vertices[0];
-			var v1 : Vertex  = vertices[1];
+			var v1 : Vertex;
 			var v2 : Vertex;
 			var p : Number3D = new Number3D();
 			var plane : Plane3D = new Plane3D();
 
-			trace ("isConvex?");
-
 			for (var i : int = 0; i < len; ++i) {
-				v2 = vertices[k];
-				p.x = v0.x + normal.x;
-				p.y = v0.y + normal.y;
-				p.z = v0.z + normal.z;
+				v1 = vertices[k];
+				p.x = v0.x + normal.x*5.0;
+				p.y = v0.y + normal.y*5.0;
+				p.z = v0.z + normal.z*5.0;
 
 				plane.from3points(v0.position, v1.position, p);
 
@@ -1064,9 +1070,8 @@ package away3d.core.geom
 
 				if (++k >= len) k = 0;
 				v0 = v1;
-				v1 = v2;
 			}
-
+			
 			return true;
 		}
 
