@@ -192,7 +192,7 @@ package away3dlite.core.base
 		/**
 		 * An optional canvas sprite used to draw into inseatd of the default view.
 		 */
-		public var _canvas:Sprite;
+		protected var _canvas:Sprite;
 		public function set canvas(value:Sprite):void
 		{
 			_canvas = value;
