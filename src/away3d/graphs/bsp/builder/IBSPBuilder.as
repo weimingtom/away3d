@@ -7,7 +7,7 @@ package away3d.graphs.bsp.builder
 
 	public interface IBSPBuilder extends IEventDispatcher
 	{
-		function build(source : Array) : void;
+		function build(source : *) : void;
 		function destroy() : void;
 		function cancel() : void;
 		function get tree() : BSPTree;

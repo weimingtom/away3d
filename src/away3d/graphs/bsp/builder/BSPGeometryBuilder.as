@@ -129,7 +129,7 @@ package away3d.graphs.bsp.builder
 			_canceled = true;
 		}
 
-		public function build(source : Array) : void
+		public function build(source : *) : void
 		{
 			_numNodes = 0;
 			_totalFaces = source.length;
