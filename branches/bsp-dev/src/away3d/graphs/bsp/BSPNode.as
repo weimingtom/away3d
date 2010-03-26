@@ -30,6 +30,8 @@ package away3d.graphs.bsp
 
 		public var name : String;
 
+		public var extra : Object;
+
 		// indicates whether this node is a leaf or not, leaves contain triangles
 		arcane var _isLeaf : Boolean;
 		

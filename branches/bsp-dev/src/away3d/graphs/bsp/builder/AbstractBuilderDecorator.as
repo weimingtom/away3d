@@ -96,7 +96,7 @@ package away3d.graphs.bsp.builder
 			_wrapped.yAxisWeight = value;
 		}
 
-		public function build(source : Array) : void
+		public function build(source : *) : void
 		{
 			_canceled = false;
 			_wrapped.addEventListener(BSPBuildEvent.BUILD_PROGRESS, onBuildProgress);
