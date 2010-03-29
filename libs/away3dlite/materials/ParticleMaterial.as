@@ -15,7 +15,6 @@ package away3dlite.materials
 
 		private var _currentFrame:int;
 		private var _totalFrames:int;
-		private var _point:Point = new Point();
 		
 		public function get width():Number
 		{
