@@ -3,19 +3,21 @@ package away3dlite.materials
 	import flash.display.*;
 	
     /**
-     * Basic bitmap material
+     * Basic bitmapData material
      */
 	public class BitmapMaterial extends Material
 	{
+		public var name:String;
+		
 		/**
 		 * Defines the bitmapData object to be used as the material's texture.
 		 */
-		public function get bitmap():BitmapData
+		public function get bitmapData():BitmapData
 		{
 			return _graphicsBitmapFill.bitmapData;
 		}
 		
-		public function set bitmap(val:BitmapData):void
+		public function set bitmapData(val:BitmapData):void
 		{
 			_graphicsBitmapFill.bitmapData = val;
 			dirty = true;
@@ -50,7 +52,7 @@ package away3dlite.materials
 		}
 		
 		/**
-		 * Returns the width of the material's bitmapdata object.
+		 * Returns the width of the material's bitmapDatadata object.
 		 */
 		public function get width():int
 		{
@@ -58,7 +60,7 @@ package away3dlite.materials
 		}
 		
 		/**
-		 * Returns the height of the material's bitmapdata object.
+		 * Returns the height of the material's bitmapDatadata object.
 		 */
 		public function get height():int
 		{
@@ -68,13 +70,13 @@ package away3dlite.materials
 		/**
 		 * Creates a new <code>BitmapMaterial</code> object.
 		 * 
-		 * @param	bitmap		The bitmapData object to be used as the material's texture.
+		 * @param	bitmapData		The bitmapData object to be used as the material's texture.
 		 */
-		public function BitmapMaterial(bitmap:BitmapData = null)
+		public function BitmapMaterial(bitmapData:BitmapData = null)
 		{
 			super();
 			
-			_graphicsBitmapFill.bitmapData = bitmap || new BitmapData(100, 100, false, 0x000000);
+			_graphicsBitmapFill.bitmapData = bitmapData || new BitmapData(100, 100, false, 0x000000);
 			
 			graphicsData = Vector.<IGraphicsData>([_graphicsStroke, _graphicsBitmapFill, _triangles, _graphicsEndFill]);
 			graphicsData.fixed = true;

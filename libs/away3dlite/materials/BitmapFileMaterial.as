@@ -6,6 +6,7 @@ package away3dlite.materials
 	import flash.display.*;
 	import flash.events.*;
 	import flash.net.*;
+	import flash.utils.ByteArray;
 
 	 /**
 	 * Dispatched when the material completes a file load successfully.
@@ -57,7 +58,7 @@ package away3dlite.materials
 		
 		private function onComplete(e:Event):void
 		{
-			bitmap = Bitmap(_loader.content).bitmapData;
+			bitmapData = Bitmap(_loader.content).bitmapData;
 			
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
@@ -69,13 +70,26 @@ package away3dlite.materials
             dispatchEvent(_materialloadsuccess);
 		}
 		
-    	public function load(url:String):void
+    	public function load(url:String):Loader
     	{
     		_loader = new Loader();
 			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
             _loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 			_loader.load(new URLRequest(url));
+			
+			return _loader;
+    	}
+		
+    	public function loadBytes(byteArray:ByteArray):Loader
+    	{
+			_loader = new Loader();
+			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
+			_loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
+			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
+			_loader.loadBytes(byteArray);
+			
+			return _loader;
     	}
     	
 		/**

@@ -1,9 +1,9 @@
 package away3dlite.animators
 {
+	import away3dlite.animators.frames.Frame;
 	import away3dlite.arcane;
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
-	import away3dlite.animators.frames.Frame;
 	
 	import flash.events.*;
 	import flash.utils.*;
@@ -77,7 +77,7 @@ package away3dlite.animators
 		/**
 		 * Number of animation frames to display per second
 		 */
-		public var fps:int = 24;
+		public var fps:int = 30;
 
 		/**
 		 * The array of frames that make up the animation sequence.
@@ -134,14 +134,30 @@ package away3dlite.animators
 		/**
 		 * Plays a pre-defined labelled sequence of animation frames.
 		 */
-		public function play(label:String = ""):void
+		public function play(label:String = "frame"):void
 		{
 			if (!_labels)
 				return;
 
-			if (_currentLabel != label) {
+			if (_currentLabel != label) 
+			{
 				_currentLabel = label;
-				loop(_labels[label].begin, _labels[label].end);
+			
+				if(_labels[label])
+				{
+					loop(_labels[label].begin, _labels[label].end);
+				}else{
+					var _begin:int = 0;
+					var _end:int = 0;
+					
+					for(var i:Object in _labels)
+					{
+						_begin = (_labels[i].begin < _begin)?_labels[i].begin:_begin;
+						_end = (_labels[i].end > _end)?_labels[i].end:_end;
+						
+						loop(_begin, _end);
+					}
+				}
 			}
 
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -181,6 +197,8 @@ package away3dlite.animators
 				return;
 				
 			_isDestroyed = true;
+			
+			stop();
 			
 			_labels = null;
 			frames = null;

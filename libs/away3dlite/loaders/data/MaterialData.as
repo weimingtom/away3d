@@ -97,7 +97,7 @@ package away3dlite.loaders.data
             _material = val;
             
             if (_material is BitmapMaterial)
-            	textureBitmap = (_material as BitmapMaterial).bitmap;
+            	textureBitmap = (_material as BitmapMaterial).bitmapData;
             
             var mesh:Mesh;
             for each (mesh in meshes)

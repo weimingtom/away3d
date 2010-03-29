@@ -207,6 +207,10 @@
                 mesh.transform.matrix3D.appendTranslation(_moveVector.x, _moveVector.y, _moveVector.z);
 			}
 			
+			// freeze transform for static mesh
+			mesh.transform.matrix3D.transformVectors(mesh._vertices, mesh._vertices);
+			mesh.transform.matrix3D.identity();
+				
 			mesh.type = ".Collada";
 		}
 		
@@ -561,6 +565,8 @@
 				
 				//build animations
 				buildAnimations();
+				
+				Debug.trace(" ! ------------- End Parse Collada -------------");
 				
 	        	notifySuccess();
         	} else {

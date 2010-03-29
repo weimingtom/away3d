@@ -93,7 +93,8 @@ package away3dlite.animators
 		 */ 
 		public function populateVertices():void 
 		{
-		_skinVertices.fixed = false;
+			_skinVertices.fixed = false;
+			
 			for (var obj:Object in _uniqueSkinVertices) 
 				_skinVertices.push(SkinVertex(obj));
 			
