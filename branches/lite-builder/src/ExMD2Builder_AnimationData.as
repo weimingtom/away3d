@@ -13,6 +13,7 @@ package
 	import away3dlite.materials.BitmapMaterial;
 	import away3dlite.templates.BasicTemplate;
 	
+	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
 	import flash.utils.*;
@@ -30,6 +31,8 @@ package
 
 		override protected function onInit():void
 		{
+			title = "Click to save |";
+			
 			// behide the scene
 			Debug.active = true;
 
@@ -86,8 +89,14 @@ package
 			// define material name
 			BitmapMaterial(_md2MovieMesh.material).name = "yellow.jpg";
 
-			// save as file
-			new FileReference().save(_md2Builder.getMD2(), "untitled.md2");
+			// click to save
+			stage.addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		private function onClick(event:MouseEvent):void
+		{
+			// save as md2 file
+			new FileReference().save(_md2Builder.getMD2(), "30_box_smooth_translate.md2");
 		}
 
 		override protected function onPreRender():void

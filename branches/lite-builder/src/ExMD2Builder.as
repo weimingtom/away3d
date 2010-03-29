@@ -9,7 +9,8 @@ package
 	import away3dlite.loaders.Loader3D;
 	import away3dlite.materials.BitmapFileMaterial;
 	import away3dlite.templates.BasicTemplate;
-
+	
+	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
 	import flash.utils.*;
@@ -25,6 +26,8 @@ package
 
 		override protected function onInit():void
 		{
+			title = "Click to save |";
+			
 			// behide the scene
 			Debug.active = true;
 
@@ -57,7 +60,13 @@ package
 			// bring it on
 			scene.addChild(_md2Builder.convert(_model)[0]);
 
-			// save as file
+			// click to save
+			stage.addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		private function onClick(event:MouseEvent):void
+		{
+			// save as md2 file
 			new FileReference().save(_md2Builder.getMD2(), "10_box_still.md2");
 		}
 

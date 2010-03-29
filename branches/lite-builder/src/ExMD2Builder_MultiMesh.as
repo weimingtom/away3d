@@ -13,6 +13,7 @@ package
 	import away3dlite.materials.BitmapMaterial;
 	import away3dlite.templates.BasicTemplate;
 	
+	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
 	import flash.utils.*;
@@ -30,6 +31,8 @@ package
 
 		override protected function onInit():void
 		{
+			title = "Click to save |";
+			
 			// behide the scene
 			Debug.active = true;
 
@@ -73,6 +76,12 @@ package
 			// define material name
 			BitmapMaterial(_meshes[0].material).name = "book_blue.png";
 
+			// click to save
+			stage.addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		private function onClick(event:MouseEvent):void
+		{
 			// save the 1st one as .md2 file
 			new FileReference().save(_md2Builder.getMD2(_meshes[0]), _meshes[0].name + ".md2");
 		}

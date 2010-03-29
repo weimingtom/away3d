@@ -12,6 +12,7 @@ package
 	import away3dlite.materials.BitmapFileMaterial;
 	import away3dlite.templates.BasicTemplate;
 	
+	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
 	import flash.utils.*;
@@ -23,12 +24,14 @@ package
 	 */	
 	public class ExMDZBuilder extends BasicTemplate
 	{
-		private var _skinAnimation:BonesAnimator;
+		private var _bonesAnimator:BonesAnimator;
 		private var _mdzBuilder:MDZBuilder;
 		private var _meshes:Vector.<MovieMesh>;
 
 		override protected function onInit():void
 		{
+			title = "Click to save |";
+			
 			// behide the scene
 			Debug.active = true;
 
@@ -56,7 +59,7 @@ package
 
 			// test animation
 			try{
-				_skinAnimation = _model.animationLibrary.getAnimation("default").animation as BonesAnimator;
+				_bonesAnimator = _model.animationLibrary.getAnimation("default").animation as BonesAnimator;
 			}catch (e:*){}
 
 			// build as MD2
@@ -68,16 +71,22 @@ package
 			// bring it on one by one
 			for each (var _mesh:MovieMesh in _meshes)
 				scene.addChild(_mesh);
-
-			// save the 1st one as .mds file
+			
+			// click to save
+			stage.addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		private function onClick(event:MouseEvent):void
+		{
+			// save all as .mdz file
 			new FileReference().save(_mdzBuilder.getMDZ(_meshes).byteArray, "nemuvine.mdz");
 		}
 
 		override protected function onPreRender():void
 		{
 			// update the collada animation
-			if (_skinAnimation)
-				_skinAnimation.update(getTimer() / 1000);
+			if (_bonesAnimator)
+				_bonesAnimator.update(getTimer() / 1000);
 
 			// play animation
 			if (_meshes)
