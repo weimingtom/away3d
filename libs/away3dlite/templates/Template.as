@@ -11,8 +11,6 @@ package away3dlite.templates
 	import flash.geom.Rectangle;
 	import flash.text.*;
 	
-	import net.hires.debug.Stats;
-
 	use namespace arcane;
 	
 	/**
@@ -55,7 +53,7 @@ package away3dlite.templates
 			addChild(view);
 			
 			//init stats panel
-			stats = new Stats;
+			stats = new AwayStats;
 			
 			//add stats to the displaylist
 			addChild(stats);
@@ -87,7 +85,7 @@ package away3dlite.templates
 			onInit();
 		}
 		
-		protected var stats:*;
+		protected var stats:AwayStats;
 		protected var debugText:TextField;
 		private var _title:String;
 		private var _debug:Boolean;
