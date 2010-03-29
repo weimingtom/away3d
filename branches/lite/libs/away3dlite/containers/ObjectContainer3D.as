@@ -68,7 +68,7 @@ package away3dlite.containers
 		
 		private const _toDegrees:Number = 180/Math.PI;
 		private var _index:int;
-		private var _children:Array = new Array();
+		private var _children:Array = [];
         private var _sprites:Vector.<Sprite3D> = new Vector.<Sprite3D>();
         private var _lights:Vector.<AbstractLight3D> = new Vector.<AbstractLight3D>();
         private var _spriteVertices:Vector.<Number> = new Vector.<Number>();
@@ -401,5 +401,23 @@ package away3dlite.containers
             
             return container;
         }
+		
+		override public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+			
+			_children = null;
+			_sprites = null;
+			_lights = null
+			_spriteVertices = null;
+			_spriteIndices = null;
+			_cameraSceneMatrix3D = null;
+			_cameraInvSceneMatrix3D = null;
+			_orientationMatrix3D = null;
+			_cameraMatrix3D = null;
+			
+			super.destroy();
+		}
 	}
 }
