@@ -10,6 +10,7 @@ package
 	import away3dlite.loaders.Loader3D;
 	import away3dlite.loaders.data.AnimationData;
 	import away3dlite.materials.BitmapFileMaterial;
+	import away3dlite.materials.BitmapMaterial;
 	import away3dlite.templates.BasicTemplate;
 	
 	import flash.geom.Vector3D;
@@ -81,6 +82,9 @@ package
 			// bring it on
 			_md2MovieMesh = _md2Builder.convert(_model, _animationDatas)[0];
 			scene.addChild(_md2MovieMesh);
+			
+			// define material name
+			BitmapMaterial(_md2MovieMesh.material).name = "yellow.jpg";
 
 			// save as file
 			new FileReference().save(_md2Builder.getMD2(), "untitled.md2");

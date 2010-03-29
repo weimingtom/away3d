@@ -10,8 +10,9 @@ package
 	import away3dlite.loaders.Collada;
 	import away3dlite.loaders.Loader3D;
 	import away3dlite.materials.BitmapFileMaterial;
+	import away3dlite.materials.BitmapMaterial;
 	import away3dlite.templates.BasicTemplate;
-
+	
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
 	import flash.utils.*;
@@ -68,6 +69,9 @@ package
 			// bring it on one by one
 			for each (var _mesh:MovieMesh in _meshes)
 				scene.addChild(_mesh);
+				
+			// define material name
+			BitmapMaterial(_meshes[0].material).name = "book_blue.png";
 
 			// save the 1st one as .md2 file
 			new FileReference().save(_md2Builder.getMD2(_meshes[0]), _meshes[0].name + ".md2");
