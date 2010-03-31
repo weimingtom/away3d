@@ -55,7 +55,6 @@ package
 			// build as MD2
 			_md2Builder = new MD2Builder();
 			_md2Builder.scaling = 5;
-			_md2Builder.material = new BitmapFileMaterial("assets/yellow.jpg");
 
 			// bring it on
 			scene.addChild(_md2Builder.convert(_model)[0]);
