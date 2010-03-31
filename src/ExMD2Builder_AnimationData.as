@@ -96,7 +96,7 @@ package
 		private function onClick(event:MouseEvent):void
 		{
 			// save as md2 file
-			new FileReference().save(_md2Builder.getMD2(), "30_box_smooth_translate.md2");
+			new FileReference().save(_md2Builder.getCurrentMD2(), "30_box_smooth_translate.md2");
 		}
 
 		override protected function onPreRender():void

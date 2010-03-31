@@ -20,7 +20,7 @@ package
 	 * Example : MD2 Builder for stay still model no animation.
 	 * @author katopz
 	 */	
-	public class ExMD2toMD2 extends BasicTemplate
+	public class ExMD2Builder_MD2 extends BasicTemplate
 	{
 		private var _md2Builder:MD2Builder;
 
@@ -37,11 +37,11 @@ package
 
 			// some collada with animation
 			var _md2:MD2 = new MD2();
-			_md2.scaling = 5;
+			_md2.scaling = 2;
 
 			// load target model
 			var _loader3D:Loader3D = new Loader3D();
-			_loader3D.loadGeometry("assets/plane.md2", _md2);
+			_loader3D.loadGeometry("assets/10_box_still.md2", _md2);
 			_loader3D.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
 		}
 
@@ -60,7 +60,7 @@ package
 
 			// build as MD2
 			_md2Builder = new MD2Builder();
-			_md2Builder.scaling = 5;
+			_md2Builder.scaling = 2;
 
 			// bring it on
 			scene.addChild(_md2Builder.convert(_model)[0]);
@@ -72,7 +72,7 @@ package
 		private function onClick(event:MouseEvent):void
 		{
 			// save as md2 file
-			new FileReference().save(_md2Builder.getMD2(), "untitled.md2");
+			new FileReference().save(_md2Builder.getCurrentMD2(), "untitled.md2");
 		}
 
 		override protected function onPreRender():void
