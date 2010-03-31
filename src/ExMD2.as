@@ -25,12 +25,12 @@ package
 			camera.lookAt(new Vector3D());
 			
 			var _md2:MD2 = new MD2();
-			_md2.scaling = 10;
+			_md2.scaling = 5;
 			_md2.material = new BitmapFileMaterial("assets/yellow.jpg");
 			
 			var _loader3D:Loader3D = new Loader3D();
 			_loader3D.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
-			_loader3D.loadGeometry("assets/plane.md2", _md2);
+			_loader3D.loadGeometry("assets/10_box_still.md2", _md2);
 			
 			scene.addChild(_loader3D);
 		}
