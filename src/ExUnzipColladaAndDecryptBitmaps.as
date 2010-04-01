@@ -23,7 +23,7 @@
 	import nochump.util.zip.ZipEntry;
 	import nochump.util.zip.ZipFile;
 	
-	[SWF(backgroundColor="#804000", frameRate="30", quality="MEDIUM", width="800", height="360")]
+	[SWF(backgroundColor="#804000", frameRate="30", width="800", height="360")]
 
 	/**
 	 * Unzip & Load Collada example with texture bitmaps being preloaded as ByteArray (for example: for being able to decrypt them).

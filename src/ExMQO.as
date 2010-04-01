@@ -8,7 +8,7 @@ package
 	import flash.display.*;
 	import flash.geom.Vector3D;
 
-	[SWF(backgroundColor="#000000", frameRate="60", quality="MEDIUM", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="60", width="800", height="600")]
 
 	/**
 	 * Metasequoia example.

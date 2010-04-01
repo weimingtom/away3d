@@ -23,7 +23,7 @@ package
 	import nochump.util.zip.ZipEntry;
 	import nochump.util.zip.ZipFile;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="360")]
+	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="360")]
 
 	/**
 	 * Unzip & Load Collada example.

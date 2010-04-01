@@ -17,7 +17,7 @@ package
 	import flash.geom.Vector3D;
 	import flash.utils.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="360")]
+	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="360")]
 
 	/**
 	 * Z-Number sorting example.
