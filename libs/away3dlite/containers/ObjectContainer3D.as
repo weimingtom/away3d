@@ -187,6 +187,9 @@ package away3dlite.containers
 	    				_vertices[int(index + i + 2)] = _spriteVertices[int(i + 2)] + sprite.z;
 	    			}
 	    		}
+				
+				if(_scene)
+					_scene.transfromDirty = true;
         	}
     		
 			return _vertices;
