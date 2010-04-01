@@ -13,7 +13,7 @@ package
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 
-	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
 	 * Particles Example
 	 * @author katopz
@@ -34,8 +34,6 @@ package
 
 		override protected function onInit():void
 		{
-			scrollRect = new Rectangle(0, 0, _customWidth, _customHeight);
-			
 			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode (sprite/bitmap)";
 
 			// speed up
@@ -108,8 +106,8 @@ package
 			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
 			debugRect.graphics.endFill();
 			
-			debugRect.x = _customWidth/2;
-			debugRect.y = _customHeight/2;
+			debugRect.x = _screenRect.width/2;
+			debugRect.y = _screenRect.height/2;
 			addChild(debugRect);
 		}
 

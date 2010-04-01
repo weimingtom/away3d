@@ -9,7 +9,7 @@ package
 	import flash.filters.*;
 	import flash.geom.Vector3D;
 
-	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
 	 * Example : LineSegment
 	 * @author katopz

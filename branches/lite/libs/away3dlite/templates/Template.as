@@ -10,54 +10,53 @@ package away3dlite.templates
 	import flash.filters.*;
 	import flash.geom.Rectangle;
 	import flash.text.*;
-	
+
 	use namespace arcane;
-	
+
 	/**
 	 * Base template class.
 	 */
 	public class Template extends Sprite
 	{
-		protected var _stageWidth:Number = stage?stage.stageWidth:NaN;
-		protected var _stageHeight:Number = stage?stage.stageHeight:NaN;
-		
-		protected var _customWidth:Number;
-		protected var _customHeight:Number;
-		
+		protected var _stageWidth:Number = stage ? stage.stageWidth : NaN;
+		protected var _stageHeight:Number = stage ? stage.stageHeight : NaN;
+
+		protected var _screenRect:Rectangle;
+
 		/** @private */
 		arcane function init():void
 		{
 			//init scene
 			scene = new Scene3D();
-			
+
 			//init camera
 			camera = new Camera3D();
 			camera.z = -1000;
-			
+
 			//init view
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
-			
-			if(_customWidth && _customHeight)
+
+			if (_screenRect.width && _screenRect.height)
 			{
 				//init size
-				view.setSize(_customWidth, _customHeight);
-				
+				view.setSize(_screenRect.width, _screenRect.height);
+
 				//center view to stage
-				view.x = _customWidth/2;
-				view.y = _customHeight/2;
+				view.x = _screenRect.width / 2;
+				view.y = _screenRect.height / 2;
 			}
-			
+
 			//add view to the displaylist
 			addChild(view);
-			
+
 			//init stats panel
 			stats = new AwayStats;
-			
+
 			//add stats to the displaylist
 			addChild(stats);
-			
+
 			//init debug textfield
 			debugText = new TextField();
 			debugText.selectable = false;
@@ -68,74 +67,75 @@ package away3dlite.templates
 			debugText.x = 140;
 			debugText.textColor = 0xFFFFFF;
 			debugText.filters = [new GlowFilter(0x000000, 1, 4, 4, 2, 1)];
-			
+
 			//add debug textfield to the displaylist
 			addChild(debugText);
-			
+
 			//set default debug
 			debug = true;
-			
+
 			//set default title
 			title = "Away3DLite";
-			
+
 			//add enterframe listener
 			start();
-			
+
 			//trigger onInit method
 			onInit();
 		}
-		
+
 		protected var stats:AwayStats;
 		protected var debugText:TextField;
 		private var _title:String;
 		private var _debug:Boolean;
-		
+
 		protected function onAddedToStage(event:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			
+
 			// setup stage
 			setupStage();
-			
+
 			// init 3D
 			init();
 		}
-		
+
 		protected function setupStage():void
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.quality = StageQuality.MEDIUM;
-			
-			_stageWidth = _stageWidth?_stageWidth:stage.stageWidth;
-			_stageHeight = _stageHeight?_stageHeight:stage.stageHeight;
-			
-			_customWidth = _customWidth?_customWidth:_stageWidth;
-			_customHeight = _customHeight?_customHeight:_stageHeight;
-			
-			scrollRect = new Rectangle(0, 0, _customWidth, _customHeight);
-			
+
+			if(!_screenRect)
+				_screenRect = new Rectangle();
+				
+			_screenRect.width = _screenRect.width ? _screenRect.width : _stageWidth;
+			_screenRect.height = _screenRect.height ? _screenRect.height : _stageHeight;
+
+			scrollRect = _screenRect;
+
 			onStage();
 		}
-		
+
 		protected function onStage():void
 		{
 			// override me
 		}
-		
+
 		private function onEnterFrame(event:Event):void
 		{
 			onPreRender();
-			
+
 			view.render();
-			
-			if (_debug) {
+
+			if (_debug)
+			{
 				debugText.text = _title + " Object3D(s) : " + view.totalObjects + ", Face(s) : " + view.totalFaces;
 				onDebug();
 			}
-			
+
 			onPostRender();
 		}
-		
+
 		/**
 		 * Fired on instantiation of the template.
 		 */
@@ -143,7 +143,7 @@ package away3dlite.templates
 		{
 			// override me
 		}
-		
+
 		/**
 		 * Fired at the beginning of a render loop.
 		 */
@@ -151,17 +151,17 @@ package away3dlite.templates
 		{
 			// override me
 		}
-		
+
 		/**
 		 * Fired if debug is set to true.
-		 * 
+		 *
 		 * @see #debug
 		 */
 		protected function onDebug():void
 		{
 			// override me
 		}
-		
+
 		/**
 		 * Fired at the end of a render loop.
 		 */
@@ -169,7 +169,7 @@ package away3dlite.templates
 		{
 			// override me
 		}
-		
+
 		/**
 		 * Defines the text appearing in the template title.
 		 */
@@ -177,17 +177,17 @@ package away3dlite.templates
 		{
 			return _title;
 		}
-		
+
 		public function set title(val:String):void
 		{
 			if (_title == val)
 				return;
-			
+
 			_title = val;
-			
+
 			debugText.text = _title + ", Object3D(s) : " + view.totalObjects + ", Face(s) : " + view.totalFaces;
 		}
-		
+
 		/**
 		 * Defines if the template is run in debug mode.
 		 */
@@ -195,33 +195,33 @@ package away3dlite.templates
 		{
 			return _debug;
 		}
-		
+
 		public function set debug(val:Boolean):void
 		{
 			if (_debug == val)
 				return;
-			
+
 			_debug = val;
-			
+
 			debugText.visible = _debug;
 			stats.visible = _debug;
 		}
-		
+
 		/**
 		 * The scene object used in the template.
 		 */
 		public var scene:Scene3D;
-		
+
 		/**
 		 * The camera object used in the template.
 		 */
 		public var camera:Camera3D;
-		
+
 		/**
 		 * The view object used in the template.
 		 */
 		public var view:View3D;
-        
+
 		/**
 		 * Creates a new <code>Template</code> object.
 		 */
@@ -229,7 +229,7 @@ package away3dlite.templates
 		{
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		}
-		
+
 		/**
 		 * Starts the view rendering.
 		 */
@@ -237,7 +237,7 @@ package away3dlite.templates
 		{
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
-		
+
 		/**
 		 * Stops the view rendering.
 		 */

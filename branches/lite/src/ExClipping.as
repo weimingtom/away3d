@@ -11,7 +11,7 @@ package
 	import flash.display.*;
 	import flash.events.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	public class ExClipping extends BasicTemplate
 	{
 		//material objects
@@ -30,10 +30,6 @@ package
 		override protected function setupStage():void
 		{
 			super.setupStage();
-			
-			// fixed size to 800x600
-			_customWidth = 800;
-			_customHeight = 600;
 		}
 		
 		override protected function onInit():void
@@ -72,8 +68,8 @@ package
 			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
 			debugRect.graphics.endFill();
 			
-			debugRect.x = _customWidth/2;
-			debugRect.y = _customHeight/2;
+			debugRect.x = _screenRect.width/2;
+			debugRect.y = _screenRect.height/2;
 			addChild(debugRect);
 		}
 		
