@@ -12,9 +12,6 @@ package
 	import away3dlite.primitives.*;
 	import away3dlite.templates.BasicTemplate;
 	
-	import deng.fzip.FZip;
-	import deng.fzip.FZipFile;
-	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.Vector3D;
@@ -22,6 +19,9 @@ package
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.utils.*;
+	
+	import nochump.util.zip.ZipEntry;
+	import nochump.util.zip.ZipFile;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="MEDIUM", width="800", height="360")]
 
@@ -160,7 +160,7 @@ package
 			collada.scaling = 1.5;
 
 			loader = new Loader3D();
-			loader.loadXML(Cast.xml(colladaData), collada, filepath);
+			loader.parseXML(Cast.xml(colladaData), collada, filepath);
 			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
 			scene.addChild(loader);
 		}
@@ -177,32 +177,16 @@ package
 			//scene.rotationY++;
 		}
 		
-		private var zip:FZip;
-
 		private function UnZipData(data:ByteArray):ByteArray
 		{
 			if (data == null)
 				return null;
-				
-			// load zip
-			zip = new FZip();
-			zip.loadBytes(data);
-
-			var nb:int = zip.getFileCount();
-			for (var index:int = 0 ; index < nb ; index++)
-			{
-				// yeah, get it
-				var file:FZipFile = zip.getFileAt(index);
-				
-				// is this the file we want?
-				if(file.filename == (fileBaseName + "." + fileExtName))
-				{
-					zip = null;
-					return (file.content);
-				}
-			}
 			
-			zip = null;
+			var _zipFile:ZipFile = new ZipFile(data);
+			
+			for each(var _entry:ZipEntry in _zipFile.entries)
+				if(_entry.name == (fileBaseName + "." + fileExtName))
+					return _zipFile.getInput(_entry);
 			
 			return null;
 		}
