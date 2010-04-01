@@ -74,6 +74,8 @@ package away3dlite.animators
 				}
 			}
 			_otime = _ctime;
+			
+			transfromDirty = true;
 		}
 
 		/**
