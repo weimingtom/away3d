@@ -82,7 +82,7 @@ package away3dlite.materials
 			graphicsData.fixed = true;
 			
 			trianglesIndex = 2;
-			smooth = true;
+			_graphicsBitmapFill.smooth = true;
 		}
 	}
 }
