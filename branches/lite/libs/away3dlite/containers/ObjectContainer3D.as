@@ -3,6 +3,7 @@ package away3dlite.containers
 	import away3dlite.animators.bones.*;
 	import away3dlite.arcane;
 	import away3dlite.cameras.*;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.core.base.*;
 	import away3dlite.lights.*;
 	import away3dlite.sprites.*;
@@ -406,6 +407,12 @@ package away3dlite.containers
 		{
 			if(_isDestroyed)
 				return;
+			
+			for each(var object3D:IDestroyable in children)
+			{
+				object3D.destroy();
+				object3D = null;
+			}
 			
 			_children = null;
 			_sprites = null;

@@ -2,12 +2,13 @@ package away3dlite.containers
 {
 	import away3dlite.arcane;
 	import away3dlite.cameras.*;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.core.base.*;
 	import away3dlite.core.clip.*;
 	import away3dlite.core.render.*;
 	import away3dlite.events.*;
 	import away3dlite.materials.*;
-
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
@@ -19,8 +20,10 @@ package away3dlite.containers
 	/**
 	 * Sprite container used for storing camera, scene, renderer and clipping references, and resolving mouse events
 	 */
-	public class View3D extends Sprite
+	public class View3D extends Sprite implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
 		/** @private */
 		arcane var _totalFaces:int;
 		/** @private */
@@ -615,6 +618,60 @@ package away3dlite.containers
 
 			if (mouseEnabled3D)
 				fireMouseMoveEvent();
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			if(_isDestroyed)
+				return;
+			
+			if(stage)
+				stage.removeEventListener(Event.RESIZE, onStageResized);
+			
+			if(_clipping)
+			{
+				_clipping.removeEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated);
+				_clipping.removeEventListener(ClippingEvent.SCREEN_UPDATED, onScreenUpdated);
+				
+				// TODO: destroy clipping
+				_clipping = null;
+			}
+			
+			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			removeEventListener(MouseEvent.ROLL_OUT, onRollOut);
+			removeEventListener(MouseEvent.ROLL_OVER, onRollOver);
+			
+			_customContextMenu = null;
+			if(_menu0)
+				_menu0.removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onViewSource);
+			
+			if(_menu1)
+				_menu1.removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onVisitWebsite);
+			
+			_menu0 = null;
+			_menu1 = null;
+			
+			if(_camera)
+				_camera.destroy();
+			
+			// TODO: destroy all child in scene
+			if(_scene)
+				_scene.destroy();
+			
+			_camera = null;
+			_scene = null;
+			_object = null;
+			_mouseObject = null;
+			
+			if (parent)
+				parent.removeChild(this);
 		}
 	}
 }
