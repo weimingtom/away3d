@@ -4,7 +4,7 @@ package away3dlite.templates
 	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
 	import away3dlite.debug.*;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
@@ -38,7 +38,7 @@ package away3dlite.templates
 			view.scene = scene;
 			view.camera = camera;
 
-			if (_screenRect.width && _screenRect.height)
+			if (_screenRect && _screenRect.width && _screenRect.height)
 			{
 				//init size
 				view.setSize(_screenRect.width, _screenRect.height);
@@ -107,9 +107,9 @@ package away3dlite.templates
 
 			if(!_screenRect)
 			{
-				_screenRect = new Rectangle();
-				_screenRect.width = _stageWidth ? _stageWidth : stage.stageWidth;
-				_screenRect.height = _stageHeight ? _stageHeight : stage.stageHeight;
+				_screenRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
+				_screenRect.width = _stageWidth ? _stageWidth : _screenRect.width;
+				_screenRect.height = _stageHeight ? _stageHeight : _screenRect.height;
 			}
 
 			scrollRect = _screenRect;

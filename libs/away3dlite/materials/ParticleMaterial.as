@@ -15,7 +15,7 @@ package away3dlite.materials
 
 		private var _currentFrame:int;
 		private var _totalFrames:int;
-		
+
 		public function get width():Number
 		{
 			return rect.width;
@@ -42,7 +42,7 @@ package away3dlite.materials
 		public function nextFrame():void
 		{
 			_currentFrame++;
-			
+
 			if (_currentFrame >= _totalFrames)
 				_currentFrame = 0;
 
@@ -67,7 +67,7 @@ package away3dlite.materials
 		{
 			rect.x = _currentFrame * rect.width;
 		}
-			
+
 		public function clone():ParticleMaterial
 		{
 			return new ParticleMaterial(bitmapData, width, height, _totalFrames);

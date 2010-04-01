@@ -3,7 +3,7 @@ package away3dlite.loaders.utils
 	import flash.display.Loader;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
-	
+
 	/**
 	 * Used to store the name and loader reference of an external texture image.
 	 */
@@ -13,20 +13,20 @@ package away3dlite.loaders.utils
 		{
 			super();
 		}
-		
+
 		private var _filename:String;
-		
+
 		public function get filename():String
 		{
 			return _filename;
 		}
-		
+
 		public function set filename(filename:String):void
 		{
 			_filename = filename;
 		}
-		
-		override public function load(request:URLRequest, context:LoaderContext=null):void
+
+		override public function load(request:URLRequest, context:LoaderContext = null):void
 		{
 			_filename = request.url;
 			super.load(request, context);

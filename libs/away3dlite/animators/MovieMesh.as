@@ -4,12 +4,12 @@ package away3dlite.animators
 	import away3dlite.arcane;
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
-	
+
 	import flash.events.*;
 	import flash.utils.*;
-	
+
 	use namespace arcane;
-	
+
 	/**
 	 * Animates a series of <code>Frame</code> objects in sequence in a mesh.
 	 */
@@ -25,7 +25,7 @@ package away3dlite.animators
 		public static const ANIM_LOOP:int = 2;
 		public static const ANIM_STOP:int = 4;
 		private var framesLength:int = 0;
-		
+
 		//Keep track of the current frame number and animation
 		private var _currentFrame:int = 0;
 		private var _addFrame:int;
@@ -38,7 +38,7 @@ package away3dlite.animators
 
 		private var _labels:Dictionary = new Dictionary(true);
 		private var _currentLabel:String;
-		
+
 		private function onEnterFrame(event:Event = null):void
 		{
 			_ctime = getTimer();
@@ -46,34 +46,36 @@ package away3dlite.animators
 			var cframe:Frame;
 			var nframe:Frame;
 			var i:int = _vertices.length;
-			
+
 			cframe = frames[_currentFrame];
 			nframe = frames[(_currentFrame + 1) % framesLength];
 
 			// TODO : optimize
 			var _cframe_vertices:Vector.<Number> = cframe.vertices;
 			var _nframe_vertices:Vector.<Number> = nframe.vertices;
-			
+
 			while (i--)
-				_vertices[i] = _cframe_vertices[i] + _interp*(_nframe_vertices[i] - _cframe_vertices[i]);
-			
-			if (_type != ANIM_STOP) {
+				_vertices[i] = _cframe_vertices[i] + _interp * (_nframe_vertices[i] - _cframe_vertices[i]);
+
+			if (_type != ANIM_STOP)
+			{
 				_interp += fps * (_ctime - _otime) / 1000;
-				
-				if (_interp > 1) {
+
+				if (_interp > 1)
+				{
 					_addFrame = int(_interp);
-					
+
 					if (_type == ANIM_LOOP && _currentFrame + _addFrame >= _end)
 						keyframe = _begin + _currentFrame + _addFrame - _end;
 					else
 						keyframe += _addFrame;
-					
+
 					_interp -= _addFrame;
 				}
 			}
 			_otime = _ctime;
 		}
-		
+
 		/**
 		 * Number of animation frames to display per second
 		 */
@@ -83,7 +85,7 @@ package away3dlite.animators
 		 * The array of frames that make up the animation sequence.
 		 */
 		public var frames:Vector.<Frame> = new Vector.<Frame>();
-		
+
 		/**
 		 * Creates a new <code>MovieMesh</code> object that provides a "keyframe animation"/"vertex animation"/"mesh deformation" framework for subclass loaders.
 		 */
@@ -91,46 +93,49 @@ package away3dlite.animators
 		{
 			super();
 		}
-		
+
 		/**
 		 * Adds a new frame to the animation timeline.
 		 */
 		public function addFrame(frame:Frame):void
 		{
 			var _name:String = frame.name.slice(0, frame.name.length - 3);
-			
+
 			if (!_labels[_name])
-				_labels[_name] = {begin:framesLength, end:framesLength};
+				_labels[_name] = {begin: framesLength, end: framesLength};
 			else
 				++_labels[_name].end;
 
 			frames.push(frame);
-			
+
 			framesLength++;
 		}
-		
+
 		/**
 		 * Begins a looping sequence in the animation.
-		 * 
+		 *
 		 * @param begin		The starting frame position.
 		 * @param end		The ending frame position.
 		 */
 		public function loop(begin:int, end:int):void
 		{
-			if (framesLength > 0) {
+			if (framesLength > 0)
+			{
 				_begin = (begin % framesLength);
 				_end = (end % framesLength);
-			} else {
+			}
+			else
+			{
 				_begin = begin;
 				_end = end;
 			}
 
 			keyframe = begin;
 			_type = ANIM_LOOP;
-			
+
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
-		
+
 		/**
 		 * Plays a pre-defined labelled sequence of animation frames.
 		 */
@@ -139,22 +144,24 @@ package away3dlite.animators
 			if (!_labels)
 				return;
 
-			if (_currentLabel != label) 
+			if (_currentLabel != label)
 			{
 				_currentLabel = label;
-			
-				if(_labels[label])
+
+				if (_labels[label])
 				{
 					loop(_labels[label].begin, _labels[label].end);
-				}else{
+				}
+				else
+				{
 					var _begin:int = 0;
 					var _end:int = 0;
-					
-					for(var i:Object in _labels)
+
+					for (var i:Object in _labels)
 					{
-						_begin = (_labels[i].begin < _begin)?_labels[i].begin:_begin;
-						_end = (_labels[i].end > _end)?_labels[i].end:_end;
-						
+						_begin = (_labels[i].begin < _begin) ? _labels[i].begin : _begin;
+						_end = (_labels[i].end > _end) ? _labels[i].end : _end;
+
 						loop(_begin, _end);
 					}
 				}
@@ -162,17 +169,17 @@ package away3dlite.animators
 
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
-		
+
 		/**
 		 * Stops the animation.
 		 */
 		public function stop():void
 		{
 			_type = ANIM_STOP;
-			
+
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
-		
+
 		/**
 		 * Defines the current keyframe.
 		 */
@@ -185,21 +192,21 @@ package away3dlite.animators
 		{
 			_currentFrame = i % framesLength;
 		}
-		
-        override public function get destroyed():Boolean
+
+		override public function get destroyed():Boolean
 		{
 			return _isDestroyed;
 		}
 
 		override public function destroy():void
 		{
-			if(_isDestroyed)
+			if (_isDestroyed)
 				return;
-				
+
 			_isDestroyed = true;
-			
+
 			stop();
-			
+
 			_labels = null;
 			frames = null;
 		}

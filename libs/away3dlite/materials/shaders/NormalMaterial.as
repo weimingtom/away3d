@@ -1,7 +1,7 @@
 package away3dlite.materials.shaders
 {
 	import away3dlite.lights.Light;
-	
+
 	import flash.display.BitmapData;
 	import flash.display.BitmapDataChannel;
 	import flash.display.GradientType;

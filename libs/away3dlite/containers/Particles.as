@@ -4,7 +4,7 @@ package away3dlite.containers
 	import away3dlite.cameras.Camera3D;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
-	
+
 	import flash.display.Sprite;
 	import flash.geom.Matrix3D;
 	import flash.geom.Utils3D;
@@ -24,13 +24,13 @@ package away3dlite.containers
 		// linklist
 		private var _firstParticle:Particle;
 		private var _lastParticle:Particle;
-		
+
 		// interactive
 		public var hitParticle:Particle;
 
 		// still need array for sortOn
 		public var lists:Array;
-		
+
 		public function Particles()
 		{
 
@@ -40,17 +40,17 @@ package away3dlite.containers
 		{
 			super.layer = value;
 
-			if(!_firstParticle)
+			if (!_firstParticle)
 				return;
 
 			var particle:Particle = _firstParticle;
-			if(particle)
+			if (particle)
 				do
 				{
 					// layer dirty
-					if(particle.layer != value)
+					if (particle.layer != value)
 						particle.layer = value;
-				} while(particle = particle.next);
+				} while (particle = particle.next);
 		}
 
 		arcane override function updateScene(val:Scene3D):void
@@ -63,7 +63,7 @@ package away3dlite.containers
 		{
 			super.project(camera, parentSceneMatrix3D);
 
-			if(_scene.bitmap)
+			if (_scene.bitmap)
 				_scene.bitmap.bitmapData.fillRect(_scene.bitmap.bitmapData.rect, 0x00000000);
 
 			// by pass
@@ -72,45 +72,45 @@ package away3dlite.containers
 			var _position:Vector3D;
 			var particle:Particle = _firstParticle;
 			hitParticle = null;
-			if(particle)
+			if (particle)
 				do
 				{
 					_position = Utils3D_projectVector(_transform_matrix3D, particle);
 					particle.position = Utils3D_projectVector(_viewMatrix3D, _position);
 
 					// animate?
-					if(particle.animate)
+					if (particle.animate)
 						particle.material.nextFrame();
-						
-					if(_interactive && particle.visible && particle.isHit)
-						hitParticle = particle;
-				} while(particle = particle.next);
 
-			if(_animate)
+					if (_interactive && particle.visible && particle.isHit)
+						hitParticle = particle;
+				} while (particle = particle.next);
+
+			if (_animate)
 			{
 				transfromDirty = true;
-				if(_scene)
+				if (_scene)
 					_scene.transfromDirty = true;
 			}
 		}
-		
+
 		public function addParticle(particle:Particle):Particle
 		{
 			// add to lists
-			if(!lists)
+			if (!lists)
 				lists = [];
 
 			lists.push(particle);
 
 			//link list
-			if(!_firstParticle)
+			if (!_firstParticle)
 				_firstParticle = particle;
 
-			if(_lastParticle)
+			if (_lastParticle)
 				_lastParticle.next = particle;
 
 			particle.prev = _lastParticle;
-			
+
 			_lastParticle = particle;
 
 			particle.animate = _animate;
@@ -124,12 +124,12 @@ package away3dlite.containers
 
 		public function removeParticle(particle:Particle):Particle
 		{
-			if(!lists)
+			if (!lists)
 				return null;
 
 			lists.splice(lists.indexOf(particle), 1);
 			particle.parent = null;
-			
+
 			// prev, particle, next // prev -> next
 			particle.prev = particle.next;
 
@@ -140,22 +140,22 @@ package away3dlite.containers
 		{
 			_animate = value;
 			var particle:Particle = _firstParticle;
-			if(particle)
+			if (particle)
 				do
 				{
 					particle.animate = _animate;
-				} while(particle = particle.next);
+				} while (particle = particle.next);
 		}
 
 		public function set interactive(value:Boolean):void
 		{
 			_interactive = value;
 			var particle:Particle = _firstParticle;
-			if(particle)
+			if (particle)
 				do
 				{
 					particle.interactive = _interactive;
-				} while(particle = particle.next);
+				} while (particle = particle.next);
 		}
 	}
 }
