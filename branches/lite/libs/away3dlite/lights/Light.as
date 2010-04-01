@@ -2,7 +2,7 @@ package away3dlite.lights
 {
 	import away3dlite.materials.ColorMaterial;
 	import away3dlite.primitives.Sphere;
-	
+
 	import flash.geom.Vector3D;
 
 	/**
@@ -16,7 +16,7 @@ package away3dlite.lights
 		public function Light()
 		{
 			updatePosition();
-			
+
 			radius = 10;
 			segmentsW = 5;
 			segmentsH = 5;

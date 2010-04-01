@@ -1,4 +1,4 @@
 package away3dlite
 {
-    public namespace arcane;
+	public namespace arcane;
 }

@@ -18,10 +18,10 @@ package away3dlite.materials.shaders
 	public class PBBitmapShader extends BitmapMaterial implements IShader
 	{
 
-		[Embed("../../pbks/LocalGlobalNormalBlend.pbj", mimeType = "application/octet-stream")]
+		[Embed("../../pbks/LocalGlobalNormalBlend.pbj", mimeType="application/octet-stream")]
 		private var BlendShader:Class;
 
-		[Embed("../../pbks/NormalMapAbstractShader.pbj", mimeType = "application/octet-stream")]
+		[Embed("../../pbks/NormalMapAbstractShader.pbj", mimeType="application/octet-stream")]
 		private var NormalShader:Class;
 		protected var _uvtData:Vector.<Number>;
 		protected var _difuseBitmapData:BitmapData;

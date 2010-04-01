@@ -1,14 +1,14 @@
 package away3dlite.core.culler
 {
 	import away3dlite.arcane;
-	
+
 	import away3dlite.cameras.Camera3D;
 	import away3dlite.core.base.Mesh;
 	import away3dlite.core.base.Object3D;
-	
+
 	import flash.display.*;
 	import flash.geom.Vector3D;
-	
+
 	use namespace arcane;
 
 	/**
@@ -52,7 +52,7 @@ package away3dlite.core.culler
 
 		public function cull(object3D:Object3D):void
 		{
-			if(object3D is Mesh && Mesh(object3D).vertices)
+			if (object3D is Mesh && Mesh(object3D).vertices)
 				object3D._frustumCulling = (sphereInFrustum(object3D.projectedPosition, object3D.maxRadius) == 0);
 		}
 

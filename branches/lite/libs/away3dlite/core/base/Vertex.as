@@ -12,6 +12,7 @@ package away3dlite.core.base
 		private var faceNormals:Vector.<Vector3D> = new Vector.<Vector3D>();
 		public var normal:Vector3D = new Vector3D();
 		public var projnormal:Vector3D = new Vector3D();
+
 		public function Vertex(x:Number = 0, y:Number = 0, z:Number = 0)
 		{
 			super(x, y, z);
@@ -40,12 +41,13 @@ package away3dlite.core.base
 
 			return normal;
 		}
+
 		public function getProjectedNormal(matrix3D:Matrix3D):Vector3D
-		{ 
-			
-			projnormal =matrix3D.transformVector(normal);
+		{
+
+			projnormal = matrix3D.transformVector(normal);
 			projnormal.normalize()
-		  	return projnormal;
+			return projnormal;
 		}
 	}
 }

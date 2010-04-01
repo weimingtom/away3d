@@ -5,7 +5,7 @@ package away3dlite.templates
 	import away3dlite.core.render.*;
 
 	use namespace arcane;
-	
+
 	/**
 	 * Template setup designed for speed.
 	 */
@@ -15,17 +15,17 @@ package away3dlite.templates
 		arcane override function init():void
 		{
 			super.init();
-			
+
 			view.renderer = renderer;
 			view.clipping = clipping || new Clipping();
 			view.mouseEnabled3D = false;
 		}
-		
+
 		/**
 		 * The renderer object used in the template.
 		 */
 		public var renderer:FastRenderer = new FastRenderer();
-		
+
 		/**
 		 * The clipping object used in the template.
 		 */

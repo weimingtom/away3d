@@ -1,8 +1,9 @@
 package away3dlite.animators.frames
 {
+
 	/**
 	 * Stores a set of vertices representing the position of a mesh for a sigle frame of an animation.
-	 * 
+	 *
 	 * @see away3dlite.animators.MovieMesh
 	 */
 	public class Frame
@@ -11,7 +12,7 @@ package away3dlite.animators.frames
 		 * The name of the frame.
 		 */
 		public var name:String;
-		
+
 		/**
 		 * The array of vertices contained inside the frame
 		 */
@@ -28,7 +29,7 @@ package away3dlite.animators.frames
 			this.name = name;
 			this.vertices = vertices;
 		}
-		
+
 		/**
 		 * Returns a string representation of the <code>Frame</code> object
 		 */

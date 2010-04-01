@@ -1,7 +1,7 @@
 package away3dlite.loaders.data
 {
 	import flash.geom.*;
-	
+
 	/**
 	 * Data class for a bone used in SkinAnimation.
 	 */

@@ -5,7 +5,7 @@ package away3dlite.templates
 	import away3dlite.core.render.*;
 
 	use namespace arcane;
-	
+
 	/**
 	 * Template setup designed for general use.
 	 */
@@ -15,16 +15,16 @@ package away3dlite.templates
 		arcane override function init():void
 		{
 			super.init();
-			
+
 			view.renderer = renderer;
 			view.clipping = clipping || new RectangleClipping();
 		}
-		
+
 		/**
 		 * The renderer object used in the template.
 		 */
 		public var renderer:BasicRenderer = new BasicRenderer();
-		
+
 		/**
 		 * The clipping object used in the template.
 		 */

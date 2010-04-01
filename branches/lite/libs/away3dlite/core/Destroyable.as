@@ -8,7 +8,7 @@ package away3dlite.core
 
 		public function Destroyable()
 		{
-			
+
 		}
 
 		public function get destroyed():Boolean

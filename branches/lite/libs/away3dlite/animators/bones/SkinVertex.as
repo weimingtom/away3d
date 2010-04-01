@@ -1,7 +1,7 @@
 ﻿package away3dlite.animators.bones
 {
 	import away3dlite.core.base.Mesh;
-	
+
 	import flash.geom.*;
 
 	public class SkinVertex
@@ -51,11 +51,11 @@
 				}
 				_mesh = mesh;
 			}
-			
+
 			_startIndices.push(startIndex);
 			_vertices = vertices;
 			_instances.push(this);
-			
+
 			return true;
 		}
 
