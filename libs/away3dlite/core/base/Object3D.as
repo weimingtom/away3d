@@ -367,15 +367,18 @@ package away3dlite.core.base
 		{
 			_isDestroyed = true;
 
-			materialLibrary.destroy();
-			geometryLibrary.destroy();
-			animationLibrary.destroy();
+			if(materialLibrary)
+				materialLibrary.destroy();
+			if(geometryLibrary)
+				geometryLibrary.destroy();
+			if(animationLibrary)
+				animationLibrary.destroy();
 
 			materialLibrary = null;
 			geometryLibrary = null;
 			animationLibrary = null;
 
-			if (parent != null)
+			if (parent)
 				parent.removeChild(this);
 		}
 	}

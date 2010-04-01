@@ -211,7 +211,7 @@ package away3dlite.core.base
 		{
 			_materialsDirty = false;
 
-			if (_scene)
+			if (_scene && _faceMaterials!=null)
 			{
 				var oldMaterial:Material;
 				var newMaterial:Material;
@@ -252,7 +252,8 @@ package away3dlite.core.base
 				}
 			}
 
-			_faceMaterials.fixed = true;
+			if(_faceMaterials)
+				_faceMaterials.fixed = true;
 		}
 
 		private function updateSortType():void
