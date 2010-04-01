@@ -58,7 +58,7 @@ package away3dlite.materials
 		{
 			super();
 
-			_color = Cast.color(color || "random");
+			_color = Cast.color((color == null) ? "random" : color);
 			_alpha = alpha;
 
 			_graphicsBitmapFill = new GraphicsBitmapFill(new BitmapData(2, 2, _alpha < 1, int(_alpha * 0xFF) << 24 | _color));
