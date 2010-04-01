@@ -8,6 +8,7 @@ package
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.Matrix;
+	import flash.geom.Vector3D;
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
@@ -24,7 +25,11 @@ package
 
 		private var step:Number = 0;
 		private var segment:Number;
-		 
+		
+		[Embed(source="assets/Dot.swf", symbol="DotClip")]
+		private var DotClip:Class;
+		private var dotClip:MovieClip = new DotClip();
+		
 		override protected function onInit():void
 		{
 			title = "Away3DLite | Sprite3D " + max + " | ";
@@ -38,7 +43,7 @@ package
 			drawDot(shape.graphics, size / 2, size / 2, size / 2, 0x000000, 0xFFFFFF);
 			var bitmap:BitmapData = new BitmapData(size + 2, size + 2, true, 0x00FFFFFF);
 			bitmap.draw(shape, new Matrix(1, 0, 0, 1, 1, 1), null, null, null, true);
-			var material:ColorMaterial = new ColorMaterial(0x00FF00);
+			var material:MovieMaterial = new MovieMaterial(dotClip);
 			var i:Number = 0;
 			for (var j:int = 0; j < max; j++)
 			{
@@ -81,16 +86,16 @@ package
 		
 		override protected function onPreRender():void
 		{
-			//scene.rotationX += .5;
+			scene.rotationX += .5;
 			scene.rotationY += .5;
-			//scene.rotationZ += .5;
-
-			//camera.x = 1000 * Math.cos(step);
-			//camera.y = 10 * (300 - mouseY);
-			//camera.z = 1000 * Math.sin(step);
-			//camera.lookAt(new Vector3D(0, 0, 0));
+			scene.rotationZ += .5;
 			
-			//step += .01
+			camera.x = 1000 * Math.cos(step);
+			camera.y = 10 * (300 - mouseY);
+			camera.z = 1000 * Math.sin(step);
+			camera.lookAt(new Vector3D(0, 0, 0));
+			
+			step += .01
 		}
 	}
 }
