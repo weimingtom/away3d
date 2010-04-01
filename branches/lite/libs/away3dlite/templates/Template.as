@@ -106,10 +106,11 @@ package away3dlite.templates
 			stage.quality = StageQuality.MEDIUM;
 
 			if(!_screenRect)
+			{
 				_screenRect = new Rectangle();
-				
-			_screenRect.width = _screenRect.width ? _screenRect.width : _stageWidth;
-			_screenRect.height = _screenRect.height ? _screenRect.height : _stageHeight;
+				_screenRect.width = _stageWidth ? _stageWidth : stage.stageWidth;
+				_screenRect.height = _stageHeight ? _stageHeight : stage.stageHeight;
+			}
 
 			scrollRect = _screenRect;
 
