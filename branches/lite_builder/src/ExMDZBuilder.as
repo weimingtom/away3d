@@ -88,11 +88,6 @@ package
 			if (_bonesAnimator)
 				_bonesAnimator.update(getTimer() / 1000);
 
-			// play animation
-			if (_meshes)
-				for each (var _mesh:MovieMesh in _meshes)
-					_mesh.play();
-
 			// show time
 			scene.rotationY++;
 		}

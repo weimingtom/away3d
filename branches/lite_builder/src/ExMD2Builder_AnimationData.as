@@ -86,6 +86,9 @@ package
 			_md2MovieMesh = _md2Builder.convert(_model, _animationDatas)[0];
 			scene.addChild(_md2MovieMesh);
 			
+			// play only right animation
+			_md2MovieMesh.play("right");
+			
 			// define material name
 			BitmapMaterial(_md2MovieMesh.material).name = "yellow.jpg";
 
@@ -104,10 +107,6 @@ package
 			// update the collada animation
 			if (_bonesAnimator)
 				_bonesAnimator.update(getTimer() / 1000);
-
-			// play only right animation
-			if (_md2MovieMesh)
-				_md2MovieMesh.play("right");
 
 			// show time
 			scene.rotationY++;
