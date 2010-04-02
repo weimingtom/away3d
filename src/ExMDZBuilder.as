@@ -2,14 +2,12 @@ package
 {
 	import away3dlite.animators.BonesAnimator;
 	import away3dlite.animators.MovieMesh;
-	import away3dlite.builders.MD2Builder;
 	import away3dlite.builders.MDZBuilder;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.utils.Debug;
 	import away3dlite.events.Loader3DEvent;
 	import away3dlite.loaders.Collada;
 	import away3dlite.loaders.Loader3D;
-	import away3dlite.materials.BitmapFileMaterial;
 	import away3dlite.templates.BasicTemplate;
 	
 	import flash.events.MouseEvent;
@@ -70,7 +68,13 @@ package
 
 			// bring it on one by one
 			for each (var _mesh:MovieMesh in _meshes)
+			{
+				// add to scene
 				scene.addChild(_mesh);
+				
+				// and play it
+				_mesh.play();
+			}
 			
 			// click to save
 			stage.addEventListener(MouseEvent.CLICK, onClick);
