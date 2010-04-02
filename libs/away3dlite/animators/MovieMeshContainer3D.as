@@ -13,50 +13,28 @@ package away3dlite.animators
 
 	public class MovieMeshContainer3D extends ObjectContainer3D implements IDestroyable
 	{
-		private var _meshes:Vector.<MovieMesh>;
-
+		public var isPlaying:Boolean;
+		
 		public function MovieMeshContainer3D()
 		{
 			super();
 		}
 
-		public override function addChild(child:DisplayObject):DisplayObject
-		{
-			super.addChild(child);
-
-			if (!_meshes)
-				_meshes = new Vector.<MovieMesh>();
-
-			_meshes.fixed = false;
-			_meshes.splice(_meshes.indexOf(child), 1);
-			_meshes.push(child);
-			_meshes.fixed = true;
-
-			return child;
-		}
-
-		public override function removeChild(child:DisplayObject):DisplayObject
-		{
-			super.removeChild(child);
-
-			_meshes.fixed = false;
-			_meshes.splice(_meshes.indexOf(child), 1);
-			_meshes.fixed = true;
-
-			return child;
-		}
-
 		public function play(label:String = "frame"):void
 		{
-			if (_meshes)
-				for each (var _mesh:MovieMesh in _meshes)
+			isPlaying = true;
+			
+			if (children)
+				for each (var _mesh:MovieMesh in children)
 					_mesh.play();
 		}
 
 		public function stop():void
 		{
-			if (_meshes)
-				for each (var _mesh:MovieMesh in _meshes)
+			isPlaying = false;
+			
+			if (children)
+				for each (var _mesh:MovieMesh in children)
 					_mesh.stop();
 		}
 
@@ -65,11 +43,9 @@ package away3dlite.animators
 			if (_isDestroyed)
 				return;
 
-			if (_meshes)
-				for each (var _mesh:MovieMesh in _meshes)
+			if (children)
+				for each (var _mesh:MovieMesh in children)
 					_mesh.stop();
-
-			_meshes = null;
 
 			super.destroy();
 		}
