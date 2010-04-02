@@ -68,10 +68,13 @@ package
 
 			// convert to meshes
 			_meshes = _md2Builder.convert(_model);
-
+			
 			// bring it on one by one
 			for each (var _mesh:MovieMesh in _meshes)
+			{
 				scene.addChild(_mesh);
+				_mesh.play();
+			}
 				
 			// define material name
 			BitmapMaterial(_meshes[0].material).name = "book_blue.png";
@@ -91,11 +94,6 @@ package
 			// update the collada animation
 			if (_bonesAnimator)
 				_bonesAnimator.update(getTimer() / 1000);
-
-			// play animation
-			if (_meshes)
-				for each (var _mesh:MovieMesh in _meshes)
-					_mesh.play();
 
 			// show time
 			scene.rotationY++;
