@@ -4,7 +4,7 @@ package away3dlite.animators
 	import away3dlite.arcane;
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
-
+	
 	import flash.events.*;
 	import flash.utils.*;
 
@@ -38,9 +38,13 @@ package away3dlite.animators
 
 		private var _labels:Dictionary = new Dictionary(true);
 		private var _currentLabel:String;
+		
+		public var isPlaying:Boolean;
 
 		private function onEnterFrame(event:Event = null):void
 		{
+			isPlaying = true;
+			
 			_ctime = getTimer();
 
 			var cframe:Frame;
@@ -135,6 +139,7 @@ package away3dlite.animators
 			keyframe = begin;
 			_type = ANIM_LOOP;
 
+			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
@@ -168,7 +173,10 @@ package away3dlite.animators
 					}
 				}
 			}
+			
+			_type = ANIM_NORMAL;
 
+			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 

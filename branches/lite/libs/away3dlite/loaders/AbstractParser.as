@@ -41,6 +41,9 @@ package away3dlite.loaders
 	public class AbstractParser extends EventDispatcher
 	{
 		/** @private */
+		protected var _isDestroyed:Boolean;
+		
+		/** @private */
 		arcane var _container:Object3D;
 		/** @private */
 		arcane var binary:Boolean;
@@ -327,6 +330,26 @@ package away3dlite.loaders
 		public function removeOnProgress(listener:Function):void
 		{
 			removeEventListener(ParserEvent.PARSE_PROGRESS, listener, false);
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+			
+			_isDestroyed = true;
+			
+			_materialLibrary.destroy();
+			_geometryLibrary.destroy();
+			
+			if(_broadcaster)
+				_broadcaster.removeEventListener(Event.ENTER_FRAME, update);
+			_broadcaster = null;
 		}
 	}
 }
