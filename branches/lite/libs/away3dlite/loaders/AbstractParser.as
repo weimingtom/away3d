@@ -344,12 +344,21 @@ package away3dlite.loaders
 			
 			_isDestroyed = true;
 			
-			_materialLibrary.destroy();
-			_geometryLibrary.destroy();
+			if(_materialLibrary)
+				_materialLibrary.destroy();
+			_materialLibrary = null;
+			
+			if(_geometryLibrary)
+				_geometryLibrary.destroy();
+			_geometryLibrary = null;
 			
 			if(_broadcaster)
 				_broadcaster.removeEventListener(Event.ENTER_FRAME, update);
 			_broadcaster = null;
+			
+			if(_container)
+				_container.destroy();
+			_container = null;
 		}
 	}
 }
