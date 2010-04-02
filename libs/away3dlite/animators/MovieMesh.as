@@ -69,7 +69,7 @@ package away3dlite.animators
 				{
 					_addFrame = int(_interp);
 
-					if (_type == ANIM_LOOP && _currentFrame + _addFrame >= _end)
+					if (_type == ANIM_LOOP || _type == ANIM_NORMAL && _currentFrame + _addFrame >= _end)
 						keyframe = _begin + _currentFrame + _addFrame - _end;
 					else
 						keyframe += _addFrame;
