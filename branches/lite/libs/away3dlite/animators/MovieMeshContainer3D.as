@@ -26,7 +26,7 @@ package away3dlite.animators
 			
 			if (children)
 				for each (var _mesh:MovieMesh in children)
-					_mesh.play();
+					_mesh.play(label);
 		}
 
 		public function stop():void
