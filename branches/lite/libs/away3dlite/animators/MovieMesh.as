@@ -40,7 +40,7 @@ package away3dlite.animators
 		private var _currentLabel:String;
 		
 		public var isPlaying:Boolean;
-
+		
 		private function onEnterFrame(event:Event = null):void
 		{
 			isPlaying = true;
@@ -58,6 +58,7 @@ package away3dlite.animators
 			var _cframe_vertices:Vector.<Number> = cframe.vertices;
 			var _nframe_vertices:Vector.<Number> = nframe.vertices;
 
+			if(visible)
 			while (i--)
 				_vertices[i] = _cframe_vertices[i] + _interp * (_nframe_vertices[i] - _cframe_vertices[i]);
 
@@ -202,7 +203,19 @@ package away3dlite.animators
 		{
 			_currentFrame = i % framesLength;
 		}
-
+		
+		public override function clone(object:Object3D = null):Object3D
+		{
+			var mesh:MovieMesh = (object as MovieMesh) || new MovieMesh();
+			super.clone(mesh);
+			
+			mesh.framesLength = framesLength;
+			mesh.fps = fps;
+			mesh.frames = frames.concat();
+			
+			return mesh;
+		}
+		
 		override public function get destroyed():Boolean
 		{
 			return _isDestroyed;
