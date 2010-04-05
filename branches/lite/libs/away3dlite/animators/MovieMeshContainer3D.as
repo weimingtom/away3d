@@ -16,24 +16,41 @@ package away3dlite.animators
 		public var isPlaying:Boolean;
 		public var currentLabel:String;
 		
+		private var _ctime:Number = 0;
+		private var _otime:Number = 0;
+		
 		public function MovieMeshContainer3D()
 		{
 			super();
 		}
-
+		
+		private function onEnterFrame(event:Event = null):void
+		{
+			isPlaying = true;
+			_ctime = getTimer();
+			
+			if (children)
+				for each (var _mesh:MovieMesh in children)
+					_mesh.seek(_ctime, _otime);
+			
+			_otime = _ctime;
+		}
+		
 		public function play(label:String = "frame"):void
 		{
 			currentLabel = label;
 			
 			isPlaying = true;
 			
-			// TODO: take over each mesh enterframe to global meshes enterframe
-			
 			if (children)
-			{
 				for each (var _mesh:MovieMesh in children)
+				{
+					_mesh.isParentControl = true;
 					_mesh.play(label);
-			}
+				}
+			
+			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
 		public function stop():void
@@ -43,6 +60,8 @@ package away3dlite.animators
 			if (children)
 				for each (var _mesh:MovieMesh in children)
 					_mesh.stop();
+			
+			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 		
 		public override function clone(object:Object3D = null):Object3D
@@ -58,6 +77,8 @@ package away3dlite.animators
 			if (_isDestroyed)
 				return;
 
+			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+			
 			if (children)
 				for each (var _mesh:MovieMesh in children)
 					_mesh.stop();
