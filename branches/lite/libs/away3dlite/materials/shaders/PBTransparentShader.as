@@ -57,7 +57,7 @@ package away3dlite.materials.shaders
 
 			var normalMapBuilder:NormalMapBuilder = new NormalMapBuilder();
 
-			var targetMap:BitmapData = _normalmapBitmapData ? _normalmapBitmapData : bitmap;
+			var targetMap:BitmapData = _normalmapBitmapData ? _normalmapBitmapData : bitmapData;
 			// build a world map
 			var normalWorldMap:BitmapData = normalMapBuilder.getWorldNormalMap(targetMap, verticesIn, indices, uvtData, vertexNormals);
 			// blend the local and world normals
@@ -106,7 +106,7 @@ package away3dlite.materials.shaders
 			 */
 			normalSprite.filters = [_filter];
 
-			bitmap.draw(normalSprite);
+			bitmapData.draw(normalSprite);
 			return _uvtData;
 		}
 	}
