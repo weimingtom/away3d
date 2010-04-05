@@ -122,7 +122,7 @@ package away3dlite.templates
 			// override me
 		}
 
-		private function onEnterFrame(event:Event):void
+		protected function onEnterFrame(event:Event):void
 		{
 			onPreRender();
 
