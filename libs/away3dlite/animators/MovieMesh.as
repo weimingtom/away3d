@@ -40,13 +40,17 @@ package away3dlite.animators
 		private var _currentLabel:String;
 		
 		public var isPlaying:Boolean;
+		public var isParentControl:Boolean;
 		
 		private function onEnterFrame(event:Event = null):void
 		{
+			seek(_ctime = getTimer(), _otime);
+		}
+		
+		public function seek(ctime:Number, otime:Number):void
+		{
 			isPlaying = true;
 			
-			_ctime = getTimer();
-
 			var cframe:Frame;
 			var nframe:Frame;
 			var i:int = _vertices.length;
@@ -64,7 +68,7 @@ package away3dlite.animators
 
 			if (_type != ANIM_STOP)
 			{
-				_interp += fps * (_ctime - _otime) / 1000;
+				_interp += fps * (ctime - otime) / 1000;
 
 				if (_interp > 1)
 				{
@@ -78,7 +82,7 @@ package away3dlite.animators
 					_interp -= _addFrame;
 				}
 			}
-			_otime = _ctime;
+			_otime = ctime;
 			
 			transfromDirty = true;
 		}
@@ -141,7 +145,8 @@ package away3dlite.animators
 			_type = ANIM_LOOP;
 
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			if(!isParentControl)
+				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
 		/**
@@ -178,7 +183,8 @@ package away3dlite.animators
 			_type = ANIM_NORMAL;
 
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			if(!isParentControl)
+				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
 		/**
@@ -212,6 +218,7 @@ package away3dlite.animators
 			mesh.framesLength = framesLength;
 			mesh.fps = fps;
 			mesh.frames = frames.concat();
+			mesh.isParentControl = isParentControl;
 			
 			return mesh;
 		}
