@@ -1,7 +1,5 @@
 package away3dlite.core
 {
-	import com.sleepydesign.core.IDestroyable;
-
 	public class Destroyable implements IDestroyable
 	{
 		protected var _isDestroyed:Boolean;
