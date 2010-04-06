@@ -26,14 +26,17 @@ package away3dlite.animators
 		
 		private function onEnterFrame(event:Event = null):void
 		{
+			seek(_ctime = getTimer(), _otime);
+		}
+		
+		public function seek(ctime:Number, otime:Number):void
+		{
 			isPlaying = true;
-			_ctime = getTimer();
 			
 			if (children)
 				for each (var _mesh:MovieMesh in children)
-					_mesh.seek(_ctime, _otime);
-			
-			_otime = _ctime;
+					_mesh.seek(ctime, otime);
+			_otime = ctime;
 		}
 		
 		public function play(label:String = "frame"):void
