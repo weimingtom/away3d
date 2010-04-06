@@ -93,9 +93,12 @@ package
 			
 			// add other mesh
 			_model.addChild(_otherMesh);
-			//_otherMesh.filpNormal();
+			
+			// add material info, we need this while packing
 			var _materialData:MaterialData = _model.materialLibrary.addMaterial("yellow");
 			_materialData.material = _otherMesh.material;
+			
+			// TODO : sync external MD2 to existing animation somehow, it's must be same length or...maybe not
 
 			// convert to meshes
 			_meshes = _mdzBuilder.convert(_model);
