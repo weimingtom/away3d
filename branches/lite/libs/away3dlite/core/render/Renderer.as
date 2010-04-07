@@ -191,7 +191,7 @@ package away3dlite.core.render
 				{
 					_screenPointVertices = _screenPointVertexArrays[_face.mesh._vertexId];
 
-					if (_face.i3)
+					if (_face.length == 4)
 					{
 						pointTotal = 4;
 						pointCount = _screenPointVertices[_face.i0] + _screenPointVertices[_face.i1] + _screenPointVertices[_face.i2] + _screenPointVertices[_face.i3];
@@ -221,7 +221,7 @@ package away3dlite.core.render
 						if ((x * (v2y - v1y) + v1x * (y - v2y) + v2x * (v1y - y)) < -0.001)
 							continue;
 
-						if (_face.i3)
+						if (_face.length == 4)
 						{
 							var v3x:Number = vertices[_face.x3];
 							var v3y:Number = vertices[_face.y3];

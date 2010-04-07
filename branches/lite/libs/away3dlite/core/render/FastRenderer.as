@@ -124,7 +124,7 @@ package away3dlite.core.render
 						_ind[int(++_i)] = _face.i1;
 						_ind[int(++_i)] = _face.i2;
 
-						if (_face.i3)
+						if (_face.length == 4)
 						{
 							_ind[int(++_i)] = _face.i0;
 							_ind[int(++_i)] = _face.i2;
@@ -223,7 +223,7 @@ package away3dlite.core.render
 			_ind[int(++_i)] = _face.i1;
 			_ind[int(++_i)] = _face.i2;
 
-			if (_face.i3)
+			if (_face.length == 4)
 			{
 				_ind[int(++_i)] = _face.i0;
 				_ind[int(++_i)] = _face.i2;

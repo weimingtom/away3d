@@ -207,7 +207,7 @@ package away3dlite.core.render
 				_uvt[++_k] = _uvtData[_face.t2];
 			}
 
-			if (_face.i3)
+			if (_face.length == 4)
 			{
 				_ind[++_i] = _faceStore[_face.i0] - 1;
 				_ind[++_i] = _faceStore[_face.i2] - 1;

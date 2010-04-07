@@ -149,7 +149,11 @@ package away3dlite.core.base
 		 * t index of the fourth mapping value.
 		 */
 		public var t3:int;
-
+		
+		/**
+		 * face length value tri or quad face mean 3 or 4, default as tri
+		 */		
+		public var length:int = 3;
 
 		/**
 		 * Creates a new <code>Face</code> object.
@@ -204,6 +208,9 @@ package away3dlite.core.base
 				u3 = 3 * i3;
 				v3 = 3 * i3 + 1;
 				t3 = 3 * i3 + 2;
+				
+				// quad face
+				this.length = 4;
 			}
 		/*
 		   var d1x:Number = vertices[u1] - vertices[u0];
