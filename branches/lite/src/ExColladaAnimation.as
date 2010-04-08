@@ -10,37 +10,32 @@ package
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.BasicTemplate;
-
+	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.filters.BlurFilter;
 	import flash.geom.Vector3D;
 	import flash.utils.*;
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 
 	/**
-	 * Collada example.
+	 * Collada Animation example.
 	 */
 	public class ExColladaAnimation extends BasicTemplate
 	{
-		private var collada:Collada;
-		private var loader:Loader3D;
-		private var loaded:Boolean = false;
-		private var model:Object3D;
-		private var skinAnimation:BonesAnimator;
+		private var _collada:Collada;
+		private var _bonesAnimator:BonesAnimator;
 
 		private function onSuccess(event:Loader3DEvent):void
 		{
-			loaded = true;
-			model = loader.handle;
-			model.layer = event.target.layer;
+			var _model:Object3D = event.target.handle;
+			_model.layer = event.target.layer;
 
 			var sphere:Sphere = new Sphere();
 			scene.addChild(sphere);
-			sphere.layer = model.layer;
+			sphere.layer = _model.layer;
 
-			skinAnimation = model.animationLibrary.getAnimation("default").animation as BonesAnimator;
+			_bonesAnimator = _model.animationLibrary.getAnimation("default").animation as BonesAnimator;
 		}
 
 		override protected function onInit():void
@@ -55,23 +50,23 @@ package
 			plane.layer = new Sprite();
 			view.addChild(plane.layer);
 
-			collada = new Collada();
-			collada.scaling = 25;
+			_collada = new Collada();
+			_collada.scaling = 25;
 
-			loader = new Loader3D();
-			scene.addChild(loader);
-			loader.loadGeometry("assets/30_box_smooth_translate.dae", collada);
-			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
+			var _loader3D:Loader3D = new Loader3D();
+			scene.addChild(_loader3D);
+			_loader3D.loadGeometry("assets/30_box_smooth_translate.dae", _collada);
+			_loader3D.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
 
-			loader.layer = new Sprite();
-			view.addChild(loader.layer);
+			_loader3D.layer = new Sprite();
+			view.addChild(_loader3D.layer);
 		}
 
 		override protected function onPreRender():void
 		{
 			//update the collada animation
-			if (skinAnimation)
-				skinAnimation.update(getTimer() / 1000);
+			if (_bonesAnimator)
+				_bonesAnimator.update(getTimer() / 1000);
 
 			scene.rotationY++;
 		}
