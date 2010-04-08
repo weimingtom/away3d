@@ -12,7 +12,7 @@ package
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.BasicTemplate;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.BlurFilter;
@@ -22,7 +22,7 @@ package
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 
 	/**
-	 * Collada example.
+	 * Collada Modifier example.
 	 */
 	public class ExColladaAnimationModifier extends BasicTemplate
 	{
@@ -37,9 +37,9 @@ package
 		private var _loader3D1:Loader3D;
 		private var _model1:ObjectContainer3D;
 		private var _bonesAnimator1:BonesAnimator;
-		
+
 		// test
-		private const _TYPE_NAME:Array = ["x,y,z", "x","y","z", "x,z"];
+		private const _TYPE_NAME:Array = ["x,y,z", "x", "y", "z", "x,z"];
 		private var _type:int = 0;
 
 		override protected function onInit():void
@@ -70,7 +70,7 @@ package
 
 			stage.addEventListener(MouseEvent.CLICK, onClick);
 		}
-		
+
 		// source
 		private function onSuccess0(event:Loader3DEvent):void
 		{
@@ -104,60 +104,61 @@ package
 
 				for (var i:int = 0; i < _length0; i++)
 				{
-					switch(_type)
+					switch (_type)
 					{
-						case 0 :
+						case 0:
 							// x,y,z
-							_vertices0[i] = _vertices0[i] + (_vertices1[i]-_vertices0[i]) * percent;
-						break;
-						case 1 :
+							_vertices0[i] = _vertices0[i] + (_vertices1[i] - _vertices0[i]) * percent;
+							break;
+						case 1:
 							// x
-							_vertices0[i] = _vertices1[i] * percent;
+							_vertices0[i] = _vertices0[i] + (_vertices1[i] - _vertices0[i]) * percent;
 							// skip y
 							i++;
 							// skip z
 							i++;
-						break;
-						case 2 :
+							break;
+						case 2:
 							// skip x
 							i++;
 							// y
-							_vertices0[i] = _vertices1[i] * percent;
+							_vertices0[i] = _vertices0[i] + (_vertices1[i] - _vertices0[i]) * percent;
 							// skip z
 							i++;
-						break;
-						case 3 :
+							break;
+						case 3:
 							// skip x
 							i++;
 							// skip y
 							i++;
 							// z
-							_vertices0[i] = _vertices1[i] * percent;
-						break;
-						case 4 :
+							_vertices0[i] = _vertices0[i] + (_vertices1[i] - _vertices0[i]) * percent;
+							break;
+						case 4:
 							// x
-							_vertices0[i] = _vertices1[i] * percent;
+							_vertices0[i] = _vertices0[i] + (_vertices1[i] - _vertices0[i]) * percent;
 							// skip y
 							i++;
 							// z
-							_vertices0[i] = _vertices1[i] * percent;
-						break;
+							_vertices0[i] = _vertices0[i] + (_vertices1[i] - _vertices0[i]) * percent;
+							break;
 					}
 				}
 			}
 		}
-		
+
 		private function onClick(event:Event):void
 		{
-			if(_type++==4)_type = 0;
+			if (++_type == _TYPE_NAME.length)
+				_type = 0;
 		}
 
 		override protected function onPreRender():void
 		{
-			var _percent:Number = mouseX/_screenRect.width;
+			var _percent:Number = mouseX / _screenRect.width;
 			var _timer:Number = getTimer() / 1000;
-			
-			title = "Morph : " + _TYPE_NAME[_type] + " | Percent : " + _percent;
+
+			title = "Click = Toggle Modify : " + _TYPE_NAME[_type] + " | Move MouseX = Percent : " + _percent;
 
 			if (_bonesAnimator0 && _bonesAnimator1)
 			{
