@@ -7,7 +7,10 @@ package away3dlite.materials
 	 */
 	public class BitmapMaterial extends Material
 	{
-		public var name:String;
+		/**
+		 * Returns the source url of the Material, or the name of the Material if not loaded from an external source.
+		 */
+		public var url:String;
 
 		/**
 		 * Defines the bitmapData object to be used as the material's texture.
