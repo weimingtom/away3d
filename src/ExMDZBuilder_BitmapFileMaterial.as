@@ -2,15 +2,12 @@ package
 {
 	import away3dlite.animators.BonesAnimator;
 	import away3dlite.animators.MovieMesh;
-	import away3dlite.builders.MD2Builder;
-	import away3dlite.core.base.Mesh;
+	import away3dlite.builders.MDZBuilder;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.utils.Debug;
 	import away3dlite.events.Loader3DEvent;
 	import away3dlite.loaders.Collada;
 	import away3dlite.loaders.Loader3D;
-	import away3dlite.materials.BitmapFileMaterial;
-	import away3dlite.materials.BitmapMaterial;
 	import away3dlite.templates.BasicTemplate;
 	
 	import flash.events.MouseEvent;
@@ -20,13 +17,13 @@ package
 
 	[SWF(backgroundColor="#CCCCCC", frameRate="30", width="800", height="600")]
 	/**
-	 * Example : MD2Builder with multi mesh, in this case is Collada :)
+	 * Example : MDZ build from DAE and save as MDZ, only meshes
 	 * @author katopz
 	 */	
-	public class ExMD2Builder_MultiMesh extends BasicTemplate
+	public class ExMDZBuilder_BitmapFileMaterial extends BasicTemplate
 	{
 		private var _bonesAnimator:BonesAnimator;
-		private var _md2Builder:MD2Builder;
+		private var _mdzBuilder:MDZBuilder;
 		private var _meshes:Vector.<MovieMesh>;
 
 		override protected function onInit():void
@@ -64,29 +61,31 @@ package
 			}catch (e:*){}
 
 			// build as MD2
-			_md2Builder = new MD2Builder();
+			_mdzBuilder = new MDZBuilder();
+			_mdzBuilder.texturePath = "nemuvine/";
+			_mdzBuilder.isIncludeMaterial = false;
 
 			// convert to meshes
-			_meshes = _md2Builder.convert(_model);
-			
+			_meshes = _mdzBuilder.convert(_model);
+
 			// bring it on one by one
 			for each (var _mesh:MovieMesh in _meshes)
 			{
+				// add to scene
 				scene.addChild(_mesh);
+				
+				// and play it
 				_mesh.play();
 			}
-				
-			// define material name
-			BitmapMaterial(_meshes[0].material).url = "book_blue.png";
-
+			
 			// click to save
 			stage.addEventListener(MouseEvent.CLICK, onClick);
 		}
 		
 		private function onClick(event:MouseEvent):void
 		{
-			// save the 1st one as .md2 file
-			new FileReference().save(_md2Builder.getMD2(_meshes[0]), _meshes[0].name + ".md2");
+			// save all as .mdz file
+			new FileReference().save(_mdzBuilder.getMDZ(_meshes).byteArray, "nemuvine_mesh.mdz");
 		}
 
 		override protected function onPreRender():void

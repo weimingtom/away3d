@@ -53,7 +53,6 @@ package
 			var _md2:MD2 = new MD2();
 			_md2.scaling = 2;
 			_md2.material = event.material;
-			BitmapFileMaterial(_md2.material).name = "yellow";
 				
 			var _loader3D:Loader3D = new Loader3D();
 			_loader3D.addEventListener(Loader3DEvent.LOAD_SUCCESS, onOtherSuccess);

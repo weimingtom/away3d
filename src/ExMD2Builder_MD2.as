@@ -56,7 +56,7 @@ package
 			Mesh(_model).material = new BitmapFileMaterial("assets/yellow.jpg");
 			
 			// this texture name will add to MD2 header
-			BitmapFileMaterial(Mesh(_model).material).name = "yellow.jpg";
+			BitmapFileMaterial(Mesh(_model).material).url = "yellow.jpg";
 
 			// build as MD2
 			_md2Builder = new MD2Builder();

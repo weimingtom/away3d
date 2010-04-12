@@ -90,7 +90,7 @@ package
 			_md2MovieMesh.play("right");
 			
 			// define material name
-			BitmapMaterial(_md2MovieMesh.material).name = "yellow.jpg";
+			BitmapMaterial(_md2MovieMesh.material).url = "yellow.jpg";
 
 			// click to save
 			stage.addEventListener(MouseEvent.CLICK, onClick);

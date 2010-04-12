@@ -20,7 +20,7 @@ package
 	 * Example : MDZ load and play.
 	 * @author katopz
 	 */	
-	public class ExMDZ extends BasicTemplate
+	public class ExMDZ_BitmapFileMaterial extends BasicTemplate
 	{
 		private var _model:MovieMeshContainer3D;
 		
@@ -39,10 +39,10 @@ package
 			// parser
 			var _mdz:MDZ = new MDZ();
 			
-			// load it
+			// load it, only mesh in that zip
 			var _loader3D:Loader3D = new Loader3D();
 			_loader3D.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
-			_loader3D.loadGeometry("nemuvine/nemuvine.mdz", _mdz);
+			_loader3D.loadGeometry("nemuvine/nemuvine_mesh.mdz", _mdz);
 			scene.addChild(_loader3D);
 			
 			stage.addEventListener(MouseEvent.CLICK, onClick);
