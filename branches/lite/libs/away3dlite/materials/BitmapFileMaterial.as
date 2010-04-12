@@ -2,7 +2,7 @@ package away3dlite.materials
 {
 	import away3dlite.core.utils.Debug;
 	import away3dlite.events.*;
-
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.net.*;
@@ -38,7 +38,7 @@ package away3dlite.materials
 		private var _materialloaderror:MaterialEvent;
 		private var _materialloadprogress:MaterialEvent;
 		private var _materialloadsuccess:MaterialEvent;
-
+		
 		private function onError(e:IOErrorEvent):void
 		{
 			if (!_materialloaderror)
@@ -72,12 +72,16 @@ package away3dlite.materials
 			_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onError);
 			_loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			_loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
+			
+			_loader = null;
 
 			dispatchEvent(_materialloadsuccess);
 		}
 
 		public function load(url:String):Loader
 		{
+			this.url = url;
+			
 			_loader = new Loader();
 			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
 			_loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
