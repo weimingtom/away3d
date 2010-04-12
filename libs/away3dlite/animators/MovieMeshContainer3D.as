@@ -81,10 +81,6 @@ package away3dlite.animators
 				return;
 
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			
-			if (children)
-				for each (var _mesh:MovieMesh in children)
-					_mesh.stop();
 
 			super.destroy();
 		}
