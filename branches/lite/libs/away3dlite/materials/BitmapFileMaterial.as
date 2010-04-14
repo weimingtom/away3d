@@ -73,9 +73,9 @@ package away3dlite.materials
 			_loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			_loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
 			
-			_loader = null;
-
 			dispatchEvent(_materialloadsuccess);
+			
+			_loader = null;
 		}
 
 		public function load(url:String):Loader
