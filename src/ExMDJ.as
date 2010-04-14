@@ -34,12 +34,12 @@ package
 			Debug.active = true;
 
 			// parser
-			var _mdml:MDJ = new MDJ();
+			var _mdj:MDJ = new MDJ();
 
 			// load it
 			var _loader3D:Loader3D = new Loader3D();
 			_loader3D.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess);
-			_loader3D.loadGeometry("mdj/nemuvine.mdj", _mdml);
+			_loader3D.loadGeometry("mdj/nemuvine.mdj", _mdj);
 			scene.addChild(_loader3D);
 
 			stage.addEventListener(MouseEvent.CLICK, onClick);
