@@ -1,0 +1,45 @@
+{
+	"paths" : 
+	[
+		"mdj/",
+		"nemuvine/"
+	],
+	"meshes" : 
+	[
+		"obook.md2",
+		"chair.md2",
+		"table.md2",
+		"book_o1.md2",
+		"book_o2.md2",
+		"book_o3.md2",
+		"book_o4.md2",
+		"head.md2",
+		"hair.md2",
+		"rh.md2",
+		"ll.md2",
+		"rl.md2",
+		"neck.md2",
+		"cloth.md2",
+		"lh.md2",
+		"book.md2"
+	],
+	"textures" : 
+	[
+		"book_blue.png",
+		"chair.png",
+		"table.png",
+		"book_blue.png",
+		"book_blue.png",
+		"book_blue.png",
+		"book_blue.png",
+		"face2.png",
+		"body.png",
+		"body.png",
+		"body.png",
+		"body.png",
+		"body.png",
+		"cloth.png",
+		"body.png",
+		"book_blue.png"
+	 ]
+}
