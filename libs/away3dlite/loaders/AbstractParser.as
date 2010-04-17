@@ -279,7 +279,7 @@ package away3dlite.loaders
 		 */
 		public function addOnSuccess(listener:Function):void
 		{
-			addEventListener(ParserEvent.PARSE_SUCCESS, listener, false, 0, true);
+			addEventListener(ParserEvent.PARSE_SUCCESS, listener);
 		}
 
 		/**
@@ -299,7 +299,7 @@ package away3dlite.loaders
 		 */
 		public function addOnError(listener:Function):void
 		{
-			addEventListener(ParserEvent.PARSE_ERROR, listener, false, 0, true);
+			addEventListener(ParserEvent.PARSE_ERROR, listener);
 		}
 
 		/**
@@ -319,7 +319,7 @@ package away3dlite.loaders
 		 */
 		public function addOnProgress(listener:Function):void
 		{
-			addEventListener(ParserEvent.PARSE_PROGRESS, listener, false, 0, true);
+			addEventListener(ParserEvent.PARSE_PROGRESS, listener);
 		}
 
 		/**
