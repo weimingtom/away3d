@@ -6,6 +6,7 @@ package away3dlite.materials
 	import flash.display.*;
 	import flash.events.*;
 	import flash.net.*;
+	import flash.system.LoaderContext;
 	import flash.utils.ByteArray;
 
 	/**
@@ -64,7 +65,7 @@ package away3dlite.materials
 				return;
 			}
 			
-			bitmapData = Bitmap(e.target.content).bitmapData;
+			bitmapData = Bitmap(e.target.content).bitmapData.clone();
 
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
@@ -75,10 +76,11 @@ package away3dlite.materials
 			
 			dispatchEvent(_materialloadsuccess);
 			
+			Bitmap(e.target.content).bitmapData.dispose();
 			_loader = null;
 		}
 
-		public function load(url:String):Loader
+		public function load(url:String, loaderContext:LoaderContext = null):Loader
 		{
 			this.url = url;
 			
@@ -86,7 +88,7 @@ package away3dlite.materials
 			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
 			_loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
-			_loader.load(new URLRequest(url));
+			_loader.load(new URLRequest(url), loaderContext);
 
 			return _loader;
 		}
@@ -118,12 +120,12 @@ package away3dlite.materials
 		 *
 		 * @param	url					The location of the bitmapasset to load.
 		 */
-		public function BitmapFileMaterial(url:String = "")
+		public function BitmapFileMaterial(url:String = "", loaderContext:LoaderContext = null)
 		{
 			super(new BitmapData(100, 100));
 
 			if (url != "")
-				load(url);
+				load(url, loaderContext);
 		}
 	}
 }
