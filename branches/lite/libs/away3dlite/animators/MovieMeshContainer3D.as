@@ -33,6 +33,8 @@ package away3dlite.animators
 		{
 			isPlaying = true;
 			
+			_otime = otime = otime?otime:getTimer();
+			
 			if (children)
 				for each (var _mesh:MovieMesh in children)
 					_mesh.seek(ctime, otime);
