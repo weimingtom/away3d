@@ -16,6 +16,10 @@ package away3dlite.animators
 		public var isPlaying:Boolean;
 		public var currentLabel:String;
 		
+		public function get currentTime():Number
+		{
+			return _ctime;
+		}
 		private var _ctime:Number = 0;
 		private var _otime:Number = 0;
 		

@@ -33,6 +33,11 @@ package away3dlite.animators
 		private var _begin:int;
 		private var _end:int;
 		private var _type:int;
+		
+		public function get currentTime():Number
+		{
+			return _ctime;
+		}
 		private var _ctime:Number = 0;
 		private var _otime:Number = 0;
 
