@@ -131,7 +131,7 @@ package away3dlite.core.render
 		{
 			_face = _faces[j - 1];
 
-			if (_material != _face.material)
+			if (_material != _face.material || (_material && _material.shared))
 			{
 				if (_material)
 				{
