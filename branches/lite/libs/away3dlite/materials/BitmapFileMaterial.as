@@ -122,7 +122,7 @@ package away3dlite.materials
 		 */
 		public function BitmapFileMaterial(url:String = "", loaderContext:LoaderContext = null)
 		{
-			super(new BitmapData(100, 100));
+			super(new BitmapData(64, 64));
 
 			if (url != "")
 				load(url, loaderContext);
