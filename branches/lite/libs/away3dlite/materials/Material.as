@@ -5,9 +5,9 @@ package away3dlite.materials
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.events.*;
-
-	import flash.events.*;
+	
 	import flash.display.*;
+	import flash.events.*;
 
 	use namespace arcane;
 
@@ -30,6 +30,10 @@ package away3dlite.materials
 	 */
 	public class Material extends EventDispatcher
 	{
+		/** @private */
+		arcane var meshes:Vector.<Mesh>;
+		/** @private */
+		arcane var shared:Boolean;
 		/** @private */
 		arcane var _id:Vector.<uint> = new Vector.<uint>();
 		/** @private */

@@ -5,7 +5,7 @@ package away3dlite.core.base
 	import away3dlite.containers.*;
 	import away3dlite.materials.*;
 	import away3dlite.materials.shaders.*;
-
+	
 	import flash.display.*;
 	import flash.geom.*;
 
@@ -333,7 +333,26 @@ package away3dlite.core.base
 			if (_material == val)
 				return;
 
+			// remove old referer
+			if(_material && _material.meshes && _material.meshes.indexOf(this)>-1)
+			{
+				_material.meshes.fixed = false;
+				_material.meshes.splice(_material.meshes.indexOf(this), 1);
+				_material.meshes.fixed = true;
+			}
+			
 			_material = val;
+			
+			// keep referer to every mesh
+			if(!_material.meshes)
+				_material.meshes = new Vector.<Mesh>();
+			
+			_material.meshes.fixed = false;
+			_material.meshes.push(this);
+			_material.meshes.fixed = true;
+			
+			// shared material if refer to more than 1 mesh
+			_material.shared = _material.meshes.length>0;
 
 			_materialsDirty = true;
 			// calculate normals for the shaders
