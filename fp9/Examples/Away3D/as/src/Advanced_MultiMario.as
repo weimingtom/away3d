@@ -47,12 +47,9 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.Mesh;
-	import away3d.core.clip.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
-	import away3d.lights.*;
 	import away3d.loaders.*;
-	import away3d.loaders.data.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
 	
@@ -120,7 +117,7 @@ package
 		private var floor:Plane;
 		
 		//animation varibles
-		private var skinAnimation:SkinAnimation;
+		private var bonesAnimator:BonesAnimator;
 		
 		//navigation variables
 		private var rotate:Number;
@@ -296,7 +293,7 @@ package
 			scene.addChild(floor);
 			
 			//grabs an instance of the skin animation from the animationLibrary
-			skinAnimation = model1.animationLibrary.getAnimation("default").animation as SkinAnimation;
+			bonesAnimator = model1.animationLibrary.getAnimation("default").animator as BonesAnimator;
 		}
 		
 		/**
@@ -339,7 +336,7 @@ package
 			camera.moveBackward(700 - mouseY/2);
 			
 			//update the collada animation
-			skinAnimation.update(getTimer()*2/1000);
+			bonesAnimator.update(getTimer()*2/1000);
 			
 			//render scene
 			view.render();

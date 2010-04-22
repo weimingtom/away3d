@@ -42,25 +42,24 @@ THE SOFTWARE.
 
 package 
 {
-	import AS3s.SeaTurtleAnimated;
+	//import AS3s.SeaTurtleAnimated;
 	
+	import away3d.arcane;
 	import away3d.animators.data.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.math.*;
-	import away3d.core.render.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
-	import away3d.lights.DirectionalLight3D;
-	import away3d.loaders.*;
+	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
-	import away3d.sprites.*;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.filters.*;
+	
+	use namespace arcane;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
 	
@@ -108,7 +107,6 @@ package
 		
 		//navigation variables
 		private var move:Boolean = false;
-		private var sprite:DisplayObject;
 		private var mesh:Mesh;
 		private var lastPanAngle:Number;
 		private var lastTiltAngle:Number;
@@ -146,11 +144,12 @@ package
 			camera = new HoverCamera3D();
 			camera.distance = 1500;
 			camera.yfactor = 1;
-			camera.mintiltangle = -45;
+			camera.minTiltAngle = -45;
 			camera.steps = 4;
 			
-			camera.targetpanangle = 285;
-			camera.targettiltangle = 10;
+			camera.panAngle = 285;
+			camera.tiltAngle = 10;
+			//camera.hover(true);
 			
 			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
@@ -201,21 +200,19 @@ package
 			
 			var angle:Number = 90 - Math.atan(1/Math.sqrt(2))/toRadians;
 			
-			seaturtle = new SeaTurtleAnimated();
+			//seaturtle = new SeaTurtleAnimated();
 			seaturtle.material = turtleMaterial;
 			seaturtle.rotate(new Number3D(1, 0, -1), -angle);
 			seaturtle.scale(0.24);
 			
 			//light = new DirectionalLight3D({x:-60, y:100, z:60, ambient:0.5, diffuse:0.5, specular:1});
 			light = new DirectionalLight3D();
-			light.x = -60;
-			light.y = 100;
-			light.z = 60;
+			light.direction = new Number3D(-60, 100, 60);
 			light.ambient = 0.5;
 			light.diffuse = 0.5;
 			light.specular = 1;
 			
-			scene.addChild(light);
+			scene.addLight(light);
 			
 			//containers = new ObjectContainer3D({visible:false});
 			containers = new ObjectContainer3D();
@@ -325,9 +322,9 @@ package
 			if (move) {
 				outlines.visible = true;
 				containers.visible = false;
-				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
-			} else if (camera.targetpanangle == camera.panangle && camera.targettiltangle == camera.tiltangle) {
+				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
+				camera.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
+			} else if (camera._currentPanAngle == camera.panAngle && camera._currentTiltAngle == camera.tiltAngle) {
 				outlines.visible = false;
 				containers.visible = true;
 				
@@ -347,7 +344,7 @@ package
 		{
 			mesh = (event.object as Mesh);
 			mesh.material = hiliteMaterial;
-			mesh.play(new AnimationSequence("swim", true, true, 6));
+			mesh.animationLibrary.getAnimation("swim").animator.play();
 		}
 		
 		/**
@@ -355,9 +352,9 @@ package
 		 */
 		private function onMeshMouseOut(event:MouseEvent3D):void
 		{
-			mesh = (event.object as Mesh)
+			mesh = (event.object as Mesh);
 			mesh.material = turtleMaterial;
-			mesh.gotoAndStop(0);
+			mesh.animationLibrary.getAnimation("swim").animator.gotoAndStop(0);
 		}
 		
 		/**
@@ -365,9 +362,9 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
         {
-            lastPanAngle = camera.targetpanangle;
-            lastTiltAngle = camera.targettiltangle;
-            lastMouseX = stage.mouseX;
+            lastPanAngle = camera.panAngle;
+			lastTiltAngle = camera.tiltAngle;
+			lastMouseX = stage.mouseX;
             lastMouseY = stage.mouseY;
         	move = true;
         	stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);

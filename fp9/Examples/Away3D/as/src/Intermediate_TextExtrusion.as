@@ -40,9 +40,9 @@ package
 	import away3d.containers.*;
 	import away3d.core.base.Mesh;
 	import away3d.core.math.Number3D;
-	import away3d.core.render.SpriteRenderSession;
-	import away3d.extrusions.TextExtrude;
-	import away3d.lights.PointLight3D;
+	import away3d.core.render.*;
+	import away3d.extrusions.*;
+	import away3d.lights.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
 	
@@ -148,7 +148,7 @@ package
 		{
 			//material1 = new WireColorMaterial(0x8A0041, {wirecolor:0xFFFFFF});
 			material1 = new WireColorMaterial(0x8A0041);
-			material1.wirecolor = 0xFFFFFF;
+			material1.wireColor = 0xFFFFFF;
 			
 			material2 = new ColorMaterial(0xA02860);
 			
@@ -167,7 +167,7 @@ package
 			pointLight.ambient = 0.25;
 			pointLight.diffuse = 2;
 			pointLight.specular = 10;
-			scene.addChild(pointLight);
+			scene.addLight(pointLight);
 		}
 		
 		/**
@@ -180,7 +180,7 @@ package
 			textfield1.material = material1;
 			textfield1.text = "WireColor";
 			textfield1.size = 150;
-			textfield1.textWidth = 2000;
+			textfield1.width = 2000;
 			
 			textfield1.x -= textfield1.objectWidth/2;
 			textfield1.y += textfield1.objectHeight/2 + 275;
@@ -193,7 +193,7 @@ package
 			textfield2.material = material2;
 			textfield2.text = "Color";
 			textfield2.size = 150;
-			textfield2.textWidth = 2000;
+			textfield2.width = 2000;
 			
 			textfield2.x -= textfield2.objectWidth/2;
 			textfield2.y += textfield2.objectHeight/2 + 100;
@@ -206,7 +206,7 @@ package
 			textfield3.material = material3;
 			textfield3.text = "Shading";
 			textfield3.size = 200;
-			textfield3.textWidth = 2000;
+			textfield3.width = 2000;
 			
 			textfield3.x -= textfield3.objectWidth/2;
 			textfield3.y += textfield3.objectHeight/2 - 100;
@@ -219,7 +219,7 @@ package
 			textfield4.material = material4;
 			textfield4.text = "Wireframe";
 			textfield4.size = 150;
-			textfield4.textWidth = 2000;
+			textfield4.width = 2000;
 			
 			textfield4.x -= textfield4.objectWidth/2;
 			textfield4.y += textfield4.objectHeight/2 - 275;
@@ -241,14 +241,14 @@ package
 		/**
 		 * Creates an extrusion on a mesh object
 		 */
-		private function extrudeMesh(mesh:Mesh, subdivisionsXY:uint = 1, subdivisionsZ:uint = 1, bothsides:Boolean = false):void
+		private function extrudeMesh(mesh:Mesh, subdivisionsXY:uint = 1, subdivisionsZ:uint = 1, bothsides:Boolean = true):void
 		{
 			//push mesh to front
 			var renderSession:SpriteRenderSession = new SpriteRenderSession();
 			renderSession.screenZ = -999999;
 			mesh.ownSession = renderSession;
 			
-			var extrusion:TextExtrude = new TextExtrude(mesh, {subdivisionsXY:subdivisionsXY, subdivisionsZ:subdivisionsZ, bothsides:true});
+			var extrusion:TextExtrusion = new TextExtrusion(mesh, {subdivisionsXY:subdivisionsXY, subdivisionsZ:subdivisionsZ, bothsides:bothsides});
 			scene.addChild(extrusion);
 		}
 		
