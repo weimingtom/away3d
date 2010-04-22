@@ -165,6 +165,7 @@ package
 		{
 			//planeMaterial = new BitmapMaterial(Cast.bitmap(YellowImage), {precision:2.5});
 			planeMaterial = new BitmapMaterial(Cast.bitmap(YellowImage));
+			planeMaterial.precision = 2.5;
 			
 			//sphereMaterial = new PhongBitmapMaterial(Cast.bitmap(GreenImage), {shininess:20, specular:0x5A5A5A});
 			sphereMaterial = new PhongBitmapMaterial(Cast.bitmap(GreenImage));

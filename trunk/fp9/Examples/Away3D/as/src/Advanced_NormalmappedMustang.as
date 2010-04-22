@@ -14,9 +14,6 @@ http://www.infiniteturtles.co.uk
 
 Design by Eddie Carbin
 http://www.carbin.com/
-
-HDR pixel bender kernel by David Lenaerts
-http://www.derschmale.com/
  
 This code is distributed under the MIT License
 
@@ -176,11 +173,10 @@ package {
 			camera.tiltAngle = 20;
 			camera.hover(true);
 			
-			//view = new View3D({scene:scene, camera:camera, session:new BitmapRenderSession(1)});
+			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
-			view.session = new BitmapRenderSession(1);
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -199,7 +195,7 @@ package {
 		 */
 		private function initMaterials():void
 		{
-			//f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
+			//f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0x1A1A1A shininess:1000});
 			f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap));
 			f9Material.specular = 0x1A1A1A;
 			f9Material.shininess = 1000;

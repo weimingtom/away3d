@@ -144,6 +144,7 @@ package
 		{
 			//planeMaterial = new BitmapMaterial(Cast.bitmap(YellowImage), {precision:2.5});
 			planeMaterial = new BitmapMaterial(Cast.bitmap(YellowImage));
+			planeMaterial.precision = 2.5;
 		}
 		
 		/**
