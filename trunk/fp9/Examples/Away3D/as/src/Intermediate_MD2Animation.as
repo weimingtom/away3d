@@ -37,12 +37,13 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.animators.Animator;
+	import away3d.loaders.utils.AnimationLibrary;
 	import away3d.animators.data.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
-	import away3d.core.utils.Cast;
-	import away3d.events.*;
+	import away3d.core.utils.*;
 	import away3d.loaders.*;
 	import away3d.materials.*;
 	import away3d.test.Button;
@@ -140,8 +141,9 @@ package
 			
 			camera = new HoverCamera3D();
 			
-			camera.targetpanangle = camera.panangle = 45;
-			camera.targettiltangle = camera.tiltangle = 20;
+			camera.panAngle = 45;
+			camera.tiltAngle = 20;
+			camera.hover(true);
 			
 			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
@@ -175,13 +177,19 @@ package
 		{
 			//model = Md2.parse(OgreMesh, {material:material}) as Mesh;
 			md2 = new Md2();
+			md2.fps = 7;
 			model = md2.parseGeometry(OgreMesh) as Mesh;
 			model.material = material;
 			
 			model.scale(0.05);
 			scene.addChild(model);
 			
-			model.play(new AnimationSequence("stand", true, true, 10));
+			//setup animations
+			model.animationLibrary.getAnimation("deatha").animator.loop = false;
+			model.animationLibrary.getAnimation("deathb").animator.loop = false;
+			model.animationLibrary.getAnimation("deathc").animator.loop = false;
+			
+			model.animationLibrary.getAnimation("stand").animator.play();
 		}
 		
 		/**
@@ -294,64 +302,64 @@ package
         	
         	switch(button) {
         		case standButton:
-        			model.play(new AnimationSequence("stand", true, true, 7));
+        			model.animationLibrary.getAnimation("stand").animator.play();
         			break;
         		case runButton:
-        			model.play(new AnimationSequence("run", true, true, 7));
+        			model.animationLibrary.getAnimation("run").animator.play();
         			break;
         		case attackButton:
-        			model.play(new AnimationSequence("attack", true, true, 7));
+        			model.animationLibrary.getAnimation("attack").animator.play();
         			break;
         		case pain1Button:
-        			model.play(new AnimationSequence("paina", true, true, 7));
+        			model.animationLibrary.getAnimation("paina").animator.play();
         			break;
         		case pain2Button:
-        			model.play(new AnimationSequence("painb", true, true, 7));
+        			model.animationLibrary.getAnimation("painb").animator.play();
         			break;
         		case pain3Button:
-        			model.play(new AnimationSequence("painc", true, true, 7));
+        			model.animationLibrary.getAnimation("painc").animator.play();
         			break;
         		case jumpButton:
-        			model.play(new AnimationSequence("jump", true, true, 7));
+        			model.animationLibrary.getAnimation("jump").animator.play();
         			break;
         		case flipButton:
-        			model.play(new AnimationSequence("flip", true, true, 7));
+        			model.animationLibrary.getAnimation("flip").animator.play();
         			break;
         		case saluteButton:
-        			model.play(new AnimationSequence("salute_alt", true, true, 7));
+        			model.animationLibrary.getAnimation("salute_alt").animator.play();
         			break;
         		case flopButton:
-        			model.play(new AnimationSequence("bumflop", true, true, 7));
+        			model.animationLibrary.getAnimation("bumflop").animator.play();
         			break;
         		case waveButton:
-        			model.play(new AnimationSequence("wavealt", true, true, 7));
+        			model.animationLibrary.getAnimation("wavealt").animator.play();
         			break;
         		case sniffButton:
-        			model.play(new AnimationSequence("sniffsniff", true, true, 7));
+        			model.animationLibrary.getAnimation("sniffsniff").animator.play();
         			break;
         		case death1Button:
-        			model.play(new AnimationSequence("deatha", true, false, 7));
+        			model.animationLibrary.getAnimation("deatha").animator.gotoAndPlay(0);
         			break;
         		case death2Button:
-        			model.play(new AnimationSequence("deathb", true, false, 7));
+        			model.animationLibrary.getAnimation("deathb").animator.gotoAndPlay(0);
         			break;
         		case death3Button:
-        			model.play(new AnimationSequence("deathc", true, false, 7));
+        			model.animationLibrary.getAnimation("deathc").animator.gotoAndPlay(0);
         			break;
         		case cstandButton:
-        			model.play(new AnimationSequence("cstand", true, true, 7));
+        			model.animationLibrary.getAnimation("cstand").animator.play();
         			break;
         		case cwalkButton:
-        			model.play(new AnimationSequence("cwalk", true, true, 7));
+        			model.animationLibrary.getAnimation("cwalk").animator.play();
         			break;
         		case crattackButton:
-        			model.play(new AnimationSequence("crattack", true, true, 7));
+        			model.animationLibrary.getAnimation("crattack").animator.play();
         			break;
         		case crpainButton:
-        			model.play(new AnimationSequence("crpain", true, true, 7));
+        			model.animationLibrary.getAnimation("crpain").animator.play();
         			break;
         		case crdeathButton:
-        			model.play(new AnimationSequence("crdeath", true, false, 7));
+        			model.animationLibrary.getAnimation("crdeath").animator.play();
         			break;
         		default:
         	}
@@ -366,8 +374,8 @@ package
 				model.rotationY += 0.5;
 			
 			if (move) {
-				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
+				camera.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
 			camera.hover();  
@@ -379,9 +387,9 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
         {
-            lastPanAngle = camera.targetpanangle;
-            lastTiltAngle = camera.targettiltangle;
-            lastMouseX = stage.mouseX;
+            lastPanAngle = camera.panAngle;
+			lastTiltAngle = camera.tiltAngle;
+			lastMouseX = stage.mouseX;
             lastMouseY = stage.mouseY;
         	move = true;
         	stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);

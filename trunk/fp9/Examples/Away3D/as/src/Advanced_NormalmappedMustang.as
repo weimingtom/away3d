@@ -14,6 +14,9 @@ http://www.infiniteturtles.co.uk
 
 Design by Eddie Carbin
 http://www.carbin.com/
+
+HDR pixel bender kernel by David Lenaerts
+http://www.derschmale.com/
  
 This code is distributed under the MIT License
 
@@ -47,6 +50,7 @@ package {
 	import away3d.cameras.lenses.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
+	import away3d.core.math.*;
 	import away3d.core.render.*;
 	import away3d.core.utils.*;
 	import away3d.lights.*;
@@ -160,21 +164,23 @@ package {
 		{
 			scene = new Scene3D();
 			//camera = new HoverCamera3D({zoom:20, focus:50, lens:new SphericalLens(), distance:600, maxtiltangle:70, mintiltangle:5});
-			camera = new HoverCamera3D()
+			camera = new HoverCamera3D();
 			camera.zoom = 20;
 			camera.focus = 50;
 			camera.lens = new SphericalLens();
 			camera.distance = 600;
-			camera.maxtiltangle = 70;
-			camera.mintiltangle = 5;
+			camera.maxTiltAngle = 70;
+			camera.minTiltAngle = 5;
 			
-			camera.targetpanangle = camera.panangle = -140;
-			camera.targettiltangle = camera.tiltangle = 20;
+			camera.panAngle = -140;
+			camera.tiltAngle = 20;
+			camera.hover(true);
 			
-			//view = new View3D({scene:scene, camera:camera});
+			//view = new View3D({scene:scene, camera:camera, session:new BitmapRenderSession(1)});
 			view = new View3D();
 			view.scene = scene;
 			view.camera = camera;
+			view.session = new BitmapRenderSession(1);
 			
 			view.addSourceURL("srcview/index.html");
 			addChild(view);
@@ -195,7 +201,7 @@ package {
 		{
 			//f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap), {specular:0.1, shininess:1000});
 			f9Material = new Dot3BitmapMaterial(Cast.bitmap(BodyTexture), Cast.bitmap(Normalmap));
-			f9Material.specular = 0.1;
+			f9Material.specular = 0x1A1A1A;
 			f9Material.shininess = 1000;
 			
 			flatMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(BodyTexture));
@@ -312,14 +318,13 @@ package {
 		{
 			//light = new DirectionalLight3D({y:700, z:1000, color:0xFFFFFF, ambient:0.2, diffuse:0.7, debug:true});
 			light = new DirectionalLight3D();
-			light.y = 700;
-			light.z = 1000;
+			light.direction = new Number3D(0, -700, -1000);
 			light.color = 0xFFFFFF;
 			light.ambient = 0.2;
 			light.diffuse = 0.7;
 			light.debug = true;
 			
-			scene.addChild( light );
+			scene.addLight(light);
 		}
 				
 		/**
@@ -361,8 +366,8 @@ package {
 			tick(getTimer());
 			
 			if (move) {
-				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+				camera.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
+				camera.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
 			camera.hover();  
@@ -374,8 +379,8 @@ package {
 		 */
 		private function onMouseDown(event:MouseEvent):void
         {
-            lastPanAngle = camera.targetpanangle;
-            lastTiltAngle = camera.targettiltangle;
+            lastPanAngle = camera.panAngle;
+            lastTiltAngle = camera.tiltAngle;
             lastMouseX = stage.mouseX;
             lastMouseY = stage.mouseY;
         	move = true;
@@ -433,8 +438,7 @@ package {
 		 */
         private function tick(time:int):void
 	    {
-	    	light.x = 1000*Math.cos(time/2000);
-	    	light.z = 1000*Math.sin(time/2000);
+	    	light.direction = new Number3D(-1000*Math.cos(time/2000), -700, -1000*Math.sin(time/2000));
 	    	shadow.x = -20*Math.cos(time/2000);
 	    	shadow.z = -20*Math.sin(time/2000);
 	    }

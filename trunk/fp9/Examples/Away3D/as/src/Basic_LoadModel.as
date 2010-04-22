@@ -38,18 +38,18 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.debug.AwayStats;
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
 	import away3d.core.utils.*;
 	import away3d.events.*;
 	import away3d.loaders.*;
-	import away3d.materials.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW", width="800", height="600")]
 	
 	public class Basic_LoadModel extends Sprite
 	{
@@ -126,8 +126,9 @@ package
 			scene = new Scene3D();
 			
 			camera = new HoverCamera3D();
-			camera.targetpanangle = camera.panangle = 45;
-			camera.targettiltangle = camera.tiltangle = 20;
+			camera.panAngle = 45;
+			camera.tiltAngle = 20;
+			camera.hover(true);
 			
 			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
@@ -144,6 +145,8 @@ package
             SignatureBitmap.bitmapData.draw(Signature);
             stage.quality = StageQuality.LOW;
             addChild(SignatureBitmap);
+            
+            addChild(new AwayStats(view));
 		}
 		
 		/**
@@ -163,6 +166,7 @@ package
 			max3ds = new Max3DS();
 			max3ds.centerMeshes = true;
 			max3ds.material = materialArray[materialIndex];
+			
 			loader = new LoaderCube();
 			loader.loaderSize = 200;
 			loader.addOnSuccess(onSuccess);
@@ -191,8 +195,8 @@ package
 			loader.handle.rotationY += 2;
 			
 			if (move) {
-				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
+				camera.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
 			//rotate the wheels
@@ -239,9 +243,9 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
         {
-            lastPanAngle = camera.targetpanangle;
-            lastTiltAngle = camera.targettiltangle;
-            lastMouseX = stage.mouseX;
+            lastPanAngle = camera.panAngle;
+			lastTiltAngle = camera.tiltAngle;
+			lastMouseX = stage.mouseX;
             lastMouseY = stage.mouseY;
         	move = true;
         	stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);

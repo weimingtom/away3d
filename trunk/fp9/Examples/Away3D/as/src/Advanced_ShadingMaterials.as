@@ -43,18 +43,18 @@ package
 	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.core.base.*;
-	import away3d.core.utils.Cast;
-	import away3d.events.*;
+	import away3d.core.math.*;
+	import away3d.core.utils.*;
 	import away3d.lights.*;
 	import away3d.loaders.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
-	import away3d.test.Button;
+	import away3d.test.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	
-	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW", width="800", height="600")]
+	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW", width="800", height="600")]
 	
 	public class Advanced_ShadingMaterials extends Sprite
 	{
@@ -126,8 +126,8 @@ package
 		private var light:DirectionalLight3D;
 		
 		//scene objects
-		private var Md2Torso:Md2still;
-		private var Md2Pedestal:Md2still;
+		private var Md2Torso:Md2;
+		private var Md2Pedestal:Md2;
 		private var torso:Mesh;
 		private var pedestal:Mesh;
 		private var panorama:Skybox;
@@ -181,8 +181,9 @@ package
 			camera.distance = 40000;
 			camera.yfactor = 1;
 			
-			camera.targetpanangle = camera.panangle = -10;
-			camera.targettiltangle = camera.tiltangle = 20;
+			camera.panAngle = -10;
+			camera.tiltAngle = 20;
+			camera.hover(true);
 			
 			//view = new View3D({scene:scene, camera:camera});
 			view = new View3D();
@@ -216,14 +217,15 @@ package
 			pedestalMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(PedestalImage));
 			
 			torsoNormalMaterial = new Dot3BitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(TorsoNormal));
+			torsoNormalMaterial.specular = 0x808080;
 			
 			//torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR), {reflectiveness:0.2});
 			torsoEnviroMaterial = new EnviroBitmapMaterial(Cast.bitmap(TorsoImage), Cast.bitmap(PanoramaImageR));
 			torsoEnviroMaterial.reflectiveness = 0.2;
 			
-			//torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage), {specular:0.5});
+			//torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage), {specular:0x808080});
 			torsoPhongMaterial = new PhongBitmapMaterial(Cast.bitmap(TorsoImage));
-			torsoPhongMaterial.specular = 0.5;
+			torsoPhongMaterial.specular = 0x808080;
 			
 			torsoFlatMaterial = new WhiteShadingBitmapMaterial(Cast.bitmap(TorsoImage));
 		}
@@ -240,11 +242,9 @@ package
 			light.ambient = 0.25;
 			light.diffuse = 0.75;
 			light.specular = 0.9;
-			light.x = 40000;
-            light.z = 40000;
-            light.y = 40000;
+			light.direction = new Number3D(-1, -1, -1);
             
-			scene.addChild(light);
+			scene.addLight(light);
 		}
 		
 		/**
@@ -253,7 +253,7 @@ package
 		private function initObjects():void
 		{
             //torso = Md2still.parse(TorsoMD2, {ownCanvas:true, material:torsoNormalMaterial});
-            Md2Torso = new Md2still();
+            Md2Torso = new Md2();
             torso = Md2Torso.parseGeometry(TorsoMD2) as Mesh;
             torso.ownCanvas = true;
             torso.material = torsoNormalMaterial;
@@ -266,7 +266,7 @@ package
             scene.addChild(torso);
 			
 			//pedestal = Md2still.parse(PedestalMD2, {ownCanvas:true, material:pedestalMaterial, rotationX:180, rotationZ:180});
-			Md2Pedestal = new Md2still();
+			Md2Pedestal = new Md2();
 			pedestal = Md2Pedestal.parseGeometry(PedestalMD2) as Mesh;
 			pedestal.ownCanvas = true;
 			pedestal.material = pedestalMaterial;
@@ -337,8 +337,8 @@ package
 		private function onEnterFrame(event:Event):void
 		{
 			if (move) {
-				camera.targetpanangle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				camera.targettiltangle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
+				camera.tiltAngle = 0.3 * (stage.mouseY - lastMouseY) + lastTiltAngle;
 			}
 			
 			torso.rotationY += 3;
@@ -352,9 +352,9 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
         {
-            lastPanAngle = camera.targetpanangle;
-            lastTiltAngle = camera.targettiltangle;
-            lastMouseX = stage.mouseX;
+            lastPanAngle = camera.panAngle;
+			lastTiltAngle = camera.tiltAngle;
+			lastMouseX = stage.mouseX;
             lastMouseY = stage.mouseY;
         	move = true;
         	stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
