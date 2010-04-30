@@ -208,7 +208,7 @@ package away3dlite.containers
 
 		private function onAddedToStage(event:Event):void
 		{
-			stage.addEventListener(Event.RESIZE, onStageResized);
+			stage.addEventListener(Event.RESIZE, onStageResized, false, 0, true);
 		}
 
 		private function onMouseDown(e:MouseEvent):void
