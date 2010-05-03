@@ -13,7 +13,6 @@ package
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
-	import flash.utils.*;
 
 	[SWF(backgroundColor="#CCCCCC", frameRate="30", width="800", height="600")]
 	/**
