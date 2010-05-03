@@ -1,9 +1,8 @@
 package
 {
-	import away3dlite.loaders.OBJ;
 	import away3dlite.lights.Light;
+	import away3dlite.loaders.OBJ;
 	import away3dlite.materials.shaders.PBBitmapShader;
-	import away3dlite.primitives.Sphere;
 	import away3dlite.templates.BasicTemplate;
 
 	import flash.display.Bitmap;
@@ -36,7 +35,7 @@ package
 		private var step:Number = 0;
 		private var light:Light;
 
-		private var dfBack:Bitmap
+		private var dfBack:Bitmap;
 
 		override protected function onInit():void
 		{
@@ -50,10 +49,8 @@ package
 			var normBm2:Bitmap = new NormalMap2() as Bitmap;
 
 			dfBack = new BackgroundMap() as Bitmap;
-			dfBack.alpha = 0.5
-			addChildAt(dfBack, 0)
-
-			var segment:uint = 20;
+			dfBack.alpha = 0.5;
+			addChildAt(dfBack, 0);
 
 			light = new Light();
 			light.x = 0;
@@ -72,8 +69,8 @@ package
 
 		override protected function onPreRender():void
 		{
-			dfBack.x = (-dfBack.width / 2 + stage.stageWidth / 2)
-			dfBack.y = (-dfBack.height / 2 + stage.stageHeight / 2)
+			dfBack.x = (-dfBack.width / 2 + stage.stageWidth / 2);
+			dfBack.y = (-dfBack.height / 2 + stage.stageHeight / 2);
 			sphere.rotationY += 5;
 			light.x = Math.cos(step * 5) * 150;
 			light.y = Math.sin(step * 5) * 150;

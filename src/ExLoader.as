@@ -1,10 +1,7 @@
 package
 {
-	import away3dlite.templates.Template;
-
 	import flash.display.*;
 	import flash.events.Event;
-	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="1024", height="768")]
