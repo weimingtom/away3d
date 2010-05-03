@@ -43,7 +43,7 @@ package com.adobe.serialization.json {
 		private var strict:Boolean;
 	
 		/** The object that will get parsed from the JSON string */
-		private var obj:Object;
+		//private var obj:Object;
 		
 		/** The JSON string to be parsed */
 		private var jsonString:String;
@@ -96,31 +96,31 @@ package com.adobe.serialization.json {
 					token.type = JSONTokenType.LEFT_BRACE;
 					token.value = '{';
 					nextChar();
-					break
+					break;
 					
 				case '}':
 					token.type = JSONTokenType.RIGHT_BRACE;
 					token.value = '}';
 					nextChar();
-					break
+					break;
 					
 				case '[':
 					token.type = JSONTokenType.LEFT_BRACKET;
 					token.value = '[';
 					nextChar();
-					break
+					break;
 					
 				case ']':
 					token.type = JSONTokenType.RIGHT_BRACKET;
 					token.value = ']';
 					nextChar();
-					break
+					break;
 				
 				case ',':
 					token.type = JSONTokenType.COMMA;
 					token.value = ',';
 					nextChar();
-					break
+					break;
 					
 				case ':':
 					token.type = JSONTokenType.COLON;
@@ -482,7 +482,7 @@ package com.adobe.serialization.json {
 			// check for scientific notation
 			if ( ch == 'e' || ch == 'E' )
 			{
-				input += "e"
+				input += "e";
 				nextChar();
 				// check for sign
 				if ( ch == '+' || ch == '-' )
@@ -577,7 +577,7 @@ package com.adobe.serialization.json {
 						{
 							nextChar();
 						}
-						while ( ch != '\n' && ch != '' )
+						while ( ch != '\n' && ch != '' );
 						
 						// move past the \n
 						nextChar();

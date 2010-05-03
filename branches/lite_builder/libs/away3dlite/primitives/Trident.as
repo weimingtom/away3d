@@ -5,7 +5,6 @@ package away3dlite.primitives
 	import away3dlite.primitives.LineSegment;
 	
 	import flash.geom.Vector3D;
-	import flash.utils.*;
 
 	public class Trident extends ObjectContainer3D
 	{

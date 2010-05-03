@@ -31,7 +31,6 @@
 */
 package com.adobe.images
 {
-	import flash.geom.*;
 	import flash.display.*;
 	import flash.utils.*;
 	

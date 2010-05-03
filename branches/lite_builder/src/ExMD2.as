@@ -3,12 +3,12 @@ package
 	import away3dlite.animators.MovieMesh;
 	import away3dlite.core.base.*;
 	import away3dlite.events.*;
-	import away3dlite.loaders.*;
+	import away3dlite.loaders.Loader3D;
+	import away3dlite.loaders.MD2;
 	import away3dlite.materials.BitmapFileMaterial;
 	import away3dlite.materials.WireColorMaterial;
 	import away3dlite.templates.*;
 	
-	import flash.display.*;
 	import flash.geom.Vector3D;
 
 	[SWF(backgroundColor="#FFFFFF", frameRate="30", width="800", height="600")]
