@@ -6,7 +6,6 @@ package away3dlite.core.culler
 	import away3dlite.core.base.Mesh;
 	import away3dlite.core.base.Object3D;
 
-	import flash.display.*;
 	import flash.geom.Vector3D;
 
 	use namespace arcane;
@@ -98,7 +97,7 @@ package away3dlite.core.culler
 			setCamDef(_camera.transform.matrix3D.position, new Vector3D(0, 0, 1), new Vector3D(0, 1, 0));
 		}
 
-		private function pointInFrustum(position:Vector3D):int
+		public function pointInFrustum(position:Vector3D):int
 		{
 			var pcz:Number, pcx:Number, pcy:Number, aux:Number;
 

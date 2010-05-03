@@ -108,7 +108,7 @@ package away3dlite.containers
 			
             for each(var object3D:Object3D in children) 
             	if (object3D is Mesh)
-            		object3D.layer = value
+            		object3D.layer = value;
 		}
 		
 		override public function set canvas(value:Sprite):void
@@ -117,7 +117,7 @@ package away3dlite.containers
 			
             for each(var object3D:Object3D in children) 
             	if (object3D is Mesh)
-            		object3D.canvas = value
+            		object3D.canvas = value;
 		}
 
         
@@ -419,7 +419,7 @@ package away3dlite.containers
 			
 			_children = null;
 			_sprites = null;
-			_lights = null
+			_lights = null;
 			_spriteVertices = null;
 			_spriteIndices = null;
 			_cameraSceneMatrix3D = null;

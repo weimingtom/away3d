@@ -17,7 +17,7 @@ package away3dlite.materials.shaders
 	public class NormalMaterial extends VertexShaderMaterial implements IShader
 	{
 
-		private var _zValue:Boolean
+		private var _zValue:Boolean;
 
 		public function NormalMaterial(light:Light, zValue:Boolean = false)
 		{
@@ -25,11 +25,11 @@ package away3dlite.materials.shaders
 			var bmd:BitmapData;
 			if (zValue)
 			{
-				bmd = getShadingBitmapZ()
+				bmd = getShadingBitmapZ();
 			}
 			else
 			{
-				bmd = getShadingBitmapXY()
+				bmd = getShadingBitmapXY();
 			}
 			super(light, bmd);
 		}

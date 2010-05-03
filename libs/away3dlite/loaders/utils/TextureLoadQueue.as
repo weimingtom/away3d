@@ -66,7 +66,7 @@ package away3dlite.loaders.utils
 					if (currentByteArrayProviderFunction != null)
 					{
 						currentLoader.filename = currentURLRequest.url;
-						var data:ByteArray = currentByteArrayProviderFunction(currentURLRequest.url);
+						var data:ByteArray = currentByteArrayProviderFunction();
 						if (data != null && data.length > 0)
 							currentLoader.loadBytes(data);
 						else

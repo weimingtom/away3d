@@ -1,7 +1,5 @@
 package away3dlite.core.render
 {
-	import __AS3__.vec.Vector;
-
 	import away3dlite.arcane;
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
@@ -34,7 +32,6 @@ package away3dlite.core.render
 		//---------------------------------------------------
 		// Members not required if we use only Float ZSorting
 
-		private var ql:Vector.<int> = new Vector.<int>(256, true);
 		private var k:int;
 		private var q0:Vector.<int>;
 		private var np0:Vector.<int>;
@@ -141,7 +138,7 @@ package away3dlite.core.render
 				//Put the sorted indices inside a Vector
 				j = 0;
 				for each (var triangle:Object in triangles)
-					np1[int(j++)] = triangle.i;
+					np1[int(j++)] = triangle["i"];
 				np1[int(j++)] = 0;
 
 				triangles = null;

@@ -44,7 +44,6 @@ package away3dlite.loaders
 		private var faceDatas:Vector.<Face>;
 		private var container:Object3D;
 
-		private var i:int = 0;
 		private var n:int = -1;
 
 		private function parse(data:String):void
@@ -341,13 +340,12 @@ package away3dlite.loaders
 
 		private function parseMtl(event:Event):void
 		{
-			var lines:Array = event.target["data"].split('\n');
+			var lines:Array = String(event.target["data"]).split('\n');
 			if (lines.length == 1)
-				lines = event.target["data"].split(String.fromCharCode(13));
+				lines = String(event.target["data"]).split(String.fromCharCode(13));
 			var trunk:Array;
 			var i:int;
 			var j:int;
-			var _face:Face;
 			var mat:BitmapFileMaterial;
 			aMats = [];
 
@@ -576,8 +574,6 @@ import flash.events.ProgressEvent;
 import flash.events.SecurityErrorEvent;
 import flash.net.URLLoader;
 import flash.net.URLRequest;
-import flash.system.ApplicationDomain;
-import flash.system.LoaderContext;
 
 internal class LoaderUtil
 {
