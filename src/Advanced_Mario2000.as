@@ -24,7 +24,7 @@ package
 	public class Advanced_Mario2000 extends BasicTemplate
 	{
 		private var particles:Particles;
-		new par
+		
 		private var particleMaterial:ParticleMaterial;
 
 		private const size:uint = 25;
