@@ -59,13 +59,13 @@ package away3dlite.materials
 
 		private function onComplete(e:Event):void
 		{
-			if(!e.target.content)
+			if(!e.target["content"])
 			{
 				dispatchEvent(new MaterialEvent(MaterialEvent.LOAD_ERROR, this));
 				return;
 			}
 			
-			bitmapData = Bitmap(e.target.content).bitmapData.clone();
+			bitmapData = Bitmap(e.target["content"]).bitmapData.clone();
 
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
@@ -76,7 +76,7 @@ package away3dlite.materials
 			
 			dispatchEvent(_materialloadsuccess);
 			
-			Bitmap(e.target.content).bitmapData.dispose();
+			Bitmap(e.target["content"]).bitmapData.dispose();
 			_loader = null;
 		}
 

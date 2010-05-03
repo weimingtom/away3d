@@ -65,7 +65,7 @@ package away3dlite.materials.shaders
 			var i:int, r:int, c:int, lightTable:BitmapData = new BitmapData(256, 256, false), rct:Rectangle = new Rectangle();
 
 			// base color
-			var alpha:Number = alpha_;
+			alpha_;
 			colorTable.fillRect(colorTable.rect, color);
 
 			// ambient/diffusion/emittance

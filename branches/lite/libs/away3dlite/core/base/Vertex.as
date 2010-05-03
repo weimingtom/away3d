@@ -1,7 +1,6 @@
 package away3dlite.core.base
 {
 	import flash.geom.Matrix3D;
-	import flash.geom.Utils3D;
 	import flash.geom.Vector3D;
 
 	/**
@@ -46,7 +45,7 @@ package away3dlite.core.base
 		{
 
 			projnormal = matrix3D.transformVector(normal);
-			projnormal.normalize()
+			projnormal.normalize();
 			return projnormal;
 		}
 	}

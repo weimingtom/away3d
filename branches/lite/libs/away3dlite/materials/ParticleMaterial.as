@@ -1,8 +1,6 @@
 package away3dlite.materials
 {
 	import flash.display.*;
-	import flash.events.*;
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
 	/**

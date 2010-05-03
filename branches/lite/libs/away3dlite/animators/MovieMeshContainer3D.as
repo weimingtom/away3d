@@ -5,7 +5,6 @@ package away3dlite.animators
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
 	
-	import flash.display.DisplayObject;
 	import flash.events.*;
 	import flash.utils.*;
 
