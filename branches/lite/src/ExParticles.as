@@ -6,12 +6,11 @@ package
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.*;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.BlurFilter;
 	import flash.geom.Matrix;
-	import flash.geom.Rectangle;
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
@@ -38,7 +37,7 @@ package
 
 			// speed up
 			view.mouseEnabled = false;
-			
+
 			// clipping
 			clipping = new RectangleClipping();
 			clipping.minX = -300;
@@ -54,32 +53,26 @@ package
 			// create particles
 			particles = new Particles();
 			particles.animate = true;
-			
+
 			/* layer test
-			particles.layer = new Sprite();
-			addChild(particles.layer);
-			particles.layer.filters = [new BlurFilter(4,4)]
-			particles.layer.x = _customWidth/2;
-			particles.layer.y = _customHeight/2;
-			*/
-			
+			   particles.layer = new Sprite();
+			   addChild(particles.layer);
+			   particles.layer.filters = [new BlurFilter(4,4)]
+			   particles.layer.x = _customWidth/2;
+			   particles.layer.y = _customHeight/2;
+			 */
+
 			segment = size + 2 * Math.PI / (size * 1.25);
 
 			var i:Number = (stage.stageHeight - 100) / max;
 			for (var j:int = 0; j < max; j++)
 			{
-				var _particle:Particle = new Particle
-				(
-					radius * Math.cos(segment * j),
-					i * (j - max / 2),
-					radius * Math.sin(segment * j),
-					particleMaterial.clone()
-				)
+				var _particle:Particle = new Particle(radius * Math.cos(segment * j), i * (j - max / 2), radius * Math.sin(segment * j), particleMaterial.clone());
 				particles.addParticle(_particle);
 
-				// each particle effect (slow warning!)
-				//_particle.blendMode = BlendMode.OVERLAY;
-				//_particle.filters = [new GlowFilter(0xFF00FF, .5, 6, 6, 1, 1, true)];
+					// each particle effect (slow warning!)
+					//_particle.blendMode = BlendMode.OVERLAY;
+					//_particle.filters = [new GlowFilter(0xFF00FF, .5, 6, 6, 1, 1, true)];
 			}
 
 			scene.addChild(particles);
@@ -99,15 +92,15 @@ package
 
 			// toggle
 			stage.addEventListener(MouseEvent.CLICK, onClick);
-			
+
 			// debug
 			var debugRect:Shape = new Shape();
 			debugRect.graphics.lineStyle(1, 0xFF0000);
 			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
 			debugRect.graphics.endFill();
-			
-			debugRect.x = _screenRect.width/2;
-			debugRect.y = _screenRect.height/2;
+
+			debugRect.x = _screenRect.width / 2;
+			debugRect.y = _screenRect.height / 2;
 			addChild(debugRect);
 		}
 
@@ -128,8 +121,6 @@ package
 
 			return _material;
 		}
-
-		private var bitmap:Bitmap;
 
 		private function drawDot(_graphics:Graphics, x:Number, y:Number, size:Number, colorLight:uint, colorDark:uint):void
 		{
@@ -173,7 +164,7 @@ package
 			   camera.y = 10 * (300 - mouseY);
 			   camera.z = 1000 * Math.sin(step);
 			   camera.lookAt(new Vector3D());
-			*/
+			 */
 
 			step += .01;
 		}

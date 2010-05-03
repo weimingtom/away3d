@@ -2,20 +2,14 @@ package
 {
 	import away3dlite.animators.BonesAnimator;
 	import away3dlite.animators.bones.Bone;
-	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
 	import away3dlite.core.base.Mesh;
-	import away3dlite.core.base.Object3D;
 	import away3dlite.core.utils.*;
 	import away3dlite.events.Loader3DEvent;
 	import away3dlite.loaders.*;
-	import away3dlite.materials.*;
-	import away3dlite.primitives.*;
 	import away3dlite.templates.BasicTemplate;
 
-	import flash.display.*;
 	import flash.events.*;
-	import flash.filters.BlurFilter;
 	import flash.geom.Vector3D;
 	import flash.utils.*;
 

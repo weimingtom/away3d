@@ -41,11 +41,11 @@ package
 			bLight.ambient = 0.1;
 			scene.addLight(bLight);
 
-			var _texture:Bitmap = new Texture;
+			var _texture:Bitmap = new Texture as Bitmap;
 			var _bitmap:BitmapData = new BitmapData(_texture.width, _texture.height, false);
 			_bitmap.draw(_texture);
 
-			var _normalMap:Bitmap = new Normal;
+			var _normalMap:Bitmap = new Normal as Bitmap;
 			var material:BitmapMaterial = new Dot3BitmapMaterial(_bitmap, _normalMap.bitmapData);
 			material.smooth = true;
 

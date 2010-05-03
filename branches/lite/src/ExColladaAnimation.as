@@ -1,8 +1,6 @@
 package
 {
 	import away3dlite.animators.BonesAnimator;
-	import away3dlite.cameras.*;
-	import away3dlite.containers.*;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.utils.*;
 	import away3dlite.events.Loader3DEvent;
@@ -10,9 +8,8 @@ package
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.BasicTemplate;
-	
+
 	import flash.display.*;
-	import flash.events.*;
 	import flash.geom.Vector3D;
 	import flash.utils.*;
 
@@ -28,8 +25,8 @@ package
 
 		private function onSuccess(event:Loader3DEvent):void
 		{
-			var _model:Object3D = event.target.handle;
-			_model.layer = event.target.layer;
+			var _model:Object3D = event.target["handle"];
+			_model.layer = event.target["layer"];
 
 			var sphere:Sphere = new Sphere();
 			scene.addChild(sphere);
