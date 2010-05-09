@@ -3,6 +3,7 @@ package away3dlite.templates
 	import away3dlite.arcane;
 	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.debug.*;
 
 	import flash.display.*;
@@ -16,76 +17,20 @@ package away3dlite.templates
 	/**
 	 * Base template class.
 	 */
-	public class Template extends Sprite
+	public class Template extends Sprite implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
+
+		// stage
 		protected var _stageWidth:Number = stage ? stage.stageWidth : NaN;
 		protected var _stageHeight:Number = stage ? stage.stageHeight : NaN;
-
 		protected var _screenRect:Rectangle;
 
-		/** @private */
-		arcane function init():void
-		{
-			//init scene
-			scene = new Scene3D();
-
-			//init camera
-			camera = new Camera3D();
-			camera.z = -1000;
-
-			//init view
-			view = new View3D();
-			view.scene = scene;
-			view.camera = camera;
-
-			if (_screenRect && _screenRect.width && _screenRect.height)
-			{
-				//init size
-				view.setSize(_screenRect.width, _screenRect.height);
-
-				//center view to stage
-				view.x = _screenRect.width / 2;
-				view.y = _screenRect.height / 2;
-			}
-
-			//add view to the displaylist
-			addChild(view);
-
-			//init stats panel
-			stats = new AwayStats;
-
-			//add stats to the displaylist
-			addChild(stats);
-
-			//init debug textfield
-			debugText = new TextField();
-			debugText.selectable = false;
-			debugText.mouseEnabled = false;
-			debugText.mouseWheelEnabled = false;
-			debugText.defaultTextFormat = new TextFormat("Tahoma", 12, 0x000000);
-			debugText.autoSize = "left";
-			debugText.x = 140;
-			debugText.textColor = 0xFFFFFF;
-			debugText.filters = [new GlowFilter(0x000000, 1, 4, 4, 2, 1)];
-
-			//add debug textfield to the displaylist
-			addChild(debugText);
-
-			//set default debug
-			debug = true;
-
-			//set default title
-			title = "Away3DLite";
-
-			//add enterframe listener
-			start();
-
-			//trigger onInit method
-			onInit();
-		}
-
-		protected var stats:AwayStats;
-		protected var debugText:TextField;
+		// debug
+		protected var _debugLayer:Sprite;
+		protected var _stats:AwayStats;
+		protected var _debugText:TextField;
 		private var _title:String;
 		private var _debug:Boolean;
 
@@ -94,18 +39,21 @@ package away3dlite.templates
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 
 			// setup stage
-			setupStage();
+			initStage();
 
 			// init 3D
 			init();
+
+			// init debug
+			initDebug();
 		}
 
-		protected function setupStage():void
+		protected function initStage():void
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.quality = StageQuality.MEDIUM;
 
-			if(!_screenRect)
+			if (!_screenRect)
 			{
 				_screenRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
 				_screenRect.width = _stageWidth ? _stageWidth : _screenRect.width;
@@ -122,6 +70,59 @@ package away3dlite.templates
 			// override me
 		}
 
+		/** @private */
+		arcane function init():void
+		{
+			// init view
+			addChild(view = new View3D(scene = new Scene3D(), camera = new Camera3D()));
+
+			// default camera setting
+			camera.z = -1000;
+
+			// screen size
+			if (_screenRect && _screenRect.width && _screenRect.height)
+			{
+				// init size
+				view.setSize(_screenRect.width, _screenRect.height);
+
+				// center view to stage
+				view.x = _screenRect.width / 2;
+				view.y = _screenRect.height / 2;
+			}
+
+			// add enterframe listener
+			start();
+
+			// trigger onInit method
+			onInit();
+		}
+
+		protected function initDebug():void
+		{
+			addChild(_debugLayer = new Sprite());
+			_debugLayer.addChild(_stats = new AwayStats());
+
+			// init debug textfield
+			_debugText = new TextField();
+			_debugText.selectable = false;
+			_debugText.mouseEnabled = false;
+			_debugText.mouseWheelEnabled = false;
+			_debugText.defaultTextFormat = new TextFormat("Tahoma", 12, 0x000000);
+			_debugText.autoSize = "left";
+			_debugText.x = _stats.width + 10;
+			_debugText.textColor = 0xFFFFFF;
+			_debugText.filters = [new GlowFilter(0x000000, 1, 4, 4, 2, 1)];
+
+			// add debug textfield to the displaylist
+			_debugLayer.addChild(_debugText);
+
+			// set default debug
+			debug = true;
+
+			// set default title
+			title = _title || "Away3DLite";
+		}
+
 		protected function onEnterFrame(event:Event):void
 		{
 			onPreRender();
@@ -130,7 +131,7 @@ package away3dlite.templates
 
 			if (_debug)
 			{
-				debugText.text = _title + " Object3D(s) : " + view.totalObjects + ", Face(s) : " + view.totalFaces;
+				_debugText.text = _title + " Object3D(s) : " + view.totalObjects + ", Face(s) : " + view.totalFaces;
 				onDebug();
 			}
 
@@ -185,8 +186,6 @@ package away3dlite.templates
 				return;
 
 			_title = val;
-
-			debugText.text = _title + ", Object3D(s) : " + view.totalObjects + ", Face(s) : " + view.totalFaces;
 		}
 
 		/**
@@ -204,8 +203,15 @@ package away3dlite.templates
 
 			_debug = val;
 
-			debugText.visible = _debug;
-			stats.visible = _debug;
+			if (_debug)
+			{
+				if (_debugLayer && !_debugLayer.parent)
+					_debugLayer.parent.addChild(_debugLayer);
+			}
+			else
+			{
+				_debugLayer.parent.removeChild(_debugLayer);
+			}
 		}
 
 		/**
@@ -228,7 +234,7 @@ package away3dlite.templates
 		 */
 		public function Template()
 		{
-			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true);
 		}
 
 		/**
@@ -236,7 +242,7 @@ package away3dlite.templates
 		 */
 		public function start():void
 		{
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
 		}
 
 		/**
@@ -245,6 +251,36 @@ package away3dlite.templates
 		public function stop():void
 		{
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+		}
+
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			_isDestroyed = true;
+
+			if (_debugText && _debugText.parent)
+				_debugText.parent.removeChild(_debugText);
+			_debugText = null;
+
+			if (_stats && _stats.parent)
+				_stats.parent.removeChild(_stats);
+			_stats = null;
+
+			if (_debugLayer && _debugLayer.parent)
+				_debugLayer.parent.removeChild(_debugLayer);
+			_debugLayer = null;
+
+			scene.destroy();
+			scene = null;
+
+			view.destroy();
+			view = null;
+
+			stop();
 		}
 	}
 }
