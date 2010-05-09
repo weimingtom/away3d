@@ -493,8 +493,8 @@ package away3dlite.containers
 			if (_clipping)
 			{
 				_clipping.setView(this);
-				_clipping.addEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated);
-				_clipping.addEventListener(ClippingEvent.SCREEN_UPDATED, onScreenUpdated);
+				_clipping.addEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated, false, 0, true);
+				_clipping.addEventListener(ClippingEvent.SCREEN_UPDATED, onScreenUpdated, false, 0, true);
 			}
 			else
 			{
