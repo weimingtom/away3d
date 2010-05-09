@@ -25,11 +25,6 @@ package
 		private var lastMouseX:Number;
 		private var lastMouseY:Number;
 
-		override protected function setupStage():void
-		{
-			super.setupStage();
-		}
-
 		override protected function onInit():void
 		{
 			initEngine();
