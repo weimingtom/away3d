@@ -16,14 +16,14 @@ package away3dlite.templates
 		{
 			super.init();
 
-			view.renderer = renderer;
-			view.clipping = clipping || new RectangleClipping();
+			view.renderer = renderer = renderer ? renderer : view.renderer as BasicRenderer;
+			view.clipping = clipping = clipping ? clipping : view.clipping;
 		}
 
 		/**
 		 * The renderer object used in the template.
 		 */
-		public var renderer:BasicRenderer = new BasicRenderer();
+		public var renderer:BasicRenderer;
 
 		/**
 		 * The clipping object used in the template.
