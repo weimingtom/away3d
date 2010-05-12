@@ -179,7 +179,7 @@ package away3dlite.core.base
 				var i:int = _faces ? _faces.length : 0;
 				while (i--)
 				{
-					oldMaterial = _faces[i].material;
+					oldMaterial = _faces[i]._material;
 
 					if (!clear)
 					{

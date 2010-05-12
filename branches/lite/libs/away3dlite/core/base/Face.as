@@ -21,9 +21,26 @@ package away3dlite.core.base
 		public var mesh:Mesh;
 
 		/**
+		 * Material of the face. (faster than get/set)
+		 */
+		arcane var _material:Material;
+		
+		/**
 		 * Material of the face.
 		 */
-		public var material:Material;
+		public function get material():Material
+		{
+			return _material;
+		}
+
+		/**
+		 * Set material of the face.
+		 */
+		public function set material(value:Material):void
+		{
+			_material = value;
+			mesh.material.dirty = true;
+		}
 
 		/**
 		 * Index value of the face.

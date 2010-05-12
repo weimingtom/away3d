@@ -273,7 +273,7 @@ package away3dlite.containers
 			if (_face)
 			{
 				_uvt = _face.calculateUVT(mouseX, mouseY);
-				_material = _face.material;
+				_material = _face._material;
 				_object = _face.mesh;
 				_scenePosition = camera.lens.unProject(mouseX, mouseY, _uvt.z);
 				_scenePosition = camera.transform.matrix3D.transformVector(_scenePosition);

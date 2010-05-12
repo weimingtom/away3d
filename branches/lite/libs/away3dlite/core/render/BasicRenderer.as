@@ -131,7 +131,7 @@ package away3dlite.core.render
 		{
 			_face = _faces[j - 1];
 
-			if (_material != _face.material || (_material && _material.shared))
+			if (_material != _face._material || (_material && _material.shared))
 			{
 				if (_material)
 				{
@@ -148,7 +148,7 @@ package away3dlite.core.render
 				_k = -1;
 
 				_mesh = _face.mesh;
-				_material = _face.material;
+				_material = _face._material;
 				_material_graphicsData = _material.graphicsData;
 				_screenVertices = _mesh._screenVertices;
 				_uvtData = _mesh._uvtData;
