@@ -34,10 +34,8 @@ package away3dlite.containers
 		/** @private */
 		arcane function removeSceneMaterial(mat:Material):void
 		{
-
-			if (!(--mat._faceCount[_id]))
+			if (mat._faceCount.length > 0 && !(--mat._faceCount[_id]))
 			{
-
 				_materialsSceneList[mat._id[_id]] == null;
 
 				//reduce the length of the material list if the removed material is at the end
