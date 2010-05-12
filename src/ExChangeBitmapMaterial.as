@@ -116,7 +116,6 @@
 				var mesh:Mesh = e.object as Mesh;
 				//mesh.material = new WireColorMaterial();
 				mesh.material = new BitmapMaterial(newBitmap);
-				mesh.updateMaterials();
 			}
 		}
 
