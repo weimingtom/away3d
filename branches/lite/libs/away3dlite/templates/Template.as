@@ -31,7 +31,7 @@ package away3dlite.templates
 		protected var _debugLayer:Sprite;
 		protected var _stats:AwayStats;
 		protected var _debugText:TextField;
-		private var _title:String;
+		private var _title:String = "Away3DLite";
 		private var _debug:Boolean;
 
 		protected function onAddedToStage(event:Event):void
@@ -120,7 +120,7 @@ package away3dlite.templates
 			debug = true;
 
 			// set default title
-			title = _title || "Away3DLite";
+			title = _title;
 		}
 
 		protected function onEnterFrame(event:Event):void
