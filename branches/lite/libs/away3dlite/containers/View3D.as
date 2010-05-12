@@ -362,6 +362,7 @@ package away3dlite.containers
 			event.material = _material;
 			event.object = _object;
 			event.uvt = _uvt;
+			event.face = _face;
 
 			return event;
 		}
