@@ -1,11 +1,11 @@
 package away3dlite.events
 {
-	import flash.geom.Vector3D;
-	import away3dlite.materials.Material;
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
-
+	import away3dlite.materials.Material;
+	
 	import flash.events.Event;
+	import flash.geom.Vector3D;
 
 	/**
 	 * Passed as a parameter when a 3d mouse event occurs
@@ -76,7 +76,12 @@ package away3dlite.events
 		 * The material of the 3d element inside which the event took place.
 		 */
 		public var material:Material;
-
+		
+		/**
+		 * Face under mouse 
+		 */		
+		public var face:Face;
+		
 		/**
 		 * The uvt coordinate inside the triangle where the event took place.
 		 */
@@ -121,6 +126,7 @@ package away3dlite.events
 			result.object = object;
 			result.material = material;
 			result.uvt = uvt;
+			result.face = face;
 
 			result.ctrlKey = ctrlKey;
 			result.shiftKey = shiftKey;
