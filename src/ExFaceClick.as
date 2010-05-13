@@ -8,7 +8,7 @@ package
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
-	 * Example : Change Face Material when hit
+	 * Example : Change face material when click.
 	 * @author katopz
 	 */
 	public class ExFaceClick extends BasicTemplate
@@ -17,7 +17,7 @@ package
 
 		override protected function onInit():void
 		{
-			title += " : Change Face Material when hit";
+			title += " : Change face material when click.";
 
 			_plane = new Plane(new ColorMaterial(0xFF0000), 200, 200, 2, 2);
 			_plane.bothsides = true;
@@ -31,14 +31,6 @@ package
 		{
 			var _face:Face = e.face;
 			_face.material = new ColorMaterial(int(Math.random() * 0xFF0000));
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		override protected function onPreRender():void
-		{
-			//scene.rotationY++;
 		}
 	}
 }
