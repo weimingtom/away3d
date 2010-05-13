@@ -86,6 +86,11 @@ package away3dlite.containers
 		
 		private var _viewDecomposed:Vector.<Vector3D>;
 		
+		/**
+		 * Set as true if child use canvas, use in render loop to be sure that sorting object for childs or not 
+		 */		
+		public var isChildUseCanvas:Boolean;
+		
         /**
         * Returns the children of the container as an array of 3d objects.
         */
@@ -224,6 +229,9 @@ package away3dlite.containers
 			
 			(child as Object3D).updateScene(_scene);
 			
+			if(child is Object3D && Object3D(child).canvas)
+				isChildUseCanvas = isChildUseCanvas || Object3D(child).canvas;
+			
 			return child;
 		}
         
@@ -247,6 +255,10 @@ package away3dlite.containers
 			_children.splice(_index, 1);
 			
 			(child as Object3D).updateScene(null);
+			
+			isChildUseCanvas = false;
+			for each (var _child:Object3D in _children)
+				isChildUseCanvas = isChildUseCanvas || (_child._canvas != null);
 			
 			return child;
 		}

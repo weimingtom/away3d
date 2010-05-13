@@ -5,7 +5,7 @@ package away3dlite.core.base
 	import away3dlite.containers.*;
 	import away3dlite.core.*;
 	import away3dlite.loaders.utils.*;
-
+	
 	import flash.display.*;
 	import flash.geom.*;
 
@@ -99,7 +99,7 @@ package away3dlite.core.base
 			_viewMatrix3D.append(camera._screenMatrix3D);
 
 			_screenZ = _viewMatrix3D.position.z;
-
+			
 			//perspective culling
 			var persp:Number = camera.zoom / (1 + _screenZ / camera.focus);
 
@@ -184,7 +184,7 @@ package away3dlite.core.base
 		/**
 		 * An optional layer sprite used to draw into inseatd of the default view.
 		 */
-		protected var _layer:Sprite;
+		arcane var _layer:Sprite;
 
 		public function set layer(value:Sprite):void
 		{
@@ -199,11 +199,13 @@ package away3dlite.core.base
 		/**
 		 * An optional canvas sprite used to draw into inseatd of the default view.
 		 */
-		protected var _canvas:Sprite;
+		arcane var _canvas:Sprite;
 
 		public function set canvas(value:Sprite):void
 		{
 			_canvas = value;
+			if(_canvas && parent && parent is ObjectContainer3D)
+				ObjectContainer3D(parent).isChildUseCanvas = true;
 		}
 
 		public function get canvas():Sprite
