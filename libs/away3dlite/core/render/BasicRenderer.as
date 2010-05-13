@@ -4,7 +4,7 @@ package away3dlite.core.render
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.materials.*;
-
+	
 	import flash.display.*;
 
 	use namespace arcane;
@@ -43,7 +43,7 @@ package away3dlite.core.render
 				var children:Array = (object as ObjectContainer3D).children;
 				var child:Object3D;
 
-				if (sortObjects)
+				if (sortObjects && ObjectContainer3D(object).isChildUseCanvas)
 					children.sortOn("screenZ", 18);
 
 				for each (child in children)
@@ -51,16 +51,16 @@ package away3dlite.core.render
 					if (cullObjects)
 						_culler.cull(child);
 
-					if (child.canvas)
+					if (child._canvas)
 					{
-						var _child_canvas:Sprite = child.canvas;
-						if (_child_canvas != object.canvas)
+						var _child_canvas:Sprite = child._canvas;
+						if (_child_canvas != object._canvas)
 							_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
 						_child_canvas.graphics.clear();
 					}
 
-					if (child.layer)
-						child.layer.graphics.clear();
+					if (child._layer)
+						child._layer.graphics.clear();
 
 					collectFaces(child);
 				}
@@ -299,13 +299,13 @@ package away3dlite.core.render
 
 			if (_mesh.visible && !_mesh._frustumCulling && !_mesh._perspCulling)
 			{
-				if (_mesh.layer)
+				if (_mesh._layer)
 				{
-					_mesh.layer.graphics.drawGraphicsData(_material_graphicsData);
+					_mesh._layer.graphics.drawGraphicsData(_material_graphicsData);
 				}
-				else if (_mesh.canvas)
+				else if (_mesh._canvas)
 				{
-					_mesh.canvas.graphics.drawGraphicsData(_material_graphicsData);
+					_mesh._canvas.graphics.drawGraphicsData(_material_graphicsData);
 				}
 				else
 				{

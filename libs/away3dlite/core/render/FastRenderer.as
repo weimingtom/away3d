@@ -39,15 +39,15 @@ package away3dlite.core.render
 					if (cullObjects)
 						_culler.cull(child);
 
-					if (child.canvas)
+					if (child._canvas)
 					{
-						var _child_canvas:Sprite = child.canvas;
+						var _child_canvas:Sprite = child._canvas;
 						_child_canvas.parent.setChildIndex(_child_canvas, children.indexOf(child));
 						_child_canvas.graphics.clear();
 					}
 
-					if (child.layer)
-						child.layer.graphics.clear();
+					if (child._layer)
+						child._layer.graphics.clear();
 
 					collectFaces(child);
 				}
@@ -135,13 +135,13 @@ package away3dlite.core.render
 
 				drawParticles(object.screenZ);
 
-				if (object.layer)
+				if (object._layer)
 				{
-					object.layer.graphics.drawGraphicsData(_mesh_material_graphicsData);
+					object._layer.graphics.drawGraphicsData(_mesh_material_graphicsData);
 				}
-				else if (object.canvas)
+				else if (object._canvas)
 				{
-					object.canvas.graphics.drawGraphicsData(_mesh_material_graphicsData);
+					object._canvas.graphics.drawGraphicsData(_mesh_material_graphicsData);
 				}
 				else
 				{
