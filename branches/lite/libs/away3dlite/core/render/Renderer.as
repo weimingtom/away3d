@@ -314,7 +314,7 @@ package away3dlite.core.render
 			{
 				var _view_scene_bitmapData:BitmapData = _view.scene.bitmap.bitmapData;
 
-				if (!screenZ)
+				if (isNaN(screenZ))
 				{
 					// just draw
 					for each (_particle in _particles)
@@ -335,7 +335,7 @@ package away3dlite.core.render
 
 				_view_graphics.lineStyle();
 
-				if (!screenZ)
+				if (isNaN(screenZ))
 				{
 					// just draw
 					for each (_particle in _particles)
