@@ -112,6 +112,9 @@ package away3dlite.materials
 			_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onError);
 			_loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			_loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
+			try{
+				_loader.close();
+			}catch(e:*){}
 			_loader = null;
 		}
 
