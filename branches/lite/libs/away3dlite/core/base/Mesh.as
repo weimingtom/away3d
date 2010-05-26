@@ -5,7 +5,7 @@ package away3dlite.core.base
 	import away3dlite.containers.*;
 	import away3dlite.materials.*;
 	import away3dlite.materials.shaders.*;
-
+	
 	import flash.display.*;
 	import flash.geom.*;
 
@@ -63,7 +63,7 @@ package away3dlite.core.base
 		{
 			super.project(camera, parentSceneMatrix3D);
 
-			if (material.dirty || _materialsDirty)
+			if (_materialsDirty)
 				_scene.transfromDirty = true;
 
 			// project the normals
@@ -97,10 +97,7 @@ package away3dlite.core.base
 			}
 
 			if (this != _scene)
-			{
 				transfromDirty = false;
-				material.dirty = false;
-			}
 		}
 
 		/** @private */
@@ -135,7 +132,7 @@ package away3dlite.core.base
 
 			_materialsDirty = true;
 		}
-
+		
 		protected var _vertexNormals:Vector.<Number>;
 
 		private var _material:Material;
@@ -182,12 +179,7 @@ package away3dlite.core.base
 					oldMaterial = _faces[i]._material;
 
 					if (!clear)
-					{
 						newMaterial = _faceMaterials[i] || _material;
-
-						// reset after assign
-						_faceMaterials[i] = null;
-					}
 
 					//reset face materials
 					if (oldMaterial != newMaterial)
@@ -299,6 +291,11 @@ package away3dlite.core.base
 			}
 
 			_material = val;
+			
+			// reset all face material
+			var i:int = _faces ? _faces.length : 0;
+			while (i--)
+				_faceMaterials[i] = _material;
 
 			// keep referer to every mesh
 			if (!_material.meshes)

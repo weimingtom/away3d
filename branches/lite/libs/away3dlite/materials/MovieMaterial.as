@@ -51,6 +51,8 @@ package away3dlite.materials
 				_drawRect = new Rectangle(0, 0, 256, 256);
 
 			_graphicsBitmapFill.bitmapData = new BitmapData(int(_drawRect.width + 0.99), int(_drawRect.height + 0.99), _transparent, 0);
+			
+			dirty = true;
 		}
 
 		/**
@@ -168,6 +170,8 @@ package away3dlite.materials
 			if (filters && filters.length > 0)
 				for each (var filter:BitmapFilter in filters)
 					_bitmapData.applyFilter(_bitmapData, _bitmapData.rect, new Point, filter);
+			
+			dirty = true;
 		}
 	}
 }

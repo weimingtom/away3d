@@ -73,7 +73,20 @@ package away3dlite.materials
 
 		}
 
-		public var dirty:Boolean = false;
+		private var _dirty:Boolean = false;
+
+		public function get dirty():Boolean
+		{
+			return _dirty;
+		}
+
+		public function set dirty(value:Boolean):void
+		{
+			_dirty = value;
+			for each(var _mesh:Mesh in meshes)
+				_mesh._materialsDirty = value;
+		}
+
 
 		private const DEBUG_STROKE:GraphicsStroke = new GraphicsStroke(1, false, "normal", "none", "round", 0, new GraphicsSolidFill(0xFF00FF));
 		private var _debug:Boolean = false;

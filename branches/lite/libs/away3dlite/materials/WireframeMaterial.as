@@ -26,6 +26,8 @@ package away3dlite.materials
 			_color = val;
 
 			(_graphicsStroke.fill as GraphicsSolidFill).color = _color;
+			
+			dirty = true;
 		}
 
 		/**
@@ -44,6 +46,8 @@ package away3dlite.materials
 			_alpha = val;
 
 			(_graphicsStroke.fill as GraphicsSolidFill).alpha = _alpha;
+			
+			dirty = true;
 		}
 
 		/**
