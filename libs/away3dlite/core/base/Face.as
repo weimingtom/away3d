@@ -39,6 +39,13 @@ package away3dlite.core.base
 		public function set material(value:Material):void
 		{
 			_material = value;
+			
+			//update face materials
+			mesh._faceMaterials.fixed = false;
+			mesh._faceMaterials.length = mesh._faceLengths.length;
+			mesh._faceMaterials.fixed = true;
+			mesh._faceMaterials[faceIndex] = _material;
+			
 			mesh.material.dirty = true;
 		}
 

@@ -29,6 +29,8 @@ package away3dlite.materials
 			_wireColor = val;
 
 			(_graphicsStroke.fill as GraphicsSolidFill).color = _wireColor;
+			
+			dirty = true;
 		}
 
 		/**
@@ -47,6 +49,8 @@ package away3dlite.materials
 			_wireAlpha = val;
 
 			(_graphicsStroke.fill as GraphicsSolidFill).alpha = _wireAlpha;
+			
+			dirty = true;
 		}
 
 		/**
@@ -65,6 +69,8 @@ package away3dlite.materials
 			_thickness = val;
 
 			_graphicsStroke.thickness = _thickness;
+			
+			dirty = true;
 		}
 
 		/**

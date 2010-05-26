@@ -28,6 +28,8 @@ package away3dlite.materials
 			_color = val;
 
 			_graphicsBitmapFill.bitmapData = new BitmapData(2, 2, _alpha < 1, int(_alpha * 0xFF) << 24 | _color);
+			
+			dirty = true;
 		}
 
 		/**
@@ -46,6 +48,8 @@ package away3dlite.materials
 			_alpha = val;
 
 			_graphicsBitmapFill.bitmapData = new BitmapData(2, 2, _alpha < 1, int(_alpha * 0xFF) << 24 | _color);
+			
+			dirty = true;
 		}
 
 		/**
