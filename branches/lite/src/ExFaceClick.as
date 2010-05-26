@@ -24,13 +24,18 @@ package
 			_plane.rotationX = 45;
 			scene.addChild(_plane);
 
+			_plane.faces[0].material = new ColorMaterial(0xFF0000);
+			_plane.faces[1].material = new ColorMaterial(0x00FF00);
+			_plane.faces[2].material = new ColorMaterial(0x0000FF);
+			_plane.faces[3].material = new ColorMaterial(0xFF00FF);
+
 			scene.addEventListener(MouseEvent3D.MOUSE_UP, onSceneMouseUp);
 		}
 
 		private function onSceneMouseUp(e:MouseEvent3D):void
 		{
 			var _face:Face = e.face;
-			_face.material = new ColorMaterial(int(Math.random() * 0xFF0000));
+			_face.material = new ColorMaterial(int(Math.random() * 0xFFFFFF));
 		}
 	}
 }
