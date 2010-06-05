@@ -21,13 +21,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 package nochump.util.zip {
-
-	import flash.system.Security;
+	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.utils.Endian;
 	import flash.utils.IDataInput;
-	import flash.utils.ByteArray;
-	
+
 	/**
 	 * This class represents a Zip archive.  You can ask for the contained
 	 * entries, or get an input stream for a file entry.  The entry is

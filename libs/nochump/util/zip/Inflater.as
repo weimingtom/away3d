@@ -47,7 +47,7 @@ package nochump.util.zip {
 		private static const MAXBITS:int = 15; // maximum bits in a code
 		private static const MAXLCODES:int = 286; // maximum number of literal/length codes
 		private static const MAXDCODES:int = 30; // maximum number of distance codes
-		private static const MAXCODES:int = MAXLCODES + MAXDCODES; // maximum codes lengths to read
+		//never use//private static const MAXCODES:int = MAXLCODES + MAXDCODES; // maximum codes lengths to read
 		private static const FIXLCODES:int = 288; // number of fixed literal/length codes
 		// Size base for length codes 257..285
 		private static const LENS:Array = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];

@@ -21,10 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 package nochump.util.zip {
-	
-	import flash.utils.Endian;
 	import flash.utils.ByteArray;
-	
+
 	/**
 	 * This is the Deflater class.  The deflater class compresses input
 	 * with the deflate algorithm described in RFC 1951.  It uses the
