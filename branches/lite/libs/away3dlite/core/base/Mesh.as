@@ -424,6 +424,10 @@ package away3dlite.core.base
 		{
 			if (_isDestroyed)
 				return;
+			
+			for each (var face:Face in _faces)
+				if(!face.material.shared)
+					face.material = null;
 
 			_materialsCacheList = null;
 			_screenVertices = null;
