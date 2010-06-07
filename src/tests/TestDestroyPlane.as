@@ -52,7 +52,10 @@ package tests
 		{
 			// destroy
 			for each (var _plane:Plane in _planes)
+			{
+				scene.removeChild(_plane);
 				_plane.destroy();
+			}
 
 			_planes = new Vector.<Plane>();
 
