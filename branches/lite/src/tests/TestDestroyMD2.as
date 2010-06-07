@@ -24,10 +24,13 @@ package tests
 			
 			create();
 
-			stage.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void
-				{
-					dispose();
-				});
+			stage.addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		private function onClick(event:MouseEvent):void
+		{
+			dispose();
+			create();
 		}
 
 		private function create():void
@@ -58,9 +61,6 @@ package tests
 
 			// gc
 			System.gc();
-
-			// recreate
-			create();
 		}
 
 		override protected function onPreRender():void
