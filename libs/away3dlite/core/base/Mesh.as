@@ -425,19 +425,40 @@ package away3dlite.core.base
 			if (_isDestroyed)
 				return;
 			
-			for each (var face:Face in _faces)
-				if(!face.material.shared)
-					face.material = null;
-
+			// main material
+			removeMaterial(_material);
+			_material.destroy();
+			_material = null;
+			
+			// cache material
+			for each (var _cacheMaterial:Material in _materialsCacheList)
+			{
+				removeMaterial(_cacheMaterial);
+				_cacheMaterial.destroy();
+			}
 			_materialsCacheList = null;
-			_screenVertices = null;
-			_uvtData = null;
-			_indices = null;
+			
+			// face
+			for each (var face:Face in _faces)
+				face.material = null;
 			_faces = null;
+			
 			_faceLengths = null;
 			_sort = null;
-			_vertices = null;
+			
+			// face material
+			for each (var _faceMaterial:Material in _faceMaterials)
+			{
+				_faceMaterial.destroy();
+				_faceMaterial = null;
+			}
 			_faceMaterials = null;
+			
+			// 3D elements
+			_vertices = null;
+			_uvtData = null;
+			_indices = null;
+			_screenVertices = null;
 
 			super.destroy();
 		}

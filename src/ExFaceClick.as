@@ -13,22 +13,27 @@ package
 	 */
 	public class ExFaceClick extends BasicTemplate
 	{
-		private var _plane:Plane;
-
 		override protected function onInit():void
 		{
+			// just title
 			title += " : Change face material when click.";
 
-			_plane = new Plane(new ColorMaterial(0xFF0000), 200, 200, 2, 2);
+			// our rat
+			var _plane:Plane = new Plane(new ColorMaterial(0xFFFFFF), 200, 200, 2, 2);
 			_plane.bothsides = true;
 			_plane.rotationX = 45;
 			scene.addChild(_plane);
 
+			// test add face material
 			_plane.faces[0].material = new ColorMaterial(0xFF0000);
 			_plane.faces[1].material = new ColorMaterial(0x00FF00);
 			_plane.faces[2].material = new ColorMaterial(0x0000FF);
 			_plane.faces[3].material = new ColorMaterial(0xFF00FF);
 
+			// test remove face material
+			_plane.faces[3].material = null;
+
+			// test interactive material
 			scene.addEventListener(MouseEvent3D.MOUSE_UP, onSceneMouseUp);
 		}
 

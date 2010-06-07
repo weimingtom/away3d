@@ -3,6 +3,7 @@ package away3dlite.materials
 	import away3dlite.arcane;
 	import away3dlite.cameras.*;
 	import away3dlite.containers.*;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.core.base.*;
 	import away3dlite.events.*;
 	
@@ -28,8 +29,10 @@ package away3dlite.materials
 	/**
 	 * Base material class.
 	 */
-	public class Material extends EventDispatcher
+	public class Material extends EventDispatcher implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
 		/** @private */
 		arcane var meshes:Vector.<Mesh>;
 		/** @private */
@@ -145,6 +148,26 @@ package away3dlite.materials
 		public function Material()
 		{
 
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			_isDestroyed = true;
+			
+			meshes = null;
+			_id = null;
+			_faceCount = null;
+			
+			_graphicsStroke = null;
+			_graphicsBitmapFill = null;
+			_graphicsEndFill = null;
+			_triangles = null;
+			graphicsData = null;
 		}
 	}
 }
