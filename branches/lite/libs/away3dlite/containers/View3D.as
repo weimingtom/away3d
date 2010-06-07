@@ -410,16 +410,12 @@ package away3dlite.containers
 				return;
 
 			if (_scene)
-			{
 				removeChild(_scene);
-			}
 
 			_scene = val;
 
 			if (_scene)
-			{
 				addChild(_scene);
-			}
 		}
 
 		/**
@@ -465,7 +461,9 @@ package away3dlite.containers
 				return;
 
 			_renderer = val;
-			_renderer.setView(this);
+			
+			if(_renderer)
+				_renderer.setView(this);
 		}
 
 		/**
@@ -639,7 +637,7 @@ package away3dlite.containers
 				_clipping.removeEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated);
 				_clipping.removeEventListener(ClippingEvent.SCREEN_UPDATED, onScreenUpdated);
 				
-				// TODO: destroy clipping
+				_clipping.destroy();
 				_clipping = null;
 			}
 			
@@ -664,7 +662,12 @@ package away3dlite.containers
 			
 			// TODO: destroy all child in scene
 			if(_scene)
+			{
 				_scene.destroy();
+				
+				if(_scene.parent)
+					_scene.parent.removeChild(_scene);
+			}
 			
 			_camera = null;
 			_scene = null;

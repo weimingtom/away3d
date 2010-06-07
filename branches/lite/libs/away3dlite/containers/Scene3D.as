@@ -156,5 +156,20 @@ package away3dlite.containers
 
 			_scene = this;
 		}
+		
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+			
+			bitmap = null;
+			_broadcaster = null;
+			_materialsSceneList = null;
+			_materialsPreviousList = null;
+			_materialsNextList = null;
+			_sceneLights = null;
+			
+			super.destroy();
+		}
 	}
 }

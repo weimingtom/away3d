@@ -141,6 +141,9 @@ package away3dlite.core.base
 
 		private function removeMaterial(mat:Material):void
 		{
+			if(mat._id.length==0 || _materialsCacheList.length==0)
+				return;
+				
 			var i:uint = mat._id[_scene._id];
 
 			_materialsCacheList[mat._id[_scene._id]] = null;
@@ -427,6 +430,7 @@ package away3dlite.core.base
 			
 			// main material
 			removeMaterial(_material);
+			_scene.removeSceneMaterial(_material);
 			_material.destroy();
 			_material = null;
 			
@@ -439,6 +443,7 @@ package away3dlite.core.base
 					_cacheMaterial.destroy();
 				}
 			}
+			_cacheMaterial = null;
 			_materialsCacheList = null;
 			
 			// face
@@ -447,6 +452,7 @@ package away3dlite.core.base
 				if(face.material)
 					face.material = null;
 			}
+			face = null;
 			_faces = null;
 			
 			_faceLengths = null;
@@ -457,8 +463,8 @@ package away3dlite.core.base
 			{
 				if(_faceMaterial)
 					_faceMaterial.destroy();
-				_faceMaterial = null;
 			}
+			_faceMaterial = null;
 			_faceMaterials = null;
 			
 			// 3D elements

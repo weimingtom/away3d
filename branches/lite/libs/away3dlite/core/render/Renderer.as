@@ -2,10 +2,11 @@ package away3dlite.core.render
 {
 	import away3dlite.arcane;
 	import away3dlite.containers.*;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.core.base.*;
 	import away3dlite.core.clip.*;
 	import away3dlite.core.culler.FrustumCuller;
-
+	
 	import flash.display.*;
 
 	use namespace arcane;
@@ -13,8 +14,11 @@ package away3dlite.core.render
 	/**
 	 * @author robbateman
 	 */
-	public class Renderer
+	public class Renderer implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
+		
 		/** @private */
 		arcane function setView(view:View3D):void
 		{
@@ -381,6 +385,36 @@ package away3dlite.core.render
 				_culler.update();
 				_view.camera.transfromDirty = false;
 			}
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			_isDestroyed = true;
+			
+			if(_view)
+				_view.destroy();
+			if(_scene)
+				_scene.destroy();
+			if(_face)
+				_face.destroy();
+			if(_pointFace)
+				_pointFace.destroy();
+			
+			_view = null;
+			_scene = null;
+			_face = null;
+			_faces = null;
+			_pointFace = null;
+			_triangles = null;
+			_view_graphics = null;
+			_view_graphics_drawGraphicsData = null;
+			_culler = null;
+			_particles = null;
 		}
 	}
 }

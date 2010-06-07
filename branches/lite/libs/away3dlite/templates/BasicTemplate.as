@@ -56,5 +56,17 @@ package away3dlite.templates
 			view.clipping = _clipping = value;
 		}
 
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+			
+			view.renderer.destroy();
+			
+			renderer = null;
+			clipping = null;
+			
+			super.destroy();
+		}
 	}
 }
