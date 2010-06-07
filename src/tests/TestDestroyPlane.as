@@ -13,7 +13,7 @@ package tests
 	 */
 	public class TestDestroyPlane extends BasicTemplate
 	{
-		private var _planes:Vector.<Plane> = new Vector.<Plane>();
+		private var _planes:Vector.<Plane>;
 
 		override protected function onInit():void
 		{
@@ -21,17 +21,22 @@ package tests
 			
 			create();
 
-			stage.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void
-				{
-					dispose();
-				});
+			stage.addEventListener(MouseEvent.CLICK, onClick);
 		}
 
+		private function onClick(event:MouseEvent):void
+		{
+			dispose();
+			create();
+		}
+		
 		private function create():void
 		{
 			var _total:uint = 32;
 			var _gap:uint = 16;
 			var _beg:int = 0xFF + int(Math.random() * 0xFFFF00);
+			
+			_planes = new Vector.<Plane>();
 
 			for (var i:int = 0; i < _total; i++)
 			{
@@ -53,22 +58,30 @@ package tests
 			// destroy
 			for each (var _plane:Plane in _planes)
 			{
-				scene.removeChild(_plane);
 				_plane.destroy();
+				scene.removeChild(_plane);
 			}
-
-			_planes = new Vector.<Plane>();
+			_plane = null;
+			_planes = null;
 
 			// gc
 			System.gc();
-
-			// recreate
-			create();
 		}
 
 		override protected function onPreRender():void
 		{
 			scene.rotationY++;
+		}
+		
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+			
+			_planes = null;
+			stage.removeEventListener(MouseEvent.CLICK, onClick);
+			
+			super.destroy();
 		}
 	}
 }
