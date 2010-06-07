@@ -433,14 +433,20 @@ package away3dlite.core.base
 			// cache material
 			for each (var _cacheMaterial:Material in _materialsCacheList)
 			{
-				removeMaterial(_cacheMaterial);
-				_cacheMaterial.destroy();
+				if(_cacheMaterial)
+				{
+					removeMaterial(_cacheMaterial);
+					_cacheMaterial.destroy();
+				}
 			}
 			_materialsCacheList = null;
 			
 			// face
 			for each (var face:Face in _faces)
-				face.material = null;
+			{
+				if(face.material)
+					face.material = null;
+			}
 			_faces = null;
 			
 			_faceLengths = null;
@@ -449,7 +455,8 @@ package away3dlite.core.base
 			// face material
 			for each (var _faceMaterial:Material in _faceMaterials)
 			{
-				_faceMaterial.destroy();
+				if(_faceMaterial)
+					_faceMaterial.destroy();
 				_faceMaterial = null;
 			}
 			_faceMaterials = null;

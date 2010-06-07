@@ -45,7 +45,8 @@ package away3dlite.core.base
 			mesh._faceMaterials[faceIndex] = _material;
 			mesh._faceMaterials.fixed = true;
 			
-			mesh.material.dirty = true;
+			if(mesh.material)
+				mesh.material.dirty = true;
 		}
 
 		/**
