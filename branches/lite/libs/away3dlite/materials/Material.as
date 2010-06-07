@@ -163,9 +163,12 @@ package away3dlite.materials
 			_id = null;
 			_faceCount = null;
 			
-			_graphicsStroke = null;
 			_graphicsBitmapFill = null;
+			_graphicsBitmapFill.bitmapData.dispose();
+			_graphicsBitmapFill.bitmapData = null;
+			_graphicsStroke = null;
 			_graphicsEndFill = null;
+			
 			_triangles = null;
 			graphicsData = null;
 		}
