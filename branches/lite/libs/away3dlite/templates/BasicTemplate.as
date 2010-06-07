@@ -20,14 +20,41 @@ package away3dlite.templates
 			view.clipping = clipping = clipping ? clipping : view.clipping;
 		}
 
+		protected var _renderer:BasicRenderer;
+
 		/**
 		 * The renderer object used in the template.
 		 */
-		public var renderer:BasicRenderer;
+		public function get renderer():BasicRenderer
+		{
+			return _renderer || view.renderer as BasicRenderer;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set renderer(value:BasicRenderer):void
+		{
+			view.renderer = _renderer = value;
+		}
+
+		private var _clipping:Clipping;
 
 		/**
 		 * The clipping object used in the template.
 		 */
-		public var clipping:Clipping;
+		public function get clipping():Clipping
+		{
+			return _clipping || view.clipping;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set clipping(value:Clipping):void
+		{
+			view.clipping = _clipping = value;
+		}
+
 	}
 }
