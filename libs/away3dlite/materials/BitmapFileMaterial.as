@@ -2,7 +2,7 @@ package away3dlite.materials
 {
 	import away3dlite.core.utils.Debug;
 	import away3dlite.events.*;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.net.*;
@@ -39,7 +39,7 @@ package away3dlite.materials
 		private var _materialloaderror:MaterialEvent;
 		private var _materialloadprogress:MaterialEvent;
 		private var _materialloadsuccess:MaterialEvent;
-		
+
 		private function onError(e:IOErrorEvent):void
 		{
 			if (!_materialloaderror)
@@ -47,6 +47,8 @@ package away3dlite.materials
 
 			dispatchEvent(_materialloaderror);
 			Debug.warning(e);
+
+			unload();
 		}
 
 		private function onProgress(e:ProgressEvent):void
@@ -59,31 +61,31 @@ package away3dlite.materials
 
 		private function onComplete(e:Event):void
 		{
-			if(!e.target["content"])
+			if (!e.target["content"])
 			{
 				dispatchEvent(new MaterialEvent(MaterialEvent.LOAD_ERROR, this));
 				return;
 			}
-			
-			bitmapData = Bitmap(e.target["content"]).bitmapData.clone();
+
+			var _bitmap:Bitmap = e.target["content"] as Bitmap;
+			_bitmap.smoothing = smooth;
+			bitmapData = _bitmap.bitmapData.clone();
 
 			if (!_materialloadsuccess)
 				_materialloadsuccess = new MaterialEvent(MaterialEvent.LOAD_SUCCESS, this);
 
-			_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onError);
-			_loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
-			_loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
-			
 			dispatchEvent(_materialloadsuccess);
-			
-			Bitmap(e.target["content"]).bitmapData.dispose();
-			_loader = null;
+
+			_bitmap.bitmapData.dispose();
+			_bitmap.bitmapData = null;
+			_bitmap = null;
+			unload();
 		}
 
 		public function load(url:String, loaderContext:LoaderContext = null):Loader
 		{
 			this.url = url;
-			
+
 			_loader = new Loader();
 			_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
 			_loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
@@ -103,18 +105,28 @@ package away3dlite.materials
 
 			return _loader;
 		}
-		
+
 		public function unload():void
 		{
-			if(!_loader)
+			if (!_loader)
 				return;
-				
+
+			// event
 			_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onError);
 			_loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			_loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
-			try{
+
+			_materialloaderror = null;
+			_materialloadprogress = null;
+			_materialloadsuccess = null;
+
+			try
+			{
 				_loader.close();
-			}catch(e:*){}
+			}
+			catch (e:*)
+			{
+			}
 			_loader = null;
 		}
 
@@ -129,6 +141,16 @@ package away3dlite.materials
 
 			if (url != "")
 				load(url, loaderContext);
+		}
+
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+
+			unload();
+
+			super.destroy()
 		}
 	}
 }
