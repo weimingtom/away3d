@@ -245,7 +245,8 @@ package away3dlite.containers
 			if(_scene)
 				_scene.transfromDirty = true;
 			
-			child = super.removeChild(child);
+			if(child.parent)
+				child = super.removeChild(child);
 			
 			_index = _children.indexOf(child);
 			
