@@ -1,16 +1,21 @@
 package away3dlite.core.base
 {
-	import flash.geom.Vector3D;
 	import away3dlite.arcane;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.materials.*;
+	
+	import flash.geom.Vector3D;
 
 	use namespace arcane;
 
 	/**
 	 * Face value object. Stores information on each face in a mesh.
 	 */
-	public class Face
+	public class Face implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
+		
 		private var _uvtData:Vector.<Number>;
 		private var _vertices:Vector.<Number>;
 		private var _screenVertices:Vector.<Number>;
@@ -40,10 +45,13 @@ package away3dlite.core.base
 		{
 			_material = value?value:mesh.material;
 			
-			mesh._faceMaterials.fixed = false;
-			mesh._faceMaterials.length = mesh._faceLengths.length;
-			mesh._faceMaterials[faceIndex] = _material;
-			mesh._faceMaterials.fixed = true;
+			if(mesh._faceMaterials)
+			{
+				mesh._faceMaterials.fixed = false;
+				mesh._faceMaterials.length = mesh._faceLengths.length;
+				mesh._faceMaterials[faceIndex] = _material;
+				mesh._faceMaterials.fixed = true;
+			}
 			
 			if(mesh.material)
 				mesh.material.dirty = true;
@@ -433,6 +441,23 @@ package away3dlite.core.base
 			var cd:Number = ax * (by - y) + bx * (y - ay) + x * (ay - by);
 
 			return new Vector3D((ad * au + bd * bu + cd * cu) / det, (ad * av + bd * bv + cd * cv) / det, (ad / az + bd / bz + cd / cz) / det);
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			_isDestroyed = true;
+			
+			material = null;
+			_uvtData = null;
+			_vertices = null;
+			_screenVertices = null;
+			
+			mesh = null;
 		}
 	}
 }

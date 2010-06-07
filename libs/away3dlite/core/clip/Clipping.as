@@ -45,6 +45,9 @@ package away3dlite.core.clip
 	public class Clipping extends EventDispatcher
 	{
 		/** @private */
+		protected var _isDestroyed:Boolean;
+		
+		/** @private */
 		arcane function setView(view:View3D):void
 		{
 			_view = view;
@@ -474,6 +477,28 @@ package away3dlite.core.clip
 		public override function toString():String
 		{
 			return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + " minZ:" + minZ + " maxZ:" + maxZ + "}";
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			_isDestroyed = true;
+			
+			_clippingClone = null;
+			
+			_clippingupdated = null;
+			_screenupdated = null;
+			
+			_view = null;
+			_face = null;
+			_faces = null;
+			_screenVertices = null;
+			_uvtData = null;
+			_screenVerticesCull = null;
 		}
 	}
 }

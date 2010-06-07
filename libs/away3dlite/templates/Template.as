@@ -274,12 +274,18 @@ package away3dlite.templates
 				_debugLayer.parent.removeChild(_debugLayer);
 			_debugLayer = null;
 
-			scene.destroy();
+			if(scene)
+				scene.destroy();
 			scene = null;
+			
+			if(camera)
+				camera.destroy();
+			camera = null;
 
-			view.destroy();
+			if(view)
+				view.destroy();
 			view = null;
-
+			
 			stop();
 		}
 	}

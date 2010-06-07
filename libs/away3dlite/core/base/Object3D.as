@@ -364,10 +364,14 @@ package away3dlite.core.base
 		{
 			return _isDestroyed;
 		}
-
+		
 		public function destroy():void
 		{
 			_isDestroyed = true;
+			
+			_viewMatrix3D = null;
+			_sceneMatrix3D = null;
+			_cachedViewMatrix3D = null;
 
 			if(materialLibrary)
 				materialLibrary.destroy();

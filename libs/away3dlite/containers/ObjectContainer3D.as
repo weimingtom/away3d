@@ -446,10 +446,9 @@ package away3dlite.containers
 				return;
 			
 			for each(var object3D:IDestroyable in children)
-			{
 				object3D.destroy();
-				object3D = null;
-			}
+			
+			object3D = null;
 			
 			_children = null;
 			_sprites = null;

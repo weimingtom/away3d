@@ -184,5 +184,16 @@ package away3dlite.cameras
 
 			return Utils3D.projectVector(_screenMatrix3D, vertex);
 		}
+		
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+			
+			_view = null;
+			_lens = null;
+			_projectionMatrix3D = null;
+			_screenMatrix3D = null;
+		}
 	}
 }
