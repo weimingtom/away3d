@@ -228,22 +228,17 @@ package away3dlite.animators
 			return mesh;
 		}
 		
-		override public function get destroyed():Boolean
-		{
-			return _isDestroyed;
-		}
-
 		override public function destroy():void
 		{
 			if (_isDestroyed)
 				return;
 
-			_isDestroyed = true;
-
 			stop();
 
 			_labels = null;
 			frames = null;
+			
+			super.destroy();
 		}
 	}
 }
