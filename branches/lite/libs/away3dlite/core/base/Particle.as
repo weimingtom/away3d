@@ -2,6 +2,7 @@ package away3dlite.core.base
 {
 	import away3dlite.arcane;
 	import away3dlite.containers.Particles;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.materials.ParticleMaterial;
 
 	import flash.display.BitmapData;
@@ -20,8 +21,11 @@ package away3dlite.core.base
 	 * Particle
 	 * @author katopz
 	 */
-	public class Particle extends Vector3D
+	public class Particle extends Vector3D implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
+
 		public var visible:Boolean = true;
 		public var animate:Boolean = false;
 		public var interactive:Boolean = false;
@@ -166,6 +170,41 @@ package away3dlite.core.base
 			// interactive
 			if (interactive)
 				isHit = new Rectangle(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2).contains(parent.mouseX, parent.mouseY);
+		}
+
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			_isDestroyed = true;
+
+			next = null;
+			prev = null;
+
+			parent = null;
+			layer = null;
+
+			colorTransform = null;
+			blendMode = null;
+			filters = null;
+			_position = null;
+			_matrix = null;
+			_center = null;
+
+			_bitmapData.dispose();
+			_bitmapData = null;
+			_material_bitmapData.dispose();
+			_material_bitmapData = null;
+
+			_point = null;
+			_point0 = null;
+			_rect = null;
+
+			material.destroy();
+			material = null;
 		}
 	}
 }

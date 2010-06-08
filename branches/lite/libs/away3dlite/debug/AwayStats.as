@@ -834,8 +834,8 @@ package away3dlite.debug
 			_btm_bar = null;
 			_btm_bar_hit = null;
 			
-			_data_format = null;;
-			_label_format = null;;
+			_data_format = null;
+			_label_format = null;
 			
 			_fps_bar = null;
 			_afps_bar = null;
