@@ -4,6 +4,8 @@ package tests
 	import away3dlite.primitives.*;
 	import away3dlite.templates.BasicTemplate;
 
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.MouseEvent;
 	import flash.system.System;
 
@@ -18,10 +20,17 @@ package tests
 		override protected function onInit():void
 		{
 			title = "Create and Destroy test for planes |";
-			
+
 			create();
 
 			stage.addEventListener(MouseEvent.CLICK, onClick);
+
+			addEventListener(Event.REMOVED_FROM_STAGE, function(event:Event):void
+				{
+					trace("TestDestroyPlane.REMOVED_FROM_STAGE");
+					EventDispatcher(event.currentTarget).removeEventListener(event.type, arguments.callee);
+					dispose();
+				});
 		}
 
 		private function onClick(event:MouseEvent):void
@@ -29,13 +38,13 @@ package tests
 			dispose();
 			create();
 		}
-		
+
 		private function create():void
 		{
 			var _total:uint = 32;
 			var _gap:uint = 16;
 			var _beg:int = 0xFF + int(Math.random() * 0xFFFF00);
-			
+
 			_planes = new Vector.<Plane>();
 
 			for (var i:int = 0; i < _total; i++)
@@ -72,15 +81,16 @@ package tests
 		{
 			scene.rotationY++;
 		}
-		
+
 		override public function destroy():void
 		{
 			if (_isDestroyed)
 				return;
-			
+
 			_planes = null;
-			stage.removeEventListener(MouseEvent.CLICK, onClick);
-			
+			if (stage)
+				stage.removeEventListener(MouseEvent.CLICK, onClick);
+
 			super.destroy();
 		}
 	}
