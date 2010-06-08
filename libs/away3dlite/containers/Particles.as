@@ -157,5 +157,21 @@ package away3dlite.containers
 					particle.interactive = _interactive;
 				} while (particle = particle.next);
 		}
+
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+
+			for each (var _particle:Particle in lists)
+				_particle.destroy();
+
+			_firstParticle = null;
+			_lastParticle = null;
+			hitParticle = null;
+			lists = null;
+
+			super.destroy();
+		}
 	}
 }

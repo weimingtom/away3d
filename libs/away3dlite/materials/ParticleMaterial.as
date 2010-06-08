@@ -8,6 +8,9 @@ package away3dlite.materials
 	 */
 	public class ParticleMaterial
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
+
 		public var bitmapData:BitmapData;
 		public var rect:Rectangle;
 
@@ -69,6 +72,19 @@ package away3dlite.materials
 		public function clone():ParticleMaterial
 		{
 			return new ParticleMaterial(bitmapData, width, height, _totalFrames);
+		}
+
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			_isDestroyed = true;
+
+			bitmapData = null;
+			rect = null;
 		}
 	}
 }
