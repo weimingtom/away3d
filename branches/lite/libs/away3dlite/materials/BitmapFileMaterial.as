@@ -150,7 +150,7 @@ package away3dlite.materials
 
 			unload();
 
-			super.destroy()
+			super.destroy();
 		}
 	}
 }
