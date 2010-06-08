@@ -495,10 +495,6 @@ package away3dlite.containers
 				_clipping.addEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated, false, 0, true);
 				_clipping.addEventListener(ClippingEvent.SCREEN_UPDATED, onScreenUpdated, false, 0, true);
 			}
-			else
-			{
-				throw new Error("View cannot have clipping set to null");
-			}
 
 			_screenClippingDirty = true;
 		}
@@ -660,7 +656,6 @@ package away3dlite.containers
 			if(_camera)
 				_camera.destroy();
 			
-			// TODO: destroy all child in scene
 			if(_scene)
 			{
 				_scene.destroy();

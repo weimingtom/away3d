@@ -261,13 +261,15 @@ package away3dlite.templates
 		public function destroy():void
 		{
 			_isDestroyed = true;
+			
+			stop();
 
 			if (_debugText && _debugText.parent)
 				_debugText.parent.removeChild(_debugText);
 			_debugText = null;
 
-			if (_stats && _stats.parent)
-				_stats.parent.removeChild(_stats);
+			if(_stats)
+				_stats.destroy();
 			_stats = null;
 
 			if (_debugLayer && _debugLayer.parent)
@@ -285,8 +287,6 @@ package away3dlite.templates
 			if(view)
 				view.destroy();
 			view = null;
-			
-			stop();
 		}
 	}
 }

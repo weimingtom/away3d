@@ -1,6 +1,7 @@
 package away3dlite.debug
 {
 	import away3dlite.containers.*;
+	import away3dlite.core.IDestroyable;
 	
 	import flash.display.*;
 	import flash.events.*;
@@ -43,8 +44,11 @@ package away3dlite.debug
 	 * impact on CPU usage, which is the reason why the default number is zero, denoting that
 	 * the average is calculated from a running sum since the widget was last reset.</p>
 	*/
-	public class AwayStats extends Sprite
+	public class AwayStats extends Sprite implements IDestroyable
 	{
+		/** @private */
+		private var _isDestroyed:Boolean;
+		
 		private var _views : Vector.<View3D> = new Vector.<View3D>();
 		private var _timer : Timer;
 		private var _last_frame_timestamp : Number;
@@ -563,7 +567,8 @@ package away3dlite.debug
 		
 		private function _onRemovedFromStage(ev : Event) : void
 		{
-			_timer.stop();
+			if(_timer)
+				_timer.stop();
 			removeEventListener(Event.ENTER_FRAME, _onTimer);
 		}
 		
@@ -799,6 +804,69 @@ package away3dlite.debug
 				if (idx >= 0)
 					_views.splice(idx, 1);
 			}
+		}
+		
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+		
+		public function destroy():void
+		{
+			_isDestroyed = true;
+			
+			_min_max_btn.removeEventListener(MouseEvent.CLICK, _onMinMaxBtnClick);
+			
+			_top_bar.removeEventListener(MouseEvent.MOUSE_DOWN, _onTopBarMouseDown);
+			_btm_bar_hit.removeEventListener(MouseEvent.CLICK, _onCountersClick_reset);
+			_afps_tf.removeEventListener(MouseEvent.MOUSE_UP, _onAverageFpsClick_reset);
+			_diagram.removeEventListener(MouseEvent.CLICK, _onDiagramClick);
+			
+			if(stage)
+			{
+				stage.removeEventListener(Event.MOUSE_LEAVE, _onMouseUpOrLeave);
+				stage.removeEventListener(MouseEvent.MOUSE_UP, _onMouseUpOrLeave);
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE, _onMouseMove);
+			}
+			
+			_views = null;
+			_top_bar = null;
+			_btm_bar = null;
+			_btm_bar_hit = null;
+			
+			_data_format = null;;
+			_label_format = null;;
+			
+			_fps_bar = null;
+			_afps_bar = null;
+			_lfps_bar = null;
+			_hfps_bar = null;
+			_diagram = null;
+			
+			_dia_bmp.dispose();
+			_dia_bmp = null;
+			
+			_mem_points = null;
+			_mem_graph = null;
+			
+			_min_max_btn = null;
+			
+			_fps_tf = null;
+			_afps_tf = null;
+			_ram_tf = null;
+			_poly_tf = null;
+			
+			_mean_data = null;
+			
+			_timer.stop();
+			_timer.removeEventListener('timer', _onTimer);
+			_timer = null;
+			removeEventListener(Event.ENTER_FRAME, _onTimer);
+			
+			if (parent)
+				parent.removeChild(this);
+			
+			_INSTANCE = null;
 		}
 	}
 }

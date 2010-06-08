@@ -35,7 +35,10 @@ package away3dlite.templates
 		 */
 		public function set renderer(value:BasicRenderer):void
 		{
-			view.renderer = _renderer = value;
+			if(view)
+				view.renderer = _renderer = value;
+			else
+				_renderer = value;
 		}
 
 		private var _clipping:Clipping;
@@ -53,7 +56,10 @@ package away3dlite.templates
 		 */
 		public function set clipping(value:Clipping):void
 		{
-			view.clipping = _clipping = value;
+			if(view)
+				view.clipping = _clipping = value;
+			else
+				_clipping = value;
 		}
 
 		override public function destroy():void
@@ -61,10 +67,11 @@ package away3dlite.templates
 			if (_isDestroyed)
 				return;
 			
-			view.renderer.destroy();
+			_renderer = null;
+			_clipping = null;
 			
-			renderer = null;
-			clipping = null;
+			view.destroy();
+			view = null;
 			
 			super.destroy();
 		}
