@@ -123,7 +123,7 @@ package away3dlite.core.render
 			if (useFloatZSort)
 			{
 				np1 = new Vector.<int>(_faces_length_1, true);
-				var triangles:Array = [];
+				var _sortFaceDatas:Array = [];
 
 				//z-axis, for sort-based production
 				i = 1;
@@ -132,25 +132,23 @@ package away3dlite.core.render
 					var z:Number = _face.calculateScreenZ();
 					_sort[int(i - 1)] = _Face_calculateZIntFromZ(z);
 					if (z > 0)
-						triangles[int(j++)] = {i: i, z: z};
+						_sortFaceDatas[int(j++)] = new SortFaceData(i, z);
 					i++;
 				}
 
 				//z-axis sort
-				triangles = triangles.sortOn("z", Array.NUMERIC);
+				_sortFaceDatas = _sortFaceDatas.sortOn("z", 16);
 
 				//Put the sorted indices inside a Vector
 				j = 0;
-				for each (var triangle:Object in triangles)
-					np1[int(j++)] = triangle["i"];
+				for each (var _sortFaceData:SortFaceData in _sortFaceDatas)
+					np1[int(j++)] = _sortFaceData.i;
 				np1[int(j++)] = 0;
 
-				triangles = null;
+				_sortFaceDatas = null;
 			}
 			else
 			{
-				// by pass
-
 				q0 = new Vector.<int>(256, true);
 				q1 = new Vector.<int>(256, true);
 				np0 = new Vector.<int>(_faces_length_1, true);
@@ -168,7 +166,7 @@ package away3dlite.core.render
 				i = 256;
 				while (i--)
 				{
-					j = q0[i];
+					j = q0[int(i)];
 					while (j)
 					{
 						np1[j] = q1[k = (65280 & _sort[int(j - 1)]) >> 8];
@@ -416,5 +414,17 @@ package away3dlite.core.render
 			_culler = null;
 			_particles = null;
 		}
+	}
+}
+
+internal class SortFaceData
+{
+	public var i:int;
+	public var z:Number;
+	
+	public function SortFaceData(index:int, depth:Number)
+	{
+		i = index;
+		z = depth;
 	}
 }
