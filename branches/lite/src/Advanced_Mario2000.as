@@ -23,19 +23,19 @@ package
 	 */
 	public class Advanced_Mario2000 extends BasicTemplate
 	{
-		private var particles:Particles;
-		
-		private var particleMaterial:ParticleMaterial;
-
 		private const size:uint = 25;
+		private const amount:uint = 13;
+		private const max:uint = amount * amount * amount;
 
+		private var _step:uint = 0;
 
-		private var step:Number = 0;
+		private var _model:Object3D;
+		private var _bonesAnimator:BonesAnimator;
 
-		private var skinAnimation:BonesAnimator;
+		private var _particles:Particles;
+		private var _particleMaterial:ParticleMaterial;
 
-		private var amount:uint = 13;
-		private const max:int = amount * amount * amount;
+		private var _bitmapData:BitmapData;
 
 		override protected function onInit():void
 		{
@@ -44,8 +44,6 @@ package
 			// speed up
 			view.mouseEnabled = false;
 			view.mouseEnabled3D = false;
-
-			//camera.z = -2000;
 
 			// clipping
 			clipping = new RectangleClipping();
@@ -56,56 +54,24 @@ package
 			clipping.maxY = 200;
 
 			// create materials
-			bitmapData = new BitmapData(size, size, true, 0x00000000);
-			particleMaterial = new ParticleMaterial(bitmapData, size, size);
+			_bitmapData = new BitmapData(size, size, true, 0x00000000);
+			_particleMaterial = new ParticleMaterial(_bitmapData, size, size);
 
 			// create particles
-			particles = new Particles();
-			//particles.animate = true;
-			/* layer test
-			   particles.layer = new Sprite();
-			   addChild(particles.layer);
-			   particles.layer.filters = [new BlurFilter(4,4)]
-			   particles.layer.x = _customWidth/2;
-			   particles.layer.y = _customHeight/2;
-			 */
-
-			/*
-			   segment = size + 2 * Math.PI / (size * 1.25);
-			   var i:Number = (stage.stageHeight - 100) / max;
-			   for (var j:int = 0; j < max; j++)
-			   {
-			   var _particle:Particle = new Particle
-			   (
-			   radius * Math.cos(segment * j),
-			   i * (j - max / 2),
-			   radius * Math.sin(segment * j),
-			   particleMaterial
-			   )
-			   particles.addParticle(_particle);
-
-			   // each particle effect (slow warning!)
-			   //_particle.blendMode = BlendMode.OVERLAY;
-			   //_particle.filters = [new GlowFilter(0xFF00FF, .5, 6, 6, 1, 1, true)];
-			   }
-			 */
+			_particles = new Particles();
 
 			var _factor:Number = 0.25 * max;
 			var gap:int = _factor / (amount - 1);
 
 			for (var i:int = 0; i < amount; ++i)
-			{
 				for (var j:int = 0; j < amount; ++j)
-				{
 					for (var k:int = 0; k < amount; ++k)
 					{
-						var _particle:Particle = new Particle(gap * i - _factor / 2, gap * j - _factor / 2, gap * k - _factor / 2, particleMaterial);
-						particles.addParticle(_particle);
+						var _particle:Particle = new Particle(gap * i - _factor / 2, gap * j - _factor / 2, gap * k - _factor / 2, _particleMaterial);
+						_particles.addParticle(_particle);
 					}
-				}
-			}
 
-			scene.addChild(particles);
+			scene.addChild(_particles);
 
 			// toggle
 			stage.addEventListener(MouseEvent.CLICK, onClick);
@@ -131,30 +97,13 @@ package
 
 		private function onSuccess(event:Loader3DEvent):void
 		{
-			model = event.loader.handle;
-			model.canvas = new Sprite();
-			view.addChild(model.canvas);
-			model.y = 10;
-			model.canvas.visible = false;
+			_model = event.loader.handle;
+			_model.canvas = new Sprite();
+			view.addChild(_model.canvas);
+			_model.y = 10;
+			_model.canvas.visible = false;
 
-			skinAnimation = event.loader.handle.animationLibrary.getAnimation("default").animation as BonesAnimator;
-		}
-
-		private var model:Object3D;
-		private var bitmapData:BitmapData;
-
-		private function drawDot(_graphics:Graphics, x:Number, y:Number, size:Number, colorLight:uint, colorDark:uint):void
-		{
-			var colors:Array = [colorLight, colorDark, colorLight];
-			var alphas:Array = [1.0, 1.0, 1.0];
-			var ratios:Array = [0, 200, 255];
-			var matrix:Matrix = new Matrix();
-			matrix.createGradientBox(size * 2, size * 2, 0, x - size, y - size);
-
-			_graphics.lineStyle();
-			_graphics.beginGradientFill(GradientType.RADIAL, colors, alphas, ratios, matrix);
-			_graphics.drawCircle(x, y, size);
-			_graphics.endFill();
+			_bonesAnimator = event.loader.handle.animationLibrary.getAnimation("default").animation as BonesAnimator;
 		}
 
 		private function onClick(event:MouseEvent):void
@@ -163,22 +112,20 @@ package
 			{
 				scene.bitmap = new Bitmap(new BitmapData(stage.stageWidth, stage.stageHeight, true, 0x00000000));
 				addChild(scene.bitmap);
-
-					// bitmap effect
-					//scene.bitmap.filters = [new BlurFilter(6, 6)];
-					//scene.bitmap.blendMode = BlendMode.ADD;
+				title = "Away3DLite | Particles : " + max + " | (Click to toggle) Draw as Bitmap |";
 			}
 			else
 			{
 				removeChild(scene.bitmap);
 				scene.bitmap = null;
+				title = "Away3DLite | Particles : " + max + " | (Click to toggle) Draw as Sprite |";
 			}
 		}
 
 		private function updateBitmapdata():void
 		{
-			bitmapData.fillRect(bitmapData.rect, 0x00000000);
-			bitmapData.draw(model.canvas, new Matrix(1, 0, 0, 1, model.canvas.width / 2, model.canvas.height / 2));
+			_bitmapData.fillRect(_bitmapData.rect, 0x00000000);
+			_bitmapData.draw(_model.canvas, new Matrix(1, 0, 0, 1, _model.canvas.width / 2, _model.canvas.height / 2));
 		}
 
 		override protected function onPreRender():void
@@ -187,13 +134,13 @@ package
 			scene.rotationY += .5;
 			scene.rotationZ += .5;
 
-			if (model && model.canvas)
+			if (_model && _model.canvas)
 				updateBitmapdata();
 
-			step += .01;
+			_step += .01;
 
-			if (skinAnimation)
-				skinAnimation.update(getTimer() / 1000);
+			if (_bonesAnimator)
+				_bonesAnimator.update(getTimer() / 1000);
 		}
 	}
 }
