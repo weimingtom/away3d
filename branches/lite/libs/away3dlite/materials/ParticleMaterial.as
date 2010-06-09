@@ -40,6 +40,11 @@ package away3dlite.materials
 			currentFrame = 0;
 		}
 
+		public function updateAnimation():void
+		{
+			nextFrame();
+		}
+		
 		public function nextFrame():void
 		{
 			_currentFrame++;
