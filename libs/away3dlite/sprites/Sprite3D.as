@@ -1,8 +1,9 @@
 package away3dlite.sprites
 {
 	import away3dlite.arcane;
+	import away3dlite.core.IDestroyable;
 	import away3dlite.materials.*;
-
+	
 	import flash.geom.*;
 
 	use namespace arcane;
@@ -11,8 +12,10 @@ package away3dlite.sprites
 	 * Single billboard object (one that always faces the camera).
 	 * Draws 2d objects inline with z-sorted triangles in a scene.
 	 */
-	public class Sprite3D
+	public class Sprite3D implements IDestroyable
 	{
+		/** @private */
+		protected var _isDestroyed:Boolean;
 		/** @private */
 		arcane var index:int;
 		/** @private */
@@ -218,6 +221,24 @@ package away3dlite.sprites
 			sprite3D.material = material;
 
 			return sprite3D;
+		}
+
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
+
+		public function destroy():void
+		{
+			_isDestroyed = true;
+
+			indices = null;
+			uvtData = null;
+			_vertices = null;
+			if (_material)
+				_material.destroy();
+			_material = null;
+			_position = null;
 		}
 	}
 }
