@@ -25,9 +25,6 @@ package away3dlite.containers
 		private var _firstParticle:Particle;
 		private var _lastParticle:Particle;
 
-		// interactive
-		public var hitParticle:Particle;
-
 		// still need array for sortOn
 		public var lists:Array;
 
@@ -67,24 +64,12 @@ package away3dlite.containers
 				_scene.bitmap.bitmapData.fillRect(_scene.bitmap.bitmapData.rect, 0x00000000);
 
 			// by pass
-			var Utils3D_projectVector:Function = Utils3D.projectVector;
 			var _transform_matrix3D:Matrix3D = transform.matrix3D;
-			var _position:Vector3D;
-			var particle:Particle = _firstParticle;
-			hitParticle = null;
-			if (particle)
+			var _particle:Particle = _firstParticle;
+			if (_particle)
 				do
-				{
-					_position = Utils3D_projectVector(_transform_matrix3D, particle);
-					particle.position = Utils3D_projectVector(_viewMatrix3D, _position);
-
-					// animate?
-					if (particle.animate)
-						particle.material.nextFrame();
-
-					if (_interactive && particle.visible && particle.isHit)
-						hitParticle = particle;
-				} while (particle = particle.next);
+					_particle.update(_viewMatrix3D, _transform_matrix3D);
+				while(_particle = _particle.next);
 
 			if (_animate)
 			{
@@ -168,7 +153,6 @@ package away3dlite.containers
 
 			_firstParticle = null;
 			_lastParticle = null;
-			hitParticle = null;
 			lists = null;
 
 			super.destroy();

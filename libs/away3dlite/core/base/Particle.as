@@ -4,15 +4,17 @@ package away3dlite.core.base
 	import away3dlite.containers.Particles;
 	import away3dlite.core.IDestroyable;
 	import away3dlite.materials.ParticleMaterial;
-
+	
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.filters.BitmapFilter;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
+	import flash.geom.Matrix3D;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.geom.Utils3D;
 	import flash.geom.Vector3D;
 
 	use namespace arcane;
@@ -94,6 +96,20 @@ package away3dlite.core.base
 			// position
 			screenZ = value.w;
 			_position = value.clone();
+		}
+
+		public function update(viewMatrix3D:Matrix3D, transformMatrix3D:Matrix3D = null):void
+		{
+			// bypass
+			var Utils3D_projectVector:Function = Utils3D.projectVector;
+			
+			// update position
+			var _position:Vector3D = Utils3D_projectVector(transformMatrix3D, this);
+			position = Utils3D_projectVector(viewMatrix3D, _position);
+
+			// animate?
+			if (animate)
+				material.updateAnimation();
 		}
 
 		public function drawBitmapdata(x:Number, y:Number, bitmapData:BitmapData, zoom:Number, focus:Number):void
