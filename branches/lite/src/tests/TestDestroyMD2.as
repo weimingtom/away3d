@@ -21,7 +21,7 @@ package tests
 
 		override protected function onInit():void
 		{
-			title = "Click to Create and Destroy test for MD2 |";
+			title = "Click to Create and Destroy MD2 |";
 
 			create();
 

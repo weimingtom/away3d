@@ -19,7 +19,7 @@ package tests
 
 		override protected function onInit():void
 		{
-			title = "Click to Create and Destroy test for planes |";
+			title = "Click to Create and Destroy planes |";
 
 			create();
 
