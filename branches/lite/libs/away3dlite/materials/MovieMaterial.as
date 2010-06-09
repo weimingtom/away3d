@@ -2,9 +2,10 @@ package away3dlite.materials
 {
 	import away3dlite.arcane;
 	import away3dlite.containers.*;
-
+	
 	import flash.display.*;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.filters.BitmapFilter;
 	import flash.geom.*;
 
@@ -37,7 +38,9 @@ package away3dlite.materials
 
 		private function onEnterFrame(event:Event = null):void
 		{
-			if (autoUpdate)
+			if(_isDestroyed)
+				EventDispatcher(event.currentTarget).removeEventListener(event.type, arguments.callee);
+			else if (autoUpdate)
 				update();
 		}
 
@@ -172,6 +175,16 @@ package away3dlite.materials
 					_bitmapData.applyFilter(_bitmapData, _bitmapData.rect, new Point, filter);
 			
 			dirty = true;
+		}
+		
+		override public function destroy():void
+		{
+			if (_isDestroyed)
+				return;
+			
+			_movie = null;
+			
+			super.destroy();
 		}
 	}
 }
