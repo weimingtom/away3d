@@ -311,9 +311,6 @@ package away3dlite.core.base
 			_material.meshes.push(this);
 			_material.meshes.fixed = true;
 
-			// shared material if refer to more than 1 mesh
-			_material.shared = _material.meshes.length > 0;
-
 			_materialsDirty = true;
 			
 			// calculate normals for the shaders

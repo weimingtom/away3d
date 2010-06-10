@@ -131,7 +131,7 @@ package away3dlite.core.render
 		{
 			_face = _faces[j - 1];
 
-			if (_material != _face._material)//this drop fps too much!// || (_material && _material.shared))
+			if (_material != _face._material)
 			{
 				if (_material)
 				{
