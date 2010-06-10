@@ -17,7 +17,7 @@ package tests
 	 */
 	public class TestDestroyParticles extends BasicTemplate
 	{
-		[Embed(source="../assets/Dot.swf", symbol="DotClip")]
+		[Embed(source="../basics/assets/dot.swf", symbol="DotClip")]
 		private var _DotClip:Class;
 		private var _dotClip:MovieClip = new _DotClip();
 
