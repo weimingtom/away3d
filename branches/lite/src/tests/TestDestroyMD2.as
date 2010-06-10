@@ -10,7 +10,7 @@ package tests
 	import flash.events.MouseEvent;
 	import flash.system.System;
 
-	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
+	[SWF(backgroundColor="#FFFFFF", frameRate="30", width="800", height="600")]
 	/**
 	 * @author katopz
 	 */
@@ -38,11 +38,11 @@ package tests
 		{
 			var md2:MD2 = new MD2();
 			md2.scaling = 5;
-			md2.material = new BitmapFileMaterial("assets/pg.png");
+			md2.material = new BitmapFileMaterial("../src/loaders/assets/md2/pg.png");
 
 			loader = new Loader3D();
 			loader.addEventListener(Loader3DEvent.LOAD_SUCCESS, onSuccess, false, 0, true);
-			loader.loadGeometry("assets/pg.md2", md2);
+			loader.loadGeometry("../src/loaders/assets/md2/pg.md2", md2);
 		}
 
 		private function onSuccess(event:Loader3DEvent):void
@@ -51,6 +51,7 @@ package tests
 
 			_model = event.loader.handle as MovieMesh;
 			_model.rotationX = 90;
+			_model.fps = 16;
 			_model.play("walk");
 			scene.addChild(_model);
 		}
