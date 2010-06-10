@@ -90,7 +90,7 @@ package away3dlite.core.render
 
 				_faces = mesh._faces;
 
-				if (!_faces.length)
+				if(!_faces)
 					return;
 
 				var _mesh_material:Material = mesh.material;
