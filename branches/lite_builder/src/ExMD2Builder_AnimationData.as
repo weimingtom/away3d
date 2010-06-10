@@ -65,6 +65,7 @@ package
 			// build as MD2
 			_md2Builder = new MD2Builder();
 			_md2Builder.scaling = 5;
+			_md2Builder.isInterpolateFrame = true;
 			_md2Builder.material = new BitmapFileMaterial("assets/yellow.jpg");
 
 			// add custom frame label
@@ -74,13 +75,13 @@ package
 			_animationDatas[0] = new AnimationData();
 			_animationDatas[0].name = "left";
 			_animationDatas[0].start = 0;
-			_animationDatas[0].end = 32;
+			_animationDatas[0].end = 30;
 			
 			// define right e.g : right000, right001, right002, ...., right032
 			_animationDatas[1] = new AnimationData();
 			_animationDatas[1].name = "right";
-			_animationDatas[1].start = 33;
-			_animationDatas[1].end = 65;
+			_animationDatas[1].start = 30;
+			_animationDatas[1].end = 60;
 			
 			// bring it on
 			_md2MovieMesh = _md2Builder.convert(_model, _animationDatas)[0];
