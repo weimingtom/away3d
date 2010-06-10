@@ -32,7 +32,7 @@ package away3dlite.templates
 		protected var _stats:AwayStats;
 		protected var _debugText:TextField;
 		private var _title:String = "Away3DLite";
-		private var _debug:Boolean;
+		private var _debug:Boolean = true;
 
 		protected function onAddedToStage(event:Event):void
 		{
@@ -99,6 +99,9 @@ package away3dlite.templates
 
 		protected function initDebug():void
 		{
+			if(!_debug)
+				return;
+			
 			addChild(_debugLayer = new Sprite());
 			_debugLayer.addChild(_stats = new AwayStats());
 
