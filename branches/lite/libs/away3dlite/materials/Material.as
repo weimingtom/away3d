@@ -36,8 +36,6 @@ package away3dlite.materials
 		/** @private */
 		arcane var meshes:Vector.<Mesh>;
 		/** @private */
-		arcane var shared:Boolean;
-		/** @private */
 		arcane var _id:Vector.<uint> = new Vector.<uint>();
 		/** @private */
 		arcane var _faceCount:Vector.<uint> = new Vector.<uint>();
