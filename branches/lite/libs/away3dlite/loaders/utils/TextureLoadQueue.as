@@ -7,7 +7,6 @@ package away3dlite.loaders.utils
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.URLRequest;
-	import flash.utils.ByteArray;
 
 	[Event(name="complete", type="flash.events.Event")]
 	[Event(name="httpStatus", type="flash.events.HTTPStatusEvent")]
@@ -56,36 +55,13 @@ package away3dlite.loaders.utils
 
 					// make it lowest priority so we handle it after the loader handles the event itself. That means that when we
 					// re-dispatch the event, the loaders have already processed their data and are ready for use
-					currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete, false, int.MIN_VALUE, true);
+					currentLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onItemComplete);
 
-					currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false, 0, true);
-					currentLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false, 0, true);
-					currentLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, redispatchEvent, false, 0, true);
-					currentLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false, 0, true);
-
-					if (currentByteArrayProviderFunction != null)
-					{
-						currentLoader.filename = currentURLRequest.url;
-						var data:ByteArray = currentByteArrayProviderFunction(currentLoader.filename);
-						if (data != null && data.length > 0)
-							currentLoader.loadBytes(data);
-						else
-						{
-							// We dispatch an error event first but still continue to load the remaining part of the queue
-							dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR));
-
-							// We declare the TextureLoader as not loaded by overwritting its filename
-							//currentLoader.filename = null;
-
-							// Continue with the remaining elements of the queue
-							onItemComplete(null);
-						}
-					}
-					else
-					{
-						currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false, 0, true);
-						currentLoader.load(currentURLRequest);
-					}
+					currentLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent);
+					currentLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, redispatchEvent);
+					currentLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, redispatchEvent);
+					currentLoader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent);
+					currentLoader.load(currentURLRequest);
 				}
 			}
 		}
@@ -112,11 +88,11 @@ package away3dlite.loaders.utils
 		private function cleanUpOldItem(item:TextureLoader):void
 		{
 			item; //TODO : FDT Warning
-			currentLoader.removeEventListener(Event.COMPLETE, onItemComplete, false);
-			currentLoader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent, false);
-			currentLoader.removeEventListener(IOErrorEvent.IO_ERROR, redispatchEvent, false);
-			currentLoader.removeEventListener(ProgressEvent.PROGRESS, redispatchEvent, false);
-			currentLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent, false);
+			currentLoader.removeEventListener(Event.COMPLETE, onItemComplete);
+			currentLoader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, redispatchEvent);
+			currentLoader.removeEventListener(IOErrorEvent.IO_ERROR, redispatchEvent);
+			currentLoader.removeEventListener(ProgressEvent.PROGRESS, redispatchEvent);
+			currentLoader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, redispatchEvent);
 		}
 
 		/**
@@ -164,13 +140,6 @@ package away3dlite.loaders.utils
 			return (_queue[currentItemIndex] as LoaderAndRequest).request;
 		}
 
-		/**
-		 * Returns the url request object for the current texture being loaded
-		 */
-		public function get currentByteArrayProviderFunction():Function
-		{
-			return (_queue[currentItemIndex] as LoaderAndRequest).accessByteArrayTextureFromName;
-		}
 
 		/**
 		 * Returns the overall progress of the loader queue.
@@ -204,7 +173,7 @@ package away3dlite.loaders.utils
 		 * @param	loader		The loader object to add to the queue.
 		 * @param	request		The url request object to add tp the queue.
 		 */
-		public function addItem(loader:TextureLoader, request:URLRequest, accessByteArrayTextureFromName:Function = null):void
+		public function addItem(loader:TextureLoader, request:URLRequest):void
 		{
 			//check to stop duplicated loading
 			for each (var _item:LoaderAndRequest in _queue)
@@ -212,7 +181,7 @@ package away3dlite.loaders.utils
 				if (_item.request.url == request.url)
 					return;
 			}
-			_queue.push(new LoaderAndRequest(loader, request, accessByteArrayTextureFromName));
+			_queue.push(new LoaderAndRequest(loader, request));
 		}
 
 		/**
@@ -226,21 +195,19 @@ package away3dlite.loaders.utils
 	}
 }
 
-import flash.net.URLRequest;
 import away3dlite.loaders.utils.TextureLoader;
 
+import flash.net.URLRequest;
 
 class LoaderAndRequest
 {
 
 	public var loader:TextureLoader;
 	public var request:URLRequest;
-	public var accessByteArrayTextureFromName:Function;
 
-	public function LoaderAndRequest(loader:TextureLoader, request:URLRequest, accessByteArrayTextureFromName:Function = null)
+	public function LoaderAndRequest(loader:TextureLoader, request:URLRequest)
 	{
 		this.loader = loader;
 		this.request = request;
-		this.accessByteArrayTextureFromName = accessByteArrayTextureFromName;
 	}
 }
