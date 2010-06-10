@@ -296,9 +296,12 @@ package away3dlite.core.base
 			_material = val;
 			
 			// reset all face material
-			var i:int = _faces ? _faces.length : 0;
-			while (i--)
-				_faceMaterials[i] = _material;
+			if(_faceMaterials.length>0)
+			{
+				var i:int = _faces ? _faces.length : 0;
+				while (i--)
+					_faceMaterials[i] = _material;
+			}
 
 			// keep referer to every mesh
 			if (!_material.meshes)
