@@ -8,9 +8,9 @@ package away3dlite.core.base
 	
 	import flash.display.*;
 	import flash.geom.*;
-
+	
 	use namespace arcane;
-
+	
 	/**
 	 * Basic geometry object
 	 */
@@ -48,12 +48,12 @@ package away3dlite.core.base
 		{
 			if (scene == val)
 				return;
-
+			
 			if (_scene)
 				buildMaterials(true);
-
+			
 			_scene = val;
-
+			
 			if (_scene)
 				buildMaterials();
 		}
@@ -100,16 +100,16 @@ package away3dlite.core.base
 				transfromDirty = false;
 		}
 
-		/** @private */
+		/** @private */	
 		arcane function buildFaces():void
 		{
 			_faces.fixed = _sort.fixed = false;
 			_indicesTotal = _faces.length = _sort.length = 0;
-
+			
 			var i:int = _faces.length = _sort.length = _faceLengths.length;
 			var index:int = _indices.length;
 			var faceLength:int;
-
+			
 			while (i--)
 			{
 				faceLength = _faceLengths[i];
@@ -128,50 +128,47 @@ package away3dlite.core.base
 			if (_material is IShader)
 				IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
 
-			updateSortType();
-
-			_materialsDirty = true;
+ 			updateSortType();
+ 			
+ 			_materialsDirty = true;
 		}
 		
 		protected var _vertexNormals:Vector.<Number>;
-
+		
 		private var _material:Material;
 		private var _bothsides:Boolean;
 		private var _sortType:String;
-
+		
 		private function removeMaterial(mat:Material):void
 		{
-			if(mat._id.length==0 || _materialsCacheList.length==0)
-				return;
-				
 			var i:uint = mat._id[_scene._id];
-
+			
 			_materialsCacheList[mat._id[_scene._id]] = null;
-
+			
 			if (_materialsCacheList.length == i + 1)
 				_materialsCacheList.length--;
 		}
-
+		
 		private function addMaterial(mat:Material):void
 		{
 			var i:uint = mat._id[_scene._id];
-
+			
 			if (_materialsCacheList.length <= i)
 				_materialsCacheList.length = i + 1;
-
+			
 			_materialsCacheList[i] = mat;
 		}
 		
 		private function buildMaterials(clear:Boolean = false):void
 		{
 			_materialsDirty = false;
-
-			if (_scene && _faceMaterials != null)
+			
+			if (_scene && !_isDestroyed)
 			{
 				var oldMaterial:Material;
 				var newMaterial:Material;
 
-				//update face materials
+				// update face materials
 				_faceMaterials.fixed = false;
 				_faceMaterials.length = _faceLengths.length;
 				_faceMaterials.fixed = true;
@@ -207,7 +204,7 @@ package away3dlite.core.base
 				}
 			}
 		}
-
+		
 		private function updateSortType():void
 		{
 			var face:Face;
@@ -237,14 +234,14 @@ package away3dlite.core.base
 				default:
 			}
 		}
-
+		
 		/**
 		 * Determines if the faces in the mesh are sorted. Used in the <code>FastRenderer</code> class.
-		 *
+		 * 
 		 * @see away3dlite.core.render.FastRenderer
 		 */
 		public var sortFaces:Boolean = true;
-
+        
 		/**
 		 * Returns the screen vertices in the mesh.
 		 */
@@ -260,7 +257,7 @@ package away3dlite.core.base
 		{
 			return _vertices;
 		}
-
+		
 		/**
 		 * Returns the faces used in the mesh.
 		 */
@@ -269,7 +266,7 @@ package away3dlite.core.base
 			return _faces;
 		}
 
-
+		
 		/**
 		 * Determines the global material used on the faces in the mesh.
 		 */
@@ -281,10 +278,10 @@ package away3dlite.core.base
 		public function set material(val:Material):void
 		{
 			val = val || new WireColorMaterial();
-
+			
 			if (_material == val)
 				return;
-
+			
 			// remove old referer
 			if (_material && _material.meshes && _material.meshes.indexOf(this) > -1)
 			{
@@ -317,7 +314,7 @@ package away3dlite.core.base
 			if (_material is IShader)
 				IShader(_material).calculateNormals(_vertices, _indices, _uvtData, _vertexNormals);
 		}
-
+		
 		/**
 		 * Determines whether the faces in teh mesh are visible on both sides (true) or just the front side (false).
 		 * The front side of a face is determined by the side that has it's vertices arranged in a counter-clockwise order.
@@ -326,11 +323,11 @@ package away3dlite.core.base
 		{
 			return _bothsides;
 		}
-
+		
 		public function set bothsides(val:Boolean):void
 		{
 			_bothsides = val;
-
+			
 			if (_bothsides)
 			{
 				_culling = TriangleCulling.NONE;
