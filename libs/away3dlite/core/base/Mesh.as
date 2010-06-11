@@ -297,7 +297,7 @@ package away3dlite.core.base
 			{
 				var i:int = _faces ? _faces.length : 0;
 				while (i--)
-					_faceMaterials[i] = _material;
+					_faceMaterials[i] = _faceMaterials[i] || _material;
 			}
 
 			// keep referer to every mesh
@@ -340,75 +340,75 @@ package away3dlite.core.base
 
 		/**
 		 * Determines by which mechanism vertices are sorted. Uses the values given by the <code>SortType</code> class. Options are CENTER, FRONT and BACK. Defaults to CENTER.
-		 *
+		 * 
 		 * @see away3dlite.core.base.SortType
 		 */
 		public function get sortType():String
 		{
 			return _sortType;
 		}
-
+		
 		public function set sortType(val:String):void
 		{
 			if (_sortType == val)
 				return;
-
+			
 			_sortType = val;
-
+			
 			updateSortType();
 		}
-
+		
 		/**
 		 * Creates a new <code>Mesh</code> object.
-		 *
+		 * 
 		 * @param material		Determines the global material used on the faces in the mesh.
 		 */
 		public function Mesh(material:Material = null)
 		{
 			super();
-
+			
 			// private use
 			_screenVertices = new Vector.<Number>();
 			_uvtData = new Vector.<Number>();
 			_indices = new Vector.<int>();
-
+			
 			//setup default values
 			this.material = material;
 			this.bothsides = false;
 			this.sortType = SortType.CENTER;
 		}
-
-		public function addFace(vs:Vector.<Vector3D>, uvs:Vector.<Point>):void
+		
+		public function addFace(vs:Vector.<Vector3D>,uvs:Vector.<Point>):void
 		{
-			var q:int = Math.min(vs.length, uvs.length);
-			for (var i:int = 0; i < q; i++)
-			{
-				pushV3D(vs[i], uvs[i]);
-			}
-			_faceLengths.push(q);
+		 var q:int=Math.min(vs.length,uvs.length);
+		 for(var i:int=0;i<q;i++)
+		 {
+		   pushV3D(vs[i],uvs[i]);
+		 }
+		 _faceLengths.push(q);
 		}
-
-		public function pushV3D(v:Vector3D, uv:Point):void
+		
+		public function pushV3D(v:Vector3D,uv:Point):void
 		{
-			_vertices.push(v.x, v.y, v.z);
-			_uvtData.push(uv.x, uv.y, 1);
-			_indices.push(this._indicesTotal++);
+		 _vertices.push(v.x,v.y,v.z);
+		 _uvtData.push(uv.x,uv.y,1);
+		 _indices.push(this._indicesTotal++);
 		}
-
+		
 		/**
 		 * Duplicates the mesh properties to another <code>Mesh</code> object.
-		 *
+		 * 
 		 * @param	object	[optional]	The new object instance into which all properties are copied. The default is <code>Mesh</code>.
 		 * @return						The new object instance with duplicated properties applied.
 		 */
-		public override function clone(object:Object3D = null):Object3D
-		{
-			var mesh:Mesh = (object as Mesh) || new Mesh();
-			super.clone(mesh);
-			mesh.type = type;
-			mesh.material = material;
-			mesh.sortType = sortType;
-			mesh.bothsides = bothsides;
+        public override function clone(object:Object3D = null):Object3D
+        {
+            var mesh:Mesh = (object as Mesh) || new Mesh();
+            super.clone(mesh);
+            mesh.type = type;
+            mesh.material = material;
+            mesh.sortType = sortType;
+            mesh.bothsides = bothsides;
 			mesh._vertices = vertices;
 			mesh._uvtData = _uvtData.concat();
 			mesh._faceMaterials = _faceMaterials;
@@ -416,9 +416,9 @@ package away3dlite.core.base
 			mesh._faceLengths = _faceLengths;
 			mesh.buildFaces();
 			mesh.buildMaterials();
-
+			
 			return mesh;
-		}
+        }
 
 		override public function destroy():void
 		{
