@@ -284,12 +284,12 @@ package away3dlite.core.base
 		 */
 		public function calculateAverageZInt():int
 		{
-			return i3 ? int((_uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3]) * 750000) : int((_uvtData[t0] + _uvtData[t1] + _uvtData[t2]) * 1000000);
+			return (length == 4) ? int((_uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3]) * 750000) : int((_uvtData[t0] + _uvtData[t1] + _uvtData[t2]) * 1000000);
 		}
 
 		public function calculateAverageZ():Number
 		{
-			return i3 ? _uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3] : _uvtData[t0] + _uvtData[t1] + _uvtData[t2];
+			return (length == 4) ? _uvtData[t0] + _uvtData[t1] + _uvtData[t2] + _uvtData[t3] : _uvtData[t0] + _uvtData[t1] + _uvtData[t2];
 		}
 
 		/**
