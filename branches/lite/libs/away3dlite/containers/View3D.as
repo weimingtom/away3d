@@ -208,7 +208,9 @@ package away3dlite.containers
 
 		private function onAddedToStage(event:Event):void
 		{
+			stage.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			stage.addEventListener(Event.RESIZE, onStageResized, false, 0, true);
+			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 		}
 
 		private function onMouseDown(e:MouseEvent):void
@@ -223,15 +225,15 @@ package away3dlite.containers
 
 		private function onRollOut(e:MouseEvent):void
 		{
-			_mouseIsOverView = false;
-
+			// note : onRollOut fire when mouse leave each face material when we hold click (drag)
+			// so let's determine from view rectangle instead
+			_mouseIsOverView = getRect(this).contains(mouseX, mouseY);
 			fireMouseEvent(MouseEvent3D.MOUSE_OUT, e.ctrlKey, e.shiftKey);
 		}
 
 		private function onRollOver(e:MouseEvent):void
 		{
 			_mouseIsOverView = true;
-
 			fireMouseEvent(MouseEvent3D.MOUSE_OVER, e.ctrlKey, e.shiftKey);
 		}
 
@@ -251,6 +253,7 @@ package away3dlite.containers
 			return tarArray;
 		}
 
+		/*no use
 		private function traverseRollEvent(event:MouseEvent3D, array:Array, overFlag:Boolean):void
 		{
 			for each (var tar:Object3D in array)
@@ -262,6 +265,7 @@ package away3dlite.containers
 					buttonMode = false;
 			}
 		}
+		*/
 
 		private function fireMouseEvent(type:String, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
 		{
@@ -334,7 +338,7 @@ package away3dlite.containers
 						event.material = _mouseMaterial;
 						event.ctrlKey = ctrlKey;
 						event.shiftKey = shiftKey;
-						traverseRollEvent(event, outArray.slice(i), false);
+						//no use//traverseRollEvent(event, outArray.slice(i), false);
 					}
 
 					if (_object != null)
@@ -342,14 +346,13 @@ package away3dlite.containers
 						event = getMouseEvent(MouseEvent3D.ROLL_OVER);
 						event.ctrlKey = ctrlKey;
 						event.shiftKey = shiftKey;
-						traverseRollEvent(event, overArray.slice(i), true);
+						//no use//traverseRollEvent(event, overArray.slice(i), true);
 					}
 				}
 
 				_mouseObject = _object;
 				_mouseMaterial = _material;
 			}
-
 		}
 
 		private function getMouseEvent(type:String):MouseEvent3D
@@ -560,7 +563,8 @@ package away3dlite.containers
 			//setup events on view
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			//MOUSE_UP didn't fire properly while release from drag state, must listen to stage instead
+			//addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			addEventListener(MouseEvent.ROLL_OUT, onRollOut);
 			addEventListener(MouseEvent.ROLL_OVER, onRollOver);
 
@@ -626,7 +630,11 @@ package away3dlite.containers
 				return;
 			
 			if(stage)
+			{
+				stage.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 				stage.removeEventListener(Event.RESIZE, onStageResized);
+				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			}
 			
 			if(_clipping)
 			{
