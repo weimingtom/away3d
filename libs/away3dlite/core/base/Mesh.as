@@ -141,6 +141,9 @@ package away3dlite.core.base
 		
 		private function removeMaterial(mat:Material):void
 		{
+			if(mat._id.length==0)
+				return;
+				
 			var i:uint = mat._id[_scene._id];
 			
 			_materialsCacheList[mat._id[_scene._id]] = null;
