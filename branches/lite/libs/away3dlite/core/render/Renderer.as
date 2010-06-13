@@ -179,6 +179,9 @@ package away3dlite.core.render
 		/** @private */
 		protected function collectPointFace(x:Number, y:Number):void
 		{
+			if(_screenPointVertexArrays.length==0)
+				return;
+			
 			var pointCount:int;
 			var pointTotal:int;
 			var pointCountX:int;
