@@ -37,6 +37,7 @@ package basics
 
 			// speed up
 			view.mouseEnabled = false;
+			view.mouseEnabled3D = false;
 
 			// clipping
 			clipping = new RectangleClipping();

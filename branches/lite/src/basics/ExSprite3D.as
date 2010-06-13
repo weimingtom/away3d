@@ -33,6 +33,7 @@ package basics
 
 			// speed up
 			view.mouseEnabled = false;
+			view.mouseEnabled3D = false;
 
 			segment = (size + 5) + 2 * Math.PI / size;
 
