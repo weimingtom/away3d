@@ -596,10 +596,8 @@ package away3dlite.containers
 		 */
 		public function render():void
 		{
-			_totalFaces = 0;
-			_totalObjects = -1;
-			_renderedFaces = 0;
-			_renderedObjects = -1;
+			_totalFaces = _renderedFaces = 0;
+			_totalObjects = _renderedObjects = -1;
 
 			updateScreenClipping();
 
@@ -611,8 +609,9 @@ package away3dlite.containers
 			{
 				graphics.clear();
 				renderer.render();
-				_scene.transfromDirty = false;
-				_camera.transfromDirty = false;
+				_scene.transfromDirty = _camera.transfromDirty = false;
+			}else{
+				_totalObjects = _renderedObjects = 0;
 			}
 
 			if (mouseEnabled3D)

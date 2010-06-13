@@ -23,11 +23,11 @@ package modifies
 			camera.y = -500;
 			camera.lookAt(new Vector3D(0, 0, 0));
 
-			plane = new Plane(new BitmapFileMaterial("../src/assets/sea01.jpg"), 500, 500, 10, 10);
+			plane = new Plane(new BitmapFileMaterial("../src/modifies/assets/sea01.jpg"), 500, 500, 10, 10);
 			scene.addChild(plane);
 			
-			addEventListener(MouseEvent.CLICK, function():void{
-				plane.material = new BitmapFileMaterial("../src/assets/moon.jpg");
+			stage.addEventListener(MouseEvent.CLICK, function():void{
+				plane.material = new WireframeMaterial;
 			});
 		}
 
