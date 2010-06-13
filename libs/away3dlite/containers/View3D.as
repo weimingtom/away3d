@@ -220,7 +220,8 @@ package away3dlite.containers
 
 		private function onMouseUp(e:MouseEvent):void
 		{
-			fireMouseEvent(MouseEvent3D.MOUSE_UP, e.ctrlKey, e.shiftKey);
+			if(mouseEnabled)
+				fireMouseEvent(MouseEvent3D.MOUSE_UP, e.ctrlKey, e.shiftKey);
 		}
 
 		private function onRollOut(e:MouseEvent):void
