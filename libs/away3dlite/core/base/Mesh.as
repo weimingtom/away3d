@@ -300,7 +300,7 @@ package away3dlite.core.base
 			{
 				var i:int = _faces ? _faces.length : 0;
 				while (i--)
-					_faceMaterials[i] = _material;
+					_faceMaterials[i] = _faces[i].mesh._materialsDirty?_faceMaterials[i]: _material;
 			}
 
 			// keep referer to every mesh

@@ -104,7 +104,6 @@ package away3dlite.loaders.data
 				mesh.material = _material;
 
 			var face:Face;
-
 			for each (face in faces)
 			{
 				face.mesh._faceMaterials[face.faceIndex] = _material;
