@@ -210,6 +210,8 @@ package away3dlite.core.render
 
 						//flagged for edge detection
 						var vertices:Vector.<Number> = _face.mesh._screenVertices;
+						if(!vertices)
+							return;
 						var v0x:Number = vertices[_face.x0];
 						var v0y:Number = vertices[_face.y0];
 						var v1x:Number = vertices[_face.x1];
