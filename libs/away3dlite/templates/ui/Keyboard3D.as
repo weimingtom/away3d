@@ -1,7 +1,7 @@
 package away3dlite.templates.ui
 {
 	import away3dlite.templates.events.Keyboard3DEvent;
-	
+
 	import flash.display.InteractiveObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -29,8 +29,6 @@ package away3dlite.templates.ui
 		public static var isSHIFT:Boolean = false;
 		public static var isSPACE:Boolean = false;
 
-		public static var numKeyPress:int = 0;
-
 		public static var keyType:String = KeyboardEvent.KEY_UP;
 		public static var keyCode:uint = 0;
 
@@ -38,6 +36,8 @@ package away3dlite.templates.ui
 
 		private var _target:InteractiveObject;
 		private var _yUp:Boolean = true;
+
+		private var _numKeyPress:int = 0;
 
 		public function Keyboard3D(target:InteractiveObject, yUp:Boolean = true)
 		{
@@ -58,64 +58,45 @@ package away3dlite.templates.ui
 
 		private function onKey(event:Event):void
 		{
-			var dx:int = 0;
-			var dy:int = 0;
-			var dz:int = 0;
-			var dw:int = 0;
+			var _dx:int, _dy:int, _dz:int, _dw:int = 0;
 
 			//up, down
 			if (isKeyForward)
-			{
-				dz = 1;
-			}
+				_dz = 1;
 			else if (isKeyBackward)
-			{
-				dz = -1;
-			}
+				_dz = -1;
 
 			//left, right
 			if (isKeyRight)
-			{
-				dx = 1;
-			}
+				_dx = 1;
 			else if (isKeyLeft)
-			{
-				dx = -1;
-			}
+				_dx = -1;
 
 			//up, down
 			if (isKeyUp)
-			{
-				dy = 1;
-			}
+				_dy = 1;
 			else if (isKeyDown)
-			{
-				dy = -1;
-			}
+				_dy = -1;
 
 			//peek left, peek right
 			if (isKeyPeekLeft)
-			{
-				dw = -1;
-			}
+				_dw = -1;
 			else if (isKeyPeekRight)
-			{
-				dw = 1;
-			}
+				_dw = 1;
 
 			if (_yUp)
 			{
-				position.x = dx;
-				position.y = -dy;
-				position.z = dz;
-				position.w = dw;
+				position.x = _dx;
+				position.y = -_dy;
+				position.z = _dz;
+				position.w = _dw;
 			}
 			else
 			{
-				position.x = dx;
-				position.y = dy;
-				position.z = dz;
-				position.w = dw;
+				position.x = _dx;
+				position.y = _dy;
+				position.z = _dz;
+				position.w = _dw;
 			}
 
 			dispatchEvent(new Keyboard3DEvent(Keyboard3DEvent.KEY_PRESS, position));
@@ -140,59 +121,59 @@ package away3dlite.templates.ui
 						case Keyboard.UP:
 							isKeyForward = true;
 							isKeyBackward = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "S".charCodeAt():
 						case Keyboard.DOWN:
 							isKeyBackward = true;
 							isKeyForward = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "A".charCodeAt():
 						case Keyboard.LEFT:
 							isKeyLeft = true;
 							isKeyRight = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "D".charCodeAt():
 						case Keyboard.RIGHT:
 							isKeyRight = true;
 							isKeyLeft = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "C".charCodeAt():
 						case Keyboard.PAGE_UP:
 							isKeyDown = true;
 							isKeyUp = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "V".charCodeAt():
 						case Keyboard.PAGE_DOWN:
 							isKeyUp = true;
 							isKeyDown = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "Q".charCodeAt():
 						case "[".charCodeAt():
 							isKeyPeekLeft = true;
 							isKeyPeekRight = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 
 						case "E".charCodeAt():
 						case "]".charCodeAt():
 							isKeyPeekRight = true;
 							isKeyPeekLeft = false;
-							numKeyPress++;
+							_numKeyPress++;
 							break;
 					}
-					if ((numKeyPress > 0) && !_target.hasEventListener(Event.ENTER_FRAME))
+					if ((_numKeyPress > 0) && !_target.hasEventListener(Event.ENTER_FRAME))
 						_target.addEventListener(Event.ENTER_FRAME, onKey, false, 0, true);
 					break;
 				case KeyboardEvent.KEY_UP:
@@ -206,57 +187,58 @@ package away3dlite.templates.ui
 						case "W".charCodeAt():
 						case Keyboard.UP:
 							isKeyForward = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "S".charCodeAt():
 						case Keyboard.DOWN:
 							isKeyBackward = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "A".charCodeAt():
 						case Keyboard.LEFT:
 							isKeyLeft = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "D".charCodeAt():
 						case Keyboard.RIGHT:
 							isKeyRight = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "C".charCodeAt():
 						case Keyboard.PAGE_UP:
 							isKeyDown = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "V".charCodeAt():
 						case Keyboard.PAGE_DOWN:
 							isKeyUp = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "Q".charCodeAt():
 						case "[".charCodeAt():
 							isKeyPeekLeft = false;
 							isKeyPeekRight = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 
 						case "E".charCodeAt():
 						case "]".charCodeAt():
 							isKeyPeekRight = false;
 							isKeyPeekLeft = false;
-							--numKeyPress;
+							--_numKeyPress;
 							break;
 					}
-					if (numKeyPress == 0)
+					if (_numKeyPress <= 0)
 					{
 						_target.removeEventListener(Event.ENTER_FRAME, onKey);
 						position = new Vector3D();
+						_numKeyPress = 0;
 					}
 					break;
 			}
