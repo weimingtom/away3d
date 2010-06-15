@@ -4,7 +4,7 @@ package away3dlite.core.render
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.materials.Material;
-
+	
 	import flash.display.*;
 
 	use namespace arcane;
@@ -115,11 +115,11 @@ package away3dlite.core.render
 				}
 				else
 				{
-					j = _faces.length;
+					var j:int = _faces.length;
 					_i = -1;
 					while (j--)
 					{
-						_face = _faces[j];
+						_face = _faces[int(j)];
 						_ind[int(++_i)] = _face.i0;
 						_ind[int(++_i)] = _face.i1;
 						_ind[int(++_i)] = _face.i2;
@@ -182,24 +182,11 @@ package away3dlite.core.render
 		}
 
 		/** @private */
-		protected override function sortFaces():void
+		protected override function sortFaces(i:int = 0, j:int = 0):void
 		{
-			super.sortFaces();
+			super.sortFaces(i, j);
 
-			if (useFloatZSort)
-			{
-				i = 0;
-				_i = -1;
-				j = np1[i];
-				while (j)
-				{
-					sortFacesCommon();
-
-					i++;
-					j = np1[i];
-				}
-			}
-			else
+			if (!useFloatZSort)
 			{
 				i = -1;
 				_i = -1;
@@ -208,17 +195,30 @@ package away3dlite.core.render
 					j = q1[i];
 					while (j)
 					{
-						sortFacesCommon();
+						sortFacesCommon(j);
 						j = np1[j];
 					}
+				}
+			}
+			else
+			{
+				i = 0;
+				_i = -1;
+				j = np1[i];
+				while (j)
+				{
+					sortFacesCommon(j);
+					
+					i++;
+					j = np1[i];
 				}
 			}
 		}
 
 		/** @private */
-		private function sortFacesCommon():void
+		private function sortFacesCommon(j:int):void
 		{
-			_face = _faces[j - 1];
+			_face = _faces[int(j - 1)];
 			_ind[int(++_i)] = _face.i0;
 			_ind[int(++_i)] = _face.i1;
 			_ind[int(++_i)] = _face.i2;

@@ -52,10 +52,6 @@ package away3dlite.core.render
 		private var _indexX:int;
 		private var _indexY:int;
 		/** @private */
-		protected var i:int;
-		/** @private */
-		protected var j:int;
-		/** @private */
 		protected var np1:Vector.<int>;
 		/** @private */
 		protected var _view:View3D;
@@ -116,38 +112,11 @@ package away3dlite.core.render
 		public var numCulled:int = 0;
 
 		/** @private */
-		protected function sortFaces():void
+		protected function sortFaces(i:int = 0, j:int = 0):void
 		{
 			var _faces_length_1:int = int(_faces.length + 1);
 			var _Face_calculateZIntFromZ:Function = Face.calculateZIntFromZ;
-			if (useFloatZSort)
-			{
-				np1 = new Vector.<int>(_faces_length_1, true);
-				var _sortFaceDatas:Array = [];
-
-				//z-axis, for sort-based production
-				i = 1;
-				for each (_face in _faces)
-				{
-					var z:Number = _face.calculateScreenZ();
-					_sort[int(i - 1)] = _Face_calculateZIntFromZ(z);
-					if (z > 0)
-						_sortFaceDatas[int(j++)] = new SortFaceData(i, z);
-					i++;
-				}
-
-				//z-axis sort
-				_sortFaceDatas = _sortFaceDatas.sortOn("z", 16);
-
-				//Put the sorted indices inside a Vector
-				j = 0;
-				for each (var _sortFaceData:SortFaceData in _sortFaceDatas)
-					np1[int(j++)] = _sortFaceData.i;
-				np1[int(j++)] = 0;
-
-				_sortFaceDatas = null;
-			}
-			else
+			if (!useFloatZSort)
 			{
 				q0 = new Vector.<int>(256, true);
 				q1 = new Vector.<int>(256, true);
@@ -159,7 +128,7 @@ package away3dlite.core.render
 
 				for each (_face in _faces)
 				{
-					np0[int(i + 1)] = q0[k = (255 & (_sort[i] = _face.calculateScreenZInt()))];
+					np0[int(i + 1)] = q0[k = (255 & (_sort[int(i)] = _face.calculateScreenZInt()))];
 					q0[k] = int(++i);
 				}
 
@@ -173,6 +142,33 @@ package away3dlite.core.render
 						j = np0[q1[k] = j];
 					}
 				}
+			}
+			else
+			{
+				np1 = new Vector.<int>(_faces_length_1, true);
+				var _sortFaceDatas:Array = [];
+				
+				//z-axis, for sort-based production
+				i = 1;
+				for each (_face in _faces)
+				{
+					var z:Number = _face.calculateScreenZ();
+					_sort[int(i - 1)] = _Face_calculateZIntFromZ(z);
+					if (z > 0)
+						_sortFaceDatas[int(j++)] = new SortFaceData(i, z);
+					i++;
+				}
+				
+				//z-axis sort
+				_sortFaceDatas = _sortFaceDatas.sortOn("z", 16);
+				
+				//Put the sorted indices inside a Vector
+				j = 0;
+				for each (var _sortFaceData:SortFaceData in _sortFaceDatas)
+				np1[int(j++)] = _sortFaceData.i;
+				np1[int(j++)] = 0;
+				
+				_sortFaceDatas = null;
 			}
 		}
 
@@ -330,7 +326,7 @@ package away3dlite.core.render
 				else
 				{
 					// draw particle that behind screenZ
-					while ((_particle = _particles[_particleIndex++]) && _particle.screenZ > screenZ)
+					while ((_particle = _particles[int(_particleIndex++)]) && _particle.screenZ > screenZ)
 						_particle.drawBitmapdata(_view_x, _view_y, _view_scene_bitmapData, _zoom, _focus);
 
 					if (_particleIndex >= 2)
@@ -351,7 +347,7 @@ package away3dlite.core.render
 				else
 				{
 					// draw particle that behind screenZ
-					while ((_particle = _particles[_particleIndex++]) && _particle.screenZ > screenZ)
+					while ((_particle = _particles[int(_particleIndex++)]) && _particle.screenZ > screenZ)
 						_particle.drawGraphics(_view_x, _view_y, _view_graphics, _zoom, _focus);
 
 					if (_particleIndex >= 2)

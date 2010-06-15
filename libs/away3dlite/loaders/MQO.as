@@ -207,7 +207,7 @@
 			if (l == -1)
 				return -1;
 
-			line = lines[l++];
+			line = lines[int(l++)];
 
 			var numFaces:int = parseInt(line.substring(line.indexOf("face") + 5));
 			var faceEndLine:int = l + numFaces;
