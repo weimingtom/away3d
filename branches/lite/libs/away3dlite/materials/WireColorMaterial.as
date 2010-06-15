@@ -86,7 +86,7 @@ package away3dlite.materials
 		{
 			super(color, alpha);
 
-			_wireColor = Cast.color(wireColor || 0x000000);
+			_wireColor = Cast.color((wireColor == null) ? "random" : wireColor);
 			_wireAlpha = wireAlpha;
 
 			_thickness = thickness;
