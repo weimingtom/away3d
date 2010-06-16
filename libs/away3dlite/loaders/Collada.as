@@ -36,8 +36,9 @@
 		private var _skinControllers:Vector.<SkinController> = new Vector.<SkinController>();
 		private var _skinController:SkinController;
 
-		public var bothsides:Boolean = true;
+		public var bothsides:Boolean = false;
 		public var useIDAsName:Boolean = false;
+		public var isFreezeTransform:Boolean = false;
 
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D, depth:int):void
 		{
@@ -221,8 +222,11 @@
 			}
 
 			// freeze transform for static mesh
-			mesh.transform.matrix3D.transformVectors(mesh._vertices, mesh._vertices);
-			mesh.transform.matrix3D.identity();
+			if(isFreezeTransform)
+			{
+				mesh.transform.matrix3D.transformVectors(mesh._vertices, mesh._vertices);
+				mesh.transform.matrix3D.identity();
+			}
 
 			mesh.type = ".Collada";
 		}
