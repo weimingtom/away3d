@@ -79,8 +79,6 @@ package away3dlite.core.base
 		arcane var _viewMatrix3D:Matrix3D = new Matrix3D();
 		/** @private */
 		arcane var _sceneMatrix3D:Matrix3D = new Matrix3D();
-		/** @private */
-		arcane var _mouseEnabled:Boolean;
 
 		/** @private */
 		arcane function updateScene(val:Scene3D):void
