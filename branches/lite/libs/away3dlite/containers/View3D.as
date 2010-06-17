@@ -254,19 +254,19 @@ package away3dlite.containers
 			return tarArray;
 		}
 
-		/*no use
 		private function traverseRollEvent(event:MouseEvent3D, array:Array, overFlag:Boolean):void
 		{
 			for each (var tar:Object3D in array)
 			{
 				tar.dispatchEvent(event);
+				/* deprecated buttonMode, useHandCursor
 				if (overFlag)
 					buttonMode = tar.useHandCursor;
 				else if (buttonMode && tar.useHandCursor)
 					buttonMode = false;
+				*/
 			}
 		}
-		*/
 
 		private function fireMouseEvent(type:String, ctrlKey:Boolean = false, shiftKey:Boolean = false):void
 		{
@@ -339,7 +339,7 @@ package away3dlite.containers
 						event.material = _mouseMaterial;
 						event.ctrlKey = ctrlKey;
 						event.shiftKey = shiftKey;
-						//no use//traverseRollEvent(event, outArray.slice(i), false);
+						traverseRollEvent(event, outArray.slice(i), false);
 					}
 
 					if (_object != null)
@@ -347,7 +347,7 @@ package away3dlite.containers
 						event = getMouseEvent(MouseEvent3D.ROLL_OVER);
 						event.ctrlKey = ctrlKey;
 						event.shiftKey = shiftKey;
-						//no use//traverseRollEvent(event, overArray.slice(i), true);
+						traverseRollEvent(event, overArray.slice(i), true);
 					}
 				}
 
