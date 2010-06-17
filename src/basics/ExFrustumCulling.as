@@ -3,7 +3,7 @@ package basics
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.*;
-
+	
 	import flash.events.*;
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
@@ -11,7 +11,7 @@ package basics
 	 * FrustumCulling Example
 	 * @author katopz
 	 */
-	public class ExFrustumCulling extends BasicTemplate
+	public class ExFrustumCulling extends FastTemplate
 	{
 		private var spheres:Array = [];
 		private var step:Number = 0;
@@ -56,7 +56,6 @@ package basics
 			scene.addChild(zCube);
 
 			//
-
 			var _xCube:Cube6 = new Cube6(new ColorMaterial(0x660000), 10, 10, 10);
 			_xCube.x = -length;
 			scene.addChild(_xCube);
@@ -80,7 +79,7 @@ package basics
 
 		override protected function onPreRender():void
 		{
-			title = "Away3DLite | Frustum Culling : " + renderer.numCulled + " | Click to toggle Culling : " + renderer.cullObjects + " | ";
+			title = "Away3DLite | Click to toggle Frustum Culling, render/total : " + view.renderedObjects + "/"+ view.totalObjects + " | ";
 
 			/*
 			   var i:Number = 0;
@@ -93,9 +92,9 @@ package basics
 			   step+=.01;
 			 */
 
-			//scene.rotationX += .5;
+			scene.rotationX += .5;
 			scene.rotationY += .5;
-			//scene.rotationZ += .5;
+			scene.rotationZ += .5;
 
 			//camera.x = 1000 * Math.cos(step);
 			//spheres[0].x = 10 * (300 - mouseY);
