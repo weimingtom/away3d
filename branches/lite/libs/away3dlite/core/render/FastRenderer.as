@@ -85,31 +85,29 @@ package away3dlite.core.render
 
 			if (object is Mesh)
 			{
-				var mesh:Mesh = object as Mesh;
-
-
-				_faces = mesh._faces;
+				var _mesh:Mesh = object as Mesh;
+				_faces = _mesh._faces;
 
 				if(!_faces)
 					return;
 
-				var _mesh_material:Material = mesh.material;
+				var _mesh_material:Material = _mesh.material;
 				var _mesh_material_graphicsData:Vector.<IGraphicsData> = _mesh_material.graphicsData;
 
 				_mesh_material_graphicsData[_mesh_material.trianglesIndex] = _triangles;
 
 				_ind.fixed = false;
-				_sort = mesh._sort;
-				_triangles.culling = mesh._culling;
-				_uvt = _triangles.uvtData = mesh._uvtData;
-				_vert = _triangles.vertices = mesh._screenVertices;
-				_ind.length = mesh._indicesTotal;
+				_sort = _mesh._sort;
+				_triangles.culling = _mesh._culling;
+				_uvt = _triangles.uvtData = _mesh._uvtData;
+				_vert = _triangles.vertices = _mesh._screenVertices;
+				_ind.length = _mesh._indicesTotal;
 				_ind.fixed = true;
 
-				if (_view.mouseEnabled && _mouseEnabled)
-					collectScreenVertices(mesh);
+				if (_view.mouseEnabled && _mouseEnabled && _mesh._mouseEnabled)
+					collectScreenVertices(_mesh);
 
-				if (mesh.sortFaces)
+				if (_mesh.sortFaces)
 				{
 					sortFaces();
 				}
@@ -192,7 +190,7 @@ package away3dlite.core.render
 				_i = -1;
 				while (i++ < 255)
 				{
-					j = q1[i];
+					j = q1[int(i)];
 					while (j)
 					{
 						sortFacesCommon(j);
@@ -204,13 +202,12 @@ package away3dlite.core.render
 			{
 				i = 0;
 				_i = -1;
-				j = np1[i];
+				j = np1[int(i)];
 				while (j)
 				{
 					sortFacesCommon(j);
-					
 					i++;
-					j = np1[i];
+					j = np1[int(i)];
 				}
 			}
 		}
