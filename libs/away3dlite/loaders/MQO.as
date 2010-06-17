@@ -41,7 +41,7 @@
 		private var _meshData:MeshData;
 		private var _geometryData:GeometryData;
 		private var _moveVector:Vector3D = new Vector3D();
-		private var _materialNames:Array = new Array();
+		private var _materialNames:Array = [];
 
 		/**
 		 * Array of mesh data objects used for storing the parsed 3ds data structure.
