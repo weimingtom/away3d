@@ -24,8 +24,8 @@ package basics
 			   FastRenderer  = 60x60 segments = 3,600 Quad faces
 
 			   [Quad Core]
-			   BasicRenderer = 100x100 segments = 10,000 Quad faces
-			   FastRenderer  = 101x101 segments = 10,201 Quad faces
+			   BasicRenderer = 106x106 segments
+			   FastRenderer  = 111x111 segments
 			 */
 			var segments:uint = 60;
 
@@ -33,6 +33,8 @@ package basics
 
 			var sphere:Sphere = new Sphere(new BitmapFileMaterial("../src/basics/assets/earth.jpg"), 100, segments, segments);
 			scene.addChild(sphere);
+			
+			view.mouseEnabled = view.mouseEnabled3D = false;
 		}
 
 		/**
