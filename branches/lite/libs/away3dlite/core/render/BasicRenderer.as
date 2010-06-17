@@ -28,15 +28,15 @@ package away3dlite.core.render
 
 		private function collectFaces(object:Object3D):void
 		{
-			if (!object.visible || object._frustumCulling || object._perspCulling)
-			{
-				if (cullObjects)
-					numCulled++;
+			++_view._totalObjects;
+			
+			if (!object.visible || object._perspCulling)
 				return;
-			}
-
-			_mouseEnabledArray.push(_mouseEnabled);
-			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
+			
+			if(cullObjects && object._frustumCulling)
+				return;
+			
+			++_view._renderedObjects;
 
 			if (object is ObjectContainer3D)
 			{
@@ -71,7 +71,7 @@ package away3dlite.core.render
 				var mesh:Mesh = object as Mesh;
 				_clipping.collectFaces(mesh, _faces);
 
-				if (_view.mouseEnabled && _mouseEnabled)
+				if (_view.mouseEnabled && mesh.mouseEnabled)
 					collectScreenVertices(mesh);
 
 				if (mesh._faces)
@@ -84,11 +84,6 @@ package away3dlite.core.render
 				if (_particles_lists.length > 0)
 					_particles = _particles.concat(_particles_lists);
 			}
-
-			_mouseEnabled = _mouseEnabledArray.pop();
-
-			++_view._totalObjects;
-			++_view._renderedObjects;
 		}
 
 		/** @private */
@@ -264,7 +259,8 @@ package away3dlite.core.render
 			collectFaces(_scene);
 
 			// sort merged particles
-			_particles.sortOn("screenZ", 18);
+			if (_particles.length > 0)
+				_particles.sortOn("screenZ", 18);
 
 			_faces.fixed = true;
 

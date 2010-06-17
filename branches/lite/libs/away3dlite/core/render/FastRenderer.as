@@ -20,12 +20,11 @@ package away3dlite.core.render
 
 		private function collectFaces(object:Object3D):void
 		{
-			if (!object.visible || object._frustumCulling)
+			++_view._totalObjects;
+			
+			if (!object.visible || (cullObjects && object._frustumCulling))
 				return;
-
-			_mouseEnabledArray.push(_mouseEnabled);
-			_mouseEnabled = object._mouseEnabled = (_mouseEnabled && object.mouseEnabled);
-
+			
 			if (object is ObjectContainer3D)
 			{
 				var children:Array = (object as ObjectContainer3D).children;
@@ -51,13 +50,6 @@ package away3dlite.core.render
 
 					collectFaces(child);
 				}
-
-			}
-
-			if (cullObjects && !object.visible)
-			{
-				numCulled++;
-				return;
 			}
 
 			if (object is Particles)
@@ -67,11 +59,13 @@ package away3dlite.core.render
 				if (_particles_lists.length > 0)
 					_particles = _particles.concat(_particles_lists);
 			}
+			
+			++_view._renderedObjects;
 		}
 
 		private function drawFaces(object:Object3D):void
 		{
-			if (cullObjects && !object.visible)
+			if (!object.visible || (cullObjects && object._frustumCulling))
 				return;
 
 			if (object is ObjectContainer3D)
@@ -104,7 +98,7 @@ package away3dlite.core.render
 				_ind.length = _mesh._indicesTotal;
 				_ind.fixed = true;
 
-				if (_view.mouseEnabled && _mouseEnabled && _mesh._mouseEnabled)
+				if (_view.mouseEnabled && _mesh.mouseEnabled)
 					collectScreenVertices(_mesh);
 
 				if (_mesh.sortFaces)
@@ -150,11 +144,6 @@ package away3dlite.core.render
 				_view._totalFaces += _faces_length;
 				_view._renderedFaces += _faces_length;
 			}
-
-			_mouseEnabled = _mouseEnabledArray.pop();
-
-			++_view._totalObjects;
-			++_view._renderedObjects;
 		}
 
 		private function collectPointFaces(object:Object3D):void

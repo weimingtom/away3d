@@ -72,10 +72,6 @@ package away3dlite.core.render
 		/** @private */
 		protected var _pointFace:Face;
 		/** @private */
-		protected var _mouseEnabled:Boolean;
-		/** @private */
-		protected var _mouseEnabledArray:Vector.<Boolean> = new Vector.<Boolean>();
-		/** @private */
 		protected var _ind:Vector.<int>;
 		/** @private */
 		protected var _vert:Vector.<Number>;
@@ -97,7 +93,7 @@ package away3dlite.core.render
 		protected var _particles:Array;
 
 		/**
-		 * Determines whether 3d objects are sorted in the view. Defaults to false.
+		 * Determines whether 3d objects are sorted in the view. Defaults to true.
 		 */
 		public var sortObjects:Boolean = true;
 
@@ -105,11 +101,6 @@ package away3dlite.core.render
 		 * Determines whether 3d objects are culled in the view. Defaults to false.
 		 */
 		public var cullObjects:Boolean = false;
-
-		/**
-		 * The number represent how many object that has been culled
-		 */
-		public var numCulled:int = 0;
 
 		/** @private */
 		protected function sortFaces(i:int = 0, j:int = 0):void
@@ -155,7 +146,7 @@ package away3dlite.core.render
 					var z:Number = _face.calculateScreenZ();
 					_sort[int(i - 1)] = _Face_calculateZIntFromZ(z);
 					if (z > 0)
-						_sortFaceDatas[int(j++)] = new SortFaceData(i, z);
+						_sortFaceDatas[int(j++)] = new SortFaceData(int(i), z);
 					i++;
 				}
 				
@@ -185,9 +176,9 @@ package away3dlite.core.render
 			var i:int = _faces.length;
 			while (i--)
 			{
-				if (_screenZ < _sort[i] && (_face = _faces[i]).mesh._mouseEnabled)
+				if (_screenZ < _sort[int(i)] && (_face = _faces[int(i)]).mesh.mouseEnabled)
 				{
-					_screenPointVertices = _screenPointVertexArrays[_face.mesh._vertexId];
+					_screenPointVertices = _screenPointVertexArrays[int(_face.mesh._vertexId)];
 					
 					if(_screenPointVertices.length == 0)
 						continue;
@@ -240,7 +231,7 @@ package away3dlite.core.render
 							continue;
 						}
 
-						_screenZ = _sort[i];
+						_screenZ = _sort[int(i)];
 						_pointFace = _face;
 					}
 				}
@@ -265,18 +256,18 @@ package away3dlite.core.render
 
 			while (i--)
 			{
-				_screenVertices = _screenVertexArrays[i];
-				_screenPointVertices = _screenPointVertexArrays[i] = new Vector.<int>(_index = _screenVertices.length / 2, true);
+				_screenVertices = _screenVertexArrays[int(i)];
+				_screenPointVertices = _screenPointVertexArrays[int(i)] = new Vector.<int>(_index = _screenVertices.length / 2, true);
 
 				while (_index--)
 				{
 					_indexY = (_indexX = _index * 2) + 1;
 
-					if (_screenVertices[_indexX] < x)
-						_screenPointVertices[_index] += 0x10;
+					if (_screenVertices[int(_indexX)] < x)
+						_screenPointVertices[int(_index)] += 0x10;
 
-					if (_screenVertices[_indexY] < y)
-						_screenPointVertices[_index] += 0x1;
+					if (_screenVertices[int(_indexY)] < y)
+						_screenPointVertices[int(_index)] += 0x1;
 				}
 			}
 		}
@@ -370,8 +361,6 @@ package away3dlite.core.render
 
 			_clipping = _view.screenClipping;
 
-			_mouseEnabled = _scene.mouseEnabled;
-			_mouseEnabledArray.length = 0;
 			_pointFace = null;
 
 			_screenVertexArrays.length = 0;
@@ -380,7 +369,6 @@ package away3dlite.core.render
 			_particles = [];
 
 			// culling
-			numCulled = 0;
 			if (_view.camera.transfromDirty)
 			{
 				_culler.update();
