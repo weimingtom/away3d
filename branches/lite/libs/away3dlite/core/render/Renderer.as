@@ -175,7 +175,7 @@ package away3dlite.core.render
 		/** @private */
 		protected function collectPointFace(x:Number, y:Number):void
 		{
-			if(_screenPointVertexArrays.length==0)
+			if(_screenPointVertexArrays.length == 0)
 				return;
 			
 			var pointCount:int;
@@ -188,6 +188,9 @@ package away3dlite.core.render
 				if (_screenZ < _sort[i] && (_face = _faces[i]).mesh._mouseEnabled)
 				{
 					_screenPointVertices = _screenPointVertexArrays[_face.mesh._vertexId];
+					
+					if(_screenPointVertices.length == 0)
+						continue;
 
 					if (_face.length == 4)
 					{
@@ -203,7 +206,6 @@ package away3dlite.core.render
 					pointCountY = (pointCount & 15);
 					if (pointCountX && pointCountX < pointTotal && pointCountY && pointCountY < pointTotal)
 					{
-
 						//flagged for edge detection
 						var vertices:Vector.<Number> = _face.mesh._screenVertices;
 						if(!vertices)
