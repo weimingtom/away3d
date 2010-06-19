@@ -7,8 +7,6 @@ package away3dlite.containers
 
 	import flash.display.Sprite;
 	import flash.geom.Matrix3D;
-	import flash.geom.Utils3D;
-	import flash.geom.Vector3D;
 
 	use namespace arcane;
 
@@ -68,8 +66,7 @@ package away3dlite.containers
 			var _particle:Particle = _firstParticle;
 			if (_particle)
 				do
-					_particle.update(_viewMatrix3D, _transform_matrix3D);
-				while(_particle = _particle.next);
+					_particle.update(_viewMatrix3D, _transform_matrix3D); while (_particle = _particle.next);
 
 			if (_animate)
 			{
