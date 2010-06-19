@@ -5,7 +5,7 @@ package away3dlite.templates
 	import away3dlite.containers.*;
 	import away3dlite.core.IDestroyable;
 	import away3dlite.debug.*;
-
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.filters.*;
@@ -74,7 +74,7 @@ package away3dlite.templates
 		arcane function init():void
 		{
 			// init view
-			addChild(view = new View3D(scene = new Scene3D(), camera = new Camera3D()));
+			addChild(view = new View3D(scene = new Scene3D(), camera = _camera?_camera:new Camera3D()));
 
 			// default camera setting
 			camera.z = -1000;
@@ -222,10 +222,24 @@ package away3dlite.templates
 		 */
 		public var scene:Scene3D;
 
+		/** @private */
+		protected var _camera:Camera3D;
+		
 		/**
 		 * The camera object used in the template.
 		 */
-		public var camera:Camera3D;
+		public function get camera():Camera3D
+		{
+			return _camera;
+		}
+
+		public function set camera(value:Camera3D):void
+		{
+			_camera = value;
+			
+			if(view)
+				view.camera = value;
+		}
 
 		/**
 		 * The view object used in the template.
