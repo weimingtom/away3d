@@ -5,7 +5,7 @@ package away3dlite.core.base
 	import away3dlite.containers.*;
 	import away3dlite.core.*;
 	import away3dlite.loaders.utils.*;
-	
+
 	import flash.display.*;
 	import flash.geom.*;
 
@@ -97,7 +97,7 @@ package away3dlite.core.base
 			_viewMatrix3D.append(camera._screenMatrix3D);
 
 			_screenZ = _viewMatrix3D.position.z;
-			
+
 			//perspective culling
 			var persp:Number = camera.zoom / (1 + _screenZ / camera.focus);
 
@@ -202,7 +202,7 @@ package away3dlite.core.base
 		public function set canvas(value:Sprite):void
 		{
 			_canvas = value;
-			if(_canvas && parent && parent is ObjectContainer3D)
+			if (_canvas && parent && parent is ObjectContainer3D)
 				ObjectContainer3D(parent).isChildUseCanvas = true;
 		}
 
@@ -326,6 +326,51 @@ package away3dlite.core.base
 		}
 
 		/**
+		 * Rotates the 3D object around it's local x-axis
+		 *
+		 * @param	degrees		The degree of the rotation.
+		 */
+		public function pitch(degrees:Number):void
+		{
+			rotate(degrees, Vector3D.X_AXIS);
+		}
+
+		/**
+		 * Rotates the 3D object around it's local y-axis
+		 *
+		 * @param	degrees		The degree of the rotation.
+		 */
+		public function yaw(degrees:Number):void
+		{
+			rotate(degrees, Vector3D.Y_AXIS);
+		}
+
+		/**
+		 * Rotates the 3D object around it's local z-axis
+		 *
+		 * @param	degrees		The degree of the rotation.
+		 */
+		public function roll(degrees:Number):void
+		{
+			rotate(degrees, Vector3D.Z_AXIS);
+		}
+
+		/**
+		 * Rotates the 3d object around an axis by a defined degrees
+		 *
+		 * @param	degrees		The degree of the rotation.
+		 * @param	axis		The axis or direction of rotation. The usual axes are the X_AXIS (Vector3D(1,0,0)), Y_AXIS (Vector3D(0,1,0)), and Z_AXIS (Vector3D(0,0,1)).
+		 * @param	pivotPoint	A point that determines the center of an object's rotation. The default pivot point for an object is its registration point.
+		 */
+		public function rotate(degrees:Number, axis:Vector3D, pivotPoint:Vector3D = null):void
+		{
+			axis.normalize();
+			
+			var _matrix3D:Matrix3D = transform.matrix3D;
+			_matrix3D.appendRotation(degrees, _matrix3D.deltaTransformVector(axis), pivotPoint);
+		}
+
+		/**
 		 * Rotates the 3d object around to face a point defined relative to the local coordinates of the parent <code>ObjectContainer3D</code>.
 		 *
 		 * @param	target		The vector defining the point to be looked at
@@ -362,20 +407,20 @@ package away3dlite.core.base
 		{
 			return _isDestroyed;
 		}
-		
+
 		public function destroy():void
 		{
 			_isDestroyed = true;
-			
+
 			_viewMatrix3D = null;
 			_sceneMatrix3D = null;
 			_cachedViewMatrix3D = null;
 
-			if(materialLibrary)
+			if (materialLibrary)
 				materialLibrary.destroy();
-			if(geometryLibrary)
+			if (geometryLibrary)
 				geometryLibrary.destroy();
-			if(animationLibrary)
+			if (animationLibrary)
 				animationLibrary.destroy();
 
 			materialLibrary = null;
