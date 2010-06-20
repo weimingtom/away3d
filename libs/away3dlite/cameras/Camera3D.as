@@ -192,13 +192,11 @@ package away3dlite.cameras
 			// need only rotation matrix
 			_matrix3D.position = new Vector3D();
 
-			// roatate
+			// rotate
 			_matrix3D.appendRotation(degrees, _matrix3D.deltaTransformVector(axis), pivotPoint);
 
 			// restore current position
-			_matrix3D.position = _position
-
-			_scene.isDirty = true;
+			_matrix3D.position = _position;
 		}
 
 		/**
