@@ -198,7 +198,7 @@ package away3dlite.cameras
 			// restore current position
 			_matrix3D.position = _position
 
-			transfromDirty = true;
+			_scene.isDirty = true;
 		}
 
 		/**

@@ -79,6 +79,8 @@ package away3dlite.core.base
 		arcane var _viewMatrix3D:Matrix3D = new Matrix3D();
 		/** @private */
 		arcane var _sceneMatrix3D:Matrix3D = new Matrix3D();
+		/** @private */
+		private var _cachedViewMatrix3D:Matrix3D;
 
 		/** @private */
 		arcane function updateScene(val:Scene3D):void
@@ -106,10 +108,23 @@ package away3dlite.core.base
 			else
 				_perspCulling = false;
 
+			if(!_cachedViewMatrix3D)
+			{
+				_cachedViewMatrix3D = _viewMatrix3D.clone();
+				if (_scene)
+					_scene.isDirty = true;
+			}
+			
 			// dirty
-			updateDirty(_viewMatrix3D);
+			if (_scene)
+			{
+				_scene.isDirty = _scene.isDirty || checkDirty(_viewMatrix3D.rawData, _cachedViewMatrix3D.rawData);
+				
+				if(_scene.isDirty)
+					_cachedViewMatrix3D = _viewMatrix3D.clone();
+			}
 		}
-
+		
 		private function checkDirty(a:Vector.<Number>, b:Vector.<Number>):Boolean
 		{
 			var i:int = 16;
@@ -122,48 +137,6 @@ package away3dlite.core.base
 				return false;
 		}
 
-		private var _cachedViewMatrix3D:Matrix3D;
-
-		protected function updateDirty(matrix3D:Matrix3D):void
-		{
-			if (!_cachedViewMatrix3D || transfromDirty)
-			{
-				_cachedViewMatrix3D = matrix3D.clone();
-
-				//mark as dirty
-				transfromDirty = true;
-
-				//mark parent is dirty
-				if (_scene)
-					_scene.transfromDirty = true;
-			}
-
-			//transform dirty
-			if (checkDirty(matrix3D.rawData, _cachedViewMatrix3D.rawData))
-			{
-				//mark as dirty
-				transfromDirty = true;
-
-				//mark parent is dirty
-				if (_scene)
-					_scene.transfromDirty = true;
-
-				//store
-				_cachedViewMatrix3D = matrix3D.clone();
-			}
-			else
-			{
-				//clean
-				transfromDirty = false || _scene ? _scene.transfromDirty : false;
-			}
-		}
-
-		protected function copyMatrix3D(m1:Matrix3D, m2:Matrix3D):void
-		{
-			var rawData:Vector.<Number> = m1.rawData.concat();
-			m2.rawData = rawData;
-		}
-
 		/**
 		 * Returns the maxinum length of 3d object to local center aka radius
 		 */
@@ -173,11 +146,6 @@ package away3dlite.core.base
 		 * Global position in space, use for Frustum object culler
 		 */
 		public var projectedPosition:Vector3D;
-
-		/**
-		 * Transfrom status
-		 */
-		public var transfromDirty:Boolean = true;
 
 		/**
 		 * An optional layer sprite used to draw into inseatd of the default view.
@@ -365,9 +333,11 @@ package away3dlite.core.base
 		public function rotate(degrees:Number, axis:Vector3D, pivotPoint:Vector3D = null):void
 		{
 			axis.normalize();
-			
+
 			var _matrix3D:Matrix3D = transform.matrix3D;
 			_matrix3D.appendRotation(degrees, _matrix3D.deltaTransformVector(axis), pivotPoint);
+
+			_scene.isDirty
 		}
 
 		/**

@@ -68,12 +68,8 @@ package away3dlite.containers
 				do
 					_particle.update(_viewMatrix3D, _transform_matrix3D); while (_particle = _particle.next);
 
-			if (_animate)
-			{
-				transfromDirty = true;
-				if (_scene)
-					_scene.transfromDirty = true;
-			}
+			if (_animate && _scene)
+				_scene.isDirty = true;
 		}
 
 		public function addParticle(particle:Particle):Particle

@@ -369,11 +369,11 @@ package away3dlite.core.render
 			_particles = [];
 
 			// culling
-			if (_view.camera.transfromDirty)
-			{
+			if (cullObjects && _scene.isDirty)
 				_culler.update();
-				_view.camera.transfromDirty = false;
-			}
+			
+			// reset
+			_scene.isDirty = false;
 		}
 		
 		public function get destroyed():Boolean

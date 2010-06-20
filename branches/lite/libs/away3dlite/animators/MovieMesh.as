@@ -89,7 +89,8 @@ package away3dlite.animators
 			}
 			_otime = ctime;
 			
-			transfromDirty = true;
+			if(_scene)
+				_scene.isDirty = true;
 		}
 
 		/**

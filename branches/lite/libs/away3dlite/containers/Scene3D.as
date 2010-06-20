@@ -16,9 +16,15 @@ package away3dlite.containers
 	 */
 	public class Scene3D extends ObjectContainer3D
 	{
+		// TODO : separate bitmap layer(s)
 		public var bitmap:Bitmap;
+		
+		// status
+		arcane var isDirty:Boolean = true;
+		
+		// light
 		private var _index:int;
-
+		
 		arcane var _id:uint;
 		/** @private */
 		arcane var _broadcaster:Sprite = new Sprite();

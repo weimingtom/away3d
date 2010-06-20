@@ -64,7 +64,7 @@ package away3dlite.core.base
 			super.project(camera, parentSceneMatrix3D);
 
 			if (_materialsDirty)
-				_scene.transfromDirty = true;
+				_scene.isDirty = true;
 
 			// project the normals
 			if (material is IShader)
@@ -95,9 +95,6 @@ package away3dlite.core.base
 					}
 				}
 			}
-
-			if (this != _scene)
-				transfromDirty = false;
 		}
 
 		/** @private */	

@@ -193,8 +193,10 @@ package away3dlite.containers
 	    			}
 	    		}
 				
+				
+				// always dirty
 				if(_scene)
-					_scene.transfromDirty = true;
+					_scene.isDirty = true;
         	}
     		
 			return _vertices;
@@ -221,7 +223,7 @@ package away3dlite.containers
 		public override function addChild(child:DisplayObject):DisplayObject
 		{
 			if(_scene)
-				_scene.transfromDirty = true;
+				_scene.isDirty = true;
 				
 			child = super.addChild(child);
 			
@@ -243,7 +245,7 @@ package away3dlite.containers
 		public override function removeChild(child:DisplayObject):DisplayObject
 		{
 			if(_scene)
-				_scene.transfromDirty = true;
+				_scene.isDirty = true;
 			
 			if(child.parent)
 				child = super.removeChild(child);
