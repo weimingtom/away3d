@@ -606,11 +606,11 @@ package away3dlite.containers
 
 			_scene.project(_camera);
 
-			if (_camera.transfromDirty || _scene.transfromDirty)
+			if (_scene.isDirty)
 			{
 				graphics.clear();
 				renderer.render();
-				_scene.transfromDirty = _camera.transfromDirty = false;
+				_scene.isDirty = false;
 			}else{
 				_totalObjects = _renderedObjects = 0;
 			}
