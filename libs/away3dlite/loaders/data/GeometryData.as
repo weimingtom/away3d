@@ -117,7 +117,7 @@ package away3dlite.loaders.data
 
 			_isDestroyed = true;
 
-			vertices = new null;
+			vertices = null;
 			skinVertices = null;
 			uvtData = null;
 			indices = null;
