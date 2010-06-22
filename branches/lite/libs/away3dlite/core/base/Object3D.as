@@ -362,12 +362,11 @@ package away3dlite.core.base
 		public function translate(axis:Vector3D, distance:Number):void
 		{
 			axis.normalize();
-			
 			var _matrix3D:Matrix3D = transform.matrix3D;
-			
 			axis.scaleBy(distance);
-			
 			_matrix3D.position = _matrix3D.transformVector(axis);
+			
+			_scene.isDirty = true;
 		}
 
 		/**
@@ -414,7 +413,7 @@ package away3dlite.core.base
 			var _matrix3D:Matrix3D = transform.matrix3D;
 			_matrix3D.appendRotation(degrees, _matrix3D.deltaTransformVector(axis), pivotPoint);
 
-			_scene.isDirty;
+			_scene.isDirty = true;
 		}
 
 		/**
