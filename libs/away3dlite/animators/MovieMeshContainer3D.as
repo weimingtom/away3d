@@ -13,12 +13,18 @@ package away3dlite.animators
 	public class MovieMeshContainer3D extends ObjectContainer3D implements IDestroyable
 	{
 		public var isPlaying:Boolean;
-		public var currentLabel:String;
+		private var _currentLabel:String;
+
+		public function get currentLabel():String
+		{
+			return _currentLabel;
+		}
 		
 		public function get currentTime():Number
 		{
 			return _ctime;
 		}
+		
 		private var _ctime:Number = 0;
 		private var _otime:Number = 0;
 		
@@ -46,7 +52,7 @@ package away3dlite.animators
 		
 		public function play(label:String = "frame"):void
 		{
-			currentLabel = label;
+			_currentLabel = label;
 			
 			isPlaying = true;
 			
