@@ -366,7 +366,8 @@ package away3dlite.core.base
 			axis.scaleBy(distance);
 			_matrix3D.position = _matrix3D.transformVector(axis);
 			
-			_scene.isDirty = true;
+			if(_scene)
+				_scene.isDirty = true;
 		}
 
 		/**
@@ -413,7 +414,8 @@ package away3dlite.core.base
 			var _matrix3D:Matrix3D = transform.matrix3D;
 			_matrix3D.appendRotation(degrees, _matrix3D.deltaTransformVector(axis), pivotPoint);
 
-			_scene.isDirty = true;
+			if(_scene)
+				_scene.isDirty = true;
 		}
 
 		/**
