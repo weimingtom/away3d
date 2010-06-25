@@ -4,7 +4,7 @@ package away3dlite.animators
 	import away3dlite.arcane;
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
-	
+
 	import flash.events.*;
 	import flash.utils.*;
 
@@ -33,7 +33,7 @@ package away3dlite.animators
 		private var _begin:int;
 		private var _end:int;
 		private var _type:int;
-		
+
 		public function get currentTime():Number
 		{
 			return _ctime;
@@ -43,19 +43,19 @@ package away3dlite.animators
 
 		private var _labels:Dictionary = new Dictionary(true);
 		private var _currentLabel:String;
-		
+
 		public var isPlaying:Boolean;
 		public var isParentControl:Boolean;
-		
+
 		private function onEnterFrame(event:Event = null):void
 		{
 			seek(_ctime = getTimer(), _otime);
 		}
-		
+
 		public function seek(ctime:Number, otime:Number):void
 		{
 			isPlaying = true;
-			
+
 			var cframe:Frame;
 			var nframe:Frame;
 			var i:int = _vertices.length;
@@ -67,9 +67,9 @@ package away3dlite.animators
 			var _cframe_vertices:Vector.<Number> = cframe.vertices;
 			var _nframe_vertices:Vector.<Number> = nframe.vertices;
 
-			if(visible)
-			while (i--)
-				_vertices[i] = _cframe_vertices[i] + _interp * (_nframe_vertices[i] - _cframe_vertices[i]);
+			if (visible)
+				while (i--)
+					_vertices[i] = _cframe_vertices[i] + _interp * (_nframe_vertices[i] - _cframe_vertices[i]);
 
 			if (_type != ANIM_STOP)
 			{
@@ -88,8 +88,8 @@ package away3dlite.animators
 				}
 			}
 			_otime = ctime;
-			
-			if(_scene)
+
+			if (visible && _scene)
 				_scene.isDirty = true;
 		}
 
@@ -119,9 +119,9 @@ package away3dlite.animators
 			var _name:String = frame.name.slice(0, frame.name.length - 3);
 
 			if (!_labels[_name])
-				_labels[_name] = {begin: framesLength, end: framesLength};
+				_labels[_name] = new FrameData(framesLength, framesLength);
 			else
-				++_labels[_name].end;
+				++FrameData(_labels[_name]).end;
 
 			frames.push(frame);
 
@@ -151,7 +151,7 @@ package away3dlite.animators
 			_type = ANIM_LOOP;
 
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			if(!isParentControl)
+			if (!isParentControl)
 				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
@@ -167,29 +167,30 @@ package away3dlite.animators
 			{
 				_currentLabel = label;
 
-				if (_labels[label])
+				var _frameData:FrameData = _labels[label] as FrameData;
+				if (_frameData)
 				{
-					loop(_labels[label].begin, _labels[label].end);
+					loop(_frameData.begin, _frameData.end);
 				}
 				else
 				{
 					var _begin:int = 0;
 					var _end:int = 0;
 
-					for (var i:Object in _labels)
+					for each (_frameData in _labels)
 					{
-						_begin = (_labels[i].begin < _begin) ? _labels[i].begin : _begin;
-						_end = (_labels[i].end > _end) ? _labels[i].end : _end;
+						_begin = (_frameData.begin < _begin) ? _frameData.begin : _begin;
+						_end = (_frameData.end > _end) ? _frameData.end : _end;
 
 						loop(_begin, _end);
 					}
 				}
 			}
-			
+
 			_type = ANIM_NORMAL;
 
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			if(!isParentControl)
+			if (!isParentControl)
 				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
@@ -215,20 +216,20 @@ package away3dlite.animators
 		{
 			_currentFrame = i % framesLength;
 		}
-		
+
 		public override function clone(object:Object3D = null):Object3D
 		{
 			var mesh:MovieMesh = (object as MovieMesh) || new MovieMesh();
 			super.clone(mesh);
-			
+
 			mesh.framesLength = framesLength;
 			mesh.fps = fps;
 			mesh.frames = frames.concat();
 			mesh.isParentControl = isParentControl;
-			
+
 			return mesh;
 		}
-		
+
 		override public function destroy():void
 		{
 			if (_isDestroyed)
@@ -238,8 +239,20 @@ package away3dlite.animators
 
 			_labels = null;
 			frames = null;
-			
+
 			super.destroy();
 		}
+	}
+}
+
+internal class FrameData
+{
+	public var begin:int;
+	public var end:int;
+
+	public function FrameData(begin:int, end:int)
+	{
+		this.begin = begin;
+		this.end = end;
 	}
 }
