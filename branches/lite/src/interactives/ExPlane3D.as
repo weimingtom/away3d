@@ -8,6 +8,7 @@ package interactives
 
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
 
 	[SWF(backgroundColor="#666666", frameRate="30", quality="MEDIUM", width="800", height="600")]
@@ -34,17 +35,16 @@ package interactives
 			scene.addChild(_plane = new Plane(new WireColorMaterial(null, 0.5), 1000, 1000, 8, 5));
 
 			// object layer
-			view.addChild(_plane.layer = new Sprite);
 			view.addChild(_sphere.layer = new Sprite);
 
-			// sphere don't need to be click
+			// sphere don't need to be clickable
 			_sphere.layer.mouseEnabled = false;
 
 			// set target position
 			_target = _sphere.transform.matrix3D.position;
 
-			// input
-			_plane.layer.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			// wait for click
+			view.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 		}
 
 		private function onMouseDown(event:MouseEvent):void
@@ -59,15 +59,21 @@ package interactives
 			_target = Plane3D.getIntersectionLine(_plane3D, camera.position, _ray);
 
 			// get face index by x,z position, simulate real face click
-			var _faceIndex:int = getFaceIndexfromPlane(_target.x, _target.z, _plane);
+			var _faceIndex:int = getFaceIndexHit(_target.x, _target.z, _plane.width, _plane.height, _plane.segmentsW, _plane.segmentsH);
 
-			// apply face material
-			_plane.faces[_faceIndex].material = new WireColorMaterial(null, 0.5);
+			// apply face material if face hit
+			if (_faceIndex != -1)
+				_plane.faces[_faceIndex].material = new WireColorMaterial(null, 0.5);
 		}
 
-		private function getFaceIndexfromPlane(x:Number, y:Number, _plane:Plane):int
+		private function getFaceIndexHit(x:Number, y:Number, width:Number, height:Number, segmentsW:int, segmentsH:int):int
 		{
-			return int(_plane.segmentsH * (y / _plane.height + .5)) * _plane.segmentsW + int(_plane.segmentsW * (x / _plane.width + .5));
+			// hit test
+			var _rect:Rectangle = new Rectangle(-width * .5, -height * .5, width, height);
+			if (_rect.contains(x, z))
+				return int(_plane.segmentsH * (y / _plane.height + .5)) * _plane.segmentsW + int(_plane.segmentsW * (x / _plane.width + .5));
+			else
+				return -1;
 		}
 
 		override protected function onPreRender():void
