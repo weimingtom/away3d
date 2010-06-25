@@ -12,7 +12,7 @@ package interactives
 
 	[SWF(backgroundColor="#666666", frameRate="30", quality="MEDIUM", width="800", height="600")]
 	/**
-	 * Example : Drag on Plane3D
+	 * Example : Face Click and Drag on Plane3D.
 	 * @author katopz
 	 */
 	public class ExPlane3D extends BasicTemplate
@@ -45,7 +45,6 @@ package interactives
 
 			// input
 			_plane.layer.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			alpha = .15
 		}
 
 		private function onMouseDown(event:MouseEvent):void
