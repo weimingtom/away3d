@@ -11,7 +11,7 @@ package basics
 	 * FrustumCulling Example
 	 * @author katopz
 	 */
-	public class ExFrustumCulling extends FastTemplate
+	public class ExFrustumCulling extends BasicTemplate
 	{
 		private var spheres:Array = [];
 		private var step:Number = 0;
