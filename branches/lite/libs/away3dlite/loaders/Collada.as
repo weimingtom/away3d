@@ -38,7 +38,7 @@
 
 		public var bothsides:Boolean = false;
 		public var useIDAsName:Boolean = false;
-		public var isFreezeTransform:Boolean = false;
+		public var useFreezeTransforms:Boolean = false;
 
 		private function buildContainers(containerData:ContainerData, parent:ObjectContainer3D, depth:int):void
 		{
@@ -222,7 +222,7 @@
 			}
 
 			// freeze transform for static mesh
-			if(isFreezeTransform)
+			if(useFreezeTransforms)
 			{
 				mesh.transform.matrix3D.transformVectors(mesh._vertices, mesh._vertices);
 				mesh.transform.matrix3D.identity();
