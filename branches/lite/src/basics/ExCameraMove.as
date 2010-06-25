@@ -38,22 +38,22 @@ package basics
 					switch (event.keyCode)
 					{
 						case "W".charCodeAt():
-							camera.moveForward(1);
+							camera.moveForward(5);
 							break;
 						case "S".charCodeAt():
-							camera.moveBackward(1);
+							camera.moveBackward(5);
 							break;
 						case "A".charCodeAt():
-							camera.moveLeft(1);
+							camera.moveLeft(5);
 							break;
 						case "D".charCodeAt():
-							camera.moveRight(1);
+							camera.moveRight(5);
 							break;
 						case "C".charCodeAt():
-							camera.moveUp(1);
+							camera.moveUp(5);
 							break;
 						case "V".charCodeAt():
-							camera.moveDown(1);
+							camera.moveDown(5);
 							break;
 					}
 					break;
