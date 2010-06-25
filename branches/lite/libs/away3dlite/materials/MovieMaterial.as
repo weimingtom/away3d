@@ -39,7 +39,7 @@ package away3dlite.materials
 		private function onEnterFrame(event:Event = null):void
 		{
 			if(_isDestroyed)
-				EventDispatcher(event.currentTarget).removeEventListener(event.type, arguments.callee);
+				EventDispatcher(event.currentTarget).removeEventListener(event.type, arguments["callee"]);
 			else if (autoUpdate)
 				update();
 		}
