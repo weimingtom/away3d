@@ -5,9 +5,10 @@ package interactives
 	import away3dlite.primitives.Plane;
 	import away3dlite.primitives.Sphere;
 	import away3dlite.templates.BasicTemplate;
-
+	
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
 
@@ -71,9 +72,15 @@ package interactives
 			// hit test
 			var _rect:Rectangle = new Rectangle(-width * .5, -height * .5, width, height);
 			if (_rect.contains(x, y))
-				return int(_plane.segmentsH * (y / _plane.height + .5)) * _plane.segmentsW + int(_plane.segmentsW * (x / _plane.width + .5));
+			{
+				// get col, row and return as index
+				var _point:Point = new Point(int(segmentsW * (x / width + .5)), int(segmentsH * (y / height + .5)));
+				return _point.y * segmentsW + _point.x;
+			}
 			else
+			{
 				return -1;
+			}
 		}
 
 		override protected function onPreRender():void
