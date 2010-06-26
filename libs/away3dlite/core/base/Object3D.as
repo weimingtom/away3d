@@ -170,8 +170,8 @@ package away3dlite.core.base
 		public function set canvas(value:Sprite):void
 		{
 			_canvas = value;
-			if (_canvas && parent && parent is ObjectContainer3D)
-				ObjectContainer3D(parent).isChildUseCanvas = true;
+			if (parent && parent is ObjectContainer3D)
+				ObjectContainer3D(parent).updateCanvas();
 		}
 
 		public function get canvas():Sprite
@@ -474,7 +474,10 @@ package away3dlite.core.base
 			materialLibrary = null;
 			geometryLibrary = null;
 			animationLibrary = null;
-
+			
+			canvas = null;
+			layer = null;
+			
 			if (parent)
 				parent.removeChild(this);
 		}
