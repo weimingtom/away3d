@@ -40,7 +40,17 @@ package away3dlite.containers
 			
 			for each (child in _children)
 				child.updateScene(_scene);
+				
+			updateCanvas();
 		}
+		
+		public function updateCanvas():void
+		{
+			isChildUseCanvas = false;
+			for each (var _child:Object3D in _children)
+				isChildUseCanvas = isChildUseCanvas || (_child.canvas != null);
+		}
+		
 		/** @private */
 		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
 		{
@@ -231,9 +241,6 @@ package away3dlite.containers
 			
 			(child as Object3D).updateScene(_scene);
 			
-			if(child is Object3D && Object3D(child).canvas)
-				isChildUseCanvas = isChildUseCanvas || Object3D(child).canvas;
-			
 			return child;
 		}
         
@@ -259,13 +266,9 @@ package away3dlite.containers
 			
 			(child as Object3D).updateScene(null);
 			
-			isChildUseCanvas = false;
-			for each (var _child:Object3D in _children)
-				isChildUseCanvas = isChildUseCanvas || (_child._canvas != null);
-			
 			return child;
 		}
-        
+		
 		/**
 		 * Adds a 3d sprite to the scene as a child of the container.
 		 * 
