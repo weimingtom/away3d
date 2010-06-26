@@ -70,7 +70,7 @@ package interactives
 		{
 			// hit test
 			var _rect:Rectangle = new Rectangle(-width * .5, -height * .5, width, height);
-			if (_rect.contains(x, z))
+			if (_rect.contains(x, y))
 				return int(_plane.segmentsH * (y / _plane.height + .5)) * _plane.segmentsW + int(_plane.segmentsW * (x / _plane.width + .5));
 			else
 				return -1;
