@@ -1,5 +1,7 @@
 package away3dlite.materials
 {
+	import away3dlite.core.utils.Cast;
+	
 	import flash.display.*;
 
 	/**
@@ -7,8 +9,9 @@ package away3dlite.materials
 	 */
 	public class WireframeMaterial extends Material
 	{
-		private var _color:uint;
-		private var _alpha:Number;
+		protected var _color:uint;
+		protected var _alpha:Number;
+		protected var _thickness:Number;
 
 		/**
 		 * Defines the color of the outline.
@@ -49,22 +52,43 @@ package away3dlite.materials
 			
 			dirty = true;
 		}
+		
+		/**
+		 * Defines the thickness of the outline.
+		 */
+		public function get thickness():Number
+		{
+			return _thickness;
+		}
+		
+		public function set thickness(val:Number):void
+		{
+			if (_thickness == val)
+				return;
+			
+			_thickness = val;
+			
+			_graphicsStroke.thickness = _thickness;
+			
+			dirty = true;
+		}
 
 		/**
 		 * Creates a new <code>WireframeMaterial</code> object.
 		 *
 		 * @param	color		The color of the outline.
 		 * @param	alpha		The transparency of the outline.
+		 * @param	thickness	The thickness of the outline.
 		 */
-		public function WireframeMaterial(color:int = 0xFFFFFF, alpha:Number = 1)
+		public function WireframeMaterial(color:* = null, alpha:Number = 1, thickness:uint = 1)
 		{
 			super();
 
-			_color = color;
+			_color = Cast.color((color == null) ? "random" : color);
 			_alpha = alpha;
 
 			_graphicsStroke.fill = new GraphicsSolidFill(_color, _alpha);
-			_graphicsStroke.thickness = 1;
+			_graphicsStroke.thickness = _thickness = thickness;
 
 			graphicsData = Vector.<IGraphicsData>([_graphicsStroke, _triangles]);
 			graphicsData.fixed = true;
