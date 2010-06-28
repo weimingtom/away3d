@@ -76,6 +76,20 @@ package away3dlite.core.render
 
 				if (mesh._faces)
 					_view._totalFaces += mesh._faces.length;
+				
+				// TODO : add to fastrenderer, separate draw type and use interface instead, apply bothsides
+				if(mesh.material is QuadWireframeMaterial)
+				{
+					if (mesh.visible && !mesh._frustumCulling && !mesh._perspCulling)
+					{
+						if (mesh._layer)
+							QuadWireframeMaterial(mesh.material).drawGraphicsData(mesh, mesh._layer.graphics);
+						else if (mesh._canvas)
+							QuadWireframeMaterial(mesh.material).drawGraphicsData(mesh, mesh._canvas.graphics);
+						else
+							QuadWireframeMaterial(mesh.material).drawGraphicsData(mesh, _view_graphics);
+					}
+				}
 			}
 			else if (object is Particles)
 			{
@@ -85,7 +99,7 @@ package away3dlite.core.render
 					_particles = _particles.concat(_particles_lists);
 			}
 		}
-
+		
 		/** @private */
 		protected override function sortFaces(i:int = 0, j:int = 0):void
 		{
@@ -128,7 +142,7 @@ package away3dlite.core.render
 
 			if (_material != _face._material)
 			{
-				if (_material)
+				if (_material && _material.trianglesIndex>-1)
 				{
 					_material_graphicsData[_material.trianglesIndex] = _triangles;
 					draw(_mesh);
@@ -278,8 +292,11 @@ package away3dlite.core.render
 			if (_mesh && _material)
 			{
 				_material_graphicsData = _material.graphicsData;
-				_material_graphicsData[_material.trianglesIndex] = _triangles;
-				draw(_mesh);
+				if (_material && _material.trianglesIndex>-1)
+				{
+					_material_graphicsData[_material.trianglesIndex] = _triangles;
+					draw(_mesh);
+				}
 				_mesh = null;
 			}
 
@@ -287,23 +304,25 @@ package away3dlite.core.render
 			drawParticles();
 		}
 
-		private function draw(_mesh:Mesh):void
+		private function draw(mesh:Mesh):void
 		{
-			drawParticles(_mesh.screenZ);
-
-			if (_mesh.visible && !_mesh._frustumCulling && !_mesh._perspCulling)
+			// draw particles (sprite 2D)
+			drawParticles(mesh.screenZ);
+			
+			// draw bitmap
+			if (mesh.visible && !mesh._frustumCulling && !mesh._perspCulling)
 			{
-				if (_mesh._layer)
+				if (mesh._layer)
 				{
-					_mesh._layer.graphics.drawGraphicsData(_material_graphicsData);
+					mesh._layer.graphics.drawGraphicsData(_material_graphicsData);
 				}
-				else if (_mesh._canvas)
+				else if (mesh._canvas)
 				{
-					_mesh._canvas.graphics.drawGraphicsData(_material_graphicsData);
+					mesh._canvas.graphics.drawGraphicsData(_material_graphicsData);
 				}
 				else
 				{
-					_view_graphics_drawGraphicsData(_material_graphicsData);
+					_view_graphics.drawGraphicsData(_material_graphicsData);
 				}
 			}
 		}
