@@ -28,6 +28,7 @@ package away3dlite.core.base
 		/** @private */
 		protected var _isDestroyed:Boolean;
 
+		public var id:String;
 		public var visible:Boolean = true;
 		public var animate:Boolean = false;
 		public var interactive:Boolean = false;
