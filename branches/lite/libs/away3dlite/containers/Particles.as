@@ -4,7 +4,7 @@ package away3dlite.containers
 	import away3dlite.cameras.Camera3D;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
-
+	
 	import flash.display.Sprite;
 	import flash.geom.Matrix3D;
 
@@ -134,6 +134,18 @@ package away3dlite.containers
 				{
 					particle.interactive = _interactive;
 				} while (particle = particle.next);
+		}
+		
+		public function getParticleByID(id:String):Particle
+		{
+			var particle:Particle = _firstParticle;
+			if (particle)
+				do
+				{
+					if(particle.id == id)
+						return particle;
+				} while (particle = particle.next);
+			return null;
 		}
 
 		override public function destroy():void
