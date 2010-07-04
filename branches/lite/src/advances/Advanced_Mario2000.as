@@ -82,8 +82,8 @@ package advances
 			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
 			debugRect.graphics.endFill();
 
-			debugRect.x = _screenRect.width / 2;
-			debugRect.y = _screenRect.height / 2;
+			debugRect.x = screenRect.width / 2;
+			debugRect.y = screenRect.height / 2;
 			addChild(debugRect);
 
 			var collada:Collada = new Collada();
@@ -108,16 +108,17 @@ package advances
 
 		private function onClick(event:MouseEvent):void
 		{
-			if (!scene.bitmap)
+			if (!_particles.bitmap)
 			{
-				scene.bitmap = new Bitmap(new BitmapData(stage.stageWidth, stage.stageHeight, true, 0x00000000));
-				addChild(scene.bitmap);
+				_particles.bitmap = new Bitmap(new BitmapData(stage.stageWidth, stage.stageHeight, true, 0x00000000));
+				addChild(_particles.bitmap);
 				title = "Away3DLite | Particles : " + max + " | (Click to toggle) Draw as Bitmap |";
 			}
 			else
 			{
-				removeChild(scene.bitmap);
-				scene.bitmap = null;
+				removeChild(_particles.bitmap);
+				_particles.bitmap.bitmapData.dispose();
+				_particles.bitmap = null;
 				title = "Away3DLite | Particles : " + max + " | (Click to toggle) Draw as Sprite |";
 			}
 		}

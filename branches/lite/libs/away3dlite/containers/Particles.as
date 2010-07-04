@@ -5,6 +5,8 @@ package away3dlite.containers
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
 	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.geom.Matrix3D;
 
@@ -25,27 +27,59 @@ package away3dlite.containers
 
 		// still need array for sortOn
 		public var lists:Array;
+		
+		// bitmap
+		private var _bitmap:Bitmap;
 
-		public function Particles()
+		public function get bitmap():Bitmap
 		{
-
+			return _bitmap;
+		}
+		
+		public function set bitmap(value:Bitmap):void
+		{
+			_bitmap = value;
+			
+			if(_bitmap)
+				_bitmapData = _bitmap.bitmapData;
+			else
+				_bitmapData = null;
+				
+			if (!_firstParticle)
+				return;
+			
+			var particle:Particle = _firstParticle;
+			if (particle)
+				do
+				{
+					// bitmap dirty
+					if (particle.bitmapData != _bitmapData)
+						particle.bitmapData = _bitmapData;
+				} while (particle = particle.next);
 		}
 
+		protected var _bitmapData:BitmapData;
+		
 		override public function set layer(value:Sprite):void
 		{
 			super.layer = value;
-
+			
 			if (!_firstParticle)
 				return;
-
+			
 			var particle:Particle = _firstParticle;
 			if (particle)
 				do
 				{
 					// layer dirty
-					if (particle.layer != value)
-						particle.layer = value;
+					if (particle.graphics != value.graphics)
+						particle.graphics = value.graphics;
 				} while (particle = particle.next);
+		}
+		
+		public function Particles()
+		{
+
 		}
 
 		arcane override function updateScene(val:Scene3D):void
@@ -58,15 +92,16 @@ package away3dlite.containers
 		{
 			super.project(camera, parentSceneMatrix3D);
 
-			if (_scene.bitmap)
-				_scene.bitmap.bitmapData.fillRect(_scene.bitmap.bitmapData.rect, 0x00000000);
+			if (_bitmapData)
+				_bitmapData.fillRect(_bitmapData.rect, 0x00000000);
 
 			// by pass
 			var _transform_matrix3D:Matrix3D = transform.matrix3D;
 			var _particle:Particle = _firstParticle;
 			if (_particle)
 				do
-					_particle.update(_viewMatrix3D, _transform_matrix3D); while (_particle = _particle.next);
+					_particle.update(_viewMatrix3D, _transform_matrix3D); 
+				while (_particle = _particle.next);
 
 			if (_animate && _scene)
 				_scene.isDirty = true;
@@ -95,7 +130,7 @@ package away3dlite.containers
 			particle.interactive = _interactive;
 
 			particle.parent = this;
-			particle.layer = _layer;
+			particle.bitmapData = _bitmapData;
 
 			return particle;
 		}

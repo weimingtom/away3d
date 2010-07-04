@@ -16,9 +16,6 @@ package away3dlite.containers
 	 */
 	public class Scene3D extends ObjectContainer3D
 	{
-		// TODO : separate bitmap layer(s)
-		public var bitmap:Bitmap;
-		
 		// status
 		arcane var isDirty:Boolean = true;
 		
@@ -168,7 +165,6 @@ package away3dlite.containers
 			if (_isDestroyed)
 				return;
 			
-			bitmap = null;
 			_broadcaster = null;
 			_materialsSceneList = null;
 			_materialsPreviousList = null;

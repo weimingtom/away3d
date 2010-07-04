@@ -156,7 +156,7 @@ package away3dlite.core.render
 				//Put the sorted indices inside a Vector
 				j = 0;
 				for each (var _sortFaceData:SortFaceData in _sortFaceDatas)
-				np1[int(j++)] = _sortFaceData.i;
+					np1[int(j++)] = _sortFaceData.i;
 				np1[int(j++)] = 0;
 				
 				_sortFaceDatas = null;
@@ -306,46 +306,22 @@ package away3dlite.core.render
 			var _view_x:Number = _view.x;
 			var _view_y:Number = _view.y;
 
-			if (_view.scene.bitmap)
+			_view_graphics.lineStyle();
+
+			if (isNaN(screenZ))
 			{
-				var _view_scene_bitmapData:BitmapData = _view.scene.bitmap.bitmapData;
-
-				if (isNaN(screenZ))
-				{
-					// just draw
-					for each (_particle in _particles)
-						_particle.drawBitmapdata(_view_x, _view_y, _view_scene_bitmapData, _zoom, _focus);
-				}
-				else
-				{
-					// draw particle that behind screenZ
-					while ((_particle = _particles[int(_particleIndex++)]) && _particle.screenZ > screenZ)
-						_particle.drawBitmapdata(_view_x, _view_y, _view_scene_bitmapData, _zoom, _focus);
-
-					if (_particleIndex >= 2)
-						_particles = _particles.slice(_particleIndex - 1, _particles.length);
-				}
+				// just draw
+				for each (_particle in _particles)
+					_particle.draw(_view_x, _view_y, _view_graphics, _zoom, _focus);
 			}
 			else
 			{
+				// draw particle that behind screenZ
+				while ((_particle = _particles[int(_particleIndex++)]) && _particle.screenZ > screenZ)
+					_particle.draw(_view_x, _view_y, _view_graphics, _zoom, _focus);
 
-				_view_graphics.lineStyle();
-
-				if (isNaN(screenZ))
-				{
-					// just draw
-					for each (_particle in _particles)
-						_particle.drawGraphics(_view_x, _view_y, _view_graphics, _zoom, _focus);
-				}
-				else
-				{
-					// draw particle that behind screenZ
-					while ((_particle = _particles[int(_particleIndex++)]) && _particle.screenZ > screenZ)
-						_particle.drawGraphics(_view_x, _view_y, _view_graphics, _zoom, _focus);
-
-					if (_particleIndex >= 2)
-						_particles = _particles.slice(_particleIndex - 1, _particles.length);
-				}
+				if (_particleIndex >= 2)
+					_particles = _particles.slice(_particleIndex - 1, _particles.length);
 			}
 		}
 

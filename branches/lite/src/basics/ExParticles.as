@@ -19,8 +19,8 @@ package basics
 	 */
 	public class ExParticles extends BasicTemplate
 	{
-		private var particles:Particles;
-		private var particleMaterial:ParticleMaterial;
+		private var _particles:Particles;
+		private var _particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
 		private const max:int = 1000;
@@ -30,14 +30,10 @@ package basics
 
 		private var step:Number = 0;
 		private var segment:Number;
-
+		
 		override protected function onInit():void
 		{
 			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode (sprite/bitmap)";
-
-			// speed up
-			view.mouseEnabled = false;
-			view.mouseEnabled3D = false;
 
 			// clipping
 			clipping = new RectangleClipping();
@@ -49,11 +45,11 @@ package basics
 			clipping.maxZ = 2000;
 
 			// create materials
-			particleMaterial = createParticleMaterial(size, size);
+			_particleMaterial = createParticleMaterial(size, size);
 
 			// create particles
-			particles = new Particles();
-			particles.animate = true;
+			_particles = new Particles();
+			_particles.animate = true;
 
 			/* layer test
 			   particles.layer = new Sprite();
@@ -68,15 +64,15 @@ package basics
 			var i:Number = (stage.stageHeight - 100) / max;
 			for (var j:int = 0; j < max; j++)
 			{
-				var _particle:Particle = new Particle(radius * Math.cos(segment * j), i * (j - max / 2), radius * Math.sin(segment * j), particleMaterial.clone());
-				particles.addParticle(_particle);
+				var _particle:Particle = new Particle(radius * Math.cos(segment * j), i * (j - max / 2), radius * Math.sin(segment * j), _particleMaterial.clone());
+				_particles.addParticle(_particle);
 
 					// each particle effect (slow warning!)
 					//_particle.blendMode = BlendMode.OVERLAY;
 					//_particle.filters = [new GlowFilter(0xFF00FF, .5, 6, 6, 1, 1, true)];
 			}
 
-			scene.addChild(particles);
+			scene.addChild(_particles);
 
 			// center
 			scene.addChild(new Sphere(null, 100, 6, 6));
@@ -100,8 +96,8 @@ package basics
 			debugRect.graphics.drawRect(clipping.minX, clipping.minY, Math.abs(clipping.minX) + clipping.maxX, Math.abs(clipping.minY) + clipping.maxY);
 			debugRect.graphics.endFill();
 
-			debugRect.x = _screenRect.width / 2;
-			debugRect.y = _screenRect.height / 2;
+			debugRect.x = screenRect.width / 2;
+			debugRect.y = screenRect.height / 2;
 			addChild(debugRect);
 		}
 
@@ -139,19 +135,20 @@ package basics
 
 		private function onClick(event:MouseEvent):void
 		{
-			if (!scene.bitmap)
+			if (!_particles.bitmap)
 			{
-				scene.bitmap = new Bitmap(new BitmapData(stage.stageWidth, stage.stageHeight, true, 0x00000000));
-				addChild(scene.bitmap);
+				_particles.bitmap = new Bitmap(new BitmapData(view.screenWidth, view.screenHeight, true, 0x00000000));
+				addChild(_particles.bitmap);
 
 				// bitmap effect
-				scene.bitmap.filters = [new BlurFilter(6, 6)];
-				scene.bitmap.blendMode = BlendMode.ADD;
+				_particles.bitmap.filters = [new BlurFilter(8, 8)];
+				_particles.bitmap.blendMode = BlendMode.ADD;
 			}
 			else
 			{
-				removeChild(scene.bitmap);
-				scene.bitmap = null;
+				removeChild(_particles.bitmap);
+				_particles.bitmap.bitmapData.dispose();
+				_particles.bitmap = null;
 			}
 		}
 
