@@ -7,7 +7,6 @@ package away3dlite.core.base
 	
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
-	import flash.display.Sprite;
 	import flash.filters.BitmapFilter;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
@@ -43,7 +42,8 @@ package away3dlite.core.base
 		public var prev:Particle;
 
 		public var parent:Particles;
-		public var layer:Sprite;
+		public var graphics:Graphics;
+		public var bitmapData:BitmapData;
 
 		// effect
 		public var colorTransform:ColorTransform;
@@ -56,7 +56,7 @@ package away3dlite.core.base
 		private var _matrix:Matrix;
 		private var _center:Point;
 
-		private var _bitmapData:BitmapData;
+		private var _tempBitmapData:BitmapData;
 		private var _material_bitmapData:BitmapData;
 		private var _material_width:Number;
 		private var _material_height:Number;
@@ -80,8 +80,8 @@ package away3dlite.core.base
 			_material_height = material.height;
 			_rect = material.rect;
 
-			_bitmapData = new BitmapData(_material_width, _material_height, true, 0x00000000);
-			_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
+			_tempBitmapData = new BitmapData(_material_width, _material_height, true, 0x00000000);
+			_tempBitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 
 			_matrix = new Matrix();
 			_center = new Point(_material_width * _scale * .5, _material_height * _scale * .5);
@@ -113,11 +113,11 @@ package away3dlite.core.base
 				material.updateAnimation();
 		}
 
-		public function drawBitmapdata(x:Number, y:Number, bitmapData:BitmapData, zoom:Number, focus:Number):void
+		public function drawBitmapdata(x:Number, y:Number, zoom:Number, focus:Number):void
 		{
 			if (!visible)
 				return;
-
+			
 			_scale = zoom / (1 + screenZ / focus);
 
 			// align center, TODO : scale rect
@@ -131,7 +131,7 @@ package away3dlite.core.base
 			if (colorTransform || blendMode || filters)
 			{
 				if (animate)
-					_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
+					_tempBitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 
 				_matrix.a = _matrix.d = _scale;
 				_matrix.tx = _point.x;
@@ -139,10 +139,10 @@ package away3dlite.core.base
 
 				if (filters && filters.length > 0)
 					for each (var filter:BitmapFilter in filters)
-						_bitmapData.applyFilter(_bitmapData, _bitmapData.rect, _point0, filter);
+						_tempBitmapData.applyFilter(_tempBitmapData, _tempBitmapData.rect, _point0, filter);
 
 				if (colorTransform || blendMode)
-					bitmapData.draw(_bitmapData, _matrix, colorTransform, blendMode);
+					bitmapData.draw(_tempBitmapData, _matrix, colorTransform, blendMode);
 			}
 			else
 			{
@@ -150,24 +150,31 @@ package away3dlite.core.base
 			}
 		}
 
-		public function drawGraphics(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
+		public function draw(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 		{
 			if (!visible)
 				return;
-
-			// draw to view or layer
-			if (layer)
-				graphics = layer.graphics;
+			
+			// draw to bitmap?
+			if(this.bitmapData)
+			{
+				drawBitmapdata(x, y, zoom, focus);
+				return;
+			}
+			
+			// or draw to layer, canvas?
+			if (!this.graphics)
+				this.graphics = graphics;
 
 			// animate?
 			if (animate)
 			{
-				_bitmapData.fillRect(_bitmapData.rect, 0x00000000);
-				_bitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
+				_tempBitmapData.fillRect(_tempBitmapData.rect, 0x00000000);
+				_tempBitmapData.copyPixels(_material_bitmapData, _rect, _point0, null, null, true);
 			}
-			else if (_bitmapData != _material_bitmapData)
+			else if (_tempBitmapData != _material_bitmapData)
 			{
-				_bitmapData = _material_bitmapData;
+				_tempBitmapData = _material_bitmapData;
 			}
 
 			_scale = zoom / (1 + screenZ / focus);
@@ -181,7 +188,7 @@ package away3dlite.core.base
 			_matrix.ty = position.y - _center.y;
 
 			// draw
-			graphics.beginBitmapFill(_bitmapData, _matrix, false, smooth);
+			graphics.beginBitmapFill(_tempBitmapData, _matrix, false, smooth);
 			graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
 
 			// interactive
@@ -202,7 +209,14 @@ package away3dlite.core.base
 			prev = null;
 
 			parent = null;
-			layer = null;
+			
+			if(graphics)
+				graphics.clear();
+			graphics = null;
+			
+			if(bitmapData)
+				bitmapData.dispose();
+			bitmapData = null;
 
 			colorTransform = null;
 			blendMode = null;
@@ -210,17 +224,21 @@ package away3dlite.core.base
 			_position = null;
 			_matrix = null;
 			_center = null;
-
-			_bitmapData.dispose();
-			_bitmapData = null;
-			_material_bitmapData.dispose();
+			
+			if(bitmapData)
+				_tempBitmapData.dispose();
+			_tempBitmapData = null;
+			
+			if(_material_bitmapData)
+				_material_bitmapData.dispose();
 			_material_bitmapData = null;
 
 			_point = null;
 			_point0 = null;
 			_rect = null;
 
-			material.destroy();
+			if(material)
+				material.destroy();
 			material = null;
 		}
 	}

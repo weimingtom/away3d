@@ -27,6 +27,17 @@ package away3dlite.templates
 		protected var _stageHeight:Number = stage ? stage.stageHeight : NaN;
 		protected var _screenRect:Rectangle;
 
+		public function get screenRect():Rectangle
+		{
+			return _screenRect;
+		}
+
+		public function set screenRect(value:Rectangle):void
+		{
+			scrollRect = _screenRect;
+			_screenRect = value;
+		}
+
 		// debug
 		protected var _debugLayer:Sprite;
 		protected var _stats:AwayStats;
