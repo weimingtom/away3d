@@ -6,6 +6,7 @@ package away3dlite.animators
 	import away3dlite.core.base.*;
 	
 	import flash.events.*;
+	import flash.geom.Vector3D;
 	import flash.utils.*;
 
 	use namespace arcane;
@@ -78,7 +79,23 @@ package away3dlite.animators
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 		
-		public override function clone(object:Object3D = null):Object3D
+		override public function updateBoundingBox(minBounding:Vector3D, maxBounding:Vector3D):void
+		{
+			//var _children:Array = MovieMeshContainer3D(_targetMesh).children;
+			var minX:Number, minY:Number, minZ:Number, maxX:Number, maxY:Number, maxZ:Number;
+			
+			minBounding.x = minBounding.y = minBounding.z = minX = minZ = minY = Infinity;
+			maxBounding.x = maxBounding.y = maxBounding.z = maxX = maxY = maxZ = -Infinity;
+			
+			for each (var _mesh:Mesh in children)
+				_mesh.updateBoundingBox(minBounding, maxBounding);
+				
+			// callback if exist
+			if(onBoundingBoxUpdate is Function)
+				onBoundingBoxUpdate(minBounding, maxBounding);
+		}
+		
+		override public function clone(object:Object3D = null):Object3D
 		{
 			var _container:MovieMeshContainer3D = new MovieMeshContainer3D();
 			super.clone(_container);

@@ -5,7 +5,7 @@ package away3dlite.core.base
 	import away3dlite.containers.*;
 	import away3dlite.materials.*;
 	import away3dlite.materials.shaders.*;
-
+	
 	import flash.display.*;
 	import flash.geom.*;
 
@@ -42,6 +42,11 @@ package away3dlite.core.base
 		arcane var _vertices:Vector.<Number> = new Vector.<Number>();
 		/** @private */
 		arcane var _faceMaterials:Vector.<Material> = new Vector.<Material>();
+		
+		public var useBoundingBox:Boolean;
+		public var onBoundingBoxUpdate:Function;
+		public var minBounding:Vector3D = new Vector3D();
+		public var maxBounding:Vector3D = new Vector3D();
 
 		/** @private */
 		arcane override function updateScene(val:Scene3D):void
@@ -94,6 +99,9 @@ package away3dlite.core.base
 						mat.updateMaterial(this, camera);
 					}
 				}
+				
+				if (useBoundingBox)
+					updateBoundingBox(minBounding, maxBounding);
 			}
 		}
 
@@ -207,6 +215,59 @@ package away3dlite.core.base
 			}
 		}
 
+		public function updateBoundingBox(minBounding:Vector3D, maxBounding:Vector3D):void
+		{
+			var minX:Number, minY:Number, minZ:Number, maxX:Number, maxY:Number, maxZ:Number;
+			
+			// reset
+			if(minBounding.length == 0 && minBounding.length == 0)
+			{
+				minX = minZ = minY = Infinity;
+				maxX = maxY = maxZ = -Infinity;
+			}else{
+				// value from parent
+				minX = minBounding.x;
+				minY = minBounding.y;
+				minZ = minBounding.z;
+				
+				maxX = maxBounding.x;
+				maxY = maxBounding.y;
+				maxZ = maxBounding.z;
+			}
+			
+			var i:int;
+			var _length:int = _vertices.length;
+			var j:Number;
+			
+			// find bounding
+			for (i = 0; i < _length; i++)
+			{
+				j = _vertices[int(i++)];
+				minX = (j < minX) ? j : minX;
+				maxX = (j > maxX) ? j : maxX;
+				
+				j = _vertices[int(i++)];
+				minY = (j < minY) ? j : minY;
+				maxY = (j > maxY) ? j : maxY;
+				
+				j = _vertices[int(i)];
+				minZ = (j < minZ) ? j : minZ;
+				maxZ = (j > maxZ) ? j : maxZ;
+			}
+			
+			minBounding.x = minX;
+			minBounding.y = minY;
+			minBounding.z = minZ;
+				
+			maxBounding.x = maxX;
+			maxBounding.y = maxY;
+			maxBounding.z = maxZ;
+			
+			// callback if exist
+			if(onBoundingBoxUpdate is Function)
+				onBoundingBoxUpdate(minBounding, maxBounding);
+		}
+		
 		private function updateSortType():void
 		{
 			var face:Face;
@@ -421,7 +482,7 @@ package away3dlite.core.base
 
 			return mesh;
 		}
-
+		
 		override public function destroy():void
 		{
 			if (_isDestroyed)
