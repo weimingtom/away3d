@@ -120,6 +120,8 @@ package away3dlite.core.base
 
 			// speed up
 			_vertices.fixed = _uvtData.fixed = _indices.fixed = _faceLengths.fixed = _faces.fixed = _sort.fixed = true;
+			
+			_screenVertices.length = 0;
 
 			// calculate normals for the shaders
 			if (_material is IShader)
