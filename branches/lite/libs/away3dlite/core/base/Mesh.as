@@ -61,6 +61,9 @@ package away3dlite.core.base
 
 			if (_scene)
 				buildMaterials();
+			
+			// update default BoundingBox
+			updateBoundingBox(minBounding, maxBounding);
 		}
 
 		/** @private */
