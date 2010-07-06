@@ -77,17 +77,17 @@ package away3dlite.core.render
 				if (mesh._faces)
 					_view._totalFaces += mesh._faces.length;
 				
-				// TODO : add to fastrenderer, separate draw type and use interface instead, apply bothsides
-				if(mesh.material is QuadWireframeMaterial)
+				// TODO : add to fastrenderer, separate draw type, apply bothsides
+				if(mesh.material is ILineMaterial)
 				{
 					if (mesh.visible && !mesh._frustumCulling && !mesh._perspCulling)
 					{
 						if (mesh._layer)
-							QuadWireframeMaterial(mesh.material).drawGraphicsData(mesh, mesh._layer.graphics);
+							ILineMaterial(mesh.material).drawGraphicsData(mesh, mesh._layer.graphics);
 						else if (mesh._canvas)
-							QuadWireframeMaterial(mesh.material).drawGraphicsData(mesh, mesh._canvas.graphics);
+							ILineMaterial(mesh.material).drawGraphicsData(mesh, mesh._canvas.graphics);
 						else
-							QuadWireframeMaterial(mesh.material).drawGraphicsData(mesh, _view_graphics);
+							ILineMaterial(mesh.material).drawGraphicsData(mesh, _view_graphics);
 					}
 				}
 			}
