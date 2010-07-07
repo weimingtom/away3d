@@ -1,4 +1,4 @@
-﻿package loaders
+﻿package interactives
 {
 	import away3dlite.animators.BonesAnimator;
 	import away3dlite.cameras.lenses.PerspectiveLens;
@@ -19,7 +19,7 @@
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="360")]
 
 	/**
-	 * Change BitmapMaterial example.
+	 * Click and change Collada material example.
 	 */
 	public class ExChangeBitmapMaterial extends BasicTemplate
 	{
