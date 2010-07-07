@@ -419,7 +419,6 @@ package away3dlite.loaders
 			}
 
 			//Reconstruct URL/filename
-			var trunk_length:int = trunk.length;
 			for (i; i < trunk_length; i++)
 			{
 				url += trunk[i];
