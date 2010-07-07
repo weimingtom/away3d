@@ -1,7 +1,7 @@
 package away3dlite.materials.shaders
 {
 	import away3dlite.lights.Light;
-
+	
 	import flash.display.BitmapData;
 	import flash.display.BlendMode;
 	import flash.geom.ColorTransform;
@@ -17,14 +17,12 @@ package away3dlite.materials.shaders
 	{
 		public function FlatShader(light:Light)
 		{
-
 			var bmd:BitmapData = getShadingBitmap(0xFF0000);
 			super(light, bmd);
 		}
 
 		override public function getUVData(m:Matrix3D):Vector.<Number>
 		{
-
 			var projectMatrix:Matrix3D = m.clone();
 			projectMatrix.position = new Vector3D(0, 0, 0);
 
@@ -34,7 +32,8 @@ package away3dlite.materials.shaders
 			var texCoord:Point = new Point();
 			// projecting vertex normals
 			// TODO: optimize: keep normals in a Vector and use Matrix.transformVectors
-			for (var i:int = 0; i < faceNormals.length; i++)
+			var _faceNormals_length:int = faceNormals.length;
+			for (var i:int = 0; i < _faceNormals_length; i++)
 			{
 
 				projectedNormal = m.transformVector(faceNormals[i]);
@@ -101,6 +100,5 @@ package away3dlite.materials.shaders
 			_nega_filter = (doubleSided) ? -1 : 0;
 			return colorTable;
 		}
-
 	}
 }

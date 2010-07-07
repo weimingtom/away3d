@@ -308,7 +308,8 @@ package away3dlite.containers
 			_sprites.splice(_index, 1);
 			
             // shift indices down one - get vertices chokes on this
-            for (var i:int = _index; i<_sprites.length; ++i)
+			var _sprites_length:int = _sprites.length;
+            for (var i:int = _index; i<_sprites_length; ++i)
                 _sprites[i].index = i;
 
             // remove screen vertices if needed - clipping chokes on them
