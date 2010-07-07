@@ -2,7 +2,7 @@ package away3dlite.materials.shaders
 {
 	import away3dlite.core.base.Vertex;
 	import away3dlite.lights.Light;
-
+	
 	import flash.display.BitmapData;
 	import flash.geom.Matrix3D;
 	import flash.geom.Point;
@@ -23,12 +23,12 @@ package away3dlite.materials.shaders
 			// TODO if vertex normals, use them
 			super.calculateNormals(verticesIn, indices);
 			calculateVertexNormals();
-
 		}
 
 		private function calculateVertexNormals():void
 		{
-			for (var i:int = 0; i < vertices.length; i++)
+			var vertices_length:int = vertices.length;
+			for (var i:int = 0; i < vertices_length; i++)
 			{
 				//BUG:null
 				if (!vertices[i])
@@ -44,7 +44,6 @@ package away3dlite.materials.shaders
 
 		override public function getUVData(m:Matrix3D):Vector.<Number>
 		{
-
 			var projectMatrix:Matrix3D = m.clone();
 			projectMatrix.position = new Vector3D(0, 0, 0);
 
@@ -56,15 +55,16 @@ package away3dlite.materials.shaders
 			// TODO: optimize: keep normals in a Vector and use Matrix.transformVectors
 			//BUG:null
 			if (vertices)
-				for (var i:int = 0; i < vertices.length; i++)
+			{
+				var vertices_length:int = vertices.length;
+				for (var i:int = 0; i < vertices_length; i++)
 				{
-
 					projectedNormal = vertices[i].getProjectedNormal(projectMatrix);
-
 
 					calculateTexCoord(texCoord, projectedNormal, false);
 					uvData.push(texCoord.x, texCoord.y, 1);
 				}
+			}
 
 			return uvData;
 		}
@@ -72,7 +72,6 @@ package away3dlite.materials.shaders
 		protected function calculateTexCoord(texCoord:Point, normal:Vector3D, doubleSided:Boolean = false):void
 		{
 			// override
-
 		}
 	}
 }

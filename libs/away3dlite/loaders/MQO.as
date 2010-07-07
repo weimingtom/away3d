@@ -50,7 +50,8 @@
 
 		private function getMaterialChunkLine(lines:Array, startLine:int = 0):int
 		{
-			for (var i:uint = startLine; i < lines.length; ++i)
+			var lines_length:int = lines.length;
+			for (var i:uint = startLine; i < lines_length; ++i)
 				if (lines[i].indexOf("Material") == 0)
 					return int(i);
 
@@ -142,7 +143,8 @@
 
 		private function getObjectChunkLine(lines:Array, startLine:int = 0):int
 		{
-			for (var i:uint = startLine; i < lines.length; ++i)
+			var lines_length:int = lines.length;
+			for (var i:uint = startLine; i < lines_length; ++i)
 			{
 				if (lines[i].indexOf("Object") == 0)
 				{
@@ -370,7 +372,8 @@
 
 		private static function getChunkLine(lines:Array, chunkName:String, startLine:int = 0):int
 		{
-			for (var i:uint = startLine; i < lines.length; ++i)
+			var lines_length:int = lines.length;
+			for (var i:uint = startLine; i < lines_length; ++i)
 			{
 				if (lines[i].indexOf(chunkName) != -1)
 				{

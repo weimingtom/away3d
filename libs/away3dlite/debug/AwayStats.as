@@ -523,12 +523,11 @@ package away3dlite.debug
 			
 			// Reset FPS log if any
 			if (_mean_data) {
-				for (i=0; i<_mean_data.length; i++) {
+				var _mean_data_length:int = _mean_data.length;
+				for (i=0; i<_mean_data_length; i++) {
 					_mean_data[i] = 0.0;
 				}
 			}
-			
-			
 			
 			// Clear diagram graphics
 			_mem_graph.graphics.clear();
@@ -592,7 +591,8 @@ package away3dlite.debug
 				_tfaces = _rfaces = 0;
 				
 				// Sum up poly counts across all registered views
-				for (i=0; i<_views.length; i++) {
+				var _views_length:int = _views.length;
+				for (i=0; i<_views_length; i++) {
 					_tfaces += _views[i].totalFaces;
 					_rfaces += _views[i].renderedFaces;
 				}
@@ -652,7 +652,8 @@ package away3dlite.debug
 				_fps_sum = 0;
 				
 				if (_mean_data) {
-					for (i=0; i<_mean_data.length; i++) {
+					var _mean_data_length:int = _mean_data.length;
+					for (i=0; i<_mean_data_length; i++) {
 						_mean_data[i] = 0.0;
 					}
 				}

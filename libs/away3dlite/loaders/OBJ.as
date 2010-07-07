@@ -364,9 +364,12 @@ package away3dlite.loaders
 				}
 			}
 
-			for (j = 0; j < aMeshes.length; ++j)
+			var aMeshes_length:int = aMeshes.length;
+			var aSources_length:int = aSources.length;
+			
+			for (j = 0; j < aMeshes_length; ++j)
 			{
-				for (i = 0; i < aSources.length; ++i)
+				for (i = 0; i < aSources_length; ++i)
 				{
 					if (aMeshes[j].materialid == aSources[i].materialid)
 					{
@@ -386,7 +389,8 @@ package away3dlite.loaders
 			var i:int;
 			var breakflag:Boolean;
 
-			for (i = 1; i < trunk.length; )
+			var trunk_length:int = trunk.length;
+			for (i = 1; i < trunk_length; )
 			{
 				switch (trunk[i])
 				{
@@ -415,7 +419,8 @@ package away3dlite.loaders
 			}
 
 			//Reconstruct URL/filename
-			for (i; i < trunk.length; i++)
+			var trunk_length:int = trunk.length;
+			for (i; i < trunk_length; i++)
 			{
 				url += trunk[i];
 				url += " ";
@@ -435,7 +440,8 @@ package away3dlite.loaders
 		private function checkDoubleMaterials(url:String):BitmapFileMaterial
 		{
 			var mat:BitmapFileMaterial;
-			for (var i:int = 0; i < aMats.length; ++i)
+			var aMats_length:int = aMats.length;
+			for (var i:int = 0; i < aMats_length; ++i)
 			{
 				if (aMats[i].url == url)
 				{
