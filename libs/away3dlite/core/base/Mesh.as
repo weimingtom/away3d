@@ -63,7 +63,8 @@ package away3dlite.core.base
 				buildMaterials();
 			
 			// update default BoundingBox
-			updateBoundingBox(minBounding, maxBounding);
+			if(_vertices)
+				updateBoundingBox(minBounding, maxBounding);
 		}
 
 		/** @private */
@@ -83,8 +84,8 @@ package away3dlite.core.base
 				//DO NOT CHANGE vertices getter!!!!!!!
 				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
 
-				projectedPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
-				projectedPosition = Utils3D.projectVector(_viewMatrix3D, projectedPosition);
+				projectedPosition = transform.matrix3D.transformVector(position);
+				projectedPosition = _viewMatrix3D.transformVector(projectedPosition);
 
 				if (_materialsDirty)
 					buildMaterials();
@@ -242,7 +243,7 @@ package away3dlite.core.base
 			var _length:int = _vertices.length;
 			var j:Number;
 			
-			// find bounding
+			// find OBB bounding box
 			for (i = 0; i < _length; i++)
 			{
 				j = _vertices[int(i++)];
@@ -261,7 +262,7 @@ package away3dlite.core.base
 			minBounding.x = minX;
 			minBounding.y = minY;
 			minBounding.z = minZ;
-				
+			
 			maxBounding.x = maxX;
 			maxBounding.y = maxY;
 			maxBounding.z = maxZ;

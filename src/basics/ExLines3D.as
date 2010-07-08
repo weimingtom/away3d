@@ -11,7 +11,7 @@ package basics
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
-	 * Example : ExLines3D
+	 * Example : Lines3D
 	 * @author katopz
 	 */
 	public class ExLines3D extends BasicTemplate

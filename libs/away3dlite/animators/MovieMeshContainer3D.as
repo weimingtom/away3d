@@ -81,7 +81,6 @@ package away3dlite.animators
 		
 		override public function updateBoundingBox(minBounding:Vector3D, maxBounding:Vector3D):void
 		{
-			//var _children:Array = MovieMeshContainer3D(_targetMesh).children;
 			var minX:Number, minY:Number, minZ:Number, maxX:Number, maxY:Number, maxZ:Number;
 			
 			minBounding.x = minBounding.y = minBounding.z = minX = minZ = minY = Infinity;
@@ -89,7 +88,7 @@ package away3dlite.animators
 			
 			for each (var _mesh:Mesh in children)
 				_mesh.updateBoundingBox(minBounding, maxBounding);
-				
+			
 			// callback if exist
 			if(onBoundingBoxUpdate is Function)
 				onBoundingBoxUpdate(minBounding, maxBounding);
