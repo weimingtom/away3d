@@ -74,7 +74,12 @@ package away3dlite.core.base
 
 			this.material = material;
 			this.smooth = smooth;
-
+			
+			updateMaterial();
+		}
+		
+		private function updateMaterial():void
+		{
 			_material_bitmapData = material.bitmapData;
 			_material_width = material.width;
 			_material_height = material.height;
@@ -85,6 +90,11 @@ package away3dlite.core.base
 
 			_matrix = new Matrix();
 			_center = new Point(_material_width * _scale * .5, _material_height * _scale * .5);
+			
+			material.isDirty = false;
+				
+			if(parent)
+				parent.isDirty = true;
 		}
 
 		public function get position():Vector3D
@@ -101,6 +111,10 @@ package away3dlite.core.base
 
 		public function update(viewMatrix3D:Matrix3D, transformMatrix3D:Matrix3D = null):void
 		{
+			// dirty
+			if(material.isDirty)
+				updateMaterial();
+			
 			// bypass
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
 			

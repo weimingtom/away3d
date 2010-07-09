@@ -11,7 +11,23 @@ package away3dlite.materials
 		/** @private */
 		protected var _isDestroyed:Boolean;
 
-		public var bitmapData:BitmapData;
+		private var _bitmapData:BitmapData;
+
+		public function get bitmapData():BitmapData
+		{
+			return _bitmapData;
+		}
+
+		public function set bitmapData(value:BitmapData):void
+		{
+			_bitmapData = value;
+			rect = new Rectangle(0, 0, width || _bitmapData.width, height || _bitmapData.height);
+			currentFrame = 0;
+			
+			isDirty = true;
+		}
+
+		public var isDirty:Boolean;
 		public var rect:Rectangle;
 
 		private var _currentFrame:int;
@@ -24,20 +40,21 @@ package away3dlite.materials
 
 		public function get height():Number
 		{
-			return rect.width;
+			return rect.height;
 		}
-
+		
 		/**
 		 * Creates a new <code>ParticleMaterial</code> object.
 		 */
 		public function ParticleMaterial(bitmapData:BitmapData, width:Number = NaN, height:Number = NaN, totalFrames:int = 1)
 		{
-			rect = new Rectangle(0, 0, width || bitmapData.width, height || bitmapData.height);
+			_bitmapData = bitmapData;
+			rect = new Rectangle(0, 0, width || _bitmapData.width, height || _bitmapData.height);
+			
 			_totalFrames = totalFrames;
-
-			this.bitmapData = bitmapData;
-
 			currentFrame = 0;
+			
+			isDirty = true;
 		}
 
 		public function updateAnimation():void
@@ -76,7 +93,7 @@ package away3dlite.materials
 
 		public function clone():ParticleMaterial
 		{
-			return new ParticleMaterial(bitmapData, width, height, _totalFrames);
+			return new ParticleMaterial(_bitmapData, width, height, _totalFrames);
 		}
 
 		public function get destroyed():Boolean
