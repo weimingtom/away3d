@@ -20,6 +20,7 @@ package away3dlite.containers
 	{
 		private var _interactive:Boolean;
 		private var _animate:Boolean;
+		public var isDirty:Boolean;
 
 		// linklist
 		private var _firstParticle:Particle;
@@ -103,8 +104,11 @@ package away3dlite.containers
 					_particle.update(_viewMatrix3D, _transform_matrix3D); 
 				while (_particle = _particle.next);
 
-			if (_animate && _scene)
+			if (_scene && (_animate || isDirty))
+			{
 				_scene.isDirty = true;
+				isDirty = false;
+			}
 		}
 
 		public function addParticle(particle:Particle):Particle
