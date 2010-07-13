@@ -84,8 +84,9 @@ package away3dlite.core.base
 				//DO NOT CHANGE vertices getter!!!!!!!
 				Utils3D.projectVectors(_viewMatrix3D, vertices, _screenVertices, _uvtData);
 
-				projectedPosition = transform.matrix3D.transformVector(position);
-				projectedPosition = _viewMatrix3D.transformVector(projectedPosition);
+				// projected position for frustum culling
+				projectedPosition = Utils3D.projectVector(transform.matrix3D, transform.matrix3D.position);
+				projectedPosition = Utils3D.projectVector(_viewMatrix3D, projectedPosition);
 
 				if (_materialsDirty)
 					buildMaterials();
