@@ -58,17 +58,15 @@ package away3dlite.materials
 		}
 
 		/**
-		 * Creates a new <code>QuadWireframeMaterial</code> object.
+		 * Creates a new <code>LineMaterial</code> object.
 		 *
 		 * @param	color		The color of the material.
 		 * @param	alpha		The transparency of the material.
-		 * @param	wireColor	The color of the outline.
-		 * @param	wireAlpha	The transparency of the outline.
 		 * @param	thickness	The thickness of the outline.
 		 */
-		public function LineMaterial(wireColor:* = null, wireAlpha:Number = 1, thickness:Number = 1)
+		public function LineMaterial(color:* = null, alpha:Number = 1, thickness:Number = 1)
 		{
-			super(wireColor, wireAlpha, thickness);
+			super(color, alpha, thickness);
 
 			_graphicsPath = new GraphicsPath(_commands, _pathData);
 
