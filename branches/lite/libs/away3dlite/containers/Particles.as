@@ -2,6 +2,7 @@ package away3dlite.containers
 {
 	import away3dlite.arcane;
 	import away3dlite.cameras.Camera3D;
+	import away3dlite.core.base.IRenderableList;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
 	
@@ -16,7 +17,7 @@ package away3dlite.containers
 	 * Particles
 	 * @author katopz
 	 */
-	public class Particles extends Object3D
+	public class Particles extends Object3D implements IRenderableList
 	{
 		private var _interactive:Boolean;
 		private var _animate:Boolean;
@@ -27,8 +28,13 @@ package away3dlite.containers
 		private var _lastParticle:Particle;
 
 		// still need array for sortOn
-		public var lists:Array;
-		
+		private var _lists:Array;
+
+		public function get renderableList():Array
+		{
+			return _lists;
+		}
+
 		// bitmap
 		private var _bitmap:Bitmap;
 
@@ -114,10 +120,10 @@ package away3dlite.containers
 		public function addParticle(particle:Particle):Particle
 		{
 			// add to lists
-			if (!lists)
-				lists = [];
+			if (!_lists)
+				_lists = [];
 
-			lists.push(particle);
+			_lists.push(particle);
 
 			//link list
 			if (!_firstParticle)
@@ -141,10 +147,10 @@ package away3dlite.containers
 
 		public function removeParticle(particle:Particle):Particle
 		{
-			if (!lists)
+			if (!_lists)
 				return null;
 
-			lists.splice(lists.indexOf(particle), 1);
+			_lists.splice(_lists.indexOf(particle), 1);
 			particle.parent = null;
 
 			// prev, particle, next // prev -> next
@@ -192,12 +198,12 @@ package away3dlite.containers
 			if (_isDestroyed)
 				return;
 
-			for each (var _particle:Particle in lists)
+			for each (var _particle:Particle in _lists)
 				_particle.destroy();
 
 			_firstParticle = null;
 			_lastParticle = null;
-			lists = null;
+			_lists = null;
 
 			super.destroy();
 		}

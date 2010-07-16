@@ -7,7 +7,7 @@ package away3dlite.materials
 	/**
 	 * @author katopz
 	 */
-	public interface ILineMaterial
+	public interface IPathMaterial
 	{
 		function collectGraphicsPath(mesh:Mesh):void
 		function drawGraphicsData(mesh:Mesh, graphic:Graphics):void

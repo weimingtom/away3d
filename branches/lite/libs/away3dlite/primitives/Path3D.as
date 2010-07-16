@@ -8,10 +8,10 @@ package away3dlite.primitives
 	use namespace arcane;
 
 	/**
-	 * Creates a single 3D line.
+	 * Creates a 3D line from line segment.
 	 * TODO : add line segment
 	 */
-	public class Lines3D extends AbstractPrimitive
+	public class Path3D extends AbstractPrimitive
 	{
 		private var _paths:Vector.<Number>;
 		
@@ -33,7 +33,7 @@ package away3dlite.primitives
 			while(i<_length)
 			{
 				buildLineData(
-					paths[int(i++)], 
+					paths[int(i++)],
 					paths[int(i++)],
 					paths[int(i++)]
 				);
@@ -49,12 +49,12 @@ package away3dlite.primitives
 		}
 
 		/**
-		 * Creates a new <code>LineSegment</code> object.
+		 * Creates a new <code>Lines3D</code> object.
 		 *
-		 * @param material	Defines the global material used on the faces in the plane.
-		 * @param paths		vertices
+		 * @param material	Defines the material used on the line.
+		 * @param vertices	List of x0,y0,z0,x1,y1,z1,...,xn,yn,zn vertices to draw line through.
 		 */
-		public function Lines3D(material:LineMaterial, vertices:Vector.<Number>)
+		public function Path3D(material:PathMaterial, vertices:Vector.<Number>)
 		{
 			super(material);
 			

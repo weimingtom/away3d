@@ -4,7 +4,7 @@ package away3dlite.core.base
 	import away3dlite.containers.Particles;
 	import away3dlite.core.IDestroyable;
 	import away3dlite.materials.ParticleMaterial;
-	
+
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
 	import flash.filters.BitmapFilter;
@@ -22,10 +22,42 @@ package away3dlite.core.base
 	 * Particle
 	 * @author katopz
 	 */
-	public class Particle extends Vector3D implements IDestroyable
+	public class Particle implements IRenderable, IDestroyable
 	{
 		/** @private */
 		protected var _isDestroyed:Boolean;
+
+		protected var _position:Vector3D;
+
+		public function get x():Number
+		{
+			return _position.x;
+		}
+
+		public function set x(value:Number):void
+		{
+			_position.x = value;
+		}
+
+		public function get y():Number
+		{
+			return _position.y;
+		}
+
+		public function set y(value:Number):void
+		{
+			_position.y = value;
+		}
+
+		public function get z():Number
+		{
+			return _position.z;
+		}
+
+		public function set z(value:Number):void
+		{
+			_position.z = value;
+		}
 
 		public var id:String;
 		public var visible:Boolean = true;
@@ -35,7 +67,12 @@ package away3dlite.core.base
 
 		public var isHit:Boolean;
 
-		public var screenZ:Number;
+		private var _screenZ:Number;
+
+		public function get screenZ():Number
+		{
+			return _screenZ;
+		}
 
 		// link list
 		public var next:Particle;
@@ -51,7 +88,7 @@ package away3dlite.core.base
 		public var filters:Array;
 
 		// projected position
-		private var _position:Vector3D;
+		private var _projectedPosition:Vector3D;
 
 		private var _matrix:Matrix;
 		private var _center:Point;
@@ -68,16 +105,16 @@ package away3dlite.core.base
 
 		public var material:ParticleMaterial;
 
-		public function Particle(x:Number, y:Number, z:Number, material:ParticleMaterial, smooth:Boolean = true)
+		public function Particle(material:ParticleMaterial, x:Number = 0, y:Number = 0, z:Number = 0, smooth:Boolean = true)
 		{
-			super(x, y, z);
+			_position = new Vector3D(x, y, z);
 
 			this.material = material;
 			this.smooth = smooth;
-			
+
 			updateMaterial();
 		}
-		
+
 		private function updateMaterial():void
 		{
 			_material_bitmapData = material.bitmapData;
@@ -90,49 +127,48 @@ package away3dlite.core.base
 
 			_matrix = new Matrix();
 			_center = new Point(_material_width * _scale * .5, _material_height * _scale * .5);
-			
+
 			material.isDirty = false;
-				
-			if(parent)
+
+			if (parent)
 				parent.isDirty = true;
 		}
 
 		public function get position():Vector3D
 		{
-			return _position;
+			return _projectedPosition;
 		}
 
 		public function set position(value:Vector3D):void
 		{
 			// position
-			screenZ = value.w;
-			_position = value.clone();
+			_screenZ = value.w;
+			_projectedPosition = value.clone();
 		}
 
 		public function update(viewMatrix3D:Matrix3D, transformMatrix3D:Matrix3D = null):void
 		{
 			// dirty
-			if(material.isDirty)
+			if (material.isDirty)
 				updateMaterial();
-			
+
 			// bypass
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
-			
+
 			// update position
-			var _position:Vector3D = Utils3D_projectVector(transformMatrix3D, this);
-			position = Utils3D_projectVector(viewMatrix3D, _position);
+			position = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
 
 			// animate?
 			if (animate)
 				material.updateAnimation();
 		}
 
-		public function drawBitmapdata(x:Number, y:Number, zoom:Number, focus:Number):void
+		protected function drawBitmapdata(x:Number, y:Number, zoom:Number, focus:Number):void
 		{
 			if (!visible)
 				return;
-			
-			_scale = zoom / (1 + screenZ / focus);
+
+			_scale = zoom / (1 + _screenZ / focus);
 
 			// align center, TODO : scale rect
 			_center.x = _material_width * _scale * .5;
@@ -164,19 +200,19 @@ package away3dlite.core.base
 			}
 		}
 
-		public function draw(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
+		public function render(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 		{
 			if (!visible)
 				return;
-			
+
 			// draw to bitmap?
-			if(this.bitmapData)
+			if (bitmapData)
 			{
 				drawBitmapdata(x, y, zoom, focus);
 				return;
 			}
-			
-			// or draw to layer, canvas?
+
+			// or draw to parent or child canvas?
 			if (!this.graphics)
 				this.graphics = graphics;
 
@@ -191,7 +227,7 @@ package away3dlite.core.base
 				_tempBitmapData = _material_bitmapData;
 			}
 
-			_scale = zoom / (1 + screenZ / focus);
+			_scale = zoom / (1 + _screenZ / focus);
 
 			// align center
 			_center.x = _material_width * _scale * .5;
@@ -223,27 +259,27 @@ package away3dlite.core.base
 			prev = null;
 
 			parent = null;
-			
-			if(graphics)
+
+			if (graphics)
 				graphics.clear();
 			graphics = null;
-			
-			if(bitmapData)
+
+			if (bitmapData)
 				bitmapData.dispose();
 			bitmapData = null;
 
 			colorTransform = null;
 			blendMode = null;
 			filters = null;
-			_position = null;
+			_projectedPosition = null;
 			_matrix = null;
 			_center = null;
-			
-			if(bitmapData)
+
+			if (_tempBitmapData)
 				_tempBitmapData.dispose();
 			_tempBitmapData = null;
-			
-			if(_material_bitmapData)
+
+			if (_material_bitmapData)
 				_material_bitmapData.dispose();
 			_material_bitmapData = null;
 
@@ -251,7 +287,7 @@ package away3dlite.core.base
 			_point0 = null;
 			_rect = null;
 
-			if(material)
+			if (material)
 				material.destroy();
 			material = null;
 		}

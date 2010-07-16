@@ -52,12 +52,12 @@ package away3dlite.core.render
 				}
 			}
 
-			if (object is Particles)
+			if (object is IRenderableList)
 			{
-				var _particles_lists:Array = _clipping.collectParticles((object as Particles).lists);
+				var renderableItems:Array = _clipping.collectParticles((object as Particles).renderableList);
 
-				if (_particles_lists.length > 0)
-					_particles = _particles.concat(_particles_lists);
+				if (renderableItems.length > 0)
+					_renderables = _renderables.concat(renderableItems);
 			}
 			
 			++_view._renderedObjects;
@@ -252,7 +252,7 @@ package away3dlite.core.render
 			collectFaces(_scene);
 
 			// sort merged particles
-			_particles.sortOn("screenZ", 18);
+			_renderables.sortOn("screenZ", 18);
 
 			drawFaces(_scene);
 
