@@ -71,32 +71,18 @@ package away3dlite.core.render
 				var mesh:Mesh = object as Mesh;
 				_clipping.collectFaces(mesh, _faces);
 
-				if (_view.mouseEnabled && mesh.mouseEnabled)
+				if (_view.mouseEnabled && mesh.mouseEnabled || mesh.material is IPathMaterial)
 					collectScreenVertices(mesh);
 
 				if (mesh._faces)
 					_view._totalFaces += mesh._faces.length;
-				
-				// TODO : add to fastrenderer, separate draw type, apply bothsides
-				if(mesh.material is ILineMaterial)
-				{
-					if (mesh.visible && !mesh._frustumCulling && !mesh._perspCulling)
-					{
-						if (mesh._layer)
-							ILineMaterial(mesh.material).drawGraphicsData(mesh, mesh._layer.graphics);
-						else if (mesh._canvas)
-							ILineMaterial(mesh.material).drawGraphicsData(mesh, mesh._canvas.graphics);
-						else
-							ILineMaterial(mesh.material).drawGraphicsData(mesh, _view_graphics);
-					}
-				}
 			}
-			else if (object is Particles)
+			else if (object is IRenderableList)
 			{
-				var _particles_lists:Array = _clipping.collectParticles((object as Particles).lists);
+				var renderableItems:Array = _clipping.collectParticles(IRenderableList(object).renderableList);
 
-				if (_particles_lists.length > 0)
-					_particles = _particles.concat(_particles_lists);
+				if (renderableItems.length > 0)
+					_renderables = _renderables.concat(renderableItems);
 			}
 		}
 		
@@ -142,9 +128,10 @@ package away3dlite.core.render
 
 			if (_material != _face._material)
 			{
-				if (_material && _material.trianglesIndex>-1)
+				if (_material)
 				{
-					_material_graphicsData[_material.trianglesIndex] = _triangles;
+					if(_material.trianglesIndex > -1)
+						_material_graphicsData[_material.trianglesIndex] = _triangles;
 					draw(_mesh);
 				}
 
@@ -273,8 +260,8 @@ package away3dlite.core.render
 			collectFaces(_scene);
 
 			// sort merged particles
-			if (_particles.length > 0)
-				_particles.sortOn("screenZ", 18);
+			if (_renderables.length > 0)
+				_renderables.sortOn("screenZ", 18);
 
 			_faces.fixed = true;
 
@@ -292,9 +279,10 @@ package away3dlite.core.render
 			if (_mesh && _material)
 			{
 				_material_graphicsData = _material.graphicsData;
-				if (_material && _material.trianglesIndex>-1)
+				if (_material)
 				{
-					_material_graphicsData[_material.trianglesIndex] = _triangles;
+					if(_material.trianglesIndex > -1)
+						_material_graphicsData[_material.trianglesIndex] = _triangles;
 					draw(_mesh);
 				}
 				_mesh = null;
@@ -315,14 +303,20 @@ package away3dlite.core.render
 				if (mesh._layer)
 				{
 					mesh._layer.graphics.drawGraphicsData(_material_graphicsData);
+					if(mesh.material is IPathMaterial)
+						IPathMaterial(mesh.material).drawGraphicsData(mesh, mesh._layer.graphics);
 				}
 				else if (mesh._canvas)
 				{
 					mesh._canvas.graphics.drawGraphicsData(_material_graphicsData);
+					if(mesh.material is IPathMaterial)
+						IPathMaterial(mesh.material).drawGraphicsData(mesh, mesh._canvas.graphics);
 				}
 				else
 				{
 					_view_graphics.drawGraphicsData(_material_graphicsData);
+					if(mesh.material is IPathMaterial)
+						IPathMaterial(mesh.material).drawGraphicsData(mesh, _view_graphics);
 				}
 			}
 		}

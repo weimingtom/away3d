@@ -90,7 +90,7 @@ package away3dlite.core.render
 		/** @private */
 		private var _focus:Number;
 		/** @private */
-		protected var _particles:Array;
+		protected var _renderables:Array;
 
 		/**
 		 * Determines whether 3d objects are sorted in the view. Defaults to true.
@@ -298,10 +298,10 @@ package away3dlite.core.render
 		/** @private */
 		protected function drawParticles(screenZ:Number = NaN):void
 		{
-			if (_particles.length == 0)
+			if (_renderables.length == 0)
 				return;
 
-			var _particle:Particle;
+			var _particle:IRenderable;
 			var _particleIndex:int = 0;
 			var _view_x:Number = _view.x;
 			var _view_y:Number = _view.y;
@@ -311,17 +311,17 @@ package away3dlite.core.render
 			if (isNaN(screenZ))
 			{
 				// just draw
-				for each (_particle in _particles)
-					_particle.draw(_view_x, _view_y, _view_graphics, _zoom, _focus);
+				for each (_particle in _renderables)
+					_particle.render(_view_x, _view_y, _view_graphics, _zoom, _focus);
 			}
 			else
 			{
 				// draw particle that behind screenZ
-				while ((_particle = _particles[int(_particleIndex++)]) && _particle.screenZ > screenZ)
-					_particle.draw(_view_x, _view_y, _view_graphics, _zoom, _focus);
-
+				while ((_particle = _renderables[int(_particleIndex++)]) && _particle.screenZ > screenZ)
+					_particle.render(_view_x, _view_y, _view_graphics, _zoom, _focus);
+				
 				if (_particleIndex >= 2)
-					_particles = _particles.slice(_particleIndex - 1, _particles.length);
+					_renderables = _renderables.slice(_particleIndex - 1, _renderables.length);
 			}
 		}
 
@@ -342,7 +342,7 @@ package away3dlite.core.render
 			_screenVertexArrays.length = 0;
 
 			// particles
-			_particles = [];
+			_renderables = [];
 
 			// culling
 			if (cullObjects && _scene.isDirty)
@@ -379,7 +379,7 @@ package away3dlite.core.render
 			_view_graphics = null;
 			_view_graphics_drawGraphicsData = null;
 			_culler = null;
-			_particles = null;
+			_renderables = null;
 		}
 	}
 }

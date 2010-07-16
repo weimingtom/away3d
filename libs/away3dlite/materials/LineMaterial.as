@@ -1,79 +1,80 @@
 package away3dlite.materials
 {
-	import away3dlite.core.base.Face;
-	import away3dlite.core.base.Mesh;
-	import away3dlite.core.utils.*;
-
 	import flash.display.*;
+	import flash.geom.Rectangle;
 
 	/**
-	 * Line material.
+	 * Base line material class.
 	 */
-	public class LineMaterial extends WireframeMaterial implements ILineMaterial
+	public class LineMaterial
 	{
-		private var _commands:Vector.<int> = new Vector.<int>();
-		private var _pathData:Vector.<Number> = new Vector.<Number>();
-		private var _graphicsPath:GraphicsPath;
+		/** @private */
+		protected var _isDestroyed:Boolean;
 
-		private var _lineScaleMode:String = LineScaleMode.NONE;
+		public var isDirty:Boolean;
 
-		public function collectGraphicsPath(mesh:Mesh):void
+		private var _color:uint;
+
+		public function get color():uint
 		{
-			var _screenVertices:Vector.<Number> = mesh.screenVertices;
-			var _length:int = _screenVertices.length;
-
-			if (_length > 0)
-			{
-				_commands = new Vector.<int>(_length / 2, true);
-				_pathData = new Vector.<Number>(_length, true);
-
-				var _face:Face;
-				var _faces:Vector.<Face> = mesh.faces;
-
-				_commands[0] = 1;
-				_pathData[0] = _screenVertices[0];
-				_pathData[1] = _screenVertices[1];
-
-				var i:int = 0;
-				var j:int;
-				_length *= .5;
-				while (++i < _length)
-				{
-					_commands[i] = 2;
-					j = int(2 * i);
-					_pathData[j] = _screenVertices[j];
-					j = int(j + 1);
-					_pathData[j] = _screenVertices[j];
-				}
-			}
-
-			_graphicsPath.commands = _commands;
-			_graphicsPath.data = _pathData;
+			return _color;
 		}
 
-		public function drawGraphicsData(mesh:Mesh, graphic:Graphics):void
+		public function set color(value:uint):void
 		{
-			collectGraphicsPath(mesh);
-			graphic.drawGraphicsData(graphicsData);
+			_color = value;
 		}
 
+		private var _alpha:Number;
+
+		public function get alpha():Number
+		{
+			return _alpha;
+		}
+
+		public function set alpha(value:Number):void
+		{
+			_alpha = value;
+		}
+
+		private var _thickness:Number;
+
+		public function get thickness():Number
+		{
+			return _thickness;
+		}
+
+		public function set thickness(value:Number):void
+		{
+			_thickness = value;
+		}
+
+		
 		/**
 		 * Creates a new <code>LineMaterial</code> object.
-		 *
-		 * @param	color		The color of the material.
-		 * @param	alpha		The transparency of the material.
-		 * @param	thickness	The thickness of the outline.
 		 */
 		public function LineMaterial(color:* = null, alpha:Number = 1, thickness:Number = 1)
 		{
-			super(color, alpha, thickness);
+			_color = int(alpha * 0xFF) << 24 | color;
+			_alpha = alpha;
+			_thickness = thickness;
+			
+			isDirty = true;
+		}
 
-			_graphicsPath = new GraphicsPath(_commands, _pathData);
+		public function clone():LineMaterial
+		{
+			return new LineMaterial(_color, _alpha, _thickness);
+		}
 
-			graphicsData = Vector.<IGraphicsData>([_graphicsStroke, _graphicsPath]);
-			graphicsData.fixed = true;
+		public function get destroyed():Boolean
+		{
+			return _isDestroyed;
+		}
 
-			trianglesIndex = -1;
+		public function destroy():void
+		{
+			_isDestroyed = true;
 		}
 	}
 }

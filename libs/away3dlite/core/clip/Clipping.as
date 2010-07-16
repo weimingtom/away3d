@@ -4,7 +4,7 @@ package away3dlite.core.clip
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.events.*;
-
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
@@ -58,10 +58,16 @@ package away3dlite.core.clip
 		{
 			var _particles:Array = [];
 			var i:int = 0;
-			for each (var _particle:Particle in particles)
+			for each (var _particle:IRenderable in particles)
 			{
 				var _position:Vector3D = _particle.position;
-				if (int(_position.x) > int(_minX) && int(_position.x) < int(_maxX) && int(_position.y) > int(_minY) && int(_position.y) < int(_maxY) && int(_particle.screenZ) > int(_minZ) && int(_particle.screenZ) < int(_maxZ))
+				var _x:int = int(_position.x);
+				var _y:int = int(_position.y);
+				var _z:int = int(_particle.screenZ);
+				
+				if (_x > _minX && _x < _maxX && 
+					_y > _minY && _y < _maxY && 
+					_z > _minZ && _z < _maxZ)
 					_particles[int(i++)] = _particle;
 			}
 			return _particles;
@@ -87,7 +93,7 @@ package away3dlite.core.clip
 		}
 
 		/** @private */
-		arcane function screen(container:Sprite, _loaderWidth:Number, _loaderHeight:Number):Clipping
+		arcane function screen(container:Sprite, _loaderWidth:int, _loaderHeight:int):Clipping
 		{
 			if (!_clippingClone)
 			{
@@ -260,16 +266,16 @@ package away3dlite.core.clip
 
 		private var _clippingClone:Clipping;
 		private var _stage:Stage;
-		private var _stageWidth:Number;
-		private var _stageHeight:Number;
+		private var _stageWidth:int;
+		private var _stageHeight:int;
 		private var _localPointTL:Point = new Point(0, 0);
 		private var _localPointBR:Point = new Point(0, 0);
 		private var _globalPointTL:Point = new Point(0, 0);
 		private var _globalPointBR:Point = new Point(0, 0);
-		private var _miX:Number;
-		private var _miY:Number;
-		private var _maX:Number;
-		private var _maY:Number;
+		private var _miX:int;
+		private var _miY:int;
+		private var _maX:int;
+		private var _maY:int;
 		private var _clippingupdated:ClippingEvent;
 		private var _screenupdated:ClippingEvent;
 
@@ -285,12 +291,12 @@ package away3dlite.core.clip
 		protected var _screenVerticesCull:Vector.<int> = new Vector.<int>();
 		protected var _cullCount:int;
 		protected var _cullTotal:int;
-		protected var _minX:Number = -100000;
-		protected var _minY:Number = -100000;
-		protected var _minZ:Number = -100000;
-		protected var _maxX:Number = 100000;
-		protected var _maxY:Number = 100000;
-		protected var _maxZ:Number = 100000;
+		protected var _minX:int = -100000;
+		protected var _minY:int = -100000;
+		protected var _minZ:int = -100000;
+		protected var _maxX:int = 100000;
+		protected var _maxY:int = 100000;
+		protected var _maxZ:int = 100000;
 
 		private function onScreenUpdate(event:ClippingEvent):void
 		{
@@ -322,17 +328,17 @@ package away3dlite.core.clip
 		/**
 		 * Minimum allowed x value for primitives.
 		 */
-		public function get minX():Number
+		public function get minX():int
 		{
 			return _minX;
 		}
 
-		public function set minX(value:Number):void
+		public function set minX(value:int):void
 		{
-			if (_minX == value)
+			if (_minX == int(value))
 				return;
 
-			_minX = value;
+			_minX = int(value);
 
 			notifyClippingUpdate();
 		}
@@ -340,17 +346,17 @@ package away3dlite.core.clip
 		/**
 		 * Maximum allowed x value for primitives
 		 */
-		public function get maxX():Number
+		public function get maxX():int
 		{
 			return _maxX;
 		}
 
-		public function set maxX(value:Number):void
+		public function set maxX(value:int):void
 		{
-			if (_maxX == value)
+			if (_maxX == int(value))
 				return;
 
-			_maxX = value;
+			_maxX = int(value);
 
 			notifyClippingUpdate();
 		}
@@ -358,17 +364,17 @@ package away3dlite.core.clip
 		/**
 		 * Minimum allowed y value for primitives
 		 */
-		public function get minY():Number
+		public function get minY():int
 		{
 			return _minY;
 		}
 
-		public function set minY(value:Number):void
+		public function set minY(value:int):void
 		{
-			if (_minY == value)
+			if (_minY == int(value))
 				return;
 
-			_minY = value;
+			_minY = int(value);
 
 			notifyClippingUpdate();
 		}
@@ -376,17 +382,17 @@ package away3dlite.core.clip
 		/**
 		 * Maximum allowed y value for primitives
 		 */
-		public function get maxY():Number
+		public function get maxY():int
 		{
 			return _maxY;
 		}
 
-		public function set maxY(value:Number):void
+		public function set maxY(value:int):void
 		{
-			if (_maxY == value)
+			if (_maxY == int(value))
 				return;
 
-			_maxY = value;
+			_maxY = int(value);
 
 			notifyClippingUpdate();
 		}
@@ -394,17 +400,17 @@ package away3dlite.core.clip
 		/**
 		 * Minimum allowed z value for primitives
 		 */
-		public function get minZ():Number
+		public function get minZ():int
 		{
 			return _minZ;
 		}
 
-		public function set minZ(value:Number):void
+		public function set minZ(value:int):void
 		{
-			if (_minZ == value)
+			if (_minZ == int(value))
 				return;
 
-			_minZ = value;
+			_minZ = int(value);
 
 			notifyClippingUpdate();
 		}
@@ -412,17 +418,17 @@ package away3dlite.core.clip
 		/**
 		 * Maximum allowed z value for primitives
 		 */
-		public function get maxZ():Number
+		public function get maxZ():int
 		{
 			return _maxZ;
 		}
 
-		public function set maxZ(value:Number):void
+		public function set maxZ(value:int):void
 		{
-			if (_maxZ == value)
+			if (_maxZ == int(value))
 				return;
 
-			_maxZ = value;
+			_maxZ = int(value);
 
 			notifyClippingUpdate();
 		}
@@ -437,7 +443,7 @@ package away3dlite.core.clip
 		 * @param minZ	Minimum allowed z value for primitives.
 		 * @param maxZ	Maximum allowed z value for primitives.
 		 */
-		public function Clipping(minX:Number = -10000, maxX:Number = 10000, minY:Number = -10000, maxY:Number = 10000, minZ:Number = -10000, maxZ:Number = 10000)
+		public function Clipping(minX:int = -10000, maxX:int = 10000, minY:int = -10000, maxY:int = 10000, minZ:int = -10000, maxZ:int = 10000)
 		{
 			super();
 

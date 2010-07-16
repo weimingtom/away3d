@@ -14,7 +14,7 @@ package basics
 	 * Example : Lines3D
 	 * @author katopz
 	 */
-	public class ExLines3D extends BasicTemplate
+	public class ExPath3D extends BasicTemplate
 	{
 		override protected function onInit():void
 		{
@@ -48,9 +48,9 @@ package basics
 					_paths.push(b.x, b.y, b.z);
 				}
 				
-				scene.addChild(new Lines3D(new LineMaterial(int(0xFF0000 * Math.random()), 0.5 + 0.5 * Math.random()), _paths));
+				scene.addChild(new Path3D(new PathMaterial(int(0xFF0000 * Math.random()), 0.5 + 0.5 * Math.random()), _paths));
 			}
-
+			
 			// Axis Trident
 			scene.addChild(new Trident);
 		}

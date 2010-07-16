@@ -3,84 +3,76 @@ package away3dlite.materials
 	import away3dlite.core.base.Face;
 	import away3dlite.core.base.Mesh;
 	import away3dlite.core.utils.*;
-	
+
 	import flash.display.*;
-	
+
 	/**
-	 * Quad outline material.
+	 * Path material.
 	 */
-	public class QuadWireframeMaterial extends WireframeMaterial implements IPathMaterial
+	public class PathMaterial extends WireframeMaterial implements IPathMaterial
 	{
 		private var _commands:Vector.<int> = new Vector.<int>();
 		private var _pathData:Vector.<Number> = new Vector.<Number>();
 		private var _graphicsPath:GraphicsPath;
-		
+
 		private var _lineScaleMode:String = LineScaleMode.NONE;
-		
+
 		public function collectGraphicsPath(mesh:Mesh):void
 		{
 			var _screenVertices:Vector.<Number> = mesh.screenVertices;
 			var _length:int = _screenVertices.length;
-			
+
 			if (_length > 0)
 			{
-				_commands = new Vector.<int>();
-				_pathData = new Vector.<Number>();
-				
+				_commands = new Vector.<int>(_length / 2, true);
+				_pathData = new Vector.<Number>(_length, true);
+
 				var _face:Face;
 				var _faces:Vector.<Face> = mesh.faces;
-				
-				for each (_face in _faces)
+
+				_commands[0] = 1;
+				_pathData[0] = _screenVertices[0];
+				_pathData[1] = _screenVertices[1];
+
+				var i:int = 0;
+				var j:int;
+				_length *= .5;
+				while (++i < _length)
 				{
-					if (_face.length == 4)
-					{
-						_pathData.push(
-							_screenVertices[_face.x0], _screenVertices[_face.y0],
-							_screenVertices[_face.x1], _screenVertices[_face.y1],
-							_screenVertices[_face.x2], _screenVertices[_face.y2],
-							_screenVertices[_face.x3], _screenVertices[_face.y3]);
-						_commands.push(1, 2, 2, 2);
-					}
-					else
-					{
-						_pathData.push(
-							_screenVertices[_face.x0], _screenVertices[_face.y0],
-							_screenVertices[_face.x1], _screenVertices[_face.y1],
-							_screenVertices[_face.x2], _screenVertices[_face.y2]);
-						_commands.push(1, 2, 2);
-					}
+					_commands[i] = 2;
+					j = int(2 * i);
+					_pathData[j] = _screenVertices[j];
+					j = int(j + 1);
+					_pathData[j] = _screenVertices[j];
 				}
-				_commands.fixed = _pathData.fixed = true;
 			}
-			
+
 			_graphicsPath.commands = _commands;
 			_graphicsPath.data = _pathData;
 		}
-		
+
 		public function drawGraphicsData(mesh:Mesh, graphic:Graphics):void
 		{
 			collectGraphicsPath(mesh);
 			graphic.drawGraphicsData(graphicsData);
 		}
-		
+
 		/**
-		 * Creates a new <code>QuadWireframeMaterial</code> object.
+		 * Creates a new <code>LineMaterial</code> object.
 		 *
 		 * @param	color		The color of the material.
 		 * @param	alpha		The transparency of the material.
-		 * @param	wireColor	The color of the outline.
-		 * @param	wireAlpha	The transparency of the outline.
 		 * @param	thickness	The thickness of the outline.
 		 */
-		public function QuadWireframeMaterial(wireColor:* = null, wireAlpha:Number = 1, thickness:Number = 1)
+		public function PathMaterial(color:* = null, alpha:Number = 1, thickness:Number = 1)
 		{
-			super(wireColor, wireAlpha, thickness);
-			
+			super(color, alpha, thickness);
+
 			_graphicsPath = new GraphicsPath(_commands, _pathData);
-			
+
 			graphicsData = Vector.<IGraphicsData>([_graphicsStroke, _graphicsPath]);
 			graphicsData.fixed = true;
-			
+
 			trianglesIndex = -1;
 		}
 	}
