@@ -39,7 +39,7 @@ package away3dlite.containers
 		{
 			if (_materialsSceneList && mat._faceCount.length > 0 && !(--mat._faceCount[_id]))
 			{
-				_materialsSceneList[mat._id[_id]] == null;
+				_materialsSceneList[mat._id[_id]] = null;
 
 				//reduce the length of the material list if the removed material is at the end
 				if (mat._id[_id] == _materialsSceneList.length - 1)
