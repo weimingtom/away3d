@@ -51,9 +51,8 @@ package away3dlite.materials
 			_graphicsPath.data = _pathData;
 		}
 
-		public function drawGraphicsData(mesh:Mesh, graphic:Graphics):void
+		public function drawGraphicsData(graphic:Graphics):void
 		{
-			collectGraphicsPath(mesh);
 			graphic.drawGraphicsData(graphicsData);
 		}
 
