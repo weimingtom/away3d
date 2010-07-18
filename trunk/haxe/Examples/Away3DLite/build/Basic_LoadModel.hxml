@@ -4,7 +4,7 @@
 -main Basic_LoadModel
 
 -cp ../src
--cp ../../../Away3DLite/debug/
+-cp ../../../Away3DLite/src/
 
 -resource assets/signature_lite.swf@signatureSwf
 -resource assets/fskingr.jpg@greenPaint
