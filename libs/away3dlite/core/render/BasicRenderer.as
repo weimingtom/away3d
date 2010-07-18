@@ -76,6 +76,9 @@ package away3dlite.core.render
 
 				if (mesh._faces)
 					_view._totalFaces += mesh._faces.length;
+				
+				if(mesh.material is IPathMaterial)
+					IPathMaterial(mesh.material).collectGraphicsPath(mesh);
 			}
 			else if (object is IRenderableList)
 			{
