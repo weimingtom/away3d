@@ -4,7 +4,7 @@
 -main Advanced_Mario1000
 
 -cp ../src
--cp ../../../Away3DLite/debug
+-cp ../../../Away3DLite/src
 
 -resource assets/mario_tex.jpg@Charmap
 -resource assets/mario_testrun.dae@Charmesh

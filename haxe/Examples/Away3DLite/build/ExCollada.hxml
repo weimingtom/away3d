@@ -4,6 +4,6 @@
 -main ExCollada
 
 -cp ../src
--cp ../../../Away3DLite/debug/
+-cp ../../../Away3DLite/src/
 
 -resource assets/signature_lite_katopz.swf@signatureSwf
