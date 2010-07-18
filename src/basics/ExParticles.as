@@ -64,7 +64,7 @@ package basics
 			var i:Number = (stage.stageHeight - 100) / max;
 			for (var j:int = 0; j < max; j++)
 			{
-				var _particle:Particle = new Particle(radius * Math.cos(segment * j), i * (j - max / 2), radius * Math.sin(segment * j), _particleMaterial.clone());
+				var _particle:Particle = new Particle(_particleMaterial.clone(), radius * Math.cos(segment * j), i * (j - max / 2), radius * Math.sin(segment * j));
 				_particles.addParticle(_particle);
 
 					// each particle effect (slow warning!)

@@ -2,20 +2,17 @@ package basics
 {
 	import away3dlite.containers.Lines;
 	import away3dlite.core.base.Line3D;
-	import away3dlite.core.clip.RectangleClipping;
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.*;
 	
 	import flash.display.*;
 	import flash.events.*;
-	import flash.filters.BlurFilter;
-	import flash.geom.Matrix;
 	import flash.geom.Vector3D;
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
-	 * Line2D Example
+	 * Line3D Example
 	 * @author katopz
 	 */
 	public class ExLine3D extends BasicTemplate

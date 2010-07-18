@@ -1,6 +1,5 @@
 package basics
 {
-	import away3dlite.core.utils.Debug;
 	import away3dlite.materials.*;
 	import away3dlite.primitives.*;
 	import away3dlite.templates.*;
@@ -11,7 +10,7 @@ package basics
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
-	 * Example : Lines3D
+	 * Example : Path3D
 	 * @author katopz
 	 */
 	public class ExPath3D extends BasicTemplate
