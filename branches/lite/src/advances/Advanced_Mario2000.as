@@ -67,7 +67,7 @@ package advances
 				for (var j:int = 0; j < amount; ++j)
 					for (var k:int = 0; k < amount; ++k)
 					{
-						var _particle:Particle = new Particle(gap * i - _factor / 2, gap * j - _factor / 2, gap * k - _factor / 2, _particleMaterial);
+						var _particle:Particle = new Particle(_particleMaterial, gap * i - _factor / 2, gap * j - _factor / 2, gap * k - _factor / 2);
 						_particles.addParticle(_particle);
 					}
 

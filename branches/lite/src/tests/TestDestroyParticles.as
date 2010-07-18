@@ -48,7 +48,7 @@ package tests
 
 			for (var i:int = 0; i < 100; i++)
 			{
-				var _particle:Particle = new Particle(400 * Math.random() - 200, 400 * Math.random() - 200, 400 * Math.random() - 200, _particleMaterial.clone());
+				var _particle:Particle = new Particle(_particleMaterial.clone(), 400 * Math.random() - 200, 400 * Math.random() - 200, 400 * Math.random() - 200);
 				_particles.addParticle(_particle);
 			}
 
