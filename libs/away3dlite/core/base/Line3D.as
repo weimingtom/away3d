@@ -51,7 +51,6 @@ package away3dlite.core.base
 		private var _beginProjectedPosition:Vector3D;
 		private var _endProjectedPosition:Vector3D;
 
-		private var _scale:Number = 1;
 		private var _point:Point = new Point();
 		private var _point0:Point = new Point();
 		private var _rect:Rectangle = new Rectangle();

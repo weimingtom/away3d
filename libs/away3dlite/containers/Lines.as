@@ -19,7 +19,6 @@ package away3dlite.containers
 	 */
 	public class Lines extends Object3D implements IRenderableList
 	{
-		private var _interactive:Boolean;
 		private var _animate:Boolean;
 		public var isDirty:Boolean;
 

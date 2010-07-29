@@ -2,7 +2,6 @@ package away3dlite.materials
 {
 	import away3dlite.core.base.Face;
 	import away3dlite.core.base.Mesh;
-	import away3dlite.core.utils.*;
 	
 	import flash.display.*;
 	
@@ -14,8 +13,6 @@ package away3dlite.materials
 		private var _commands:Vector.<int> = new Vector.<int>();
 		private var _pathData:Vector.<Number> = new Vector.<Number>();
 		private var _graphicsPath:GraphicsPath;
-		
-		private var _lineScaleMode:String = LineScaleMode.NONE;
 		
 		public function collectGraphicsPath(mesh:Mesh):void
 		{
