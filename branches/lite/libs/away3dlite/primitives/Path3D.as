@@ -3,8 +3,6 @@ package away3dlite.primitives
 	import away3dlite.arcane;
 	import away3dlite.materials.*;
 	
-	import flash.geom.*;
-
 	use namespace arcane;
 
 	/**

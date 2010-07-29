@@ -1,8 +1,5 @@
 package away3dlite.materials
 {
-	import flash.display.*;
-	import flash.geom.Rectangle;
-
 	/**
 	 * Base line material class.
 	 */
