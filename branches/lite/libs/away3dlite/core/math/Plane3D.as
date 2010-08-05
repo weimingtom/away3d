@@ -13,7 +13,7 @@ package away3dlite.core.math
 			var v:Vector3D = normal.clone();
 			v.w = -(v.x * point.x + v.y * point.y + v.z * point.z);
 
-			return normal;
+			return v;
 		}
 
 		public static function getIntersectionLine(v:Vector3D, v0:Vector3D, v1:Vector3D):Vector3D
