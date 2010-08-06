@@ -47,7 +47,7 @@ package away3dlite.core.base
 		public var onBoundingBoxUpdate:Function;
 		public var minBounding:Vector3D = new Vector3D();
 		public var maxBounding:Vector3D = new Vector3D();
-
+		
 		/** @private */
 		arcane override function updateScene(val:Scene3D):void
 		{
@@ -271,6 +271,18 @@ package away3dlite.core.base
 			// callback if exist
 			if(onBoundingBoxUpdate is Function)
 				onBoundingBoxUpdate(minBounding, maxBounding);
+		}
+		
+		public function updateBoundingSphere():void
+		{
+			var d:Number;
+			var _length:int = _vertices.length;
+			
+			for (var i:int = 0; i < _length; i += 3)
+			{
+				d = _vertices[int(i)] * _vertices[int(i)] + _vertices[int(i + 1)] * _vertices[int(i + 1)] + _vertices[int(i + 2)] * _vertices[int(i + 2)];
+				maxRadius = (d > maxRadius) ? d : maxRadius;
+			}
 		}
 		
 		private function updateSortType():void
