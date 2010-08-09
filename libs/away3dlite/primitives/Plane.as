@@ -11,11 +11,11 @@
     */ 
     public class Plane extends AbstractPrimitive
     {
-    	private var _width:Number = 100;
-        private var _height:Number = 100;
-        private var _segmentsW:int = 1;
-        private var _segmentsH:int = 1;
-        private var _yUp:Boolean = true;
+		protected var _width:Number = 100;
+		protected var _height:Number = 100;
+		protected var _segmentsW:int = 1;
+		protected var _segmentsH:int = 1;
+		protected var _yUp:Boolean = true;
 
 		/**
 		 * @inheritDoc
