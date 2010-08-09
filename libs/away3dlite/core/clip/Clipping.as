@@ -60,15 +60,18 @@ package away3dlite.core.clip
 			var i:int = 0;
 			for each (var _particle:IRenderable in particles)
 			{
-				var _position:Vector3D = _particle.position;
-				var _x:int = int(_position.x);
-				var _y:int = int(_position.y);
-				var _z:int = int(_particle.screenZ);
-				
-				if (_x > _minX && _x < _maxX && 
-					_y > _minY && _y < _maxY && 
-					_z > _minZ && _z < _maxZ)
-					_particles[int(i++)] = _particle;
+				if(!_particle.isClip)
+				{
+					var _projectedPosition:Vector3D = _particle.projectedPosition;
+					var _x:int = int(_projectedPosition.x);
+					var _y:int = int(_projectedPosition.y);
+					var _z:int = int(_particle.screenZ);
+					
+					if (_x > _minX && _x < _maxX && 
+						_y > _minY && _y < _maxY && 
+						_z > _minZ && _z < _maxZ)
+						_particles[int(i++)] = _particle;
+				}
 			}
 			return _particles;
 		}

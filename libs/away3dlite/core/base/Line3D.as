@@ -30,7 +30,13 @@ package away3dlite.core.base
 
 		public var id:String;
 		public var visible:Boolean = true;
-
+		protected var _isClip:Boolean = false;
+		
+		public function get isClip():Boolean
+		{
+			return _isClip;
+		}
+		
 		private var _screenZ:Number;
 
 		public function get screenZ():Number
@@ -78,12 +84,12 @@ package away3dlite.core.base
 				parent.isDirty = true;
 		}
 
-		public function get position():Vector3D
+		public function get projectedPosition():Vector3D
 		{
 			return _projectedPosition;
 		}
 
-		public function set position(value:Vector3D):void
+		public function set projectedPosition(value:Vector3D):void
 		{
 			// position
 			_screenZ = value.w;
@@ -100,7 +106,7 @@ package away3dlite.core.base
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
 
 			// update position
-			position = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
+			projectedPosition = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
 
 			_beginProjectedPosition = Utils3D_projectVector(transformMatrix3D, _beginPosition);
 			_beginProjectedPosition = Utils3D_projectVector(viewMatrix3D, _beginProjectedPosition);

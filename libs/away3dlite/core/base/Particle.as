@@ -29,6 +29,11 @@ package away3dlite.core.base
 
 		protected var _position:Vector3D;
 
+		public function get position():Vector3D
+		{
+			return _position;
+		}
+
 		public function get x():Number
 		{
 			return _position.x;
@@ -61,6 +66,13 @@ package away3dlite.core.base
 
 		public var id:String;
 		public var visible:Boolean = true;
+		protected var _isClip:Boolean = false;
+
+		public function get isClip():Boolean
+		{
+			return _isClip;
+		}
+
 		public var animate:Boolean = false;
 		public var interactive:Boolean = false;
 		public var smooth:Boolean = true;
@@ -89,6 +101,11 @@ package away3dlite.core.base
 
 		// projected position
 		private var _projectedPosition:Vector3D;
+
+		public function get projectedPosition():Vector3D
+		{
+			return _projectedPosition;
+		}
 
 		private var _matrix:Matrix;
 		private var _center:Point;
@@ -134,18 +151,6 @@ package away3dlite.core.base
 				parent.isDirty = true;
 		}
 
-		public function get position():Vector3D
-		{
-			return _projectedPosition;
-		}
-
-		public function set position(value:Vector3D):void
-		{
-			// position
-			_screenZ = value.w;
-			_projectedPosition = value.clone();
-		}
-
 		public function update(viewMatrix3D:Matrix3D, transformMatrix3D:Matrix3D = null):void
 		{
 			// dirty
@@ -156,7 +161,11 @@ package away3dlite.core.base
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
 
 			// update position
-			position = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
+			_projectedPosition = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
+			_screenZ = _projectedPosition.w;
+
+			// clip?
+			_isClip = _screenZ < 0;
 
 			// animate?
 			if (animate)
@@ -165,17 +174,14 @@ package away3dlite.core.base
 
 		protected function drawBitmapdata(x:Number, y:Number, zoom:Number, focus:Number):void
 		{
-			if (!visible)
-				return;
-
-			_scale = zoom / (1 + _screenZ / focus);
+			_scale = zoom / (1 + _projectedPosition.w / focus);
 
 			// align center, TODO : scale rect
 			_center.x = _material_width * _scale * .5;
 			_center.y = _material_height * _scale * .5;
 
-			_point.x = position.x - _center.x + x;
-			_point.y = position.y - _center.y + y;
+			_point.x = _projectedPosition.x - _center.x + x;
+			_point.y = _projectedPosition.y - _center.y + y;
 
 			// effect
 			if (colorTransform || blendMode || filters)
@@ -202,7 +208,7 @@ package away3dlite.core.base
 
 		public function render(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 		{
-			if (!visible)
+			if (!visible || isClip)
 				return;
 
 			// draw to bitmap?
@@ -234,8 +240,8 @@ package away3dlite.core.base
 			_center.y = _material_height * _scale * .5;
 
 			_matrix.a = _matrix.d = _scale;
-			_matrix.tx = position.x - _center.x;
-			_matrix.ty = position.y - _center.y;
+			_matrix.tx = _projectedPosition.x - _center.x;
+			_matrix.ty = _projectedPosition.y - _center.y;
 
 			// draw
 			graphics.beginBitmapFill(_tempBitmapData, _matrix, false, smooth);

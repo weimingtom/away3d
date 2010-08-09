@@ -9,8 +9,9 @@ package away3dlite.core.base
 	 */
 	public interface IRenderable
 	{
-		function get position():Vector3D;
+		function get projectedPosition():Vector3D;
 		function get screenZ():Number;
+		function get isClip():Boolean;
 		
 		function render(x:Number, y:Number, graphics:Graphics, zoom:Number, focus:Number):void
 	}

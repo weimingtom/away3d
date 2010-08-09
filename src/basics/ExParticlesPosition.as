@@ -13,7 +13,7 @@ package basics
 
 	[SWF(backgroundColor="#000000", frameRate="30", width="800", height="600")]
 	/**
-	 * Particles Example
+	 * Particles Position Example
 	 * @author katopz
 	 */
 	public class ExParticlesPosition extends BasicTemplate
@@ -21,15 +21,14 @@ package basics
 		private var _particles:Particles;
 		private var _particleMaterial:ParticleMaterial;
 
-		private const radius:uint = 350;
-		private const max:int = 1000;
+		private const radius:uint = 100;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
 
 		override protected function onInit():void
 		{
-			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode (sprite/bitmap)";
+			title = "Away3DLite | Particles Position | Click to toggle Particles Draw mode (sprite/bitmap)";
 
 			// create materials
 			_particleMaterial = createParticleMaterial(size);
@@ -39,13 +38,22 @@ package basics
 			scene.addChild(_particles);
 
 			// positions
-			_particles.addParticle(new Particle(_particleMaterial.clone(), 100, 0, 0));
-			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 100, 0));
-			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 0, 100));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), radius, 0, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, radius, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 0, radius));
 
-			_particles.addParticle(new Particle(_particleMaterial.clone(), -100, 0, 0));
-			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, -100, 0));
-			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 0, -100));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), -radius, 0, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, -radius, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 0, -radius));
+			
+			// clip positions
+			_particles.addParticle(new Particle(_particleMaterial.clone(), radius*12, 0, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, radius*12, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 0, radius*12));
+			
+			_particles.addParticle(new Particle(_particleMaterial.clone(), -radius*12, 0, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, -radius*12, 0));
+			_particles.addParticle(new Particle(_particleMaterial.clone(), 0, 0, -radius*12));
 
 			// center
 			scene.addChild(new Sphere(null, 100, 6, 6));
