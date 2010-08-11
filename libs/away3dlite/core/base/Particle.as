@@ -244,6 +244,7 @@ package away3dlite.core.base
 			_matrix.ty = _tranformedPosition.y - _center.y;
 
 			// draw
+			graphics.lineStyle();
 			graphics.beginBitmapFill(_tempBitmapData, _matrix, false, smooth);
 			graphics.drawRect(_matrix.tx, _matrix.ty, _center.x * 2, _center.y * 2);
 
