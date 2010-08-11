@@ -23,14 +23,14 @@ package basics
 		private var _particleMaterial:ParticleMaterial;
 
 		private const radius:uint = 350;
-		private const max:int = 1000;
+		private const max:int = 3000;
 		private const size:uint = 10;
 
 		private const _totalFrames:uint = 30;
 
 		private var step:Number = 0;
 		private var segment:Number;
-		
+
 		override protected function onInit():void
 		{
 			title = "Away3DLite | Particles : " + max + " | Click to toggle Particles Draw mode (sprite/bitmap)";

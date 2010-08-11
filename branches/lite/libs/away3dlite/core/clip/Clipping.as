@@ -62,7 +62,7 @@ package away3dlite.core.clip
 			{
 				if(!_particle.isClip)
 				{
-					var _projectedPosition:Vector3D = _particle.projectedPosition;
+					var _projectedPosition:Vector3D = _particle.transformPosition;
 					var _x:int = int(_projectedPosition.x);
 					var _y:int = int(_projectedPosition.y);
 					var _z:int = int(_particle.screenZ);

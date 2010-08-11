@@ -17,7 +17,7 @@ package basics
 	{
 		override protected function onInit():void
 		{
-			title += " : ExLines3D";
+			title += " : Path3D, draw line by commands";
 
 			var _radius:int = 100;
 			var _segment:int = 20;

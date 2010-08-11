@@ -99,12 +99,12 @@ package away3dlite.core.base
 		public var blendMode:String;
 		public var filters:Array;
 
-		// projected position
-		private var _projectedPosition:Vector3D;
+		// position
+		private var _tranformedPosition:Vector3D;
 
-		public function get projectedPosition():Vector3D
+		public function get transformPosition():Vector3D
 		{
-			return _projectedPosition;
+			return _tranformedPosition;
 		}
 
 		private var _matrix:Matrix;
@@ -161,8 +161,8 @@ package away3dlite.core.base
 			var Utils3D_projectVector:Function = Utils3D.projectVector;
 
 			// update position
-			_projectedPosition = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
-			_screenZ = _projectedPosition.w;
+			_tranformedPosition = Utils3D_projectVector(viewMatrix3D, Utils3D_projectVector(transformMatrix3D, _position));
+			_screenZ = _tranformedPosition.w;
 
 			// clip?
 			_isClip = _screenZ < 0;
@@ -174,14 +174,14 @@ package away3dlite.core.base
 
 		protected function drawBitmapdata(x:Number, y:Number, zoom:Number, focus:Number):void
 		{
-			_scale = zoom / (1 + _projectedPosition.w / focus);
+			_scale = zoom / (1 + _tranformedPosition.w / focus);
 
 			// align center, TODO : scale rect
 			_center.x = _material_width * _scale * .5;
 			_center.y = _material_height * _scale * .5;
 
-			_point.x = _projectedPosition.x - _center.x + x;
-			_point.y = _projectedPosition.y - _center.y + y;
+			_point.x = _tranformedPosition.x - _center.x + x;
+			_point.y = _tranformedPosition.y - _center.y + y;
 
 			// effect
 			if (colorTransform || blendMode || filters)
@@ -240,8 +240,8 @@ package away3dlite.core.base
 			_center.y = _material_height * _scale * .5;
 
 			_matrix.a = _matrix.d = _scale;
-			_matrix.tx = _projectedPosition.x - _center.x;
-			_matrix.ty = _projectedPosition.y - _center.y;
+			_matrix.tx = _tranformedPosition.x - _center.x;
+			_matrix.ty = _tranformedPosition.y - _center.y;
 
 			// draw
 			graphics.beginBitmapFill(_tempBitmapData, _matrix, false, smooth);
@@ -277,7 +277,7 @@ package away3dlite.core.base
 			colorTransform = null;
 			blendMode = null;
 			filters = null;
-			_projectedPosition = null;
+			_tranformedPosition = null;
 			_matrix = null;
 			_center = null;
 

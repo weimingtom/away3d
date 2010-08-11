@@ -18,31 +18,44 @@ package basics
 	public class ExLine3D extends BasicTemplate
 	{
 		private var _lines:Lines;
-		private var _lineMaterial:LineMaterial;
 
-		private const radius:uint = 300;
-		private const total:int = 1000;
+		private const radius:uint = 500;
+		private const total:int = 500;
+		
+		private var step:Number = 0;
 
 		override protected function onInit():void
 		{
 			title = "Away3DLite | Lines : " + total + " | Click to toggle Lines Draw mode (sprite/bitmap)";
 
-			// create materials
-			_lineMaterial = new LineMaterial(0xFF0000);
-
 			// create lines
-			_lines = new Lines();
-			scene.addChild(_lines);
+			scene.addChild(_lines = new Lines);
 
 			// positions
 			for (var i:int = 0; i < total; i++)
 				_lines.addLine(new Line3D(
-					new Vector3D(radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random()), 
-					new Vector3D(radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random()), 
-					new LineMaterial(int(Math.random()*0xFFFFFF))));
-
+					   new Vector3D(radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random()),
+					   new Vector3D(radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random(), radius*Math.random() - radius*Math.random()),
+					   new LineMaterial(int(Math.random()*0xFFFFFF))
+				));
+		   
 			// center
 			scene.addChild(new Sphere(null, 50, 6, 6));
+			
+			// orbit
+			i = 0;
+			for (var j:int = 0; j < 6; j++)
+			{
+				var _color:int = int(Math.random()*0xFFFFFF);
+				var sphere:Sphere = new Sphere(new WireColorMaterial(_color), 50, 6, 6);
+				scene.addChild(sphere);
+				sphere.x = (radius + 50) * Math.cos(i);
+				sphere.z = (radius + 50) * Math.sin(i);
+				
+				// test line culling (FYI : culling at middle of line)
+				_lines.addLine(new Line3D(new Vector3D(), sphere.position, new LineMaterial(_color)));
+				i += 2 * Math.PI / 6;
+			}
 
 			// toggle
 			stage.addEventListener(MouseEvent.CLICK, onClick);
@@ -72,6 +85,13 @@ package basics
 			scene.rotationX += .5;
 			scene.rotationY += .5;
 			scene.rotationZ += .5;
+			
+			camera.x = 500 * Math.cos(step);
+			camera.y = 10 * (300 - mouseY);
+			camera.z = 500 * Math.sin(step);
+			camera.lookAt(new Vector3D());
+			
+			step += .01;
 		}
 	}
 }
