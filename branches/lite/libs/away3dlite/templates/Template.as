@@ -217,14 +217,12 @@ package away3dlite.templates
 
 			_debug = val;
 
-			if (_debug)
+			if (_debugLayer && !_debugLayer.parent)
 			{
-				if (_debugLayer && !_debugLayer.parent)
+				if (_debug)
 					_debugLayer.parent.addChild(_debugLayer);
-			}
-			else
-			{
-				_debugLayer.parent.removeChild(_debugLayer);
+				else
+					_debugLayer.parent.removeChild(_debugLayer);
 			}
 		}
 
