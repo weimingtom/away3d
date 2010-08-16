@@ -1,0 +1,6 @@
+-js bin/away3dlite5.js
+-cp src
+-debug
+-main ExTurtleCubeTest
+-D tm-autocomplete
+--remap flash:jsflash

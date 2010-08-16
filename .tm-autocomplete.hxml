@@ -1,0 +1,6 @@
+
+-cp src
+-main Main
+-D tm-autocomplete
+-swf bin/away3dlite.swf
+-swf-version 10
