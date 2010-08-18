@@ -50,7 +50,28 @@ package away3dlite.core.base
 		// position
 		private var _position:Vector3D;
 		private var _beginPosition:Vector3D;
+
+		public function get beginPosition():Vector3D
+		{
+			return _beginPosition;
+		}
+
+		public function set beginPosition(value:Vector3D):void
+		{
+			_beginPosition = value;
+		}
+
 		private var _endPosition:Vector3D;
+
+		public function get endPosition():Vector3D
+		{
+			return _endPosition;
+		}
+
+		public function set endPosition(value:Vector3D):void
+		{
+			_endPosition = value;
+		}
 
 		private var _transformPosition:Vector3D;
 		private var _beginTransformedPosition:Vector3D;

@@ -5,7 +5,7 @@ package away3dlite.containers
 	import away3dlite.core.base.IRenderableList;
 	import away3dlite.core.base.Line3D;
 	import away3dlite.core.base.Object3D;
-
+	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -27,11 +27,11 @@ package away3dlite.containers
 		private var _lastLine:Line3D;
 
 		// still need array for sortOn
-		private var _lists:Array;
+		private var _children:Array;
 
-		public function get renderableList():Array
+		public function get children():Array
 		{
-			return _lists;
+			return _children;
 		}
 
 		// bitmap
@@ -120,10 +120,10 @@ package away3dlite.containers
 		public function addLine(line:Line3D):Line3D
 		{
 			// add to lists
-			if (!_lists)
-				_lists = [];
+			if (!_children)
+				_children = [];
 
-			_lists.push(line);
+			_children.push(line);
 
 			//link list
 			if (!_firstLine)
@@ -144,10 +144,10 @@ package away3dlite.containers
 
 		public function removeLine(line:Line3D):Line3D
 		{
-			if (!_lists)
+			if (!_children)
 				return null;
 
-			_lists.splice(_lists.indexOf(line), 1);
+			_children.splice(_children.indexOf(line), 1);
 			line.parent = null;
 
 			// prev, line, next // prev -> next
@@ -173,12 +173,15 @@ package away3dlite.containers
 			if (_isDestroyed)
 				return;
 
-			for each (var _line:Line3D in _lists)
-				_line.destroy();
+			for each (var line:Line3D in _children)
+			{
+				removeLine(line);
+				line.destroy();
+			}
 
 			_firstLine = null;
 			_lastLine = null;
-			_lists = null;
+			_children = null;
 
 			super.destroy();
 		}

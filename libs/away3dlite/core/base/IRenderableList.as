@@ -5,6 +5,6 @@ package away3dlite.core.base
 	 */
 	public interface IRenderableList
 	{
-		function get renderableList():Array;
+		function get children():Array;
 	}
 }
