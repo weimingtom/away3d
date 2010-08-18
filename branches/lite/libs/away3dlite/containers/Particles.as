@@ -28,11 +28,11 @@ package away3dlite.containers
 		private var _lastParticle:Particle;
 
 		// still need array for sortOn
-		private var _lists:Array;
+		private var _children:Array;
 
-		public function get renderableList():Array
+		public function get children():Array
 		{
-			return _lists;
+			return _children;
 		}
 
 		// bitmap
@@ -120,10 +120,10 @@ package away3dlite.containers
 		public function addParticle(particle:Particle):Particle
 		{
 			// add to lists
-			if (!_lists)
-				_lists = [];
+			if (!_children)
+				_children = [];
 
-			_lists.push(particle);
+			_children.push(particle);
 
 			//link list
 			if (!_firstParticle)
@@ -147,10 +147,10 @@ package away3dlite.containers
 
 		public function removeParticle(particle:Particle):Particle
 		{
-			if (!_lists)
+			if (!_children)
 				return null;
 
-			_lists.splice(_lists.indexOf(particle), 1);
+			_children.splice(_children.indexOf(particle), 1);
 			particle.parent = null;
 
 			// prev, particle, next // prev -> next
@@ -198,12 +198,15 @@ package away3dlite.containers
 			if (_isDestroyed)
 				return;
 
-			for each (var _particle:Particle in _lists)
-				_particle.destroy();
+			for each (var particle:Particle in _children)
+			{
+				removeParticle(particle);
+				particle.destroy();
+			}
 
 			_firstParticle = null;
 			_lastParticle = null;
-			_lists = null;
+			_children = null;
 
 			super.destroy();
 		}

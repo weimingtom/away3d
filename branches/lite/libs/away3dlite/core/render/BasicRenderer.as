@@ -82,7 +82,7 @@ package away3dlite.core.render
 			}
 			else if (object is IRenderableList)
 			{
-				var renderableItems:Array = _clipping.collectParticles(IRenderableList(object).renderableList);
+				var renderableItems:Array = _clipping.collectParticles(IRenderableList(object).children);
 
 				if (renderableItems.length > 0)
 					_renderables = _renderables.concat(renderableItems);
