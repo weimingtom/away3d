@@ -1,13 +1,12 @@
 /*
 
-Directional Sprite example in Away3d
+Phong material example in Away3d using PhongBitmapMaterial
 
 Demonstrates:
 
-How to use the DirSprite2D.
-How to override the tick method on an ObjectContainer3D to provide individual custom functionality for 3d objects.
+How to use the PhongBitmapMaterial with multiple lights.
 
-Code by Rob Bateman & Alexander Zadorozhny
+Code by Rob Bateman
 rob@infiniteturtles.co.uk
 http://www.infiniteturtles.co.uk
 
@@ -37,11 +36,12 @@ THE SOFTWARE.
 
 package
 {
+	import away3d.debug.*;
 	import away3d.cameras.*;
 	import away3d.containers.*;
-	import away3d.core.utils.Cast;
+	import away3d.core.math.*;
+	import away3d.core.utils.*;
 	import away3d.lights.*;
-	import away3d.loaders.*;
 	import away3d.materials.*;
 	import away3d.primitives.*;
 	
@@ -51,31 +51,28 @@ package
 	
 	[SWF(backgroundColor="#000000", frameRate="60", quality="LOW", width="800", height="600")]
 	
-	public class Intermediate_DirectionalSprite extends Sprite
+	public class Basic_BitmapPhong extends Sprite
 	{
 		//signature swf
     	[Embed(source="assets/signature.swf", symbol="Signature")]
     	private var SignatureSwf:Class;
     	
+		//cube texture jpg
+		[Embed(source="assets/blue.jpg")]
+    	public static var BlueImage:Class;
+    	
+    	//sphere texture jpg
+		[Embed(source="assets/green.jpg")]
+    	public static var GreenImage:Class;
+    	
+    	//torus texture jpg
+    	[Embed(source="assets/red.jpg")]
+    	public static var RedImage:Class;
+    	
     	//plane texture jpg
     	[Embed(source="assets/yellow.jpg")]
     	public static var YellowImage:Class;
     	
-    	[Embed(source="assets/ls_front.png")]
-		private var LostSoulFrontImage:Class;
-		
-		[Embed(source="assets/ls_leftfront.png")]
-		private var LostSoulLeftFrontImage:Class;
-		
-		[Embed(source="assets/ls_left.png")]
-		private var LostSoulLeftImage:Class;
-		
-		[Embed(source="assets/ls_leftback.png")]
-		private var LostSoulLeftBackImage:Class;
-		
-		[Embed(source="assets/ls_back.png")]
-		private var LostSoulBackImage:Class;
-		
     	//engine variables
     	private var scene:Scene3D;
 		private var camera:HoverCamera3D;
@@ -87,9 +84,19 @@ package
 		
 		//material objects
 		private var planeMaterial:BitmapMaterial;
+		private var sphereMaterial:PhongBitmapMaterial;
+		private var cubeMaterial:PhongBitmapMaterial;
+		private var torusMaterial:PhongBitmapMaterial;
+		
+		//light objects
+		private var light1:DirectionalLight3D;
+		private var light2:DirectionalLight3D;
 		
 		//scene objects
 		private var plane:Plane;
+		private var sphere:Sphere;
+		private var cube:Cube;
+		private var torus:Torus;
 		
 		//navigation variables
 		private var move:Boolean = false;
@@ -101,7 +108,7 @@ package
 		/**
 		 * Constructor
 		 */
-		public function Intermediate_DirectionalSprite()
+		public function Basic_BitmapPhong()
 		{
 			init();
 		}
@@ -113,6 +120,7 @@ package
 		{
 			initEngine();
 			initMaterials();
+			initLights();
 			initObjects();
 			initListeners();
 		}
@@ -123,8 +131,7 @@ package
 		private function initEngine():void
 		{
 			scene = new Scene3D();
-			
-			//camera = new HoverCamera3D({focus:50, distance:50, mintiltangle:0, maxtiltangle:90});
+			//camera = new HoverCamera3D({focus:50, distance:1000, mintiltangle:0, maxtiltangle:90});
 			camera = new HoverCamera3D();
 			camera.focus = 50;
 			camera.distance = 1000;
@@ -150,6 +157,7 @@ package
             SignatureBitmap.bitmapData.draw(Signature);
             stage.quality = StageQuality.LOW;
             addChild(SignatureBitmap);
+            addChild(new AwayStats());
 		}
 		
 		/**
@@ -159,7 +167,40 @@ package
 		{
 			//planeMaterial = new BitmapMaterial(Cast.bitmap(YellowImage), {precision:2.5});
 			planeMaterial = new BitmapMaterial(Cast.bitmap(YellowImage));
-			planeMaterial.precision = 2.5;
+			
+			//sphereMaterial = new PhongBitmapMaterial(Cast.bitmap(GreenImage), {shininess:20, specular:0x5A5A5A});
+			sphereMaterial = new PhongBitmapMaterial(Cast.bitmap(GreenImage), {surfaceCache:true});
+			sphereMaterial.shininess = 20;
+			sphereMaterial.specular = 0x5A5A5A;
+			
+			cubeMaterial = new PhongBitmapMaterial(Cast.bitmap(BlueImage), {surfaceCache:true});
+			cubeMaterial.specular = 0xB3B3B3;
+			
+			torusMaterial = new PhongBitmapMaterial(Cast.bitmap(RedImage), {surfaceCache:true});
+			torusMaterial.specular = 0xB3B3B3;
+		}
+		
+		/**
+		 * Initialise the lights
+		 */
+		private function initLights():void
+		{
+			//light1 = new DirectionalLight3D({y:1, ambient:0.1, diffuse:0.7});
+			light1 = new DirectionalLight3D();
+			light1.direction = new Number3D(0, -1, 0);
+			light1.ambient = 0.1;
+			light1.diffuse = 0.7;
+			
+			scene.addLight(light1);
+			
+			//light2 = new DirectionalLight3D({y:1, color:0x00FFFF, ambient:0.1, diffuse:0.7});
+			light2 = new DirectionalLight3D();
+			light2.direction = new Number3D(0, -1, 0);
+			light2.color = 0x00FFFF;
+			light2.ambient = 0.1;
+			light2.diffuse = 0.7;
+			
+			scene.addLight(light2);
 		}
 		
 		/**
@@ -167,50 +208,57 @@ package
 		 */
 		private function initObjects():void
 		{
-			//plane = new Plane({material:planeMaterial, y:-40, width:1000, height:1000, pushback:true});
+			//plane = new Plane({material:planeMaterial, y:-20, width:1000, height:1000, pushback:true});
 			plane = new Plane();
 			plane.material = planeMaterial;
-			plane.y = -40;
+			plane.y = -20;
 			plane.width = 1000;
 			plane.height = 1000;
 			plane.pushback = true;
 			
 			scene.addChild(plane);
 			
-			var iTotal:int = 3;
-			var jTotal:int = 3;
-			var lostSoul:LostSoul;
-			var material1:BitmapMaterial = new BitmapMaterial(Cast.bitmap(LostSoulFrontImage));
-        	var material2:BitmapMaterial = new BitmapMaterial(Cast.bitmap(LostSoulLeftFrontImage));
-        	var material3:BitmapMaterial = new BitmapMaterial(Cast.bitmap(LostSoulLeftImage));
-        	var material4:BitmapMaterial = new BitmapMaterial(Cast.bitmap(LostSoulLeftBackImage));
-        	var material5:BitmapMaterial = new BitmapMaterial(Cast.bitmap(LostSoulBackImage));
-        	var material6:BitmapMaterial = new BitmapMaterial(flipX(Cast.bitmap(LostSoulLeftBackImage)));
-        	var material7:BitmapMaterial = new BitmapMaterial(flipX(Cast.bitmap(LostSoulLeftImage)));
-        	var material8:BitmapMaterial = new BitmapMaterial(flipX(Cast.bitmap(LostSoulLeftFrontImage)));
-			for (var i:int = 0; i < iTotal; i++) {
-				for (var j:int = 0; j < jTotal; j++) {
-					lostSoul = new LostSoul(material1, material2, material3, material4, material5, material6, material7, material8);
-					lostSoul.x = i*600/(iTotal - 1) - 300;
-					lostSoul.z = j*600/(jTotal - 1) - 300;
-					lostSoul.rotationY = Math.random()*360;
-					scene.addChild(lostSoul);
-				}	
-			}
+	        //sphere = new Sphere({ownCanvas:true, material:sphereMaterial, x:300, y:160, z:300, radius:150, segmentsW:12, segmentsH:10});
+	        sphere = new Sphere();
+	        sphere.ownCanvas = true;
+	        sphere.material = sphereMaterial;
+	        sphere.x = 300;
+	        sphere.y = 160;
+	        sphere.z = 300;
+	        sphere.radius = 150;
+	        sphere.segmentsW = 12;
+	        sphere.segmentsH = 10;
+	        
+			scene.addChild(sphere);
+			
+	        //cube = new Cube({ownCanvas:true, material:cubeMaterial, x:300, y:160, z:-80, width:200, height:200, depth:200});
+	        cube = new Cube();
+	        cube.ownCanvas = true;
+	        cube.material = cubeMaterial;
+	        cube.x = 300;
+	        cube.y = 160;
+	        cube.z = -80;
+	        cube.width = 200;
+	        cube.height = 200;
+	        cube.depth = 200;
+	        
+			scene.addChild(cube);
+			
+	        //torus = new Torus({ownCanvas:true, material:torusMaterial, x:-250, y:160, z:-250, radius:150, tube:60, segmentsR:12, segmentsT:10});
+	        torus = new Torus();
+	        torus.ownCanvas = true;
+	        torus.material = torusMaterial;
+	        torus.x = -250;
+	        torus.y = 160;
+	        torus.z = -250;
+	        torus.radius = 150;
+	        torus.tube = 60;
+	        torus.segmentsR = 12;
+	        torus.segmentsT = 10;
+	        
+			scene.addChild(torus);
 		}
 		
-		/**
-	    * Creates a mirror bitmapData object from the input bitmapData argument
-	    */
-	    public function flipX(source:BitmapData):BitmapData
-	    {
-	        var bitmap:BitmapData = new BitmapData(source.width, source.height);
-	        for (var i:int = 0; i < bitmap.width; i++)
-	            for (var j:int = 0; j < bitmap.height; j++)
-	                bitmap.setPixel32(i, j, source.getPixel32(source.width-i-1, j));
-	        return bitmap;
-	    }
-    	
 		/**
 		 * Initialise the listeners
 		 */
@@ -228,8 +276,7 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			//update all tick methods
-			scene.updateTime(getTimer());
+			tick(getTimer());
 			
 			if (move) {
 				camera.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
@@ -280,85 +327,15 @@ package
             view.y = stage.stageHeight / 2;
             SignatureBitmap.y = stage.stageHeight - Signature.height;
 		}
+	    
+	    /**
+	    * Updates every frame
+	    */
+        private function tick(time:int):void
+	    {
+	        cube.rotationY += 2;
+	        
+	    	light1.direction = new Number3D(-Math.cos(time/2000), 0, -Math.sin(time/2000));
+	    }
 	}
-}
-
-import away3d.core.base.*;
-import away3d.materials.*;
-import away3d.sprites.*;
-
-/**
- * Class for creating moving lost soul sprite
- */
-class LostSoul extends Mesh
-{
-	private var _dirSprite:DirectionalSprite = new DirectionalSprite();
-    private var _role:String;
-    private var _nextthink:int;
-    private var _lastmove:int;
-	
-	/**
-	 * Constructor
-	 */
-    public function LostSoul(material1:Material, material2:Material, material3:Material, material4:Material, material5:Material, material6:Material, material7:Material, material8:Material)
-    {
-        super();
-        
-        addSprite(_dirSprite);
-        
-        _dirSprite.scaling = 2;
-        
-        _dirSprite.addDirectionalMaterial(new Vertex(0   , 0,-1  ), material1);
-        _dirSprite.addDirectionalMaterial(new Vertex(-0.7, 0,-0.7), material2);
-        _dirSprite.addDirectionalMaterial(new Vertex(-1  , 0, 0  ), material3);
-        _dirSprite.addDirectionalMaterial(new Vertex(-0.7, 0, 0.7), material4);
-        _dirSprite.addDirectionalMaterial(new Vertex( 0  , 0, 1  ), material5);
-        _dirSprite.addDirectionalMaterial(new Vertex( 0.7, 0, 0.7), material6);
-        _dirSprite.addDirectionalMaterial(new Vertex( 1  , 0, 0  ), material7);
-        _dirSprite.addDirectionalMaterial(new Vertex( 0.7, 0,-0.7), material8);
-    }
-    
-    /**
-    * Updates every frame
-    */
-    public override function tick(time:int):void
-    {
-        if ((_role == null) || (_nextthink < time)) {
-            _role = (["stop", "right", "left", "forward"])[int(Math.random()*4)];
-            if ((Math.abs(x) > 300) || (Math.abs(z) > 300))
-                _role = "right";
-                //_role = (["right", "left"])[int(Math.random()*2)];
-            _nextthink = time + Math.random()*3000;
-        }
-
-        var delta:Number = (_lastmove - time)/1000;
-        
-        switch (_role) {
-            case "stop":
-            	rotationY += delta*(Math.random()*20-10);
-            	break;
-            case "right":
-            	rotationY += delta*Math.random()*10; moveForward(delta*20);
-            	break;
-            case "left":
-            	rotationY -= delta*Math.random()*10; moveForward(delta*20);
-            	break;
-            case "forward":
-            	moveForward(delta*60);
-            	break;
-            default:
-        }
-        
-        _lastmove = time;
-		
-		//constrain position
-        if (x > 500)
-            x = 500;
-        if (x < -500)
-            x = -500;
-        if (z > 500)
-            z = 500;
-        if (z < -500)
-            z = -500;
-    }
 }
