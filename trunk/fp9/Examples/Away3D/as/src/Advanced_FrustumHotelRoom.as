@@ -284,7 +284,7 @@ package
 					}
 					//child.debugbs = true;
 					child.ownCanvas = true;
-					child.renderer = Renderer.CORRECT_Z_ORDER as IPrimitiveConsumer;
+					child.renderer = Renderer.CORRECT_Z_ORDER;
 					sortedObjects.push(child);
 				} else if (child.name == "Door01") {
 					child.pushfront = true;
@@ -585,9 +585,9 @@ package
 					sortObjects = !sortObjects;
 					for each (object in sortedObjects) {
 						if (sortObjects)
-							object.renderer = Renderer.CORRECT_Z_ORDER as IPrimitiveConsumer;
+							object.renderer = Renderer.CORRECT_Z_ORDER;
 						else
-							object.renderer = Renderer.BASIC as IPrimitiveConsumer;
+							object.renderer = Renderer.BASIC;
 					}
 					break;
 				case "F".charCodeAt():
