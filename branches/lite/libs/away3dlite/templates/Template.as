@@ -53,7 +53,7 @@ package away3dlite.templates
 			initStage();
 
 			// init 3D
-			init();
+			arcane::init();
 
 			// init debug
 			initDebug();
