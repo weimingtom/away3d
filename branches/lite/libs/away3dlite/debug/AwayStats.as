@@ -129,7 +129,7 @@ package away3dlite.debug
 				
 				_mean_data = [];
 				for (i=0; i<_mean_data_length;i++) {
-					_mean_data[i] = 0.0;
+					_mean_data[int(i)] = 0.0;
 				}
 			}
 		}
@@ -474,15 +474,15 @@ package away3dlite.debug
 			g.lineStyle(.5, _MEM_COL, 1, true, LineScaleMode.NONE);
 			g.moveTo(5*(_mem_points.length-1), -_mem_points[_mem_points.length-1]);
 			for (i=_mem_points.length-1; i>=0; --i) {
-				if (_mem_points[i+1]==0 || _mem_points[i]==0) {
-					g.moveTo(i*5, -_mem_points[i]);
+				if (_mem_points[i+1]==0 || _mem_points[int(i)]==0) {
+					g.moveTo(i*5, -_mem_points[int(i)]);
 					continue;
 				}
 				
-				g.lineTo(i*5, -_mem_points[i]);
+				g.lineTo(i*5, -_mem_points[int(i)]);
 				
-				if (_mem_points[i] > max_val)
-					max_val = _mem_points[i];
+				if (_mem_points[int(i)] > max_val)
+					max_val = _mem_points[int(i)];
 			}
 			_mem_graph.scaleY = _dia_bmp.height / max_val;
 		}
@@ -518,14 +518,14 @@ package away3dlite.debug
 			
 			// Reset RAM usage log
 			for (i=0; i<_WIDTH/5; i++) {
-				_mem_points[i]=0;
+				_mem_points[int(i)]=0;
 			}
 			
 			// Reset FPS log if any
 			if (_mean_data) {
 				var _mean_data_length:int = _mean_data.length;
 				for (i=0; i<_mean_data_length; i++) {
-					_mean_data[i] = 0.0;
+					_mean_data[int(i)] = 0.0;
 				}
 			}
 			
@@ -593,8 +593,8 @@ package away3dlite.debug
 				// Sum up poly counts across all registered views
 				var _views_length:int = _views.length;
 				for (i=0; i<_views_length; i++) {
-					_tfaces += _views[i].totalFaces;
-					_rfaces += _views[i].renderedFaces;
+					_tfaces += _views[int(i)].totalFaces;
+					_rfaces += _views[int(i)].renderedFaces;
 				}
 			}
 			
@@ -654,7 +654,7 @@ package away3dlite.debug
 				if (_mean_data) {
 					var _mean_data_length:int = _mean_data.length;
 					for (i=0; i<_mean_data_length; i++) {
-						_mean_data[i] = 0.0;
+						_mean_data[int(i)] = 0.0;
 					}
 				}
 			}

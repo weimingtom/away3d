@@ -70,8 +70,8 @@
 			_i = weights.length;
 			while (_i--)
 			{
-				_position = controllers[_i].transformMatrix3D.transformVector(_baseVertex);
-				_position.scaleBy(weights[_i]);
+				_position = controllers[int(_i)].transformMatrix3D.transformVector(_baseVertex);
+				_position.scaleBy(weights[int(_i)]);
 				_output = _output.add(_position);
 			}
 			var _startIndex:int;

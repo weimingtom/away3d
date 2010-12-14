@@ -31,13 +31,13 @@ package away3dlite.materials.shaders
 			for (var i:int = 0; i < vertices_length; i++)
 			{
 				//BUG:null
-				if (!vertices[i])
+				if (!vertices[int(i)])
 				{
-					vertices[i] = new Vertex();
+					vertices[int(i)] = new Vertex();
 				}
 				else
 				{
-					vertices[i].calculateNormal();
+					vertices[int(i)].calculateNormal();
 				}
 			}
 		}
@@ -59,7 +59,7 @@ package away3dlite.materials.shaders
 				var vertices_length:int = vertices.length;
 				for (var i:int = 0; i < vertices_length; i++)
 				{
-					projectedNormal = vertices[i].getProjectedNormal(projectMatrix);
+					projectedNormal = vertices[int(i)].getProjectedNormal(projectMatrix);
 
 					calculateTexCoord(texCoord, projectedNormal, false);
 					uvData.push(texCoord.x, texCoord.y, 1);

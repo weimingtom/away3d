@@ -64,7 +64,7 @@ package away3dlite.containers
 				while (i < length)
 				{
 					//add the material to the first available space
-					if (!_materialsSceneList[i])
+					if (!_materialsSceneList[int(i)])
 					{
 						_materialsSceneList[mat._id[_id] = i] = mat;
 						break;
@@ -119,8 +119,8 @@ package away3dlite.containers
 
 			while (i--)
 			{
-				matPrevious = _materialsPreviousList[i];
-				matNext = _materialsNextList[i];
+				matPrevious = _materialsPreviousList[int(i)];
+				matNext = _materialsNextList[int(i)];
 				if (matPrevious != matNext)
 				{
 					if (matPrevious)

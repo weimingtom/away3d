@@ -236,7 +236,7 @@ package away3dlite.loaders
 
 		   while (i--)
 		   {
-		   var _face:Face = _faces[i] = new Face(this, i);
+		   var _face:Face = _faces[int(i)] = new Face(this, i);
 		   maxRadius = (maxRadius>_face.length)?maxRadius:_face.length;
 		   }
 
@@ -371,10 +371,10 @@ package away3dlite.loaders
 			{
 				for (i = 0; i < aSources_length; ++i)
 				{
-					if (aMeshes[j].materialid == aSources[i].materialid)
+					if (aMeshes[int(j)].materialid == aSources[int(i)].materialid)
 					{
-						mat = aSources[i].material;
-						aMeshes[j].mesh.material = mat;
+						mat = aSources[int(i)].material;
+						aMeshes[int(j)].mesh.material = mat;
 					}
 				}
 			}
@@ -392,7 +392,7 @@ package away3dlite.loaders
 			var trunk_length:int = trunk.length;
 			for (i = 1; i < trunk_length; )
 			{
-				switch (trunk[i])
+				switch (trunk[int(i)])
 				{
 					case "-blendu":
 					case "-blendv":
@@ -421,7 +421,7 @@ package away3dlite.loaders
 			//Reconstruct URL/filename
 			for (i; i < trunk_length; i++)
 			{
-				url += trunk[i];
+				url += trunk[int(i)];
 				url += " ";
 			}
 
@@ -442,9 +442,9 @@ package away3dlite.loaders
 			var aMats_length:int = aMats.length;
 			for (var i:int = 0; i < aMats_length; ++i)
 			{
-				if (aMats[i].url == url)
+				if (aMats[int(i)].url == url)
 				{
-					mat = aMats[i].material;
+					mat = aMats[int(i)].material;
 					aMats.push({url: url, material: mat});
 					return mat;
 				}

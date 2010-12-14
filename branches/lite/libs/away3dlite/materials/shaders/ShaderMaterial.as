@@ -62,7 +62,7 @@ package away3dlite.materials.shaders
 
 				var faceNormal:Vector3D = calculateNormal(vec1, vec2, vec3);
 
-				faceNormals[i] = faceNormal;
+				faceNormals[int(i)] = faceNormal;
 
 				vertices[ind1 / 3] = addNormal(vertices[ind1 / 3], faceNormal);
 				vertices[ind2 / 3] = addNormal(vertices[ind2 / 3], faceNormal);

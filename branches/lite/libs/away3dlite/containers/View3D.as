@@ -329,7 +329,7 @@ package away3dlite.containers
 
 					var i:int = 0;
 
-					while (outArray[i] && outArray[i] == overArray[i])
+					while (outArray[int(i)] && outArray[int(i)] == overArray[int(i)])
 						++i;
 
 					if (_mouseObject != null)

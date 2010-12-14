@@ -32,7 +32,7 @@ package away3dlite.materials
 				_length *= .5;
 				while (++i < _length)
 				{
-					_commands[i] = 2;
+					_commands[int(i)] = 2;
 					j = int(2 * i);
 					_pathData[j] = _screenVertices[j];
 					j = int(j + 1);

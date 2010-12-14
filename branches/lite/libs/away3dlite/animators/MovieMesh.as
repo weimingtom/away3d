@@ -69,7 +69,7 @@ package away3dlite.animators
 
 			if (visible)
 				while (i--)
-					_vertices[i] = _cframe_vertices[i] + _interp * (_nframe_vertices[i] - _cframe_vertices[i]);
+					_vertices[int(i)] = _cframe_vertices[int(i)] + _interp * (_nframe_vertices[int(i)] - _cframe_vertices[int(i)]);
 
 			if (_type != ANIM_STOP)
 			{
