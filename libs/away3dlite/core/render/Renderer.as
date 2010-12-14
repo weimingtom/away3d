@@ -120,7 +120,7 @@ package away3dlite.core.render
 				for each (_face in _faces)
 				{
 					np0[int(i + 1)] = q0[k = (255 & (_sort[int(i)] = _face.calculateScreenZInt()))];
-					q0[k] = int(++i);
+					q0[int(k)] = int(++i);
 				}
 
 				i = 256;
@@ -129,8 +129,8 @@ package away3dlite.core.render
 					j = q0[int(i)];
 					while (j)
 					{
-						np1[j] = q1[k = (65280 & _sort[int(j - 1)]) >> 8];
-						j = np0[q1[k] = j];
+						np1[int(j)] = q1[k = (65280 & _sort[int(j - 1)]) >> 8];
+						j = np0[q1[int(k)] = j];
 					}
 				}
 			}

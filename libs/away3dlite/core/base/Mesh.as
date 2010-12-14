@@ -95,10 +95,10 @@ package away3dlite.core.base
 				var mat:Material;
 				while (i--)
 				{
-					if ((mat = _materialsCacheList[i]))
+					if ((mat = _materialsCacheList[int(i)]))
 					{
 						//update rendering faces in the scene
-						_scene._materialsNextList[i] = mat;
+						_scene._materialsNextList[int(i)] = mat;
 
 						//update material for this object
 						mat.updateMaterial(this, camera);
@@ -122,13 +122,13 @@ package away3dlite.core.base
 
 			while (i--)
 			{
-				faceLength = _faceLengths[i];
+				faceLength = _faceLengths[int(i)];
 
 				if (faceLength == 3)
 					_indicesTotal += 3;
 				else if (faceLength == 4)
 					_indicesTotal += 6;
-				_faces[i] = new Face(this, i, index -= faceLength, faceLength);
+				_faces[int(i)] = new Face(this, i, index -= faceLength, faceLength);
 			}
 
 			// speed up
@@ -171,7 +171,7 @@ package away3dlite.core.base
 			if (_materialsCacheList.length <= i)
 				_materialsCacheList.length = i + 1;
 
-			_materialsCacheList[i] = mat;
+			_materialsCacheList[int(i)] = mat;
 		}
 
 		private function buildMaterials(clear:Boolean = false):void
@@ -191,10 +191,10 @@ package away3dlite.core.base
 				var i:int = _faces ? _faces.length : 0;
 				while (i--)
 				{
-					oldMaterial = _faces[i]._material;
+					oldMaterial = _faces[int(i)]._material;
 
 					if (!clear)
-						newMaterial = _faceMaterials[i] || _material;
+						newMaterial = _faceMaterials[int(i)] || _material;
 
 					//reset face materials
 					if (oldMaterial != newMaterial)
@@ -214,7 +214,7 @@ package away3dlite.core.base
 						}
 
 						//set face material
-						_faces[i].material = newMaterial;
+						_faces[int(i)].material = newMaterial;
 					}
 				}
 			}
@@ -377,7 +377,7 @@ package away3dlite.core.base
 			{
 				var i:int = _faces ? _faces.length : 0;
 				while (i--)
-					_faceMaterials[i] = _faces[i].mesh._materialsDirty ? _faceMaterials[i] : _material;
+					_faceMaterials[int(i)] = _faces[int(i)].mesh._materialsDirty ? _faceMaterials[int(i)] : _material;
 			}
 
 			// keep referer to every mesh
@@ -463,7 +463,7 @@ package away3dlite.core.base
 			var q:int = Math.min(vs.length, uvs.length);
 			for (var i:int = 0; i < q; i++)
 			{
-				pushV3D(vs[i], uvs[i]);
+				pushV3D(vs[int(i)], uvs[int(i)]);
 			}
 			_faceLengths.push(q);
 		}

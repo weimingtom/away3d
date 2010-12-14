@@ -183,7 +183,7 @@ package away3dlite.core.render
 					while (j)
 					{
 						sortFacesCommon(j);
-						j = np1[j];
+						j = np1[int(j)];
 					}
 				}
 			}

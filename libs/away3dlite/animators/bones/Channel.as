@@ -65,17 +65,17 @@ package away3dlite.animators.bones
 			{
 				while (i--)
 				{
-					if (type[i] == "transform")
+					if (type[int(i)] == "transform")
 					{
-						target.transform.matrix3D = param[0][i];
+						target.transform.matrix3D = param[0][int(i)];
 					}
-					else if (type[i] == "visibility")
+					else if (type[int(i)] == "visibility")
 					{
-						target.visible = param[0][i] > 0;
+						target.visible = param[0][int(i)] > 0;
 					}
 					else
 					{
-						target[type[i]] = param[0][i];
+						target[type[int(i)]] = param[0][int(i)];
 					}
 				}
 			}
@@ -83,17 +83,17 @@ package away3dlite.animators.bones
 			{
 				while (i--)
 				{
-					if (type[i] == "transform")
+					if (type[int(i)] == "transform")
 					{
-						target.transform.matrix3D = param[int(times.length - 1)][i];
+						target.transform.matrix3D = param[int(times.length - 1)][int(i)];
 					}
-					else if (type[i] == "visibility")
+					else if (type[int(i)] == "visibility")
 					{
-						target.visible = param[int(times.length - 1)][i] > 0;
+						target.visible = param[int(times.length - 1)][int(i)] > 0;
 					}
 					else
 					{
-						target[type[i]] = param[int(times.length - 1)][i];
+						target[type[int(i)]] = param[int(times.length - 1)][int(i)];
 					}
 				}
 			}
@@ -118,7 +118,7 @@ package away3dlite.animators.bones
 				//NOTE: currently the interpolation is only CONSTANT or LINEAR. There's no BEZIER support currently
 				while (i--)
 				{
-					if (type[i] == "transform")
+					if (type[int(i)] == "transform")
 					{
 						if (interpolate)
 						{
@@ -135,8 +135,8 @@ package away3dlite.animators.bones
 
 							var factor:Number = (time - times[_index]) / (times[int(_index + 1)] - times[_index]);
 
-							var v3A:Vector.<Vector3D> = (param[_index][i] as Matrix3D).decompose(Orientation3D.QUATERNION);
-							var v3B:Vector.<Vector3D> = (param[int(_index + 1)][i] as Matrix3D).decompose(Orientation3D.QUATERNION);
+							var v3A:Vector.<Vector3D> = (param[_index][int(i)] as Matrix3D).decompose(Orientation3D.QUATERNION);
+							var v3B:Vector.<Vector3D> = (param[int(_index + 1)][int(i)] as Matrix3D).decompose(Orientation3D.QUATERNION);
 
 							var scalesA:Vector3D = v3A[2];
 							var scalesB:Vector3D = v3B[2];
@@ -156,20 +156,20 @@ package away3dlite.animators.bones
 						}
 						else
 						{
-							target.transform.matrix3D = param[_index][i];
+							target.transform.matrix3D = param[_index][int(i)];
 						}
 					}
-					else if (type[i] == "visibility")
+					else if (type[int(i)] == "visibility")
 					{
 						// NOTE: There's no need to take into account 'interpolate' here because visibility is not an interpolable concept : it's a boolean value.
-						target.visible = param[_index][i] > 0;
+						target.visible = param[_index][int(i)] > 0;
 					}
 					else
 					{
 						if (interpolate)
-							target[type[i]] = ((time - times[_index]) * param[int(_index + 1)][i] + (times[int(_index + 1)] - time) * param[_index][i]) / (times[int(_index + 1)] - times[_index]);
+							target[type[int(i)]] = ((time - times[_index]) * param[int(_index + 1)][int(i)] + (times[int(_index + 1)] - time) * param[_index][int(i)]) / (times[int(_index + 1)] - times[_index]);
 						else
-							target[type[i]] = param[_index][i];
+							target[type[int(i)]] = param[_index][int(i)];
 					}
 				}
 			}

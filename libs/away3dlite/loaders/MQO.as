@@ -52,7 +52,7 @@
 		{
 			var lines_length:int = lines.length;
 			for (var i:uint = startLine; i < lines_length; ++i)
-				if (String(lines[i]).indexOf("Material") == 0)
+				if (String(lines[int(i)]).indexOf("Material") == 0)
 					return int(i);
 
 			return -1;
@@ -146,7 +146,7 @@
 			var lines_length:int = lines.length;
 			for (var i:uint = startLine; i < lines_length; ++i)
 			{
-				if (String(lines[i]).indexOf("Object") == 0)
+				if (String(lines[int(i)]).indexOf("Object") == 0)
 				{
 					return int(i);
 				}
@@ -375,7 +375,7 @@
 			var lines_length:int = lines.length;
 			for (var i:uint = startLine; i < lines_length; ++i)
 			{
-				if (String(lines[i]).indexOf(chunkName) != -1)
+				if (String(lines[int(i)]).indexOf(chunkName) != -1)
 				{
 					return int(i);
 				}

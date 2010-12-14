@@ -36,7 +36,7 @@ package away3dlite.materials.shaders
 			for (var i:int = 0; i < _faceNormals_length; i++)
 			{
 
-				projectedNormal = m.transformVector(faceNormals[i]);
+				projectedNormal = m.transformVector(faceNormals[int(i)]);
 
 
 				calculateTexCoord(texCoord, projectedNormal, false);

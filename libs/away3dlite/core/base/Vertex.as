@@ -29,9 +29,9 @@ package away3dlite.core.base
 			normal = new Vector3D();
 			for (var i:int = 0; i < l; i++)
 			{
-				normal.x += faceNormals[i].x;
-				normal.y += faceNormals[i].y;
-				normal.z += faceNormals[i].z;
+				normal.x += faceNormals[int(i)].x;
+				normal.y += faceNormals[int(i)].y;
+				normal.z += faceNormals[int(i)].z;
 
 			}
 			normal.x /= l;

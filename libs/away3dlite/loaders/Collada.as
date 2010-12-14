@@ -98,9 +98,9 @@
 						_moveVector.z = (_containerData.maxZ + _containerData.minZ) / 2;
 						while (i--)
 						{
-							objectContainer.children[i].x -= _moveVector.x;
-							objectContainer.children[i].y -= _moveVector.y;
-							objectContainer.children[i].z -= _moveVector.z;
+							objectContainer.children[int(i)].x -= _moveVector.x;
+							objectContainer.children[int(i)].y -= _moveVector.y;
+							objectContainer.children[int(i)].z -= _moveVector.z;
 						}
 							//objectContainer.transform.matrix3D.appendTranslation(_moveVector.x, _moveVector.y, _moveVector.z);
 							//_moveVector = objectContainer.transform.matrix3D.transformVector(_moveVector);
@@ -237,7 +237,7 @@
 				return;
 
 			var skinController:SkinController;
-			var skinVertex:SkinVertex = geometryData.skinVertices[i].clone();
+			var skinVertex:SkinVertex = geometryData.skinVertices[int(i)].clone();
 
 			if (skinVertex.updateVertices(vertices.length - 3, vertices, mesh))
 				for each (skinController in geometryData.skinControllers)
@@ -508,8 +508,8 @@
 			var totalStrings:Number = strings.length;
 
 			for (var i:Number = 0; i < totalStrings; ++i)
-				if (strings[i] != "")
-					numbers.push(Number(strings[i]));
+				if (strings[int(i)] != "")
+					numbers.push(Number(strings[int(i)]));
 
 			return numbers;
 		}
@@ -1068,7 +1068,7 @@
 			i = 0;
 			while (i < geometryData.vertices.length / 3)
 			{
-				c = int(vcount[i]);
+				c = int(vcount[int(i)]);
 				geometryData.skinVertices.push(skinVertex = new SkinVertex());
 				j = 0;
 				while (j < c)
@@ -1277,20 +1277,20 @@
 						i = 0;
 						while (i < len)
 						{
-							channel.param[i] = [];
+							channel.param[int(i)] = [];
 
 							if (stride == 16)
 							{
 								var m:Matrix3D = new Matrix3D();
 								m.rawData = array2matrix(list.slice(i * stride, i * stride + 16), yUp, scaling);
-								channel.param[i].push(m);
+								channel.param[int(i)].push(m);
 							}
 							else
 							{
 								j = 0;
 								while (j < stride)
 								{
-									channel.param[i].push(Number(list[i * stride + j]));
+									channel.param[int(i)].push(Number(list[i * stride + j]));
 									++j;
 								}
 							}
@@ -1307,11 +1307,11 @@
 						i = 0;
 						while (i < len)
 						{
-							channel.inTangent[i] = [];
+							channel.inTangent[int(i)] = [];
 							j = 0;
 							while (j < stride)
 							{
-								channel.inTangent[i].push(Number(list[stride * i + j]), Number(list[stride * i + j + 1]));
+								channel.inTangent[int(i)].push(Number(list[stride * i + j]), Number(list[stride * i + j + 1]));
 								++j;
 							}
 							++i;
@@ -1321,11 +1321,11 @@
 						i = 0;
 						while (i < len)
 						{
-							channel.outTangent[i] = [];
+							channel.outTangent[int(i)] = [];
 							j = 0;
 							while (j < stride)
 							{
-								channel.outTangent[i].push(Number(list[stride * i + j]), Number(list[stride * i + j + 1]));
+								channel.outTangent[int(i)].push(Number(list[stride * i + j]), Number(list[stride * i + j + 1]));
 								++j;
 							}
 							++i;
@@ -1503,7 +1503,7 @@
 						case "Vertex":
 							for each (param in params)
 							{
-								float = floats[i];
+								float = floats[int(i)];
 								switch (param)
 								{
 									case "X":
@@ -1534,7 +1534,7 @@
 						case "UV":
 							for each (param in params)
 							{
-								float = floats[i];
+								float = floats[int(i)];
 								switch (param)
 								{
 									case "S":
