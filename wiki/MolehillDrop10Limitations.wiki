@@ -1,0 +1,17 @@
+#summary One-sentence summary of this page.
+#labels molehill,limitations
+
+= Introduction =
+
+A few notes about limitations in the Molehill API. Might change in future Molehill API versions.
+
+= Details =
+
+Max vertices per vertex buffer: 65535
+Max indices per index buffer: 524287
+Max num of vertex buffers: 4096, 256mb
+Max num of index buffers: 4096, 128mb
+Max textures: 4096, 512mb
+Max cube textures: 4096, 256mb
+Max programs: 4096, 16mb
+Max draw calls per present: 32768
