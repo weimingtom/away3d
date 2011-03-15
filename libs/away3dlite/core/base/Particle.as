@@ -117,6 +117,17 @@ package away3dlite.core.base
 
 		private var _scale:Number = 1;
 		private var _point:Point = new Point();
+
+		public function get screenX():int
+		{
+			return _matrix.tx;
+		}
+
+		public function get screenY():int
+		{
+			return _matrix.ty;
+		}
+
 		private var _point0:Point = new Point();
 		private var _rect:Rectangle = new Rectangle();
 
