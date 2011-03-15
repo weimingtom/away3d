@@ -24,7 +24,12 @@ package away3dlite.animators
 		public static const ANIM_NORMAL:int = 1;
 		public static const ANIM_LOOP:int = 2;
 		public static const ANIM_STOP:int = 4;
-		private var framesLength:int = 0;
+		private var _totalFrames:int = 0;
+
+		public function get totalFrames():int
+		{
+			return _totalFrames;
+		}
 
 		//Keep track of the current frame number and animation
 		private var _currentFrame:int = 0;
@@ -61,7 +66,7 @@ package away3dlite.animators
 			var i:int = _vertices.length;
 
 			cframe = frames[_currentFrame];
-			nframe = frames[(_currentFrame + 1) % framesLength];
+			nframe = frames[(_currentFrame + 1) % _totalFrames];
 
 			// TODO : optimize
 			var _cframe_vertices:Vector.<Number> = cframe.vertices;
@@ -119,13 +124,13 @@ package away3dlite.animators
 			var _name:String = frame.name.replace(/[0-9]/g, "");
 
 			if (!_labels[_name])
-				_labels[_name] = new FrameData(framesLength, framesLength);
+				_labels[_name] = new FrameData(_totalFrames, _totalFrames);
 			else
 				++FrameData(_labels[_name]).end;
 
 			frames.push(frame);
 
-			framesLength++;
+			_totalFrames++;
 		}
 
 		/**
@@ -136,10 +141,10 @@ package away3dlite.animators
 		 */
 		public function loop(begin:int, end:int):void
 		{
-			if (framesLength > 0)
+			if (_totalFrames > 0)
 			{
-				_begin = (begin % framesLength);
-				_end = (end % framesLength);
+				_begin = (begin % _totalFrames);
+				_end = (end % _totalFrames);
 			}
 			else
 			{
@@ -214,7 +219,7 @@ package away3dlite.animators
 
 		public function set keyframe(i:int):void
 		{
-			_currentFrame = i % framesLength;
+			_currentFrame = i % _totalFrames;
 		}
 
 		public override function clone(object:Object3D = null):Object3D
@@ -222,7 +227,7 @@ package away3dlite.animators
 			var mesh:MovieMesh = (object as MovieMesh) || new MovieMesh();
 			super.clone(mesh);
 
-			mesh.framesLength = framesLength;
+			mesh._totalFrames = _totalFrames;
 			mesh.fps = fps;
 			mesh.frames = frames.concat();
 			mesh.isParentControl = isParentControl;
