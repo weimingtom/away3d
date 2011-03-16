@@ -117,6 +117,7 @@ package away3dlite.animators
 		public function MovieMesh()
 		{
 			super();
+			shareClonedVertice = false;
 		}
 
 		/**
