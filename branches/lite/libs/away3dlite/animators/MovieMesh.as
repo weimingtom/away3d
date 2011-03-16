@@ -5,8 +5,7 @@ package away3dlite.animators
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
 
-	import flash.events.*;
-	import flash.utils.*;
+	import flash.utils.Dictionary;
 
 	use namespace arcane;
 
@@ -39,31 +38,35 @@ package away3dlite.animators
 		private var _end:int;
 		private var _type:int;
 
+		public function get status():int
+		{
+			return _type;
+		}
+
+		private var _ctime:int = 0;
+
 		public function get currentTime():Number
 		{
 			return _ctime;
 		}
-		private var _ctime:Number = 0;
-		private var _otime:Number = 0;
+
+		private var _otime:int;
+
+		public function set prevTime(value:int):void
+		{
+			_otime = value;
+		}
 
 		private var _labels:Dictionary = new Dictionary(true);
 		private var _currentLabel:String;
 
-		public var isPlaying:Boolean;
-		public var isParentControl:Boolean;
-
-		private function onEnterFrame(event:Event = null):void
+		public function seek(ctime:int, otime:int):void
 		{
-			seek(_ctime = getTimer(), _otime);
-		}
-
-		public function seek(ctime:Number, otime:Number):void
-		{
-			isPlaying = true;
-
 			var cframe:Frame;
 			var nframe:Frame;
 			var i:int = _vertices.length;
+
+			_ctime = ctime;
 
 			cframe = frames[_currentFrame];
 			nframe = frames[(_currentFrame + 1) % _totalFrames];
@@ -154,49 +157,43 @@ package away3dlite.animators
 
 			keyframe = begin;
 			_type = ANIM_LOOP;
-
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			if (!isParentControl)
-				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
 		/**
 		 * Plays a pre-defined labelled sequence of animation frames.
 		 */
-		public function play(label:String = "frame"):void
+		public function gotoAndPlay(label:String):void
 		{
 			if (!_labels)
 				return;
 
-			if (_currentLabel != label)
+			_currentLabel = label;
+
+			var _frameData:FrameData = _labels[label] as FrameData;
+			if (_frameData)
 			{
-				_currentLabel = label;
+				loop(_frameData.begin, _frameData.end);
+			}
+			else
+			{
+				var _begin:int = 0;
+				var _end:int = 0;
 
-				var _frameData:FrameData = _labels[label] as FrameData;
-				if (_frameData)
+				for each (_frameData in _labels)
 				{
-					loop(_frameData.begin, _frameData.end);
-				}
-				else
-				{
-					var _begin:int = 0;
-					var _end:int = 0;
+					_begin = (_frameData.begin < _begin) ? _frameData.begin : _begin;
+					_end = (_frameData.end > _end) ? _frameData.end : _end;
 
-					for each (_frameData in _labels)
-					{
-						_begin = (_frameData.begin < _begin) ? _frameData.begin : _begin;
-						_end = (_frameData.end > _end) ? _frameData.end : _end;
-
-						loop(_begin, _end);
-					}
+					loop(_begin, _end);
 				}
 			}
 
 			_type = ANIM_NORMAL;
+		}
 
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			if (!isParentControl)
-				addEventListener(Event.ENTER_FRAME, onEnterFrame);
+		public function play():void
+		{
+			_type = ANIM_NORMAL;
 		}
 
 		/**
@@ -205,8 +202,6 @@ package away3dlite.animators
 		public function stop():void
 		{
 			_type = ANIM_STOP;
-
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 
 		/**
@@ -230,7 +225,6 @@ package away3dlite.animators
 			mesh._totalFrames = _totalFrames;
 			mesh.fps = fps;
 			mesh.frames = frames.concat();
-			mesh.isParentControl = isParentControl;
 
 			return mesh;
 		}

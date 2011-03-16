@@ -1,10 +1,11 @@
 package away3dlite.core.render
 {
+	import away3dlite.animators.MovieMesh;
 	import away3dlite.arcane;
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.materials.*;
-	
+
 	import flash.display.*;
 
 	use namespace arcane;
@@ -29,13 +30,13 @@ package away3dlite.core.render
 		private function collectFaces(object:Object3D):void
 		{
 			++_view._totalObjects;
-			
+
 			if (!object.visible || object._perspCulling)
 				return;
-			
-			if(cullObjects && object._frustumCulling)
+
+			if (cullObjects && object._frustumCulling)
 				return;
-			
+
 			++_view._renderedObjects;
 
 			if (object is ObjectContainer3D)
@@ -68,6 +69,14 @@ package away3dlite.core.render
 
 			if (object is Mesh)
 			{
+				// animated mesh
+				if (object is MovieMesh)
+				{
+					var movieMesh:MovieMesh = object as MovieMesh;
+					movieMesh.seek(_ctime, _otime);
+				}
+
+				// static mesh
 				var mesh:Mesh = object as Mesh;
 				_clipping.collectFaces(mesh, _faces);
 
@@ -76,8 +85,8 @@ package away3dlite.core.render
 
 				if (mesh._faces)
 					_view._totalFaces += mesh._faces.length;
-				
-				if(mesh.material is IPathMaterial)
+
+				if (mesh.material is IPathMaterial)
 					IPathMaterial(mesh.material).collectGraphicsPath(mesh);
 			}
 			else if (object is IRenderableList)
@@ -88,7 +97,7 @@ package away3dlite.core.render
 					_renderables = _renderables.concat(renderableItems);
 			}
 		}
-		
+
 		/** @private */
 		protected override function sortFaces(i:int = 0, j:int = 0):void
 		{
@@ -133,7 +142,7 @@ package away3dlite.core.render
 			{
 				if (_material)
 				{
-					if(_material.trianglesIndex > -1)
+					if (_material.trianglesIndex > -1)
 						_material_graphicsData[_material.trianglesIndex] = _triangles;
 					draw(_mesh);
 				}
@@ -168,12 +177,12 @@ package away3dlite.core.render
 				_vert[int(++_j)] = _screenVertices[_face.x0];
 				_faceStore[_face.i0] = (_ind[int(++_i)] = _j * .5) + 1;
 				_vert[int(++_j)] = _screenVertices[_face.y0];
-				
+
 				_uvt[int(++_k)] = _uvtData[_face.u0];
 				_uvt[int(++_k)] = _uvtData[_face.v0];
 				_uvt[int(++_k)] = _uvtData[_face.t0];
 			}
-			
+
 			if (_faceStore[_face.i1])
 			{
 				_ind[int(++_i)] = _faceStore[_face.i1] - 1;
@@ -183,12 +192,12 @@ package away3dlite.core.render
 				_vert[int(++_j)] = _screenVertices[_face.x1];
 				_faceStore[_face.i1] = (_ind[int(++_i)] = _j * .5) + 1;
 				_vert[int(++_j)] = _screenVertices[_face.y1];
-				
+
 				_uvt[int(++_k)] = _uvtData[_face.u1];
 				_uvt[int(++_k)] = _uvtData[_face.v1];
 				_uvt[int(++_k)] = _uvtData[_face.t1];
 			}
-			
+
 			if (_faceStore[_face.i2])
 			{
 				_ind[int(++_i)] = _faceStore[_face.i2] - 1;
@@ -198,17 +207,17 @@ package away3dlite.core.render
 				_vert[int(++_j)] = _screenVertices[_face.x2];
 				_faceStore[_face.i2] = (_ind[int(++_i)] = _j * .5) + 1;
 				_vert[int(++_j)] = _screenVertices[_face.y2];
-				
+
 				_uvt[int(++_k)] = _uvtData[_face.u2];
 				_uvt[int(++_k)] = _uvtData[_face.v2];
 				_uvt[int(++_k)] = _uvtData[_face.t2];
 			}
-			
+
 			if (_face.length == 4)
 			{
 				_ind[int(++_i)] = _faceStore[_face.i0] - 1;
 				_ind[int(++_i)] = _faceStore[_face.i2] - 1;
-				
+
 				if (_faceStore[_face.i3])
 				{
 					_ind[int(++_i)] = _faceStore[_face.i3] - 1;
@@ -218,7 +227,7 @@ package away3dlite.core.render
 					_vert[int(++_j)] = _screenVertices[_face.x3];
 					_faceStore[_face.i3] = (_ind[int(++_i)] = _j * .5) + 1;
 					_vert[int(++_j)] = _screenVertices[_face.y3];
-					
+
 					_uvt[int(++_k)] = _uvtData[_face.u3];
 					_uvt[int(++_k)] = _uvtData[_face.v3];
 					_uvt[int(++_k)] = _uvtData[_face.t3];
@@ -284,7 +293,7 @@ package away3dlite.core.render
 				_material_graphicsData = _material.graphicsData;
 				if (_material)
 				{
-					if(_material.trianglesIndex > -1)
+					if (_material.trianglesIndex > -1)
 						_material_graphicsData[_material.trianglesIndex] = _triangles;
 					draw(_mesh);
 				}
@@ -293,32 +302,34 @@ package away3dlite.core.render
 
 			// draw remain particles
 			drawParticles();
+
+			_otime = _ctime;
 		}
 
 		private function draw(mesh:Mesh):void
 		{
 			// draw particles (sprite 2D)
 			drawParticles(mesh.screenZ);
-			
+
 			// draw bitmap
 			if (mesh.visible && !mesh._frustumCulling && !mesh._perspCulling)
 			{
 				if (mesh._layer)
 				{
 					mesh._layer.graphics.drawGraphicsData(_material_graphicsData);
-					if(mesh.material is IPathMaterial)
+					if (mesh.material is IPathMaterial)
 						IPathMaterial(mesh.material).drawGraphicsData(mesh, mesh._layer.graphics);
 				}
 				else if (mesh._canvas)
 				{
 					mesh._canvas.graphics.drawGraphicsData(_material_graphicsData);
-					if(mesh.material is IPathMaterial)
+					if (mesh.material is IPathMaterial)
 						IPathMaterial(mesh.material).drawGraphicsData(mesh, mesh._canvas.graphics);
 				}
 				else
 				{
 					_view_graphics.drawGraphicsData(_material_graphicsData);
-					if(mesh.material is IPathMaterial)
+					if (mesh.material is IPathMaterial)
 						IPathMaterial(mesh.material).drawGraphicsData(mesh, _view_graphics);
 				}
 			}
