@@ -8,6 +8,7 @@ package away3dlite.core.render
 	import away3dlite.core.culler.FrustumCuller;
 	
 	import flash.display.*;
+	import flash.utils.getTimer;
 
 	use namespace arcane;
 
@@ -18,7 +19,7 @@ package away3dlite.core.render
 	{
 		/** @private */
 		protected var _isDestroyed:Boolean;
-		
+
 		/** @private */
 		arcane function setView(view:View3D):void
 		{
@@ -92,6 +93,10 @@ package away3dlite.core.render
 		/** @private */
 		protected var _renderables:Array;
 
+		/** @private */
+		protected var _ctime:int = 0;
+		protected var _otime:int = 0;
+
 		/**
 		 * Determines whether 3d objects are sorted in the view. Defaults to true.
 		 */
@@ -138,7 +143,7 @@ package away3dlite.core.render
 			{
 				np1 = new Vector.<int>(_faces_length_1, true);
 				var _sortFaceDatas:Array = [];
-				
+
 				//z-axis, for sort-based production
 				i = 1;
 				for each (_face in _faces)
@@ -149,16 +154,16 @@ package away3dlite.core.render
 						_sortFaceDatas[int(j++)] = new SortFaceData(int(i), z);
 					i++;
 				}
-				
+
 				//z-axis sort
 				_sortFaceDatas = _sortFaceDatas.sortOn("z", 16);
-				
+
 				//Put the sorted indices inside a Vector
 				j = 0;
 				for each (var _sortFaceData:SortFaceData in _sortFaceDatas)
 					np1[int(j++)] = _sortFaceData.i;
 				np1[int(j++)] = 0;
-				
+
 				_sortFaceDatas = null;
 			}
 		}
@@ -166,9 +171,9 @@ package away3dlite.core.render
 		/** @private */
 		protected function collectPointFace(x:Number, y:Number):void
 		{
-			if(_screenPointVertexArrays.length == 0)
+			if (_screenPointVertexArrays.length == 0)
 				return;
-			
+
 			var pointCount:int;
 			var pointTotal:int;
 			var pointCountX:int;
@@ -179,8 +184,8 @@ package away3dlite.core.render
 				if (_screenZ < _sort[int(i)] && (_face = _faces[int(i)]).mesh.mouseEnabled)
 				{
 					_screenPointVertices = _screenPointVertexArrays[int(_face.mesh._vertexId)];
-					
-					if(_screenPointVertices.length == 0)
+
+					if (_screenPointVertices.length == 0)
 						continue;
 
 					if (_face.length == 4)
@@ -199,7 +204,7 @@ package away3dlite.core.render
 					{
 						//flagged for edge detection
 						var vertices:Vector.<Number> = _face.mesh._screenVertices;
-						if(!vertices)
+						if (!vertices)
 							return;
 						var v0x:Number = vertices[_face.x0];
 						var v0y:Number = vertices[_face.y0];
@@ -319,7 +324,7 @@ package away3dlite.core.render
 				// draw particle that behind screenZ
 				while ((_particle = _renderables[int(_particleIndex++)]) && _particle.screenZ > screenZ)
 					_particle.render(_view_x, _view_y, _view_graphics, _zoom, _focus);
-				
+
 				if (_particleIndex >= 2)
 					_renderables = _renderables.slice(_particleIndex - 1, _renderables.length);
 			}
@@ -347,29 +352,32 @@ package away3dlite.core.render
 			// culling
 			if (cullObjects && _scene.isDirty)
 				_culler.update();
-			
+
 			// reset
 			_scene.isDirty = false;
+
+			// animated
+			_ctime = getTimer();
 		}
-		
+
 		public function get destroyed():Boolean
 		{
 			return _isDestroyed;
 		}
-		
+
 		public function destroy():void
 		{
 			_isDestroyed = true;
-			
-			if(_view)
+
+			if (_view)
 				_view.destroy();
-			if(_scene)
+			if (_scene)
 				_scene.destroy();
-			if(_face)
+			if (_face)
 				_face.destroy();
-			if(_pointFace)
+			if (_pointFace)
 				_pointFace.destroy();
-			
+
 			_view = null;
 			_scene = null;
 			_face = null;
@@ -388,7 +396,7 @@ internal class SortFaceData
 {
 	public var i:int;
 	public var z:Number;
-	
+
 	public function SortFaceData(index:int, depth:Number)
 	{
 		i = index;

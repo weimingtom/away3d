@@ -4,16 +4,21 @@ package away3dlite.animators
 	import away3dlite.containers.ObjectContainer3D;
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
-	
-	import flash.events.*;
+
 	import flash.geom.Vector3D;
-	import flash.utils.*;
+	import flash.utils.getTimer;
 
 	use namespace arcane;
 
 	public class MovieMeshContainer3D extends ObjectContainer3D implements IDestroyable
 	{
-		public var isPlaying:Boolean;
+		private var _type:int;
+
+		public function get status():int
+		{
+			return _type;
+		}
+
 		private var _currentLabel:String;
 
 		public function get currentLabel():String
@@ -21,71 +26,66 @@ package away3dlite.animators
 			return _currentLabel;
 		}
 
+		private var _ctime:int = 0;
+
 		public function get currentTime():Number
 		{
 			return _ctime;
 		}
 
-		private var _ctime:Number = 0;
-		private var _otime:Number = 0;
+		private var _otime:int;
 
 		public function MovieMeshContainer3D()
 		{
 			super();
 		}
 
-		private function onEnterFrame(event:Event = null):void
+		public function seek(ctime:int):void
 		{
-			seek(_ctime = getTimer(), _otime);
-		}
-
-		public function seek(ctime:Number, otime:Number):void
-		{
-			isPlaying = true;
-
-			_otime = otime = otime ? otime : getTimer();
+			_ctime = ctime;
+			_otime = isNaN(_otime) ? getTimer() : _otime;
 
 			if (children)
 				for each (var _mesh:MovieMesh in children)
-					_mesh.seek(ctime, otime);
-			_otime = ctime;
+					_mesh.seek(ctime, _otime);
 		}
 
-		public function play(label:String = "frame"):void
+		public function gotoAndPlay(label:String = "frame"):void
 		{
 			_currentLabel = label;
 
-			isPlaying = true;
-
 			if (children)
 				for each (var _mesh:MovieMesh in children)
-				{
-					_mesh.isParentControl = true;
-					_mesh.play(label);
-				}
+					_mesh.gotoAndPlay(label);
 
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			_type = MovieMesh.ANIM_NORMAL;
+		}
+
+		public function play():void
+		{
+			if (children)
+				for each (var _mesh:MovieMesh in children)
+					_mesh.play();
+
+			_type = MovieMesh.ANIM_NORMAL;
 		}
 
 		public function stop():void
 		{
-			isPlaying = false;
-
 			if (children)
 				for each (var _mesh:MovieMesh in children)
 					_mesh.stop();
 
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+			_type = MovieMesh.ANIM_STOP;
 		}
 
 		public function get totalFrames():int
 		{
 			var result:int = 0;
 			if (children)
-			for each (var _mesh:MovieMesh in children)
-				result = result > _mesh.totalFrames? result:_mesh.totalFrames;
-			
+				for each (var _mesh:MovieMesh in children)
+					result = result > _mesh.totalFrames ? result : _mesh.totalFrames;
+
 			return result;
 		}
 
@@ -116,8 +116,6 @@ package away3dlite.animators
 		{
 			if (_isDestroyed)
 				return;
-
-			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 
 			super.destroy();
 		}

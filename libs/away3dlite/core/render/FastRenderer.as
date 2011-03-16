@@ -1,10 +1,11 @@
 package away3dlite.core.render
 {
+	import away3dlite.animators.MovieMesh;
 	import away3dlite.arcane;
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.materials.Material;
-	
+
 	import flash.display.*;
 
 	use namespace arcane;
@@ -21,10 +22,10 @@ package away3dlite.core.render
 		private function collectFaces(object:Object3D):void
 		{
 			++_view._totalObjects;
-			
+
 			if (!object.visible || (cullObjects && object._frustumCulling))
 				return;
-			
+
 			if (object is ObjectContainer3D)
 			{
 				var children:Array = (object as ObjectContainer3D).children;
@@ -59,7 +60,7 @@ package away3dlite.core.render
 				if (renderableItems.length > 0)
 					_renderables = _renderables.concat(renderableItems);
 			}
-			
+
 			++_view._renderedObjects;
 		}
 
@@ -79,10 +80,18 @@ package away3dlite.core.render
 
 			if (object is Mesh)
 			{
+				// animated mesh
+				if (object is MovieMesh)
+				{
+					var movieMesh:MovieMesh = object as MovieMesh;
+					movieMesh.seek(_ctime, _otime);
+				}
+
+				// static mesh
 				var _mesh:Mesh = object as Mesh;
 				_faces = _mesh._faces;
 
-				if(!_faces)
+				if (!_faces)
 					return;
 
 				var _mesh_material:Material = _mesh.material;
@@ -258,6 +267,8 @@ package away3dlite.core.render
 
 			// draw front
 			drawParticles();
+
+			_otime = _ctime;
 		}
 	}
 }
