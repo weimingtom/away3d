@@ -12,7 +12,7 @@ package
 	import away3dlite.materials.BitmapFileMaterial;
 	import away3dlite.materials.BitmapMaterial;
 	import away3dlite.templates.BasicTemplate;
-	
+
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
@@ -22,7 +22,7 @@ package
 	/**
 	 * Example : MD2Builder with multi mesh, in this case is Collada :)
 	 * @author katopz
-	 */	
+	 */
 	public class ExMD2Builder_MultiMesh extends BasicTemplate
 	{
 		private var _bonesAnimator:BonesAnimator;
@@ -32,7 +32,7 @@ package
 		override protected function onInit():void
 		{
 			title = "Click to save |";
-			
+
 			// behide the scene
 			Debug.active = true;
 
@@ -59,30 +59,34 @@ package
 			_model.x = 100;
 
 			// test animation
-			try{
+			try
+			{
 				_bonesAnimator = _model.animationLibrary.getAnimation("default").animation as BonesAnimator;
-			}catch (e:*){}
+			}
+			catch (e:*)
+			{
+			}
 
 			// build as MD2
 			_md2Builder = new MD2Builder();
 
 			// convert to meshes
 			_meshes = _md2Builder.convert(_model);
-			
+
 			// bring it on one by one
 			for each (var _mesh:MovieMesh in _meshes)
 			{
 				scene.addChild(_mesh);
 				_mesh.play();
 			}
-				
+
 			// define material name
 			BitmapMaterial(_meshes[0].material).url = "book_blue.png";
 
 			// click to save
 			stage.addEventListener(MouseEvent.CLICK, onClick);
 		}
-		
+
 		private function onClick(event:MouseEvent):void
 		{
 			// save the 1st one as .md2 file
