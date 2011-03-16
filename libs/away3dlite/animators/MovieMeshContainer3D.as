@@ -106,10 +106,12 @@ package away3dlite.animators
 
 		override public function clone(object:Object3D = null):Object3D
 		{
-			var _container:MovieMeshContainer3D = new MovieMeshContainer3D();
-			super.clone(_container);
+			var mesh:MovieMeshContainer3D = (object as MovieMeshContainer3D) || new MovieMeshContainer3D();
+			super.clone(mesh);
 
-			return _container;
+			mesh.url = url;
+
+			return mesh;
 		}
 
 		override public function destroy():void
