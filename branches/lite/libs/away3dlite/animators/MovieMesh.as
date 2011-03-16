@@ -226,6 +226,14 @@ package away3dlite.animators
 			mesh.fps = fps;
 			mesh.frames = frames.concat();
 
+			mesh._currentLabel = _currentLabel;
+			mesh._begin = _begin;
+			mesh._end = _end;
+			mesh._type = _type;
+
+			for (var i:* in _labels)
+				mesh._labels[i] = _labels[i];
+
 			return mesh;
 		}
 
