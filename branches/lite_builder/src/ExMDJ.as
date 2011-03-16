@@ -1,5 +1,6 @@
 package
 {
+	import away3dlite.animators.MovieMesh;
 	import away3dlite.animators.MovieMeshContainer3D;
 	import away3dlite.core.utils.Debug;
 	import away3dlite.events.Loader3DEvent;
@@ -54,7 +55,7 @@ package
 			if (!_model)
 				return;
 
-			if (!_model.isPlaying)
+			if (_model.status == MovieMesh.ANIM_STOP)
 				_model.play();
 			else
 				_model.stop();

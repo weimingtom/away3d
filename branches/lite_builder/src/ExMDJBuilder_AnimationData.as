@@ -10,7 +10,7 @@ package
 	import away3dlite.loaders.Loader3D;
 	import away3dlite.loaders.data.AnimationData;
 	import away3dlite.templates.BasicTemplate;
-	
+
 	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
 	import flash.net.FileReference;
@@ -20,7 +20,7 @@ package
 	/**
 	 * Example : MDJ build from DAE and save as MDJ.
 	 * @author katopz
-	 */	
+	 */
 	public class ExMDJBuilder_AnimationData extends BasicTemplate
 	{
 		private var _bonesAnimator:BonesAnimator;
@@ -30,7 +30,7 @@ package
 		override protected function onInit():void
 		{
 			title = "Click to save |";
-			
+
 			// behide the scene
 			Debug.active = true;
 
@@ -57,23 +57,27 @@ package
 			//_model.x = 100;
 
 			// test animation
-			try{
+			try
+			{
 				_bonesAnimator = _model.animationLibrary.getAnimation("default").animation as BonesAnimator;
-			}catch (e:*){}
+			}
+			catch (e:*)
+			{
+			}
 
 			// build as MD2
 			_mdjBuilder = new MDJBuilder();
 			_mdjBuilder.isInterpolateFrame = true;
-			
+
 			// add custom frame label
 			var _animationDatas:Vector.<AnimationData> = new Vector.<AnimationData>(2, true);
-			
+
 			// define left e.g : left000, left001, left002, ...., left032  
 			_animationDatas[0] = new AnimationData();
 			_animationDatas[0].name = "left";
 			_animationDatas[0].start = 0;
 			_animationDatas[0].end = 30;
-			
+
 			// define right e.g : right000, right001, right002, ...., right032
 			_animationDatas[1] = new AnimationData();
 			_animationDatas[1].name = "right";
@@ -88,15 +92,15 @@ package
 			{
 				// add to scene
 				scene.addChild(_mesh);
-				
+
 				// and play it
-				_mesh.play("left");
+				_mesh.gotoAndPlay("left");
 			}
-			
+
 			// click to save
 			stage.addEventListener(MouseEvent.CLICK, onClick);
 		}
-		
+
 		private function onClick(event:MouseEvent):void
 		{
 			// save all as .mdj file
