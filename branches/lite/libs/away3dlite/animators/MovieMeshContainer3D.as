@@ -50,7 +50,7 @@ package away3dlite.animators
 					_mesh.seek(ctime, _otime);
 		}
 
-		public function gotoAndPlay(label:String = "frame"):void
+		public function gotoAndPlay(label:String):void
 		{
 			_currentLabel = label;
 

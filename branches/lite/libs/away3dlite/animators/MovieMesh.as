@@ -2,9 +2,11 @@ package away3dlite.animators
 {
 	import away3dlite.animators.frames.Frame;
 	import away3dlite.arcane;
+	import away3dlite.cameras.Camera3D;
 	import away3dlite.core.*;
 	import away3dlite.core.base.*;
 
+	import flash.geom.Matrix3D;
 	import flash.utils.Dictionary;
 
 	use namespace arcane;
@@ -216,6 +218,15 @@ package away3dlite.animators
 		public function set keyframe(i:int):void
 		{
 			_currentFrame = i % _totalFrames;
+		}
+
+		/** @private */
+		arcane override function project(camera:Camera3D, parentSceneMatrix3D:Matrix3D = null):void
+		{
+			if (_scene)
+				_scene.isDirty = _scene.isDirty || (_type != ANIM_STOP);
+
+			super.project(camera, parentSceneMatrix3D);
 		}
 
 		public override function clone(object:Object3D = null):Object3D
