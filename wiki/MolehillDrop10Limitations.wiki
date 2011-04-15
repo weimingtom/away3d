@@ -1,4 +1,4 @@
-#summary Molehill Drop 10 limitations.
+#summary Molehill Incubator 1 limitations.
 #labels molehill,limitations
 
 = Introduction =
