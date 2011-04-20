@@ -12,6 +12,22 @@ package away3dlite.animators
 
 	public class MovieMeshContainer3D extends ObjectContainer3D implements IDestroyable
 	{
+		public function get fps():int
+		{
+			if (children)
+				for each (var _mesh:MovieMesh in children)
+					return _mesh.fps;
+
+			return 30;
+		}
+
+		public function set fps(value:int):void
+		{
+			if (children)
+				for each (var _mesh:MovieMesh in children)
+					_mesh.fps = value;
+		}
+
 		private var _type:int;
 
 		public function get status():int
