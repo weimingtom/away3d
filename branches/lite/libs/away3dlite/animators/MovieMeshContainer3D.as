@@ -135,6 +135,9 @@ package away3dlite.animators
 			if (_isDestroyed)
 				return;
 
+			for each (var _mesh:MovieMesh in children)
+				_mesh.destroy();
+
 			super.destroy();
 		}
 	}
