@@ -183,6 +183,11 @@ package away3dlite.core.base
 				material.updateAnimation();
 		}
 
+		public function forceUpdate():void
+		{
+			parent.forceUpdate(this);
+		}
+
 		protected function drawBitmapdata(x:Number, y:Number, zoom:Number, focus:Number):void
 		{
 			_scale = zoom / (1 + _tranformedPosition.w / focus);

@@ -5,7 +5,7 @@ package away3dlite.containers
 	import away3dlite.core.base.IRenderableList;
 	import away3dlite.core.base.Object3D;
 	import away3dlite.core.base.Particle;
-	
+
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -42,19 +42,19 @@ package away3dlite.containers
 		{
 			return _bitmap;
 		}
-		
+
 		public function set bitmap(value:Bitmap):void
 		{
 			_bitmap = value;
-			
-			if(_bitmap)
+
+			if (_bitmap)
 				_bitmapData = _bitmap.bitmapData;
 			else
 				_bitmapData = null;
-				
+
 			if (!_firstParticle)
 				return;
-			
+
 			var particle:Particle = _firstParticle;
 			if (particle)
 				do
@@ -66,14 +66,14 @@ package away3dlite.containers
 		}
 
 		protected var _bitmapData:BitmapData;
-		
+
 		override public function set layer(value:Sprite):void
 		{
 			super.layer = value;
-			
+
 			if (!_firstParticle)
 				return;
-			
+
 			var particle:Particle = _firstParticle;
 			if (particle)
 				do
@@ -83,7 +83,7 @@ package away3dlite.containers
 						particle.graphics = value.graphics;
 				} while (particle = particle.next);
 		}
-		
+
 		public function Particles()
 		{
 
@@ -107,7 +107,7 @@ package away3dlite.containers
 			var _particle:Particle = _firstParticle;
 			if (_particle)
 				do
-					_particle.update(_viewMatrix3D, _transform_matrix3D); 
+					_particle.update(_viewMatrix3D, _transform_matrix3D);
 				while (_particle = _particle.next);
 
 			if (_scene && (_animate || isDirty))
@@ -141,6 +141,9 @@ package away3dlite.containers
 
 			particle.parent = this;
 			particle.bitmapData = _bitmapData;
+
+			// update position
+			forceUpdate(particle);
 
 			return particle;
 		}
@@ -180,17 +183,22 @@ package away3dlite.containers
 					particle.interactive = _interactive;
 				} while (particle = particle.next);
 		}
-		
+
 		public function getParticleByID(id:String):Particle
 		{
 			var particle:Particle = _firstParticle;
 			if (particle)
 				do
 				{
-					if(particle.id == id)
+					if (particle.id == id)
 						return particle;
 				} while (particle = particle.next);
 			return null;
+		}
+
+		public function forceUpdate(particle:Particle):void
+		{
+			particle.update(_viewMatrix3D, transform.matrix3D);
 		}
 
 		override public function destroy():void
