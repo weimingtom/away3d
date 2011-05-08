@@ -4,7 +4,7 @@ package away3dlite.core.clip
 	import away3dlite.containers.*;
 	import away3dlite.core.base.*;
 	import away3dlite.events.*;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
@@ -46,7 +46,7 @@ package away3dlite.core.clip
 	{
 		/** @private */
 		protected var _isDestroyed:Boolean;
-		
+
 		/** @private */
 		arcane function setView(view:View3D):void
 		{
@@ -60,16 +60,14 @@ package away3dlite.core.clip
 			var i:int = 0;
 			for each (var _particle:IRenderable in particles)
 			{
-				if(!_particle.isClip)
+				if (!_particle.isClip)
 				{
 					var _projectedPosition:Vector3D = _particle.transformPosition;
 					var _x:int = int(_projectedPosition.x);
 					var _y:int = int(_projectedPosition.y);
 					var _z:int = int(_particle.screenZ);
-					
-					if (_x > _minX && _x < _maxX && 
-						_y > _minY && _y < _maxY && 
-						_z > _minZ && _z < _maxZ)
+
+					if (_x > _minX && _x < _maxX && _y > _minY && _y < _maxY && _z > _minZ && _z < _maxZ)
 						_particles[int(i++)] = _particle;
 				}
 			}
@@ -105,6 +103,9 @@ package away3dlite.core.clip
 			}
 
 			_stage = container.stage;
+
+			if (!_stage)
+				return _clippingClone;
 
 			if (_stage.scaleMode == StageScaleMode.NO_SCALE)
 			{
@@ -487,21 +488,21 @@ package away3dlite.core.clip
 		{
 			return "{minX:" + minX + " maxX:" + maxX + " minY:" + minY + " maxY:" + maxY + " minZ:" + minZ + " maxZ:" + maxZ + "}";
 		}
-		
+
 		public function get destroyed():Boolean
 		{
 			return _isDestroyed;
 		}
-		
+
 		public function destroy():void
 		{
 			_isDestroyed = true;
-			
+
 			_clippingClone = null;
-			
+
 			_clippingupdated = null;
 			_screenupdated = null;
-			
+
 			_view = null;
 			_face = null;
 			_faces = null;

@@ -8,7 +8,7 @@ package away3dlite.containers
 	import away3dlite.core.render.*;
 	import away3dlite.events.*;
 	import away3dlite.materials.*;
-	
+
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
@@ -174,8 +174,8 @@ package away3dlite.containers
 			catch (error:Error)
 			{
 				_loaderDirty = true;
-				_loaderWidth = stage.stageWidth;
-				_loaderHeight = stage.stageHeight;
+				_loaderWidth = stage ? stage.stageWidth : _screenWidth;
+				_loaderHeight = stage ? stage.stageHeight : _screenHeight;
 			}
 
 			//check for global view movement
@@ -183,14 +183,15 @@ package away3dlite.containers
 			_viewZero.y = 0;
 			_viewZero = localToGlobal(_viewZero);
 
-			if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight))
-			{
-				_x = _viewZero.x;
-				_y = _viewZero.y;
-				_screenWidth = _stageWidth = stage.stageWidth;
-				_screenHeight = _stageHeight = stage.stageHeight;
-				_screenClippingDirty = true;
-			}
+			if (stage)
+				if (_x != _viewZero.x || _y != _viewZero.y || stage.scaleMode != StageScaleMode.NO_SCALE && (_stageWidth != stage.stageWidth || _stageHeight != stage.stageHeight))
+				{
+					_x = _viewZero.x;
+					_y = _viewZero.y;
+					_screenWidth = _stageWidth = stage.stageWidth;
+					_screenHeight = _stageHeight = stage.stageHeight;
+					_screenClippingDirty = true;
+				}
 
 			if (!_autoSize)
 			{
@@ -220,7 +221,7 @@ package away3dlite.containers
 
 		private function onMouseUp(e:MouseEvent):void
 		{
-			if(mouseEnabled)
+			if (mouseEnabled)
 				fireMouseEvent(MouseEvent3D.MOUSE_UP, e.ctrlKey, e.shiftKey);
 		}
 
@@ -465,8 +466,8 @@ package away3dlite.containers
 				return;
 
 			_renderer = val;
-			
-			if(_renderer)
+
+			if (_renderer)
 				_renderer.setView(this);
 		}
 
@@ -611,72 +612,74 @@ package away3dlite.containers
 				graphics.clear();
 				renderer.render();
 				_scene.isDirty = false;
-			}else{
+			}
+			else
+			{
 				_totalObjects = _renderedObjects = 0;
 			}
 
 			if (mouseEnabled3D)
 				fireMouseMoveEvent();
 		}
-		
+
 		public function get destroyed():Boolean
 		{
 			return _isDestroyed;
 		}
-		
+
 		public function destroy():void
 		{
-			if(_isDestroyed)
+			if (_isDestroyed)
 				return;
-			
-			if(stage)
+
+			if (stage)
 			{
 				stage.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 				stage.removeEventListener(Event.RESIZE, onStageResized);
 				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
-			
-			if(_clipping)
+
+			if (_clipping)
 			{
 				_clipping.removeEventListener(ClippingEvent.CLIPPING_UPDATED, onClippingUpdated);
 				_clipping.removeEventListener(ClippingEvent.SCREEN_UPDATED, onScreenUpdated);
-				
+
 				_clipping.destroy();
 				_clipping = null;
 			}
-			
+
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			removeEventListener(MouseEvent.ROLL_OUT, onRollOut);
 			removeEventListener(MouseEvent.ROLL_OVER, onRollOver);
-			
+
 			_customContextMenu = null;
-			if(_menu0)
+			if (_menu0)
 				_menu0.removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onViewSource);
-			
-			if(_menu1)
+
+			if (_menu1)
 				_menu1.removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onVisitWebsite);
-			
+
 			_menu0 = null;
 			_menu1 = null;
-			
-			if(_camera)
+
+			if (_camera)
 				_camera.destroy();
-			
-			if(_scene)
+
+			if (_scene)
 			{
 				_scene.destroy();
-				
-				if(_scene.parent)
+
+				if (_scene.parent)
 					_scene.parent.removeChild(_scene);
 			}
-			
+
 			_camera = null;
 			_scene = null;
 			_object = null;
 			_mouseObject = null;
-			
+
 			if (parent)
 				parent.removeChild(this);
 		}
