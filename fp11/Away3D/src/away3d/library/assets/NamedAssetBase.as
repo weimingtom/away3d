@@ -25,7 +25,7 @@ package away3d.library.assets
 			_name = name;
 			_originalName = name;
 			
-			update();
+			updateFullPath();
 		}
 		
 		
@@ -53,7 +53,7 @@ package away3d.library.assets
 			if (_name == null)
 				_name = 'null';
 			
-			update();
+			updateFullPath();
 			
 			if (hasEventListener(AssetEvent.ASSET_RENAME))
 				dispatchEvent(new AssetEvent(AssetEvent.ASSET_RENAME, IAsset(this), prev));
@@ -85,17 +85,11 @@ package away3d.library.assets
 			if (overrideOriginal)
 				_originalName = _name;
 		
-			update();
+			updateFullPath();
 		}
 		
 		
-		public function disposeAsset() : void
-		{
-			// TODO: Should be overridden by sub-types
-		}
-		
-		
-		private function update() : void
+		private function updateFullPath() : void
 		{
 			_full_path = [ _namespace, _name ];
 		}

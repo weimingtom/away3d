@@ -16,8 +16,9 @@ package away3d.core.managers
 	public class Stage3DManager
 	{
 		private static var _instances : Dictionary;
+		private static var _stageProxies : Vector.<Stage3DProxy>;
+		private static var _numStageProxies : uint = 0;
 
-		private var _stageProxies : Vector.<Stage3DProxy>;
 		private var _stage : Stage;
 
 		/**
@@ -25,11 +26,13 @@ package away3d.core.managers
 		 * @param stage The Stage object that contains the Stage3D objects to be managed.
 		 * @private
 		 */
-		public function Stage3DManager(stage : Stage, singletonEnforcer : SingletonEnforcer)
+		public function Stage3DManager(stage : Stage, Stage3DManagerSingletonEnforcer : Stage3DManagerSingletonEnforcer)
 		{
-			if (!singletonEnforcer) throw new Error("This class is a multiton and cannot be instantiated manually. Use Stage3DManager.getInstance instead.");
+			if (!Stage3DManagerSingletonEnforcer) throw new Error("This class is a multiton and cannot be instantiated manually. Use Stage3DManager.getInstance instead.");
 			_stage = stage;
-			_stageProxies = new Vector.<Stage3DProxy>(_stage.stage3Ds.length, true);
+						
+			if (!_stageProxies) 
+				_stageProxies = new Vector.<Stage3DProxy>(_stage.stage3Ds.length, true);
 		}
 
 		/**
@@ -39,17 +42,23 @@ package away3d.core.managers
 		 */
 		public static function getInstance(stage : Stage) : Stage3DManager
 		{
-			return (_instances ||= new Dictionary())[stage] ||= new Stage3DManager(stage, new SingletonEnforcer());
+			return (_instances ||= new Dictionary())[stage] ||= new Stage3DManager(stage, new Stage3DManagerSingletonEnforcer());
 		}
 
 		/**
 		 * Requests the Stage3DProxy for the given index.
 		 * @param index The index of the requested Stage3D.
+		 * @param forceSoftware Whether to force software mode even if hardware acceleration is available.
 		 * @return The Stage3DProxy for the given index.
 		 */
-		public function getStage3DProxy(index : uint) : Stage3DProxy
+		public function getStage3DProxy(index : uint, forceSoftware : Boolean = false) : Stage3DProxy
 		{
-			return _stageProxies[index] ||= new Stage3DProxy(index, _stage.stage3Ds[index], this);
+			if(!_stageProxies[index]){
+				_numStageProxies++;
+				_stageProxies[index] = new Stage3DProxy(index, _stage.stage3Ds[index], this, forceSoftware);
+			}
+
+			return _stageProxies[index];
 		}
 
 		/**
@@ -59,23 +68,67 @@ package away3d.core.managers
 		 */
 		arcane function removeStage3DProxy(stage3DProxy : Stage3DProxy) : void
 		{
+			_numStageProxies--;
 			_stageProxies[stage3DProxy.stage3DIndex] = null;
 		}
 
-		public function getFreeStage3DProxy() : Stage3DProxy
+		/**
+		 * Get the next available stage3DProxy. An error is thrown if there are no Stage3DProxies available 
+		 * @param forceSoftware Whether to force software mode even if hardware acceleration is available.
+		 * @return The allocated stage3DProxy
+		 */
+		public function getFreeStage3DProxy(forceSoftware:Boolean = false) : Stage3DProxy
 		{
 			var i : uint;
 			var len : uint = _stageProxies.length;
 
 			while (i < len) {
-				if (!_stageProxies[i]) return getStage3DProxy(i);
+				if (!_stageProxies[i]) {
+					getStage3DProxy(i, forceSoftware);
+					_stageProxies[i].width = _stage.stageWidth;
+					_stageProxies[i].height = _stage.stageHeight;
+					return _stageProxies[i];
+				}
 				++i;
 			}
 
 			throw new Error("Too many Stage3D instances used!");
 			return null;
 		}
+
+		/**
+		 * Checks if a new stage3DProxy can be created and managed by the class.
+		 * @return true if there is one slot free for a new stage3DProxy
+		 */
+		public function get hasFreeStage3DProxy() : Boolean
+		{
+			return _numStageProxies < _stageProxies.length? true : false;
+		}
+		/**
+		 * Returns the amount of stage3DProxy objects that can be created and managed by the class
+		 * @return the amount of free slots 
+		 */
+		public function get numProxySlotsFree() : uint
+		{
+			return _stageProxies.length-_numStageProxies;
+		}
+		/**
+		 * Returns the amount of Stage3DProxy objects currently managed by the class.
+		 * @return the amount of slots used 
+		 */
+		public function get numProxySlotsUsed() : uint
+		{
+			return _numStageProxies;
+		}
+		/**
+		 * Returns the maximum amount of Stage3DProxy objects that can be managed by the class
+		 * @return the maximum amount of Stage3DProxy objects that can be managed by the class
+		 */
+		public function get numProxySlotsTotal() : uint
+		{
+			return _stageProxies.length;
+		}
 	}
 }
 
-class SingletonEnforcer {}
+class Stage3DManagerSingletonEnforcer {}

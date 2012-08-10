@@ -5,8 +5,7 @@ package away3d.materials.methods
 	import away3d.materials.utils.ShaderRegisterCache;
 	import away3d.materials.utils.ShaderRegisterElement;
 	import away3d.textures.Texture2DBase;
-
-	import flash.display3D.Context3D;
+	
 	import flash.display3D.Context3DProgramType;
 
 	use namespace arcane;
@@ -17,25 +16,28 @@ package away3d.materials.methods
 	 */
 	public class WrapDiffuseMethod extends BasicDiffuseMethod
 	{
-		private var _wrapData : Vector.<Number>;
 		private var _wrapDataRegister : ShaderRegisterElement;
 		private var _scatterTextureRegister : ShaderRegisterElement;
-		private var _wrapIndex : int;
 		private var _scatterTexture : Texture2DBase;
-		private var _scatterTextureIndex : int;
+		private var _wrapFactor : Number;
 
 		/**
 		 * Creates a new WrapDiffuseMethod object.
 		 * @param wrap A factor to indicate the amount by which the light is allowed to wrap
-		 * @param scatterTexture A texture that contains the light colour based on the angle. This can be used to change the light colour due to subsurface scattering when dot < 0
+		 * @param scatterTexture A texture that contains the light colour based on the angle. This can be used to change the light colour due to subsurface scattering when dot &lt; 0
 		 */
 		public function WrapDiffuseMethod(wrapFactor : Number = .5, scatterTexture : Texture2DBase = null)
 		{
 			super();
-			_wrapData = new Vector.<Number>(4, true);
-			_wrapData[2] = .5;
 			this.wrapFactor = wrapFactor;
 			this.scatterTexture = scatterTexture;
+		}
+
+
+		override arcane function initConstants(vo : MethodVO) : void
+		{
+			super.initConstants(vo);
+			vo.fragmentData[vo.secondaryFragmentConstantsIndex+2] = .5;
 		}
 
 		public function get scatterTexture() : Texture2DBase
@@ -51,36 +53,37 @@ package away3d.materials.methods
 
 		arcane override function cleanCompilationData() : void
 		{
-			super.arcane::cleanCompilationData();
+			super.cleanCompilationData();
 			_wrapDataRegister = null;
 			_scatterTextureRegister = null;
 		}
 
 		public function get wrapFactor() : Number
 		{
-			return _wrapData[0];
+			return _wrapFactor
 		}
 
 		public function set wrapFactor(value : Number) : void
 		{
-			_wrapData[0] = value;
-			_wrapData[1] = 1/(value+1);
+			_wrapFactor = value;
+			_wrapFactor = 1/(value+1);
 		}
 
-		arcane override function getFragmentAGALPreLightingCode(regCache : ShaderRegisterCache) : String
+		arcane override function getFragmentPreLightingCode(vo : MethodVO, regCache : ShaderRegisterCache) : String
 		{
+			var code : String = super.getFragmentPreLightingCode(vo, regCache);
 			_wrapDataRegister = regCache.getFreeFragmentConstant();
-			_wrapIndex = _wrapDataRegister.index;
+			vo.secondaryFragmentConstantsIndex = _wrapDataRegister.index*4;
 
 			if (_scatterTexture) {
 				_scatterTextureRegister = regCache.getFreeTextureReg();
-				_scatterTextureIndex = _scatterTextureRegister.index;
+				if (!_useTexture)
+					vo.texturesIndex = _scatterTextureRegister.index;
 			}
-
-			return super.arcane::getFragmentAGALPreLightingCode(regCache);
+			return code;
 		}
 
-		arcane override function getFragmentCodePerLight(lightIndex : int, lightDirReg : ShaderRegisterElement, lightColReg : ShaderRegisterElement, regCache : ShaderRegisterCache) : String
+		arcane override function getFragmentCodePerLight(vo : MethodVO, lightIndex : int, lightDirReg : ShaderRegisterElement, lightColReg : ShaderRegisterElement, regCache : ShaderRegisterCache) : String
 		{
 			var code : String = "";
 			var t : ShaderRegisterElement;
@@ -100,7 +103,7 @@ package away3d.materials.methods
 					"sat " + t + ".w, " + t + ".y\n" +
 					"mul " + t + ".w, " + t + ".w, " + lightDirReg + ".w\n";
 
-			if (_modulateMethod != null) code += _modulateMethod(t, regCache);
+			if (_modulateMethod != null) code += _modulateMethod(vo, t, regCache);
 
 			if (_scatterTexture) {
 				code += "mul " + t + ".x, " + t + ".x, " + _wrapDataRegister + ".z\n" +
@@ -124,13 +127,17 @@ package away3d.materials.methods
 		}
 
 
-		arcane override function activate(stage3DProxy : Stage3DProxy) : void
+		arcane override function activate(vo : MethodVO, stage3DProxy : Stage3DProxy) : void
 		{
-			super.arcane::activate(stage3DProxy);
-			stage3DProxy._context3D.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, _wrapIndex, _wrapData, 1);
+			super.activate(vo, stage3DProxy);
+			var index : int = vo.secondaryFragmentConstantsIndex;
+			var data : Vector.<Number> = vo.fragmentData;
+			data[index] = _wrapFactor;
+			data[index+1] = 1/(_wrapFactor+1);
 
 			if (_scatterTexture) {
-				stage3DProxy.setTextureAt(_scatterTextureIndex, _scatterTexture.getTextureForStage3D(stage3DProxy));
+				index = _useTexture? vo.texturesIndex+1 : vo.texturesIndex;
+				stage3DProxy.setTextureAt(index, _scatterTexture.getTextureForStage3D(stage3DProxy));
 			}
 		}
 	}

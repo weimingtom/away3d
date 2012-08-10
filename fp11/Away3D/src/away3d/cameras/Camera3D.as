@@ -11,7 +11,6 @@ package away3d.cameras
 	import away3d.events.LensEvent;
 
 	import flash.geom.Matrix3D;
-	import flash.geom.Point;
 	import flash.geom.Vector3D;
 
 	use namespace arcane;
@@ -26,8 +25,6 @@ package away3d.cameras
 		private var _lens : LensBase;
 		private var _frustumPlanes : Vector.<Plane3D>;
 		private var _frustumPlanesDirty : Boolean = true;
-
-
 
 		/**
 		 * Creates a new Camera3D object
@@ -194,8 +191,6 @@ package away3d.cameras
 			dispatchEvent(new LensEvent(LensEvent.MATRIX_CHANGED, value));
 		}
 
-
-		
 		/**
 		 * The view projection matrix of the camera.
 		 */
@@ -211,17 +206,31 @@ package away3d.cameras
 		}
 
 		/**
+		 * Calculates the scene position of the given normalized coordinates.
+		 * @param mX The x coordinate relative to the View3D. -1 corresponds to the utter left side of the viewport, 1 to the right.
+		 * @param mY The y coordinate relative to the View3D. -1 corresponds to the top side of the viewport, 1 to the bottom.
+		 * @return The scene position of the given screen coordinates.
+		 */
+		public function unproject(mX : Number, mY : Number, mZ : Number = 0):Vector3D
+		{
+			return sceneTransform.transformVector(lens.unproject(mX, mY, mZ));
+		}
+
+		/**
+		 * Returns the ray in scene space from the camera to the point on the screen in normalized coordinates.
+		 * @param mX The x coordinate relative to the View3D. -1 corresponds to the utter left side of the viewport, 1 to the right.
+		 * @param mY The y coordinate relative to the View3D. -1 corresponds to the top side of the viewport, 1 to the bottom.
+		 * @return The ray from the camera to the scene space position of a point on the projection plane.
+		 */
+		public function getRay(mX : Number, mY : Number, mZ : Number = 0) : Vector3D
+		{
+			return sceneTransform.deltaTransformVector(lens.unproject(mX, mY, mZ));
+		}
+
+		/**
 		 *
 		 */
-		public function unproject(mX : Number, mY : Number):Vector3D
-		{
-			return sceneTransform.deltaTransformVector(lens.unproject(mX, mY, 0));
-		}
-		
-		/**
-		 * 
-		 */
-		public function project(point3d : Vector3D) : Point
+		public function project(point3d : Vector3D) : Vector3D
 		{
 			return lens.project(inverseSceneTransform.transformVector(point3d));
 		}
