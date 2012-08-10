@@ -5,7 +5,7 @@
 Demonstrates:
 
 How to use the Loader3D object to load an embedded internal 3ds model.
-How to map an external asset reference inside a file to an internal embedded asset
+How to map an external asset reference inside a file to an internal embedded asset.
 How to extract material data and use it to set custom material properties on a model.
 
 Code by Rob Bateman
@@ -38,29 +38,25 @@ THE SOFTWARE.
 
 package
 {
-	import away3d.cameras.*;
 	import away3d.containers.*;
 	import away3d.controllers.*;
-	import away3d.core.base.*;
 	import away3d.debug.*;
 	import away3d.entities.*;
 	import away3d.events.*;
-	import away3d.library.*;
 	import away3d.library.assets.*;
 	import away3d.lights.*;
 	import away3d.loaders.*;
 	import away3d.loaders.misc.*;
 	import away3d.loaders.parsers.*;
 	import away3d.materials.*;
-	import away3d.materials.lightpickers.StaticLightPicker;
+	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	import away3d.primitives.*;
-	import away3d.textures.*;
+	import away3d.utils.*;
 	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
-	import flash.text.*;
 	import flash.utils.*;
 	
 	[SWF(backgroundColor="#000000", frameRate="30", quality="LOW")]
@@ -69,139 +65,108 @@ package
 	{
 		//signature swf
 		[Embed(source="/../embeds/signature.swf", symbol="Signature")]
-		public var SignatureSwf:Class;
+		public static var SignatureSwf:Class;
 		
 		//solider ant texture
 		[Embed(source="/../embeds/soldier_ant.jpg")]
-		private var AntTexture:Class;
+		public static var AntTexture:Class;
 		
 		//solider ant model
 		[Embed(source="/../embeds/soldier_ant.3ds",mimeType="application/octet-stream")]
-		private var AntModel:Class;
+		public static var AntModel:Class;
 		
 		//ground texture
 		[Embed(source="/../embeds/CoarseRedSand.jpg")]
-		private var SandTexture:Class;
+		public static var SandTexture:Class;
 		
 		//engine variables
-		private var scene:Scene3D;
-		private var camera:Camera3D;
-		private var view:View3D;
-		private var cameraController:HoverController;
+		private var _view:View3D;
+		private var _cameraController:HoverController;
 		
 		//signature variables
-		private var Signature:Sprite;
-		private var SignatureBitmap:Bitmap;
+		private var _signature:Sprite;
+		private var _signatureBitmap:Bitmap;
+		
+		//light objects
+		private var _light:DirectionalLight;
+		private var _lightPicker:StaticLightPicker;
+		private var _direction:Vector3D;
 		
 		//material objects
-		private var groundMaterial:TextureMaterial;
+		private var _groundMaterial:TextureMaterial;
 		
 		//scene objects
-		private var light:DirectionalLight;
-		private var lightPicker:StaticLightPicker;
-		private var direction:Vector3D;
-		private var loader:Loader3D;
-		private var ground:Mesh;
+		private var _loader:Loader3D;
+		private var _ground:Mesh;
 		
 		//navigation variables
-		private var move:Boolean = false;
-		private var lastPanAngle:Number;
-		private var lastTiltAngle:Number;
-		private var lastMouseX:Number;
-		private var lastMouseY:Number;
+		private var _move:Boolean = false;
+		private var _lastPanAngle:Number;
+		private var _lastTiltAngle:Number;
+		private var _lastMouseX:Number;
+		private var _lastMouseY:Number;
 		
 		/**
 		 * Constructor
 		 */
 		public function Basic_Load3DS()
 		{
-			init();
-		}
-		
-		/**
-		 * Global initialise function
-		 */
-		private function init():void
-		{
-			initEngine();
-			initObjects();
-			initListeners();
-		}
-		
-		/**
-		 * Initialise the engine
-		 */
-		private function initEngine():void
-		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			scene = new Scene3D();
+			//setup the view
+			_view = new View3D();
+			_view.addSourceURL("srcview/index.html");
+			addChild(_view);
 			
-			//setup camera for optimal shadow rendering
-			camera = new Camera3D();
-			camera.lens.far = 2100;
-			
-			view = new View3D();
-			view.scene = scene;
-			view.camera = camera;
+			//setup the camera for optimal shadow rendering
+			_view.camera.lens.far = 2100;
 			
 			//setup controller to be used on the camera
-			cameraController = new HoverController(camera, null, 45, 20, 1000, 10);
+			_cameraController = new HoverController(_view.camera, null, 45, 20, 1000, 10);
 			
-			//setup parser to be used on loader3D
+			//setup the lights for the scene
+			_light = new DirectionalLight(-1, -1, 1);
+			_direction = new Vector3D(-1, -1, 1);
+			_lightPicker = new StaticLightPicker([_light]);
+			_view.scene.addChild(_light);
+			
+			//setup parser to be used on Loader3D
 			Parsers.enableAllBundled();
 			
-			view.addSourceURL("srcview/index.html");
-			addChild(view);
-			
-			//add signature
-			Signature = Sprite(new SignatureSwf());
-			SignatureBitmap = new Bitmap(new BitmapData(Signature.width, Signature.height, true, 0));
-			stage.quality = StageQuality.HIGH;
-			SignatureBitmap.bitmapData.draw(Signature);
-			stage.quality = StageQuality.LOW;
-			addChild(SignatureBitmap);
-			
-			addChild(new AwayStats(view));
-		}
-		
-		/**
-		 * Initialise the scene objects
-		 */
-		private function initObjects():void
-		{
-			
-			light = new DirectionalLight(-1, -1, 1);
-			direction = new Vector3D(-1, -1, 1);
-			lightPicker = new StaticLightPicker([light]);
-			
-			scene.addChild(light);
-			
+			//setup the url map for textures in the 3ds file
 			var assetLoaderContext:AssetLoaderContext = new AssetLoaderContext();
 			assetLoaderContext.mapUrlToData("texture.jpg", new AntTexture());
 			
-			loader = new Loader3D();
-			loader.scale(300);
-			loader.z = -200;
-			loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
-			loader.loadData(new AntModel(), assetLoaderContext);
+			//setup materials
+			_groundMaterial = new TextureMaterial(Cast.bitmapTexture(SandTexture));
+			_groundMaterial.shadowMethod = new FilteredShadowMapMethod(_light);
+			_groundMaterial.lightPicker = _lightPicker;
+			_groundMaterial.specular = 0;
+			_ground = new Mesh(new PlaneGeometry(1000, 1000), _groundMaterial);
+			_view.scene.addChild(_ground);
 			
-			scene.addChild(loader);
+			//setup the scene
+			_loader = new Loader3D();
+			_loader.scale(300);
+			_loader.z = -200;
+			_loader.addEventListener(AssetEvent.ASSET_COMPLETE, onAssetComplete);
+			_loader.loadData(new AntModel(), assetLoaderContext);
+			_view.scene.addChild(_loader);
 			
-			groundMaterial = new TextureMaterial(new BitmapTexture((new SandTexture()).bitmapData));
-			groundMaterial.shadowMethod = new FilteredShadowMapMethod(light);
-			groundMaterial.lightPicker = lightPicker;
-			groundMaterial.specular = 0;
-			ground = new Mesh(new PlaneGeometry(1000, 1000), groundMaterial);
-			scene.addChild(ground);
-		}
-		
-		/**
-		 * Initialise the listeners
-		 */
-		private function initListeners():void
-		{
+			
+			//add signature
+			_signature = new SignatureSwf();
+			_signatureBitmap = new Bitmap(new BitmapData(_signature.width, _signature.height, true, 0));
+			stage.quality = StageQuality.HIGH;
+			_signatureBitmap.bitmapData.draw(_signature);
+			stage.quality = StageQuality.LOW;
+			addChild(_signatureBitmap);
+			
+			//add stats panel
+			addChild(new AwayStats(_view));
+			
+			//add listeners
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -214,16 +179,16 @@ package
 		 */
 		private function onEnterFrame(event:Event):void
 		{
-			if (move) {
-				cameraController.panAngle = 0.3*(stage.mouseX - lastMouseX) + lastPanAngle;
-				cameraController.tiltAngle = 0.3*(stage.mouseY - lastMouseY) + lastTiltAngle;
+			if (_move) {
+				_cameraController.panAngle = 0.3*(stage.mouseX - _lastMouseX) + _lastPanAngle;
+				_cameraController.tiltAngle = 0.3*(stage.mouseY - _lastMouseY) + _lastTiltAngle;
 			}
 			
-			direction.x = -Math.sin(getTimer()/4000);
-			direction.z = -Math.cos(getTimer()/4000);
-			light.direction = direction;
+			_direction.x = -Math.sin(getTimer()/4000);
+			_direction.z = -Math.cos(getTimer()/4000);
+			_light.direction = _direction;
 			
-			view.render();
+			_view.render();
 		}
 		
 		/**
@@ -236,8 +201,8 @@ package
 				mesh.castsShadows = true;
 			} else if (event.asset.assetType == AssetType.MATERIAL) {
 				var material:TextureMaterial = event.asset as TextureMaterial;
-				material.shadowMethod = new FilteredShadowMapMethod(light);
-				material.lightPicker = lightPicker;
+				material.shadowMethod = new FilteredShadowMapMethod(_light);
+				material.lightPicker = _lightPicker;
 				material.gloss = 30;
 				material.specular = 1;
 				material.ambientColor = 0x303040;
@@ -250,11 +215,11 @@ package
 		 */
 		private function onMouseDown(event:MouseEvent):void
 		{
-			lastPanAngle = cameraController.panAngle;
-			lastTiltAngle = cameraController.tiltAngle;
-			lastMouseX = stage.mouseX;
-			lastMouseY = stage.mouseY;
-			move = true;
+			_lastPanAngle = _cameraController.panAngle;
+			_lastTiltAngle = _cameraController.tiltAngle;
+			_lastMouseX = stage.mouseX;
+			_lastMouseY = stage.mouseY;
+			_move = true;
 			stage.addEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
@@ -263,7 +228,7 @@ package
 		 */
 		private function onMouseUp(event:MouseEvent):void
 		{
-			move = false;
+			_move = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
@@ -272,7 +237,7 @@ package
 		 */
 		private function onStageMouseLeave(event:Event):void
 		{
-			move = false;
+			_move = false;
 			stage.removeEventListener(Event.MOUSE_LEAVE, onStageMouseLeave);
 		}
 		
@@ -281,9 +246,9 @@ package
 		 */
 		private function onResize(event:Event = null):void
 		{
-			view.width = stage.stageWidth;
-			view.height = stage.stageHeight;
-			SignatureBitmap.y = stage.stageHeight - Signature.height;
+			_view.width = stage.stageWidth;
+			_view.height = stage.stageHeight;
+			_signatureBitmap.y = stage.stageHeight - _signature.height;
 		}
 	}
 }
