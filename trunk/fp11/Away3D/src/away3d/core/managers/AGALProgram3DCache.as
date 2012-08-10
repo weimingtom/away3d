@@ -24,12 +24,12 @@ package away3d.core.managers
 		private var _usages : Array;
 		private var _keys : Array;
 
-		private var _currentId : int;
+		private static var _currentId : int;
 
 
-		public function AGALProgram3DCache(stage3DProxy : Stage3DProxy, singletonEnforcer : SingletonEnforcer)
+		public function AGALProgram3DCache(stage3DProxy : Stage3DProxy, AGALProgram3DCacheSingletonEnforcer : AGALProgram3DCacheSingletonEnforcer)
 		{
-			if (!singletonEnforcer) throw new Error("This class is a multiton and cannot be instantiated manually. Use Stage3DManager.getInstance instead.");
+			if (!AGALProgram3DCacheSingletonEnforcer) throw new Error("This class is a multiton and cannot be instantiated manually. Use Stage3DManager.getInstance instead.");
 			_stage3DProxy = stage3DProxy;
 
 			_program3Ds = [];
@@ -45,8 +45,9 @@ package away3d.core.managers
 			_instances ||= new Vector.<AGALProgram3DCache>(8, true);
 
 			if (!_instances[index]) {
-				_instances[index] = new AGALProgram3DCache(stage3DProxy, new SingletonEnforcer());
-				stage3DProxy.addEventListener(Stage3DEvent.CONTEXT3D_DISPOSED, onContext3DDisposed);
+				_instances[index] = new AGALProgram3DCache(stage3DProxy, new AGALProgram3DCacheSingletonEnforcer());
+				stage3DProxy.addEventListener(Stage3DEvent.CONTEXT3D_DISPOSED, onContext3DDisposed, false, 0, true);
+				stage3DProxy.addEventListener(Stage3DEvent.CONTEXT3D_CREATED, onContext3DDisposed,false,0,true);
 			}
 
 			return _instances[index];
@@ -65,15 +66,13 @@ package away3d.core.managers
 			_instances[index].dispose();
 			_instances[index] = null;
 			stage3DProxy.removeEventListener(Stage3DEvent.CONTEXT3D_DISPOSED, onContext3DDisposed);
+			stage3DProxy.removeEventListener(Stage3DEvent.CONTEXT3D_CREATED, onContext3DDisposed);
 		}
 
 		public function dispose() : void
 		{
-			for (var key : String in _program3Ds) {
-				_program3Ds[key].dispose();
-				delete _program3Ds[key];
-				_ids[key] = -1;
-			}
+			for (var key : String in _program3Ds)
+				destroyProgram(key);
 
 			_keys = null;
 			_program3Ds = null;
@@ -134,6 +133,6 @@ package away3d.core.managers
 	}
 }
 
-class SingletonEnforcer
+class AGALProgram3DCacheSingletonEnforcer
 {
 }

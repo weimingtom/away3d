@@ -5,11 +5,12 @@ package away3d.core.render
 	import away3d.core.sort.EntitySorterBase;
 	import away3d.core.sort.RenderableMergeSort;
 	import away3d.core.traverse.EntityCollector;
-	import away3d.entities.Entity;
 	import away3d.errors.AbstractMethodError;
 	import away3d.events.Stage3DEvent;
 	import away3d.textures.Texture2DBase;
 
+	import flash.display.BitmapData;
+	
 	import flash.display3D.Context3D;
 	import flash.display3D.Context3DCompareMode;
 	import flash.display3D.textures.TextureBase;
@@ -31,6 +32,7 @@ package away3d.core.render
 		protected var _backgroundG : Number = 0;
 		protected var _backgroundB : Number = 0;
 		protected var _backgroundAlpha : Number = 1;
+		protected var _shareContext : Boolean = false;
 
 		protected var _swapBackBuffer : Boolean = true;
 
@@ -44,10 +46,16 @@ package away3d.core.render
 		private var _renderableSorter : EntitySorterBase;
 		private var _backgroundImageRenderer : BackgroundImageRenderer;
 		private var _background : Texture2DBase;
+		
 		protected var _renderToTexture : Boolean;
 		protected var _antiAlias : uint;
 		protected var _textureRatioX : Number = 1;
 		protected var _textureRatioY : Number = 1;
+
+        private var _snapshotBitmapData:BitmapData;
+        private var _snapshotRequired:Boolean;
+
+		private var _clearOnRender : Boolean = true;
 
 		/**
 		 * Creates a new RendererBase object.
@@ -96,6 +104,16 @@ package away3d.core.render
 		public function set renderableSorter(value : EntitySorterBase) : void
 		{
 			_renderableSorter = value;
+		}
+
+		arcane function get clearOnRender() : Boolean
+		{
+			return _clearOnRender;
+		}
+
+		arcane function set clearOnRender(value : Boolean) : void
+		{
+			_clearOnRender = value;
 		}
 
 		/**
@@ -179,7 +197,7 @@ package away3d.core.render
 //				_contextIndex = -1;
 				return;
 			}
-			else if (_stage3DProxy) throw new Error("A Stage3D instance was already assigned!");
+			//else if (_stage3DProxy) throw new Error("A Stage3D instance was already assigned!");
 
 			_stage3DProxy = value;
 			if (_backgroundImageRenderer) _backgroundImageRenderer.stage3DProxy = value;
@@ -190,6 +208,21 @@ package away3d.core.render
 				value.addEventListener(Stage3DEvent.CONTEXT3D_CREATED, onContextUpdate);
 		}
 
+		/**
+		 * Defers control of Context3D clear() and present() calls to Stage3DProxy, enabling multiple Stage3D frameworks
+		 * to share the same Context3D object.
+		 * 
+		 * @private
+		 */
+		arcane function get shareContext() : Boolean
+		{
+			return _shareContext;
+		}
+
+		arcane function set shareContext(value : Boolean) : void
+		{
+			_shareContext = value;
+		}
 
 		/**
 		 * Disposes the resources used by the RendererBase.
@@ -212,11 +245,11 @@ package away3d.core.render
 		 * @param surfaceSelector The index of a CubeTexture's face to render to.
 		 * @param additionalClearMask Additional clear mask information, in case extra clear channels are to be omitted.
 		 */
-		arcane function render(entityCollector : EntityCollector, target : TextureBase = null, scissorRect : Rectangle = null, surfaceSelector : int = 0, additionalClearMask : int = 7) : void
+		arcane function render(entityCollector : EntityCollector, target : TextureBase = null, scissorRect : Rectangle = null, surfaceSelector : int = 0) : void
 		{
 			if (!_stage3DProxy || !_context) return;
 
-			executeRender(entityCollector, target, scissorRect, surfaceSelector, additionalClearMask);
+			executeRender(entityCollector, target, scissorRect, surfaceSelector);
 
 			// clear buffers
 			for (var i : uint = 0; i < 8; ++i) {
@@ -232,7 +265,7 @@ package away3d.core.render
 		 * @param surfaceSelector The index of a CubeTexture's face to render to.
 		 * @param additionalClearMask Additional clear mask information, in case extra clear channels are to be omitted.
 		 */
-		protected function executeRender(entityCollector : EntityCollector, target : TextureBase = null, scissorRect : Rectangle = null, surfaceSelector : int = 0, additionalClearMask : int = 7) : void
+		protected function executeRender(entityCollector : EntityCollector, target : TextureBase = null, scissorRect : Rectangle = null, surfaceSelector : int = 0) : void
 		{
 			_renderTarget = target;
 			_renderTargetSurface = surfaceSelector;
@@ -245,17 +278,35 @@ package away3d.core.render
 
 			_stage3DProxy.setRenderTarget(target, true, surfaceSelector);
 
-			if (additionalClearMask != 0)
-				_context.clear(_backgroundR, _backgroundG, _backgroundB, _backgroundAlpha, 1, 0, additionalClearMask);
+			if (!_shareContext && _clearOnRender) {
+				_context.clear(_backgroundR, _backgroundG, _backgroundB, _backgroundAlpha, 1, 0);
+			}
 			_context.setDepthTest(false, Context3DCompareMode.ALWAYS);
 			_stage3DProxy.scissorRect = scissorRect;
 			if (_backgroundImageRenderer) _backgroundImageRenderer.render();
 
 			draw(entityCollector, target);
 
-			if (_swapBackBuffer && !target) _context.present();
+			_context.setDepthTest(false, Context3DCompareMode.LESS);
+
+			if ( !_shareContext ) {
+				if( _snapshotRequired && _snapshotBitmapData ) {
+					_context.drawToBitmapData( _snapshotBitmapData );
+					_snapshotRequired = false;
+				}
+	
+				if (_swapBackBuffer && !target) _context.present();
+			}
 			_stage3DProxy.scissorRect = null;
 		}
+
+        /*
+        * Will draw the renderer's output on next render to the provided bitmap data.
+        * */
+        public function queueSnapshot( bmd:BitmapData ):void {
+            _snapshotRequired = true;
+            _snapshotBitmapData = bmd;
+        }
 
 		protected function executeRenderToTexturePass(entityCollector : EntityCollector) : void
 		{

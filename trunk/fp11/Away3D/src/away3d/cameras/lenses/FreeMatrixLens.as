@@ -2,8 +2,6 @@ package away3d.cameras.lenses
 {
 	import away3d.arcane;
 
-	import flash.geom.Matrix3D;
-
 	use namespace arcane;
 
 	/**
@@ -21,13 +19,7 @@ package away3d.cameras.lenses
 			super();
 			_matrix.copyFrom(new PerspectiveLens().matrix);
 		}
-
-		public function set matrix(value : Matrix3D) : void
-		{
-			_matrix = value;
-			invalidateMatrix();
-		}
-
+		
 		override protected function updateMatrix() : void
 		{
 			_matrixInvalid = false;
@@ -49,9 +41,5 @@ package away3d.cameras.lenses
 			_aspectRatio = value;
 		}
 
-		public function set frustumCorners(frustumCorners : Vector.<Number>) : void
-		{
-			_frustumCorners = frustumCorners;
-		}
 	}
 }

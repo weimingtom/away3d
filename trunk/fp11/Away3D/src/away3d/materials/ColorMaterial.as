@@ -5,7 +5,7 @@ package away3d.materials
 	use namespace arcane;
 
 	/**
-	 * BitmapMaterial is a material that uses a flat colour as the surfaces diffuse.
+	 * ColorMaterial is a material that uses a flat colour as the surfaces diffuse.
 	 */
 	public class ColorMaterial extends DefaultMaterialBase
 	{
@@ -16,7 +16,7 @@ package away3d.materials
 		 * @param color The material's diffuse surface color.
 		 * @param alpha The material's surface alpha.
 		 */
-		public function ColorMaterial(color : uint, alpha : Number = 1)
+		public function ColorMaterial(color : uint = 0xcccccc, alpha : Number = 1)
 		{
 			super();
 			this.color = color;
